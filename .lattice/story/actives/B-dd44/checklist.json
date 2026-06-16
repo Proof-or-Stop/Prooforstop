@@ -4,41 +4,1048 @@
       "id": "CHK-001",
       "title": "Pure budget-policy resolution + over-budget predicate",
       "context": "In core/usage-ledger/dispatch-usage.ts add a pure resolveHardBudget(env) that reads LATTICE_HARD_BUDGET_TOKENS (fallback KOALA_HARD_BUDGET_TOKENS), parses a positive integer, returns { hardBudgetTokens: number, budgetPolicyId: string } | null (null when unset/invalid -> no enforcement). Add a pure isOverHardBudget(estimatedInputTokens, hardBudgetTokens) -> boolean. Unit-tested: unset -> null (no enforcement); valid -> policy; estimate over/under the ceiling.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T20:51:05.677Z",
+      "endTime": "2026-06-16T21:00:21.973Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"5000\"}) -> {hardBudgetTokens:5000, budgetPolicyId:\"hard-budget:5000\"}; WHY: canonical positive-integer parse + policy id shape",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(6000, 5000) -> true; WHY: estimate exceeds ceiling, must return true",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(4000, 5000) -> false; WHY: estimate within ceiling, must return false",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveHardBudget({}) (no LATTICE_ or KOALA_ env) -> null; WHY: unset means no enforcement, null disables budget gate",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({KOALA_HARD_BUDGET_TOKENS:\"3000\"}) with no LATTICE_ -> reads KOALA_ fallback -> {hardBudgetTokens:3000,...}; WHY: legacy compat migration path",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"7000\",KOALA_HARD_BUDGET_TOKENS:\"3000\"}) -> uses LATTICE_ (7000), ignores KOALA_; WHY: LATTICE_ takes precedence over legacy fallback",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"0\"}) -> null; WHY: zero is not a positive integer, means no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"-100\"}) -> null; WHY: negative is invalid, no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"abc\"}) -> null; WHY: non-numeric string is invalid, no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"3.14\"}) -> null; WHY: float is not a positive integer, no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(5000, 5000) -> false; WHY: exact boundary (estimate == budget) must NOT block, only strict exceed blocks",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"1\"}) -> {hardBudgetTokens:1,...}; WHY: minimum valid positive integer accepted",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"  5000  \"}) -> either null or {hardBudgetTokens:5000,...}; WHY: leading/trailing whitespace handling must be explicit and not crash",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"9007199254740992\"}) -> null or valid; WHY: Number.MAX_SAFE_INTEGER+1 would lose precision, must not silently accept unsafe integer",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"Infinity\"}) -> null; WHY: Infinity parses as number but is not a finite positive integer",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"NaN\"}) -> null; WHY: NaN parses but is not a valid integer",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"\"}) -> null; WHY: empty string is not a valid budget",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(0, 5000) -> false; WHY: zero estimate (empty prompt) is within any positive budget",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget never throws for any env shape; WHY: must be crash-proof to avoid blocking dispatch on a parse error",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:6",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:7",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:8",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:9",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant)",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "buildBlockedBudgetRecord (pure, validated)",
       "context": "Add buildBlockedBudgetRecord(model, estimateResult, correlation, attribution, budgetPolicyId, reasonCode) parallel to buildUnavailableFinalRecord: a record with decision.kind='blocked', budgetPolicyId, reasonCode (e.g. 'hard_budget_exceeded'), usage.source='prompt-size-estimate' (the estimate that triggered the block) or 'unavailable', supersedesRecordIds=[estimateRecordId]. It MUST pass validateUsageLedgerRecord. Never throws. Tested: produces a valid blocked record; decision.kind is blocked; supersedes the estimate.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T21:00:22.573Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildBlockedBudgetRecord(model, estimateResult, correlation, attribution, \"hard-budget:5000\", \"hard_budget_exceeded\") -> record with decision.kind==\"blocked\"; WHY: primary contract: a budget block must record kind=blocked",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.budgetPolicyId == passed budgetPolicyId; WHY: blocked record must carry the policy that triggered the block for audit trail",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.decision.reasonCode == \"hard_budget_exceeded\"; WHY: reason code must be preserved for diagnostics",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.supersedesRecordIds contains the estimateRecordId; WHY: the blocked record supersedes the estimate so summary never double-counts",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord output passes validateUsageLedgerRecord({expectIntegrity:false}) with ok:true; WHY: load-bearing invariant -- blocked records must be schema-valid",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildBlockedBudgetRecord never throws even with minimal/edge inputs; WHY: parallels buildUnavailableFinalRecord contract -- never propagate error to dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> usage.source is prompt-size-estimate or unavailable (NOT provider-reported); WHY: a blocked call never reached the provider, so it must not be counted as provider-reported in summary",
+            "type": "cli"
+          },
+          {
+            "desc": "blocked record in summarizeRecords -> NOT counted in providerReportedTotal/providerReportedCount; WHY: a blocked dispatch never called the provider, so it must not inflate provider totals",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.privacy.promptStored===false and transcriptStored===false; WHY: blocked records still obey the privacy contract",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.authority.mode===local, receiptId===null; WHY: local-only authority boundary applies to blocked records",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "buildBlockedBudgetRecord with a forged budgetPolicyId containing special chars (newlines, quotes, unicode) -> still passes validateUsageLedgerRecord; WHY: policy id from env could contain arbitrary strings, must not break validator",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord called with null estimateRecordId (preflight failed) -> still produces a valid record with supersedesRecordIds=[]; WHY: preflight returning null is a documented code path",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord output deep-scanned by scanForbiddenFields -> returns zero hits; WHY: blocked records must not accidentally include forbidden fields (totalTokens, secrets, etc.)",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); buildBlockedBudgetRecord -> decision.kind=bl",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Fail-closed pre-spawn guard in the Claude seam",
       "context": "In runClaudeCodeRealLeafDispatch (lattice-dispatch.ts), inside the existing isUsageLedgerEnabled() gate and AFTER the preflight estimate: resolveHardBudget; if a budget is set AND isOverHardBudget(preflight estimate): append buildBlockedBudgetRecord, SKIP the spawnSync, and return a blocked dispatch result (do not call the provider). If no budget is set (or estimate within budget), proceed exactly as today. All budget work in try/catch; a budget-check error must NOT wrongly block (on error, proceed as today). Budget UNSET or flag OFF => byte-identical to current dispatch.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T20:52:49.973Z",
+      "endTime": "2026-06-16T21:00:23.170Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Guard active + budget set + estimate OVER budget -> spawnSync is NOT called, blocked record appended to ledger, function returns a blocked dispatch result; WHY: core fail-closed behavior -- must skip provider call when over budget",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard active + budget set + estimate UNDER budget -> spawnSync IS called, no blocked record, proceeds as normal; WHY: within-budget dispatch must not be impeded",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard active + no budget env set -> proceeds to spawnSync exactly as today, no budget code side-effects; WHY: unset budget must be a no-op within the enabled ledger path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Ledger OFF (isUsageLedgerEnabled()===false) -> no resolveHardBudget call, no budget check, spawnSync called with original args, byte-identical to pre-budget code; WHY: OFF path must have zero budget side-effects",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard active + budget set + estimate EXACTLY equal to budget -> proceeds (not blocked); WHY: boundary condition -- block is strict-exceed only (estimate > budget, not >=)",
+            "type": "cli"
+          },
+          {
+            "desc": "Budget check error (resolveHardBudget or isOverHardBudget throws) -> proceeds to spawnSync as if no budget; WHY: fail-open on error -- a budget-check crash must not wrongly block dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Blocked dispatch result carries well-formed structure (exitCode, stdout indicators) that downstream handlers can distinguish from a normal dispatch; WHY: callers must know the dispatch was budget-blocked, not a provider error",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveHardBudget throws mid-check after preflight succeeded -> try/catch catches, proceeds to spawn, no blocked record; WHY: budget code is inside try/catch, error must not propagate to dispatch caller or wrongly block",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord throws (validator rejects assembled record) -> try/catch catches, proceeds to spawn rather than crashing; WHY: a broken blocked-record builder must fail open (proceed), never fail closed (block without record)",
+            "type": "cli"
+          },
+          {
+            "desc": "Budget env set to extreme value (LATTICE_HARD_BUDGET_TOKENS=\"1\") + non-empty prompt -> blocked; estimate of even a tiny prompt exceeds 1 token; WHY: minimum budget stress test",
+            "type": "cli"
+          },
+          {
+            "desc": "appendUsageRecord for blocked record throws (fs error) -> guard catches, still returns blocked result (does not proceed to spawn); WHY: once the block decision is made, a write failure must not revert the decision and call the provider",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); gated guard; OFF byte-identical; no forbidde",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Regression safety: unset/OFF byte-identical + block only when configured+exceeded",
       "context": "Tests/assertions: (a) ledger flag OFF => no budget code runs, dispatch byte-identical (spawn happens); (b) flag ON but no hard-budget env => decision proceeds, budgetPolicyId=null, spawn happens (byte-identical control flow); (c) flag ON + hard budget set + estimate over budget => a decision.kind=blocked record is written AND the provider spawn is SKIPPED AND a blocked result is returned; (d) flag ON + budget set + estimate under budget => proceeds + spawns. Prove the block only triggers in case (c).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T21:00:24.217Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "QUADRANT A: ledger flag OFF -> buildClaudeSpawnArgs returns [\"--print\", promptFile] (original literal args), no resolveHardBudget/isOverHardBudget called, spawnSync runs, dispatch byte-identical to pre-budget code; WHY: OFF path must produce zero observable difference from the pre-story baseline",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT B: ledger ON + no LATTICE_HARD_BUDGET_TOKENS env -> resolveHardBudget returns null, isOverHardBudget never called, dispatch proceeds, budgetPolicyId=null on any records, spawn happens; WHY: budget-unset + ledger-on is the common production path before budget adoption",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT C: ledger ON + LATTICE_HARD_BUDGET_TOKENS=1000 + estimate=2000 (over) -> blocked record with decision.kind=blocked written, spawn SKIPPED, returns blocked dispatch result; WHY: the ONLY quadrant where block fires -- proves positive case",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT D: ledger ON + LATTICE_HARD_BUDGET_TOKENS=5000 + estimate=2000 (under) -> no blocked record, spawn proceeds, normal dispatch result; WHY: within-budget must not be impeded",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "QUADRANT A vs B spawn-args comparison: OFF produces [\"--print\",promptFile], ON produces [\"--print\",promptFile,\"--output-format\",\"json\"]; WHY: the ONLY difference between A and B is the output-format flag -- control flow and side-effects are otherwise identical",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT C: blocked record supersedesRecordIds contains the preflight estimateRecordId; WHY: the blocked record must supersede the estimate so summary does not double-count",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT C: blocked dispatch result has sufficient structure for the caller to distinguish budget-block from provider-error or timeout; WHY: downstream error handling must not confuse a budget block with a crash",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT D boundary: estimate exactly equals budget (estimate==budget) -> proceeds (quadrant D not C); WHY: block is strict-exceed (>), not >=",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "QUADRANT C with preflight failure (ledgerHandle===null): budget still resolves and blocks, but blocked record has supersedesRecordIds=[]; WHY: preflight null is documented path; budget block must still fire even without an estimate record to supersede",
+            "type": "cli"
+          },
+          {
+            "desc": "Budget-check throws in any quadrant -> dispatch proceeds (fail-open); WHY: the try/catch around budget code must catch and proceed, never propagate to caller or block without a record",
+            "type": "cli"
+          },
+          {
+            "desc": "Rapid sequential dispatches with same budget env: each dispatch independently resolves budget from env, no stale state; WHY: resolveHardBudget must be stateless (reads env each time), no caching of previous result",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-budget smoke (35 checks: policy/predicate/blocked-record/4-quadrant); 4-quadrant: OFF/unset byte-identical, block",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Smoke/test suite wired + no regression",
       "context": "Add packages/main/src/tasks/usage-ledger-budget-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit; temp dir, no repo pollution), wired as npm test:usage-ledger-budget. Cover the policy resolution, the over-budget predicate, buildBlockedBudgetRecord validation, the blocked record appended + summary treatment (a blocked record is not provider-reported usage), and the fail-closed-only-when-configured behavior (simulated, since a live spawn can't run). Assert usage-ledger still imports ZERO other modules. Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch) no regression; node bin/lattice.js validate.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T20:55:18.775Z",
+      "endTime": "2026-06-16T21:00:25.015Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:usage-ledger-budget runs usage-ledger-budget-smoke.ts and exits 0 when all assertions pass; WHY: the smoke must be wired as a named npm script and produce a green exit",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-budget-smoke.ts follows existing *-smoke.ts pattern: uses temp dir, prints pass/fail with checkmark/cross, exits non-zero on first failure; WHY: pattern consistency for CI + operator readability",
+            "type": "cli"
+          },
+          {
+            "desc": "tsc --noEmit passes (build green) after all changes; WHY: new exports/imports must not break the TypeScript build",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js validate passes; WHY: Lattice self-validation must remain green after adding new code",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full existing ledger smoke suite (usage-ledger, usage-ledger-adapter, usage-ledger-estimate, usage-ledger-diagnostics, usage-ledger-dispatch) all still pass with zero regressions; WHY: new budget code must not break any existing ledger tests",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger module (core/usage-ledger/) static import analysis: imports ZERO modules outside core/usage-ledger/ and node builtins; WHY: zero-cross-module-import invariant is load-bearing for the one-way seam",
+            "type": "cli"
+          },
+          {
+            "desc": "budget-smoke covers: resolveHardBudget valid/invalid/unset, isOverHardBudget true/false/boundary, buildBlockedBudgetRecord validation, blocked-record-not-provider-reported in summary, fail-closed-only-when-configured behavior; WHY: the smoke must exercise all budget-related acceptance invariants",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test uses temp directory and cleans up after itself; no files left in repo working tree; WHY: test pollution prevention",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run budget smoke test with LATTICE_HARD_BUDGET_TOKENS already set in ambient env -> smoke overrides or isolates env within test, does not leak ambient budget state into assertions; WHY: CI environments may have budget env vars set; smoke must be hermetic",
+            "type": "cli"
+          },
+          {
+            "desc": "Run budget smoke test twice in rapid succession -> both runs pass, no temp-dir collision or stale state; WHY: idempotency -- smoke must not leave state that breaks the next run",
+            "type": "cli"
+          },
+          {
+            "desc": "Import graph audit: dispatch-usage.ts new exports (resolveHardBudget, isOverHardBudget, buildBlockedBudgetRecord) are imported ONLY by lattice-dispatch.ts and the smoke test, never by other modules; WHY: prevent uncontrolled coupling of budget internals",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-dd44/evidence/verify-b-dd44.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "a11eb477a3decce75499ac6c78dd338b8605e8cd",
+          "materialHash": "7ec27d61c75d1c47f7df220d259319a7386e534f4f27f5f9cbed33272bac0b26",
+          "timestamp": "2026-06-16T21:15:18.540Z"
+        }
+      ]
     }
   ]
 }

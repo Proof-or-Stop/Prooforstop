@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-cfdd",
+  "mode": "feature",
+  "allowed": [
+    "Append the advisory to the story_advance REVIEW output (transition-effects.ts) and add a smoke covering four cases, asserting the advisory never blocks REVIEW to TEST",
+    "Pure function core/review-convergence.ts with trend-based stall heuristic plus module-constant thresholds and an English advisory message builder",
+    "Read-only accessor returning REVIEW round count and per-round blocking-finding counts, reusing existing events-derived round count and review-escalation round grouping"
+  ],
+  "excluded": [
+    "Any hard cap or blocking gate on review rounds",
+    "Automatic dismissal of findings",
+    "Changing the existing per-round severity de-escalation rules",
+    "Per-session configurable thresholds or a CLI to set them",
+    "Targeted or partial re-review that reduces per-round reviewer cost (a separate larger story)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User reviewed a written execution plan, selected option C (soft advisory-only convergence-stall detector), and authorized starting now. Bounded to a non-blocking advisory; targeted re-review and any hard cap are out of scope.",
+  "createdAt": "2026-06-16T21:04:11.544Z",
+  "updatedAt": "2026-06-16T21:04:11.544Z",
+  "_hash": "5b0d71ca3d839b23ba7dda423ac8a2e931ad0e9038daaf26c042becccbca2750"
+}
