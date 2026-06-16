@@ -471,12 +471,12 @@
           "intentRef": "CHK-002:edge:2",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git grep -nE 'KOALA_[A-Z]' -- packages scripts bin .Codex .claude docs/guide-hooks.md | grep -vE 'LEGACY_KOALA_|.koala'",
+          "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
           "result": "pass",
-          "note": "Residual gate returns 0 in-scope KOALA_ env tokens (verified on committed tree HEAD).",
-          "headHash": "164e270e211a415c3bbf1293d5e095850678c9c0",
-          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
-          "timestamp": "2026-06-16T00:15:38.357Z"
+          "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
+          "headHash": "251c6a1bf51c36c0c7e8e1fe340621529fbfbee1",
+          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
+          "timestamp": "2026-06-16T00:59:54.562Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
