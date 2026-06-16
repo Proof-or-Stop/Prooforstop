@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-1637:F-001",
+      "desc": "quality-cleanup: doctor-gitroot-probe-smoke.ts:46-47 splits a single module into two consecutive import statements (import { createDoctorHandlers } from doctor.js + import { resolveDoctorGitCwd } from doctor.js); should be merged into one import statement for maintainability",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:11:04.038Z",
+      "reviewRound": "2026-06-16T00:09:43.214Z",
+      "reviewRunId": "B-1637:RR-001",
+      "_hash": "2be689022f5dc626a52da7a5399a25467fdb255cbd86f38daf5994bae5611b46",
+      "files": [
+        "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts"
+      ]
+    }
+  ]
+}

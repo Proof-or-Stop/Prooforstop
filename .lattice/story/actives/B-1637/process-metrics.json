@@ -1,13 +1,13 @@
 {
   "storyId": "B-1637",
-  "generatedAt": "2026-06-16T00:00:42.027Z",
+  "generatedAt": "2026-06-16T00:11:04.039Z",
   "sourceSnapshot": {
     "hasUnderstanding": false,
     "hasDecision": false,
     "hasPlan": false,
     "checklistItems": 2,
     "reviewRounds": 0,
-    "findings": 0,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -101,7 +101,7 @@
           "note": "no reviews yet"
         },
         "missingFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -261,7 +261,7 @@
           "note": "express channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
