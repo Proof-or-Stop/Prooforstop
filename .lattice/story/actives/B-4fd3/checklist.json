@@ -141,10 +141,10 @@
           "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
           "command": "npm run test:thin-init-assets-smoke",
           "result": "pass",
-          "note": "新增 assertGitignoreCoversRegistry 用 runtimeIgnoreMissing 对 init 产物校验全 25 条 registry pattern；smoke 通过即断言覆盖全集而非单条",
-          "headHash": "d73afeea5a8578bd208d915da3a2f74d63c29071",
-          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
-          "timestamp": "2026-06-16T21:11:42.623Z"
+          "note": "re-recorded post-fix: assertGitignoreCoversRegistry 用 runtimeIgnoreMissing 校验 init 产物覆盖全 25 条 registry pattern，smoke 通过即全集覆盖",
+          "headHash": "70975f76352435830e15fe30e5a35d3fa11962e5",
+          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
+          "timestamp": "2026-06-16T21:16:48.789Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
