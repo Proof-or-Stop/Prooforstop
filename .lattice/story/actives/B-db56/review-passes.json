@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T22:40:46.961Z",
       "reviewRunId": "B-db56:RR-003",
       "_hash": "b7e8ca79f0068482357e30caa4e35016234311899827d62704fc7e0063b63ae6"
+    },
+    {
+      "id": "B-db56:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion lane clean. Story rewired 28+ files from bare cwd: projectRoot/root/metadataRoot to cwd: gitCwd (alias for a resolved value). All concept words examined: (1) no new bare-cwd git calls introduced in changed files — the 2 hits in gitroot-cwd-contract-smoke.ts are intentional fixture strings (JSDoc comment + template literal), not real call sites; (2) 3 ad-hoc helpers (lab.ts runGit, cli-engine.ts runGitNoThrow, declared-artifact-commit-check.ts runGit) untouched, original signatures intact; (3) resolveGitCwd signature unchanged at story-signed-workspace-resolution.ts:195 — file not in diff; (4) no over-reach: no changes to resolveGitCwd body, no semantic changes to git args, only cwd parameter rewired; (5) all 3 mandated tests exit 0: test:gitroot-cwd-contract (494 files clean), test:gitroot-cwd-routing (byte-identical), test:bare-gate-gitroot-cwd (byte-identical); (6) remaining cwd: root/projectRoot hits in other files (non-changed) are either non-git spawns or pre-existing smoke-file fixtures correctly allowlisted. No blocker found.",
+      "createdAt": "2026-06-16T22:44:50.706Z",
+      "reviewRound": "2026-06-16T22:40:46.961Z",
+      "reviewRunId": "B-db56:RR-001",
+      "_hash": "66c220426188364302a8ab3a9751cf56e602859affe0205420635ea17bc1e224"
     }
   ]
 }
