@@ -262,7 +262,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:gitroot-cwd-contract",
+          "result": "pass",
+          "note": "Contract smoke exit 0 on HEAD — all sites are routed.",
+          "headHash": "8d8a76ca655d473acb8941df5c1bad183f62b4c8",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:06.190Z"
+        }
+      ]
     }
   ]
 }
