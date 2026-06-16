@@ -1,0 +1,26 @@
+{
+  "task": "On wrapper-root projects (metadataRoot not a git repo, configured gitRoot resolves), the session.ts git-readiness guidance and the worktree.ts dev_start nesting check mislead users: the guidance tells them to git init the metadata root, and the nesting check prints a spurious fatal: not a git repository, even though the INIT_CHECK bootstrap itself already works. gitReady is computed from the metadataRoot only.",
+  "outcome": "On a wrapper-root project, lattice session_brief / next no longer say the current project is not a git repository, run git init; they guide the user to INIT_CHECK. lattice story_advance INIT_CHECK prints no fatal: not a git repository line. Plain non-git projects with no configured gitRoot keep the existing git-init guidance unchanged.",
+  "facts": [
+    "session.ts computes gitReady = isGitRepository(ctx.root) at ~line 672 (metadataRoot only).",
+    "The INIT and INIT_CHECK next-step strings (~549, ~554) and the non-git advisories (~694, ~889, ~921) branch on gitReady and tell the user to git init the metadata root.",
+    "session.ts already has a configuredGitRootStatus branch (~918) that knows the resolved signed workspace, so the guidance can reuse it.",
+    "worktree.ts dev_start nesting check (~795) runs git rev-parse --abbrev-ref HEAD with no cwd, so it runs in process.cwd() (metadataRoot) and prints a fatal line that is caught and ignored.",
+    "The bootstrap itself already resolves the gitRoot correctly (B-4e06 / B-2856 / B-804c); this story is guidance + cwd only. B-1637 separately owns the lattice doctor probes."
+  ],
+  "constraints": [
+    "Reuse the existing configuredGitRootStatus / signed-workspace resolution; do not add a second resolver.",
+    "Do not touch lattice doctor (B-1637), bootstrap behavior, gate pass/fail semantics, or git command text.",
+    "Plain non-git projects with no configured gitRoot must keep the existing git-init guidance (byte-identical).",
+    "The nesting rejection behavior (reject when actually inside a worktree) must be unchanged; only the spurious wrapper-root stderr is removed."
+  ],
+  "unknowns": [
+    "The cleanest reuse point for making the guidance gitRoot-aware (thread configuredGitRootStatus into the next-step helper, or a small shared predicate) — the implementer picks the minimal one."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/"
+  ],
+  "timestamp": "2026-06-16T00:27:20.789Z"
+}

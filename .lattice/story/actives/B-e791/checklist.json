@@ -7,7 +7,30 @@
       "userSees": "On a wrapper-root project (configured gitRoot resolves), lattice session_brief / next no longer say the current project is not a git repository, run git init; instead they say the story is ready for INIT_CHECK.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root with a configured+resolvable gitRoot: guidance says ready for INIT_CHECK, not git init the metadata root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plain non-git project with no configured gitRoot: keeps the existing git-init guidance (byte-identical)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "configured gitRoot present but unresolvable: safe fallback, no crash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
