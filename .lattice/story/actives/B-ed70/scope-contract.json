@@ -86,7 +86,44 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "In-scope-by-consequence of the 3 checklist items. .lattice-codex/* are the 18 files git mv'd from .Codex/ per CHK-002 (renamed targets of the predeclared sources). package.json was edited per CHK-003 to remove the test:omx-disabled script entry. The 9 source/fixture files received CHK-003 OMX-attribution comment cleanup (residual ~25 comments my initial regex missed; second implementer pass cleaned them after independent main-agent verification flagged the gap). All are part of the declared scope of the 3 items; the files.modify lists pre-declared sources rather than rename destinations and didn't enumerate the comment-cleanup follow-up.",
+      "timestamp": "2026-06-16T21:09:02.293Z",
+      "paths": [
+        ".lattice-codex/README.md",
+        ".lattice-codex/agents/implementation-reviewer.md",
+        ".lattice-codex/agents/lattice-evaluator-cli.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-behavior.md",
+        ".lattice-codex/agents/lattice-review-channel.md",
+        ".lattice-codex/agents/lattice-review-concept.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-docs.md",
+        ".lattice-codex/agents/lattice-review-quality.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-review-test-coverage.md",
+        ".lattice-codex/agents/product-reviewer.md",
+        ".lattice-codex/agents/test-case-reviewer.md",
+        ".lattice-codex/agents/test-intent.md",
+        ".lattice-codex/lattice.json",
+        "package.json",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/handlers/decision.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/handlers/understanding.ts",
+        "packages/main/src/tasks/scope-anti-expansion-smoke.ts",
+        "packages/main/tests/fixtures/project-state-runtime-status-next.json"
+      ]
+    }
+  ],
   "createdAt": "2026-06-16T21:07:00.858Z",
-  "updatedAt": "2026-06-16T21:07:00.858Z"
+  "updatedAt": "2026-06-16T21:09:02.293Z"
 }
