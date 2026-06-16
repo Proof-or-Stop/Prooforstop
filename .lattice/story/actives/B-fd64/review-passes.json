@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-fd64:RP-001",
+      "agent": "lattice-review-behavior",
+      "note": "Full trace of verifyUsageReceipt and validateUsageLedgerRecord confirms the anti-overclaim gate holds on every path. (1) No verifier/null/undefined: typeof verify !== function -> unverifiedBlock immediately, receiptVerified=false. (2) Verifier throws: try/catch -> unverifiedBlock, receiptVerified=false. (3) Verifier returns non-object/null: object-check guard -> unverifiedBlock. (4) verified !== true (e.g. 1, false, \"true\"): strict === true check in `passes` -> unverifiedBlock. (5) Subject missing (subjectKind or subjectId undefined): `subjectKind === EXPECTED_SUBJECT_KIND` (the string \"story\") and `subjectId !== undefined && subjectId === envelope.storyId` must ALL hold -> any undefined fails -> unverifiedBlock. (6) Subject mismatch (subjectId != envelope.storyId): passes=false -> unverifiedBlock. (7) signedReceipt has no .id string: extractReceiptId returns null -> unverifiedBlock even after passes=true. (8) Only the golden path (verify returns verified===true + subjectKind=story + subjectId matching envelope.storyId + signedReceipt.id present) returns receiptVerified=true. Validator side: authority.receiptVerified !== false (strict) rejects true, \"true\", 1, undefined for local records. Receipt-ref all-or-nothing enforcement: presentCount not in {0,3} -> error. All four negative controls (transport ack, real token counts, local hash chain, copied receiptId without verifier) traceable to no-function guard -> unverifiedBlock. No local record building path produces receiptVerified=true. The code matches the documented security invariants without exception. 0 findings.",
+      "createdAt": "2026-06-16T21:44:56.460Z",
+      "reviewRound": "2026-06-16T21:43:24.705Z",
+      "reviewRunId": "B-fd64:RR-002",
+      "_hash": "d92af9f8186781d23b70548255f97a192350d0d9e60114a291f4cf4b2ee238c6"
+    }
+  ]
+}
