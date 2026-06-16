@@ -57,7 +57,18 @@
       "context": "Add packages/main/src/tasks/usage-ledger-report.ts that reads a ledger JSONL path (arg/env) and an optional price-table path, builds the report, and prints it (human-readable + a JSON mode). Wire it as an npm script (e.g. usage-ledger-report). Do NOT register a lattice CLI command and do NOT touch the command registry / cli-engine / handlers — the entry point stays a task to honor the no-other-logic constraint. Tested: running it over a sample ledger prints a correct report and exits 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-report.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
