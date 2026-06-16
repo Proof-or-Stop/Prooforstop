@@ -57,7 +57,16 @@
       "context": "Add a buildProviderRecord(provider, providerResponse, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds}, attribution{storyId|null,phase,agentType,subagentId?,threadId?}) that selects the right adapter, assembles a full ledger record (schemaVersion, recordId via ids.ts, recordedAt, projectRootHash, privacy flags, authority{mode:'local',receiptVerified:false}, integrity computed by the writer), and returns a record that PASSES the B-253e validator. correlation ids come from ids.ts (never provider request id). Tested: assembled records for all three providers validate clean.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/assemble.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
