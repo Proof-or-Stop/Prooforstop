@@ -199,7 +199,29 @@
       "context": "CLAUDE.md:924 的 docs/koala/reviewer-redesign.md 路径引用、docs/guide.md:60 的 Koala/Lattice prose。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -i koala CLAUDE.md | grep -v documented-exception shows zero brand prose hits at line 924 area -> docs/koala/reviewer-redesign.md path reference cleaned or updated; WHY: confirms root doc prose cleaned",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -i koala docs/guide.md | grep -v documented-exception shows zero brand prose hits at line 60 area -> Koala/Lattice prose updated to Lattice-only; WHY: confirms guide doc prose cleaned",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The cleaned CLAUDE.md path reference still points to a valid file or is updated to the correct new path -> no broken documentation cross-references; WHY: ensures path rename does not create dangling reference",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-007",
