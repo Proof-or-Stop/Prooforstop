@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-16T00:47:50.642Z",
       "reviewRunId": "B-08f2:RR-015",
       "_hash": "3afddd800b510024427bc9a8cec1037b1d4deb6e65015207c98224b3517e9547"
+    },
+    {
+      "id": "B-08f2:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check complete. (1) git grep -nE KOALA_[A-Z] -- packages scripts bin .Codex .claude docs/guide-hooks.md CLAUDE.md README.md docs/guide.md docs/audits | grep -vE LEGACY_KOALA_|.koala|activity.legacy-koala → EMPTY. No active KOALA_ env tokens in any doc or source scope. (2) git grep -nE (||??)\\ process.env.KOALA_ → single match only inside .lattice/story/actives/B-4a53/evidence/transcript-diff.md (frozen evidence artifact, outside source scope); zero matches in packages/scripts/bin/.Codex/.claude. (3) LEGACY_KOALA_* constants (LEGACY_KOALA_DIR, LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, LEGACY_KOALA_REPAIR_IGNORE, LATTICE_LEGACY_KOALA_ACTIVITY_LOG) confirmed present in packages/main/src/core/lattice-paths.ts — 7+ refs, over-reach guard intact. (4) docs/koala/framework-audit kept; docs/koala/legacy absent. No concept residue blocker found.",
+      "createdAt": "2026-06-16T00:49:06.837Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-016",
+      "_hash": "585fe6aea68c86635f559e6719cfec94ccc231027b29dab02cde22fcc0b6b859"
     }
   ]
 }
