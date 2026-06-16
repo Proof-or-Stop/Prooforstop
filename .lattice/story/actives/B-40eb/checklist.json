@@ -15,8 +15,30 @@
             "priority": "should"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "Classification whitelist correctly handles a boundary line containing BOTH a neutral process-lane token (e.g. koala-codex) AND real koala brand prose on the same line -> the line is still classified as in-scope (should-change) because the brand word remains after neutral-token stripping; WHY: prevents the classifier from under-counting lines that mix legitimate exceptions with actual brand text",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A line containing only .koala runtime path (e.g. ~/.koala/activity.json) is classified as documented-exception (should-keep) -> not included in the 255 true-brand count; WHY: ensures runtime path boundary is correctly drawn at classification time",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Feed the classifier a line with bare koala brand prose and no neutral token pattern (e.g. a comment saying koala workflow engine) -> line is NOT silently whitelisted, appears in the in-scope should-change set; WHY: catches under-counting bugs where the whitelist is too broad and swallows actual brand text that should be cleaned",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Feed the classifier a line that contains koala inside a longer unrelated word (e.g. KoalaFoo) that does not match any neutral pattern -> line is classified as in-scope; WHY: ensures substring/regex patterns do not accidentally exempt novel koala-containing identifiers",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
