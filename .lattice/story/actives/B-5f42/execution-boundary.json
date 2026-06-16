@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5f42",
+  "allowedCommands": [
+    "git diff/status/add/commit",
+    "lattice validate",
+    "node packages/main/dist/cli.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".claude/hooks",
+    ".claude/settings.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Layer 1 hook lives under .claude/ (self-contained, no dist dependency). Layer 2 CJK detector + gate live under packages/main/src; tests under packages/main/src/tasks or tests. Exact filenames finalized in plan.md.",
+  "createdAt": "2026-06-16T22:33:03.689Z",
+  "updatedAt": "2026-06-16T22:33:03.689Z",
+  "_hash": "fe3164d931c0d09759e910d08fb12f431789483899a5330e14b0031272fad1b7"
+}

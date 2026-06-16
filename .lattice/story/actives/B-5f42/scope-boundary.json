@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5f42",
+  "mode": "feature",
+  "allowed": [
+    "Add a diff/story-scoped CJK gate to lattice validate that hard-blocks REVIEW to TEST on non-English commits or current-story metadata",
+    "Add a shared/self-contained CJK detector and tests for the detector and the validate gate",
+    "Add a warn-only PreToolUse hook that detects CJK in git commit and lattice story-metadata commands, registered in .claude/settings.json"
+  ],
+  "excluded": [
+    "Making the hook blocking (warn-only is the chosen behavior for layer 1)",
+    "Retroactively translating or flagging existing legacy Chinese files outside the current story",
+    "Scanning arbitrary code or doc files beyond commits plus lattice story metadata"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to build layer 1 (warn-only hook) then layer 2 (validate gate) via the Lattice flow, scoped narrowly to new artifacts, after the memory-only approach failed in B-4fd3",
+  "createdAt": "2026-06-16T22:32:53.637Z",
+  "updatedAt": "2026-06-16T22:32:53.637Z",
+  "_hash": "0a116e65129afe6f0d46f9ecaa2dcbc6f0756cfadb4ec47c9b8ae827d9184bcb"
+}
