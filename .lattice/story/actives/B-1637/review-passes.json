@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T00:09:43.214Z",
       "reviewRunId": "B-1637:RR-003",
       "_hash": "55d7262fb7102a75dfa85312691559d5da54988a47c71697611a1c6a6653aecb"
+    },
+    {
+      "id": "B-1637:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, no unsafe type usage, no I/O shell isolation violations found. The resolveDoctorGitCwd helper is clean: total, non-throwing, correct fallback semantics. The gitCwd default-parameter threading into scanTrackedRuntimeArtifacts / scanOrphanWorktrees / scanStoryMetadataProtection is correct. The stdio pipe additions on the two execSync discovery calls correctly suppress leaked fatal lines. Smoke test covers resolver unit (wrapper-root / plain-repo / no-git) and e2e (wrapper-root + plain-repo doctor() output). One low finding registered (split import from same module, lines 46-47 of smoke file); no blockers.",
+      "createdAt": "2026-06-16T00:11:16.590Z",
+      "reviewRound": "2026-06-16T00:09:43.214Z",
+      "reviewRunId": "B-1637:RR-001",
+      "_hash": "be270f6fd85b214843ffea1df5b92d451a3f1cd7df897936b18743ee8dfbf3e0"
     }
   ]
 }
