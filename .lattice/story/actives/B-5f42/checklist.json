@@ -230,6 +230,17 @@
           "headHash": "7b5259ffcc32269eb005ca9c65000750e4b64cb5",
           "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
           "timestamp": "2026-06-16T23:08:49.291Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 2: keep-in-sync — the self-contained hook CJK range is byte-for-byte equal to core/cjk-detect.ts ranges",
+          "headHash": "c1e8e035af69a6aac7b8265d8a128cfcfa76b9a1",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:49.765Z"
         }
       ]
     }
