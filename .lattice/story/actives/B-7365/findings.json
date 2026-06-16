@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/cli-engine.ts"
       ]
+    },
+    {
+      "id": "B-7365:F-002",
+      "desc": "edge: init-check-reconcile-conflict-smoke.ts:169-171 the worktree-dir sanity assert is a dead no-op: 'existsSync(...) || true' always evaluates to true regardless of whether the .git file exists, so this defensive check never fires. The intended property (worktree directory was created with a .git file) is never actually asserted.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T02:27:18.257Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-003",
+      "_hash": "8f55cc546c855e943f83f116f8929c8fc58097a24e35fd76b3acdcb88a22ec72",
+      "files": [
+        "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts"
+      ]
     }
   ]
 }
