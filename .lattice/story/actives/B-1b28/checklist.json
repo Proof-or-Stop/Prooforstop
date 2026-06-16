@@ -193,6 +193,82 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Env UNSET => isUsageLedgerEnabled({}) === true => appendUsageRecord writes a valid JSONL line to .lattice/usage/llm-usage.jsonl; WHY: default-on means unset env triggers actual writes",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => recordDispatchPreflight returns a DispatchPreflightHandle with correlation+estimateRecordId+estimatedInputTokens, appends 1 estimate record; WHY: preflight is active on default-on path",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => recordDispatchFinal with valid anthropicUsage appends a provider-reported record (sequence 2, supersedes estimate); WHY: final records usage on the enabled path",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => buildClaudeSpawnArgs(file,true) === [\"--print\",file,\"--output-format\",\"json\"]; WHY: enabled path adds --output-format json for the JSON envelope",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on valid JSON envelope => extracts resultText + anthropicUsage + model; WHY: the enabled seam path parses the JSON envelope correctly",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on non-JSON raw text => returns {resultText: rawText, anthropicUsage: null, model: null} (B-0f7c fallback); WHY: parse failure degrades gracefully to raw text",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET + NO LATTICE_HARD_BUDGET_TOKENS => resolveHardBudget returns null, shouldBlockDispatch(true,env,anyEstimate) => {block:false}; WHY: default-on does NOT auto-enable budget blocking",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parseClaudeCliOutput on JSON object missing .result => resultText is raw JSON string, anthropicUsage extracted if present; WHY: partial envelope still extracts usage even without result field",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on JSON array => raw fallback (array is not a valid envelope); WHY: edge case for JSON that parses but is wrong shape",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on empty string => {resultText:\"\", anthropicUsage:null, model:null}; WHY: empty stdout edge case degrades gracefully",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => appendUsageRecord with a record that causes writer to throw (corrupt last line) does NOT propagate through recordDispatchPreflight (returns null); WHY: ledger error never breaks dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => recordDispatchFinal swallows any appendUsageRecord error and returns void (no throw); WHY: ledger error in final never propagates to caller",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Env UNSET => simulate ledger write failure (e.g. corrupt last line in existing ledger) then call recordDispatchPreflight: returns null (no throw) and dispatch can proceed; WHY: a ledger corruption must never block or crash dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => simulate recordDispatchFinal throwing internally (corrupt chain): the try/catch swallows it, caller sees void return; WHY: post-dispatch ledger error must not crash the process",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET + LATTICE_HARD_BUDGET_TOKENS=500 => shouldBlockDispatch(true,env,501) blocks, but shouldBlockDispatch(true,env,500) does NOT block (strict exceed, not >=); WHY: boundary condition — budget block is strictly greater-than, not greater-or-equal",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on deeply nested malicious JSON (1000-level nesting) => does not throw, returns raw fallback; WHY: adversarial input must not crash the parser",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput with usage.input_tokens as string \"100\" => anthropicUsage is null (type coercion attack rejected); WHY: type-confused usage must not produce a bad record",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
