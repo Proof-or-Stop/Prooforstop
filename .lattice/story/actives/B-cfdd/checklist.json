@@ -71,7 +71,30 @@
       "userSees": "Re-entering REVIEW on a stalled story prints the English convergence-stall advisory; lattice validate stays green with the smoke; a story showing the advisory can still advance REVIEW->TEST (proving it does not block).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Re-entering REVIEW on a stalled story prints the English convergence-stall advisory in the story_advance output",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No advisory is printed for a healthy/below-threshold story (no noise)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With the advisory present, REVIEW->TEST still succeeds — the advisory never blocks a transition",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
