@@ -15,6 +15,66 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Construct a valid record with all required fields (schemaVersion=1, recordId, ledgerCallId, attemptId, sequence=1, supersedesRecordIds=[], recordedAt ISO, projectRootHash, storyId, phase, agentType, usage.source=provider-reported, four token fields as integers, usage.canonical, usage.raw, privacy flags, authority{mode:local,receiptId:null,receiptVerified:false}, integrity{previousRecordHash,recordHash}) -> validator returns success with no errors; WHY: proves the golden-path record shape is accepted",
+            "type": "cli"
+          },
+          {
+            "desc": "Construct a valid record with usage.source=unavailable, unavailableReason set, all four token fields null -> validator accepts; WHY: covers the unavailable source variant",
+            "type": "cli"
+          },
+          {
+            "desc": "Construct a valid record with usage.source=prompt-size-estimate, estimator{name,version,unit,confidence} set -> validator accepts; WHY: covers estimate source variant",
+            "type": "cli"
+          },
+          {
+            "desc": "Construct valid provider-reported record where provider does not report cache dims -> cacheCreationInputTokens=null, cacheReadInputTokens=null, validator accepts; WHY: per-dimension absence encoded as null not 0",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Record with totalTokens field present -> validator rejects with error mentioning totalTokens; WHY: spec forbids stored totalTokens",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with cacheCreationInputTokens=0 when provider genuinely reports 0 -> validator accepts; WHY: 0 is valid when provider reports it, not when masking absence",
+            "type": "cli"
+          },
+          {
+            "desc": "Record missing required field recordId -> validator rejects; WHY: all required fields must be present",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with usage.source not in enum (e.g. guessed) -> validator rejects; WHY: source enum is closed",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with sequence=0 or negative -> validator rejects; WHY: sequence must be positive integer",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with supersedesRecordIds omitted entirely -> validator rejects; WHY: field required even when empty array",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Record with totalTokens nested inside usage AND at top level simultaneously -> validator rejects both locations; WHY: attacker sneaks totalTokens at multiple nesting levels",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with inputTokens as string 100 instead of number -> validator rejects; WHY: type coercion attack on numeric fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with cacheReadInputTokens=undefined (JS undefined not JSON null) -> validator rejects or treats as missing not silently 0; WHY: undefined-vs-null confusion attack",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
