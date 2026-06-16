@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T22:36:19.529Z",
       "reviewRunId": "B-1b28:RR-005",
       "_hash": "3a2af268676094fc9b15519cde55542ffed2156cad68db667ccc4db8584b5a59"
+    },
+    {
+      "id": "B-1b28:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Verified writer.ts default flip (undefined->true), complete truth table (unset/1/true/on/yes=ON; 0/false/off/no/empty/unrecognized=OFF), =0 escape hatch is byte-identical no-op (no write, no .lattice dir, no spawn --output-format json, budget guard inert), default-ON safety (ledger errors swallowed by preflight/final, parse failures fall back to raw text, no block without LATTICE_HARD_BUDGET_TOKENS). All existing OFF-path tests updated from empty-env to explicit =0. Smoke: 30/30 checks pass; full suite: 63/63 pass. Spec-boundary coverage verified against lattice-llm-usage-ledger-execution-plan.md rollout phase 6. No findings.",
+      "createdAt": "2026-06-16T22:39:20.919Z",
+      "reviewRound": "2026-06-16T22:36:19.529Z",
+      "reviewRunId": "B-1b28:RR-006",
+      "_hash": "50b2474d51bb783945ecebb3e8b365c5cddebc77f9109be3e5e99501aa2b4fc9"
     }
   ]
 }
