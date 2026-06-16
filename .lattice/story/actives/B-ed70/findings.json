@@ -75,7 +75,7 @@
       "desc": "CHK-002:adversarial:1 and CHK-002:adversarial:2 wrong commands: adversarial:1 intent requires test -d .lattice && ls .lattice/story/actives/B-ed70/checklist.json; evidence ran git diff --name-only HEAD~5 HEAD | grep -c .lattice/ (a delta check, not an existence check). adversarial:2 intent requires test -f packages/main/src/dev-cli.ts; evidence ran test -f packages/main/src/verifier/dev-cli.ts — different path (verifier/ subdirectory), though the file is present at that path. Both underlying facts are confirmed live. Additionally CHK-003:adversarial:0 specifies packages/lab/src/core/intent-coverage.ts (non-existent path) while evidence correctly checked packages/main/src/core/intent-coverage.ts — intent contains wrong path, evidence silently corrected it without recording the discrepancy.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-16T21:14:26.321Z",
@@ -85,7 +85,8 @@
       "files": [
         "packages/main/src/verifier/dev-cli.ts",
         "packages/main/src/core/intent-coverage.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T21:20:24.204Z"
     }
   ]
 }
