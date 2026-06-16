@@ -5,9 +5,9 @@
       "title": "Audit: enumerate CLI paths that commit to / mutate the main branch or worktree and flag any not under the main-write-lock",
       "context": "Grep for git commit / merge / update-ref / branch ops and metadata-on-main writes across packages/main/src (handlers + cli-engine + core); cross-reference against withMainWriteLock/withReentrantMainWriteLock usage. Produce the list of main-mutating paths and which are NOT locked (B-7365's reconcile is now locked; find any others).",
       "userSees": "The audit output lists every main-mutating CLI path and marks which hold the main-write-lock and which (if any) still do not.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T04:01:41.243Z",
       "verificationIntent": {
         "happy": [
           {
