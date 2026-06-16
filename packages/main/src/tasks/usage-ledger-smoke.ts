@@ -385,18 +385,18 @@ try {
   // ----------------------------------------------------------------------
   // CHK-006: opt-in flag gating
   // ----------------------------------------------------------------------
-  check('CHK-006 flag default OFF (no env) and parsing of truthy values', () => {
-    assert.equal(isUsageLedgerEnabled({}), false);
+  check('CHK-006 flag default ON (no env) and parsing of truthy/falsy values', () => {
+    assert.equal(isUsageLedgerEnabled({}), true);
     assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0' }), false);
     assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1' }), true);
     assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'true' }), true);
     assert.equal(isUsageLedgerEnabled({ KOALA_USAGE_LEDGER: 'on' }), true);
   });
 
-  check('CHK-006 flag OFF => strict no-op (no file, no dir) even after 10 calls', () => {
+  check('CHK-006 flag OFF (explicit =0) => strict no-op (no file, no dir) even after 10 calls', () => {
     const dir = mkdtempSync(join(root, 'flagoff-'));
     for (let i = 0; i < 10; i += 1) {
-      const res = appendUsageRecord(dir, validRecord(), { env: {} });
+      const res = appendUsageRecord(dir, validRecord(), { env: { LATTICE_USAGE_LEDGER: '0' } });
       assert.equal(res.written, false);
     }
     assert.equal(existsSync(resolveLedgerPath(dir)), false);

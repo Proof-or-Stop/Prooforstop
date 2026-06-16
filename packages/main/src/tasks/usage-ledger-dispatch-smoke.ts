@@ -63,7 +63,9 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
 }
 
 const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
-const OFF = {} as NodeJS.ProcessEnv;
+// Ledger is default-ON, so OFF must be the EXPLICIT escape hatch, not an empty
+// env (an empty/unset env now reads as ON).
+const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
 const root = mkdtempSync(join(tmpdir(), 'usage-ledger-dispatch-'));
 
