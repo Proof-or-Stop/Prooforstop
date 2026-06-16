@@ -150,9 +150,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "build exited 0 on current HEAD.",
-          "headHash": "e33b85c9730e458068987a25c1e7eeb79f7fe72e",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:37.808Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -161,9 +161,9 @@
           "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
           "result": "pass",
           "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
-          "headHash": "9098ebb7c6aefb4de50e702c0543f888eafc1952",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:38.436Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -172,9 +172,9 @@
           "command": "git grep -nE '(\\|\\||\\?\\?)\\s*process.env.KOALA_'",
           "result": "pass",
           "note": "No leftover KOALA_ fallback shim (0).",
-          "headHash": "d41552347e22b26476ec6ca88780f82e11629412",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:39.671Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -183,9 +183,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "f8d9bc32f5e09d024f53ea891239b4450783f3b2",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:40.752Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -194,9 +194,9 @@
           "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
           "result": "pass",
           "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
-          "headHash": "2c1cf245640584e26db5fe4c13fe57c4b01d9808",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:42.266Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -205,9 +205,9 @@
           "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
           "result": "pass",
           "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
-          "headHash": "945236c52945f983813b806120aab6bb7f67e852",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:43.794Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -216,9 +216,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "112b2f8ad5635e0d4adc383c017a5b613df9821d",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:45.014Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -227,9 +227,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "a6c35bea02d0b6ded1871f6bf4b5683fc0ab33a8",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:45.836Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -238,9 +238,9 @@
           "command": "git grep -nE 'process.env.KOALA_[A-Z]' -- bin .Codex .claude",
           "result": "pass",
           "note": "No KOALA_ setter/reader in wrapper assets.",
-          "headHash": "2eb1012733644506a3095d56313e86697f90d9c2",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:46.437Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -249,9 +249,9 @@
           "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
           "result": "pass",
           "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
-          "headHash": "a72863c51f6bb7567c3152b89a09e9e3644598e7",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:47.338Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -260,9 +260,9 @@
           "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
           "result": "pass",
           "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
-          "headHash": "e2aa02acd161a56951d899380112c98e5a0cc902",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:48.217Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -271,9 +271,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "31a125c89e80a36d3937c42dbb62b528e9f5c111",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:48.779Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -282,9 +282,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "07563e8add29b34b6f0e20b2b072f2210a05285c",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:50.045Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         }
       ]
     },
@@ -419,9 +419,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "npm run test:e2e exited 0 (ALL PASS) on current HEAD.",
-          "headHash": "953bc6dc62fd68fe58e6ba18622962a1e1e6b492",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:50.796Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -430,9 +430,9 @@
           "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
           "result": "pass",
           "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
-          "headHash": "dd9dbd9893456fbfda355c755339a4fff783e650",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:51.529Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -441,9 +441,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "a43ab6b3bcdf0b30d433973392b9dd005ca55c57",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:52.422Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -452,9 +452,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "4209856bab8e27b800e5e03a8f612d33e06ab2c4",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:53.053Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -463,9 +463,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "npm run test:e2e exited 0 (ALL PASS) on current HEAD.",
-          "headHash": "133a5d1c8f424a5fcf56979643a89d77ee8907fd",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:53.783Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -474,9 +474,9 @@
           "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
           "result": "pass",
           "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
-          "headHash": "251c6a1bf51c36c0c7e8e1fe340621529fbfbee1",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:54.562Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -485,9 +485,9 @@
           "command": "git grep -nE '(\\|\\||\\?\\?)\\s*process.env.KOALA_'",
           "result": "pass",
           "note": "No leftover KOALA_ fallback shim (0).",
-          "headHash": "e1c3ae79f1f417a67409eb9fdb9feb1a02827390",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:55.497Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -496,9 +496,9 @@
           "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
           "result": "pass",
           "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
-          "headHash": "66182ba2ff096db93fd2767b8a1113dd4e74eb7c",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:56.309Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -507,9 +507,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "1187b8137e1eb1f200afc6af3e2e6063b23cc526",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:57.004Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -518,9 +518,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "fd28e7a495057e3b0769bcf711aba6b9807b0c84",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:57.666Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         }
       ]
     },
@@ -618,9 +618,9 @@
           "command": "git ls-files docs/koala/legacy",
           "result": "pass",
           "note": "docs/koala/legacy removed (0 files).",
-          "headHash": "6f057243f71ea8f790a2c308cf37d1637b6a6fb9",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:58.293Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -629,9 +629,9 @@
           "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
           "result": "pass",
           "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
-          "headHash": "bedd6a4fd72873698d8e41d6e8c2f1c45bddf79e",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T00:59:59.477Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -640,9 +640,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "build exited 0 on current HEAD.",
-          "headHash": "fbc51dcb4d4e5f5db67e41e56d993c40384ddd99",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:00.188Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -651,9 +651,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "npm run test:e2e exited 0 (ALL PASS) on current HEAD.",
-          "headHash": "3f7415624ef8ea06d33983d286cea0fc410dc279",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:01.346Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -662,9 +662,9 @@
           "command": "git ls-files docs/koala/framework-audit",
           "result": "pass",
           "note": "framework-audit kept; only docs/koala/legacy removed.",
-          "headHash": "aa67fa29b32282aa97c858d714bf84d6a7813794",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:01.960Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -673,9 +673,9 @@
           "command": "git ls-files docs/koala/framework-audit",
           "result": "pass",
           "note": "framework-audit kept; only docs/koala/legacy removed.",
-          "headHash": "97d20153cb24fc5770ebe2bebecbc2b25cc76ec8",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:02.663Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -684,9 +684,9 @@
           "command": "git ls-files docs/koala/legacy",
           "result": "pass",
           "note": "docs/koala/legacy removed (0 files).",
-          "headHash": "570804b8159b165df155d98991119662c725ddfc",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:03.737Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -695,9 +695,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "d4c87973960cb200994205de137bb5979e2b2257",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:04.272Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -706,9 +706,9 @@
           "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
           "result": "pass",
           "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
-          "headHash": "5ce1482e72d033d4929bb1f396986e0021f2e9c4",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:04.797Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -717,9 +717,9 @@
           "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
           "result": "pass",
           "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
-          "headHash": "8e287c415152ada01172d96ebb9b12030c1c91ce",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:06.308Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -728,9 +728,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "aab6358df101954f85fcec32ddca6459d5bd156b",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:07.065Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -739,9 +739,9 @@
           "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
           "result": "pass",
           "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
-          "headHash": "238dc4af293374cf083e4fef8e7b1af4faba90cc",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:08.093Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
@@ -750,9 +750,9 @@
           "command": "npm run build && residual scan",
           "result": "pass",
           "note": "Covered by green build + zero-residual scan on current HEAD.",
-          "headHash": "6da7190f0019b2fd6a123346a5a8f31ed3826fae",
-          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
-          "timestamp": "2026-06-16T01:00:08.778Z"
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
         }
       ]
     }
