@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-40eb",
+  "allowedCommands": [
+    "git grep",
+    "git mv",
+    "git rm",
+    "lattice validate",
+    "node bin/lattice.js",
+    "npm --prefix packages/lab run build",
+    "npm run build",
+    "npm run test:e2e"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/guide.md",
+    "packages/lab",
+    "packages/main/src",
+    "packages/main/tests",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".koala",
+    "CHANGELOG.md",
+    "docs/koala",
+    "docs/requirements/decisions",
+    "docs/story",
+    "jek.md",
+    "packages/main/docs/story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "in-scope：packages/lab、packages/main/src、scripts、根文档 prose；out-of-scope（block）：decisions 历史、CHANGELOG、docs/story 历史、.koala 运行时路径、jek.md、docs/koala framework-audit",
+  "createdAt": "2026-06-16T21:37:15.928Z",
+  "updatedAt": "2026-06-16T21:37:15.928Z",
+  "_hash": "9e951be8635168109e230b93a3d0139813bee3260371ac9116f1195752734e63"
+}
