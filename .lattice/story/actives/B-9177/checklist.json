@@ -120,6 +120,17 @@
           "headHash": "e6cf4dc6896639927f03c386742f50e9a417bfae",
           "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
           "timestamp": "2026-06-16T04:24:54.863Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "npm --prefix packages/main run test:main-write-lock-smoke",
+          "result": "pass",
+          "note": "Lock-only: git diff is lock-wrapping + one dormant-note comment, no semantic change; main-write-lock-smoke + e2e (story-lifecycle + gap-convergence) ALL PASS",
+          "headHash": "cd8ed314c17e439880ff6f0902edf0fc5b5825e6",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:55.231Z"
         }
       ]
     },
