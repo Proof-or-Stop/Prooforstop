@@ -301,9 +301,9 @@
       "id": "CHK-006",
       "title": "补 smoke/contract 验证并重新 build",
       "context": "覆盖:干净项目 init 后项目内 0 个 agent .md;全局源存在且 symlink 有效;已有 project-local 被迁移清理;subagent_type 仍能解析。thin-init-assets-smoke 同类扩展 + npm run build",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T18:49:07.309Z",
       "userSees": "npm --prefix packages/main run <smoke> 全绿:断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt 输出 byte-equal registry body + --upgrade 迁移;prompt-token-cost-smoke 与 prompt-registry-smoke 仍全绿;npm run build 绿;lattice validate 全绿",
       "verificationIntent": {
         "happy": [
