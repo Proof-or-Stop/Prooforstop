@@ -698,7 +698,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
 
-  // Understanding (pre-context intake snapshot, OMX-style legacy reference).
+  // Understanding (pre-context intake snapshot).
   { name: 'understanding_set', description: 'Record the PLAN task understanding snapshot (task/outcome/facts/constraints/...)', schema: {
     storyId: z.string().describe('Story ID'),
     task: z.string().describe('One-sentence description of the problem to solve.'),
@@ -711,7 +711,7 @@ Behavior:
   { name: 'understanding_get', description: 'Read the understanding snapshot', schema: {
     storyId: z.string().describe('Story ID'),
   }},
-  // Decision (RALPLAN-DR structured decision, OMX ralplan-style legacy reference).
+  // Decision (RALPLAN-DR structured decision).
   { name: 'decision_set', description: 'Record a structured PLAN decision (principles/drivers/options/chosen/preMortem)', schema: {
     storyId: z.string().describe('Story ID'),
     principles: z.array(z.string()).describe('3-5 design principles.'),

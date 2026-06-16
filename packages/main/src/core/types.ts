@@ -50,7 +50,7 @@ export interface StoryInfo {
   };
   /** Current REVIEW round ID (ISO 8601 timestamp), generated each time REVIEW is entered */
   currentReviewRound?: string;
-  /** High-risk signals (OMX-style auto-detection): triggered keyword categories */
+  /** High-risk signals (auto-detection): triggered keyword categories */
   riskSignals?: Array<{ category: string; matched: string }>;
   /**
    * B-5010 CHK-004: risk signal explicitly dismissed by the main agent (false-positive whitelist).
@@ -702,7 +702,7 @@ export interface VerificationCoverageReport {
 }
 
 /**
- * RALPLAN-DR structured decision (OMX ralplan style).
+ * RALPLAN-DR structured decision.
  * The PLAN stage should produce a decision.json for each non-trivial story,
  * containing principles/drivers/options/choice/pre-mortem.
  * First-version soft introduction: story_review enforces it when priority=high or riskSignals is non-empty.
@@ -791,7 +791,7 @@ export interface DecisionDocProposalFile {
 }
 
 /**
- * Pre-context Intake snapshot (OMX style).
+ * Pre-context Intake snapshot.
  * Before breaking down the checklist in the PLAN phase, the main agent should first record a structured understanding of the task.
  * First-version soft introduction: when not filled, only a hint reminder is shown, without blocking progress.
  */

@@ -146,7 +146,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         });
       }
 
-      // 2.4. High-risk signal hint (OMX style, story_create auto-tags)
+      // 2.4. High-risk signal hint (story_create auto-tags)
       // B-5010 CHK-004: filter out signals explicitly dismissed by main agent (false-positive whitelist)
       const dismissedCats = new Set((story.riskSignalsDismissed || []).map((d: any) => d.category));
       const activeRiskSignals = (story.riskSignals || []).filter((r: any) => !dismissedCats.has(r.category));
@@ -173,7 +173,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         });
       }
 
-      // 2.45. RALPLAN-DR decision.json check (OMX ralplan style)
+      // 2.45. RALPLAN-DR decision.json check
       // Respect workflow policy: skip check when policy says 'never', only check high_risk stories when 'high_risk'
       const policy = resolveWorkflowPolicy(config, story);
 
@@ -213,7 +213,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               issues.push({
                 type: 'missing_alternatives',
                 severity: 'blocker',
-                message: 'decision.options has only 1 entry with empty cons. OMX Critic equivalent requirement: must have fair alternatives or explicit invalidation rationale',
+                message: 'decision.options has only 1 entry with empty cons. RALPLAN reviewer requirement: must have fair alternatives or explicit invalidation rationale',
               });
             }
           }
@@ -274,7 +274,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         }
       }
 
-      // 2.5. Pre-context Intake snapshot check (OMX style, soft introduction)
+      // 2.5. Pre-context Intake snapshot check (soft introduction)
       // Respect workflow policy: skip check when policy says 'never', only check high_risk stories when 'high_risk'
       const shouldCheckUnderstanding = (() => {
         if (policy.plan.requireUnderstanding === 'never') return false;
