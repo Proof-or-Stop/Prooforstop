@@ -113,10 +113,10 @@
           "file": "packages/main/src/tasks/global-agents-unit-smoke.ts",
           "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
           "result": "pass",
-          "note": "edge 用例: 重复跑全部 symlink ok (skipped=N, synced=0); 断链/旧 copy/错误 target 三种都被 unlink+重建 (replaced=N)",
-          "headHash": "f7e524275bcc1b60f7f83dbc38468c6657c8f85c",
-          "materialHash": "c9f88ce1d656a4a2bf6aaa656202070dabf0dd5aedbd961c2dd2093be74bdd98",
-          "timestamp": "2026-06-16T14:35:29.098Z"
+          "note": "Idempotent re-run reports shim ok (skipped=N); old full copy, old symlink, broken link, drifted shim all unlink+rewrite (replaced=N) back to deterministic shim. PASS.",
+          "headHash": "fac8ea2511b05964d8dec32f95b54ddf763b1c18",
+          "materialHash": "cc16ab2da6daeafa1129d5faefd751e4b9f77d5db0becf0885e07692fdb1e410",
+          "timestamp": "2026-06-16T18:44:14.857Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
