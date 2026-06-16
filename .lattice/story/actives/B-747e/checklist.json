@@ -119,6 +119,17 @@
           "headHash": "3b42f17508971243539be77fb45ec31976b2d43e",
           "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
           "timestamp": "2026-06-16T02:54:27.797Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -lw LatticeConfig -- packages/main/src/core",
+          "result": "pass",
+          "note": "All 5 files (config + 4 consumers) carry LatticeConfig; none carry KoalaConfig.",
+          "headHash": "da1d225abe380564ece72cf9a0e824fc7c1cc1de",
+          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
+          "timestamp": "2026-06-16T02:54:28.995Z"
         }
       ]
     }
