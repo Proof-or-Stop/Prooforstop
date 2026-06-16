@@ -324,6 +324,17 @@
           "headHash": "fe8010ad5b78c8bdfd0e6e96d8074da1e0dd7922",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:55.575Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice' ':(exclude).codex'",
+          "result": "pass",
+          "note": "Covered by zero-residual scan on .Codex/.",
+          "headHash": "b3e7ca6f8e01dc3ae1db658c3a0f33b8cb7fd188",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:56.083Z"
         }
       ]
     },
