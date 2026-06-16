@@ -23,7 +23,7 @@ Clean up these active categories:
   emit `<!-- lattice:start -->` / `<!-- lattice:end -->` while the parser
   continues accepting legacy `koala` markers for existing projects.
 - Mirrored host assets: materialized `.claude/agents/koala-*.md` and
-  `.Codex/agents/koala-*.md` full-mode mirrors when present.
+  `.lattice-codex/agents/koala-*.md` full-mode mirrors when present.
 - CLI dispatch/help/schema: `lattice dispatch` defaults, `agentType` examples,
   allowed role lists, help text, command descriptions, and commit author
   fallback for normal-channel implementer work.
@@ -125,7 +125,7 @@ changes begin.
 ### CHK-002 - templates and mirrored host assets
 
 Rename prompt asset filenames and frontmatter from `koala-*` to `lattice-*` in
-the package templates and any materialized `.claude` / `.Codex` full-mode
+the package templates and any materialized `.claude` / `.lattice-codex` full-mode
 mirrors. Update prompt prose, examples, author strings, and registry tests in
 the same pass. Leave unrelated roles such as `product-reviewer`,
 `implementation-reviewer`, `test-intent`, and `test-case-reviewer` unchanged.
@@ -160,11 +160,10 @@ Inventory before and after the migration:
 rg -n --hidden \
   --glob '!docs/story/**' \
   --glob '!tests/fixtures/**' \
-  --glob '!.omx/**' \
   --glob '!.git/**' \
   --glob '!.worktrees/**' \
   '\bkoala-(implementer|review|evaluator)' \
-  packages/main/src packages/main/templates .claude .Codex \
+  packages/main/src packages/main/templates .claude .lattice-codex \
   CLAUDE.md README.md docs/requirements docs/audits scripts bin
 ```
 
@@ -175,20 +174,19 @@ trees:
 rg -n --hidden \
   --glob '!docs/story/**' \
   --glob '!tests/fixtures/**' \
-  --glob '!.omx/**' \
   --glob '!.git/**' \
   --glob '!.worktrees/**' \
   --glob '!docs/koala/**' \
   --glob '!docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md' \
   '\bkoala-(implementer|review|evaluator)|koala_metadata|koala-verifier' \
-  packages/main/src packages/main/templates .claude .Codex \
+  packages/main/src packages/main/templates .claude .lattice-codex \
   CLAUDE.md README.md docs/requirements docs/audits scripts bin
 ```
 
 Prompt asset filename check:
 
 ```bash
-find packages/main/templates/agents .claude/agents .Codex/agents \
+find packages/main/templates/agents .claude/agents .lattice-codex/agents \
   -maxdepth 1 -type f | rg 'koala-(implementer|review|evaluator)'
 ```
 

@@ -36,7 +36,7 @@ const requiredSourcePaths = [
   'docs/audits/lattice-token-cost-and-takeover-audit.md',
   'packages/main/templates/agents',
   '.claude/agents',
-  '.Codex/agents',
+  '.lattice-codex/agents',
   'packages/main/src/core/prompt-registry.ts',
   'packages/main/src/core/managed-assets.ts',
   'packages/main/src/handlers/story-query.ts',
@@ -154,12 +154,12 @@ function assertMirrorsMatch(): void {
   for (const file of Object.keys(baselineTemplateBytes)) {
     const packageContent = readRepo(`packages/main/templates/agents/${file}`);
     const claudeContent = readRepo(`.claude/agents/${file}`);
-    const codexContent = readRepo(`.Codex/agents/${file}`);
+    const codexContent = readRepo(`.lattice-codex/agents/${file}`);
     assert.equal(claudeContent, packageContent, `.claude mirror matches package template for ${file}`);
-    assert.equal(codexContent, renderCodexPromptContent(packageContent), `.Codex mirror matches package render for ${file}`);
+    assert.equal(codexContent, renderCodexPromptContent(packageContent), `.lattice-codex mirror matches package render for ${file}`);
     assertCompactQueryGuidance(packageContent, `package template ${file}`);
     assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
-    assertCompactQueryGuidance(codexContent, `.Codex mirror ${file}`);
+    assertCompactQueryGuidance(codexContent, `.lattice-codex mirror ${file}`);
   }
 }
 

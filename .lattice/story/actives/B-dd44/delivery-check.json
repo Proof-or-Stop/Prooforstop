@@ -1,0 +1,85 @@
+{
+  "storyId": "B-dd44",
+  "checkedAt": "2026-06-16T21:19:02.381Z",
+  "reviewRound": "2026-06-16T21:10:44.729Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#approach",
+      "promise": "resolveHardBudget(env) reads LATTICE_HARD_BUDGET_TOKENS (fallback KOALA_HARD_BUDGET_TOKENS), returns {hardBudgetTokens, budgetPolicyId}|null; null when unset/invalid means no enforcement",
+      "verifiedBy": "diff/source read + smoke test",
+      "evidence": "dispatch-usage.ts lines 523-536: resolveHardBudget implemented; parsePositiveIntegerBudget handles invalid/zero/float/unsafe-int->null; LATTICE_ takes precedence, KOALA_ fallback. CHK-001 smoke 12 checks (valid/unset/invalid/fallback/precedence/unsafe-int/boundary) all pass in 41/41 total run."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#approach",
+      "promise": "isOverHardBudget(estimatedInputTokens, hardBudgetTokens) -> boolean; strict exceed only (estimate > budget); exact boundary (estimate == budget) is NOT over budget; fail-open on non-finite estimate",
+      "verifiedBy": "diff/source read + smoke test",
+      "evidence": "dispatch-usage.ts lines 544-552: estimatedInputTokens > hardBudgetTokens with non-finite fail-open guards. CHK-001 smoke true/false/boundary/NaN/Infinity cases all pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#approach",
+      "promise": "buildBlockedBudgetRecord: decision.kind=blocked, budgetPolicyId, reasonCode=hard_budget_exceeded, supersedes the estimate, passes the validator, never throws",
+      "verifiedBy": "diff/source read + smoke test",
+      "evidence": "dispatch-usage.ts lines 582-660: try/catch null-return on error, validateUsageLedgerRecord called, decision.kind=blocked, usage.source=prompt-size-estimate (not provider-reported), supersedesRecordIds from buildSupersedes. CHK-002 smoke 8 checks all pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#approach",
+      "promise": "recordDispatchPreflight extended to return estimatedInputTokens so the budget guard can compare without re-running the estimator",
+      "verifiedBy": "diff/source read",
+      "evidence": "dispatch-usage.ts lines 228-238: DispatchPreflightHandle includes estimatedInputTokens: number. Lines 299-303: handle returned with estimatedInputTokens. lattice-dispatch.ts line 1973 uses it for budget decision."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#approach",
+      "promise": "lattice-dispatch.ts runClaudeCodeRealLeafDispatch: inside isUsageLedgerEnabled() gate AFTER preflight — resolveHardBudget; if set AND estimate exceeds budget: append blocked record, SKIP spawnSync, return well-formed blocked dispatch result. All budget work in try/catch; on error proceed. Budget UNSET/flag OFF => byte-identical.",
+      "verifiedBy": "diff/source read + smoke test",
+      "evidence": "lattice-dispatch.ts lines 1986-2015: guard inside ledgerOn conditional, calls recordBudgetBlock, checks budgetDecision.blocked, returns buildBudgetBlockedDispatchResult skipping spawnSync. ledgerOpts.env=process.env threaded (F-001 fix). 4-quadrant smoke (OFF/ON+no-budget/ON+over/ON+under) all pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#verification",
+      "promise": "usage-ledger zero-cross-module-import invariant holds after budget additions",
+      "verifiedBy": "static analysis in smoke",
+      "evidence": "CHK-005 STATIC walkTs over usage-ledger/ verifies all imports are ./ siblings or node:; offenders=[] asserted. dispatch smoke CHK-005 independently confirms lattice-dispatch imports only via dispatch-usage.js. Both suites pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#verification",
+      "promise": "Full existing ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch) pass with zero regressions after budget code added",
+      "verifiedBy": "test runs",
+      "evidence": "usage-ledger 61/61, usage-ledger-adapter 50/50, usage-ledger-estimate 55/55, usage-ledger-diagnostics 34/34, usage-ledger-dispatch 38/38 — all confirmed passing in this review session."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-dd44/plan.md#approach",
+      "promise": "F-001 fix: resolveHardBudget defaults env ?? process.env (not {}); production path (no explicit env key in opts) enforces budget via process.env",
+      "verifiedBy": "diff/source read + smoke test",
+      "evidence": "dispatch-usage.ts line 524: const source = env ?? process.env. lattice-dispatch.ts line 1971: ledgerOpts.env=process.env threaded explicitly. F-001 production-path smoke 4 checks (prodOpts no env key + withProcessEnv): budget enforces/proceeds correctly. All F-001 checks pass."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "41-check budget smoke (npm --prefix packages/main run test:usage-ledger-budget): resolveHardBudget valid/unset/invalid/fallback/precedence/unsafe-int/whitespace; isOverHardBudget true/false/boundary/NaN/Infinity. All pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "41-check budget smoke: buildBlockedBudgetRecord decision.kind=blocked, budgetPolicyId, reasonCode, supersedes, usage.source=prompt-size-estimate not provider-reported, privacy/authority contract, null estimateRecordId->supersedesRecordIds=[], forged policyId validates, scanForbiddenFields=[], never throws. All pass."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "41-check budget smoke: shouldBlockDispatch + recordBudgetBlock 4-quadrant (OFF/ON+no-budget/ON+over/ON+under), boundary, fail-open, preflight-null adversarial, statelessness, hermetic. All pass."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "41-check budget smoke F-001 production-path checks: resolveHardBudget(undefined) reads process.env; KOALA_ fallback via process.env; prodOpts+over-budget ENFORCES; prodOpts+under-budget proceeds; prodOpts+no-budget->no-op; prodOpts+ledger-OFF->no-op. Plus 38-check dispatch smoke no-regression. All pass."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "41-check budget smoke CHK-005 static: zero-cross-module-import, budget exports only in lattice-dispatch+smoke, lattice-dispatch imports only via dispatch-usage.js. 38-check dispatch smoke confirms same. verify-b-dd44.mjs 65/65. lattice validate --story=B-dd44 65/65. All pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified in source and confirmed by passing tests. The 41-check budget smoke covers happy/edge/adversarial/F-001 production-path cases. F-001 fix (env ?? process.env at dispatch-usage.ts line 524) is implemented and proven by production-path smoke. No regressions: 5 existing suites 61+50+55+34+38 all pass. Zero cross-module imports verified statically. Scope is strictly the 4 declared files. No unresolved TODOs in non-test code. Feature is claude-host-only, opt-in (ledger flag), budget on the coarse preflight estimate."
+  },
+  "_hash": "6c247c458c6631c45df1f3fce66340b38401f7806dffa3a0268a12fc7e0df35a"
+}

@@ -53,11 +53,11 @@ assertNotContains(codexWrapper, 'bin/koala.js', 'generated lattice Codex wrapper
 
 for (const template of [CODEX_README_TEMPLATE, renderCodexReadmeTemplate('full'), renderCodexReadmeTemplate('thin')]) {
   assertNotContains(template, 'node bin/koala-codex.js', 'Codex README template');
-  assertNotContains(template, '.Codex/koala.json', 'Codex README template');
+  assertNotContains(template, '.lattice-codex/koala.json', 'Codex README template');
 }
 const manifest = renderLatticeCodexAdapterManifest();
 assertNotContains(manifest, 'koala-codex', 'Codex manifest template');
-assertNotContains(manifest, '.Codex/koala.json', 'Codex manifest template');
+assertNotContains(manifest, '.lattice-codex/koala.json', 'Codex manifest template');
 
 const legacyConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-config-legacy-absent-'));
 try {
@@ -85,7 +85,7 @@ try {
 
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-legacy-absent-'));
 try {
-  writeText(legacyOnlyRoot, '.Codex/koala.json', JSON.stringify({
+  writeText(legacyOnlyRoot, '.lattice-codex/koala.json', JSON.stringify({
     adapterOwner: 'koala',
     adapterKind: 'codex',
     activitySource: 'codex',
@@ -102,7 +102,7 @@ try {
 
   const managed = runManagedAssetCheck(legacyOnlyRoot, { profile: 'codex', assetMode: 'full' });
   assert.equal(managed.ok, false, `legacy active assets must be incompatible:\n${renderManagedAssetCheck(managed)}`);
-  for (const relPath of ['bin/koala.js', 'bin/koala-codex.js', '.Codex/koala.json']) {
+  for (const relPath of ['bin/koala.js', 'bin/koala-codex.js', '.lattice-codex/koala.json']) {
     const item = managed.items.find(candidate => candidate.relPath === relPath);
     assert.equal(item?.status, 'INCOMPATIBLE', `${relPath} should be an excluded active runtime asset`);
   }

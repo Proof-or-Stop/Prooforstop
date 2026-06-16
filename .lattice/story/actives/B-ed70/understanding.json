@@ -1,0 +1,30 @@
+{
+  "task": "OSS naming cleanup: fix lab description, rename .Codex → .lattice-codex, remove OMX disable guard.",
+  "outcome": "After: `grep -i koala packages/lab/package.json` empty; `git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice'` empty AND .lattice-codex/ contains the moved assets; `git grep -i 'omx' -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md'` empty; npm run build + test:e2e + verify_codex all pass.",
+  "facts": [
+    "packages/lab/package.json:4 description currently reads 'koala 离线优化实验室：实验配置、隔离沙箱、patch guard 和基础评估骨架' — only the 'koala' token needs replacing.",
+    "Precise scope (rechecked after INIT reviewer feedback): 41 tracked files outside .Codex/.codex/.lattice reference uppercase .Codex; the .Codex/ directory has 18 tracked files to git mv.",
+    "Lowercase .codex/ (Codex CLI mandatory hook dir) must be preserved — it contains hooks.json + lattice-scope-pretool.cjs.",
+    "OMX scope: 22 active files reference omx (excluding .lattice and CHANGELOG), of which 10 are decision documents.",
+    "Items 2 (.Codex rename touching 8+ decision docs) and 3 (omx removal touching 10 decision docs) both trip the always-on 3x2 decision-doc gate; clear via the user-approved degraded 3x1 fallback (memory: use-degraded-3x1-review-escalation)."
+  ],
+  "constraints": [
+    "Lowercase .codex/ must NOT be renamed (Codex CLI contract).",
+    "verify_codex must still pass 8/8 after the .Codex → .lattice-codex rename (path change only, behavior unchanged).",
+    "Build + e2e must stay green throughout.",
+    "Do not touch .lattice/ self-hosting metadata or the 308-file koala residual sweep (separate session)."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/lab/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/baseline.ts",
+    "scripts/verify-omx-disabled.mjs",
+    "AGENTS.md",
+    ".gitignore",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-06-16T20:37:02.972Z"
+}

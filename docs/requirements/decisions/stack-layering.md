@@ -253,7 +253,7 @@ Otherwise, as soon as you cross sessions / tools / agents, you lose state.
 
 The runtime here is not the agent runtime. Koala is not responsible for starting, recovering, or scheduling a Codex/Claude session, nor does it implement a general worker pool, prompt marketplace, token/model management, or notification system.
 
-Koala can borrow OMX's ideas of being observable, recoverable, and diagnosable, but the thing it borrows for should land on the project-state runtime:
+Lattice prioritizes being observable, recoverable, and diagnosable, and the thing those properties land on should be the project-state runtime:
 
 - `status`: read-only display of story / phase / worktree / reviewer / artifact / dirty risk
 - `next`: read-only output of the currently most trustworthy next step
@@ -269,7 +269,7 @@ Looking at the current repository, you can already see this layering starting to
 ### Claude Code / Codex Layer
 
 - `.claude/agents/*`
-- `.Codex/agents/*`
+- `.lattice-codex/agents/*`
 - `bin/lattice-codex.js`
 - runtime tool calling, subagents, interactive entry points
 

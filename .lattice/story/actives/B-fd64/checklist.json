@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Privacy-preserving usage-evidence envelope shape + builder",
+      "context": "In a new core/usage-ledger/authority-evidence.ts (pure; imports only ./ siblings + node), define a PrivacyPreservingUsageEvidenceEnvelope type and buildUsageEvidenceEnvelope(record) that encodes a ledger record as digests (e.g. sha256 of the canonical record via canonical-json.ts) + non-secret fields (model, provider name, usage counts, source, correlation ids, decision) needed for a future Authority submission. MUST contain NO raw prompt/transcript/secret/key/auth-header (reuse the privacy denylist / reject if present). Unit-tested: envelope built from a record contains a recordDigest + allowed fields and zero forbidden material.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Receipt-reference fields on the authority block",
+      "context": "Extend the record authority block (record.ts) to allow nullable receiptId plus receiptSubjectKind and receiptSubjectId (both nullable), while KEEPING the existing rule that local records have receiptVerified=false and receiptId=null by default. Update the validator so a local record still requires receiptVerified=false; receiptId/receiptSubjectKind/receiptSubjectId may be non-null only together (a referenced receipt) but that alone does NOT make it verified. Tested: a local record validates with the nullable fields; a record claiming receiptVerified=true without going through the gate is rejected or only allowed via the gate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verification gate (pluggable verifier; default keeps unverified)",
+      "context": "Add verifyUsageReceipt(envelope, signedReceipt, verify) where verify is an INJECTED async/sync function (signedReceipt, envelope) -> { verified: boolean, subjectKind?, subjectId? }. Only when verify returns verified=true AND the subject binding matches the envelope does the gate return an authority block with receiptVerified=true + receiptId + receiptSubject*. Otherwise it returns receiptVerified=false. The usage-ledger module does NOT import the authority-signing module (verifier is injected) — preserves zero cross-module imports. Tested: injected verifier true+matching-subject -> verified; true+mismatched-subject -> NOT verified; false -> not verified.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Negative controls (cannot be tricked into verified)",
+      "context": "Implement + test the spec's negative controls: transport accepted=true is NOT verification; a provider response with real token counts is NOT verification; a local JSONL hash chain is NOT verification; a copied receiptId without an injected verifier confirming signature+subject is NOT verification. In every case authority.receiptVerified stays false. Each negative control is a distinct smoke assertion.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Smoke/test suite wired + no regression",
+      "context": "Add packages/main/src/tasks/usage-ledger-authority-smoke.ts (follow existing *-smoke.ts; ✓/✗, non-zero exit; temp dir, no pollution), wired as npm test:usage-ledger-authority. Cover the envelope (privacy-safe, has digest), the nullable receipt-ref fields validating, the verification gate (verified only via injected verifier + subject match), and all negative controls. Assert usage-ledger still imports ZERO other modules (no authority-signing import). Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget) no regression; node bin/lattice.js validate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

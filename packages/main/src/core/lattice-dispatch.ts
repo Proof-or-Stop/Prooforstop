@@ -41,6 +41,7 @@ import type { StoryStore } from './store.js';
 import {
   isUsageLedgerEnabled,
   parseClaudeCliOutput,
+  recordBudgetBlock,
   recordDispatchFinal,
   recordDispatchPreflight,
   type DispatchUsageContext,
@@ -1875,6 +1876,61 @@ function dispatchProjectRootHash(root: string): string {
   return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
 }
 
+/**
+ * B-dd44: build the BLOCKED dispatch result when the fail-closed hard-budget
+ * guard skips the provider spawn. It MIRRORS the existing exitCode!=0 failure
+ * return: writes a `failed` record + a leaf collection, then returns the
+ * `lattice.dispatch_run.v1` shape with status `failed`. The block carries a
+ * distinct, machine-readable warning prefix so downstream handlers can tell a
+ * budget block apart from a provider error / timeout. The provider is NEVER
+ * called on this path.
+ */
+function buildBudgetBlockedDispatchResult(
+  root: string,
+  record: DispatchRecord,
+  pack: HandoffPack,
+  budgetPolicyId: string | null,
+  hardBudgetTokens: number | null,
+  transcriptPath: string,
+): DispatchRunResult {
+  const baseWarnings = removeScaffoldedOnlyWarnings(record.warnings);
+  const policyLabel = budgetPolicyId ?? 'hard-budget';
+  const budgetLabel = hardBudgetTokens !== null ? String(hardBudgetTokens) : 'configured';
+  const blockedWarning =
+    `claude-code dispatch blocked by hard budget (${policyLabel}): ` +
+    `preflight estimate exceeds the configured budget of ${budgetLabel} tokens. ` +
+    `Provider call skipped (fail-closed); no tokens were spent.`;
+  appendTranscript(transcriptPath, [
+    `[${nowIso()}] claude-code real subprocess SKIPPED: hard-budget block (${policyLabel})`,
+    `[${nowIso()}] ${blockedWarning}`,
+  ]);
+  const blocked = writeRecord(root, {
+    ...record,
+    status: 'failed',
+    warnings: [...baseWarnings, blockedWarning],
+    nextAction:
+      `Claude Code dispatch ${record.dispatchId} was blocked before spawn by the hard token budget ` +
+      `(${policyLabel}). Raise LATTICE_HARD_BUDGET_TOKENS or reduce the prompt size, then retry. ` +
+      `No provider call was made.`,
+  });
+  writeJson(resolve(root, blocked.collectFile), leafDispatchCollection(root, blocked, pack));
+  return {
+    schemaVersion: 'lattice.dispatch_run.v1',
+    dispatchId: blocked.dispatchId,
+    storyId: blocked.storyId,
+    host: blocked.selectedHost,
+    status: 'failed',
+    parallel: blocked.parallel,
+    runtime: blocked.runtime,
+    workers: [],
+    warnings: [...blocked.warnings],
+    nextAction: blocked.nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
+}
+
 function runClaudeCodeRealLeafDispatch(
   root: string,
   record: DispatchRecord,
@@ -1908,16 +1964,53 @@ function runClaudeCodeRealLeafDispatch(
     projectRootHash: dispatchProjectRootHash(root),
     command: commandLabel,
     host: { kind: record.selectedHost },
+    // B-dd44 F-001 fix: thread the real process env explicitly into the ledger +
+    // budget path. resolveHardBudget also defaults undefined -> process.env, but
+    // passing it here is belt-and-suspenders so the production budget guard reads
+    // the real env (the seam never builds a synthetic env object).
+    env: process.env,
   };
   let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
+  let ledgerPromptText = '';
   if (ledgerOn) {
     try {
-      const promptText = readFileSync(promptFile, 'utf8');
-      ledgerHandle = recordDispatchPreflight(root, ledgerCtx, promptText, ledgerOpts);
+      ledgerPromptText = readFileSync(promptFile, 'utf8');
+      ledgerHandle = recordDispatchPreflight(root, ledgerCtx, ledgerPromptText, ledgerOpts);
     } catch (error) {
       appendTranscript(transcriptPath, [
         `[${nowIso()}] usage-ledger preflight skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
       ]);
+    }
+  }
+
+  // ---- B-dd44: FAIL-CLOSED HARD-BUDGET PRE-SPAWN GUARD (env-gated) ----
+  // INV-A: this block only runs when ledgerOn (the existing gate). When the ledger
+  //   flag is OFF this is never reached, so dispatch is byte-identical to today.
+  // INV-B: recordBudgetBlock returns blocked=true ONLY when a hard budget is
+  //   configured AND the preflight estimate strictly exceeds it; otherwise (no
+  //   budget env) it is a no-op and we proceed to spawnSync exactly as today.
+  // INV-C: all budget work is fail-open on error (recordBudgetBlock never throws
+  //   and returns blocked=false on any resolution/build error) — a budget-check
+  //   error PROCEEDS and never wrongly blocks.
+  if (ledgerOn) {
+    const budgetDecision = recordBudgetBlock(
+      root,
+      ledgerCtx,
+      ledgerHandle,
+      ledgerPromptText,
+      ledgerOpts,
+    );
+    if (budgetDecision.blocked) {
+      // Over budget: SKIP spawnSync and return a well-formed BLOCKED dispatch
+      // result, mirroring the exitCode!=0 failure-return shape below.
+      return buildBudgetBlockedDispatchResult(
+        root,
+        record,
+        pack,
+        budgetDecision.budgetPolicyId,
+        budgetDecision.hardBudgetTokens,
+        transcriptPath,
+      );
     }
   }
 

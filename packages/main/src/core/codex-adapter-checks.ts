@@ -84,9 +84,9 @@ export function resolveCodexSessionBriefCommand(root: string): string {
 }
 
 const CODEX_MATERIAL_PATHS = [
-  '.Codex/README.md',
-  '.Codex/lattice.json',
-  '.Codex/agents',
+  '.lattice-codex/README.md',
+  '.lattice-codex/lattice.json',
+  '.lattice-codex/agents',
   '.codex/hooks.json',
   '.codex/hooks',
   '.claude/agents',
@@ -190,7 +190,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 interface CodexManifestSelection {
-  relPath: '.Codex/lattice.json';
+  relPath: '.lattice-codex/lattice.json';
   brand: 'lattice';
 }
 
@@ -210,8 +210,8 @@ function isGlobalThinProject(root: string): boolean {
 }
 
 function resolveCodexManifest(root: string): CodexManifestSelection | null {
-  if (existsSync(join(root, '.Codex', 'lattice.json'))) {
-    return { relPath: '.Codex/lattice.json', brand: 'lattice' };
+  if (existsSync(join(root, '.lattice-codex', 'lattice.json'))) {
+    return { relPath: '.lattice-codex/lattice.json', brand: 'lattice' };
   }
   return null;
 }
@@ -240,11 +240,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
         'Codex manifest',
         'pass',
         true,
-        `runtime-owned default: .Codex/lattice.json not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
+        `runtime-owned default: .lattice-codex/lattice.json not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
       );
       return 'registry';
     }
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .lattice-codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
   const manifestPath = join(root, selection.relPath);
@@ -313,9 +313,9 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   const claudeDir = join(root, '.claude', 'agents');
-  const codexDir = join(root, '.Codex', 'agents');
+  const codexDir = join(root, '.lattice-codex', 'agents');
   if (!existsSync(claudeDir) || !existsSync(codexDir)) {
-    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .Codex/agents', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .lattice-codex/agents', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const sourceFiles = listAgentPromptFiles(claudeDir);
@@ -326,15 +326,15 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   for (const file of sourceFiles) {
     const targetPath = join(codexDir, file);
     if (!targetSet.has(file)) {
-      issues.push(`missing .Codex/agents/${file}`);
+      issues.push(`missing .lattice-codex/agents/${file}`);
       continue;
     }
     const expected = renderCodexAgentContent(readText(join(claudeDir, file))).trim();
     const actual = readText(targetPath).trim();
-    if (expected !== actual) issues.push(`drift .Codex/agents/${file}`);
+    if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
   }
   for (const file of targetFiles) {
-    if (!sourceSet.has(file)) issues.push(`stale .Codex/agents/${file}`);
+    if (!sourceSet.has(file)) issues.push(`stale .lattice-codex/agents/${file}`);
   }
   if (issues.length > 0) {
     push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, issues.slice(0, 6).join('; '), LOCAL_INIT_VERIFY_COMMAND);
@@ -365,7 +365,7 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
   const offenders = LATTICE_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
-  const upperHooks = join(root, '.Codex', 'hooks');
+  const upperHooks = join(root, '.lattice-codex', 'hooks');
   const lowerHooks = join(root, '.codex', 'hooks');
   if (existsSync(upperHooks)) {
     let isLowercaseAlias = false;
@@ -378,13 +378,13 @@ function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
     } catch {
       isLowercaseAlias = false;
     }
-    if (!isLowercaseAlias) offenders.push('.Codex/hooks');
+    if (!isLowercaseAlias) offenders.push('.lattice-codex/hooks');
   }
   if (offenders.length > 0) {
     push(checks, 'excluded-assets', 'Codex runtime exclusions', 'fail', true, `unexpected asset(s): ${offenders.join(', ')}`, `rm -rf ${offenders.join(' ')}`);
     return;
   }
-  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no uppercase-only .Codex/hooks or .Codex/settings.json');
+  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no uppercase-only .lattice-codex/hooks or .lattice-codex/settings.json');
 }
 
 function hookEntriesContainCommand(entries: unknown, commandNeedle: string): boolean {
@@ -724,7 +724,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /\bCodex\b|\.Codex|lattice-codex|codex adapter|verify_codex/i.test(haystack);
+    return /\bCodex\b|\.lattice-codex|lattice-codex|codex adapter|verify_codex/i.test(haystack);
   } catch {
     return false;
   }

@@ -45,7 +45,7 @@ order:
    – returns true for paths registered in the runtime-artifact registry:
      `.koala/activity.jsonl`, `.koala/runtime/...`, `.koala/traces/...`,
      `.koala/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
-  `.koala-tmp-*`, `koala-debug.log`, `browser-test.log`, etc. `.omx/...` is disabled locally and must not be registered as a Lattice runtime artifact path.
+  `.koala-tmp-*`, `koala-debug.log`, `browser-test.log`, etc.
    – Used by scope to skip volatile runtime telemetry that Lattice writes as a
      side-effect of read/write commands. **This is NOT a blanket `.koala/`
      pass.** An arbitrary file like `.koala/foo.json` does not match any
@@ -133,32 +133,32 @@ Lattice init supports two compatible prompt asset shapes:
 
 | Layer | Examples | Ownership |
 | --- | --- | --- |
-| project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `LATTICE.md`, `.Codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
+| project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
 | package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `lattice.prompt-registry.v1` | Versioned Lattice package assets. These are the canonical prompt bodies. |
-| generated or materialized prompt caches | `.Codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
+| generated or materialized prompt caches | `.lattice-codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
 
 The phrase **registry-backed prompt assets** means project metadata points at the
 package prompt registry instead of treating every rendered agent prompt as a
 project-local required file. In global-thin mode (the default for new projects),
 `.lattice/lattice.json` carries the project config and asset mode declaration,
 and Codex adapter verification resolves the `.lattice/` manifest rather than
-requiring `.Codex/` entries or local bin wrappers. In full/thin modes,
-`.Codex/lattice.json` carries the prompt registry version and material hash.
-Legacy `.Codex/koala.json` files may remain archived or user-owned, but they are
+requiring `.lattice-codex/` entries or local bin wrappers. In full/thin modes,
+`.lattice-codex/lattice.json` carries the prompt registry version and material hash.
+Legacy `.lattice-codex/koala.json` files may remain archived or user-owned, but they are
 not active adapter inputs.
 
 The Lattice naming migration is a managed-asset naming contract only. It does
 not promote ordinary CLI output to receipt-backed authority and does not change
 Story lifecycle gates. `lattice` is the only active runtime/product command.
-Fresh init must not generate `KOALA.md`, `.Codex/koala.json`, `bin/koala.js`, or
+Fresh init must not generate `KOALA.md`, `.lattice-codex/koala.json`, `bin/koala.js`, or
 `bin/koala-codex.js`; compatibility checks do not treat those paths as active
 adapter or runtime inputs. Cleanup may remove a legacy-named asset only
 when its content exactly matches a generated template or manifest; user-owned
 legacy files are preserved.
 
 This is a **legacy mirror compatibility** change, not a host behavior removal.
-Legacy full-mode repositories may keep `.Codex/agents` and `.claude/agents`.
-Thin-mode repositories may omit `.Codex/agents` when the manifest selects
+Legacy full-mode repositories may keep `.lattice-codex/agents` and `.claude/agents`.
+Thin-mode repositories may omit `.lattice-codex/agents` when the manifest selects
 registry prompts. Claude Code host-local discovery can still use materialized
 `.claude/agents` where that host profile requires it.
 
@@ -186,11 +186,11 @@ dictated by that host's loader, but the content source is identical across hosts
 
 | Host | Thin adapter (what lives in the project/global) | Prompt content source |
 | --- | --- | --- |
-| Codex | `.Codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package prompt registry |
+| Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package prompt registry |
 | Claude | `.claude/agents/*.md` **thin shim** (frontmatter `name`/`description`/`tools` + a "fetch from CLI" body) | package prompt registry, served by `lattice agent_prompt` |
 
 B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
-not materialize `.Codex/agents`; it resolves prompts from the registry via its
+not materialize `.lattice-codex/agents`; it resolves prompts from the registry via its
 manifest. This policy does the host-neutral equivalent for **Claude**, which —
 unlike Codex — cannot resolve a subagent from a single manifest: Claude Code only
 discovers subagents from on-disk `.claude/agents/*.md` files and reads each file's

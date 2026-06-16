@@ -1,0 +1,55 @@
+{
+  "storyId": "B-dd44",
+  "changes": "Added fail-closed hard-budget enforcement to the Claude dispatch seam (Touchpoint 4). In usage-ledger/dispatch-usage.ts (pure, zero cross-module imports): resolveHardBudget (reads LATTICE_HARD_BUDGET_TOKENS, fallback KOALA_, defaults to process.env; null when unset/invalid = no enforcement), isOverHardBudget (strict >), buildBlockedBudgetRecord (decision.kind=blocked, budgetPolicyId, reasonCode=hard_budget_exceeded, supersedes the preflight estimate, validated). recordDispatchPreflight now also returns estimatedInputTokens. In lattice-dispatch.ts: a minimal gated pre-spawn guard (inside isUsageLedgerEnabled) — if a hard budget is configured AND the preflight estimate exceeds it, append the blocked record, SKIP the spawn, and return a well-formed blocked DispatchRunResult (status:failed shape). Budget UNSET or flag OFF => byte-identical dispatch; budget-check error => proceeds (fail-open). Added usage-ledger-budget-smoke.ts (41 checks incl. production-path tests) wired as npm test:usage-ledger-budget.",
+  "usage": "Set LATTICE_HARD_BUDGET_TOKENS=<N> (with the ledger flag on). If a Claude dispatch's preflight prompt estimate exceeds N tokens, the dispatch is blocked before any provider call and a decision.kind=blocked record is written. Unset the var (default) => no enforcement, dispatch unchanged.",
+  "expectedOutcome": "With a hard budget set + an over-budget prompt, the dispatch is blocked (no spawn) and a blocked record is recorded; with no budget set or flag off, dispatch is byte-identical. Boundary (estimate==budget) proceeds. A budget-check error never wrongly blocks.",
+  "actualTranscript": "verify-b-dd44: TOTAL 65 | PASS 65 | FAIL 0 (offByteIdentical budgetFns blockedKind zeroImport noForbidden scopeClean all true). budget smoke 41/41 incl. production-path enforcement checks. No regression (61/50/55/34/38). codex verify green. validate ALL PASS 65/65. 4 reviewers (concept/quality/test-coverage/behavior) passed; round-1 CRITICAL finding F-001 (resolveHardBudget read {} not process.env -> production no-op) fixed + resolved; escalation not required (1/2).",
+  "outcomeDiff": "Expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Claude-host only (other hosts have no live call). Hard budget compares the PREFLIGHT bytes/chars estimate (coarse, low-confidence) — a real count_tokens estimate would be more precise (future). No postflight overage remediation, no Authority-required budget modes, no default-on. Opt-in: enforcement only when LATTICE_HARD_BUDGET_TOKENS is set + ledger flag on.",
+  "pitfalls": "NEVER invent a budget: unset => proceed (budgetPolicyId=null). Keep the OFF/unset path byte-identical and the budget-check fail-open (an error must not block). resolveHardBudget must default to process.env (the F-001 bug was reading {}). The blocked record supersedes the estimate and is never provider-reported. Budget is on the coarse preflight estimate, not real usage.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 357731
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7320
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 393288
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 690544
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 813359
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 63785
+    }
+  },
+  "totalDurationMs": 2326028,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T21:15:15.644Z",
+  "updatedAt": "2026-06-16T21:15:15.644Z"
+}

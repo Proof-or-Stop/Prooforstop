@@ -1,0 +1,25 @@
+{
+  "task": "修复 thin-init-assets-smoke 在干净 main 上因 .lattice/usage .gitignore 漂移而 FAIL，根因是 cli-init 复制路径绕过 registry runtime ignore",
+  "outcome": "在干净 main 的 worktree 运行 `npm run test:thin-init-assets-smoke`，终端输出 `✓ global-thin init assets smoke passed` 且退出码 0，不再出现 `AssertionError [ERR_ASSERTION]: ... STALE_SAFE .gitignore: missing runtime ignore pattern(s): .lattice/usage/`；运行 `git diff main -- .gitignore` 看到 `# lattice runtime artifacts (managed)` 块内新增一行 `.lattice/usage/`。",
+  "facts": [
+    "runtime-artifact-registry.ts:126-132 为 llm-usage-ledger 声明 ignorePatterns=[.lattice/usage/]（B-08a1/B-253e 引入）",
+    "managed-assets.ts:865-870 的 gitignore-runtime 检查以 registry 为真相源，缺 pattern → STALE_SAFE",
+    "cli-init.ts:560-563 复制分支 cpSync(giSrc) verbatim 拷贝主仓 .gitignore，不合并 registry runtime ignore 块",
+    "cli-init.ts:581-588 已有文件分支调 mergeKoalaRuntimeIgnores，已经 registry-synced",
+    "主仓自身 .gitignore 的 managed 块陈旧，缺 .lattice/usage/",
+    "真实 npm 安装时 giSrc 不存在 → 走 minimal 分支(B)（已 registry-synced），故只有自举 dev repo 触发复制分支(A)的漂移"
+  ],
+  "constraints": [
+    "不改 runtime-artifact-registry 的 ignorePatterns 语义，不改 managed-assets 检查逻辑",
+    "不把 smoke 聚合进 lattice validate battery（归 B-99b6）",
+    "runtime-artifact-registry 作为 runtime ignore 单一真相源",
+    "改动须通过 pre-push 递归 tsc gate 与 lattice validate"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    ".gitignore"
+  ],
+  "timestamp": "2026-06-16T21:01:23.344Z"
+}

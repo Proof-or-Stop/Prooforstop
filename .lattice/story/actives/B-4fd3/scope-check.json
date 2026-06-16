@@ -1,0 +1,73 @@
+{
+  "storyId": "B-4fd3",
+  "checkedAt": "2026-06-16T21:05:54.264Z",
+  "features": [
+    {
+      "feature": "init .gitignore 复制路径（giSrc 存在时 cpSync）改为调用 mergeKoalaRuntimeIgnores，以 registry 为真相源合并 runtime ignore 块",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "主仓自身 .gitignore 的 managed 块 resync，补齐 .lattice/usage/ 一行",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "clean main 上 thin-init-assets-smoke 通过（不再报 .lattice/usage/ STALE_SAFE）",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "smoke 新增机械断言：init 产物 .gitignore 覆盖 listRuntimeArtifactIgnorePatterns() 全集，防 registry 再漂移",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "聚合 thin-init-assets-smoke 进 validate battery 不在本 story 范围（归 B-99b6）",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description explicitly defers: 聚合 smoke 进 validate battery 不在本 story 范围（归 B-99b6）",
+      "source": "description"
+    },
+    {
+      "feature": "runtime-artifact-registry 注册 .lattice/usage/ 入 ignorePatterns 并带 gitignore 行为（lattice-llm-usage-ledger-execution-plan.md § Implementation Touchpoints）",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "thin-init-assets-smoke.ts 在 runtime-owned agent assets 计划中列为必须覆盖的 smoke（lattice-runtime-owned-agent-assets-execution-plan.md Phase 7）",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "registry-backed prompt 资产：STALE_SAFE 状态的 managed assets 只有在能证明是旧版未编辑的 managed asset 时才能更新或删除（lifecycle-artifact-scope.md）",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lifecycle-artifact-scope.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "10c6baf9fd785353bc105dc898c68dc6c2045513ee65358476d5c0d131177db1",
+  "openQuestions": []
+}

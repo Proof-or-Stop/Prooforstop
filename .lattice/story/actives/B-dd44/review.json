@@ -1,0 +1,57 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-16T20:48:54.114Z",
+      "issueCount": 8,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Pure budget-policy resolution + over-budget predicate + buildBlockedBudgetRecord (pure, validated) are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact shape of the blocked dispatch return value (mirror the existing exitCode!=0 / failure return in runClaudeCodeRealLeafDispatch); Whether to expose estimatedInputTokens via the preflight handle vs recompute via bytesCharsEstimator at the guard (prefer threading it from the handle)"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Never treat unavailable usage as zero to pass a budget orphan-suspect: see decisions:decisions/lattice-llm-usage-ledger-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        }
+      ],
+      "_hash": "d80aa76c49c54d3ba5241f90c2335bf4f356395ad9b7d38b5470fc2193e23056"
+    }
+  ]
+}

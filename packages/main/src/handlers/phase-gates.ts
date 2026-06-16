@@ -523,8 +523,7 @@ export async function runValidateGate(
  *
  * 构建并渲染 DONE Final Checklist（consumes core/done-oracle.ts —
  * buildDoneChecklist + renderDoneChecklist）。无论 advance 成功失败都会输出
- * 这份 checklist，强制主 agent 读一遍多层验证状态。对应 OMX ralph 的
- * <Final_Checklist>。
+ * 这份 checklist，强制主 agent 读一遍多层验证状态。
  *
  * On gate failure this throws; on success it returns the rendered checklist
  * string. B-9027 (Story 3b): runDonePreMergeGate in done-effects.ts wraps this

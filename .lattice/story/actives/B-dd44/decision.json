@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Block only on an explicit configured hard budget that is exceeded; unset/OFF = byte-identical dispatch",
+    "Never invent a budget (spec); a budget-check error proceeds, it does not wrongly block",
+    "Pure policy + predicate + blocked-record builder in-module (zero cross-module imports); minimal gated guard in the seam",
+    "The blocked path returns a well-formed dispatch result and skips the provider spawn (fail closed)",
+    "The blocked record supersedes the estimate; never counted as provider-reported usage"
+  ],
+  "drivers": [
+    "Operators need a hard token ceiling that prevents over-budget calls before any spend",
+    "It edits the dispatch control flow, so it must be bounded by the unset/OFF byte-identical invariant",
+    "The estimate already exists at the seam; the budget check slots in right after it"
+  ],
+  "options": [
+    {
+      "name": "A: pure policy+builder in-module + minimal gated pre-spawn guard",
+      "pros": [
+        "Testable in isolation",
+        "Tiny gated dispatch edit",
+        "unset/OFF byte-identical; module stays decoupled"
+      ],
+      "cons": [
+        "Alters control flow when budget set (intended)"
+      ]
+    },
+    {
+      "name": "B: inline the budget logic in lattice-dispatch.ts",
+      "pros": [
+        "One file"
+      ],
+      "cons": [
+        "Untestable, bloats the dispatch path — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: pure policy+builder in-module + minimal gated pre-spawn guard",
+  "rationale": "Keeping policy resolution, the over-budget predicate, and the blocked-record builder as pure in-module functions makes the control-flow change a tiny, testable, gated guard; the unset/OFF byte-identical invariant bounds the risk, and the budget-check-error-proceeds rule prevents the enforcement from causing spurious failures.",
+  "preMortem": [
+    {
+      "scenario": "Budget check wrongly blocks when no budget is configured",
+      "trigger": "Default/empty env treated as 0",
+      "consequence": "Every dispatch blocked — severe regression",
+      "mitigation": "resolveHardBudget returns null (no enforcement) when unset/invalid; CHK-004 case (b) asserts spawn happens with budgetPolicyId=null"
+    },
+    {
+      "scenario": "Flag OFF runs budget code / changes behavior",
+      "trigger": "Guard outside the gate",
+      "consequence": "Behavior change for non-opted-in users",
+      "mitigation": "Guard strictly inside isUsageLedgerEnabled(); OFF path unchanged; CHK-004 case (a) asserts byte-identical"
+    },
+    {
+      "scenario": "A budget-check error blocks a real dispatch",
+      "trigger": "Throw while reading/parsing budget",
+      "consequence": "Dispatch fails due to diagnostics",
+      "mitigation": "All budget work in try/catch; on error PROCEED (do not block) — local non-authority never invents a budget; tested"
+    },
+    {
+      "scenario": "estimatedInputTokens not available at the guard -> wrong/[]-comparison",
+      "trigger": "Preflight handle lacks the count",
+      "consequence": "Budget never enforced or NaN compare",
+      "mitigation": "Extend recordDispatchPreflight to return estimatedInputTokens (or recompute via bytesCharsEstimator); CHK-001/003 test the comparison"
+    },
+    {
+      "scenario": "Blocked path returns a malformed dispatch result -> downstream breaks",
+      "trigger": "Ad-hoc return",
+      "consequence": "Caller crashes on a blocked dispatch",
+      "mitigation": "Return a well-formed result mirroring the existing failure-return shape; behavior reviewer + CHK-004 case (c) verify"
+    },
+    {
+      "scenario": "Blocked record double-counts as usage",
+      "trigger": "Wrong source/decision",
+      "consequence": "Inflated totals",
+      "mitigation": "decision.kind=blocked + source=prompt-size-estimate/unavailable; supersedes the estimate; summary excludes it from provider-reported; CHK-005"
+    }
+  ],
+  "timestamp": "2026-06-16T20:43:29.964Z"
+}

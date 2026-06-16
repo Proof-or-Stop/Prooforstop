@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 51 个文件
+> 50 个文件
 
 ## decisions
 
@@ -9,7 +9,7 @@
 - [Authority Receipt Gate Integration Execution Plan](decisions/authority-receipt-gate-integration-execution-plan.md)
 - [Authority Runner Session and Evidence Envelope](decisions/authority-runner-session-evidence-envelope.md)
 - [Authority Receipt Gate End-to-End Plan](decisions/authority-session-receipt-gate-execution.md)
-- [Lattice CLI Authority Client Role (PD-1 / PD-2 Decisions)](decisions/authority-client-role.md)
+- [Koala CLI Authority Client Role (PD-1 / PD-2 Decisions)](decisions/authority-client-role.md)
 - [koala 向 Claude Code 学习的改造方案](decisions/cc-learnings.md)
 - [Dev Memory — Lightweight Experience Capture](decisions/dev-memory.md)
 - [Decision Doc Promotion Execution Plan](decisions/decision-doc-promotion-execution-plan.md)
@@ -19,7 +19,6 @@
 - [F-009 Layer 2 Engineering Proof Gap Execution Plan](decisions/f009-layer2-engineering-proof-gap-execution-plan.md)
 - [Resolve gap_analyze Three High Gaps Execution Plan](decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md)
 - [Host-Neutral Observability Console（CLI-backed read-only Dashboard 设计）](decisions/host-neutral-observability-console.md)
-- [Lattice Console Demo MVP Requirements Recommendation](decisions/lattice-console-demo-mvp-requirements.md)
 - [Lattice Host Overflow](decisions/host-overflow.md)
 - [Lattice Baseline Two-Host Multi-Agent Execution Plan](decisions/lattice-baseline-two-host-multi-agent-execution-plan.md)
 - [Lattice Authority Customer API Key Access](decisions/lattice-authority-customer-api-key-access.md)

@@ -1,0 +1,164 @@
+{
+  "storyId": "B-ed70",
+  "checkedAt": "2026-06-16T20:44:18.145Z",
+  "features": [
+    {
+      "feature": "Replace koala with Lattice in lab/package.json description (1 line)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "git mv all 18 .Codex/ internal files to .lattice-codex/",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update all external .Codex/ path references in tracked files to .lattice-codex/",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update decision docs that reference .Codex/ (lifecycle-artifact-scope.md, stack-layering.md, koala-to-lattice-role-naming-execution-plan.md, lattice-codex-command-boundary-execution-plan.md, lattice-runtime-owned-agent-assets-execution-plan.md, slim-fields-token-savings-execution-plan.md, cli-engine-english-open-source-execution-plan.md, lattice-codex-command-boundary-execution-plan.md) to use .lattice-codex/",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Keep lowercase .codex/ directory untouched (Codex CLI native hook contract)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "verify_codex 8/8 passes after rename (Codex adapter behavioral contract unchanged)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove .omx/ from .gitignore",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete scripts/verify-omx-disabled.mjs and remove test:omx-disabled script entry from root package.json",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove AGENTS.md item #12 (OMX disable prohibition)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove omx-refusing source code from packages/main/src (baseline.ts, baseline-suite-report.ts, dev-memory.ts, lattice-baseline.ts, runtime-artifact-registry.ts, handlers/capsule.ts, tasks/story-capsule-smoke.ts, tests/fixtures/baseline-risk-accepted-local-paths.json)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update 10 decision docs documenting OMX disable policy to reflect omx-not-supported (not omx-supported-but-disabled). Files: lifecycle-artifact-scope.md, unlock-layer2-ENG-suite.md, unlock-layer3-loop-engineering-suite.md, unlock-layer4-production-safety-suite.md, lattice-baseline-two-host-multi-agent-execution-plan.md, lattice-midflight-story-repair-and-gitroot-worktree-plan.md, stash-split-execution-plan.md, review-run-start-signed-workspace-resolution-execution-plan.md, koala-to-lattice-role-naming-execution-plan.md, cli-engine-english-open-source-execution-plan.md",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "npm run build + npm run test:e2e pass after all three changes",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "The 308-file koala residual sweep (deferred new session)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "excluded from B-ed70 scope: deferred to new session per story description",
+      "source": "description"
+    },
+    {
+      "feature": ".lattice/ directory (not in scope for rename)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "excluded from B-ed70 scope per story description (out of scope list)",
+      "source": "description"
+    },
+    {
+      "feature": "intent-coverage.ts (live, not renamed)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "excluded from B-ed70 scope per story description (out of scope list)",
+      "source": "description"
+    },
+    {
+      "feature": ".koala runtime path layer (not renamed in B-ed70)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "excluded from B-ed70 scope per story description (out of scope list)",
+      "source": "description"
+    },
+    {
+      "feature": "lifecycle-artifact-scope.md explicitly states .omx/... disabled locally and must not be registered as runtime artifact path — this line must be removed or reworded under CHK-003 omx-not-supported direction",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "lattice-codex-command-boundary-execution-plan.md .Codex/ references in scan/audit guidance must be updated to .lattice-codex/",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-codex-command-boundary-execution-plan.md"
+    },
+    {
+      "feature": "lattice-runtime-owned-agent-assets-execution-plan.md .Codex/ references (13 occurrences) must be updated to .lattice-codex/",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "stack-layering.md documents .Codex/agents/* as Claude Code/Codex Layer — must be updated to .lattice-codex/agents/*",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/stack-layering.md"
+    },
+    {
+      "feature": "No decisions/ spec requires preserving .Codex/ as canonical uppercase directory name after B-ed70 — no spec blocks the rename",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "covered": 17,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f62e012c03ba23aa96d98a1d701938d5c7a1fe98b5055146a82267bd0b440348",
+  "openQuestions": []
+}

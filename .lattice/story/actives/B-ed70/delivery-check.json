@@ -1,0 +1,53 @@
+{
+  "storyId": "B-ed70",
+  "checkedAt": "2026-06-16T21:32:47.658Z",
+  "reviewRound": "2026-06-16T21:20:07.360Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/lab/package.json#description",
+      "promise": "lab/package.json description replaces koala with Lattice in the offline lab description",
+      "verifiedBy": "grep + diff",
+      "evidence": "diff shows -koala +Lattice on line 4; grep -i koala packages/lab/package.json returns empty (exit 1); current file reads Lattice 离线优化实验室"
+    },
+    {
+      "docPath": "CLAUDE.md / AGENTS.md / README.md / docs/guide-hooks.md",
+      "promise": "Uppercase .Codex/ renamed to .lattice-codex/ across all docs and source; 18 files in .lattice-codex/; lowercase .codex/ Codex CLI hook contract preserved",
+      "verifiedBy": "git grep + filesystem check + diff",
+      "evidence": "git grep -nE .Codex -- . :(exclude).lattice returns empty; find .lattice-codex -type f = 18 files; .codex/hooks.json + .codex/hooks/lattice-scope-pretool.cjs both present; managed-assets.ts and codex-adapter-checks.ts diffs show all .Codex refs replaced; koala tokens in appendLegacyRuntimeExclusions carry explicit comment marking them as intentional legacy-denylist"
+    },
+    {
+      "docPath": "AGENTS.md#item-12 / packages/main/src/core/runtime-artifact-registry.ts / scripts/verify-omx-disabled.mjs / package.json#test:omx-disabled",
+      "promise": "OMX disable guard removed: isForbiddenOmxPath deleted, verify-omx-disabled.mjs deleted, test:omx-disabled removed, .omx/ removed from .gitignore, AGENTS.md item 12 removed",
+      "verifiedBy": "diff + grep + filesystem check",
+      "evidence": "isForbiddenOmxPath deleted from runtime-artifact-registry.ts diff; scripts/verify-omx-disabled.mjs file deleted; git grep -inE omx -- . :(exclude).lattice :(exclude)CHANGELOG.md returns empty; .gitignore diff removes .omx/ line; AGENTS.md diff removes item 12"
+    },
+    {
+      "docPath": "AGENTS.md#over-reach-guards",
+      "promise": "Over-reach guards held: packages/main/src/core/intent-coverage.ts and packages/main/src/verifier/dev-cli.ts both present and unmodified",
+      "verifiedBy": "filesystem check + diff",
+      "evidence": "find locates both files; neither appears in changed files in diff; transcript-diff confirms both marked SAFE"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "grep -i koala packages/lab/package.json empty (exit 1); description reads Lattice 离线优化实验室; npm build exit 0; JSON.parse valid; 8 checklist evidence entries all verdict:success"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "git grep .Codex empty; .lattice-codex has 18 files; .codex/hooks.json + pretool.cjs present; verify_codex 8/8 PASS; verify-codex-assets exit 0; 16 checklist evidence entries all verdict:success"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "git grep omx empty; verify-omx-disabled.mjs deleted; isForbiddenOmxPath removed; npm build + test:e2e exit 0 ALL PASS; lattice validate PASS 41/41; 17 checklist evidence entries all verdict:success"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 docsPromises independently verified from diff and filesystem: koala gone from lab/package.json, .Codex fully renamed to .lattice-codex with 18 files and lowercase .codex preserved, OMX guard fully removed from source/scripts/gitignore/docs. Over-reach guards (intent-coverage.ts, dev-cli.ts) confirmed present. Gate checks all pass. No TODO/FIXME introduced. Edge cases covered: JSON validity sweeps, zero-match grep sweeps, build passes, e2e passes, verify_codex 8/8, validate 41/41."
+  },
+  "_hash": "96dd59806f77cba64579170dfdeb913746a401dd77a9a175e6831b8c90099160"
+}
