@@ -264,6 +264,39 @@ export function assessReviewConvergence(
 }
 
 /**
+ * CHK-003: thin store entry point used at REVIEW-entry render time.
+ *
+ * WHY this exists (the crux of CHK-003): at the moment story_advance REVIEW
+ * renders its output, the just-entered round's REVIEW/advance event is ALREADY
+ * counted by resolveReviewRoundCount — so roundCount includes the CURRENT round.
+ * But that round's reviewers have NOT run yet, so the current round's
+ * blocking-finding count is always 0. assessReviewConvergence has a
+ * `recentRoundClean = window[last] === 0 => not stalled` carve-out; feeding it
+ * the raw dense per-round counts (whose trailing entry is the always-empty
+ * current round) would make the advisory NEVER fire — a silent no-op.
+ *
+ * THEREFORE we assess the trend over COMPLETED rounds only: drop the trailing
+ * current round before handing the window to the pure assessor. roundCount stays
+ * the FULL entry count, so the `roundCount >= STALL_MIN_ROUNDS` threshold still
+ * means "entered REVIEW >= STALL_MIN_ROUNDS times"; only the trend window is
+ * restricted to rounds whose reviewers have actually run.
+ *
+ * Pure-ish: only reads via the store (delegates to collectReviewConvergenceInputs),
+ * no writes, no transition side effects. assessReviewConvergence stays PURE.
+ */
+export function assessReviewConvergenceAtEntry(
+  store: StoryStore,
+  storyId: string,
+): ReviewConvergenceAssessment {
+  const { roundCount, perRoundBlockingCounts } = collectReviewConvergenceInputs(store, storyId);
+  // Drop the just-entered current round (its reviewers have not run yet, so its
+  // blocking count is structurally 0 at render time). Assess the trend over the
+  // COMPLETED rounds only. roundCount is intentionally left as the full count.
+  const completed = perRoundBlockingCounts.slice(0, -1);
+  return assessReviewConvergence(roundCount, completed);
+}
+
+/**
  * Builds the English-only advisory message. Starts with a stable marker so the
  * line is easy to grep/test, and includes BOTH escalation hints.
  */
