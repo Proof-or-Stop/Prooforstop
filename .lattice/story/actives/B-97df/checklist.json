@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Grouped aggregation by story/phase/role/model/provider",
+      "context": "In a new core/usage-ledger/diagnostics.ts (or report.ts), add aggregation that consumes summary.ts's selection (latest non-superseded per ledgerCallId+attemptId) and rolls up canonical token dimensions by storyId, phase, agentType/role, model, and provider. Reuse summary.ts; do NOT re-implement selection/bucketing. Provider-reported vs prompt-size-estimate vs unavailable kept separate; unknown/unavailable stays unknown (never 0); superseded estimates excluded from final totals. Unit-tested across groups.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Pure cost projection with an INJECTED price table",
+      "context": "Add a pure cost function that takes an injected price table (per-model rates for input/output/cacheRead/cacheCreation $/MTok, including the cache multipliers) and a group's token totals -> cost. NO hardcoded prices anywhere. When no price table is supplied, cost is null/omitted (not 0). Record a pricingRef/pricingVersion when a table is supplied. Unknown token dimensions -> cost unknown (never treated as 0). Tested: cost computed with a sample table; null when no table; unknown stays unknown.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Read-only diagnostics report builder (feeds no gate)",
+      "context": "Add a buildUsageReport(records, {priceTable?}) that assembles a structured report object: overall totals (by source), per-group breakdowns (story/model/role/...), counts (provider-reported/estimate/unavailable), unknown count, and optional cost when a price table is given. It MUST be read-only and feed NO gate (no gate/verdict/decision/blocker field; not imported by any handler/gate). Tested: report shape correct; no gate-consumable field; deterministic.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Runnable reporter task (npm script, not a CLI command)",
+      "context": "Add packages/main/src/tasks/usage-ledger-report.ts that reads a ledger JSONL path (arg/env) and an optional price-table path, builds the report, and prints it (human-readable + a JSON mode). Wire it as an npm script (e.g. usage-ledger-report). Do NOT register a lattice CLI command and do NOT touch the command registry / cli-engine / handlers — the entry point stays a task to honor the no-other-logic constraint. Tested: running it over a sample ledger prints a correct report and exits 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Smoke/test suite wired into package.json",
+      "context": "Add packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-diagnostics. Cover: grouped aggregation correctness (by story/model/role/provider; unknown!=0; estimate excluded from provider totals; superseded excluded); cost projection with/without injected price table (null when absent; unknown stays unknown); report builder feeds no gate (no gate/verdict/decision field); the reporter task runs over a sample ledger and prints correctly; build green; and a static assert that the usage-ledger module still imports ZERO other Lattice modules. No regression in the other usage-ledger smokes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

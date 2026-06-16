@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-97df",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-97df",
+    "packages/main/package.json",
+    "packages/main/src/core/usage-ledger",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/dispatch-runner.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/handlers"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-16T14:34:10.291Z",
+  "updatedAt": "2026-06-16T14:34:10.291Z",
+  "_hash": "6293f0f81d1ae6c5d4a3686c6cfc37ea865d448ce1143d23e8b306b3afebdae8"
+}
