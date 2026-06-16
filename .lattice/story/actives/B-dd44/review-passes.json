@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-16T21:10:44.729Z",
       "reviewRunId": "B-dd44:RR-007",
       "_hash": "830154fb86a6ce5c11304767a7581b56f06c34365c9978ce80c91da86c079320"
+    },
+    {
+      "id": "B-dd44:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Re-review of fix commit 896d0a1. All 4 dispatch behaviors confirmed correct in code:\n\n(1) OFF/unset budget => byte-identical dispatch (spawn happens): ledgerOn=false at line 1955 (isUsageLedgerEnabled() no-arg, defaults to process.env) short-circuits the entire budget block at line 1995; spawnSync is always reached. Confirmed by F-001 guard: ledger OFF + budget set -> strict no-op test.\n\n(2) Hard budget set (real process.env) + preflight estimate over => BLOCK (skip spawn) + well-formed blocked DispatchRunResult status=failed: resolveHardBudget now defaults env??process.env (line 524), and lattice-dispatch.ts threads env:process.env explicitly (line 1971). recordBudgetBlock->shouldBlockDispatch->resolveHardBudget reads the real env; isOverHardBudget uses strict > (line 551). buildBudgetBlockedDispatchResult returns DispatchRunResult{status:failed, schemaVersion:lattice.dispatch_run.v1, ...} without calling spawnSync. Confirmed by F-001 guard: prod-shaped opts + over budget -> ENFORCES test.\n\n(3) Budget-check error => proceeds (fail-open): shouldBlockDispatch wraps resolveHardBudget and isOverHardBudget in try/catch returning {block:false} on any error (line 691-694); recordBudgetBlock outer try/catch also returns notBlocked on unexpected assembly error (line 791-793). Never blocks on error.\n\n(4) Boundary: estimate==budget => proceeds (strict >): isOverHardBudget returns estimatedInputTokens > hardBudgetTokens (line 551), not >=, so exact equality is not over-budget. Confirmed by CHK-001 edge case isOverHardBudget(5000,5000)->false.\n\nThe key concern from this round (does process.env default introduce behavior change when NO budget is configured?) is resolved: when LATTICE_HARD_BUDGET_TOKENS and KOALA_HARD_BUDGET_TOKENS are absent from process.env, parsePositiveIntegerBudget returns null for both, resolveHardBudget returns null, shouldBlockDispatch returns {block:false}, recordBudgetBlock returns notBlocked immediately. Dispatch proceeds byte-identically. Locked by F-001 guard: prod-shaped opts + NO budget env -> proceeds test. No findings.",
+      "createdAt": "2026-06-16T21:13:21.487Z",
+      "reviewRound": "2026-06-16T21:10:44.729Z",
+      "reviewRunId": "B-dd44:RR-006",
+      "_hash": "64da565e0ef14d49f7a21238b121c3166e0e41de9d95f35092ea771fca437145"
     }
   ]
 }
