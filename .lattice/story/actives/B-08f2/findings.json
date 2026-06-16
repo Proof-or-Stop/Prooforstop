@@ -34,6 +34,24 @@
       "files": [
         "packages/main/src/core/dev-memory.ts"
       ]
+    },
+    {
+      "id": "B-08f2:F-003",
+      "desc": "dead-code: packages/main/src/core/config.ts:359 resolveProjectRoot() reads LATTICE_PROJECT_ROOT twice on consecutive lines — line 358 already returns if set, making line 359 unreachable dead code; same pattern in packages/main/src/core/dev-memory.ts:207 and packages/main/src/cli-engine.ts:2751 resolveRoot()",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:27:48.356Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-005",
+      "_hash": "4bd185b647cc05b5ab13a05dd2973caaad0c4fe9575b430420a9d773bfc2add5",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
