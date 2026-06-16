@@ -1,0 +1,24 @@
+{
+  "storyId": "B-0740",
+  "checkedAt": "2026-06-16T02:11:19.407Z",
+  "reviewRound": "2026-06-16T01:58:56.058Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "story-metadata-protection-smoke.ts: 12 checks covering wrapper-root --repair installs allowlist (repairWrote:true), second run is no-op (repairWrote:false), leaked fatal: not a git repository in stderr asserted absent, allowlist found in gitRoot/.gitignore. Adversarial revert proof: reverting source fix (cwd:root, drop gitCwd param) makes wrapper-root case fail with AssertionError repairWrote false!==true and TS2554 compile error. Passes exit 0 against current HEAD."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "validate-lint-change-scope-smoke.ts: cases (e) wrapper-root rebase strips wrapper/ prefix and marks frontend out-of-scope; (e2) out-of-projectRoot path rebases to ..-prefixed and triggers fail-closed; (f) gitCwd==projectRoot output byte-identical to omitted; (g) throwing reader WITH gitCwd set resolves to undefined (never converts throw to []); (h) empty diff WITH gitCwd set resolves to [] distinct from undefined. Adversarial revert proof: removing the rebase line makes wrapper-root case (e) fail on deepEqual. DI seam: gitRootReader asserts threaded gitCwd. Passes exit 0 against current HEAD."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "CLAUDE.md and docs/ are untouched so zero docsPromises. Both CHK-001 and CHK-002 have real smoke tests with DI seams covering wrapper-root happy path, no-op edge case, and adversarial revert proof. No unresolved TODO/FIXME in modified production files. Smoke tests pass against current HEAD."
+  },
+  "_hash": "ffe2e5fdff2d5a6d38e1130418fe61829121356550dd82df568d421abd4cdcf0"
+}
