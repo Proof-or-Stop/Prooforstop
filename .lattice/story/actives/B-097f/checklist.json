@@ -103,25 +103,25 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "在已有 16 个 project-local .claude/agents 的项目跑 lattice init(或 --upgrade),输出逐条 ↻ .claude/agents/<file> (migrated to global);随后项目内这 16 个被移除,用户自建的非管理 agent 文件仍在",
+      "userSees": "普通 lattice init 检测到已有 project-local .claude/agents 管理文件时,输出 ⚠ 16 managed agent files found in .claude/agents; run lattice init --upgrade to migrate to global,但不删除;跑 lattice init --upgrade 后才逐条 ↻ migrated to global 并移除这 16 个,用户自建 my-custom.md 保留;lattice doctor 输出 agentAssetMode: runtime-owned",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "已有 project-local 16 文件的项目 init 后被移除并同步到全局",
+            "desc": "显式 --upgrade 把已有 project-local 16 管理文件迁移到全局并移除",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "用户自建非管理 agent 文件迁移后仍保留",
+            "desc": "普通 init 仅 WARN 不删除;用户自建非管理文件任何路径都保留",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "与管理模板同名的处理:按管理 basename 删除并逐条记录,不通配清空",
+            "desc": "只按 16 精确管理 basename 删除不通配;lattice doctor 报 agentAssetMode runtime-owned",
             "type": "logic",
             "priority": "must"
           }
