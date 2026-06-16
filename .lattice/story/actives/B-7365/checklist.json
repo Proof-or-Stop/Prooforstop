@@ -39,9 +39,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "repro drives the real reconcile into a conflict; fails pre-fix (markers/abort), passes post-fix (clean index.json)",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.604Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "single-session reconcile path unchanged (init-check-atomicity-smoke still green)",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.604Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "3-way conflict on index.json + checklist.json (multi-file) leaves no markers in any file",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.604Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "on conflict, storyRel paths resolved to main (checkout --theirs/add) and merge completes; no markers",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.604Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "clean (no-conflict) merge stays byte-identical via runGitNoThrow happy path",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.604Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "multi-file conflict under storyRel fully resolved; a conflict OUTSIDE storyRel aborts + throws (never commits markers)",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.604Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "reconcile metadata commit + merge wrapped in withReentrantMainWriteLock(gitMainRoot, fn, label)",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.605Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "reentrant variant nests safely; single-session advance does not deadlock (main-write-lock-smoke green)",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.605Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "npm run test:init-check-reconcile-conflict-smoke",
           "result": "pass",
           "note": "throw in the reconcile releases the lock via the helper finally (no stuck lock)",
-          "headHash": "f2bba17d55b2e58697508922e902f6d6935c9323",
-          "materialHash": "b228ebfe1a8ca7a49ddf33c1db03f77ac46cbcf1efb8813116032c0f7ed66adf",
-          "timestamp": "2026-06-16T02:22:54.605Z"
+          "headHash": "ee3e5ee2e3eee0ed67b8fb0c4033941e1bf96486",
+          "materialHash": "c720178c13ab2db98831ea5d40662fb2bb1396dc030c996488ca69f2294b516b",
+          "timestamp": "2026-06-16T02:33:32.999Z"
         }
       ]
     }
