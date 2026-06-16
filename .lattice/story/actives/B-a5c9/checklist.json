@@ -72,6 +72,50 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "bytesCharsEstimator(model, \"hello world\") returns { estimatedInputTokens: N, kind: bytes_chars } where N > 0; WHY: basic smoke that the offline estimator produces a positive token count",
+            "type": "cli"
+          },
+          {
+            "desc": "bytesCharsEstimator called twice with identical input returns identical estimatedInputTokens; WHY: determinism -- same input must yield same output with no randomness",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Monotonicity: bytesCharsEstimator(model, shortText) <= bytesCharsEstimator(model, shortText + moreText); WHY: more text must produce >= estimated tokens (coarse monotonicity)",
+            "type": "cli"
+          },
+          {
+            "desc": "Empty string input returns estimatedInputTokens === 0 or a minimal baseline; WHY: edge case for zero-length prompt",
+            "type": "cli"
+          },
+          {
+            "desc": "Very large input (1MB of repeated text) returns a proportionally large estimate without crashing; WHY: ensures no overflow or OOM on large prompts",
+            "type": "cli"
+          },
+          {
+            "desc": "Unicode/multi-byte input (CJK characters, emoji) produces a reasonable estimate; WHY: bytes-based heuristic must handle multi-byte correctly",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "bytesCharsEstimator requires NO network and NO provider client -- calling it with no env vars, no API keys, offline, still succeeds; WHY: it is a pure offline fallback; any network dependency is a design violation",
+            "type": "cli"
+          },
+          {
+            "desc": "bytesCharsEstimator is NOT tiktoken -- the source code or module name does not import/require tiktoken; WHY: tiktoken is OpenAI-specific and undercounts Claude tokens; the spec explicitly forbids it",
+            "type": "cli"
+          },
+          {
+            "desc": "bytesCharsEstimator with null/undefined input throws or returns 0, never returns NaN or negative; WHY: defensive against malformed caller input",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
