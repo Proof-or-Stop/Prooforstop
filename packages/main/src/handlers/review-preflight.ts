@@ -333,6 +333,7 @@ export function runReviewCliGates(
   // undefined → checkLint runs full recursive tsc (never skip-all).
   const changedFiles = resolveChangedFiles({
     projectRoot: deps.projectRoot,
+    gitCwd,
     changedFilesReader: deps.changedFilesReader,
   });
   const lint = checkLint({
