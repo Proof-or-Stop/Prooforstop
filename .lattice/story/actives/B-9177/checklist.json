@@ -176,6 +176,17 @@
           "headHash": "146d8dedbe8b47540120634a7e79c51020473c83",
           "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
           "timestamp": "2026-06-16T04:24:55.645Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "No false-positive: guard marks story-worktree-only sites mutates-main=no/locked=n/a and does not require a lock for them",
+          "headHash": "f90f6d02533ac905f0c6ae3ed7e14396c140eeee",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:56.067Z"
         }
       ]
     }
