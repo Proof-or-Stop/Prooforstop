@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9177",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "lattice *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm --prefix packages/main test",
+    "npx tsc *",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-9177",
+    "packages/main/package.json",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Lock-coverage audit + close gaps in withReentrantMainWriteLock + regression guard test under packages/main/src/tasks. Read-only git/grep for the audit; build+test for verification.",
+  "createdAt": "2026-06-16T03:49:55.534Z",
+  "updatedAt": "2026-06-16T03:49:55.534Z",
+  "_hash": "b6d329d4d554b64275fa26f3b679820eb5412799c790e66de556210a72fb797a"
+}

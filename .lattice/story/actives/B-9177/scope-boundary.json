@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9177",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a regression guard test that turns red when a main-mutating commit path ships without holding the main-write-lock, plus a negative case",
+    "Audit packages/main/src CLI paths (handlers + cli-engine + core) that commit to or mutate the main branch or main worktree, and identify any not covered by the main-write-lock",
+    "Wrap each remaining unlocked main-mutating critical section in withReentrantMainWriteLock (lock-only, no command-semantic change)"
+  ],
+  "excluded": [
+    "Full per-session physical checkout isolation (a separate repo checkout per session) — the larger maximalist architecture change, intentionally deferred to a future design decision"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized driving B-9177 (main-write-lock coverage hardening) through the full Lattice flow to DONE without per-step confirmation; scope bounded to lock-coverage + regression guard, generalizing the B-7365 fix.",
+  "createdAt": "2026-06-16T03:49:21.415Z",
+  "updatedAt": "2026-06-16T03:49:21.415Z",
+  "_hash": "ed0392b7bb51c666429a0ee289f161d4e05b014eec297e61add81c2112d66bdd"
+}
