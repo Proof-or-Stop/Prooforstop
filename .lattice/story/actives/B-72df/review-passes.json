@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T03:35:34.200Z",
       "reviewRunId": "B-72df:RR-006",
       "_hash": "386b3e81f127182c4baed680bf039f67b28df6839d54846d265c28643a8e0110"
+    },
+    {
+      "id": "B-72df:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "R2 quality re-check: F-001 fix (commit f38b2fe) is correct and complete. (1) Both dirty-path parse (git -c core.quotePath=false status --porcelain) and affected-path set (git diff -z, NUL-separated, never quoted) now emit identical raw UTF-8 — the overlap intersection is correct for non-ASCII filenames. (2) unquoteGitPath/JSON.parse path is now unreachable: with core.quotePath=false porcelain never quotes paths, so the function always returns its input unchanged — harmless. (3) No regression for paths with spaces: git core.quotePath only controls non-ASCII quoting, not spaces; slice(3) + trimEnd() in parsePorcelainDirtyPaths correctly preserves internal spaces; -z diff side identical. Test b3 in done-merge-scope-smoke.ts adds cafe.ts to both branches, dirties it in main, and asserts the throw — correctly targeting the F-001 clobber scenario. All three verification points clean. No new issues.",
+      "createdAt": "2026-06-16T03:37:13.898Z",
+      "reviewRound": "2026-06-16T03:35:34.200Z",
+      "reviewRunId": "B-72df:RR-004",
+      "_hash": "86cc00a99d13336597ee40d9a8c78593147c588ece85c3558b4e8b6d09e65b57"
     }
   ]
 }
