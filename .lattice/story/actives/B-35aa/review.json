@@ -22,6 +22,24 @@
         }
       ],
       "_hash": "d6aa4a0bcfc2fe52f72938f93ce8e80d526581af71a4e3d63bd221e97f2b7487"
+    },
+    {
+      "timestamp": "2026-06-16T23:50:07.408Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "2 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Data Migration/Destructive, Validation Framework"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        }
+      ],
+      "_hash": "15368f36a1a3a712ab8780e49ab184c55b9295ce5d4945d3ec8f1ed8643664ba"
     }
   ]
 }

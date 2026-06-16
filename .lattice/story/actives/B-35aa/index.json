@@ -4,7 +4,7 @@
   "title": "A0: Test runner consolidation decision doc — adopt in-house parallel runner + manifest + c8 coverage (Path B)",
   "description": "A0 (kickoff/decision-only) story for the test-runner consolidation sub-program (Proposal #2). Produce a permanent decision document at docs/requirements/decisions/test-runner-consolidation-plan.md that records the chosen architecture and decomposes the implementation into 3-4 follow-up Lattice stories. No code changes in this story — only the decision doc. Chosen path: B (in-house parallel runner + manifest + c8 coverage), rejecting A (vitest migration of the 151 spawn-CLI integration smokes). Out of scope: any test runner code, any smoke file edits, any package.json script consolidation, any c8 wiring — all moved to follow-up stories enumerated in the decision doc.",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "test-infra",
@@ -47,6 +47,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-16T23:44:16.893Z",
+      "branch": "story/B-35aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T23:50:07.882Z",
       "branch": "story/B-35aa",
       "user": "Harmonygo",
       "agent": "main"
