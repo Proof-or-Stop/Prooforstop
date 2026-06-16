@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-0f7c:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 44 intents (CHK-001: 3h/4e/4a, CHK-002: 2h/5e/3a, CHK-003: 2h/2e/3a, CHK-004: 2h/3e/3a, CHK-005: 4h/2e/2a) have valid non-fail manual_transcript evidence backed by the dispatch smoke (38/38 checks verified live). Safety invariants confirmed sound: offByteIdentical regex matches actual buildClaudeSpawnArgs source; seamGated confirmed by try/catch wrapping in runClaudeCodeRealLeafDispatch; zeroImport confirmed (adapters/../canonical-json resolves within usage-ledger/); noForbidden/scopeClean verified against git diff. Simulated E2E asserts served model, provider total 1900, estimateCount=0. No hollow assertions found.",
+      "createdAt": "2026-06-16T19:36:41.856Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-001",
+      "_hash": "4fe4ca2094076523a1e0c2c64c1c584d8a957d59e8ebaccff9e262e1fad320c3"
+    }
+  ]
+}
