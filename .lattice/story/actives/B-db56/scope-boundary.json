@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-db56",
+  "mode": "custom",
+  "allowed": [
+    "Audit all 193 git child-process call sites across packages/ and reroute the unrouted through resolveGitCwd; add a grep-based contract smoke that fails on bare-projectRoot git calls; wire its npm script."
+  ],
+  "excluded": [
+    "Changing resolveGitCwd's public signature or its returned value semantics",
+    "Modifying how metadataRoot and gitRoot relate in lattice.config.json",
+    "The koala-removal residual work",
+    "The smoke runner consolidation sub-program (separate effort)"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User chose Lattice workflow for proposal #1 (2026-06-16).",
+  "createdAt": "2026-06-16T22:09:38.700Z",
+  "updatedAt": "2026-06-16T22:09:38.700Z",
+  "_hash": "98dddfa6916e3476e0bfe95c1b616354608c282dd1f18c1006e0d4ba10bbce55"
+}

@@ -1,14 +1,31 @@
 {
   "storyId": "B-db56",
-  "checkedAt": "2026-06-16T22:06:34.863Z",
+  "checkedAt": "2026-06-16T22:08:30.900Z",
   "reviewRound": "",
-  "agentId": "product-reviewer",
-  "issues": [],
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights lists prior P1 fixes as (B-1637, B-e791, B-0740, B-2856) but omits B-3990 (which created bare-gate-gitroot-cwd-smoke.ts, cited in the same sentence). A new reader cannot tell which story created the bare-gate smoke without cross-referencing separately. Standalone readability minor gap."
+    }
+  ],
   "agentResults": [
     {
       "agentId": "product-reviewer",
       "checkedAt": "2026-06-16T22:06:34.863Z",
       "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-16T22:08:30.900Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights lists prior P1 fixes as (B-1637, B-e791, B-0740, B-2856) but omits B-3990 (which created bare-gate-gitroot-cwd-smoke.ts, cited in the same sentence). A new reader cannot tell which story created the bare-gate smoke without cross-referencing separately. Standalone readability minor gap."
+        }
+      ]
     }
   ],
   "_hash": "c48e8ee14f24d9a4a4650540f8bcab4e33aaf7570f07ac8dafeb685df68df29c"
