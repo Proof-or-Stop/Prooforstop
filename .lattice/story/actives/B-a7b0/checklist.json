@@ -187,6 +187,17 @@
           "headHash": "b80cca00bce053eb1e26f0a1c95a0c1e7d077355",
           "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
           "timestamp": "2026-06-16T21:27:28.060Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Smoke is chained into root npm test (= lattice validate battery): test:main-write-lock-coverage && test:docs-drift-smoke && test:e2e. Observed output line \"docs-drift path+asset smoke passed\" during npm test, then \"✓ ALL PASS\". Negative control: breaking one assert in dist yields non-zero exit.",
+          "headHash": "a9ad3e2a9352f1fe212d37c80f21d531a83d004f",
+          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
+          "timestamp": "2026-06-16T21:27:34.058Z"
         }
       ]
     }
