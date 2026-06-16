@@ -390,6 +390,17 @@
           "headHash": "183ade4c07058586f9e805acaced16f868385767",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:58.611Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'lattice-codex' CLAUDE.md | head",
+          "result": "pass",
+          "note": "CLAUDE.md updated to .lattice-codex.",
+          "headHash": "d8d251ad75616624ca3b6d8ca4bc34ed9a7d966f",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:59.137Z"
         }
       ]
     },
