@@ -55,6 +55,17 @@
           "headHash": "751f968bcddb0557aa6a925d4cd316fc730d3dae",
           "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
           "timestamp": "2026-06-16T21:11:29.627Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "node --input-type=module -e (runtimeIgnoreMissing on repo .gitignore)",
+          "result": "pass",
+          "note": "mergeKoalaRuntimeIgnores 在 desiredBlockLines 为空时返回 changed:false（幂等）；验证 repo .gitignore runtimeIgnoreMissing=[] 即再次 merge 为 no-op，不重复追加",
+          "headHash": "21f25fdb89af1f1b2c2cc05aa73169ca98583fde",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T21:11:30.221Z"
         }
       ]
     },
