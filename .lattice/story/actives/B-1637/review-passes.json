@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T00:15:43.126Z",
       "reviewRunId": "B-1637:RR-005",
       "_hash": "1cc239a73f8b4d00b3ee64c5ff3434d7efe7438b121e2e4606b1a7b01613819f"
+    },
+    {
+      "id": "B-1637:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed doctor.ts and doctor-gitroot-probe-smoke.ts. Dead code: none — resolveDoctorGitCwd is exported and consumed by the smoke; all gitCwd default parameters are exercised. Type safety: production code has no unnecessary `as any`; smoke monkey-patches process.stdout.write with `as any` which is the standard approach for test stream capture. No empty catch swallowing (existing catch clauses return safe sentinel values, unchanged). I/O shell isolation: neither changed file is a shell file; no fn.ts import from shells. The two new execSync discovery calls now pipe stdio correctly. No blocking issues found.",
+      "createdAt": "2026-06-16T00:17:15.843Z",
+      "reviewRound": "2026-06-16T00:15:43.126Z",
+      "reviewRunId": "B-1637:RR-004",
+      "_hash": "3da109713a8de51e288d3d1365899d72454e0b8c830cd2a80910e7d274e9c1c2"
     }
   ]
 }
