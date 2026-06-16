@@ -121,6 +121,17 @@
           "headHash": "dd0489b4409b37de083ae83e46345dca17a57bb2",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:52.799Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -ri koala packages/lab/package.json",
+          "result": "pass",
+          "note": "Direct file: 0 koala. (Broader packages/lab dir koala refs are pre-existing residual sweep work, not in this story's scope.)",
+          "headHash": "6617e5359567286d4ced97c98cacc01e05686d04",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:53.380Z"
         }
       ]
     },
