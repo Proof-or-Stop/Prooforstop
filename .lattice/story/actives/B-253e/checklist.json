@@ -547,9 +547,9 @@
       "id": "CHK-004",
       "title": "Runtime rejection of raw prompt/transcript/secret material",
       "context": "The writer/validator must reject (throw or refuse to write) any record carrying raw prompt, raw completion, raw transcript, raw tool arguments, provider secrets, customer API keys, actor keys, or authorization headers — per the spec's Privacy Constraints. Allowed: hashes, model/provider names, usage counts, reason codes, redaction profile id. Tested with an injection attempt that must be rejected.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T01:20:10.348Z",
       "files": {
         "modify": [
           "packages/main/src/core/usage-ledger/writer.ts",
