@@ -94,6 +94,92 @@ function sha256Hex(input: string): string {
 }
 
 /**
+ * Separator-free forms of forbidden field NAMES. The record.ts denylist matches
+ * exact lowercased keys, which `ApiKey`/`RawPrompt`/`AUTHORIZATION` already hit
+ * (and it intentionally ALLOWS metadata flags like `promptStored`, which are not
+ * raw content). The one gap is a separator variant like `API_KEY`, which
+ * lowercases to `api_key` and so misses the exact set. The builder runs THIS
+ * supplementary scan: it strips every non-alphanumeric char from each key (so
+ * `API_KEY` -> `apikey`, `raw-prompt` -> `rawprompt`) and rejects only when the
+ * normalized form EXACTLY equals a forbidden name. Exact (not substring) match
+ * preserves the denylist's allowance of `promptStored`/`transcriptStored`. This
+ * is a local hardening of the builder only; it does not change the validator.
+ */
+const FORBIDDEN_NORMALIZED_NAMES: ReadonlySet<string> = new Set([
+  'apikey',
+  'apikeys',
+  'apisecret',
+  'providersecret',
+  'providerapikey',
+  'providerkey',
+  'customerapikey',
+  'actorkey',
+  'actorsecret',
+  'privatekey',
+  'secret',
+  'secrets',
+  'secretkey',
+  'password',
+  'passphrase',
+  'credential',
+  'credentials',
+  'authorization',
+  'authorizationheader',
+  'authheader',
+  'bearertoken',
+  'accesstoken',
+  'refreshtoken',
+  'sessiontoken',
+  'rawprompt',
+  'prompt',
+  'rawcompletion',
+  'completion',
+  'rawtranscript',
+  'transcript',
+  'messages',
+  'rawmessages',
+  'rawresponse',
+  'responsebody',
+  'rawrequest',
+  'requestbody',
+  'rawcontent',
+  'content',
+  'totaltokens',
+  'totaltoken',
+  'tokentotal',
+  'totalusage',
+]);
+
+function normalizeKey(key: string): string {
+  return key.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Deep-scan for separator-variant forbidden field names (e.g. API_KEY). Uses an
+ * EXACT match on the separator-stripped key so legitimate flags whose name merely
+ * CONTAINS a forbidden word (e.g. `promptStored`) are not falsely flagged.
+ */
+function scanSeparatorVariants(value: unknown, path = ''): string[] {
+  const hits: string[] = [];
+  const visit = (node: unknown, nodePath: string): void => {
+    if (Array.isArray(node)) {
+      node.forEach((item, index) => visit(item, `${nodePath}[${index}]`));
+      return;
+    }
+    if (typeof node !== 'object' || node === null) return;
+    for (const [key, child] of Object.entries(node)) {
+      const childPath = nodePath ? `${nodePath}.${key}` : key;
+      if (FORBIDDEN_NORMALIZED_NAMES.has(normalizeKey(key))) {
+        hits.push(childPath);
+      }
+      visit(child, childPath);
+    }
+  };
+  visit(value, path);
+  return hits;
+}
+
+/**
  * Build a privacy-preserving evidence envelope from a ledger record.
  *
  * INV-4: before extracting anything, deep-scan the SOURCE record for forbidden
@@ -108,8 +194,10 @@ export function buildUsageEvidenceEnvelope(
   record: UsageLedgerRecord,
 ): PrivacyPreservingUsageEvidenceEnvelope {
   // Deep-scan the whole record (any nesting depth). One forbidden field name
-  // poisons the build: we refuse rather than risk leaking it.
-  const hits = scanForbiddenFields(record);
+  // poisons the build: we refuse rather than risk leaking it. The canonical
+  // record.ts denylist runs first; the supplementary separator-insensitive scan
+  // catches variants like API_KEY that the exact denylist would miss.
+  const hits = [...new Set([...scanForbiddenFields(record), ...scanSeparatorVariants(record)])];
   if (hits.length > 0) {
     throw new ForbiddenEvidenceMaterialError(hits);
   }
