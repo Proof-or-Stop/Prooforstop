@@ -456,6 +456,17 @@
           "headHash": "b136bf3a7fa30015c3190329c30169d1acdb55b2",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:02.251Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only HEAD~5 HEAD -- .codex/",
+          "result": "pass",
+          "note": "Empty — lowercase .codex/ had zero changes in the rename diff.",
+          "headHash": "7e0c759cb5431c9924d12812f9fd981ff2a5b367",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:02.820Z"
         }
       ]
     },
