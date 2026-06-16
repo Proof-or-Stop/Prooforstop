@@ -71,7 +71,30 @@
       "userSees": "lattice validate green with tests asserting the three cases (unrelated-allowed, overlapping-blocked, clean-unchanged).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test: unrelated-dirty proceeds + file preserved",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test: clean unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "test: overlapping-dirty still blocked",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
