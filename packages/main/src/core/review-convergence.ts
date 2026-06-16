@@ -208,8 +208,21 @@ export interface ReviewConvergenceAssessment {
  * Input shape: perRoundBlockingCounts is DENSE and round-aligned (length ===
  * roundCount, index === actual round-1) per collectReviewConvergenceInputs. So
  * once roundCount >= STALL_MIN_ROUNDS (4) and STALL_WINDOW (3) <= 4, the trailing
- * window always has exactly STALL_WINDOW real entries — no short-window case to
- * special-case, and recently-clean rounds contribute their actual 0s.
+ * window always has exactly STALL_WINDOW real entries — and recently-clean rounds
+ * contribute their actual 0s.
+ *
+ * PRECONDITION / SHORT-WINDOW BEHAVIOR (enforced, not just documented): the
+ * strictly-decreasing trend branch (b) is only meaningful over a FULL window of
+ * STALL_WINDOW values. If the trailing window has FEWER than STALL_WINDOW entries
+ * (a caller passing a shorter perRoundBlockingCounts than the production entry
+ * point supplies — e.g. assessReviewConvergence(4, [2, 1])), there is not enough
+ * completed-round history to assert a SUSTAINED stall, so we conservatively return
+ * { stalled: false } (no false alarm for a soft advisory). This check runs BEFORE
+ * the strict-decreasing / clean-tail logic. The production entry point
+ * (assessReviewConvergenceAtEntry) always supplies a full window — its `completed`
+ * array has length roundCount-1 >= STALL_MIN_ROUNDS-1 (3) === STALL_WINDOW (3) —
+ * so this guard is a no-op on the production path and never changes a full-window
+ * classification. It only removes a short-window false positive for direct callers.
  *
  * Convergence rule (precise & deterministic). Take the last STALL_WINDOW values
  * of perRoundBlockingCounts (the `window`). The story is CONVERGING (not stalled)
@@ -242,7 +255,14 @@ export function assessReviewConvergence(
   }
 
   const window = perRoundBlockingCounts.slice(-STALL_WINDOW);
-  if (window.length === 0) {
+
+  // Short-window guard (precondition enforcement): a trailing window with fewer
+  // than STALL_WINDOW entries does not carry enough completed-round history to
+  // assert a SUSTAINED stall. Conservatively report NOT stalled (no false alarm).
+  // Runs BEFORE the trend logic so a genuinely-decreasing short window like [2,1]
+  // is never misread as a stall just because it cannot fill a full window. The
+  // production entry point always supplies a full window, so this is a no-op there.
+  if (window.length < STALL_WINDOW) {
     return { stalled: false };
   }
 
@@ -250,6 +270,9 @@ export function assessReviewConvergence(
   const recentRoundClean = window[window.length - 1] === 0;
 
   // (b) Strictly decreasing window => sustained downward trend => converging.
+  // window.length === STALL_WINDOW is guaranteed by the short-window guard above;
+  // kept explicit so the branch documents its full-window precondition at the
+  // point of use.
   const strictlyDecreasing = window.length === STALL_WINDOW
     && window.every((value, i) => i === 0 || value < window[i - 1]);
 

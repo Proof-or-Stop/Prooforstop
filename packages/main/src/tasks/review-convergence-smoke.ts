@@ -33,6 +33,7 @@
 import { strict as assert } from 'node:assert';
 import { fileURLToPath } from 'node:url';
 import {
+  assessReviewConvergence,
   assessReviewConvergenceAtEntry,
   collectReviewConvergenceInputs,
   STALL_MIN_ROUNDS,
@@ -223,7 +224,33 @@ function run(): void {
     console.log(`${MARKER} (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal`);
   }
 
-  console.log(`\n${MARKER} PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, and only appends text (never blocks a transition).`);
+  // ---- (f) SHORT-WINDOW PRECONDITION (F-001): a trailing window shorter than
+  // STALL_WINDOW is conservatively NOT a stall, even for a genuinely-decreasing
+  // sequence. This guards the pure assessor against the false positive a direct
+  // caller could hit; the production entry point always supplies a full window. ----
+  {
+    // Genuinely decreasing 2-element window: must NOT be a false-positive stall.
+    const decShort = assessReviewConvergence(4, [2, 1]);
+    assert.equal(decShort.stalled, false, '(f) short decreasing window [2,1] must NOT stall (no short-window false positive)');
+    assert.equal(decShort.message, undefined, '(f) short-window not-stalled carries no advisory message');
+
+    // Flat 2-element window: also NOT a stall (insufficient history to assert one).
+    const flatShort = assessReviewConvergence(4, [2, 2]);
+    assert.equal(flatShort.stalled, false, '(f) short flat window [2,2] must NOT stall (insufficient completed-round history)');
+
+    // Full-window classifications must remain IDENTICAL (production path unchanged):
+    //   [2,2,1] -> last=1, not strictly decreasing -> stalled=true
+    //   [2,1,0] -> last=0 (clean tail) / strictly decreasing -> stalled=false
+    const fullStall = assessReviewConvergence(4, [2, 2, 1]);
+    assert.equal(fullStall.stalled, true, '(f) full window [2,2,1] must still stall (unchanged)');
+    assert.ok(fullStall.message, '(f) full-window stall still carries an advisory message');
+    const fullConverge = assessReviewConvergence(4, [2, 1, 0]);
+    assert.equal(fullConverge.stalled, false, '(f) full window [2,1,0] must still converge (unchanged)');
+
+    console.log(`${MARKER} (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)`);
+  }
+
+  console.log(`\n${MARKER} PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).`);
 }
 
 const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
