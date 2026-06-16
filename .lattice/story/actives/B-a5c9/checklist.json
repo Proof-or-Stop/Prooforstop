@@ -40,7 +40,16 @@
       "context": "selectEstimate({model, input, countTokens?: TokenEstimator, localTokenizer?: TokenEstimator}) picks the highest-available estimator in order count_tokens > local_tokenizer > bytes_chars, returns {estimatedInputTokens, kind, confidence, model}. The estimate is bound to the exact model id passed. count_tokens/localTokenizer are injected (optional); when neither is provided, falls back to bytes_chars. Tested: with count_tokens injected -> high; only localTokenizer -> medium; neither -> bytes_chars/low; model id echoed back.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/estimate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
