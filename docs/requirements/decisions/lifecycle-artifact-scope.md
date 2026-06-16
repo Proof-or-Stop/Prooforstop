@@ -175,3 +175,72 @@ Safe migration follows the existing managed-asset states:
 Registry-backed prompt checks are adapter hygiene. They do not submit evidence,
 verify receipts, or satisfy production authority. Validation evidence and
 receipt-backed authority remain separate gate inputs.
+
+## Policy: host-neutral prompt content, thin host adapters (B-097f)
+
+The single source of truth for every Lattice agent prompt **body** is the package
+prompt registry (`packages/main/templates/agents/*.md` via
+`promptRegistryManifest()`). **No host materializes prompt content.** Each host
+keeps only a *thin adapter* that points back at the registry; the adapter shape is
+dictated by that host's loader, but the content source is identical across hosts.
+
+| Host | Thin adapter (what lives in the project/global) | Prompt content source |
+| --- | --- | --- |
+| Codex | `.Codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package prompt registry |
+| Claude | `.claude/agents/*.md` **thin shim** (frontmatter `name`/`description`/`tools` + a "fetch from CLI" body) | package prompt registry, served by `lattice agent_prompt` |
+
+B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
+not materialize `.Codex/agents`; it resolves prompts from the registry via its
+manifest. This policy does the host-neutral equivalent for **Claude**, which —
+unlike Codex — cannot resolve a subagent from a single manifest: Claude Code only
+discovers subagents from on-disk `.claude/agents/*.md` files and reads each file's
+frontmatter to register the `subagent_type` and its `tools` sandbox. So Claude
+keeps one file per role, but that file is a **content-free shim**.
+
+**Contract:**
+
+1. **Prompt content never lives under a host.** A Claude shim contains only
+   frontmatter (`name`, `description`, `tools`) plus a body instructing the agent
+   to fetch its authoritative instructions from the Lattice CLI. The role prompt
+   body is **not** copied or symlinked into any host directory.
+
+2. **`lattice agent_prompt --role=<name>` is the shared content endpoint.** It
+   returns the canonical role body by reading the package registry template
+   (`templates/agents/<role>.md`) — the same template set the prompt registry
+   manifest (`promptRegistryManifest()`) is built from and that the Codex manifest
+   resolves against. Claude shims fetch from this command; Codex resolves the same
+   template set. There is one content source, byte-for-byte.
+
+3. **Shims live in global `~/.claude/agents`; projects get zero agent files.** The
+   16 shims are generated once into the user-global `~/.claude/agents` so Claude
+   Code resolves `subagent_type: lattice-*` for all projects from one place.
+   `lattice init` writes **zero** `.claude/agents` files into a project (fresh
+   tree stays `.lattice/Lattice.md` + `AGENTS.md`, plus any pre-existing
+   `CLAUDE.md`). Shim frontmatter (`tools`) is derived from each registry
+   template's frontmatter so the reviewer read-only sandbox is preserved.
+
+4. **`tools` sandbox is preserved.** Because the shim keeps the `tools:`
+   frontmatter, the host still mechanically restricts each role (e.g.
+   `lattice-review-*` stay read-only). Thinning the body does not weaken the
+   sandbox.
+
+5. **Migration is explicit, never silent (execution-plan Phase 4).** A normal
+   `lattice init` MUST NOT delete project-local files. When it detects existing
+   project-local managed agent files (full copies or symlinks from older
+   versions) it only WARNs and points at `lattice init --upgrade`. Removal happens
+   only under the explicit `--upgrade` flow, deletes only the managed basenames
+   (the set from `templates/agents`), preserves user-authored files, forbids
+   wildcard clears, and logs each removal.
+
+6. **Precedence drives why removal is required.** Claude Code project-level
+   `.claude/agents/` shadows user-level `~/.claude/agents/` (project wins on name
+   collision). Stale project-local managed files must be removed under `--upgrade`
+   for the global shims to take effect.
+
+7. **Observability.** `lattice doctor` reports `agentAssetMode: runtime-owned` so
+   the host-neutral state is diagnosable across projects.
+
+This realizes the runtime-owned principle in
+`lattice-runtime-owned-agent-assets-execution-plan.md` for both hosts: agent
+prompt **content** belongs to the local Lattice CLI runtime/registry, not to any
+host directory or business project; hosts hold only thin, content-free adapters.

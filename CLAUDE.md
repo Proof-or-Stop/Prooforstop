@@ -763,6 +763,21 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 - **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
 - **跨 story 全局意识**：修一个 feature 可能发现基础设施的 bug，一起修
 
+## Agent prompt 资产：host-neutral 单一源（B-097f）
+
+Lattice agent prompt 的**正文（body）只有一个真相源**：包内 registry 模板 `packages/main/templates/agents/*.md`（其指纹清单 = `promptRegistryManifest()`，仅元数据非正文）。**任何宿主目录都不物化正文**——每个宿主只留一层 thin 适配，正文经 `lattice agent_prompt`（内部 `readPromptTemplate` 读模板原文）现取。改模板 → 所有宿主下次取到的就是新正文，不存在陈旧快照。
+
+| 宿主 | 项目/全局里的薄适配 | 正文来源 |
+|---|---|---|
+| Claude | `.claude/agents/*.md` thin-shim（frontmatter `name`/`description`/`tools` + body 写「run `lattice agent_prompt --role=<name>`」，**无正文**） | `lattice agent_prompt`（registry） |
+| Codex | `.Codex/lattice.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
+
+- **取正文命令**：`lattice agent_prompt --role=<name>`（如 `lattice-implementer` / `lattice-review-concept`），从 registry 吐角色正文；非法 role 列出可用 role。Claude shim 取它，Codex manifest 指它，两者 byte-equal 同源。
+- **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "lattice-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `lattice agent_prompt --role=<自身角色>` 取权威指令**再执行。
+- **init 行为**：`lattice init` 往**项目里写 0 个 agent 文件**；16 个 thin-shim 一次性放在全局 `~/.claude/agents`，所有项目共用。
+- **迁移显式**：已有 project-local 管理文件时，普通 `init` 只 WARN 不删；删除/迁移仅在 `lattice init --upgrade`，且只删 16 个管理 basename、保留用户自建文件。`lattice doctor` 报 `agentAssetMode: runtime-owned`。
+- 真相源：`docs/requirements/decisions/lifecycle-artifact-scope.md` →「Policy: host-neutral prompt content, thin host adapters (B-097f)」+ `lattice-runtime-owned-agent-assets-execution-plan.md` 的 Implementation Status。
+
 ## REVIEW 阶段规则（框架实现）
 
 ### Verification Intent / Evidence

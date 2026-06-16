@@ -605,3 +605,27 @@ Suggested stories:
 
 Each story must carry its own verificationIntent and should avoid broad
 template/adapter rewrites outside its declared scope.
+
+## Implementation Status
+
+- **Codex side — landed (B-4ee0).** Global-thin default; Codex resolves prompts
+  from the package registry via the `.Codex/lattice.json` manifest
+  (`promptMode: 'registry'`). No `.Codex/agents` materialization in global-thin/thin
+  mode.
+- **Claude side — landed (B-097f), host-neutral.** Claude Code cannot resolve a
+  subagent from a single manifest (it discovers subagents only from on-disk
+  `.claude/agents/*.md` and reads each file's frontmatter to register the
+  `subagent_type` + `tools` sandbox). So Claude keeps one file per role, but the
+  file is a **content-free thin shim**: frontmatter (`name`/`description`/`tools`)
+  plus a body that instructs the agent to run `lattice agent_prompt --role=<name>`.
+  The role **body** is never copied or symlinked onto disk; it is served by the
+  new `lattice agent_prompt` command, which reads the canonical registry template
+  (`templates/agents/<role>.md`) — the same template set the prompt registry
+  manifest (`promptRegistryManifest()`) is built from and that the Codex manifest
+  resolves against (byte-for-byte one source). `lattice init` writes zero project `.claude/agents` files; the 16 shims
+  live once in global `~/.claude/agents`. Migration of pre-existing project-local
+  managed files is explicit (`lattice init --upgrade` only; normal init merely
+  WARNs), deletes only managed basenames, preserves user files. `lattice doctor`
+  reports `agentAssetMode: runtime-owned`. See
+  `lifecycle-artifact-scope.md` → "Policy: host-neutral prompt content, thin host
+  adapters (B-097f)".
