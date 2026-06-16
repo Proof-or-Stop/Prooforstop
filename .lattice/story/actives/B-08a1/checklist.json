@@ -121,6 +121,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Feed Gemini response with cachedContentTokenCount present {usageMetadata:{promptTokenCount:600,candidatesTokenCount:250,cachedContentTokenCount:150}} -> canonical.input=600, canonical.output=250, canonical.cacheRead=150, canonical.cacheCreation===null; source=provider-reported; raw.providerUnits=gemini-usage-v1; WHY: Gemini reports cache reads via cachedContentTokenCount but never cache writes",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Gemini response WITHOUT cachedContentTokenCount (model/request that does not use cached content) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported; WHY: per-dimension absence is null, record stays provider-reported because primary counts exist",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Feed Gemini response with cachedContentTokenCount=0 (cache active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); WHY: 0 is a real provider-reported zero distinct from null",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Gemini response with totalTokenCount field present alongside prompt/candidates -> adapter ignores totalTokenCount (forbidden stored total); output record must NOT contain totalTokens; WHY: Gemini API returns totalTokenCount but it must never propagate to the ledger record",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Feed Gemini response with usageMetadata=null/undefined -> source=unavailable with unavailableReason; WHY: no-usage must be explicit unavailable, never zeros",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Gemini response and verify cacheCreation is STRICTLY null via typeof/=== check, not 0, not undefined -> assert cacheCreation === null; WHY: cacheCreation is the key null-never-0 contract for Gemini",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Gemini response with candidatesTokenCount missing but promptTokenCount present -> adapter must handle gracefully (output=null or unavailable, not inferred as 0); WHY: partial provider response where output dimension is missing",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
