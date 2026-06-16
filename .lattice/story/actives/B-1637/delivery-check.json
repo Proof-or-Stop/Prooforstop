@@ -1,0 +1,31 @@
+{
+  "storyId": "B-1637",
+  "checkedAt": "2026-06-16T00:20:07.697Z",
+  "reviewRound": "2026-06-16T00:15:43.126Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "N/A",
+      "promise": "No CLAUDE.md or doc-section promises introduced by this diff. This is an internal diagnostic cwd fix (express channel, pure code change). The diff touches only packages/main/src/handlers/doctor.ts, packages/main/src/tasks/doctor-gitroot-probe-smoke.ts, package.json, and packages/main/package.json — no .md files or documented contracts are modified.",
+      "verifiedBy": "git diff main...HEAD --name-only: zero .md files outside .lattice/ story metadata",
+      "evidence": "Changed files: doctor.ts, doctor-gitroot-probe-smoke.ts, package.json (x2). No CLAUDE.md, no docs/ .md, no framework contract changed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "CHK-001 (cwd fix + stderr pipe): verified in two ways. (1) Real CLI transcript in .lattice/story/actives/B-1637/evidence/transcript-diff.md: node packages/main/dist/cli.js doctor from a wrapper-root fixture (metadataRoot != gitRoot) exits 0, grep for fatal: not a git repository across stdout+stderr returns 0 lines, report is produced. Sanity check confirms raw git in that metadataRoot does print fatal, proving the fixture is genuine. (2) Automated smoke (node packages/main/dist/tasks/doctor-gitroot-probe-smoke.js) independently verified: resolveDoctorGitCwd resolves to gitRoot subdir on wrapper-root and to root on plain-repo; e2e doctor() on wrapper-root produces no fatal line and still returns a report; e2e on plain-repo is unchanged. All 5 assertions pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "CHK-002 (regression smoke): packages/main/src/tasks/doctor-gitroot-probe-smoke.ts exists, registered as test:doctor-gitroot-probe in both ./package.json and ./packages/main/package.json. Smoke run by this reviewer: node packages/main/dist/tasks/doctor-gitroot-probe-smoke.js — all 5 checks pass (resolver wrapper-root, resolver plain-repo, resolver null-gitRootAbs fallback, e2e wrapper-root no-fatal, e2e plain-repo unchanged). Covers happy path (plain repo), wrapper-root fix (the reported bug), and null-config edge case. Exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both CHK-001 and CHK-002 independently verified: CHK-001 by real CLI transcript showing 0 fatal lines from a genuine wrapper-root fixture, CHK-002 by running the smoke directly (5/5 assertions pass). Edge cases covered: wrapper-root (bug fix), plain-repo (unchanged), null-gitRootAbs (fallback). No TODOs. No doc-section promises to check — pure internal cwd routing fix."
+  },
+  "_hash": "d058029a3b3dbdff3648c9660ff8d9dcea0536fa8be29d12b3ab515472d9c375"
+}
