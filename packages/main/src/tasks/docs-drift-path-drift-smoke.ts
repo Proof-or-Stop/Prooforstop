@@ -1,22 +1,36 @@
 /**
- * docs-drift-path-drift-smoke (B-a7b0 CHK-001)
+ * docs-drift-path-drift-smoke (B-a7b0 CHK-003)
  *
- * Logic test for the path-reference drift extension of runDocsDriftGate.
- * Uses INJECTED pathExists / grepLiteral so there is NO real disk access and
- * the test is deterministic.
+ * CANONICAL regression for the two CLAUDE.md docs-drift extensions added by this
+ * story (CHK-001 path-reference drift + CHK-002 managed-asset contradiction).
+ * Everything is dependency-injected — in-memory md strings + injected
+ * pathExists / grepLiteral / managedAssetDefs — so there is NEVER any real disk
+ * access and the real CLAUDE.md is NEVER read or mutated. The test is fully
+ * deterministic.
  *
- * Coverage:
- *   - happy:       a referenced path that does not exist (pathExists=false, grep=false)
- *                  → status 'fail', path appears in missingPaths.
- *   - edge:        a referenced path that exists (pathExists=true)
- *                  → status 'pass', missingPaths empty.
- *   - adversarial: docs/story/... path + uppercase-XXX placeholder are NOT flagged;
- *                  an allowlisted path is NOT flagged; AND the command-name
- *                  missing/stale result is byte-identical to a run WITHOUT repoRoot.
+ * The four behaviors this story's checks MUST hold (CHK-003 acceptance):
+ *   (a) STALE-PATH fixture          → runDocsDriftGate status 'fail', path in missingPaths.
+ *   (b) MANAGED-ASSET-CONTRADICTION → forbids a non-allowlisted generated-kind
+ *                                     relPath → status 'fail', asset in
+ *                                     managedAssetContradictions.
+ *   (c) CLEAN fixture               → paths exist, no forbidden generated assets
+ *                                     → status 'pass', missingPaths AND
+ *                                     managedAssetContradictions both empty.
+ *   (d) COMMAND-NAME BEHAVIOR UNCHANGED → for a fixture exercising the command-name
+ *                                     scan, runDocsDriftGate WITHOUT opts produces
+ *                                     byte-identical missing/stale/status vs. the
+ *                                     same call WITH opts that have no path/asset
+ *                                     drift (the additive checks do not perturb the
+ *                                     existing command-name result).
+ *
+ * Below, the original CHK-001 / CHK-002 sub-fixtures are kept as the detailed
+ * coverage (happy/edge/adversarial per check); the four lettered behaviors are
+ * then asserted explicitly as a consolidated acceptance block.
  */
 
 import assert from 'node:assert/strict';
 import {
+  checkDocsDrift,
   runDocsDriftGate,
 } from '../handlers/validate-docs-drift.js';
 
@@ -278,5 +292,149 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   );
 }
 
-console.log('docs-drift-path-drift smoke passed');
-console.log('docs-drift-managed-asset-contradiction smoke passed');
+// ════════════════════════════════════════════════════════════════════════════
+// B-a7b0 CHK-003: consolidated four-behavior acceptance block.
+// Asserts the exact (a)/(b)/(c)/(d) shapes the story acceptance enumerates,
+// using DI fixtures only (no real CLAUDE.md, no disk).
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── (a) stale-path fixture → status 'fail', path in missingPaths ──
+{
+  const md = '# Doc\n\nThe gate lives at `packages/main/src/handlers/stale-path.ts`.\n';
+  const result = runDocsDriftGate([md], REGISTRY, {
+    repoRoot: REPO_ROOT,
+    pathExists: () => false, // referenced path does not exist on disk
+    grepLiteral: () => false, // and is not a string literal anywhere in source
+  });
+  assert.equal(result.status, 'fail', '(a) stale-path fixture must fail the gate');
+  assert.ok(
+    result.missingPaths.includes('packages/main/src/handlers/stale-path.ts'),
+    `(a) the stale path must appear in missingPaths (got ${JSON.stringify(result.missingPaths)})`,
+  );
+}
+
+// ── (b) managed-asset-contradiction fixture (non-allowlisted generated kind) → fail ──
+{
+  const md = '# Doc\n\n不要创建 `.codex/hooks/lattice-scope-pretool.cjs`。\n';
+  const result = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+    ],
+    // Empty allowlist → the contradiction is NOT suppressed (proves detection).
+    managedAssetAllowlist: new Set<string>(),
+  });
+  assert.equal(result.status, 'fail', '(b) forbidding a non-allowlisted generated asset must fail');
+  assert.deepEqual(
+    result.managedAssetContradictions,
+    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    `(b) the asset must appear in managedAssetContradictions (got ${JSON.stringify(result.managedAssetContradictions)})`,
+  );
+}
+
+// ── (c) clean fixture → status 'pass', BOTH missingPaths & contradictions empty ──
+{
+  // Paths exist; the only managed-asset mention is a NEUTRAL statement (the doc
+  // says the framework generates it — NOT a "do not create" prohibition), so no
+  // contradiction. Command names all resolve against REGISTRY.
+  const md = [
+    '# Doc',
+    '',
+    'See `packages/main/src/handlers/validate-docs-drift.ts` for the gate.',
+    'The framework generates `.codex/hooks/lattice-scope-pretool.cjs` automatically.',
+    '',
+    '```bash',
+    'lattice story_create',
+    'lattice validate',
+    '```',
+  ].join('\n');
+  const result = runDocsDriftGate([md], REGISTRY, {
+    repoRoot: REPO_ROOT,
+    pathExists: () => true, // every referenced path exists on disk
+    grepLiteral: () => true,
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+    ],
+    managedAssetAllowlist: new Set<string>(),
+  });
+  assert.equal(result.status, 'pass', '(c) clean fixture must pass the gate');
+  assert.deepEqual(result.missingPaths, [], '(c) clean fixture: missingPaths must be empty');
+  assert.deepEqual(
+    result.managedAssetContradictions,
+    [],
+    '(c) clean fixture: managedAssetContradictions must be empty',
+  );
+}
+
+// ── (d) command-name behavior UNCHANGED: WITHOUT opts ≡ WITH no-drift opts ──
+{
+  // A fixture that exercises the command-name scan: one unregistered command
+  // (caught by the command scan) plus a registered one. The path it references
+  // EXISTS and the managed-asset claim is neutral, so the additive checks find
+  // NO path/asset drift — meaning command-name missing/stale/status must be
+  // byte-identical whether or not opts are supplied.
+  const md = [
+    '# Doc',
+    '',
+    'See `packages/main/src/handlers/validate-docs-drift.ts`.',
+    '',
+    '```bash',
+    'lattice story_create',
+    'lattice not_a_real_command',
+    '```',
+  ].join('\n');
+
+  // Baseline: legacy command-only behavior (no opts at all).
+  const withoutOpts = runDocsDriftGate([md], REGISTRY);
+
+  // Same call WITH opts that introduce NO path/asset drift (path exists, neutral
+  // asset mention, empty asset allowlist).
+  const withNoDriftOpts = runDocsDriftGate([md], REGISTRY, {
+    repoRoot: REPO_ROOT,
+    pathExists: () => true,
+    grepLiteral: () => true,
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+    ],
+    managedAssetAllowlist: new Set<string>(),
+  });
+
+  // The additive checks contributed nothing.
+  assert.deepEqual(withNoDriftOpts.missingPaths, [], '(d) no-drift opts must yield empty missingPaths');
+  assert.deepEqual(
+    withNoDriftOpts.managedAssetContradictions,
+    [],
+    '(d) no-drift opts must yield empty managedAssetContradictions',
+  );
+
+  // Command-name results must be byte-identical between the two calls.
+  assert.deepEqual(
+    withNoDriftOpts.missing,
+    withoutOpts.missing,
+    '(d) command missing[] must be byte-identical with vs without opts',
+  );
+  assert.deepEqual(
+    withNoDriftOpts.stale,
+    withoutOpts.stale,
+    '(d) command stale[] must be byte-identical with vs without opts',
+  );
+  assert.equal(
+    withNoDriftOpts.status,
+    withoutOpts.status,
+    '(d) gate status must be identical with vs without opts (both fail on the unregistered command)',
+  );
+
+  // Cross-check the command scan result directly against the pure checkDocsDrift
+  // (the gate must not perturb what the pure scanner reports for this fixture).
+  const pure = checkDocsDrift(md, REGISTRY, new Set<string>());
+  assert.deepEqual(
+    withoutOpts.missing,
+    pure.missing,
+    '(d) gate missing[] must match pure checkDocsDrift missing[]',
+  );
+  assert.ok(
+    withoutOpts.missing.includes('not_a_real_command'),
+    '(d) the unregistered command must still be flagged (proves the command scan runs)',
+  );
+}
+
+console.log('docs-drift path+asset smoke passed');
