@@ -251,6 +251,17 @@
           "headHash": "9968d7d4b40e2cf226b17ecb2761a1b895849632",
           "materialHash": "2f521de1ad3e1313e304dae767346acd870b39ed0a541b4eace3fa1de9bf5346",
           "timestamp": "2026-06-16T14:50:55.142Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> doctor / doctor --format=json",
+          "result": "pass",
+          "note": "迁移只按 16 精确管理 basename(scanProjectLocalManagedAgents 从 templates/agents 派生)删除，不通配，my-custom.md 保留; lattice doctor 文本+JSON 均输出 agentAssetMode: runtime-owned",
+          "headHash": "da92b6302603f661e458316a5b522a632fd0fdd8",
+          "materialHash": "2f521de1ad3e1313e304dae767346acd870b39ed0a541b4eace3fa1de9bf5346",
+          "timestamp": "2026-06-16T14:50:55.884Z"
         }
       ]
     },
