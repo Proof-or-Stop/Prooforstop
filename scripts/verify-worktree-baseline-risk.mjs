@@ -5,9 +5,9 @@ import { join } from 'node:path';
 
 const repoRoot = process.cwd();
 const cli = join(repoRoot, 'packages/main/dist/cli.js');
-const temp = mkdtempSync(join(tmpdir(), 'koala-baseline-risk-'));
+const temp = mkdtempSync(join(tmpdir(), 'lattice-baseline-risk-'));
 
-function runKoala(command, payload) {
+function runLattice(command, payload) {
   const args = [cli, '--root', temp, command];
   if (payload !== undefined) args.push(JSON.stringify(payload));
   return execFileSync('node', args, {
@@ -55,7 +55,7 @@ try {
   mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true });
   writeFileSync(join(temp, 'README.md'), '# temp\n');
   writeFileSync(join(temp, '.gitignore'), '.worktrees\n');
-  writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(temp, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -67,12 +67,12 @@ try {
   }, null, 2) + '\n');
 
   git(['init', '-b', 'main']);
-  git(['config', 'user.name', 'Koala Test']);
-  git(['config', 'user.email', 'koala@example.com']);
+  git(['config', 'user.name', 'Lattice Test']);
+  git(['config', 'user.email', 'lattice@example.com']);
   git(['add', '.']);
   git(['commit', '-m', 'init']);
 
-  const created = runKoala('story_create', {
+  const created = runLattice('story_create', {
     name: 'baseline-risk',
     title: 'Baseline risk verification',
     description: 'Verify dirty main baseline is visible before story worktree use.',
@@ -83,15 +83,15 @@ try {
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   if (!storyId) throw new Error(`story id not found in output:\n${created}`);
-  runKoala('init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
-  runKoala('init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
+  runLattice('init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+  runLattice('init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
 
   mkdirSync(join(temp, 'experiments', 'configs'), { recursive: true });
   mkdirSync(join(temp, '.lattice', 'runtime'), { recursive: true });
   writeFileSync(join(temp, 'experiments', 'configs', 'new-chart.json'), '{"chartType":"replay-delta"}\n');
   writeFileSync(join(temp, '.lattice', 'runtime', 'turns.jsonl'), '{}\n');
 
-  const createdWorktree = runKoala('story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
+  const createdWorktree = runLattice('story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
   assertIncludes(createdWorktree, 'Baseline risk', 'confirm baseline warning');
   assertIncludes(createdWorktree, 'experiments/configs/new-chart.json', 'confirm material path');
   assertNotIncludes(createdWorktree, '.lattice/runtime/turns.jsonl', 'confirm volatile path hidden');
@@ -99,7 +99,7 @@ try {
   git(['add', 'experiments/configs/new-chart.json']);
   git(['commit', '-m', 'baseline: add chart config']);
 
-  const brief = runKoala('session_brief');
+  const brief = runLattice('session_brief');
   assertIncludes(brief, `${storyId} INIT_CHECK`, 'session brief active story listing');
   assertIncludes(brief, `.worktrees/${storyId}`, 'session brief worktree path');
 

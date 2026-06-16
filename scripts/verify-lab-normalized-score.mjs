@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const repoRoot = process.cwd();
-const cli = join(repoRoot, 'bin', 'koala.js');
+const cli = join(repoRoot, 'bin', 'lattice.js');
 const mode = process.argv[2] || 'all';
 
 function assert(condition, message) {
@@ -28,11 +28,11 @@ function parseCliJson(text) {
 }
 
 function createProject(prompt) {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-lab-normalized-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-lab-normalized-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(dir, '.Codex', 'agents'), { recursive: true });
-  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -46,8 +46,8 @@ function createProject(prompt) {
   writeFileSync(join(dir, 'README.md'), '# temp\n');
   writeFileSync(join(dir, '.Codex', 'agents', 'test-case-reviewer.md'), prompt);
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'Lattice Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   run(dir, ['lab', 'create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
