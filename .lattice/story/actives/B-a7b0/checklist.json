@@ -120,6 +120,17 @@
           "headHash": "79520fd391941e160ea799d7b782e2ca6977b7a1",
           "materialHash": "ea4213312371c96108edc165fca6a3970543bb795da3a124394ff1fef6286992",
           "timestamp": "2026-06-16T21:22:49.873Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "adversarial: allowlisted pending Codex-hooks claim NOT flagged (real CLAUDE.md self-check pass); flipping injected def kind generated→excluded flips outcome (proves registry-driven, not hardcoded); absent defs → empty contradictions; smoke green",
+          "headHash": "1841be01d2ffe0a84edeaa909afc15c201173154",
+          "materialHash": "ea4213312371c96108edc165fca6a3970543bb795da3a124394ff1fef6286992",
+          "timestamp": "2026-06-16T21:22:55.267Z"
         }
       ]
     },
