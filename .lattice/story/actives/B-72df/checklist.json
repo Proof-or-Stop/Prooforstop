@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "repro: unrelated dirty tracked file blocked DONE pre-fix (threw), passes post-fix",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "clean main worktree: precondition unchanged (case c)",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "unrelated dirty file is byte-identical after (not clobbered)",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "assertMainWorktreeReadyForMerge allows DONE when dirty paths are unrelated to the merge affected set (git diff main...story --name-status -M)",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "B-e74e main-worktree-unavailable handling preserved (no-git-HEAD still throws, case d)",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "overlapping dirty path (edit AND rename-source) still throws (clobber-protection); diff-uncomputable falls back to conservative block-all",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "test case a: unrelated-dirty proceeds + file preserved",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "test case c: clean unchanged; case d: main-unavailable still blocked",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
           "result": "pass",
           "note": "test case b: overlapping-dirty (edit + rename-source) still blocked",
-          "headHash": "96da0d4e8f20b416676f76aca87f22b85b9a387f",
-          "materialHash": "b8ec12c22bda5b2fd1457140c3ed4ff1b327afe0d20310b1e6d76310419b36c1",
-          "timestamp": "2026-06-16T03:37:36.159Z"
+          "headHash": "f0dbab9fe1345a304de65f45b83f6090e04074a2",
+          "materialHash": "641047121c6ae750a1c27094c8bfde4e0ba27a033023d1ad48020929e04a3294",
+          "timestamp": "2026-06-16T03:44:19.042Z"
         }
       ]
     }
