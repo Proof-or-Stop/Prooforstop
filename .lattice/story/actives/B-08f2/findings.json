@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-08f2:F-001",
+      "desc": "doc-code-drift: deletion of docs/koala/legacy/root-markdown/ (12 files) in this diff leaves dangling path references in 4 decision docs that were not updated: docs/requirements/decisions/root-document-migration-guide.md (lines 112,117), docs/requirements/decisions/root-markdown-migration-execution-solution.md (lines 32,42,43,136), docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md (lines 49,103), docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md (line 279). These docs reference docs/koala/legacy/root-markdown/ paths that no longer exist on disk. The references are historical-lineage prose (not hyperlinks), but an operator following them will find a dead path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-16T00:20:01.870Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-003",
+      "_hash": "d9aa99e30371ef66e522d1754e1eab512ce52992c122fc380aa1ae77d8831d58",
+      "files": [
+        "docs/requirements/decisions/root-document-migration-guide.md",
+        "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md"
+      ]
+    }
+  ]
+}
