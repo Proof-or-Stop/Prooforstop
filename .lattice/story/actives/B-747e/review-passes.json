@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-747e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. git grep -nw KoalaConfig -- packages: EMPTY. git grep -nE type|as KoalaConfig -- packages: EMPTY. interface LatticeConfig confirmed in packages/main/src/core/config.ts at line 26. All 4 consumers (dirty-worktree.ts, hooks.ts, story-signed-workspace-resolution.ts, workflow-policy.ts) correctly import and use LatticeConfig. Over-reach guard passed: diff touches exactly 5 core files in packages/main/src/core — no lab package, no fixtures, no koala.config.json, no comments or prose. No backward-compat alias present. Rename is complete and clean. No blocker.",
+      "createdAt": "2026-06-16T02:55:57.238Z",
+      "reviewRound": "2026-06-16T02:54:49.812Z",
+      "reviewRunId": "B-747e:RR-001",
+      "_hash": "763e629965f4e2d75826b2bdd3e6bd48e5a43bb5d32108cece0431e94051feb6"
+    },
+    {
+      "id": "B-747e:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Identifier-only rename confirmed. All 3 quality checks pass: (1) No dead code introduced in the 5 changed files — all LatticeConfig imports are actively used; the KoalaConfig whitelist in cli-engine-branding-smoke.ts is pre-existing dead code not introduced by this diff and explicitly deferred. (2) Type safety: no `as any` introduced, no empty catch blocks, no type regressions — rename is pure type alias substitution. (3) I/O shell isolation: no shell/bridge boundary violation — the 5 changed files are all core library files, not shells. `git grep -w KoalaConfig -- packages` returns zero matches. All 20 rename sites confirmed in 5 files. build (tsc exit 0) and test:e2e (exit 0) evidence present. No half-rename or leftover alias found. No findings.",
+      "createdAt": "2026-06-16T02:56:32.263Z",
+      "reviewRound": "2026-06-16T02:54:49.812Z",
+      "reviewRunId": "B-747e:RR-002",
+      "_hash": "428ffc15b804fcf025f0d1b363be6540273b447bd0e166be3b6f88f4d6639fc2"
+    },
+    {
+      "id": "B-747e:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 12 intents (4 happy / 3 edge / 5 adversarial) have non-failing evidence. Load-bearing re-checks confirmed: git grep -w KoalaConfig -- packages empty (exit 1), git grep -nE type/as KoalaConfig -- packages empty, interface LatticeConfig present in config.ts, npm run build exit 0, npm run test:e2e exit 0, implementation diff 20/20 identifier-only across exactly 5 files.",
+      "createdAt": "2026-06-16T02:57:23.585Z",
+      "reviewRound": "2026-06-16T02:54:49.812Z",
+      "reviewRunId": "B-747e:RR-003",
+      "_hash": "e87b092670b35a1e6a3f5c9920cb0e45c173a9150a00b01bb6abff4870f464ac"
+    }
+  ]
+}
