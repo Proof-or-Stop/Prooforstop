@@ -192,6 +192,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run the npm script (npm run usage-ledger-report) over a sample JSONL ledger file -> prints a human-readable report to stdout and exits 0; WHY: validates the primary use case end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with --json flag over a sample ledger -> prints valid JSON to stdout; WHY: validates machine-readable output mode",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with a price-table JSON file path -> output includes cost data; WHY: validates price table injection via CLI arg",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "run the reporter task with a nonexistent ledger path -> exits non-zero or prints a clear error; WHY: missing file must not silently produce empty output without indication",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with an empty JSONL file (0 records) -> prints a valid empty report and exits 0; WHY: empty ledger is valid (no usage recorded)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "diff of this story never touches cli-engine, command-registry, or handlers directories -> git diff --name-only shows NO files in those paths; WHY: the reporter must be a task, not a registered CLI command, per the no-other-logic constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "the string usage-ledger-report does NOT appear in any command registry or handler file -> grep across src/cli-engine and src/handlers for the task name; WHY: validates the task is not accidentally registered as a CLI command",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with a corrupt JSONL file (one line is invalid JSON) -> exits non-zero with a clear parse error; WHY: corrupt ledger must not silently produce partial output",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
