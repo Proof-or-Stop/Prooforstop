@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-7365:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed. The change deletes the bare gitCli(worktreeAbs,[...merge,currentBranch,--no-edit]) call and replaces it with mergeBaseBranchIntoStoryWorktreeResolvingMetadata + runGitNoThrow, and wraps the critical section in withReentrantMainWriteLock. All three new symbols (mergeBaseBranchIntoStoryWorktreeResolvingMetadata, runGitNoThrow, withReentrantMainWriteLock) are defined and consumed only in cli-engine.ts. The deleted bare-merge pattern has zero residual references in *.ts files. commitInitCheckMetadataAndMergeMain is now exported and correctly imported by the new smoke task. isPathUnderAny pre-existed in cli-engine.ts and is properly reused. No orphaned references or concept residue found.",
+      "createdAt": "2026-06-16T02:24:43.782Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-001",
+      "_hash": "c97c086bb0b659fb724ba3ff4fcf56b8256ee7c4c380e561242151b897167699"
+    }
+  ]
+}
