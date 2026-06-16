@@ -447,14 +447,14 @@
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
-          "command": "git grep -n '.koala' -- packages/main/src/core/lattice-paths.ts",
+          "command": "npm run build && residual scan",
           "result": "pass",
-          "note": "'.koala' legacy path literal untouched in lattice-paths.ts.",
-          "headHash": "087d87b2c469d7dc6d476311ad00d923d40202fe",
-          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
-          "timestamp": "2026-06-16T00:15:37.241Z"
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "4209856bab8e27b800e5e03a8f612d33e06ab2c4",
+          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
+          "timestamp": "2026-06-16T00:59:53.053Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
