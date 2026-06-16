@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T00:00:30.448Z",
       "reviewRunId": "B-4bf8:RR-005",
       "_hash": "0a82d6769ac2325ff5eb8de5e928e3acce90fdd3aa30f55c32643509cd04258e"
+    },
+    {
+      "id": "B-4bf8:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup re-check on current HEAD (c1669d5) complete. The target document lattice-llm-usage-ledger-execution-plan.md contains totalTokens exactly 5 times (lines 430, 462, 691, 751, 800); every occurrence is an explicit prohibition or not-stored/derived statement — none asserts it as a stored field. The JSON example block (lines 330-333) has only the four-field model (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) with no totalTokens. No old two-field (input/output/total) prose remains asserting the model as current. All non-doc occurrences are in .lattice/story/ workflow artifacts describing the removal task — not residue. Deletion is complete; no concept residue found.",
+      "createdAt": "2026-06-16T00:11:01.479Z",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "reviewRunId": "B-4bf8:RR-007",
+      "_hash": "64786b5844a07cd5e18f27a4078d74c2076d248177781f2a4d6ceda48d7c6dfd"
     }
   ]
 }
