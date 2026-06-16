@@ -289,6 +289,17 @@
           "headHash": "4483129b1394af3fe703a91082971b5cbd456abd",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
           "timestamp": "2026-06-16T19:03:14.604Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE \"from ['\\\"][^'\\\"]*(phase-protocol|bridge-utils)\" -- 'packages/**/*.ts'",
+          "result": "pass",
+          "note": "Static imports of the deleted modules: 0 (verified empty).",
+          "headHash": "737ec669cfb4cb9c2e3d916c2b8190f592b98892",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:15.057Z"
         }
       ]
     }
