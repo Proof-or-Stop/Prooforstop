@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-4fd3:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement found. This diff is purely additive: (1) cli-init.ts expands the .gitignore copy branch to call mergeKoalaRuntimeIgnores after cpSync — the symbol exists and is defined at line 89 of the same file; (2) thin-init-assets-smoke.ts adds assertGitignoreCoversRegistry (defined locally at line 74) and two imports (runtimeIgnoreMissing from managed-assets.ts:459 where it is exported; listRuntimeArtifactIgnorePatterns from runtime-artifact-registry.ts:255 where it is exported); (3) .gitignore adds .lattice/usage/ which is a pre-existing runtime artifact concept from B-253e/B-a5c9, now belatedly added to the managed block. The only removed lines are one log string (replaced in both branches) and one import line (extended with an additional named import). Zero dangling references introduced. Concept residue check complete: no blocker.",
+      "createdAt": "2026-06-16T21:13:48.392Z",
+      "reviewRound": "2026-06-16T21:12:31.271Z",
+      "reviewRunId": "B-4fd3:RR-001",
+      "_hash": "32237fb17278c54ffff0ac345c472fef9eecb066cb849757131ac1a4c2707087"
+    }
+  ]
+}

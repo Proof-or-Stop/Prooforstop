@@ -1,0 +1,136 @@
+{
+  "command": "lattice validate --story=B-4fd3 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 5 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  main-write-lock-coverage: scanned 280 source files, 17 git mutation-verb sites\",\"    ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\",\"  main-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\",\"  main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/6 covered (5 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/thin-init-assets-smoke.ts) — init 复制路径(giSrc 存在)产出的 .gitignore managed 块含 .lattice/usage/\",\"  ✗ CHK-001:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/cli-init.ts) — 主仓 .gitignore 已含部分 runtime ignore 时合并幂等、不重复追加\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/cli-init.ts) — registry 新增任意 ignorePattern 后复制路径仍输出全集（防再漂移）\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/thin-init-assets-smoke.ts) — clean main 上 npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed 且退出码 0\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/thin-init-assets-smoke.ts) — 新增断言：init 产物 .gitignore 覆盖 listRuntimeArtifactIgnorePatterns() 全集\",\"  ✗ CHK-002:adversarial:0 [adversarial/should/logic] stale via logic_test (packages/main/src/tasks/thin-init-assets-smoke.ts) — 若 registry 含某 pattern 而 .gitignore 缺失，断言能 FAIL 暴露漂移（不静默通过）\"],\"warnings\":[],\"timestamp\":\"2026-06-16T21:13:32.771Z\",\"headSha\":\"9d7b906855b1c528faa76047da4988dc82e688bb\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nmain-write-lock-coverage: scanned 280 source files, 17 git mutation-verb sites\\n  ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\\n\\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1409}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":5,\"covered\":0,\"missingRequired\":5,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"init 复制路径(giSrc 存在)产出的 .gitignore managed 块含 .lattice/usage/\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/thin-init-assets-smoke.ts\",\"command\":\"npm run test:thin-init-assets-smoke\",\"result\":\"pass\",\"note\":\"smoke Test1 跑真实 init CLI 走复制路径(giSrc 存在)，assertGitignoreCoversRegistry 确认产物 .gitignore 含 .lattice/usage/ 及全部 registry pattern\",\"headHash\":\"751f968bcddb0557aa6a925d4cd316fc730d3dae\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T21:11:29.627Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"主仓 .gitignore 已含部分 runtime ignore 时合并幂等、不重复追加\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"node --input-type=module -e (runtimeIgnoreMissing on repo .gitignore)\",\"result\":\"pass\",\"note\":\"mergeKoalaRuntimeIgnores 在 desiredBlockLines 为空时返回 changed:false（幂等）；验证 repo .gitignore runtimeIgnoreMissing=[] 即再次 merge 为 no-op，不重复追加\",\"headHash\":\"21f25fdb89af1f1b2c2cc05aa73169ca98583fde\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T21:11:30.221Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"registry 新增任意 ignorePattern 后复制路径仍输出全集（防再漂移）\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"node --input-type=module -e (drift detection on registry-minus-usage)\",\"result\":\"pass\",\"note\":\"复制路径调 mergeKoalaRuntimeIgnores→listRuntimeArtifactIgnorePatterns()(全 registry)；node 验证去掉任意 pattern 后 runtimeIgnoreMissing 能报出该 pattern，证明 registry 新增项会被复制路径纳入\",\"headHash\":\"3cb20df0f636ef4bd5fdc276ec3a9bf405e0d94b\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T21:11:30.734Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"clean main 上 npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed 且退出码 0\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/thin-init-assets-smoke.ts\",\"command\":\"npm run test:thin-init-assets-smoke\",\"result\":\"pass\",\"note\":\"clean main worktree 构建后跑 smoke，输出 ✓ global-thin init assets smoke passed 退出码 0，不再报 STALE_SAFE .gitignore missing .lattice/usage/\",\"headHash\":\"7c710fe2ab3fe1c6d1f84edca92f0140e2fbd5b9\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T21:11:42.094Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"新增断言：init 产物 .gitignore 覆盖 listRuntimeArtifactIgnorePatterns() 全集\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/thin-init-assets-smoke.ts\",\"command\":\"npm run test:thin-init-assets-smoke\",\"result\":\"pass\",\"note\":\"新增 assertGitignoreCoversRegistry 用 runtimeIgnoreMissing 对 init 产物校验全 25 条 registry pattern；smoke 通过即断言覆盖全集而非单条\",\"headHash\":\"d73afeea5a8578bd208d915da3a2f74d63c29071\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T21:11:42.623Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"若 registry 含某 pattern 而 .gitignore 缺失，断言能 FAIL 暴露漂移（不静默通过）\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/thin-init-assets-smoke.ts\",\"command\":\"node --input-type=module -e (runtimeIgnoreMissing on drifted content)\",\"result\":\"pass\",\"note\":\"node 验证：从 registry 全集删 .lattice/usage/ 构造 drift 内容，runtimeIgnoreMissing 返回 [.lattice/usage/]，证明断言会 FAIL 而非静默通过\",\"headHash\":\"8e1e948e6b56016ee459603b62aabeff80fdd871\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T21:11:43.126Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-16T21:13:33.042Z",
+  "headHash": "9d7b906855b1c528faa76047da4988dc82e688bb",
+  "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 5,
+    "covered": 0,
+    "missingRequired": 5,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "init 复制路径(giSrc 存在)产出的 .gitignore managed 块含 .lattice/usage/",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "smoke Test1 跑真实 init CLI 走复制路径(giSrc 存在)，assertGitignoreCoversRegistry 确认产物 .gitignore 含 .lattice/usage/ 及全部 registry pattern",
+          "headHash": "751f968bcddb0557aa6a925d4cd316fc730d3dae",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T21:11:29.627Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "主仓 .gitignore 已含部分 runtime ignore 时合并幂等、不重复追加",
+        "type": "logic",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "node --input-type=module -e (runtimeIgnoreMissing on repo .gitignore)",
+          "result": "pass",
+          "note": "mergeKoalaRuntimeIgnores 在 desiredBlockLines 为空时返回 changed:false（幂等）；验证 repo .gitignore runtimeIgnoreMissing=[] 即再次 merge 为 no-op，不重复追加",
+          "headHash": "21f25fdb89af1f1b2c2cc05aa73169ca98583fde",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T21:11:30.221Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "registry 新增任意 ignorePattern 后复制路径仍输出全集（防再漂移）",
+        "type": "logic",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "node --input-type=module -e (drift detection on registry-minus-usage)",
+          "result": "pass",
+          "note": "复制路径调 mergeKoalaRuntimeIgnores→listRuntimeArtifactIgnorePatterns()(全 registry)；node 验证去掉任意 pattern 后 runtimeIgnoreMissing 能报出该 pattern，证明 registry 新增项会被复制路径纳入",
+          "headHash": "3cb20df0f636ef4bd5fdc276ec3a9bf405e0d94b",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T21:11:30.734Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "clean main 上 npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed 且退出码 0",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "clean main worktree 构建后跑 smoke，输出 ✓ global-thin init assets smoke passed 退出码 0，不再报 STALE_SAFE .gitignore missing .lattice/usage/",
+          "headHash": "7c710fe2ab3fe1c6d1f84edca92f0140e2fbd5b9",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T21:11:42.094Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "新增断言：init 产物 .gitignore 覆盖 listRuntimeArtifactIgnorePatterns() 全集",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "新增 assertGitignoreCoversRegistry 用 runtimeIgnoreMissing 对 init 产物校验全 25 条 registry pattern；smoke 通过即断言覆盖全集而非单条",
+          "headHash": "d73afeea5a8578bd208d915da3a2f74d63c29071",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T21:11:42.623Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "若 registry 含某 pattern 而 .gitignore 缺失，断言能 FAIL 暴露漂移（不静默通过）",
+        "type": "logic",
+        "priority": "should",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "node --input-type=module -e (runtimeIgnoreMissing on drifted content)",
+          "result": "pass",
+          "note": "node 验证：从 registry 全集删 .lattice/usage/ 构造 drift 内容，runtimeIgnoreMissing 返回 [.lattice/usage/]，证明断言会 FAIL 而非静默通过",
+          "headHash": "8e1e948e6b56016ee459603b62aabeff80fdd871",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T21:11:43.126Z"
+        }
+      }
+    ]
+  }
+}
