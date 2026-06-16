@@ -281,12 +281,12 @@
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "grep -c 'testing-infra' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "command": "git diff main -- docs/requirements/decisions/testing-infra.md | wc -l",
           "result": "pass",
-          "note": "testing-infra.md referenced 6 times in rationale.",
-          "headHash": "96f510a3864a316ae96b4a0c35d2e2e904581d73",
+          "note": "Returns 0 — testing-infra.md byte-identical to main (over-reach guard).",
+          "headHash": "109538554304a97bfcc4b8f0a82a02a6cece1a75",
           "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
-          "timestamp": "2026-06-16T23:52:09.034Z"
+          "timestamp": "2026-06-16T23:57:15.417Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
