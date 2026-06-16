@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T02:23:07.069Z",
       "reviewRunId": "B-7365:RR-001",
       "_hash": "c97c086bb0b659fb724ba3ff4fcf56b8256ee7c4c380e561242151b897167699"
+    },
+    {
+      "id": "B-7365:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9 must intents have valid logic_test evidence. Repro (CHK-001:happy:0) constructs a genuine 3-way git conflict (same line PLAN→INIT vs PLAN→INIT_CHECK) and calls the real commitInitCheckMetadataAndMergeMain; assertions check both working-tree and committed content are marker-free and parse as JSON. Multi-file adversarial case (CHK-001:adversarial:0, CHK-002:adversarial:0) explicitly loops over index.json + checklist.json with distinct conflicting note values, asserting deterministic resolution to main version. CHK-003 lock intents rely on structural fact (withReentrantMainWriteLock wraps both commit+merge) confirmed by live call through real function; release-on-throw property belongs to main-write-lock-smoke (B-f60c infrastructure). Edge/clean-path intents reference init-check-atomicity-smoke as backup; file pointer is slightly indirect but behavior is genuinely covered. Known systemic gap: smoke not in default validate battery (B-99b6 backlog) is not a B-7365-specific hollow test issue.",
+      "createdAt": "2026-06-16T02:26:00.918Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-002",
+      "_hash": "8c72f7a2b18710267bff4f159b2da1b2f6e85bcbef268c26fdf44c705ff2e63c"
     }
   ]
 }
