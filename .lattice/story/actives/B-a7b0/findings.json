@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: validate-docs-drift.ts:251 ALL_MANAGED_ASSET_KINDS is a manually-duplicated copy of the ManagedAssetKind union from managed-assets.ts with no exported runtime array to derive from; if a new kind is added to ManagedAssetKind, the runtime guard at line 383 (!ALL_MANAGED_ASSET_KINDS.has(kind)) will silently skip defs with that kind rather than treating them as generated assets — the Handler Encoding Convention re-validation set can drift from the canonical type without a compile-time error",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T21:32:11.337Z",
@@ -14,14 +14,15 @@
       "_hash": "1c145fa15dc1b8dae6822618bf70cef1b08219e36ae0d84709c3a8273a87dd17",
       "files": [
         "packages/main/src/handlers/validate-docs-drift.ts"
-      ]
+      ],
+      "resolvedBy": "B-a7b0:F-001@f1d06f1"
     },
     {
       "id": "B-a7b0:F-002",
       "desc": "quality-cleanup: review-preflight.ts:383-385 empty catch {} swallows all errors from detectManagedAssetProfile / detectManagedAssetMode / listManagedAssetDefinitions with no logging; when the managed-asset registry resolution fails the gate silently degrades to no contradiction check with zero user-visible signal — callers cannot distinguish a clean registry load from a silent failure",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T21:32:17.405Z",
@@ -30,7 +31,8 @@
       "_hash": "76ef8606a992a2cc06f9267653a957d68c01f0e2210f1e4a8a67209b6334d1c8",
       "files": [
         "packages/main/src/handlers/review-preflight.ts"
-      ]
+      ],
+      "resolvedBy": "B-a7b0:F-002@2f60c31"
     }
   ]
 }
