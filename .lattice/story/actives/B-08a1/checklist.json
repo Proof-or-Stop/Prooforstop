@@ -379,9 +379,9 @@
       "id": "CHK-004",
       "title": "Record assembler (provider response -> validated record)",
       "context": "Add a buildProviderRecord(provider, providerResponse, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds}, attribution{storyId|null,phase,agentType,subagentId?,threadId?}) that selects the right adapter, assembles a full ledger record (schemaVersion, recordId via ids.ts, recordedAt, projectRootHash, privacy flags, authority{mode:'local',receiptVerified:false}, integrity computed by the writer), and returns a record that PASSES the B-253e validator. correlation ids come from ids.ts (never provider request id). Tested: assembled records for all three providers validate clean.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T02:29:46.225Z",
-      "endTime": null,
+      "endTime": "2026-06-16T02:40:15.577Z",
       "files": {
         "modify": [],
         "create": [
