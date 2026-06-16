@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Define ledger record TypeScript types + schema validator",
       "context": "In a new module under packages/main/src (e.g. core/usage-ledger/record.ts), define the JSONL record type and a validator matching the spec's 'JSON Ledger Record Shape' + 'Required record constraints': four-field usage (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens; NO totalTokens), usage.source enum (provider-reported|prompt-size-estimate|unavailable), correlation (ledgerCallId, attemptId, sequence:int, supersedesRecordIds:string[]), recordId, schemaVersion, recordedAt, projectRootHash, storyId(nullable)/phase/agentType/optional subagentId/threadId, privacy flags, authority {mode, receiptId:null, receiptVerified:false}, integrity {previousRecordHash, recordHash}. Validator rejects stored totalTokens and encodes per-dimension cache absence as null (never 0). Unit-tested for valid + each rejection.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T01:07:04.109Z",
       "endTime": null,
       "files": {
         "modify": [],
