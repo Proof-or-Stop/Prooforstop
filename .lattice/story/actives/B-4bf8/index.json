@@ -4,7 +4,7 @@
   "title": "Fix token-accuracy gaps in the LLM usage ledger execution plan (cache-token four-field model + completeness/attribution)",
   "description": "Amend the existing, plan-only document docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md (delivered by B-1477; no source code implements it yet) to correct accuracy defects BEFORE any implementation bakes them in. Scope is documentation/spec only — no source code, no provider adapter, no runtime registry change in this story. Core defect: the ledger's usage model records only inputTokens/outputTokens/totalTokens, but every Anthropic response returns FOUR token counts — input_tokens (the UNCACHED remainder only), output_tokens, cache_creation_input_tokens, and cache_read_input_tokens. Real processed volume = input + output + cache_creation + cache_read; cache reads cost ~0.1x and cache writes 1.25x (5min)/2x (1h). In Lattice's long agent loops cache tokens are the dominant cost driver, so a two-field model systematically under-counts tokens and makes cost accounting impossible. The JSON example is the de-facto spec, so the example and the record-shape section must both be corrected. Secondary accuracy fixes: drop the derived totalTokens stored field; prefer the provider count_tokens endpoint for estimates; specify call-time story/phase attribution; add a completeness guarantee (single choke-point writer + reconciliation); capture streaming/failure usage; keep raw provider units AND a normalized canonical view; and add a price/pricingRef snapshot so cost is derivable in a pinned layer.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -69,6 +69,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-16T00:10:14.232Z",
+      "branch": "story/B-4bf8",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:16:22.469Z",
       "branch": "story/B-4bf8",
       "user": "Harmonygo",
       "agent": "main"
