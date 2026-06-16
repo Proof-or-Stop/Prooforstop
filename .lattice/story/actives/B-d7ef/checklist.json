@@ -63,6 +63,86 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run test -f packages/main/src/core/phase-protocol.ts ... prints GONE; WHY: confirms phase-protocol.ts is deleted from disk",
+            "type": "cli"
+          },
+          {
+            "desc": "Run test -f packages/main/src/verifier/bridge-utils.ts ... prints GONE; WHY: confirms bridge-utils.ts is deleted from disk",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git ls-files on both module paths -> returns empty stdout; WHY: confirms both files are removed from git index",
+            "type": "cli"
+          },
+          {
+            "desc": "Run npm run build -> exits 0; WHY: confirms tsc compilation succeeds with both modules removed (no broken imports)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run npm run test:e2e -> exits 0; WHY: confirms end-to-end tests pass with both modules removed",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git grep -rnE from.*phase-protocol -- packages/ scripts/ bin/ -> returns empty (exit 1); WHY: concrete static-import check proving no live code imports phase-protocol",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git grep -rnE from.*bridge-utils -- packages/ scripts/ bin/ -> returns empty (exit 1); WHY: concrete static-import check proving no live code imports bridge-utils",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run git grep for dist/core/phase-protocol.js and dist/verifier/bridge-utils.js in packages/ -> returns empty; WHY: catches dist-path references in fixture JSON, execute strings, or dynamic requires that static import grep would miss (B-5740 lesson)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git grep for dynamic import() calls referencing phase-protocol or bridge-utils in packages/ -> returns empty; WHY: catches dynamic import() calls that static from-import grep would miss",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git grep for require() calls referencing phase-protocol or bridge-utils in packages/ -> returns empty; WHY: catches CJS require() calls referencing the dead modules",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git log --diff-filter=D on both module paths -> shows both filenames in delete commit(s); WHY: confirms deletion is committed to git history not just staged",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git checkout HEAD -- packages/main/src/core/phase-protocol.ts -> fails with non-zero exit; WHY: proves phase-protocol cannot be restored from HEAD (deletion finalized)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git checkout HEAD -- packages/main/src/verifier/bridge-utils.ts -> fails with non-zero exit; WHY: proves bridge-utils cannot be restored from HEAD (deletion finalized)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run test -f packages/main/src/core/intent-coverage.ts ... prints SAFE; WHY: over-reach guard from discarded B-5740 -- intent-coverage.ts must survive because its consumer fixture-preview-runner-parity.json still needs it",
+            "type": "cli"
+          },
+          {
+            "desc": "Run test -f packages/main/src/verifier/dev-cli.ts ... prints SAFE; WHY: over-reach guard -- dev-cli.ts is a live module that must not be collateral damage",
+            "type": "cli"
+          },
+          {
+            "desc": "Check lab/.codex/.Codex/.lattice dirs still exist if they existed before -> prints CHECK_DONE; WHY: over-reach guard ensuring these directories are untouched by the cleanup",
+            "type": "cli"
+          },
+          {
+            "desc": "Run git grep catch-all for phase-protocol or bridge-utils in packages/ scripts/ bin/ excluding .md/CHANGELOG, pipe to wc -l -> returns 0; WHY: catch-all sweep for ANY residual reference in source/config/fixture files covering patterns the targeted greps might miss",
+            "type": "cli"
+          },
+          {
+            "desc": "Run find packages/ -name *.json (excluding node_modules) grepping for phase-protocol or bridge-utils -> returns empty; WHY: specifically targets JSON fixture files and package.json entries that might reference dead modules as string paths in execute/command fields (the dynamic-consumer vector from B-5740)",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
