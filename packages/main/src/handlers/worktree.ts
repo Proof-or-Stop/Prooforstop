@@ -21,6 +21,7 @@ import {
   renderStoryMetadataProtectionWarning,
   type StoryMetadataProbe,
 } from '../core/story-metadata-protection.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
 
@@ -1081,27 +1082,36 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         results.push(unpushed.warning);
       }
 
-      // Merge into the main branch
-      try {
-        git(`merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`, gitRoot);
-        results.push(`✓ Branch ${branch} has been merged into ${mainBranch}`);
-      } catch (e: any) {
-        throw new Error(
-          `Merge conflict, please resolve manually:\ngit merge ${branch}\n${e.stderr || e.message}`
-        );
-      }
+      // B-9177 CHK-002: serialize the story→main merge + worktree cleanup +
+      // branch delete critical section under the unified main write lock, mirroring
+      // the live equivalent `applyDoneMergeEffects` (which already holds the lock
+      // across the same span). NOTE: `dev_merge` is currently DORMANT/legacy — it
+      // is NOT in the CLI command registry and is only reachable in-process — but
+      // it is wrapped here for defense-in-depth and so the CHK-003 coverage guard
+      // sees consistent locking of every main-mutating path. Reentrant variant.
+      withReentrantMainWriteLock(gitRoot, () => {
+        // Merge into the main branch
+        try {
+          git(`merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`, gitRoot);
+          results.push(`✓ Branch ${branch} has been merged into ${mainBranch}`);
+        } catch (e: any) {
+          throw new Error(
+            `Merge conflict, please resolve manually:\ngit merge ${branch}\n${e.stderr || e.message}`
+          );
+        }
 
-      // Clean up worktree (B-0975: retry transient Permission denied locks on Windows)
-      worktreeRemoveWithRetry(wtPath, { cwd: gitRoot });
-      results.push(`✓ Worktree ${wtPath} cleaned up`);
+        // Clean up worktree (B-0975: retry transient Permission denied locks on Windows)
+        worktreeRemoveWithRetry(wtPath, { cwd: gitRoot });
+        results.push(`✓ Worktree ${wtPath} cleaned up`);
 
-      // Delete branch
-      try {
-        git(`branch -d ${branch}`, gitRoot);
-        results.push(`✓ Branch ${branch} deleted`);
-      } catch {
-        results.push(`⚠ Branch ${branch} not deleted (may have unmerged commits)`);
-      }
+        // Delete branch
+        try {
+          git(`branch -d ${branch}`, gitRoot);
+          results.push(`✓ Branch ${branch} deleted`);
+        } catch {
+          results.push(`⚠ Branch ${branch} not deleted (may have unmerged commits)`);
+        }
+      }, { label: 'dev_merge (dormant/legacy)' });
 
       // Clean up story records
       story.worktree = undefined;
@@ -1327,7 +1337,17 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         const storyRel = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${args.storyId}`;
         rmSync(join(root, storyRel), { recursive: true, force: true });
         results.push(`✓ Story metadata cleaned: ${storyRel}`);
-        results.push(purgeSafeInitCommit(args.storyId, storyRelForGit(storyRel), gitRoot));
+        // B-9177 CHK-002: `purgeSafeInitCommit` runs `git reset --hard HEAD~1` on
+        // the main checkout (gitRoot) — a main-HEAD rewrite that must be
+        // serialized under the unified main write lock. Reentrant: story_discard
+        // can run inside an already-locked context.
+        results.push(
+          withReentrantMainWriteLock(
+            gitRoot,
+            () => purgeSafeInitCommit(args.storyId, storyRelForGit(storyRel), gitRoot),
+            { label: 'story_discard purge reset' },
+          ),
+        );
         return results.join('\n');
       }
 
@@ -1345,7 +1365,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const digest = recordScopeDiscardDigest(args.storyId, args.reason);
       if (digest) results.push(`✓ discard digest recorded: ${digest.slice(0, 12)}`);
       store.writeStory(args.storyId, story);
-      const metadataCommit = commitDiscardMetadata(args.storyId, storyRelForGit(storyRel), gitRoot);
+      // B-9177 CHK-002: `commitDiscardMetadata` runs `git commit` on the main
+      // checkout (gitRoot) — a main mutation that must be serialized under the
+      // unified main write lock to avoid the B-7365-class commit race. Reentrant:
+      // story_discard can run inside an already-locked context.
+      const metadataCommit = withReentrantMainWriteLock(
+        gitRoot,
+        () => commitDiscardMetadata(args.storyId, storyRelForGit(storyRel), gitRoot),
+        { label: 'story_discard metadata commit' },
+      );
       if (metadataCommit) results.push(metadataCommit);
 
       results.push(wasDiscarded

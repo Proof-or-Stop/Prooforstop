@@ -3306,61 +3306,77 @@ function commitFromDraftMetadataOnMain(root: string, store: StoryStore, storyId:
   const draftRel = boundedMetadataPath('docs/story/drafts', draftName, 'source draft');
   const boundedPaths = [storyRel, draftRel];
 
-  for (const path of boundedPaths) {
-    stageBoundedMetadataPath(root, path);
-  }
-  const staged = gitCli(root, ['diff', '--cached', '--name-only']);
-  const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
-  if (stagedPaths.length === 0) {
-    return '';
-  }
-  const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, boundedPaths));
-  if (outOfBounds.length > 0) {
-    throw new Error(
-      `from-draft metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
-    );
-  }
+  // B-9177 CHK-002: serialize the stage→commit-on-main critical section under
+  // the unified main write lock. A concurrent main commit between staging and
+  // committing is the same B-7365-class race that corrupts story/draft metadata.
+  // Reentrant variant — the from-draft bootstrap can run inside an
+  // already-locked context; `root` is the main checkout (preflight asserts
+  // branch==main on it and every git op uses it as cwd).
+  return withReentrantMainWriteLock(root, () => {
+    for (const path of boundedPaths) {
+      stageBoundedMetadataPath(root, path);
+    }
+    const staged = gitCli(root, ['diff', '--cached', '--name-only']);
+    const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
+    if (stagedPaths.length === 0) {
+      return '';
+    }
+    const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, boundedPaths));
+    if (outOfBounds.length > 0) {
+      throw new Error(
+        `from-draft metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
+      );
+    }
 
-  const commitMessage = `lattice: from-draft metadata ${storyId}`;
-  gitCli(root, [
-    '-c', 'commit.gpgsign=false',
-    'commit',
-    '-m', commitMessage,
-  ]);
-  const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
-  const boundedStatus = gitCli(root, ['status', '--porcelain', '--', ...boundedPaths]);
-  if (boundedStatus) {
-    throw new Error(
-      `from-draft metadata committed, but bounded metadata paths are still dirty ` +
-      `(${boundedPaths.join(', ')}):\n${boundedStatus}`,
-    );
-  }
+    const commitMessage = `lattice: from-draft metadata ${storyId}`;
+    gitCli(root, [
+      '-c', 'commit.gpgsign=false',
+      'commit',
+      '-m', commitMessage,
+    ]);
+    const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
+    const boundedStatus = gitCli(root, ['status', '--porcelain', '--', ...boundedPaths]);
+    if (boundedStatus) {
+      throw new Error(
+        `from-draft metadata committed, but bounded metadata paths are still dirty ` +
+        `(${boundedPaths.join(', ')}):\n${boundedStatus}`,
+      );
+    }
 
-  return `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`;
+    return `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`;
+  }, { label: 'from-draft metadata commit' });
 }
 
 function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
-  const metadataResult = commitFromDraftMetadataOnMain(root, store, storyId, draftName);
-  const story = store.readStory(storyId);
-  const worktreePath = story.worktree?.path;
-  const storyBranch = story.worktree?.branch || `story/${storyId}`;
-  if (!worktreePath) {
-    throw new Error(`from-draft story ${storyId} has no recorded worktree path after dev_start`);
-  }
-  const repoRoot = gitCli(root, ['rev-parse', '--show-toplevel']);
-  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
-  gitCli(worktreeAbs, [
-    '-c', 'commit.gpgsign=false',
-    'merge',
-    'main',
-    '--no-edit',
-  ]);
-  gitCli(worktreeAbs, ['merge-base', '--is-ancestor', 'main', storyBranch]);
+  // B-9177 CHK-002: serialize the commit-on-main + merge-into-story-worktree
+  // critical section under one main write lock, exactly as the B-7365 sibling
+  // `commitInitCheckMetadataAndMergeMain` does. A concurrent main commit between
+  // our commit and our merge is what produces a divergent metadata state.
+  // Reentrant — the inner `commitFromDraftMetadataOnMain` (also reentrant-locked)
+  // becomes a pass-through under this outer hold; `root` is the main checkout.
+  return withReentrantMainWriteLock(root, () => {
+    const metadataResult = commitFromDraftMetadataOnMain(root, store, storyId, draftName);
+    const story = store.readStory(storyId);
+    const worktreePath = story.worktree?.path;
+    const storyBranch = story.worktree?.branch || `story/${storyId}`;
+    if (!worktreePath) {
+      throw new Error(`from-draft story ${storyId} has no recorded worktree path after dev_start`);
+    }
+    const repoRoot = gitCli(root, ['rev-parse', '--show-toplevel']);
+    const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
+    gitCli(worktreeAbs, [
+      '-c', 'commit.gpgsign=false',
+      'merge',
+      'main',
+      '--no-edit',
+    ]);
+    gitCli(worktreeAbs, ['merge-base', '--is-ancestor', 'main', storyBranch]);
 
-  return [
-    metadataResult,
-    `✓ main merged into ${storyBranch}`,
-  ].filter(Boolean).join('\n');
+    return [
+      metadataResult,
+      `✓ main merged into ${storyBranch}`,
+    ].filter(Boolean).join('\n');
+  }, { label: 'from-draft metadata commit+merge' });
 }
 
 /**
