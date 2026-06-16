@@ -379,6 +379,17 @@
           "headHash": "88b99b694d15a64591ea686c624e8cc70901d44e",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:58.115Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'lattice-codex' packages/main/src/core/codex-adapter-checks.ts | head",
+          "result": "pass",
+          "note": "codex-adapter-checks.ts now uses .lattice-codex/.",
+          "headHash": "183ade4c07058586f9e805acaced16f868385767",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:58.611Z"
         }
       ]
     },
