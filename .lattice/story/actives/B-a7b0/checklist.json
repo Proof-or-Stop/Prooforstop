@@ -72,9 +72,9 @@
       "title": "Add a managed-asset contradiction check (the P3 class) against core/managed-assets.ts",
       "context": "Cross-check CLAUDE.md statements against the managed-asset registry (core/managed-assets.ts): a 'do not create <X>' / '<X> must not exist' claim for an <X> the registry says lattice init generates must be flagged as drift, since the framework itself produces it (this is exactly the .Codex/hooks line-77 contradiction). Reuse the registry as the source of truth; do not hardcode asset paths. Respect the same allowlist seam.",
       "userSees": "A CLAUDE.md that forbids or denies a framework-generated managed asset (e.g. a host hook) fails the gate with a message naming the asset and the registry entry that contradicts it; a doc with no such contradiction passes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:22:58.897Z",
       "verificationIntent": {
         "happy": [
           {
