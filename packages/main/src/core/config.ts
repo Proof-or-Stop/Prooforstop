@@ -23,7 +23,7 @@ export interface KoalaFlowConfig {
   patterns: Array<{ field: string; regex: string }>;
 }
 
-export interface KoalaConfig {
+export interface LatticeConfig {
   scanRoot: string;
   /** 源码子目录（相对 scanRoot，对应 tsconfig rootDir，默认和 scanRoot 相同） */
   rootDir?: string;
@@ -297,7 +297,7 @@ function patternAllowedByLifecyclePolicy(pattern: string, phase: string): boolea
   ));
 }
 
-const DEFAULT_CONFIG: KoalaConfig = {
+const DEFAULT_CONFIG: LatticeConfig = {
   scanRoot: 'src',
   testsDir: 'tests',
   fixturesDir: 'tests/fixtures',
@@ -311,7 +311,7 @@ const DEFAULT_CONFIG: KoalaConfig = {
   phaseTools: DEFAULT_PHASE_TOOLS,
 };
 
-const _cache = new Map<string, KoalaConfig>();
+const _cache = new Map<string, LatticeConfig>();
 
 /**
  * Canonical project config filename.
@@ -359,7 +359,7 @@ function resolveProjectRoot(): string {
   return findProjectRootByMarker(process.cwd()) ?? process.cwd();
 }
 
-export function loadConfig(projectRoot?: string): KoalaConfig {
+export function loadConfig(projectRoot?: string): LatticeConfig {
   // 有参数用参数，没参数从 cwd 向上查找
   const root = projectRoot || resolveProjectRoot();
   if (_cache.has(root)) return _cache.get(root)!;
@@ -367,7 +367,7 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
   const latticePath = join(root, LATTICE_CONFIG_FILENAME);
   const latticeExists = existsSync(latticePath);
 
-  let userConfig: Partial<KoalaConfig> = {};
+  let userConfig: Partial<LatticeConfig> = {};
   let chosenPath: string | null = null;
   if (latticeExists) {
     chosenPath = latticePath;
@@ -377,7 +377,7 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
   }
   void chosenPath; // retained for future diagnostics; suppress unused warning
 
-  const _cached: KoalaConfig = {
+  const _cached: LatticeConfig = {
     ...DEFAULT_CONFIG,
     ...userConfig,
     flows: {

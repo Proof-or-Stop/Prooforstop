@@ -25,7 +25,7 @@
 
 import { spawn } from 'child_process';
 import { reportHealthIssue } from './health.js';
-import type { KoalaConfig } from './config.js';
+import type { LatticeConfig } from './config.js';
 
 export type HookStage = 'preCommand' | 'postCommand' | 'onError' | 'onPhaseChange';
 
@@ -93,7 +93,7 @@ interface ResolvedHookCmd {
   cmd: string;
 }
 
-function resolveHookCommands(stage: HookStage, key: string, cfg: KoalaConfig): ResolvedHookCmd[] {
+function resolveHookCommands(stage: HookStage, key: string, cfg: LatticeConfig): ResolvedHookCmd[] {
   const hooks = (cfg as any)?.hooks as HookConfig | undefined;
   if (!hooks) return [];
   const stageMap = hooks[stage];
@@ -185,7 +185,7 @@ export async function runHooks(
   stage: HookStage,
   key: string,
   env: Record<string, string>,
-  cfg: KoalaConfig | null | undefined,
+  cfg: LatticeConfig | null | undefined,
   cwd: string,
 ): Promise<void> {
   if (!cfg) return;

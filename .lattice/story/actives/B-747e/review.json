@@ -1,0 +1,30 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-16T02:49:06.825Z",
+      "issueCount": 1,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "1c2a1c8c8db4a88a4fc31d67de1a7740e208b917de21a618caf7df1877ec6a4e"
+    },
+    {
+      "timestamp": "2026-06-16T02:51:27.779Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "review_advisory",
+          "severity": "advisory",
+          "message": "The review found no blockers, but it is recommended to manually verify checklist completeness against the source-of-truth documents in _reviewPrompt"
+        }
+      ],
+      "_hash": "48e1a6c64c920489c2ecae1020b73047887969fa912ff09948384231278fee88"
+    }
+  ]
+}

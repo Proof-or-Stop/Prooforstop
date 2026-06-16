@@ -1,0 +1,56 @@
+{
+  "storyId": "B-747e",
+  "changes": "Renamed the project-config TypeScript interface KoalaConfig to LatticeConfig across its definition (packages/main/src/core/config.ts) and 4 consumers (dirty-worktree.ts, hooks.ts, story-signed-workspace-resolution.ts, workflow-policy.ts) — ~20 occurrences, a pure mechanical identifier rename with no behavior change and no backward-compat alias. It was the only Koala* PascalCase identifier left in the codebase.",
+  "usage": "No usage change — LatticeConfig is the return type of loadConfig() in place of KoalaConfig.",
+  "expectedOutcome": "`git grep -w KoalaConfig -- packages` returns nothing; `interface LatticeConfig` is in config.ts; build, e2e, and validate pass.",
+  "actualTranscript": "git grep -w KoalaConfig -- packages = empty; no `type KoalaConfig`/`as KoalaConfig` alias; interface LatticeConfig at config.ts:26; diff 20/20 across exactly 5 files; npm run build exit 0; npm run test:e2e ALL PASS; lattice validate PASS 12/12; 3 REVIEW lanes passed with 0 findings; delivery-check signed.",
+  "outcomeDiff": "No gap. Pure identifier rename delivered; over-reach guards held (fixtures/lab/comments untouched).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Bounded slice of the koala residual-sweep program. Out of scope and deferred: koala.config.json fixture filenames, koala code comments/temp-dir strings, the lab package config reader, documentation prose, and a now-dead /\\bKoalaConfig\\b/ regex in cli-engine-branding-smoke.ts (harmless whitelist entry).",
+  "pitfalls": "Scope-gate friction: an excludedScope phrase ('active-doc prose') that also appeared in the description tripped an excluded_keyword check, and the scope-freeze snapshot had to be re-run after rewording; editing the description after INIT review also required re-signing the story-init reviewer (init_check_tampered).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 297785
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 34898
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 349129
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 201004
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 187800
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 245002
+    }
+  },
+  "totalDurationMs": 1315666,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T03:02:02.614Z",
+  "updatedAt": "2026-06-16T03:02:02.614Z"
+}

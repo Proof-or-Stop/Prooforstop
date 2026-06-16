@@ -1,0 +1,63 @@
+{
+  "storyId": "B-747e",
+  "checkedAt": "2026-06-16T03:01:03.150Z",
+  "reviewRound": "2026-06-16T02:54:49.812Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-747e/plan.md#CHK-001",
+      "promise": "Rename KoalaConfig to LatticeConfig in config.ts (export interface, DEFAULT_CONFIG, cache Map, loadConfig return type) — 6 occurrences in definition file",
+      "verifiedBy": "git diff + grep",
+      "evidence": "diff shows 6 KoalaConfig->LatticeConfig swaps in config.ts; git grep -w KoalaConfig -- packages returns empty; interface LatticeConfig confirmed at config.ts:26"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-747e/plan.md#CHK-001",
+      "promise": "Rename KoalaConfig to LatticeConfig in dirty-worktree.ts (import type + 2 function params) — consumer file 1 of 4",
+      "verifiedBy": "git diff",
+      "evidence": "diff shows 3 KoalaConfig->LatticeConfig changes in dirty-worktree.ts: import type, dirtyWorktreeClassifierOptionsForStory param, dirtyWorktreeClassifierOptionsFromConfig param"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-747e/plan.md#CHK-001",
+      "promise": "Rename KoalaConfig to LatticeConfig in hooks.ts (import type + 2 uses) — consumer file 2 of 4",
+      "verifiedBy": "git diff",
+      "evidence": "diff shows 3 KoalaConfig->LatticeConfig changes in hooks.ts: import type, resolveHookCommands param, runHooks param"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-747e/plan.md#CHK-001",
+      "promise": "Rename KoalaConfig to LatticeConfig in story-signed-workspace-resolution.ts (import + 4 interface option fields) — consumer file 3 of 4",
+      "verifiedBy": "git diff",
+      "evidence": "diff shows 5 KoalaConfig->LatticeConfig changes in story-signed-workspace-resolution.ts: import type plus config fields in ResolveStorySignedWorkspaceOptions, ResolveGitCwdOptions, EvaluateStoryDirInsideGitRootOptions, EvaluateStoryDirConfigInsideGitRootOptions"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-747e/plan.md#CHK-001",
+      "promise": "Rename KoalaConfig to LatticeConfig in workflow-policy.ts (import + 2 function signatures) — consumer file 4 of 4",
+      "verifiedBy": "git diff",
+      "evidence": "diff shows 3 KoalaConfig->LatticeConfig changes in workflow-policy.ts: import type, resolveWorkflowPolicy param, explainProfile param"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-747e/plan.md#out-of-scope",
+      "promise": "No backward-compat alias kept — KoalaConfig purely eradicated, not re-exported as a type alias",
+      "verifiedBy": "git grep",
+      "evidence": "git grep -nE 'type KoalaConfig|as KoalaConfig' returns empty; git grep -w KoalaConfig -- packages returns empty (independently re-run and confirmed)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-747e/plan.md#out-of-scope",
+      "promise": "Over-reach guard: koala.config.json fixtures not renamed, lab package not touched, comments not changed, branding-smoke not modified",
+      "verifiedBy": "git diff --name-only + grep",
+      "evidence": "diff touches exactly 5 files all in packages/main/src/core/; lab/sandbox.ts still has camelCase koalaConfig local variable (grep confirmed); branding-smoke.ts still contains dead /KoalaConfig/ regex unmodified (not in diff); all 40 changed lines are pure identifier substitutions with zero other content changes (grep for non-identifier diff lines returned empty)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transcript-diff.md records: git grep -w KoalaConfig -- packages empty; interface LatticeConfig at config.ts:26; git grep -nE 'type KoalaConfig|as KoalaConfig' empty; 5 files 20 insertions(+) / 20 deletions(-); npm run build exit 0 (tsc); npm run test:e2e exit 0 ALL PASS (story-lifecycle 5/5 + gap-convergence 4/4); lattice validate PASS 12/12 intent coverage (4 happy + 3 edge + 5 adversarial). Evidence kinds: manual_transcript and integration_test."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises verified directly from the git diff and independent re-runs. The rename is exactly 20 deletions and 20 insertions across the declared 5 files, identifier-only with no behavioral change, no backward-compat alias, and no out-of-scope file touched. Real-machine evidence covers tsc build (exit 0), e2e suite (ALL PASS), and grep-based eradication proofs. Edge and adversarial intents all confirmed clean. No unresolved TODOs in the changed files."
+  },
+  "_hash": "858422c41fc626f803bd10f0236e5b87868edcafb568dea649e719e79fbcb9f4"
+}
