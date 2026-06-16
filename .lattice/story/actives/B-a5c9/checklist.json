@@ -338,6 +338,66 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run test:usage-ledger-estimate exits 0 (green); WHY: the smoke script must be wired into package.json and pass all assertions",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers confidence mapping (count_tokens->high, local_tokenizer->medium, bytes_chars->low) with explicit assertions; WHY: CHK-001 confidence model must be exercised in the smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers bytes/chars determinism (same input -> same output, called twice); WHY: CHK-002 determinism guarantee must be tested",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers selector ordering with injected stubs (count_tokens > localTokenizer > bytes_chars); WHY: CHK-003 priority chain must be exercised",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers estimate record validation (passes validateUsageLedgerRecord, source=prompt-size-estimate, estimator fields present, null output); WHY: CHK-004 record shape must be asserted",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers supersedes interplay (estimate + final -> providerReportedTotal excludes estimate, estimate never counted as final); WHY: CHK-005 double-count prevention must be tested",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers estimate record round-trip through appendUsageRecord (opt-in ON, temp dir) -> written record can be read back via verifyLedgerChain and matches; WHY: confirms end-to-end write+read integrity for estimate records through the B-253e writer",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke asserts usage-ledger module (estimate.ts) imports ZERO other Lattice modules outside core/usage-ledger -- grep for non-usage-ledger imports; WHY: the usage-ledger must remain a self-contained module with no coupling to other Lattice subsystems",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke uses temp dir for writer round-trip and cleans up afterward -- no files left in the repo; WHY: smoke must not pollute the repo with .lattice/usage/ artifacts",
+            "type": "cli"
+          },
+          {
+            "desc": "tsc build completes without errors after estimate.ts is added; WHY: new types must be compatible with the existing TypeScript compilation",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke script exits non-zero when any single assertion fails (not just logs a warning); WHY: a smoke that swallows failures is worse than no smoke -- must fail-fast with process.exit(1)",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke runs in isolation (no dependency on prior ledger state, no shared temp dir with other tests); WHY: test pollution from a prior smoke run must not cause false passes or failures",
+            "type": "cli"
+          },
+          {
+            "desc": "Running the smoke twice in rapid succession both pass (no stale state, no port conflicts, no file locks); WHY: idempotency -- CI may run the smoke multiple times",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
