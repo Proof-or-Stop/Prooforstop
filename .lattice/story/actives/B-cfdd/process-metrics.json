@@ -1,13 +1,13 @@
 {
   "storyId": "B-cfdd",
-  "generatedAt": "2026-06-16T21:09:04.799Z",
+  "generatedAt": "2026-06-16T21:32:53.916Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 3,
     "reviewRounds": 1,
-    "findings": 0,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -232,8 +232,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -260,7 +259,7 @@
           "note": "fast channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -277,13 +276,12 @@
           "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -319,7 +317,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -345,13 +343,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }
