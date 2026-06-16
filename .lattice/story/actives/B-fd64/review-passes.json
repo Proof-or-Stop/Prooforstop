@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-16T21:53:44.268Z",
       "reviewRunId": "B-fd64:RR-006",
       "_hash": "ab36ed7e763f6847bd81fb03b5ac3b5ca1fb6a8b6e6b7369b15404339ceb40a1"
+    },
+    {
+      "id": "B-fd64:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Re-review round RR-005 (round 2026-06-16T21:53:44.268Z). Both prior findings confirmed fixed and resolved. F-001: verifyUsageReceipt gate at authority-evidence.ts:331-336 uses typeof subjectId === string && typeof envelope.storyId === string && subjectId === envelope.storyId — null-subject bypass closed on both sides; CHK-003 F-001 tests (two checks) confirm. F-002: FORBIDDEN_NORMALIZED_NAMES derived from exported FORBIDDEN_FIELD_NAMES via map(normalizeKey) with no parallel copy; TOOL_ARGUMENTS/ENV_VARS separator variants caught; drift-sanity test iterates all entries exhaustively; CHK-001 F-002 tests (two checks) confirm. Isolation invariant: authority-evidence.ts imports only node:crypto and ./ siblings (canonical-json, record); zero authority-signing import; CHK-005 static checks confirm. Build: 0 errors. Suites: test:usage-ledger-authority 37/37; test:usage-ledger 61/61; test:usage-ledger-adapter 50/50; test:usage-ledger-estimate 55/55; test:usage-ledger-diagnostics 34/34; test:usage-ledger-dispatch 38/38; test:usage-ledger-budget 41/41. No dead code, no as-any without eslint disable annotation, no empty catch, no cross-module import violations. Gate is the sole receiptVerified=true path. CLEAN — no new findings.",
+      "createdAt": "2026-06-16T21:56:11.900Z",
+      "reviewRound": "2026-06-16T21:53:44.268Z",
+      "reviewRunId": "B-fd64:RR-005",
+      "_hash": "e5f1590a06232490f6dc6f87ace8a97ccfe832806f443d24ba72ff732015a77f"
     }
   ]
 }
