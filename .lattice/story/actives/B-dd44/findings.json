@@ -5,13 +5,14 @@
       "desc": "resolveHardBudget uses `env ?? {}` (empty object) instead of `env ?? process.env`, so when `opts.env` is `undefined` (the production path in lattice-dispatch.ts — `ledgerOpts` has no `env` key) the function sees `{}` and never finds `LATTICE_HARD_BUDGET_TOKENS` or `KOALA_HARD_BUDGET_TOKENS` from the real process environment. The budget guard silently never fires in production. The smoke suite misses this because every test passes an explicit env object. Fix: change `const source = env ?? {};` to `const source = env ?? process.env;` in `resolveHardBudget`, or add `env: process.env` to `ledgerOpts` in `lattice-dispatch.ts`. File: packages/main/src/core/usage-ledger/dispatch-usage.ts:518 (resolveHardBudget); cross-ref packages/main/src/core/lattice-dispatch.ts:1962 (ledgerOpts missing env key).",
       "severity": "critical",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T21:05:42.912Z",
       "reviewRound": "2026-06-16T21:00:37.935Z",
       "reviewRunId": "B-dd44:RR-002",
-      "_hash": "59a49d2b9847473682d2118f13473f2b993ed6b9d2d9c2adc5daf975e156cf9c"
+      "_hash": "59a49d2b9847473682d2118f13473f2b993ed6b9d2d9c2adc5daf975e156cf9c",
+      "resolvedAt": "2026-06-16T21:12:35.097Z"
     }
   ]
 }
