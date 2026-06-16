@@ -7,7 +7,30 @@
       "userSees": "A new test fails before the fix (markers committed) and passes after (clean post-advance index.json), and lattice validate stays green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "repro drives the reconcile against a divergent main and asserts no git conflict markers end up committed in index.json",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "single-session reconcile (no divergence) produces clean metadata, byte-identical to today",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "multi-file metadata conflict leaves no markers in any story-metadata file",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
