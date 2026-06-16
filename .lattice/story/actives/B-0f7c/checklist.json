@@ -202,6 +202,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "OFF byte-identical: with LATTICE_USAGE_LEDGER unset/off, assert the spawn args produced by the dispatch are exactly ['--print', promptFile] (no --output-format, no json flag); assert the result text is raw stdout.trimEnd() with no parseClaudeCliOutput transformation; WHY: the primary safety invariant - flag OFF must produce identical behavior to the pre-change dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Parse-failure fallback: with flag ON, feed parseClaudeCliOutput plain text (not JSON) -> returns {resultText: raw text, anthropicUsage: null}; then recordDispatchFinal is called with null usage -> records unavailable; dispatch yields the raw text; WHY: the secondary safety invariant - unparseable output must not break dispatch",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "OFF byte-identical with LATTICE_USAGE_LEDGER='false' (string false) -> treated as OFF; spawn args identical to pre-change; no ledger dir created; WHY: edge - various falsy string values must all be treated as OFF",
+            "type": "cli"
+          },
+          {
+            "desc": "OFF byte-identical with LATTICE_USAGE_LEDGER='0' -> treated as OFF; WHY: numeric zero string must be OFF",
+            "type": "cli"
+          },
+          {
+            "desc": "Parse-failure fallback with truncated JSON (first half of valid JSON envelope) -> parseClaudeCliOutput returns raw text + null usage; dispatch continues with raw text; WHY: network-truncated output is a real failure mode",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Ledger write throws during preflight (e.g. disk full / permissions) with flag ON -> dispatch still proceeds; spawn still runs; result still returned; WHY: ledger errors must never break dispatch even when the flag is ON",
+            "type": "cli"
+          },
+          {
+            "desc": "Ledger write throws during final (corrupt chain) with flag ON -> dispatch still yields the parsed/raw result text to caller; WHY: a corrupt ledger state must not prevent dispatch from returning its result",
+            "type": "cli"
+          },
+          {
+            "desc": "Flag ON with valid JSON envelope but usage has negative tokens {input_tokens: -999} -> parseClaudeCliOutput extracts the usage; recordDispatchFinal catches the validation error from buildProviderRecord and does not throw; dispatch yields resultText normally; WHY: adversarial token values must not crash the dispatch path",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
