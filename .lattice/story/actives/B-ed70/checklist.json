@@ -637,6 +637,17 @@
           "headHash": "ac3de242f4f8d18df0e64d1dc2a9c17e83d2edbd",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:05.618Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n '\\.omx' .gitignore",
+          "result": "pass",
+          "note": "Returns empty — .omx/ line removed.",
+          "headHash": "3288ca8767791868bf3b3b5b3edb87455d998fe5",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:06.153Z"
         }
       ]
     }
