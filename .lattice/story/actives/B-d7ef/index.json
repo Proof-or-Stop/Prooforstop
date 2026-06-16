@@ -4,7 +4,7 @@
   "title": "Remove the stray orphans junk file and 2 truly-dead source modules (OSS hygiene v2)",
   "description": "Pre-open-source hygiene. Delete a stray 5-byte junk file 'orphans' at repo root (content 'NO -', a shell-redirect mistake), and 2 truly-dead source modules with zero references anywhere — packages/main/src/core/phase-protocol.ts and packages/main/src/verifier/bridge-utils.ts. Recreated after discarded story B-5740, where the concept reviewer correctly found that intent-coverage.ts is NOT dead (test fixture-preview-runner-parity.json dynamically imports its compiled dist by path), so intent-coverage is excluded and kept. Also excluded: verifier/dev-cli.ts (lattice serve launcher), the OMX disable guard, .codex/.Codex consolidation, the .lattice gitignore step.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "low",
   "keywords": [
     "open-source-cleanup",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-16T18:52:46.575Z",
   "startedAt": "2026-06-16T18:52:46.575Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T19:16:00.194Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,6 +38,46 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T18:56:16.179Z",
+      "branch": "story/B-d7ef",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:02:14.115Z",
+      "branch": "story/B-d7ef",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:03:54.889Z",
+      "branch": "story/B-d7ef",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:11:18.346Z",
+      "branch": "story/B-d7ef",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:16:00.194Z",
+      "branch": "story/B-d7ef",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -47,9 +87,5 @@
       "at": "2026-06-16T18:52:54.972Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d7ef",
-    "branch": "story/B-d7ef",
-    "createdAt": "2026-06-16T18:55:39.871Z"
-  }
+  "currentReviewRound": "2026-06-16T19:03:54.889Z"
 }

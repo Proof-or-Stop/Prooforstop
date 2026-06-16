@@ -1,0 +1,58 @@
+{
+  "findings": [
+    {
+      "id": "B-d7ef:F-001",
+      "desc": "CHK-002:happy:0 and CHK-002:happy:1 intents require `test -f` commands confirming phase-protocol.ts and bridge-utils.ts are GONE from disk; recorded evidence for both is a static-import grep (git grep -nE from.*phase-protocol|bridge-utils) that does not cover disk-presence at all. Rule: evidence must concretely correspond to its intent. Live re-run confirms both files GONE, but the recorded evidence command is wrong for these intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T19:06:55.491Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-003",
+      "_hash": "7e44c3e65f3a828761c3f837747d4ac6e874fee93eff802f6a22659f41bee563",
+      "files": [
+        "packages/main/src/core/phase-protocol.ts",
+        "packages/main/src/verifier/bridge-utils.ts"
+      ],
+      "resolvedAt": "2026-06-16T19:08:30.353Z"
+    },
+    {
+      "id": "B-d7ef:F-002",
+      "desc": "CHK-002:happy:2 intent requires `git ls-files packages/main/src/core/phase-protocol.ts packages/main/src/verifier/bridge-utils.ts` returning empty stdout; recorded evidence is the same static-import grep, which does not test the git index. CHK-002:edge:4 and CHK-002:edge:5 intents require `git checkout HEAD -- <file>` failing with non-zero exit to prove deletion is finalized; both have the same static-import grep as evidence. Live re-runs confirm: git ls-files returns empty and both checkout attempts exit non-zero, but the recorded commands do not correspond to these intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T19:07:10.127Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-003",
+      "_hash": "67d0b74f67d0d8de0072a2047b81253699690f8ddb841d144742e96c681593c3",
+      "files": [
+        "packages/main/src/core/phase-protocol.ts",
+        "packages/main/src/verifier/bridge-utils.ts"
+      ],
+      "resolvedAt": "2026-06-16T19:08:31.047Z"
+    },
+    {
+      "id": "B-d7ef:F-003",
+      "desc": "CHK-002:edge:1 intent requires a grep for dynamic import() calls referencing phase-protocol or bridge-utils; CHK-002:adversarial:0 intent requires `test -f packages/main/src/core/intent-coverage.ts` returning SAFE. Both have static-import grep as evidence — neither covers the intended behavior. No other evidence entry cross-covers CHK-002:adversarial:0 (adversarial:1 covers dev-cli.ts, a different file). CHK-002:adversarial:4 intent requires find+grep over JSON files for phase-protocol/bridge-utils; recorded evidence is again the static-import grep (phase-gate-protocol.json has annotation-only file-label references, confirmed non-runtime, but the right evidence command was never run or recorded). Live re-runs confirm: dynamic import grep empty, intent-coverage.ts SAFE, JSON scan finds only annotation labels in phase-gate-protocol.json.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T19:07:18.880Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-003",
+      "_hash": "e846b4f8f5c47fb21ce4c4bf926274ed6e7f2d5df479c8ddb751e97d4b279775",
+      "files": [
+        "packages/main/src/core/intent-coverage.ts",
+        "packages/main/tests/fixtures/phase-gate-protocol.json"
+      ],
+      "resolvedAt": "2026-06-16T19:08:32.069Z"
+    }
+  ]
+}
