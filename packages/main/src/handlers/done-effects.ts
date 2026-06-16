@@ -65,22 +65,24 @@ import {
 
 /** Auto-sync main into the current branch. Returns success/failure + message. */
 export function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
+  // B-db56: projectRoot must be the resolved gitCwd (callers route via resolveGitCwd).
+  const gitCwd = projectRoot;
   // Try to fetch origin main first (fails silently for local-only repos)
   try {
     execSync('git fetch origin main:main', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
   } catch { /* local-only repo or no remote — skip fetch */ }
   try {
     execSync('git merge main --no-edit', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
     return { ok: true, message: 'main 已自动同步到当前分支' };
   } catch {
     // conflict — abort merge to keep branch clean
     try {
       execSync('git merge --abort', {
-        cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
       });
     } catch { /* abort failed — already clean */ }
     return { ok: false, message: 'merge main 有冲突（已 abort 保持分支干净）。\n→ 执�� git merge main，解决冲突后 git add + git commit，然后重跑 story_advance DONE' };

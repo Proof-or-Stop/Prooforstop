@@ -33,9 +33,9 @@ export interface StoryWorktreeRuntime {
   recoveryHint: string | null;
 }
 
-function git(root: string, args: string[]): string {
+function git(gitCwd: string, args: string[]): string {
   return execFileSync('git', args, {
-    cwd: root,
+    cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();

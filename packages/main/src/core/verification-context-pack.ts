@@ -50,8 +50,8 @@ export interface VerificationContextPackExpansionInput {
 
 const TOKEN_BUDGET_LIMITATION = 'token budget truncated source snippets';
 
-function git(root: string, args: string[]): string {
-  return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trimEnd();
+function git(gitCwd: string, args: string[]): string {
+  return execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8' }).trimEnd();
 }
 
 function sha256(value: string): string {

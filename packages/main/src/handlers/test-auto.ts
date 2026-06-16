@@ -116,9 +116,10 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
 
       // 快照：记录 test_auto 开始前已有的分支，用于结束后清理
       let branchesBefore: Set<string>;
+      const branchScanGitCwd = root;
       try {
         branchesBefore = new Set(
-          execSync('git branch --format="%(refname:short)"', { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean)
+          execSync('git branch --format="%(refname:short)"', { cwd: branchScanGitCwd, encoding: 'utf8' }).trim().split('\n').filter(Boolean)
         );
       } catch { branchesBefore = new Set(); }
 
@@ -235,10 +236,11 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
 
       // 清理 fixture 执行中创建的临时分支
       try {
-        const branchesAfter = execSync('git branch --format="%(refname:short)"', { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+        const cleanupGitCwd = root;
+        const branchesAfter = execSync('git branch --format="%(refname:short)"', { cwd: cleanupGitCwd, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
         for (const b of branchesAfter) {
           if (!branchesBefore.has(b) && b !== 'main' && b !== 'master') {
-            try { execSync(`git branch -D "${b}"`, { cwd: root, stdio: 'pipe' }); } catch {}
+            try { execSync(`git branch -D "${b}"`, { cwd: cleanupGitCwd, stdio: 'pipe' }); } catch {}
           }
         }
       } catch {}
