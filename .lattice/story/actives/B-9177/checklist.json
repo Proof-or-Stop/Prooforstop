@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
           "result": "pass",
           "note": "Guard scanned 277 files, enumerated 15 git-mutation sites (7 main-mutating, 8 worktree-only), each marked locked vs unlocked; corroborated by evidence/lock-coverage-audit.md",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
           "result": "pass",
           "note": "Guard classifies merge-main-into-story-worktree + autoSyncMain + worktree/branch cleanup as mutates-main=no (worktree-only), not flagged as gaps",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
           "result": "pass",
           "note": "Guard shows commitInitCheckMetadataAndMergeMain (B-7365) locked=YES; unrecognized git cwd is treated as main (fail-closed), so no main-mutating primitive can be silently omitted",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
           "result": "pass",
           "note": "Guard PASS — all 7 main-mutating paths hold the lock: the 4 newly-wrapped (from-draft commit, from-draft commit+merge, story_discard reset+commit, dev_merge) plus B-7365 reconcile and DONE/done_recover",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "npm --prefix packages/main run test:main-write-lock-smoke",
           "result": "pass",
           "note": "main-write-lock-smoke reentrancy cases green (no self-deadlock); lattice validate ALL PASS confirms DONE/draft/discard flows still complete with the reentrant lock",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "npm --prefix packages/main run test:main-write-lock-smoke",
           "result": "pass",
           "note": "Lock-only: git diff is lock-wrapping + one dormant-note comment, no semantic change; main-write-lock-smoke + e2e (story-lifecycle + gap-convergence) ALL PASS",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
           "result": "pass",
           "note": "Guard exits 0 PASS on the real tree and is invoked under lattice validate (npm test chains test:main-write-lock-coverage before test:e2e — marker line present in validate output)",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
           "result": "pass",
           "note": "No false-positive: guard marks story-worktree-only sites mutates-main=no/locked=n/a and does not require a lock for them",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
           "result": "pass",
           "note": "Negative fixture bites: --negative-demo exits 1 with VIOLATION on an unlocked main commit; the in-process negative fixture is also asserted during the normal green run",
-          "headHash": "02746a20363b250bc6e05b9a4e7de8b8f29d4109",
-          "materialHash": "3caf81b4f053f37ea80e7d62d055586d222b8726a794ebdb9418c273661c5c66",
-          "timestamp": "2026-06-16T04:38:11.678Z"
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
         }
       ]
     }
