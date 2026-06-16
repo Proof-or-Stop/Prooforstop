@@ -202,9 +202,9 @@
       "id": "CHK-004",
       "title": "迁移已有项目的 project-local .claude/agents",
       "context": "已存在项目里的 .claude/agents(copy 或指向 dev 路径的 symlink)需能被清理回落全局解析;注意 Claude Code 项目级会 shadow 用户级,stale 文件不清会破坏一致性。提供 --upgrade 或迁移路径",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T18:22:14.507Z",
-      "endTime": "2026-06-16T14:50:56.977Z",
+      "endTime": "2026-06-16T18:47:03.365Z",
       "userSees": "普通 lattice init 检测到已有 project-local .claude/agents 管理文件时,输出 ⚠ 16 managed agent files found in .claude/agents; run lattice init --upgrade to migrate to global,但不删除;跑 lattice init --upgrade 后才逐条 ↻ migrated to global 并移除这 16 个,用户自建 my-custom.md 保留;lattice doctor 输出 agentAssetMode: runtime-owned",
       "verificationIntent": {
         "happy": [
