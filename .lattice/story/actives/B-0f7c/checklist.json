@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "In-module dispatch-usage orchestrator (estimate + final, pure)",
       "context": "Add packages/main/src/core/usage-ledger/dispatch-usage.ts exporting pure helpers: recordDispatchPreflight(root, ctx{storyId|null,phase,agentType,model?}, promptText, opts{recordedAt,projectRootHash,command,host}) -> mints correlation (ids.ts), builds a prompt-size-estimate via the SYNCHRONOUS bytes/chars estimator + buildEstimateRecord, appends it (opt-in gated; no-op when off), returns {correlation, estimateRecordId} | null; and recordDispatchFinal(root, ctx, correlation, estimateRecordId, anthropicUsage|null, model) -> when usage present builds a provider-reported record via the existing anthropic adapter + assemble (supersedesRecordIds=[estimateRecordId]) and appends; when null appends an 'unavailable' final (supersedes estimate); opt-in gated; never throws to the caller (internal try/catch). MUST NOT import dispatch or any non-usage-ledger module — keep zero cross-module imports. Unit-tested: estimate then provider-reported supersede; estimate then unavailable; flag off => no-op.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T19:18:01.622Z",
       "endTime": null,
       "files": {
         "modify": [],
