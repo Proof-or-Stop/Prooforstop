@@ -174,6 +174,17 @@
           "headHash": "dac297143d90eb7deeca50b83b97a32c68b78323",
           "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
           "timestamp": "2026-06-16T02:54:34.172Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only",
+          "result": "pass",
+          "note": "Diff touches only packages/main/src/core — the lab package untouched.",
+          "headHash": "a631e20ba5da5bb70a90ee203ff167446e734136",
+          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
+          "timestamp": "2026-06-16T02:54:35.173Z"
         }
       ]
     }
