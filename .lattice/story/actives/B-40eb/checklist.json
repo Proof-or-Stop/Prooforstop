@@ -229,7 +229,55 @@
       "context": "跑 git grep -i koala 排除白名单，断言为空；lattice validate 全绿；build + e2e 通过。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -i koala over active scope (packages/ scripts/ docs/ CLAUDE.md) filtered by documented-exception whitelist (process lanes, .koala paths, salts, LEGACY_KOALA*, test assertion intent, decisions history, CHANGELOG) returns zero unclassified lines -> acceptance gate passes; WHY: primary acceptance criterion for the entire story",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice validate succeeds with zero errors -> story metadata and checklist are consistent; WHY: Lattice workflow gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run build succeeds -> no compile errors from all brand changes across packages; WHY: build integrity gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run test:e2e succeeds -> all existing tests including branding smokes pass; WHY: regression gate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep -i koala over CHANGELOG.md and docs/requirements/decisions/ returns results but all are excluded from active scope -> historical documents correctly excluded from sweep; WHY: ensures history preservation boundary is respected",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala over .lattice/ story metadata returns results but all are excluded from active scope -> story metadata not accidentally cleaned; WHY: .lattice/ is workflow metadata, not active source",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Add a new file with unclassified koala brand text in packages/main/src/, re-run acceptance gate grep -> gate correctly reports the new file as unclassified; WHY: confirms the gate is not silently over-filtering and would catch future regressions",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Add koala text that matches a documented-exception pattern (e.g. koala-codex) but in a context where it is actually brand text not a process lane, run gate -> gate must still classify it as neutral (known limitation) or detect it; WHY: stress-tests the classification boundary between legitimate exception patterns and brand text that happens to match patterns",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
