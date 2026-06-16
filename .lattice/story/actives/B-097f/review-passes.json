@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T19:05:43.534Z",
       "reviewRunId": "B-097f:RR-005",
       "_hash": "920ae29d1b223552c3fc1183449cdf750c7abd0f87ae6365ff68af49d6076a8a"
+    },
+    {
+      "id": "B-097f:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage review passed: all 18 must-intents across 6 checklist items remain concretely covered at HEAD c9760d789. Evidence is flagged stale by headHash only because F-001 (docs wording clarification) and F-002 (dead import removal) landed after evidence was recorded — neither changes the covered behaviors. Both smoke tests (global-agents-unit-smoke and global-agents-init-smoke) pass at current HEAD. No coverage gaps found.",
+      "createdAt": "2026-06-16T19:07:26.803Z",
+      "reviewRound": "2026-06-16T19:05:43.534Z",
+      "reviewRunId": "B-097f:RR-007",
+      "_hash": "58252ed32734151be20694030c9bf25543257bdd524993f2c206c15b097fb2e9"
     }
   ]
 }
