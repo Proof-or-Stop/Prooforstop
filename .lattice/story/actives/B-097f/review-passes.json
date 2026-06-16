@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T18:51:41.763Z",
       "reviewRunId": "B-097f:RR-002",
       "_hash": "26d91500eb919651fe1c6bfffce8ee41c2655c4ebfc01e6a1b634033eb2713e6"
+    },
+    {
+      "id": "B-097f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed: global-agents.ts (syncGlobalAgents, extractTemplateFrontmatter, renderAgentShim, buildShimBody, listManagedAgentBasenames), agent-prompt.ts (createAgentPromptHandlers), cli-init.ts (sync/migrate/warn block), managed-assets.ts (new scan/migrate exports), doctor.ts (agentAssets block). All checks pass: (1) Dead code: no unused imports or dead functions in changed files. (2) Type safety: no unnecessary `as any`, empty catch blocks all have PROBE/best-effort comments justifying swallow intent. (3) I/O isolation: no shell file imports fn.ts; syncGlobalAgents correctly uses injectable fs deps. (4) Runtime re-validation (Handler convention): agent_prompt handler re-validates role with trim+length check before Zod path; non-writable global dir throws clear actionable error with no silent fallback; tools: frontmatter preserved verbatim; idempotency uses byte-comparison of expected vs actual shim content; replace logic correctly unlinks old symlink/full-copy then rewrites. No blockers found.",
+      "createdAt": "2026-06-16T18:54:41.907Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-001",
+      "_hash": "5e4588b6b386be42b980987531ed8a1f9e554ac8d2e4d34a913473c8071a13d9"
     }
   ]
 }
