@@ -39,9 +39,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "computeNextStep INIT/INIT_CHECK gitReady=false+gitRoot resolved -> points to INIT_CHECK, no git init",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "plain no-gitRoot -> git-init message byte-identical (full-string equality)",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "gitReady=true cross-check matches the wrapper-root-resolved guidance; no crash on flag combos",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "wrapper-root non-git cwd: fatal captured in pipe, not leaked; leak-control proves pre-fix default leaks",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "ordinary main branch: not rejected (negative control), behavior unchanged",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "real worktree-* checked-out branch: nesting rejection preserved",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "smoke asserts gitRoot-aware guidance on the wrapper-root case",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "smoke asserts plain no-gitRoot keeps git-init + nesting unchanged",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "npm run test:gitroot-init-guidance-quiet-nesting",
           "result": "pass",
           "note": "smoke asserts real nesting still rejected + no spurious fatal on wrapper-root (7/7 checks)",
-          "headHash": "56b89125a5c6d3299f461d855a262c5a3c37997a",
-          "materialHash": "0dea8a8d1e3fa200809e47aa23bab6d581d253b4289b5c61370e57ac0fd80429",
-          "timestamp": "2026-06-16T00:48:00.909Z"
+          "headHash": "1b6b60f200c402fffe50fff64666f98ea3fb4d6c",
+          "materialHash": "55721c21eae66f8c5b29e8755e5991292e8f36a2fba835d49bd64f06652e5ba0",
+          "timestamp": "2026-06-16T00:52:04.562Z"
         }
       ]
     }
