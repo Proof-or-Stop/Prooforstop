@@ -42,6 +42,17 @@
           "headHash": "d6bd1219178ff0289c7dd370e251d403c816f896",
           "materialHash": "54e2e3fe79e233a40ad7a3d5cd567edd134abc34d9742be983f57141f285c6a7",
           "timestamp": "2026-06-16T21:15:32.091Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Edge case: a referenced path that exists (pathExists=true) -> status pass, missingPaths empty; also covers grep-fallback (pathExists=false but grepLiteral=true) staying pass.",
+          "headHash": "d8a39eb5c5888707f5cce3a301408a55111f0a57",
+          "materialHash": "54e2e3fe79e233a40ad7a3d5cd567edd134abc34d9742be983f57141f285c6a7",
+          "timestamp": "2026-06-16T21:15:38.217Z"
         }
       ]
     },
