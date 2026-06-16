@@ -223,6 +223,58 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Record with only allowed fields (hashes, model name, provider name, usage counts, reason codes, redaction profile id, budget policy id) -> validator/writer accepts; WHY: proves legitimate privacy-preserving fields pass",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Record containing a field named rawPrompt with a prompt string -> writer rejects with privacy error; WHY: raw prompt is forbidden",
+            "type": "cli"
+          },
+          {
+            "desc": "Record containing a field named rawCompletion -> writer rejects; WHY: raw completion is forbidden",
+            "type": "cli"
+          },
+          {
+            "desc": "Record containing a field named rawTranscript -> writer rejects; WHY: raw transcript is forbidden",
+            "type": "cli"
+          },
+          {
+            "desc": "Record containing a field named toolArguments with raw tool args -> writer rejects; WHY: raw tool arguments forbidden",
+            "type": "cli"
+          },
+          {
+            "desc": "Record containing a field named apiKey with a real key -> writer rejects; WHY: customer API keys forbidden",
+            "type": "cli"
+          },
+          {
+            "desc": "Record containing a field named authorizationHeader -> writer rejects; WHY: auth headers forbidden",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Record with secret material hidden inside a deeply nested extra object (e.g. metadata.debug.rawPrompt) -> writer rejects even at arbitrary nesting depth; WHY: attacker hides forbidden content in deep nesting",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with provider secret in a field named providerSecret or providerApiKey -> writer rejects; WHY: provider secrets forbidden regardless of field naming",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with actorKey field containing key material -> writer rejects; WHY: actor keys explicitly forbidden by spec",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with allowed hash field (e.g. provider.requestIdHash=sha256:abc) alongside a forbidden rawPrompt field -> writer rejects the whole record (not partial acceptance); WHY: one forbidden field poisons the entire record",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
