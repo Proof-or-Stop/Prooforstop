@@ -510,6 +510,17 @@
           "headHash": "bc3b7c321eaebdd7c04b1302d26df06de615e3c7",
           "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
           "timestamp": "2026-06-16T00:15:39.890Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && git grep -cE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "result": "pass",
+          "note": "Covered by the green build + zero-residual scan on the committed tree.",
+          "headHash": "4b016e4aa93664d5307e8d00d8d5944286aa2d47",
+          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
+          "timestamp": "2026-06-16T00:15:40.535Z"
         }
       ]
     },
