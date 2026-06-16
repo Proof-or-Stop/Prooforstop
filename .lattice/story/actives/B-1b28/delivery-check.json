@@ -1,0 +1,82 @@
+{
+  "storyId": "B-1b28",
+  "checkedAt": "2026-06-16T22:42:57.416Z",
+  "reviewRound": "2026-06-16T22:36:19.529Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/usage-ledger/writer.ts#isUsageLedgerEnabled",
+      "promise": "LATTICE_USAGE_LEDGER unset defaults to ON (isUsageLedgerEnabled returns true when env key is absent)",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Line 66: `if (raw === undefined) return true;` — confirmed in writer.ts after flip"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/writer.ts#isUsageLedgerEnabled",
+      "promise": "LATTICE_USAGE_LEDGER=0 escape hatch restores byte-identical legacy behavior (strict no-op writer + no --output-format json + inert budget)",
+      "status": "verified",
+      "verifiedBy": "diff/smoke-run",
+      "evidence": "isUsageLedgerEnabled returns false for 0/false/off/no/empty; appendUsageRecord returns {written:false}, no file/dir created; buildClaudeSpawnArgs returns [--print,file] without --output-format json; budget guard is inert. All verified by CHK-002 suite (9 checks passing)."
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+      "promise": "New smoke usage-ledger-default-on-smoke.ts exists with 30 checks covering CHK-001 flag parsing, CHK-002 escape hatch, CHK-003 default-on safety, and STATIC zero-import invariant",
+      "status": "verified",
+      "verifiedBy": "read/run",
+      "evidence": "File exists at packages/main/src/tasks/usage-ledger-default-on-smoke.ts with 488 lines, 30 checks; npm run test:usage-ledger-default-on output: smoke passed (30 checks)"
+    },
+    {
+      "docPath": "packages/main/package.json#scripts",
+      "promise": "npm script test:usage-ledger-default-on is wired (runs the new smoke)",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "package.json contains: test:usage-ledger-default-on: node dist/tasks/usage-ledger-default-on-smoke.js"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger",
+      "promise": "Zero cross-module imports — core/usage-ledger imports only sibling ./modules and node: builtins, no other Lattice modules",
+      "status": "verified",
+      "verifiedBy": "smoke-STATIC/grep",
+      "evidence": "STATIC check in usage-ledger-default-on-smoke.ts walks all .ts files in core/usage-ledger and asserts zero non-sibling, non-node: imports; passed in smoke run. Diff shows no new external imports added."
+    },
+    {
+      "docPath": "packages/main/src",
+      "promise": "No dispatch/cli-engine/handlers production files changed",
+      "status": "verified",
+      "verifiedBy": "diff",
+      "evidence": "git diff main...HEAD against packages/main/src/core/lattice-dispatch.ts, packages/main/src/core/cli-engine.ts, packages/main/src/handlers/ produced empty output — zero production changes outside writer.ts and smokes"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1b28/summary.json#limitations",
+      "promise": "Limitations honestly disclosed: codex/gemini record no real usage (scaffolded only); budget enforcement requires LATTICE_HARD_BUDGET_TOKENS",
+      "status": "verified",
+      "verifiedBy": "read",
+      "evidence": "summary.json limitations field states: codex/gemini remain scaffolded (no live subprocess), so they record no real usage yet. Budget enforcement still requires LATTICE_HARD_BUDGET_TOKENS. Accurately scoped — the default-on flip only gates the writer, not provider coverage."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "isUsageLedgerEnabled flag parsing: 8 checks covering unset=ON, truthy strings ON, falsy strings OFF, trimmed/case-insensitive, unrecognized=OFF, KOALA_ alias, LATTICE_ precedence, re-read not memoized. All passed in npm run test:usage-ledger-default-on."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Escape hatch =0 byte-identical: 9 checks covering no-op writer (10x loop, no file/dir), real-data still no write, buildClaudeSpawnArgs=[--print,file], preflight null, final no write, budget inert, full pipeline zero trace, KOALA_=0 alias. All passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Default-on safety: 10 checks covering appendUsageRecord writes JSONL, preflight returns active handle, recordDispatchFinal supersedes estimate, spawn args include --output-format json, parse valid JSON, B-0f7c raw fallback, adversarial parse (deep nesting + type confusion), thrown ledger op does not propagate, final swallows corrupt-ledger error, no budget block without LATTICE_HARD_BUDGET_TOKENS. All passed."
+    },
+    {
+      "featureId": "STATIC",
+      "transcript": "Zero cross-module import invariant: walks all .ts files in core/usage-ledger, asserts zero non-sibling non-node: imports. Passed. Temp artifact containment also verified. Full 63-check verifier: node verify-b-1b28.mjs => TOTAL 63 | PASS 63 | FAIL 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docs promises verified in source code and real machine runs. The core flip (isUsageLedgerEnabled unset -> true) is confirmed at line 66 of writer.ts. 30-check smoke passes covering flag parsing, escape hatch byte-identity, default-on safety, and static invariant. Full 63-check verifier reports TOTAL 63 | PASS 63 | FAIL 0. Limitations (codex/gemini scaffolded-only, budget needs explicit env) are honestly disclosed in summary.json. No unresolved TODOs in production diff. Scope is clean: zero changes to dispatch/cli-engine/handlers production code."
+  },
+  "_hash": "76dd0480c04f30cdfec89f37f8c7f5f6f7cc46e6dd04b27c0796964510ca720c"
+}
