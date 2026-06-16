@@ -4,7 +4,7 @@
   "title": "Fix CLAUDE.md false prohibition that contradicts framework-generated host hooks",
   "description": "CLAUDE.md line 77 states 'Claude hook/settings 只放在 .claude/，不要创建 .Codex/hooks 或 .Codex/settings.json' — a prohibition that directly contradicts the framework's own behavior: lattice init generates host-specific scope-guard hooks for BOTH the Claude host (.claude/hooks/lattice-scope-pretool.cjs, which is git-tracked) and the Codex adapter (its hooks dir + hooks.json), driven by init-assets.ts / cli-init.ts / core/managed-assets.ts / core/codex-adapter-checks.ts, and covered by the pretool-scope-hook-smoke test. So the host hooks are legitimate framework-managed assets, not something forbidden. The determination is therefore LEGAL: the doc is wrong, not the file. Fix: rewrite the clause on CLAUDE.md line 77 so it states the truth — host hook/settings are framework-managed assets generated at init for each host (Claude under .claude/, the Codex adapter under its own adapter dir), and should not be hand-authored/edited, replacing the false 'do not create' prohibition. IMPORTANT cross-story constraint: a concurrent live story (B-ed70) is renaming the uppercase .Codex/ directory to .lattice-codex/ and enforces a gate that 'git grep .Codex returns nothing'; therefore the corrected clause MUST NOT hardcode the .Codex literal — use a generic phrase like 'Codex adapter 目录' so this fix stays compatible with that rename. Scope: the single false clause on CLAUDE.md line 77 only — do NOT touch the docs-drift gate code (that is a separate story), do NOT rename .Codex (B-ed70 owns that), do NOT change any hook generation behavior.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "low",
   "keywords": [
     "CLAUDE.md",
@@ -47,6 +47,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-16T20:59:59.763Z",
+      "branch": "story/B-94ae",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3doc",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:04:09.486Z",
       "branch": "story/B-94ae",
       "user": "Harmonygo",
       "sessionId": "lattice-p3doc",
