@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-dd44:RP-001",
+      "agent": "lattice-review-behavior",
+      "note": "All four behavioral paths verified against code. (1) OFF-path (ledger flag unset/OFF): isUsageLedgerEnabled() returns false; both the preflight block and the budget-guard block are gated on `if (ledgerOn)` and are entirely skipped; buildClaudeSpawnArgs(file,false)==[\"--print\",file]; spawnSync is reached byte-identically to before. (2) Ledger ON, budget unset: recordBudgetBlock is called; resolveHardBudget reads env?? {} and finds neither LATTICE_ nor KOALA_ token; returns null -> notBlocked; spawnSync proceeds. (3) Hard budget set AND estimate strictly exceeds it: shouldBlockDispatch returns block=true; recordBudgetBlock returns {blocked:true,...}; buildBudgetBlockedDispatchResult is called and returns immediately; spawnSync at line 2020 is never reached. (4) Blocked return shape: buildBudgetBlockedDispatchResult returns DispatchRunResult with schemaVersion=lattice.dispatch_run.v1, status=failed, workers=[], authorityChanged/receiptVerified/productionDone=false — structurally identical to the existing exitCode!=0 failure return (lines 2098-2112); no new fields; compatible. (5) Budget-check error proceeds: shouldBlockDispatch and recordBudgetBlock both wrap in try/catch and return notBlocked/block=false on any error; fail-open confirmed. (6) Fail-closed once blocked: the appendUsageRecord call inside recordBudgetBlock is in its own inner try/catch whose catch block does NOT return notBlocked — it falls through to return {blocked:true,...}; a write failure cannot revert the block decision; spawnSync is never reached. (7) Strict boundary: isOverHardBudget uses strict > (line 545); estimate==budget returns false (not blocked). No behavioral regressions or malformed blocked-return found.",
+      "createdAt": "2026-06-16T21:02:55.837Z",
+      "reviewRound": "2026-06-16T21:00:37.935Z",
+      "reviewRunId": "B-dd44:RR-004",
+      "_hash": "3f177cb208d8dcc078d191f3bd4ce7938b168af2273247d4db2c431f02ecb48c"
+    },
+    {
+      "id": "B-dd44:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review complete. No concept deletions or replacements found in this diff. All new concepts (buildBlockedBudgetRecord, recordBudgetBlock, shouldBlockDispatch, resolveHardBudget, isOverHardBudget, HARD_BUDGET_REASON_CODE, ResolvedHardBudget, BudgetGuardDecision) are purely additive and confined to dispatch-usage.ts with zero cross-module imports (all from ./ siblings: adapters/anthropic.js, assemble.js, estimate.js, ids.js, record.js, writer.js). buildBlockedBudgetRecord mirrors buildUnavailableFinalRecord: reuses mintRecordId, mintCallCorrelation, buildSupersedes, attributionFor, finalContext, appendUsageRecord, validateUsageLedgerRecord — no new record/id infra invented. decision.kind=blocked and budgetPolicyId/reasonCode are schema-legal fields in record.ts. Blocked records use source=prompt-size-estimate (never provider-reported) so summary.ts correctly excludes them from provider totals. recordBudgetBlock orchestrates existing pieces (resolveHardBudget + isOverHardBudget + buildBlockedBudgetRecord + appendUsageRecord). Scope honored: exactly 4 code files changed (dispatch-usage.ts, lattice-dispatch.ts, usage-ledger-budget-smoke.ts, package.json) — no dispatch-runner/cli-engine/handler changes. One-way dep intact: lattice-dispatch imports usage-ledger only through dispatch-usage.js. No doc-promise-undelivered: new ENV vars (LATTICE_HARD_BUDGET_TOKENS / KOALA_HARD_BUDGET_TOKENS) mentioned only in plan.md and code comments (not in CLAUDE.md/README), with full implementation present. No concept cleanup residue to check (nothing was deleted/replaced en masse).",
+      "createdAt": "2026-06-16T21:03:34.266Z",
+      "reviewRound": "2026-06-16T21:00:37.935Z",
+      "reviewRunId": "B-dd44:RR-003",
+      "_hash": "568e0d8211423f97a9b11fae198948cba2655d0ef68d4cbb3d29f50851947bfc"
+    },
+    {
+      "id": "B-dd44:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent (65 intents across CHK-001..CHK-005) and verificationEvidence (65 manual_transcript entries, all result=pass). Verifier 65/65. Smoke 35/35. All must-priority intents covered. OFF byte-identical, no-budget-no-enforcement, 4-quadrant guard, fail-open-on-error, and not-provider-reported invariants all genuinely exercised. No blocker.",
+      "createdAt": "2026-06-16T21:04:00.818Z",
+      "reviewRound": "2026-06-16T21:00:37.935Z",
+      "reviewRunId": "B-dd44:RR-001",
+      "_hash": "695f725dc89614c8ed892da5a3bea958f18482edf32ba3f68463e8b54829281f"
+    },
+    {
+      "id": "B-dd44:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verifier 65/65 on HEAD b4e3dab; budget smoke 41/41 including 6 new F-001 production-path checks (resolveHardBudget(undefined) reads process.env, KOALA_ fallback via process.env, production-shaped opts enforcing over-budget, under-budget, no-budget-env proceeds, ledger-OFF strict no-op); all verificationIntent:must entries have valid non-fail evidence; coverage gap from prior round (production env path) is now closed.",
+      "createdAt": "2026-06-16T21:11:56.005Z",
+      "reviewRound": "2026-06-16T21:10:44.729Z",
+      "reviewRunId": "B-dd44:RR-008",
+      "_hash": "d121d7177ebcf99dd3369068ac60977ae6d6c15450863d0a9947a630f27c67a2"
+    },
+    {
+      "id": "B-dd44:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review of B-dd44 F-001 fix on HEAD b4e3dab. All three fix points confirmed: (1) resolveHardBudget uses env??process.env at dispatch-usage.ts:524; (2) lattice-dispatch.ts:1971 passes env:process.env into ledgerOpts; (3) smoke adds 6 F-001 production-path regression checks (prodOpts no-env, resolveHardBudget(undefined), over-budget enforces, under-budget proceeds, no-budget no-op, ledger-OFF no-op). Test results: build 0 errors, 41/41 smoke, 65/65 verifier, all 4 ledger suites (61+50+55+38+34 checks) pass with zero regression. Dead code: none. Type safety: no as any, no empty catch swallowing errors (all catch blocks either return fail-open or re-record blocked state with documented rationale). I/O isolation: lattice-dispatch imports usage-ledger only via dispatch-usage.js (confirmed by CHK-005 static check). No blockers found. F-001 is fully resolved: the budget guard now enforces in production.",
+      "createdAt": "2026-06-16T21:12:46.932Z",
+      "reviewRound": "2026-06-16T21:10:44.729Z",
+      "reviewRunId": "B-dd44:RR-005",
+      "_hash": "581353c2d24a95cefd53e86f8467de99a85fc00d797c02d4af37c10ce18d4208"
+    },
+    {
+      "id": "B-dd44:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review RR-007 (post F-001 fix): (1) SCOPE: exactly 4 files changed outside .lattice/ -- dispatch-usage.ts, lattice-dispatch.ts, usage-ledger-budget-smoke.ts, package.json; dispatch-runner/cli-engine/handlers untouched. (2) ONE-WAY DEPENDENCY: dispatch-usage.ts imports only sibling usage-ledger modules (./ relative) and node: builtins; zero cross-module imports confirmed by grep returning no hits. (3) NO DEAD/DUPLICATE CONCEPTS: buildBlockedBudgetRecord correctly reuses record.js (validateUsageLedgerRecord, SCHEMA_VERSION, LedgerUsage, UsageLedgerRecordInput) and ids.js (mintRecordId, CallCorrelation) from the existing module. (4) RECORD SEMANTICS: decision.kind=blocked confirmed at line 637; usage.source=prompt-size-estimate (never provider-reported -- no hits on provider-reported source in new code); budgetPolicyId is the self-describing hard-budget:<N> string from resolveHardBudget; supersedesRecordIds supersedes the estimate record (or [] when no preflight handle); authority.mode=local, receiptVerified=false -- never-invent-a-budget contract upheld across 3 explicit comments. KOALA_HARD_BUDGET_TOKENS retained as legacy-compat fallback with backward-compat comments at lines 507, 525 (not @deprecated; retained intentionally per koala-removal program). No concept deletion, no residue, no doc-promise-undelivered items found. Zero blockers.",
+      "createdAt": "2026-06-16T21:13:00.669Z",
+      "reviewRound": "2026-06-16T21:10:44.729Z",
+      "reviewRunId": "B-dd44:RR-007",
+      "_hash": "830154fb86a6ce5c11304767a7581b56f06c34365c9978ce80c91da86c079320"
+    },
+    {
+      "id": "B-dd44:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Re-review of fix commit 896d0a1. All 4 dispatch behaviors confirmed correct in code:\n\n(1) OFF/unset budget => byte-identical dispatch (spawn happens): ledgerOn=false at line 1955 (isUsageLedgerEnabled() no-arg, defaults to process.env) short-circuits the entire budget block at line 1995; spawnSync is always reached. Confirmed by F-001 guard: ledger OFF + budget set -> strict no-op test.\n\n(2) Hard budget set (real process.env) + preflight estimate over => BLOCK (skip spawn) + well-formed blocked DispatchRunResult status=failed: resolveHardBudget now defaults env??process.env (line 524), and lattice-dispatch.ts threads env:process.env explicitly (line 1971). recordBudgetBlock->shouldBlockDispatch->resolveHardBudget reads the real env; isOverHardBudget uses strict > (line 551). buildBudgetBlockedDispatchResult returns DispatchRunResult{status:failed, schemaVersion:lattice.dispatch_run.v1, ...} without calling spawnSync. Confirmed by F-001 guard: prod-shaped opts + over budget -> ENFORCES test.\n\n(3) Budget-check error => proceeds (fail-open): shouldBlockDispatch wraps resolveHardBudget and isOverHardBudget in try/catch returning {block:false} on any error (line 691-694); recordBudgetBlock outer try/catch also returns notBlocked on unexpected assembly error (line 791-793). Never blocks on error.\n\n(4) Boundary: estimate==budget => proceeds (strict >): isOverHardBudget returns estimatedInputTokens > hardBudgetTokens (line 551), not >=, so exact equality is not over-budget. Confirmed by CHK-001 edge case isOverHardBudget(5000,5000)->false.\n\nThe key concern from this round (does process.env default introduce behavior change when NO budget is configured?) is resolved: when LATTICE_HARD_BUDGET_TOKENS and KOALA_HARD_BUDGET_TOKENS are absent from process.env, parsePositiveIntegerBudget returns null for both, resolveHardBudget returns null, shouldBlockDispatch returns {block:false}, recordBudgetBlock returns notBlocked immediately. Dispatch proceeds byte-identically. Locked by F-001 guard: prod-shaped opts + NO budget env -> proceeds test. No findings.",
+      "createdAt": "2026-06-16T21:13:21.487Z",
+      "reviewRound": "2026-06-16T21:10:44.729Z",
+      "reviewRunId": "B-dd44:RR-006",
+      "_hash": "64da565e0ef14d49f7a21238b121c3166e0e41de9d95f35092ea771fca437145"
+    }
+  ]
+}

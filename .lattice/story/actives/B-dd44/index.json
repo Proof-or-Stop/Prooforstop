@@ -4,11 +4,11 @@
   "title": "LLM usage ledger Touchpoint 4: fail-closed hard-budget pre-call block (env-gated; unset/OFF = byte-identical dispatch)",
   "description": "Budget slice (spec Touchpoint 4 'Fail-Closed Budget Behavior') of the LLM usage ledger. Add a pre-call hard-budget check to the existing Claude dispatch seam: when a configured hard budget is set and the preflight prompt-size estimate EXCEEDS it, BLOCK the request (skip the provider spawn) and write a decision.kind=blocked ledger record before any call. SAFETY: when no hard budget is configured (the default) OR the ledger flag is OFF, dispatch is BYTE-IDENTICAL to today (no block, decision proceeds with budgetPolicyId=null). The block alters control flow ONLY when an operator explicitly sets the hard-budget env var AND the estimate exceeds it. Per the spec: do not invent a budget when none is configured; fail closed only on an explicit configured hard budget. The pure block-record builder + budget-policy resolution live in the usage-ledger module (zero cross-module imports); the lattice-dispatch.ts edit is a minimal gated guard. Scope: packages/main/src/core/usage-ledger/dispatch-usage.ts + the single gated guard in core/lattice-dispatch.ts (runClaudeCodeRealLeafDispatch) + a smoke + package.json. Out of scope: postflight overage handling beyond recording, Authority-required budget modes, any non-claude host, default-on, signed-receipt path.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-16T20:36:29.616Z",
   "startedAt": "2026-06-16T20:36:29.616Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T21:19:41.738Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T20:42:34.668Z",
+      "branch": "story/B-dd44",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T20:49:07.956Z",
+      "branch": "story/B-dd44",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:00:37.935Z",
+      "branch": "story/B-dd44",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:10:44.164Z",
+      "branch": "story/B-dd44",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:10:44.729Z",
+      "branch": "story/B-dd44",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:14:11.859Z",
+      "branch": "story/B-dd44",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:19:41.738Z",
+      "branch": "story/B-dd44",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-dd44",
-    "branch": "story/B-dd44",
-    "createdAt": "2026-06-16T20:42:26.334Z"
-  }
+  "currentReviewRound": "2026-06-16T21:10:44.729Z"
 }
