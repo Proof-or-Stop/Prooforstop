@@ -242,7 +242,18 @@
             "priority": "should"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "desc": "After editing the 2 doc prose spots, run git grep -i koala over CLAUDE.md and docs/guide.md with full branding filter -> zero unclassified lines AND no new dangling cross-references introduced (all referenced paths exist); WHY: catches the case where the edit itself introduces a new broken link or misses an in-scope brand line elsewhere in the same file",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Grep the entire CLAUDE.md (not just line 924) for any remaining unclassified koala brand text -> no surprise brand prose hidden in other sections; WHY: prevents tunnel-vision where only the known line 924 is checked while other brand prose in the same file goes undetected",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
