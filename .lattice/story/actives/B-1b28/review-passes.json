@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T22:29:31.413Z",
       "reviewRunId": "B-1b28:RR-001",
       "_hash": "8ce893cfd13db50c0c1db0ddc71bce935fd51aefc278ef6f63f4b93d3e8aa9a3"
+    },
+    {
+      "id": "B-1b28:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001 truth table verified: undefined->true, 0/false/off/no/empty->false, 1/true/on/yes->true; trimmed+case-insensitive; legacy KOALA_ alias honored; LATTICE_ wins ?? chain; not memoized. CHK-002 escape hatch (=0) is byte-identical legacy no-op: appendUsageRecord strict no-op (no file, no .lattice dir), buildClaudeSpawnArgs returns ['--print',file] with no --output-format json, recordDispatchPreflight null, recordDispatchFinal no-write, recordBudgetBlock inert even with budget set. CHK-003 default-ON safety: ledger writes succeed, parse failures fall back to raw text (B-0f7c), ledger errors swallowed at preflight+final, no budget block without LATTICE_HARD_BUDGET_TOKENS. All 30 smoke checks passed; full verifier TOTAL 63 | PASS 63 | FAIL 0.",
+      "createdAt": "2026-06-16T22:31:47.266Z",
+      "reviewRound": "2026-06-16T22:29:31.413Z",
+      "reviewRunId": "B-1b28:RR-003",
+      "_hash": "2e68d3ce9b23597bf26c914fb069ed7a76f6c749f001733c8f3d68e72c6662df"
     }
   ]
 }
