@@ -295,7 +295,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "lifecycle-artifact-scope.md 重写为 host-neutral thin-shim 契约(两宿主同源表+7点);runtime-owned plan 加 Implementation Status(Claude 侧 B-097f landed);CLAUDE.md 加 Agent prompt 资产 host-neutral 单一源节",
+          "headHash": "929668cb305b670c83c27aded471194371082704",
+          "materialHash": "6f1f5cd715270852e57133f6a1dec721b1599e0463c57838f822dad9c7e54538",
+          "timestamp": "2026-06-16T18:51:26.367Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
