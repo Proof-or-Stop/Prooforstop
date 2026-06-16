@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-16T00:47:50.642Z",
       "reviewRunId": "B-08f2:RR-016",
       "_hash": "585fe6aea68c86635f559e6719cfec94ccc231027b29dab02cde22fcc0b6b859"
+    },
+    {
+      "id": "B-08f2:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Re-verified on current HEAD (b0ffcb454): residual gate empty, no-shim empty, npm run build exit 0, npm run test:e2e ALL PASS, dev-memory smoke passes. All 36/36 verificationIntents retain valid evidence (result=pass, verdict=success). The two post-RR-015 fix commits (authority dead-read collapse + active-doc env-var name updates) touch only .lattice/ metadata and 3 source files; they do not regress any intent coverage. No new intents were added. No gaps found.",
+      "createdAt": "2026-06-16T00:49:56.582Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-017",
+      "_hash": "84e351c50e8a5fbf8505a1d5e87abd2bddef711c4de7f53b62fdc38d94cde631"
     }
   ]
 }
