@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Pure budget-policy resolution + over-budget predicate",
       "context": "In core/usage-ledger/dispatch-usage.ts add a pure resolveHardBudget(env) that reads LATTICE_HARD_BUDGET_TOKENS (fallback KOALA_HARD_BUDGET_TOKENS), parses a positive integer, returns { hardBudgetTokens: number, budgetPolicyId: string } | null (null when unset/invalid -> no enforcement). Add a pure isOverHardBudget(estimatedInputTokens, hardBudgetTokens) -> boolean. Unit-tested: unset -> null (no enforcement); valid -> policy; estimate over/under the ceiling.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T20:51:05.677Z",
       "endTime": null,
       "files": {
         "modify": [],
