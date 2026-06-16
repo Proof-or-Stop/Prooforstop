@@ -355,6 +355,58 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Opt-in flag OFF (default) -> call writer.append(validRecord) -> no file created at .lattice/usage/llm-usage.jsonl, function returns without error (strict no-op); WHY: default-off means zero side effects",
+            "type": "cli"
+          },
+          {
+            "desc": "Opt-in flag ON -> call writer.append(validRecord) -> file created with one line; WHY: flag gates the writer",
+            "type": "cli"
+          },
+          {
+            "desc": "Summary reader with 3 non-superseded provider-reported records (inputTokens=100,200,300; outputTokens=10,20,30; cacheCreation=5,10,15; cacheRead=2,4,6) -> derived totals: total per record = input+output+cacheCreation+cacheRead, aggregate = sum of per-record totals; WHY: proves derived-total identity",
+            "type": "cli"
+          },
+          {
+            "desc": "Summary reader with a superseded estimate and a final provider-reported record for the same ledgerCallId+attemptId -> summary selects only the final (latest non-superseded) record, does not double-count the estimate; WHY: no double-counting",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Summary reader with a record where usage.source=unavailable and all token fields are null -> summary reports that call as unknown, not as 0; WHY: unavailable/null must never be treated as 0",
+            "type": "cli"
+          },
+          {
+            "desc": "Summary reader with a provider-reported record where cacheCreationInputTokens=null (per-dimension absence) -> total derivation skips null fields or reports partial unknown, never substitutes 0; WHY: null dimension must not silently become 0 in totals",
+            "type": "cli"
+          },
+          {
+            "desc": "Summary with two records for same ledgerCallId+attemptId where neither supersedes the other -> summary selects the one with highest sequence; WHY: latest-sequence selection rule",
+            "type": "cli"
+          },
+          {
+            "desc": "Summary with estimates kept separate from provider-reported totals -> estimate subtotal does not merge into provider-reported subtotal; WHY: spec requires keeping estimates out of provider-reported totals",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Opt-in flag OFF -> call writer.append 10 times -> no file ever created, no directory created; WHY: no leakage even under repeated calls",
+            "type": "cli"
+          },
+          {
+            "desc": "Summary feeds a gate or returns a gate-consumable structure -> must not; verify the summary return type has no gate field and the function signature/docs say informational-only; WHY: summary must NOT feed any gate",
+            "type": "cli"
+          },
+          {
+            "desc": "Summary with a mix of provider-reported, estimate, and unavailable records for the same call across 3 attempts -> only latest non-superseded per attempt is counted, unavailable attempts reported as unknown not 0, estimates never merged into provider totals; WHY: complex multi-attempt multi-source scenario",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
