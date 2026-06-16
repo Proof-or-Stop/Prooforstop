@@ -22,6 +22,54 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run build exits 0 after reroute changes -- confirms no TS compilation errors introduced; WHY: baseline compile gate for all 9 modified files",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:gitroot-cwd-routing exits 0 -- existing wrapper-root routing smoke passes byte-identically; WHY: ensures rerouted sites still produce correct cwd in wrapper-root layout",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:bare-gate-gitroot-cwd exits 0 -- existing bare-gate smoke passes; WHY: ensures previously-fixed sites remain correct after bulk reroute",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e exits 0 -- full end-to-end suite green; WHY: no behavioral regressions in any handler/core flow that touches git",
+            "type": "cli"
+          },
+          {
+            "desc": "After reroute, git grep for bare-cwd sites yields 0 non-allowlisted hits: git grep -nE \"(execFileSync|spawnSync|execSync)\\\\([\\x27\\x22]git[\\x27\\x22]\" -- packages/**/*.ts piped through filter excluding allowlisted helpers yields empty; WHY: directly validates the single-choke-point invariant at source level",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveGitCwd function signature at story-signed-workspace-resolution.ts is unchanged: git diff main shows the export function resolveGitCwd(...) declaration line is byte-identical or only body changes; WHY: over-reach guard per scope exclusion, no signature changes allowed",
+            "type": "cli"
+          },
+          {
+            "desc": "The 3 ad-hoc helpers still exist with unchanged signatures: lab.ts runGit, cli-engine.ts runGitNoThrow, declared-artifact-commit-check.ts runGit -- verified via grep for declarations; WHY: over-reach guard, plan says preserve wrappers",
+            "type": "cli"
+          },
+          {
+            "desc": "Total git call-site count after reroute is >= 193: git grep -c for exec.*git across packages/**/*.ts | sum; WHY: ensures no call sites were accidentally deleted instead of rerouted",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject a bare-cwd regression line (execFileSync git with cwd:projectRoot) into a non-allowlisted file, then run test:gitroot-cwd-routing -- smoke STILL passes (it tests specific sites, not global invariant); but a global grep for bare-cwd sites now shows >=1 hit; WHY: proves existing smokes alone are insufficient to catch new regressions, motivating CHK-002 contract",
+            "type": "cli"
+          },
+          {
+            "desc": "Attempt to import resolveGitCwd from wrong internal path (not the public barrel export) in a new .ts file -- npm run build must fail with cannot-find-module; WHY: ensures the choke-point cannot be silently bypassed by importing from internal module paths",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
