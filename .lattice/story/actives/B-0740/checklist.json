@@ -5,9 +5,9 @@
       "title": "Thread resolved gitRoot into doctor --repair (repairStoryMetadataAllowlist)",
       "context": "doctor.ts:166 calls repairStoryMetadataAllowlist(root); its git rev-parse --show-toplevel (doctor.ts:945) uses cwd:root (metadataRoot). Add a gitCwd parameter (mirroring the three scan functions that already take gitProbeCwd) and pass the gitProbeCwd resolved at doctor.ts:63 (resolveDoctorGitCwd) at the line 166 call site, so the repair installs the managed allowlist on wrapper-root projects. Fall back to root when no gitRoot resolves. Add a wrapper-root --repair regression test.",
       "userSees": "`lattice doctor --repair` on a wrapper-root project (metadataRoot != gitRoot) installs the metadata-protection allowlist and the re-scan reports clear, instead of returning 'fatal: not a git repository' / wrote:false and changing nothing.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T01:06:11.256Z",
       "verificationIntent": {
         "happy": [
           {
