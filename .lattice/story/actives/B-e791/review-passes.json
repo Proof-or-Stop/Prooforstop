@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-e791:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff is purely additive — no concept deleted or replaced en masse. The four changed items in the diff are: (1) NextStepCtx changed from private to exported interface (same symbol name, no deletion); (2) computeNextStep changed from private to exported function (same symbol name, no deletion); (3) the two INIT/INIT_CHECK gitReady guard conditions extended with && !configuredGitRootResolved (additive guard, no deletion); (4) execSync stdio option added to the nesting probe in worktree.ts (additive option, no deletion). configuredGitRootResolved is a net-new field on NextStepCtx, used in session.ts (definition at line 425, assignment at line 1327, guards at lines 560/565) and the new smoke task (gitroot-init-guidance-quiet-nesting-smoke.ts). All references are consistent and form a closed set. The smoke task is registered in packages/main/package.json as test:gitroot-init-guidance-quiet-nesting. No dangling references, no concept residue, no doc-promise-undelivered patterns observed.",
+      "createdAt": "2026-06-16T00:40:08.583Z",
+      "reviewRound": "2026-06-16T00:38:44.682Z",
+      "reviewRunId": "B-e791:RR-003",
+      "_hash": "5ce538f515d6ad0715282b5ba9734dfb3b287f2bfab849f8755365aa92d14db4"
+    }
+  ]
+}
