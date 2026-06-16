@@ -146,8 +146,10 @@
       "evidence": "Spec says: Phase 3 - Add A No-New-Chinese Gate: Add a smoke test that fails on new Chinese text in active source and active docs. Story description says: Out of scope: retroactively translating existing files, and scanning arbitrary code/doc files (coverage = commits + lattice story metadata).",
       "sourcePointers": [
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#phase-3---add-a-no-new-chinese-gate",
-        "docs/story/actives/B-5f42/index.json#description"
-      ]
+        "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+      ],
+      "resolution": "No tension and no supersession. Phase 3 of the execution plan is ALREADY implemented as packages/main/src/tasks/english-open-source-surface-smoke.ts, which scans the active SOURCE surface (packages/main/src/**/*.ts) and active DOCS (README, guides, decisions/*.md) for CJK with an explicit allowlist. This story B-5f42 deliberately covers a DIFFERENT, non-overlapping surface that Phase 3 does not scan: git commit messages and lattice story metadata (process artifacts under .lattice/story/actives), which is exactly where the B-4fd3 violation occurred. The description exclusion of arbitrary code/doc files defers that surface to the existing Phase 3 gate, not to a future story. For consistency the new core/cjk-detect.ts uses the same CJK ranges (U+4E00-9FFF plus U+3400-4DBF) as english-open-source-surface-smoke.ts. Therefore the two are complementary guards on distinct surfaces, both forward-looking and scoped.",
+      "resolvedAt": "2026-06-16T22:42:53.553Z"
     }
   ]
 }
