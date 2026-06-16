@@ -1,0 +1,64 @@
+{
+  "storyId": "B-cfdd",
+  "checkedAt": "2026-06-16T21:41:52.356Z",
+  "reviewRound": "2026-06-16T21:36:47.324Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-cfdd/plan.md#CHK-003",
+      "promise": "Smoke test wired into packages/main package.json test:review-convergence-smoke and into root test chain so lattice validate runs it",
+      "status": "verified",
+      "verifiedBy": "diff/grep + lattice validate run",
+      "evidence": "root package.json test script: npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:e2e; packages/main/package.json adds test:review-convergence-smoke=node dist/tasks/review-convergence-smoke.js; lattice validate output confirms marker review-convergence-smoke: PASS"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-cfdd/plan.md#CHK-001",
+      "promise": "collectReviewConvergenceInputs returns dense round-aligned per-round blocking counts reusing resolveReviewRoundCount and isFindingBlocking without duplicating logic",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/review-convergence.ts imports resolveReviewRoundCount + isFindingBlocking from advisory.ts; no local reimplementation of those helpers; smoke case (a) asserts perRoundBlockingCounts=[2,2,1,0] for 4 rounds with 3 completed"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-cfdd/plan.md#CHK-002",
+      "promise": "assessReviewConvergence is a pure function with STALL_MIN_ROUNDS=4 and STALL_WINDOW=3 constants; stalled=true for [2,2,1] at round 4; stalled=false for [2,1,0]; stalled=false when roundCount < STALL_MIN_ROUNDS; message is English-only with both escalation hints",
+      "status": "verified",
+      "verifiedBy": "diff + real-machine smoke",
+      "evidence": "STALL_MIN_ROUNDS=4, STALL_WINDOW=3 exported constants in review-convergence.ts; function has no I/O imports; smoke cases (a)(b)(c) assert all three verdicts; advisory message contains Debugging Contract and dismiss hints; no Chinese characters found in file"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-cfdd/plan.md#CHK-003",
+      "promise": "Advisory wired into transition-effects.ts REVIEW-entry output as SOFT try/catch append-only; never blocks a transition",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "transition-effects.ts diff: imports assessReviewConvergenceAtEntry, wraps call in try/catch, only appends to base string, catch block is empty (advisory-only: never block the transition); smoke case (e) asserts base next-step text is preserved verbatim and no error/blocking signal is produced"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-cfdd/plan.md#scope",
+      "promise": "CLAUDE.md and other framework docs are NOT modified by this story",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only shows no CLAUDE.md, docs/*.md, or packages/main/CLAUDE.md changes; diff output empty for those paths"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/review-convergence-smoke.js: case (a) asserts roundCount=4, perRoundBlockingCounts=[2,2,1,0]; case (d) asserts single-round roundCount=1, perRoundBlockingCounts=[0]; exit 0"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/review-convergence-smoke.js: case (a) stalled=true with advisory message containing WARN review convergence stall + Debugging Contract + dismiss hints; case (b) stalled=false for [2,1,0]; case (c) stalled=false for roundCount=3 < STALL_MIN_ROUNDS; case (f) short-window [2,1] and [2,2] stalled=false (no false positive), full windows [2,2,1]->true and [2,1,0]->false unchanged; exit 0"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/review-convergence-smoke.js: case (e) stalled story appends advisory to base text without error; healthy story leaves text unchanged; base text preserved verbatim in both cases; lattice validate run confirms review-convergence-smoke: PASS in validate output chain; exit 0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from diff+grep+real-machine run. Smoke covers 6 cases (a-f): advisory fires on stalled stories, stays silent on healthy/below-threshold/clean-tail stories, short-window guard prevents false positives, append is text-only and never blocks. No Chinese characters in new code. CLAUDE.md and framework docs untouched."
+  },
+  "_hash": "860ab51deeb208904fac4bd3f6f9da4e5f4142e8fc79d969633b3af9bafa2ff9"
+}

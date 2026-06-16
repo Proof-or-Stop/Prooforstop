@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Make convergence-stall a mechanical signal, not a relied-on convention.",
+    "Soft over hard: warn and suggest escalation; never block a transition the operator may legitimately need.",
+    "Reuse existing round/blocking helpers; do not duplicate the round-count or blocking logic.",
+    "Stay bounded: warn only — defer the larger per-round cost-reduction (targeted re-review) to a separate story."
+  ],
+  "drivers": [
+    "REVIEW rounds re-trigger on every source-changing fix commit, and there is no mechanical signal when rounds stop converging.",
+    "An operator who keeps fixing minor findings instead of dismissing them can livelock with no warning.",
+    "All inputs already exist (round count from events, per-round findings), so a detector is cheap and additive."
+  ],
+  "options": [
+    {
+      "name": "Option C: soft advisory-only stall detector",
+      "pros": [
+        "Minimal, additive, zero blocking risk.",
+        "Reuses existing helpers; small surface.",
+        "Gives an escalation hint exactly when a story is stuck."
+      ],
+      "cons": [
+        "Does not reduce the number of rounds (it only warns).",
+        "Trend heuristic must be tuned to avoid false alarms on healthy convergence."
+      ]
+    },
+    {
+      "name": "Option A: raw round-count ceiling warning",
+      "pros": [
+        "Simplest possible implementation."
+      ],
+      "cons": [
+        "False-alarms on a healthy decreasing series (e.g. R1->R2->R3 with findings shrinking to 0).",
+        "Conflates 'many rounds' with 'not converging'."
+      ]
+    },
+    {
+      "name": "Option B: targeted/partial re-review",
+      "pros": [
+        "Actually reduces per-round reviewer cost by only re-running affected dimensions."
+      ],
+      "cons": [
+        "Larger change with real under-review risk (could skip a reviewer that should re-check).",
+        "Out of scope here; deferred to a separate story."
+      ]
+    }
+  ],
+  "chosen": "Option C: soft advisory-only stall detector",
+  "rationale": "Option C closes the missing mechanical signal with a minimal, additive, non-blocking advisory that reuses existing round/blocking helpers. Option A is rejected because a raw ceiling false-alarms on healthy convergence. Option B genuinely reduces round cost but is a larger, higher-risk change and is recorded as deferred to a separate story. C is the proportionate first step.",
+  "preMortem": [
+    {
+      "scenario": "The detector fires on a healthy decreasing series and trains operators to ignore it.",
+      "trigger": "A raw round-count ceiling is used instead of a trend check.",
+      "consequence": "False alarms erode trust; the signal becomes noise.",
+      "mitigation": "Use a trend-based heuristic (no downward trend across the recent window) and cover a healthy-decreasing series as an explicit no-advisory smoke case."
+    },
+    {
+      "scenario": "The advisory silently becomes a de-facto blocker.",
+      "trigger": "It is wired into a gate path or made to throw / affect the transition result.",
+      "consequence": "A story that legitimately needs more rounds gets stuck — the opposite of the intent.",
+      "mitigation": "Keep it pure stdout text appended after the transition succeeds; add a smoke asserting REVIEW->TEST still passes while the advisory is present."
+    },
+    {
+      "scenario": "The detector duplicates round-count or blocking logic and drifts from the canonical rules.",
+      "trigger": "Reimplementing round counting or blocking-severity decay instead of importing the existing helpers.",
+      "consequence": "Two sources of truth diverge; the advisory disagrees with the real gate.",
+      "mitigation": "Import resolveReviewRoundCount + isFindingBlocking/effectiveBlockingSeverities from advisory.ts/guard-utils.ts; the per-round accessor only groups findings, it does not redefine blocking."
+    }
+  ],
+  "timestamp": "2026-06-16T21:06:14.556Z"
+}

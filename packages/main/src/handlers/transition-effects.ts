@@ -35,6 +35,7 @@ import { computeProcessMetrics } from '../core/process-metrics.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
+import { assessReviewConvergenceAtEntry } from '../core/review-convergence.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -216,7 +217,7 @@ export function buildNextSteps(
         agentLines = `  Agent({ subagent_type: "lattice-review-concept", prompt: "Review story ${storyId}" })
   Agent({ subagent_type: "lattice-review-quality", prompt: "Review story ${storyId}" })`;
       }
-      return `→ ${activeLine}
+      let base = `→ ${activeLine}
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
 ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting; if no output for 4 minutes ask for status, if no result for 10 minutes/600s treat as stalled, restart that reviewer and note the previous stall in the retry prompt
@@ -224,6 +225,17 @@ ${agentLines}
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
 → Need code changes: story_advance(${storyId}, DEV) to return to DEV
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"lattice-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
+      // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
+      // over COMPLETED rounds only (assessReviewConvergenceAtEntry drops the
+      // just-entered current round, whose reviewers have not run yet). This only
+      // APPENDS text — it never throws and never affects the transition result.
+      try {
+        const convergence = assessReviewConvergenceAtEntry(store, storyId);
+        if (convergence.stalled && convergence.message) {
+          base += `\n\n${convergence.message}`;
+        }
+      } catch { /* advisory-only: never block the transition */ }
+      return base;
     })(),
     TEST_CASE: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
     TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
