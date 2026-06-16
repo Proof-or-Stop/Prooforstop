@@ -373,6 +373,17 @@
           "headHash": "531a9f2a7d6e49c1292f2591db04baee88e9e7ec",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:40:13.593Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -nE 'ALLOWLIST|allowlist' packages/main/src/tasks/gitroot-cwd-contract-smoke.ts | head",
+          "result": "pass",
+          "note": "Allowlist constant visible at top of smoke source for review.",
+          "headHash": "9589364f2efedd1988eca39a34b96dda6f3e1cb8",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:15.036Z"
         }
       ]
     }
