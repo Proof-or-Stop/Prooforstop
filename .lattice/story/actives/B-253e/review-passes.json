@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T01:43:12.604Z",
       "reviewRunId": "B-253e:RR-009",
       "_hash": "205e2e55d0b91c893855e51297886c25ad30662a79ebfe2d2505c880c9209e6e"
+    },
+    {
+      "id": "B-253e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review (head 68d30cb). (1) defaultAllocator/nextSequence: zero references remain in packages/main/src — only prior finding in findings.json; no dangling refs. (2) totalTokens: all live code references are exactly the validator denylist comment (record.ts:15,236) and smoke rejection tests (usage-ledger-smoke.ts:190-201,7); no stored usage anywhere. (3) Scope: git diff --name-only shows only packages/main/** files plus .lattice metadata; no provider/estimate/budget/Authority code touched. (4) Four-field cache-aware model: DerivedRecordTotal discriminated union on unknown (true=>total:null, false=>total:number) is correctly implemented in summary.ts — unknown is never treated as 0, null dimensions propagate to unknown:true. All four checks pass; no blocker found.",
+      "createdAt": "2026-06-16T01:44:48.153Z",
+      "reviewRound": "2026-06-16T01:43:12.604Z",
+      "reviewRunId": "B-253e:RR-008",
+      "_hash": "b8f3585b08928d48f77e6c97fb92747da184070da61ee55045e30dc506a66363"
     }
   ]
 }
