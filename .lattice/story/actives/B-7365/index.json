@@ -4,7 +4,7 @@
   "title": "INIT_CHECK reconcile must not commit unresolved merge-conflict markers into story metadata",
   "description": "During story_advance INIT_CHECK, commitInitCheckMetadataAndMergeMain (cli-engine.ts) commits the INIT_CHECK metadata on main and then merges main into the story branch. Under heavy concurrent main churn (observed 2026-06-16 while driving B-3990), that merge conflicted on the story's index.json (phase INIT on the story branch vs INIT_CHECK on main) and left UNRESOLVED git conflict markers (<<<<<<<, =======, >>>>>>>) committed into index.json. The CLI then could not parse the story at all (every command failed with a JSON parse error at the marker line) until a manual repair (taking main's clean version). Story metadata is machine-generated, so a conflict should never strand the user: the reconcile must either resolve metadata conflicts deterministically (the post-advance / main state wins) or detect a conflicted merge and abort cleanly with a clear recovery path, never commit markers. Likely interacts with the main-write-lock (B-f60c) serialization and B-804c INIT_CHECK atomicity work (which touched cli-engine.ts but not this conflict path). Scope: the INIT_CHECK reconcile merge conflict handling; do not rework unrelated transitions.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -23,6 +23,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:55:39.017Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7365",
+    "branch": "story/B-7365",
+    "createdAt": "2026-06-16T01:55:37.897Z"
+  }
 }

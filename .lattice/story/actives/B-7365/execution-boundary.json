@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7365",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-7365/",
+    "packages/main/src/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Touches the INIT_CHECK reconcile in cli-engine.ts + core/main-write-lock usage + tests. Make the reconcile conflict-safe and lock-serialized; do not change unrelated transitions.",
+  "createdAt": "2026-06-16T01:55:37.274Z",
+  "updatedAt": "2026-06-16T01:55:37.274Z",
+  "_hash": "ddf0820395ee9a7c4327cd858f5bf8184cf7a2ac18af908f70168bec04f0cad3"
+}
