@@ -14,6 +14,38 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `git ls-files orphans` -> returns empty (exit 0, zero stdout lines); WHY: confirms orphans is untracked/deleted from git index",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `test -f orphans && echo EXISTS || echo GONE` -> prints GONE; WHY: confirms file is absent from working tree on disk",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `npm run build` -> exits 0; WHY: confirms deletion of orphans does not break tsc compilation",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run `git log --diff-filter=D --name-only -- orphans | head -5` -> shows orphans in a delete commit; WHY: confirms the deletion is committed to git history, not just unstaged",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `git checkout HEAD -- orphans 2>&1; echo $?` -> fails (exit non-zero) because file no longer exists at HEAD; WHY: proves the file cannot be restored from current HEAD, deletion is finalized in the commit",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run `git grep -rnE \"orphans\" -- packages/ scripts/ bin/ 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v \\.md` -> returns empty; WHY: ensures no source code or config accidentally references the junk filename as an import path, config key, or fixture string",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
