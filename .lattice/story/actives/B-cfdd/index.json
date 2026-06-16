@@ -4,7 +4,7 @@
   "title": "Add a soft REVIEW convergence-stall advisory so non-converging review rounds are flagged mechanically",
   "description": "REVIEW round convergence currently relies on three implicit conventions: per-round severity de-escalation, the dismiss-with-reason option, and operator discipline. Each finding-fix commit changes the source tree, which stales that round's review-run bindings (content-aware materialHash) and forces a fresh REVIEW round. There is no mechanical signal when rounds keep cycling without converging (each round still surfacing new blocking findings), so an operator who keeps fixing minor findings instead of dismissing them can livelock, and a genuinely stuck story gives no escalation hint. Scope: add a SOFT, advisory-only convergence-stall detector. It reads the existing review-round count (already derived from story events) and the per-round blocking-finding counts (findings already carry reviewRound; review-escalation already groups by round), and when the story has entered REVIEW at least a threshold number of times AND the recent rounds show no downward trend in blocking findings, it emits an English advisory plus an escalation suggestion (Debugging Contract: 3+ fix attempts surfacing new problems = likely an architecture issue; or dismiss advisory findings rather than re-rounding). The advisory is appended to the story_advance REVIEW output. It MUST NOT block any transition. Thresholds are module constants (no CLI, no config). EXPLICITLY OUT OF SCOPE: any hard cap or blocking gate, auto-dismiss of findings, changing the round de-escalation rules, per-session configurable thresholds, and targeted/partial re-review (reducing per-round cost is a separate larger story). All produced artifacts and the advisory string are English-only.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "riskSignals": [
     {
@@ -29,6 +29,14 @@
       "action": "advance",
       "timestamp": "2026-06-16T21:04:13.143Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:04:29.957Z",
+      "branch": "story/B-cfdd",
       "user": "Harmonygo",
       "agent": "main"
     }

@@ -7,7 +7,30 @@
       "userSees": "A helper returns the current story's REVIEW round count and an ordered array of blocking-finding counts per round, sourced from existing event/finding data (verified by a smoke printing e.g. roundCount=3 perRound=[2,1,0]).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Accessor returns the REVIEW round count (via resolveReviewRoundCount) and an ordered per-round blocking-finding count array for a real story",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story with a single round / no findings yields roundCount=1 and a per-round array with no spurious entries",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Per-round blocking counts are derived via isFindingBlocking/effectiveBlockingSeverities and resolveReviewRoundCount is reused — no duplicated round-count or blocking logic",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
