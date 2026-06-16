@@ -39,7 +39,30 @@
       "userSees": "Each previously-unlocked main-mutating path now acquires the main-write-lock; concurrent sessions are serialized on those paths (no race corruption).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Each previously-unlocked main-mutating path now acquires the main-write-lock (verified by the coverage guard going green)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Paths reachable from an already-locked flow (DONE/reconcile) use withReentrantMainWriteLock — no self-deadlock; validate + DONE still complete",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Lock-only change: command semantics unchanged — existing main-write-lock-smoke + e2e still pass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
