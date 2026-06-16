@@ -23,7 +23,16 @@
       "context": "Prove that LATTICE_USAGE_LEDGER=0 restores the exact pre-rollout default-off behavior: isUsageLedgerEnabled()=false; appendUsageRecord is a strict no-op (no file/dir created); the Claude seam (runClaudeCodeRealLeafDispatch) uses the original spawn args ['--print', promptFile] (buildClaudeSpawnArgs(file,false)) and raw stdout; the budget guard is inert (no block); recordDispatchPreflight/Final no-op. Byte-identical to the historical default-off. Tested explicitly with the env var set to 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
