@@ -185,6 +185,17 @@
           "headHash": "a631e20ba5da5bb70a90ee203ff167446e734136",
           "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
           "timestamp": "2026-06-16T02:54:35.173Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff",
+          "result": "pass",
+          "note": "Diff shows identifier-only changes (KoalaConfig→LatticeConfig); no comment/prose edits.",
+          "headHash": "456e51dfe3f9ca94ec83cb52168b4174a6450d04",
+          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
+          "timestamp": "2026-06-16T02:54:37.094Z"
         }
       ]
     }
