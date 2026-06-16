@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-08a1:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Verifier 51/51 pass (build+adapterSmoke+foundationSmoke+static checks). Adapter smoke 50/50 pass with concrete assertions: anthropic four-field mapping; openai cacheCreation===null strict (not 0/undefined/omitted); openai cacheRead null when prompt_tokens_details absent; gemini cacheCreation===null strict; gemini cacheRead null when cachedContentTokenCount absent; no-usage->unavailable (not zeros) for all providers; assembled records pass B-253e validateUsageLedgerRecord; correlation ids ids.ts-minted (never provider-derived); streaming terminal-event + mid-stream-error partial; writer round-trip chain-verified in temp dir. Static checks confirm cacheCreationNull-from-source, noDispatch, assemblerValidates, idsFromIds.",
+      "createdAt": "2026-06-16T02:42:52.868Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-001",
+      "_hash": "3a5a9c4b96da251b39c5b4ae72adb53bab1e262b9f8eb6a6571a311b98d79063"
+    }
+  ]
+}
