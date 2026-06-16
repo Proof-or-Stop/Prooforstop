@@ -39,7 +39,7 @@
       "desc": "CHK-002:adversarial:0 wrong command AND failing postcondition: intent requires git grep -n \\.codex/ -- . :(exclude).lattice | grep -v hooks | grep -v hooks.json → exits 1. Evidence ran test -f .codex/hooks.json (existence check, completely different). When the actual intent command is run now it exits 0 with 4 matches in managed-assets.ts (lines 217, 597) and lattice-codex-command-boundary-execution-plan.md (lines 160, 183). These are legitimate .codex/ references (Codex CLI hook-dir path strings in production code and a decision doc), not stale lowercased .Codex refs — but the adversarial postcondition as written is not satisfied. The evidence never ran the correct command, so this gap was not caught at record time.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-16T21:13:10.251Z",
@@ -49,7 +49,8 @@
       "files": [
         "packages/main/src/core/managed-assets.ts",
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T21:20:23.018Z"
     },
     {
       "id": "B-ed70:F-004",
