@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Flag OFF => byte-identical dispatch (the cardinal safety invariant)",
+    "One-way seam: dispatch -> ledger; usage-ledger keeps zero cross-module imports",
+    "Complex logic lives as PURE testable functions in-module; the dispatch edit is a minimal gated call",
+    "Defensive: parse-failure falls back to raw text + unavailable; ledger errors caught; never break dispatch",
+    "provider-reported final supersedes the preflight estimate (no double count); claude-host-only real usage now"
+  ],
+  "drivers": [
+    "User authorized touching dispatch to record REAL token counts per story",
+    "Editing the core dispatch path is high-risk and must be bounded by hard invariants",
+    "Lattice never sees host usage unless it requests + parses structured host output"
+  ],
+  "options": [
+    {
+      "name": "A: pure in-module orchestrator + parser + a minimal gated seam in lattice-dispatch.ts",
+      "pros": [
+        "Complex logic testable in isolation",
+        "Dispatch edit tiny + gated",
+        "OFF byte-identical; usage-ledger stays decoupled"
+      ],
+      "cons": [
+        "Touches dispatch (authorized)"
+      ]
+    },
+    {
+      "name": "B: inline all estimate/parse/record logic directly in lattice-dispatch.ts",
+      "pros": [
+        "No new module file"
+      ],
+      "cons": [
+        "Bloats + risks the hot dispatch path; hard to unit-test; couples dispatch to ledger internals — rejected"
+      ]
+    },
+    {
+      "name": "C: estimate-only seam (no real usage)",
+      "pros": [
+        "Smaller"
+      ],
+      "cons": [
+        "Does not deliver real numbers — declined by the user"
+      ]
+    }
+  ],
+  "chosen": "A: pure in-module orchestrator + parser + a minimal gated seam in lattice-dispatch.ts",
+  "rationale": "Putting the estimate/parse/record logic in pure in-module functions keeps it fully unit-testable and keeps the dispatch edit a minimal, flag-gated call, so the high-risk core-path change is bounded: OFF is byte-identical and the only live failure modes (unparseable output, ledger error) degrade safely to today's behavior.",
+  "preMortem": [
+    {
+      "scenario": "Flag OFF silently changes dispatch behavior (regression on the core path)",
+      "trigger": "Refactor touches the shared/disabled branch",
+      "consequence": "Every dispatch regresses",
+      "mitigation": "Keep the disabled path's spawn args ['--print', promptFile] + raw-stdout handling literally unchanged; CHK-004 asserts OFF is byte-identical (arg-builder + result text)"
+    },
+    {
+      "scenario": "--output-format json breaks the downstream result text",
+      "trigger": "stdout becomes JSON, downstream expects raw text",
+      "consequence": "Dispatch result corrupted when ledger ON",
+      "mitigation": "Parser extracts .result as the text used downstream; on parse failure fall back to raw stdout; only when flag ON; CHK-002/CHK-004 test both"
+    },
+    {
+      "scenario": "A ledger error throws and breaks a real dispatch",
+      "trigger": "Validator/privacy throw, fs error",
+      "consequence": "Real work fails because of diagnostics",
+      "mitigation": "All ledger work in try/catch; recordDispatch* swallow internally and never throw to the caller; CHK-001 tests"
+    },
+    {
+      "scenario": "provider-reported final double-counts with the preflight estimate",
+      "trigger": "Missing supersedes wiring",
+      "consequence": "Inflated token totals",
+      "mitigation": "Final lists the estimate recordId in supersedesRecordIds; summary excludes superseded; CHK-005 simulated end-to-end asserts story total counts only the final"
+    },
+    {
+      "scenario": "usage-ledger gains a cross-module import (dispatch types)",
+      "trigger": "Orchestrator imports a dispatch type",
+      "consequence": "Module loses independence",
+      "mitigation": "Orchestrator/parser take plain inputs (no dispatch import); dispatch does the mapping; smoke asserts usage-ledger imports zero other modules"
+    },
+    {
+      "scenario": "Claude CLI JSON shape/flag assumption is wrong for the installed version",
+      "trigger": "Different CLI version output",
+      "consequence": "Usage not parsed / dispatch text wrong",
+      "mitigation": "Defensive parse, raw-text fallback + unavailable on any mismatch; never assume; documented; OFF unaffected"
+    }
+  ],
+  "timestamp": "2026-06-16T19:08:02.083Z"
+}
