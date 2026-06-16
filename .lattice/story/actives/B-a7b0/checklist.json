@@ -7,7 +7,30 @@
       "userSees": "Running the docs-drift gate against a CLAUDE.md that references a non-existent path reports that path as drift (with the path and line), instead of passing silently; a CLAUDE.md whose paths all exist still passes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A CLAUDE.md fixture that references a path which does not exist on disk and has no source-literal reference makes the docs-drift gate return status fail with a missing-path entry naming the path",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A CLAUDE.md fixture whose referenced paths all exist (or are found via grep fallback) returns status pass; allowlisted intentional/deleted-by-design paths are not reported",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A path inside docs/story/ or a template placeholder (uppercase XXX) in the fixture is NOT reported as drift (existing scanPathDrift noise controls preserved); the command-name scan result for the same fixture is byte-identical to before",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
