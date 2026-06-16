@@ -38,7 +38,31 @@
       "context": "把 16 个 agent 模板 symlink 到 ~/.claude/agents,target 解析自运行中 CLI 包(非 hardcode dev 路径);幂等、可重复跑;断链/旧 copy 自动替换。决定挂在 init 还是独立 lattice 子命令(PLAN 决策)",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "跑同步后 ls -la ~/.claude/agents 显示 16 个有效 symlink → 运行中 CLI 包 templates/agents;重复跑输出 (symlink ok),断链/旧 copy 显示 ↻ replaced",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "同步后 ~/.claude/agents 含 16 个 symlink 指向 CLI 包 templates",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "重复跑幂等;断链/旧 copy 自动替换重建",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "~/.claude/agents 不可写时明确报错,不静默回退 project-local",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
