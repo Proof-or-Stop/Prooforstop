@@ -53,6 +53,17 @@
           "headHash": "d72c3fd30aeb8a4f0e047b79cf079ed32c1ff140",
           "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
           "timestamp": "2026-06-16T01:05:49.126Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Regression proven NOT a tautology: reverting the source fix (cwd:root + drop gitCwd param) makes the wrapper-root smoke FAIL with AssertionError repairWrote false!==true and a tsc TS2554 at the call site, proving the test catches the exact wrapper-root blind spot; restoring the fix turns it green (12 checks).",
+          "headHash": "34058110e422a47f4f24248d752c829b5b1d9767",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T01:05:55.192Z"
         }
       ]
     },
