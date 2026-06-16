@@ -69,9 +69,9 @@
       "title": "Tests: wrapper-root fixture asserts gitRoot-aware guidance + no spurious fatal line; plain repo unchanged",
       "context": "Function-level tests: (a) the guidance helper returns the INIT_CHECK-ready message (not git init) when a gitRoot is configured + resolves, and keeps the git-init message for a plain non-git project with no gitRoot; (b) the nesting check produces no fatal: not a git repository for a wrapper-root metadataRoot. Do not shell to the global lattice binary.",
       "userSees": "lattice validate green with new tests covering the wrapper-root guidance + nesting-check-quiet behavior and the plain-repo unchanged case.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T00:38:00.498Z",
       "verificationIntent": {
         "happy": [
           {
