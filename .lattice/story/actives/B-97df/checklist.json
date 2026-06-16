@@ -40,7 +40,16 @@
       "context": "Add a buildUsageReport(records, {priceTable?}) that assembles a structured report object: overall totals (by source), per-group breakdowns (story/model/role/...), counts (provider-reported/estimate/unavailable), unknown count, and optional cost when a price table is given. It MUST be read-only and feed NO gate (no gate/verdict/decision/blocker field; not imported by any handler/gate). Tested: report shape correct; no gate-consumable field; deterministic.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/diagnostics.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
