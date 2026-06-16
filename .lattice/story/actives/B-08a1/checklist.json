@@ -518,9 +518,9 @@
       "id": "CHK-005",
       "title": "Streaming/failure usage extraction",
       "context": "Add a helper that extracts final usage from a streaming terminal event / final message (e.g. Anthropic message_delta/final, OpenAI stream final usage, Gemini final usageMetadata) and partial usage when a stream errors/times out mid-way. If any count exists -> provider-reported (partial allowed); only when truly none -> unavailable with a reason. Tested with a terminal-event sample and a mid-stream-error sample per the spec's streaming/failure rules.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T02:31:15.533Z",
-      "endTime": null,
+      "endTime": "2026-06-16T02:40:17.872Z",
       "files": {
         "modify": [],
         "create": [
