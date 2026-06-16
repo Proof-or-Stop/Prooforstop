@@ -175,3 +175,56 @@ Safe migration follows the existing managed-asset states:
 Registry-backed prompt checks are adapter hygiene. They do not submit evidence,
 verify receipts, or satisfy production authority. Validation evidence and
 receipt-backed authority remain separate gate inputs.
+
+## Policy: global agents single source (Claude-side runtime-owned, B-097f)
+
+B-4ee0 collapsed the **Codex** side to the package prompt registry (global-thin).
+This policy does the equivalent for the **Claude** side, where Claude Code can
+only resolve subagents from on-disk `.claude/agents/*.md` (there is no in-memory
+CLI resolution path). The single source of truth for Lattice agent prompts is the
+running CLI package; it is exposed to every project through one user-global
+directory rather than copied into each project.
+
+**Contract:**
+
+1. **Single source = global `~/.claude/agents`.** Lattice agent prompt templates
+   are materialized exactly once into the user-global `~/.claude/agents`
+   directory as symlinks. Claude Code resolves `subagent_type: lattice-*` for all
+   projects from this one location. Editing the CLI templates is immediately
+   reflected everywhere — no per-project snapshot can drift.
+
+2. **Symlink target resolves from the running CLI package.** The target is the
+   running CLI package's `templates/agents` directory, resolved from the CLI
+   module location (`fileURLToPath(import.meta.url)` → packageRoot →
+   `templates/agents`), **never** a hardcoded dev-checkout path. This is robust
+   for `npm i -g` installs and local dev alike.
+
+3. **`lattice init` writes zero project-local agent files.** On a fresh project,
+   the `claude`/`all` profile no longer symlinks the 16 templates into the
+   project's `.claude/agents`. It ensures the global source is present and prints
+   that subagents resolve from `~/.claude/agents`. The project tree stays clean
+   (only `.lattice/Lattice.md` + `AGENTS.md`, plus any pre-existing `CLAUDE.md`).
+
+4. **Migration is explicit, never silent (execution-plan Phase 4).** A normal
+   `lattice init` MUST NOT delete project-local files. When it detects existing
+   project-local managed agent files it only WARNs and points at
+   `lattice init --upgrade`. Deletion/migration of project-local managed files
+   happens only under the explicit `--upgrade` flow.
+
+5. **Migration deletes only the 16 managed basenames.** `--upgrade` removes only
+   files whose basename exactly matches a managed template name (the set derived
+   from `templates/agents`). User-authored, non-managed agent files are always
+   preserved; wildcard/clear-all is forbidden; each removal is logged.
+
+6. **Precedence drives why deletion is required.** Claude Code project-level
+   `.claude/agents/` shadows user-level `~/.claude/agents/` (project wins on name
+   collision). Therefore stale project-local managed files must be removed for the
+   global single source to take effect — otherwise the project keeps using its
+   stale snapshot.
+
+7. **Observability.** `lattice doctor` reports `agentAssetMode: runtime-owned`
+   so the global single-source state is diagnosable across projects.
+
+This is consistent with the runtime-owned principle in
+`lattice-runtime-owned-agent-assets-execution-plan.md`: agent templates belong to
+the local Lattice CLI runtime, not to each business project.
