@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-16T00:47:50.642Z",
       "reviewRunId": "B-08f2:RR-017",
       "_hash": "84e351c50e8a5fbf8505a1d5e87abd2bddef711c4de7f53b62fdc38d94cde631"
+    },
+    {
+      "id": "B-08f2:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review — verified fix for F-004 and F-006. readAuthorityEnv (authority-mode.ts:63-64) now reads LATTICE_AUTHORITY_${name} exactly once into const value; no duplicate or KOALA_ fallback read remains. trustEnvValue and authorityEnvBySuffix in authority-mode.ts similarly collapsed to single LATTICE_ reads. No KOALA_ references found in authority-client.ts, authority-job-loop-live.ts, or handlers/lattice-cli.ts. Fix diff introduces no new dead code, type-safety issues, or I/O shell isolation violations. No new findings.",
+      "createdAt": "2026-06-16T00:49:57.695Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-014",
+      "_hash": "fef7b25164eb4b6225da6de747c24d0927cc7391b982e1713ec298c2957e5940"
     }
   ]
 }
