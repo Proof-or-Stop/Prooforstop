@@ -163,6 +163,17 @@
           "headHash": "2fb3c198352a2f7de5064c012b05d77638895b26",
           "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
           "timestamp": "2026-06-16T02:54:32.880Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only",
+          "result": "pass",
+          "note": "Diff touches only the 5 type files — koala.config.json fixtures untouched.",
+          "headHash": "dac297143d90eb7deeca50b83b97a32c68b78323",
+          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
+          "timestamp": "2026-06-16T02:54:34.172Z"
         }
       ]
     }
