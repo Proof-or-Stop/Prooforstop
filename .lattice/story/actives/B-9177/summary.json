@@ -1,0 +1,55 @@
+{
+  "storyId": "B-9177",
+  "changes": "Generalized the B-7365 fix: audited all main-mutating CLI paths and found B-7365 was not the only gap — wrapped 4 previously-unlocked main-mutating paths in withReentrantMainWriteLock (commitFromDraftMetadataOnMain, commitFromDraftMetadataAndMergeMain in cli-engine.ts; story_discard reset+commit and dormant dev_merge in worktree.ts), and added packages/main/src/tasks/main-write-lock-coverage.ts — a mechanical regression guard that scans for git main-mutation primitives, asserts each enclosing path holds the lock (fail-closed: unknown cwd treated as main), and is wired into lattice validate.",
+  "usage": "The guard runs automatically under `lattice validate` (chained into the npm test script). Run it directly with `node packages/main/dist/tasks/main-write-lock-coverage.js` (exit 0 = all main-mutating paths locked) or `--negative-demo` (exit 1, demonstrates it bites). A future commit/merge on main shipped without the main-write-lock turns the guard red instead of silently corrupting concurrent sessions' metadata.",
+  "expectedOutcome": "Guard green on the real tree (all main-mutating paths locked), bites (exit 1) on an unlocked main mutation, runs inside lattice validate; validate ALL PASS.",
+  "actualTranscript": "$ node packages/main/dist/tasks/main-write-lock-coverage.js -> 'scanned 277 source files, 17 git mutation-verb sites' / 'PASS - all 7 main-mutating path(s) hold the main write lock' (exit 0). $ ... --negative-demo -> 'core/__negative_fixture__.ts:3 [commit] mutates-main=YES locked=NO VIOLATION' / 'FAIL' (exit 1). $ lattice validate '{\"storyId\":\"B-9177\"}' -> guard marker + 'negative fixture bites' + 'PASS' + 'ALL PASS', verification 9/9 covered.",
+  "outcomeDiff": "Match. Audit found 4 real gaps (B-7365 was not the last); all wrapped lock-only; guard reports 7 main-mutating paths all locked, bites on unlocked main mutation including future gitFile-based commits (F-001 fix), and runs under validate. No semantic change.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Bounded to lock-coverage hardening + the regression guard. Full per-session physical checkout isolation (Option B) is intentionally OUT OF SCOPE (deferred maximalist architecture, recorded in scope-boundary.json). The guard scans packages/main/src for known git-wrapper shapes; a brand-new git wrapper opener would need adding to GIT_CALL_OPENERS (the fail-closed default still treats unrecognized cwd as main, so it errs toward flagging, not silently passing).",
+  "pitfalls": "F-001 (medium): the guard initially did not recognize the gitFile wrapper, a latent false-negative blind spot — fixed by recognizing gitFile and classifying its calls by target ref (fail-closed updatesStoryBranchRef rejects refs/heads/main). F-002 (low): a header comment over-claimed write-tree coverage — corrected. Re-review note: each finding-fix commit stales the prior round's review bindings, forcing a fresh review round (Rounds 1->2->3); this is by design (reviewers must re-verify the changed tree), so converge fixes before re-spawning reviewers. Use withReentrantMainWriteLock (not the non-reentrant variant) for any path reachable from an already-locked flow or it self-deadlocks.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 3241387
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 27265
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 293690
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1690319
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1332505
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 259608
+    }
+  },
+  "totalDurationMs": 6844775,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T04:51:36.025Z",
+  "updatedAt": "2026-06-16T04:51:36.025Z"
+}

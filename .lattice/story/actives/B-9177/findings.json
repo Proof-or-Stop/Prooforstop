@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "id": "B-9177:F-001",
+      "desc": "guard false-negative gap: `gitFile` wrapper (handlers/worktree.ts) is absent from GIT_CALL_OPENERS in main-write-lock-coverage.ts. The guard scans gitCli/runGitNoThrow/runGitArgs/git/execSync/execFileSync but not gitFile. Currently the only gitFile mutation-verb calls are commit-tree + update-ref refs/heads/story/<id> in createScopedStoryBootstrapCommit (story-branch creation, not a main mutation — correctly unguarded). BUT if a future developer adds gitFile([\"commit\",...], root) to commit to main, the coverage guard would silently give a PASS instead of flagging a VIOLATION. The guard comment at line 177-183 lists 6 recognized wrapper shapes and does not document gitFile as an intentionally unscanned wrapper, making this a latent blind spot. Fix: either add gitFile to GIT_CALL_OPENERS (noting cwd is 2nd arg), or add a doc comment to GIT_CALL_OPENERS listing gitFile as intentionally excluded because it is only used for story-branch plumbing ops (not main mutations).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-16T04:31:42.715Z",
+      "reviewRound": "2026-06-16T04:25:01.891Z",
+      "reviewRunId": "B-9177:RR-003",
+      "_hash": "99720dc1a71f4e223c5a54dd0260090f87d8f0ef03a67e67d7049ddca8337082",
+      "files": [
+        "packages/main/src/tasks/main-write-lock-coverage.ts",
+        "packages/main/src/handlers/worktree.ts"
+      ],
+      "resolvedBy": "B-9177:F-001@02746a2"
+    },
+    {
+      "id": "B-9177:F-002",
+      "desc": "doc-promise-undelivered: main-write-lock-coverage.ts header comment line 21 lists write-tree as a guarded primitive (\"git commit-tree + write-tree against main\") but MAIN_MUTATION_VERBS (line 68) does not include write-tree — the verb is never scanned. A future developer adding a write-tree call would incorrectly believe the guard covers it. The correct design (write-tree only creates a tree object, cannot update refs, no lock needed) should be stated instead of implying it is guarded.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T04:41:29.295Z",
+      "reviewRound": "2026-06-16T04:38:12.090Z",
+      "reviewRunId": "B-9177:RR-005",
+      "_hash": "946e779fca3fe39a20247084feb3c1a332f019138178b8eb23e07eb78234d1f1",
+      "files": [
+        "packages/main/src/tasks/main-write-lock-coverage.ts"
+      ],
+      "resolvedBy": "B-9177:F-002@ab1d977"
+    }
+  ]
+}
