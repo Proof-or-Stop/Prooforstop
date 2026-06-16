@@ -37,9 +37,9 @@
       "title": "Scope the DONE merge main-clean precondition to the merge's affected paths",
       "context": "In the DONE merge precondition (done-effects.ts / cli-engine.ts), block only when a dirty tracked path OVERLAPS the set of paths the merge would change; allow DONE when all dirty paths are unrelated to the merge. Preserve the clobber-protection: still refuse if the merge would touch a dirty path. Do not change DONE merge semantics otherwise.",
       "userSees": "On a shared main worktree with an unrelated session's uncommitted file, lattice story_advance DONE proceeds and merges; it still refuses if the dirty file is one the merge would overwrite.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T03:11:51.171Z",
-      "endTime": null,
+      "endTime": "2026-06-16T03:19:04.358Z",
       "verificationIntent": {
         "happy": [
           {
