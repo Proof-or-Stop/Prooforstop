@@ -39,6 +39,8 @@ import {
 } from './dirty-worktree.js';
 import { loadConfig } from './config.js';
 import { LATTICE_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
+import { StoryStore } from './store.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 
 /**
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
@@ -87,10 +89,10 @@ function storyDirPrefixFromConfig(projectRoot: string): string {
  * commit itself takes metadata rows out of the dirty list — and the tail-note
  * must describe what coexisted at the moment of decision.
  */
-function snapshotDirtyClassification(projectRoot: string): DirtyWorktreeClassification | null {
+function snapshotDirtyClassification(projectRoot: string, gitCwd: string): DirtyWorktreeClassification | null {
   try {
     const raw = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -147,12 +149,29 @@ export function autoCommitStoryMetadata(
   // 1. storyId runtime gate (anti-broadening defense — preMortem #1 anchor)
   assertStoryIdShape(storyId);
 
+  // B-db56: resolve the actual git cwd ONCE at function entry via the
+  // resolveGitCwd choke-point. In a wrapper-root layout the metadataRoot
+  // (== projectRoot) is NOT a git repo and the real repo is a configured
+  // gitRoot subdir; resolveGitCwd routes us there. Plain-repo layouts and
+  // unresolved/throws cases fall back to projectRoot — byte-identical.
+  let gitCwd: string;
+  try {
+    gitCwd = resolveGitCwd({
+      store: new StoryStore(projectRoot),
+      storyId,
+      metadataRoot: projectRoot,
+      projectRoot,
+    });
+  } catch {
+    gitCwd = projectRoot;
+  }
+
   try {
     // 2. branch check — non-story/* branches stay silent
     let branch = '';
     try {
       branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-        cwd: projectRoot,
+        cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();
@@ -168,11 +187,11 @@ export function autoCommitStoryMetadata(
     // 4. snapshot the FULL dirty classification BEFORE committing (so the
     //    tail-note describes coexisting non-metadata dirt as it stood at decision
     //    time — `git add` / `git commit` will drop metadata rows otherwise).
-    const dirtySnapshot = snapshotDirtyClassification(projectRoot);
+    const dirtySnapshot = snapshotDirtyClassification(projectRoot, gitCwd);
 
     // 5. fast-path: is anything under the story dir dirty?
     const before = execFileSync('git', ['status', '--porcelain', '--', storyRel], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -180,14 +199,14 @@ export function autoCommitStoryMetadata(
 
     // 6. stage only paths inside the story dir (path-scoped — never `.` / `-A`)
     execFileSync('git', ['add', '--', storyRel], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     // 7. double-check what got staged — defends against `.gitignore` quirks.
     const staged = execFileSync('git', ['diff', '--cached', '--name-only', '--', storyRel], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -196,7 +215,7 @@ export function autoCommitStoryMetadata(
     // 8. commit
     const subject = `lattice: record ${storyId} ${reason} metadata`;
     execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', subject], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -205,7 +224,7 @@ export function autoCommitStoryMetadata(
     let sha7 = '';
     try {
       sha7 = execFileSync('git', ['rev-parse', '--short=7', 'HEAD'], {
-        cwd: projectRoot,
+        cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();

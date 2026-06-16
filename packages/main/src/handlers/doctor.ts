@@ -138,7 +138,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         }
         try {
           execFileSync('git', ['worktree', 'prune', '--expire', 'now'], {
-            cwd: root,
+            cwd: gitProbeCwd,
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'pipe'],
           });
@@ -161,7 +161,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           if (!artifact.repairable) continue;
           try {
             execFileSync('git', ['rm', '--cached', '--', artifact.path], {
-              cwd: root,
+              cwd: gitProbeCwd,
               encoding: 'utf-8',
               stdio: ['pipe', 'pipe', 'pipe'],
             });
@@ -685,9 +685,10 @@ function collectWorktreeCleanupTargets(scan: {
 }
 
 function tryWorktreeRemove(root: string, target: string): void {
+  const gitCwd = root;
   try {
     execFileSync('git', ['worktree', 'remove', '--force', target], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 5000,
@@ -729,10 +730,11 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
   const branch = `story/${storyId}`;
   const branchRef = `refs/heads/${branch}`;
   const expectedPath = resolve(target).replace(/\\/g, '/');
+  const gitCwd = root;
   let commonDir: string;
   try {
     commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -770,9 +772,10 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
 function deleteTerminalStoryBranch(root: string, store: HandlerContext['store'], storyId: string): void {
   if (!isTerminalStory(store, storyId)) return;
   const branch = `story/${storyId}`;
+  const gitCwd = root;
   try {
     execFileSync('git', ['branch', '-D', branch], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });

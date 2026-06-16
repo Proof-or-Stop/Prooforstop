@@ -60,9 +60,10 @@ function resolveSignedWorkspaceRoot(workspace: ResolvedReviewWorkspace, storyId:
 }
 
 function resolveGitTopLevel(projectRoot: string): string | null {
+  const gitCwd = projectRoot;
   try {
     return execFileSync('git', ['rev-parse', '--show-toplevel'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();

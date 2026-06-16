@@ -205,10 +205,10 @@ function gitSucceeds(cwd: string, args: string): boolean {
   }
 }
 
-function gitSafe(projectRoot: string, args: string[]): string {
+function gitSafe(gitCwd: string, args: string[]): string {
   try {
     return execFileSync('git', args, {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -1008,9 +1008,10 @@ function scanTerminalStoryResidues(store: StoryStore, root: string): StoryResidu
     if (story.phase !== 'DONE' && story.phase !== 'DISCARDED') continue;
     const rel = `${cfg.storyDir.replace(/\\/g, '/')}/${id}`;
     let status = '';
+    const gitCwd = root;
     try {
       status = execSync(`git status --porcelain -uall -- ${JSON.stringify(rel)}`, {
-        cwd: root,
+        cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();

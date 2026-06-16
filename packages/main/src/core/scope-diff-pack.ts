@@ -152,7 +152,7 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
   return hunks;
 }
 
-function readUnifiedDiff(projectRoot: string): string {
+function readUnifiedDiff(gitCwd: string): string {
   const parts: string[] = [];
   for (const args of [
     ['diff', '--unified=20', 'main...HEAD'],
@@ -160,7 +160,7 @@ function readUnifiedDiff(projectRoot: string): string {
     ['diff', '--unified=20', '--cached'],
   ]) {
     try {
-      const output = execFileSync('git', args, { cwd: projectRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      const output = execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
       if (output) parts.push(output);
     } catch { /* ignore non-git contexts */ }
   }

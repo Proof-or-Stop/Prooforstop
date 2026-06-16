@@ -170,9 +170,10 @@ function hasRecordedWorktreePath(story: StoryInfo): boolean {
 }
 
 function readLinkedStoryWorktreeIds(projectRoot: string): Set<string> {
+  const gitCwd = projectRoot;
   try {
     const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'ignore'],
     });

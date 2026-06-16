@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Flip only the unset default; 0/false/off/no stays an escape hatch",
+    "=0 restores byte-identical legacy default-off behavior",
+    "Rely on the existing B-0f7c seam fallbacks (no seam logic change)",
+    "Default-on must not auto-enable budget blocking (budget stays separately gated)",
+    "Update the existing smoke assertion + writer comment so nothing claims default-off"
+  ],
+  "drivers": [
+    "The ledger should capture usage out of the box (the prior slices made the seam safe)",
+    "Affects every user, so the escape hatch is the load-bearing safety guarantee",
+    "Minimal change: a one-line default flip"
+  ],
+  "options": [
+    {
+      "name": "A: flip the unset default to true + update the existing smoke/comment + add a default-on smoke",
+      "pros": [
+        "Minimal, behavioral default only",
+        "Escape hatch automatic",
+        "Relies on already-safe seams"
+      ],
+      "cons": [
+        "Behavioral reach to every user (intended)"
+      ]
+    },
+    {
+      "name": "B: keep opt-in",
+      "pros": [
+        "Zero behavior change"
+      ],
+      "cons": [
+        "Does not deliver the requested rollout — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: flip the unset default to true + update the existing smoke/comment + add a default-on smoke",
+  "rationale": "A one-line default flip turns recording on by default while the existing escape hatch and B-0f7c fallbacks keep it safe; the byte-identical =0 proof bounds the blast radius, and budget stays separately gated so no dispatch is blocked by default.",
+  "preMortem": [
+    {
+      "scenario": "The existing usage-ledger smoke (asserts default OFF) breaks",
+      "trigger": "Flip not reflected in the assertion",
+      "consequence": "Foundation smoke regression",
+      "mitigation": "Update usage-ledger-smoke.ts assertion to isUsageLedgerEnabled({})===true; CHK-004 runs the full suite green"
+    },
+    {
+      "scenario": "=0 does not fully restore legacy behavior",
+      "trigger": "Escape hatch incomplete",
+      "consequence": "No way to disable; behavior change can't be opted out",
+      "mitigation": "CHK-002 byte-identical proof: =0 => writer no-op + original spawn args + inert budget guard"
+    },
+    {
+      "scenario": "Default-on auto-blocks dispatches",
+      "trigger": "Budget treated as enabled by default",
+      "consequence": "Dispatches blocked for everyone",
+      "mitigation": "Budget gated on LATTICE_HARD_BUDGET_TOKENS; default-on + no budget env => resolveHardBudget null => no block; tested"
+    },
+    {
+      "scenario": "Default-on corrupts dispatch when host JSON output is unexpected",
+      "trigger": "--output-format json now always on",
+      "consequence": "Result text broken",
+      "mitigation": "B-0f7c raw-text fallback on parse failure + try/catch; tested via the dispatch smoke (unchanged)"
+    },
+    {
+      "scenario": "Stale 'Default OFF' comment/doc misleads",
+      "trigger": "Comment not updated",
+      "consequence": "Docs contradict behavior",
+      "mitigation": "Update writer comment + any ledger doc stating the default; CHK-004"
+    }
+  ],
+  "timestamp": "2026-06-16T22:08:51.752Z"
+}

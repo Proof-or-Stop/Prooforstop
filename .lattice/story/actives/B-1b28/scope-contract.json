@@ -1,0 +1,40 @@
+{
+  "storyId": "B-1b28",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/tasks/usage-ledger-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Committed acceptance verifier (63/63) and its machine-readable result — required evidence artifacts, not production code",
+      "timestamp": "2026-06-16T22:29:21.248Z",
+      "paths": [
+        ".lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+        ".lattice/story/actives/B-1b28/evidence/verify-result.json"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "No-regression update: explicit-OFF tests now pass LATTICE_USAGE_LEDGER=0 since unset means ON after the default flip",
+      "timestamp": "2026-06-16T22:29:21.732Z",
+      "paths": [
+        "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-16T22:28:45.058Z",
+  "updatedAt": "2026-06-16T22:29:21.732Z"
+}

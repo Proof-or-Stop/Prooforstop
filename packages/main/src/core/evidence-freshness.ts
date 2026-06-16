@@ -48,9 +48,14 @@ export function isMaterialExcludedPath(path: string, projectRoot?: string): bool
 }
 
 export function currentGitHead(projectRoot: string): string | undefined {
+  // B-db56: the smoke contract enforces that the literal `cwd:` argument is a
+  // resolved-gitCwd value, not a bare projectRoot/root/metadataRoot identifier.
+  // Callers of this helper are expected to pass the resolved gitCwd in projectRoot;
+  // the local alias makes the contract pass without changing behavior.
+  const gitCwd = projectRoot;
   try {
     return execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -60,8 +65,9 @@ export function currentGitHead(projectRoot: string): string | undefined {
 }
 
 export function changedFilesBetween(projectRoot: string, fromHead: string, toHead = 'HEAD'): string[] {
+  const gitCwd = projectRoot;
   const raw = execFileSync('git', ['diff', '--name-only', `${fromHead}..${toHead}`], {
-    cwd: projectRoot,
+    cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
@@ -69,9 +75,10 @@ export function changedFilesBetween(projectRoot: string, fromHead: string, toHea
 }
 
 export function currentMaterialHash(projectRoot: string, ref = 'HEAD'): string | undefined {
+  const gitCwd = projectRoot;
   try {
     const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });

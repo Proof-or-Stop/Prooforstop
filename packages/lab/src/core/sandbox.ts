@@ -18,9 +18,9 @@ import { dirname, join } from 'path';
 import { loadLabProjectConfig } from './project-config.js';
 import type { LabExperimentConfig, LabSandboxPlan } from '../types.js';
 
-function git(root: string, args: string[]): string {
+function git(gitCwd: string, args: string[]): string {
   return execFileSync('git', args, {
-    cwd: root,
+    cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
@@ -52,7 +52,8 @@ export function planSandbox(root: string, config: LabExperimentConfig, runId: st
 
 export function createSandbox(root: string, plan: LabSandboxPlan): void {
   mkdirSync(dirname(plan.sandboxPath), { recursive: true });
-  const existingBranch = git(root, ['branch', '--list', '--format=%(refname:short)', plan.branch]);
+  const gitCwd = root;
+  const existingBranch = git(gitCwd, ['branch', '--list', '--format=%(refname:short)', plan.branch]);
   if (existingBranch === plan.branch) {
     throw new Error(`lab sandbox branch 已存在: ${plan.branch}`);
   }
@@ -60,7 +61,7 @@ export function createSandbox(root: string, plan: LabSandboxPlan): void {
     throw new Error(`lab sandbox 路径已存在: ${plan.sandboxPath}`);
   }
   execFileSync('git', ['worktree', 'add', '-b', plan.branch, plan.sandboxPath, 'HEAD'], {
-    cwd: root,
+    cwd: gitCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 }

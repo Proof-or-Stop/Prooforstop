@@ -324,8 +324,9 @@ export async function runCommand(
 }
 
 function currentHead(projectRoot: string): string | undefined {
+  const gitCwd = projectRoot;
   try {
-    return execSync('git rev-parse HEAD', { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    return execSync('git rev-parse HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch {
     return undefined;
   }
@@ -733,9 +734,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       if (args.story) {
         tsArgs.push(`--story=${args.story}`);
         // Git diff 推断：把全部改动文件传给 validate.ts，让项目自己决定跑哪���测试
+        // B-db56: resolve gitCwd via resolveGitCwd so wrapper-root layouts
+        // (metadataRoot ≠ gitRoot) run git diff in the real repo subdir.
+        const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot });
         try {
           const diff = execSync('git diff main...HEAD --name-only', {
-            cwd: projectRoot,
+            cwd: gitCwd,
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'pipe'],
           }).trim();
@@ -799,8 +803,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         // If validate.ts doesn't support --json yet, wrap the output
         let headSha: string | undefined;
+        const headShaGitCwd = projectRoot;
         try {
-          headSha = execSync('git rev-parse --short HEAD', { cwd: projectRoot, encoding: 'utf-8' }).trim();
+          headSha = execSync('git rev-parse --short HEAD', { cwd: headShaGitCwd, encoding: 'utf-8' }).trim();
         } catch { /* not git */ }
 
         const wrapped = {

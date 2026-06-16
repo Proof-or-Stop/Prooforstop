@@ -72,7 +72,9 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
 }
 
 const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
-const OFF = {} as NodeJS.ProcessEnv;
+// Ledger is default-ON, so OFF must be the EXPLICIT escape hatch, not an empty
+// env (an empty/unset env now reads as ON).
+const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
 const root = mkdtempSync(join(tmpdir(), 'usage-ledger-budget-'));
 
@@ -461,8 +463,9 @@ async function main(): Promise<void> {
 
   await check('CHK-004 ledger OFF: recordBudgetBlock is a strict no-op (never reads env)', () => {
     const sub = freshRoot();
-    // Even with a budget env set, OFF means the guard never resolves or blocks.
-    const env = { LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    // Even with a budget env set, the EXPLICIT ledger OFF (=0) means the guard
+    // never resolves or blocks. (The ledger is default-ON, so OFF must be set.)
+    const env = { LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     const decision = recordBudgetBlock(sub, ctx(), null, 'a prompt over one token', opts(env));
     assert.equal(decision.blocked, false);
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'OFF must write nothing');
@@ -559,8 +562,8 @@ async function main(): Promise<void> {
   await check('F-001 guard: PRODUCTION-shaped opts + ledger OFF -> strict no-op (nothing written)', () => {
     const sub = freshRoot();
     const prompt = 'over one token but the ledger is OFF on the production path';
-    // Ledger OFF (no LATTICE_USAGE_LEDGER) but a budget IS set: must NOT block.
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined, LATTICE_HARD_BUDGET_TOKENS: '1' }, () => {
+    // Ledger EXPLICITLY OFF (=0; default is now ON) but a budget IS set: must NOT block.
+    withProcessEnv({ LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1' }, () => {
       const decision = recordBudgetBlock(sub, ctx(), null, prompt, prodOpts());
       assert.equal(decision.blocked, false, 'OFF must be byte-identical even with a budget set');
       assert.equal(existsSync(resolveLedgerPath(sub)), false, 'OFF writes nothing on the production path');
@@ -614,6 +617,10 @@ async function main(): Promise<void> {
     const allowed = new Set([
       join('core', 'lattice-dispatch.ts'),
       join('tasks', 'usage-ledger-budget-smoke.ts'),
+      // B-1b28: the default-on smoke exercises the budget guard's inert behavior
+      // (no block when the ledger is OFF / no budget configured) as part of its
+      // escape-hatch + default-on safety coverage.
+      join('tasks', 'usage-ledger-default-on-smoke.ts'),
     ]);
     const unexpected = [...importers].filter((f) => !allowed.has(f));
     assert.deepEqual(unexpected, [], `budget exports must not leak to other modules; unexpected importers:\n${unexpected.join('\n')}`);

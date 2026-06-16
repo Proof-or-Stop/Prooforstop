@@ -49,6 +49,7 @@ import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-r
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
   resolveGuardFailure,
   runScopeTransitionGate,
@@ -260,20 +261,36 @@ export async function runStoryTransition(
     // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
     // guard evaluates post-merge state, not pre-merge state.
     if (args.phase === 'DONE') {
+      // B-db56 F-002 fix: resolve the actual git cwd ONCE at the entry of the
+      // DONE pre-check block via the resolveGitCwd choke-point, then pass the
+      // resolved value to every git-invoking callee here. In a wrapper-root
+      // layout `ctx.root` (metadataRoot) is NOT a git repo and the real repo
+      // is a configured gitRoot subdir; without this routing the bare-root
+      // calls below would fail with `fatal: not a git repository`.
+      // Plain-repo / unresolved cases fall back to ctx.root — byte-identical.
+      const doneGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
       // B-4c38 CHK-001: serialize every main-affecting DONE operation before
       // any DONE preflight can mutate the story branch or main. The lock spans
       // checkMainDivergence/autoSyncMain, DONE gates, phase persistence, and
       // the real merge/worktree cleanup. A live lock fails before phase=DONE
       // can be written; a stale lock is reclaimed by the mkdir-lock primitive.
-      doneMainMergeLock = acquireDoneMainMergeLock(args.storyId, ctx.root);
+      // acquireDoneMainMergeLock's lock-path mkdir uses the projectRoot fallback
+      // when not inside a story worktree, so pass the resolved gitCwd so the
+      // mkdir target is the real main repo root in wrapper-root layouts.
+      doneMainMergeLock = acquireDoneMainMergeLock(args.storyId, doneGitCwd);
       const doneWorktree = detectDoneStoryWorktreeContext();
       if (doneWorktree) {
         assertDoneStoryBranchMatches(args.storyId, doneWorktree.branch);
       }
-      const divergence = checkMainDivergence(ctx.root);
+      const divergence = checkMainDivergence(doneGitCwd);
       if (divergence.needsSync) {
         ctx.log?.(`DONE pre-check: current branch is ${divergence.behind} commits behind main, auto-syncing...`);
-        const syncResult = autoSyncMain(ctx.root);
+        const syncResult = autoSyncMain(doneGitCwd);
         if (syncResult.ok) {
           ctx.log?.(`✓ ${syncResult.message}`);
         } else {

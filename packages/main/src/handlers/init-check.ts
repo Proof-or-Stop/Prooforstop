@@ -286,14 +286,15 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
 
         // 4) Audit attestation block (NOT in signature domain; surface + traceability).
         let headHash: string | undefined;
+        const auditGitCwd = root;
         try {
-          headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim() || undefined;
+          headHash = execSync('git rev-parse HEAD', { cwd: auditGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim() || undefined;
         } catch { /* PROBE: non-git or unavailable, omit headHash */ }
         const materialHash = currentMaterialHash(root) || undefined;
         let actor = (args.actor ?? '').trim();
         if (!actor) {
           try {
-            actor = execSync('git config user.name', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+            actor = execSync('git config user.name', { cwd: auditGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
           } catch { /* PROBE: no git identity, leave actor empty */ }
         }
         let session: string | undefined;

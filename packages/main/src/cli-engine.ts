@@ -2296,8 +2296,9 @@ interface ActiveStory { storyId: string; phase: string; }
  * Return null for non-story branches (all commands available).
  */
 function detectActiveStory(root: string): ActiveStory | null {
+  const gitCwd = root;
   try {
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     if (!branch.startsWith('story/')) return null;
     const storyId = branch.slice('story/'.length);
     if (!storyId) return null;

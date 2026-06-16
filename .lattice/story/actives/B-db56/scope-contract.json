@@ -1,0 +1,76 @@
+{
+  "storyId": "B-db56",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/core/declared-artifact-commit-check.ts",
+    "packages/main/src/core/cluster-sync.ts",
+    "packages/lab/src/handlers/lab.ts",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts",
+    "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "In-scope-by-consequence of CHK-001 (audit + reroute 193 git child-process call sites through resolveGitCwd). The PLAN's files.modify only enumerated top 9 files based on existing routing patterns; the implementer's exhaustive 193-site audit found 28 more files containing call sites that needed cwd rerouting. All edits are pure cwd parameter rewiring (none change git args, semantics, or signatures); 2 existing wrapper-root smokes pass byte-identically; new contract smoke passes on HEAD.",
+      "timestamp": "2026-06-16T22:40:46.209Z",
+      "paths": [
+        "packages/lab/src/core/sandbox.ts",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/managed-assets.ts",
+        "packages/main/src/core/partial-done-recovery.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/rollout-check.ts",
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/verification-context-pack.ts",
+        "packages/main/src/core/worktree-runtime.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/doctor.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/handlers/done-recover.ts",
+        "packages/main/src/handlers/init-check.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/src/handlers/test-auto.ts",
+        "packages/main/src/handlers/test-runner-core.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/tasks/gap-analyze.ts",
+        "packages/main/src/tasks/trace-store.ts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-002 fix: transition-orchestrator's DONE block resolves doneGitCwd once via resolveGitCwd and passes it to the 3 callees (acquireDoneMainMergeLock, checkMainDivergence, autoSyncMain). done-effects.ts comment corrected. Same in-scope-by-consequence pattern as the round-1 28 acknowledged files.",
+      "timestamp": "2026-06-16T22:50:56.141Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-16T22:40:18.767Z",
+  "updatedAt": "2026-06-16T22:50:56.141Z"
+}
