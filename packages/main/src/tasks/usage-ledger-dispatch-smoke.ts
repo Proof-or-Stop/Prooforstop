@@ -109,6 +109,7 @@ async function main(): Promise<void> {
     const envelope = JSON.stringify({
       type: 'result',
       result: 'Hello from Claude',
+      model: 'claude-opus-4-8',
       usage: {
         input_tokens: 1000,
         output_tokens: 300,
@@ -123,12 +124,39 @@ async function main(): Promise<void> {
     assert.equal(parsed.anthropicUsage?.output_tokens, 300);
     assert.equal(parsed.anthropicUsage?.cache_creation_input_tokens, 5);
     assert.equal(parsed.anthropicUsage?.cache_read_input_tokens, 200);
+    assert.equal(parsed.model, 'claude-opus-4-8');
   });
 
-  await check('CHK-002 happy: plain text stdout -> raw text + null usage', () => {
+  await check('CHK-002 happy: plain text stdout -> raw text + null usage + null model', () => {
     const parsed = parseClaudeCliOutput('Just some text output');
     assert.equal(parsed.resultText, 'Just some text output');
     assert.equal(parsed.anthropicUsage, null);
+    assert.equal(parsed.model, null);
+  });
+
+  await check('CHK-002 model: top-level .model preferred over .usage.model', () => {
+    const parsed = parseClaudeCliOutput(
+      JSON.stringify({
+        result: 'x',
+        model: 'claude-opus-4-8',
+        usage: { input_tokens: 1, output_tokens: 1, model: 'claude-sonnet-ignored' },
+      }),
+    );
+    assert.equal(parsed.model, 'claude-opus-4-8');
+  });
+
+  await check('CHK-002 model: falls back to .usage.model when no top-level model', () => {
+    const parsed = parseClaudeCliOutput(
+      JSON.stringify({ result: 'x', usage: { input_tokens: 1, output_tokens: 1, model: 'claude-haiku-4' } }),
+    );
+    assert.equal(parsed.model, 'claude-haiku-4');
+  });
+
+  await check('CHK-002 model: non-string / empty model -> null (no bad model id)', () => {
+    const numeric = parseClaudeCliOutput(JSON.stringify({ result: 'x', model: 42, usage: { input_tokens: 1, output_tokens: 1 } }));
+    assert.equal(numeric.model, null);
+    const empty = parseClaudeCliOutput(JSON.stringify({ result: 'x', model: '', usage: { input_tokens: 1, output_tokens: 1 } }));
+    assert.equal(empty.model, null);
   });
 
   await check('CHK-002 edge: malformed JSON -> raw text + null (never throws)', () => {
@@ -436,11 +464,13 @@ async function main(): Promise<void> {
   // ======================================================================
   // CHK-005: simulated end-to-end record-chain round-trip
   // ======================================================================
-  await check('CHK-005 end-to-end: envelope -> parse -> preflight+final -> diagnostics totals correct', () => {
+  await check('CHK-005 end-to-end: envelope -> parse -> preflight+final -> diagnostics totals + served model correct', () => {
     const sub = freshRoot();
+    const SERVED_MODEL = 'claude-opus-4-8';
     const sampleEnvelope = JSON.stringify({
       type: 'result',
       result: 'Done.',
+      model: SERVED_MODEL,
       usage: {
         input_tokens: 1500,
         output_tokens: 400,
@@ -451,7 +481,10 @@ async function main(): Promise<void> {
     const parsed = parseClaudeCliOutput(sampleEnvelope);
     assert.equal(parsed.resultText, 'Done.');
     assert.ok(parsed.anthropicUsage);
+    assert.equal(parsed.model, SERVED_MODEL);
 
+    // The estimate uses the best-effort default model ('claude-code'); the final
+    // must bind the REAL served model parsed from the envelope, NOT the default.
     const e2eCtx = ctx({ storyId: 'S-e2e', model: 'claude-code' });
     const handle = recordDispatchPreflight(sub, e2eCtx, 'the prompt text', opts(ON));
     assert.ok(handle);
@@ -461,12 +494,18 @@ async function main(): Promise<void> {
       handle!.correlation,
       handle!.estimateRecordId,
       parsed.anthropicUsage,
-      'claude-code',
+      parsed.model,
       opts(ON),
     );
 
     const records = readLedger(sub);
     assert.equal(records.length, 2);
+
+    // The provider-reported record carries the EXACT served model, not the default.
+    const finalRecord = records.find((r) => r.usage.source === 'provider-reported');
+    assert.ok(finalRecord);
+    assert.equal(finalRecord?.provider?.model, SERVED_MODEL);
+    assert.notEqual(finalRecord?.provider?.model, 'claude-code');
 
     // summary: provider total = 1500+400+0+0 = 1900 (estimate superseded, excluded)
     const summary = summarizeRecords(records);
@@ -474,16 +513,48 @@ async function main(): Promise<void> {
     assert.equal(summary.providerReportedCount, 1);
     assert.equal(summary.estimateCount, 0, 'estimate must be superseded, not double-counted');
 
-    // diagnostics: the S-e2e group's provider-reported known dimensions match.
+    // diagnostics: the S-e2e group is keyed by the served model and its
+    // provider-reported known dimensions match.
     const report = buildUsageReport(records);
-    const group = report.groups.find((g) => g.key.storyId === 'S-e2e');
-    assert.ok(group, 'expected an S-e2e group');
+    const group = report.groups.find((g) => g.key.storyId === 'S-e2e' && g.key.model === SERVED_MODEL);
+    assert.ok(group, `expected an S-e2e group keyed by model ${SERVED_MODEL}`);
+    assert.equal(group!.key.model, SERVED_MODEL);
     const provider = group!.bySource['provider-reported'];
     assert.equal(provider.known.input, 1500);
     assert.equal(provider.known.output, 400);
     assert.equal(provider.knownCount, 1);
     // The estimate bucket has NO known records (it was superseded out of selection).
     assert.equal(group!.bySource['prompt-size-estimate'].knownCount, 0);
+  });
+
+  await check('CHK-005 edge: envelope with usage but no model -> final falls back to default (no throw)', () => {
+    const sub = freshRoot();
+    const noModelEnvelope = JSON.stringify({
+      type: 'result',
+      result: 'Done.',
+      usage: { input_tokens: 700, output_tokens: 100, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
+    });
+    const parsed = parseClaudeCliOutput(noModelEnvelope);
+    assert.ok(parsed.anthropicUsage);
+    assert.equal(parsed.model, null, 'no model field -> parsed.model is null');
+
+    const handle = recordDispatchPreflight(sub, ctx({ storyId: 'S-default' }), 'p', opts(ON));
+    assert.ok(handle);
+    let threw = false;
+    try {
+      // parsed.model is null -> recordDispatchFinal binds the best-effort default.
+      recordDispatchFinal(sub, ctx({ storyId: 'S-default' }), handle!.correlation, handle!.estimateRecordId, parsed.anthropicUsage, parsed.model, opts(ON));
+    } catch {
+      threw = true;
+    }
+    assert.equal(threw, false, 'a null model must not throw');
+    const records = readLedger(sub);
+    const finalRecord = records.find((r) => r.usage.source === 'provider-reported');
+    assert.ok(finalRecord);
+    // Falls back to the best-effort default ('unknown' from dispatch-usage), never
+    // an empty/null model on the record.
+    assert.ok((finalRecord?.provider?.model ?? '').length > 0, 'model must be a non-empty default');
+    assert.notEqual(finalRecord?.provider?.model, null);
   });
 
   await check('CHK-005 flag OFF: dispatch-usage writes nothing to the temp dir', () => {

@@ -66,6 +66,14 @@ export interface ParsedClaudeCliOutput {
    * usage, etc.) and drives the dispatch seam to record an 'unavailable' final.
    */
   anthropicUsage: AnthropicUsage | null;
+  /**
+   * The served model id read from the envelope (top-level `.model`, else
+   * `.usage.model`), or null when absent / non-string / non-JSON. Token counts
+   * are model-version-specific and diagnostics group by model, so the final
+   * record binds this real served model when present (best-effort default only
+   * when null).
+   */
+  model: string | null;
 }
 
 /** A finite, non-negative integer is the only usable token count. */
@@ -115,14 +123,32 @@ function extractAnthropicUsage(usage: unknown): AnthropicUsage | null {
 }
 
 /**
- * Parse Claude Code CLI stdout into {resultText, anthropicUsage}.
+ * Read the served model from a parsed envelope: top-level `.model` first, else
+ * `.usage.model`, else null. Only a non-empty string is accepted; any other type
+ * (number, object, empty string) yields null so the seam falls back to the
+ * best-effort default rather than recording a bad model id. Never throws.
+ */
+function extractModel(envelope: Record<string, unknown>): string | null {
+  const top = envelope.model;
+  if (typeof top === 'string' && top.length > 0) return top;
+  const usage = envelope.usage;
+  if (typeof usage === 'object' && usage !== null && !Array.isArray(usage)) {
+    const nested = (usage as Record<string, unknown>).model;
+    if (typeof nested === 'string' && nested.length > 0) return nested;
+  }
+  return null;
+}
+
+/**
+ * Parse Claude Code CLI stdout into {resultText, anthropicUsage, model}.
  *
  * - When stdout is the Claude Code CLI JSON envelope (e.g.
- *   `{type, result, usage:{input_tokens,output_tokens,...}, ...}`), extract
- *   `.result` as the result text and the `.usage` object.
+ *   `{type, result, model, usage:{input_tokens,output_tokens,...}, ...}`),
+ *   extract `.result` as the result text, the `.usage` object, and the served
+ *   model (top-level `.model`, else `.usage.model`).
  * - When stdout is NOT valid JSON, is not an object, lacks `.result`, or lacks a
  *   usable `.usage`, fall back to `{resultText: <raw stdout>, anthropicUsage:
- *   null}`.
+ *   null, model: null}`.
  * - NEVER throws (JSON.parse is wrapped). Empty / huge / deeply-nested input all
  *   degrade gracefully.
  *
@@ -136,25 +162,26 @@ export function parseClaudeCliOutput(stdout: string): ParsedClaudeCliOutput {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    // Not JSON at all -> raw-text fallback, no usage.
-    return { resultText: raw, anthropicUsage: null };
+    // Not JSON at all -> raw-text fallback, no usage, no model.
+    return { resultText: raw, anthropicUsage: null, model: null };
   }
 
   // Valid JSON but not a plain object (array, number, string, null) -> the raw
-  // stdout is the human result; there is no envelope to read usage from.
+  // stdout is the human result; there is no envelope to read usage/model from.
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    return { resultText: raw, anthropicUsage: null };
+    return { resultText: raw, anthropicUsage: null, model: null };
   }
 
   const envelope = parsed as Record<string, unknown>;
   const anthropicUsage = extractAnthropicUsage(envelope.usage);
+  const model = extractModel(envelope);
 
   // `.result` is the human-facing text. When it is a string, use it; otherwise
   // fall back to the raw stdout (a JSON-with-usage-but-no-result envelope still
   // surfaces its usage, but its result text is the raw blob).
   const resultText = typeof envelope.result === 'string' ? envelope.result : raw;
 
-  return { resultText, anthropicUsage };
+  return { resultText, anthropicUsage, model };
 }
 
 // =============================================================================
@@ -279,6 +306,11 @@ export function recordDispatchPreflight(
  * NEVER throws: any failure (adapter/assemble throw on a rogue payload, writer
  * throw) is swallowed so dispatch proceeds and returns its result text.
  *
+ * `model` is the served model parsed from the envelope. When it is null (envelope
+ * carried no model), the provider record falls back to the best-effort default —
+ * token counts are model-version-specific and diagnostics group by model, so the
+ * real served model is recorded whenever the envelope reports it.
+ *
  * When no preflight handle exists (estimateRecordId omitted because preflight
  * returned null), the final still records but supersedes nothing — but in the
  * normal flow the seam always passes the preflight handle through.
@@ -289,7 +321,7 @@ export function recordDispatchFinal(
   correlation: CallCorrelation | null,
   estimateRecordId: string | null,
   anthropicUsage: AnthropicUsage | null,
-  model: string,
+  model: string | null,
   opts: DispatchUsageOptions,
 ): void {
   if (!isUsageLedgerEnabled(opts.env)) return;
@@ -342,8 +374,11 @@ function attributionFor(ctx: DispatchUsageContext): RecordAttribution {
   };
 }
 
-/** Build the RecordContext for a final record, binding the served model. */
-function finalContext(opts: DispatchUsageOptions, model: string): RecordContext {
+/**
+ * Build the RecordContext for a final record, binding the served model. A null
+ * or empty model (envelope carried none) falls back to the best-effort default.
+ */
+function finalContext(opts: DispatchUsageOptions, model: string | null): RecordContext {
   const bound = model && model.length > 0 ? model : DEFAULT_ESTIMATE_MODEL;
   return {
     recordedAt: opts.recordedAt,

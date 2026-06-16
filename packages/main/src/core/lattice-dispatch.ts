@@ -1948,13 +1948,16 @@ function runClaudeCodeRealLeafDispatch(
       const parsed = parseClaudeCliOutput(rawStdout);
       stdout = parsed.resultText;
       // INV-5: the provider-reported final supersedes the preflight estimate.
+      // Bind the real served model from the envelope (token counts are
+      // model-version-specific; diagnostics group by model). recordDispatchFinal
+      // falls back to the best-effort default only when parsed.model is null.
       recordDispatchFinal(
         root,
         ledgerCtx,
         ledgerHandle?.correlation ?? null,
         ledgerHandle?.estimateRecordId ?? null,
         parsed.anthropicUsage,
-        DISPATCH_LEDGER_ESTIMATE_MODEL,
+        parsed.model,
         ledgerOpts,
       );
     } catch (error) {
