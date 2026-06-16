@@ -23,7 +23,7 @@
       "desc": "CHK-002:happy:2 intent requires `git ls-files packages/main/src/core/phase-protocol.ts packages/main/src/verifier/bridge-utils.ts` returning empty stdout; recorded evidence is the same static-import grep, which does not test the git index. CHK-002:edge:4 and CHK-002:edge:5 intents require `git checkout HEAD -- <file>` failing with non-zero exit to prove deletion is finalized; both have the same static-import grep as evidence. Live re-runs confirm: git ls-files returns empty and both checkout attempts exit non-zero, but the recorded commands do not correspond to these intents.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-16T19:07:10.127Z",
@@ -33,7 +33,8 @@
       "files": [
         "packages/main/src/core/phase-protocol.ts",
         "packages/main/src/verifier/bridge-utils.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T19:08:31.047Z"
     },
     {
       "id": "B-d7ef:F-003",
