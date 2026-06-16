@@ -2748,7 +2748,6 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
-  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   // Walk upward to find lattice.config.json and determine the project root.
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
