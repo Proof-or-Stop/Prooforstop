@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Never leave or commit git conflict markers in machine-generated story metadata",
+    "Serialize the reconcile (main commit + merge) under the main-write-lock so concurrent main commits cannot race it",
+    "Deterministic resolution is valid because story metadata is machine-generated (post-advance state is authoritative)",
+    "Minimal change to the reconcile; no INIT_CHECK semantic change; idempotent on retry; single-session flow byte-identical"
+  ],
+  "drivers": [
+    "The corruption hit twice this session and broke the CLI (could not parse the story)",
+    "Concurrent main-branch churn races the reconcile's git merge",
+    "The main-write-lock already exists (B-f60c) but is not applied to this path"
+  ],
+  "options": [
+    {
+      "name": "A: lock + deterministic metadata resolution",
+      "pros": [
+        "Lock prevents the race; deterministic resolution handles any residual conflict",
+        "Never leaves markers, never strands the user",
+        "Reuses the existing lock"
+      ],
+      "cons": [
+        "Slightly more code than lock-only (must resolve conflicted metadata paths)"
+      ]
+    },
+    {
+      "name": "B: lock + abort-and-recover",
+      "pros": [
+        "Simpler conflict branch (git merge --abort + recovery error)"
+      ],
+      "cons": [
+        "Strands the user on a conflict (must re-run); worse UX for a machine-resolvable conflict"
+      ]
+    },
+    {
+      "name": "C: lock only (assume no conflict)",
+      "pros": [
+        "Smallest change"
+      ],
+      "cons": [
+        "A conflict from legitimate pre-existing divergence can still leave markers; doesn't fully close the bug"
+      ]
+    }
+  ],
+  "chosen": "A: lock + deterministic metadata resolution",
+  "rationale": "Option A wraps the reconcile (main commit + merge) in withReentrantMainWriteLock to prevent the race, AND on any residual merge conflict resolves all conflicted story-metadata paths deterministically to the authoritative post-advance state, so the reconcile never leaves markers and never strands the user. C (lock only) doesn't handle a conflict from legitimate divergence; B (abort-and-recover) is a worse UX for a machine-resolvable conflict. A repro test pins the behavior before the fix.",
+  "preMortem": [
+    {
+      "scenario": "Deterministic resolution picks the wrong side",
+      "trigger": "resolving to the story-branch version instead of the post-advance main version",
+      "consequence": "metadata loss / wrong phase",
+      "mitigation": "story metadata is machine-generated; resolve to the post-INIT_CHECK (main-committed) version; test asserts the resolved index.json equals the expected post-advance state"
+    },
+    {
+      "scenario": "Lock deadlock / reentrancy",
+      "trigger": "the reconcile runs inside a context already holding the main-write-lock",
+      "consequence": "reconcile hangs on lock acquisition",
+      "mitigation": "use withReentrantMainWriteLock; test that a normal single-session advance does not deadlock"
+    },
+    {
+      "scenario": "Conflict spans more than index.json",
+      "trigger": "multiple story-metadata files conflict in the merge",
+      "consequence": "partial resolution leaves markers in another file",
+      "mitigation": "resolve ALL conflicted paths under the storyDir deterministically; test a multi-file metadata conflict"
+    },
+    {
+      "scenario": "Lock not released on error → stuck lock",
+      "trigger": "the reconcile throws mid-operation",
+      "consequence": "subsequent main writes blocked",
+      "mitigation": "withMainWriteLock releases in finally on throw; doctor stuck-lock check (B-f60c) covers residue"
+    }
+  ],
+  "timestamp": "2026-06-16T01:57:27.055Z"
+}

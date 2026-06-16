@@ -5,27 +5,201 @@
       "title": "Reproduce: a test that drives the INIT_CHECK reconcile against a divergent main and asserts no conflict markers are committed into index.json",
       "context": "Set up a story-branch index.json (phase INIT) and a main index.json (phase INIT_CHECK) that conflict, run the reconcile merge path, and assert the committed index.json parses as JSON with no <<<<<<< / ======= / >>>>>>> markers. Function/integration level. This is the failing repro per the debugging contract.",
       "userSees": "A new test fails before the fix (markers committed) and passes after (clean post-advance index.json), and lattice validate stays green.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T02:04:19.634Z",
+      "endTime": "2026-06-16T02:13:59.814Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "repro drives the reconcile against a divergent main and asserts no git conflict markers end up committed in index.json",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "single-session reconcile (no divergence) produces clean metadata, byte-identical to today",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "multi-file metadata conflict leaves no markers in any story-metadata file",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "repro drives the real reconcile into a conflict; fails pre-fix (markers/abort), passes post-fix (clean index.json)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "single-session reconcile path unchanged (init-check-atomicity-smoke still green)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "3-way conflict on index.json + checklist.json (multi-file) leaves no markers in any file",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Make the reconcile merge conflict-safe: deterministic metadata resolution or clean abort + recovery, never commit markers",
       "context": "In commitInitCheckMetadataAndMergeMain (cli-engine.ts): on a conflicted merge of machine-generated story metadata, either resolve deterministically (post-advance/main wins for index.json) or detect the conflict, abort the merge (git merge --abort / reset), and surface a clear recovery command. Do not leave or commit conflict markers.",
       "userSees": "If a reconcile conflict occurs, the story metadata stays parseable (CLI keeps working) or the user gets an explicit recovery instruction instead of a silent JSON-parse crash on every command.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T02:14:22.239Z",
+      "endTime": "2026-06-16T02:21:42.427Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "on a merge conflict the reconcile resolves story metadata to the post-advance state and completes (no markers)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "no-conflict reconcile path unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "conflict spanning multiple metadata paths under storyDir is fully resolved deterministically",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "on conflict, storyRel paths resolved to main (checkout --theirs/add) and merge completes; no markers",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "clean (no-conflict) merge stays byte-identical via runGitNoThrow happy path",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "multi-file conflict under storyRel fully resolved; a conflict OUTSIDE storyRel aborts + throws (never commits markers)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Run the reconcile metadata commit + merge under the main-write-lock so concurrent main commits cannot race it",
       "context": "Verify whether commitInitCheckMetadataAndMergeMain holds the main-write-lock (core/main-write-lock.ts, B-f60c) across BOTH the main metadata commit and the merge-into-story step. If not, bring the merge under the same lock so another session cannot move main mid-reconcile.",
       "userSees": "Concurrent story_advance INIT_CHECK from multiple sessions no longer corrupts metadata; the lock serializes the reconcile.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T02:14:30.208Z",
+      "endTime": "2026-06-16T02:21:44.147Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "reconcile wrapped in withReentrantMainWriteLock; serialized so concurrent advance cannot race",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "single-session advance does not deadlock (reentrant lock)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "reconcile throw releases the lock (no stuck lock)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "reconcile metadata commit + merge wrapped in withReentrantMainWriteLock(gitMainRoot, fn, label)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "reentrant variant nests safely; single-session advance does not deadlock (main-write-lock-smoke green)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "throw in the reconcile releases the lock via the helper finally (no stuck lock)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      ]
     }
   ]
 }

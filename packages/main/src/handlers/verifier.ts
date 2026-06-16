@@ -627,7 +627,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             // scope → full recursive tsc (unchanged). On resolution failure the
             // resolver returns undefined → full recursive tsc (never skip-all).
             const changedFiles = args.story
-              ? resolveChangedFiles({ projectRoot })
+              ? resolveChangedFiles({ projectRoot, gitCwd })
               : undefined;
             const r = runLintGateCli({ projectRoot, changedFiles });
             return { name: 'lint', ok: r.ok, rendered: r.rendered, result: r.result };

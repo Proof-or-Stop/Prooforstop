@@ -1,0 +1,136 @@
+{
+  "command": "lattice validate --story=B-0740 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-metadata-protection-smoke.ts) — doctor --repair on a wrapper-root fixture (metadataRoot != gitRoot) installs the managed allowlist: wrote:true on first run, and the metadata-protection re-scan reports clear\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/story-metadata-protection-smoke.ts) — second --repair run on the same wrapper-root fixture is a no-op (wrote:false, allowlist already present)\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-metadata-protection-smoke.ts) — plain repo (gitCwd defaults to root) --repair behavior is byte-identical to today: wrote-then-noop, no fatal line\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/validate-lint-change-scope-smoke.ts) — on a wrapper-root layout, resolveChangedFiles with gitCwd=gitRoot returns the changed paths rebased to projectRoot-relative, and computeOutOfScopeTsconfigs correctly marks out-of-scope tsconfigs\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/validate-lint-change-scope-smoke.ts) — plain repo (gitCwd==projectRoot) rebase is identity: resolveChangedFiles output is byte-identical to passing no gitCwd\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/validate-lint-change-scope-smoke.ts) — throwing changedFilesReader still returns undefined (full recursive tsc, never skip-all); genuinely empty diff returns [] — the throw/empty distinction survives the rebase\"],\"warnings\":[],\"timestamp\":\"2026-06-16T02:20:07.124Z\",\"headSha\":\"cf400d9feabc97efa3f97740d544d39e08e11d51\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":18123}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"doctor --repair on a wrapper-root fixture (metadataRoot != gitRoot) installs the managed allowlist: wrote:true on first run, and the metadata-protection re-scan reports clear\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-metadata-protection-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"WRAPPER-ROOT --repair installs allowlist (repairWrote:true, repairError:null, no leading fatal) → re-scan safe; gitRoot/.gitignore gets the managed !.lattice/story/actives/** allowlist. Real-machine doctor --repair on a /tmp wrapper-root fixture confirmed repairWrote:true RUN1.\",\"headHash\":\"3e8ebd09c8cef775c6e268995950502c926abd56\",\"materialHash\":\"925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41\",\"timestamp\":\"2026-06-16T02:15:55.938Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"second --repair run on the same wrapper-root fixture is a no-op (wrote:false, allowlist already present)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-metadata-protection-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"WRAPPER-ROOT second --repair is a no-op (repairWrote:false, repairError:null, gitRoot/.gitignore byte-for-byte unchanged). Real-machine RUN2 confirmed repairWrote:false. Plain-repo existing repair check (metadataRoot==gitRoot) preserved as byte-identical reference via gitCwd=root default.\",\"headHash\":\"3e8ebd09c8cef775c6e268995950502c926abd56\",\"materialHash\":\"925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41\",\"timestamp\":\"2026-06-16T02:15:55.938Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"plain repo (gitCwd defaults to root) --repair behavior is byte-identical to today: wrote-then-noop, no fatal line\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-metadata-protection-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"Regression proven NOT a tautology: reverting the source fix (cwd:root + drop gitCwd param) makes the wrapper-root smoke FAIL with AssertionError repairWrote false!==true and a tsc TS2554 at the call site, proving the test catches the exact wrapper-root blind spot; restoring the fix turns it green (12 checks).\",\"headHash\":\"3e8ebd09c8cef775c6e268995950502c926abd56\",\"materialHash\":\"925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41\",\"timestamp\":\"2026-06-16T02:15:55.938Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"on a wrapper-root layout, resolveChangedFiles with gitCwd=gitRoot returns the changed paths rebased to projectRoot-relative, and computeOutOfScopeTsconfigs correctly marks out-of-scope tsconfigs\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validate-lint-change-scope-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"Case (e) wrapper-root: stub reader emits gitRoot-relative wrapper/backend/* paths; resolveChangedFiles with gitCwd=gitRoot rebases to projectRoot-relative backend/* (wrapper/ stripped) and computeOutOfScopeTsconfigs correctly skips out-of-scope frontend.\",\"headHash\":\"3e8ebd09c8cef775c6e268995950502c926abd56\",\"materialHash\":\"925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41\",\"timestamp\":\"2026-06-16T02:15:55.938Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"plain repo (gitCwd==projectRoot) rebase is identity: resolveChangedFiles output is byte-identical to passing no gitCwd\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validate-lint-change-scope-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"Case (f) plain-repo identity: gitCwd==projectRoot output byte-identical to gitCwd omitted; case (e2) out-of-projectRoot path rebases to ..-prefixed and triggers documented fail-closed; case (h) empty diff WITH gitCwd set still resolves to [] (valid empty scope), not undefined.\",\"headHash\":\"3e8ebd09c8cef775c6e268995950502c926abd56\",\"materialHash\":\"925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41\",\"timestamp\":\"2026-06-16T02:15:55.939Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"throwing changedFilesReader still returns undefined (full recursive tsc, never skip-all); genuinely empty diff returns [] — the throw/empty distinction survives the rebase\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validate-lint-change-scope-smoke.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"Case (g) throwing reader WITH gitCwd set still resolves to undefined (full tsc, never skip-all; throw never converted into []). Adversarial revert proof: removing the rebase line made wrapper-root case (e) FAIL on the deepEqual (unrebased wrapper/backend != projectRoot-relative backend), proving the test catches the base-mismatch bug; rebase restored and smoke re-greened.\",\"headHash\":\"3e8ebd09c8cef775c6e268995950502c926abd56\",\"materialHash\":\"925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41\",\"timestamp\":\"2026-06-16T02:15:55.939Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T02:20:07.847Z",
+  "headHash": "cf400d9feabc97efa3f97740d544d39e08e11d51",
+  "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "doctor --repair on a wrapper-root fixture (metadataRoot != gitRoot) installs the managed allowlist: wrote:true on first run, and the metadata-protection re-scan reports clear",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "WRAPPER-ROOT --repair installs allowlist (repairWrote:true, repairError:null, no leading fatal) → re-scan safe; gitRoot/.gitignore gets the managed !.lattice/story/actives/** allowlist. Real-machine doctor --repair on a /tmp wrapper-root fixture confirmed repairWrote:true RUN1.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "second --repair run on the same wrapper-root fixture is a no-op (wrote:false, allowlist already present)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "WRAPPER-ROOT second --repair is a no-op (repairWrote:false, repairError:null, gitRoot/.gitignore byte-for-byte unchanged). Real-machine RUN2 confirmed repairWrote:false. Plain-repo existing repair check (metadataRoot==gitRoot) preserved as byte-identical reference via gitCwd=root default.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "plain repo (gitCwd defaults to root) --repair behavior is byte-identical to today: wrote-then-noop, no fatal line",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Regression proven NOT a tautology: reverting the source fix (cwd:root + drop gitCwd param) makes the wrapper-root smoke FAIL with AssertionError repairWrote false!==true and a tsc TS2554 at the call site, proving the test catches the exact wrapper-root blind spot; restoring the fix turns it green (12 checks).",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "on a wrapper-root layout, resolveChangedFiles with gitCwd=gitRoot returns the changed paths rebased to projectRoot-relative, and computeOutOfScopeTsconfigs correctly marks out-of-scope tsconfigs",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (e) wrapper-root: stub reader emits gitRoot-relative wrapper/backend/* paths; resolveChangedFiles with gitCwd=gitRoot rebases to projectRoot-relative backend/* (wrapper/ stripped) and computeOutOfScopeTsconfigs correctly skips out-of-scope frontend.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "plain repo (gitCwd==projectRoot) rebase is identity: resolveChangedFiles output is byte-identical to passing no gitCwd",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (f) plain-repo identity: gitCwd==projectRoot output byte-identical to gitCwd omitted; case (e2) out-of-projectRoot path rebases to ..-prefixed and triggers documented fail-closed; case (h) empty diff WITH gitCwd set still resolves to [] (valid empty scope), not undefined.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "throwing changedFilesReader still returns undefined (full recursive tsc, never skip-all); genuinely empty diff returns [] — the throw/empty distinction survives the rebase",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (g) throwing reader WITH gitCwd set still resolves to undefined (full tsc, never skip-all; throw never converted into []). Adversarial revert proof: removing the rebase line made wrapper-root case (e) FAIL on the deepEqual (unrebased wrapper/backend != projectRoot-relative backend), proving the test catches the base-mismatch bug; rebase restored and smoke re-greened.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.939Z"
+        }
+      }
+    ]
+  }
+}

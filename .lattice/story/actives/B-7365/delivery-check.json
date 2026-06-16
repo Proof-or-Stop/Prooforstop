@@ -1,0 +1,28 @@
+{
+  "storyId": "B-7365",
+  "checkedAt": "2026-06-16T02:37:47.312Z",
+  "reviewRound": "2026-06-16T02:31:11.041Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "init-check-reconcile-conflict-smoke.ts drives the real exported commitInitCheckMetadataAndMergeMain against a deterministic 3-way conflict on index.json + checklist.json. Asserts: (1) no throw from reconcile; (2) no MERGE_HEAD left; (3) no unmerged paths; (4) both working-tree and committed metadata parse as valid JSON with no conflict markers; (5) resolved values equal post-advance (main) state (phase=INIT_CHECK, note=main-advanced). Transcript: node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js exit=0, outputs checkmark reconcile resolved a 3-way metadata conflict to the post-advance state with no markers + checkmark init-check-reconcile-conflict-smoke passed. Confirmed fail-pre / pass-post. Existing init-check-atomicity-smoke + main-write-lock-smoke still pass. Note: smoke not in default validate battery (backlog B-99b6)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "mergeBaseBranchIntoStoryWorktreeResolvingMetadata covers: clean path (merge exits 0, return immediately), multi-file content conflict under storyRel (checkout --theirs + git add per path, defensive re-check for stillUnmerged before commit), modify/delete conflict (checkout --theirs fails -> git rm -f), out-of-bounds conflict (git merge --abort + throw, never commits markers), non-conflict non-zero exit (git merge --abort + throw), secondary resolution error (try/catch -> merge --abort then rethrow). Smoke drives the multi-file conflict path and asserts all 5 load-bearing properties: no markers in working tree or committed objects, valid JSON, resolves to post-advance state."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "withReentrantMainWriteLock wraps the git commit-on-main + git merge-into-worktree critical section in commitInitCheckMetadataAndMergeMain. Lock held across both steps so concurrent sessions cannot commit to main between the metadata commit and the merge, closing the race that previously produced divergent index.json leading to merge conflicts. Reentrant variant used: lock released in finally even when the critical section throws. Smoke drives the reconcile end-to-end under the lock with successful exit. main-write-lock-smoke continues to pass (lock acquisition + release-on-throw coverage pre-existing)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "CLAUDE.md is unchanged (0 docsPromises). All 3 CHK items have real machine test coverage via the new smoke: happy path (clean merge), edge cases (multi-file conflict, modify/delete conflict, lock reentrancy + release-on-throw), and adversarial cases (out-of-bounds conflict abort, secondary-error abort, markers never reaching a commit object). No unresolved TODOs in the diff. Smoke is not in the default validate battery (honestly noted, owned by backlog B-99b6)."
+  },
+  "_hash": "21430be206657526855429885d353b17509e51dac039a0eb06162af9ef097edc"
+}

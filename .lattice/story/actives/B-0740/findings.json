@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-0740:F-001",
+      "desc": "quality-cleanup: validate-lint.ts lines 214-218 contain a verbatim duplicate comment block (\"Rebase AFTER the throw boundary. Only when gitCwd is set AND differs from projectRoot...\") — the identical two-line comment appears once before `const lines = raw.split` and again immediately after before the `if` block. The second copy should be removed.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T01:18:11.501Z",
+      "reviewRound": "2026-06-16T01:16:26.552Z",
+      "reviewRunId": "B-0740:RR-002",
+      "_hash": "b5a9ab065f6091e0941f5bcd4927c2811fb0bcb796f67dd563ba447fe9e66d1a",
+      "files": [
+        "packages/main/src/handlers/validate-lint.ts"
+      ],
+      "resolvedReason": "Removed the verbatim duplicate rebase comment in validate-lint.ts (kept the copy attached to the if block); fixed by lattice-implementer commit 0d1097cff.",
+      "resolvedAt": "2026-06-16T01:58:06.217Z"
+    }
+  ]
+}
