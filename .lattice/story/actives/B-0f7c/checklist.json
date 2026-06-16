@@ -477,9 +477,9 @@
       "id": "CHK-004",
       "title": "Regression safety: OFF byte-identical + parse-failure fallback",
       "context": "Add tests/assertions proving the safety invariants: (a) with the ledger flag OFF, the host invocation (spawn args) and the result text the dispatch produces are identical to the pre-change behavior (e.g. unit-test the arg-builder / a structural assertion that the disabled path uses ['--print', promptFile] and raw stdout); (b) with the flag ON but the host output not JSON-parseable, parseClaudeCliOutput returns the raw text and recordDispatchFinal records 'unavailable' — dispatch still yields the raw result and does not throw. These guard the two risk invariants.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T19:34:09.011Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-dispatch.ts"
