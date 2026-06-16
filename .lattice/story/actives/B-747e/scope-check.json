@@ -1,0 +1,73 @@
+{
+  "storyId": "B-747e",
+  "checkedAt": "2026-06-16T02:51:08.267Z",
+  "features": [
+    {
+      "feature": "Rename KoalaConfig TS interface to LatticeConfig in its definition file (packages/main/src/core/config.ts)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename all KoalaConfig type references in 4 consumer files (dirty-worktree.ts, hooks.ts, story-signed-workspace-resolution.ts, workflow-policy.ts)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No backward-compat KoalaConfig alias kept (pure eradication, OSS prep)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Pure mechanical rename with no behavior change (tsc build must pass)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "koala.config.json fixture filenames NOT renamed (out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description explicitly defers: config sample fixtures handled in later slices; CHK-001 adversarial guard confirms fixture files are out of scope",
+      "source": "description"
+    },
+    {
+      "feature": "Code comments and documentation wording NOT renamed (out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description explicitly defers: code comments and documentation wording handled in later slices; CHK-001 adversarial guard confirms comment prose is out of scope",
+      "source": "description"
+    },
+    {
+      "feature": "Lab package config reader (packages/lab/src/core/sandbox.ts koalaConfig local variable) NOT renamed (out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description explicitly defers: the lab config reader is handled in later slices; CHK-001 adversarial guard confirms lab package is out of scope",
+      "source": "description"
+    },
+    {
+      "feature": "cc-learnings.md Story-6 checklist proposal reference to KoalaConfig (historical background text)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "cc-learnings.md:425 reference is background/motivation text in an unexecuted prior story checklist proposal (Story 6: Hook System), not an active functional commitment to preserve the KoalaConfig identifier name; it is historical context describing the type before this rename story",
+      "source": "decisions:decisions/cc-learnings.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 4,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "148c7c88c6ab091e7d79e530c59c6a09f9fa690f361d75c2df4b5b66bd1dbd13",
+  "openQuestions": []
+}
