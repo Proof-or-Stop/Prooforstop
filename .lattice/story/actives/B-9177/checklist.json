@@ -53,6 +53,17 @@
           "headHash": "d628d18328166fc43a147ce627724a8c930135c6",
           "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
           "timestamp": "2026-06-16T04:24:53.724Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard shows commitInitCheckMetadataAndMergeMain (B-7365) locked=YES; unrecognized git cwd is treated as main (fail-closed), so no main-mutating primitive can be silently omitted",
+          "headHash": "9de2383f2f42d402444cc768387c45227ba42283",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:54.081Z"
         }
       ]
     },
