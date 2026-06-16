@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T03:20:40.956Z",
       "reviewRunId": "B-72df:RR-002",
       "_hash": "31e9cf7ece4fc6892d713a9fd573bf4531eae37c620650cdd6f9dc5f3f521987"
+    },
+    {
+      "id": "B-72df:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 9/9 must intents covered by done-merge-scope-smoke.ts with concrete non-hollow assertions: case (a) unrelated dirty passes + byte-identical check via readFileSync assertion, case (b) overlapping dirty throws for both edited-file and rename-source variants via assert.throws, case (c) clean passes, case (d) no-git-HEAD throws. Smoke not in default validate battery is a systemic gap owned by backlog B-99b6, not a B-72df-specific deficiency.",
+      "createdAt": "2026-06-16T03:31:44.937Z",
+      "reviewRound": "2026-06-16T03:20:40.956Z",
+      "reviewRunId": "B-72df:RR-003",
+      "_hash": "dad3c1f1378abb221b052642926eb993eef0eff9f5bdbd81c828762cea66dd60"
     }
   ]
 }
