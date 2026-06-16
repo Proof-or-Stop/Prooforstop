@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ed70:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue checks all clean. (1) koala: grep on packages/lab/package.json returns empty. (2) uppercase .Codex: git grep finds zero matches in active files. (3) omx: git grep finds zero matches in active files (CHANGELOG excluded as honest history per spec). (4) .codex/ mandatory contract preserved (hooks.json + hooks/). (5) .lattice-codex/ has 18 files as expected. (6) Over-reach guards intact: intent-coverage.ts and dev-cli.ts still exist. No residual references and no over-reach detected.",
+      "createdAt": "2026-06-16T21:09:58.224Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-001",
+      "_hash": "c9f81c9f259eed22752505ce9af5d38a52f57c648cec61a8209991eb707b3ca8"
+    }
+  ]
+}
