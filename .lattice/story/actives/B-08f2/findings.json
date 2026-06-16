@@ -18,6 +18,22 @@
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
         "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md"
       ]
+    },
+    {
+      "id": "B-08f2:F-002",
+      "desc": "dead-code: packages/main/src/core/dev-memory.ts:185 resolveLegacyGlobalMemoryPath() has always-false branch after rename — condition `override && !process.env.LATTICE_GLOBAL_MEMORY_DIR` can never be true because override IS process.env.LATTICE_GLOBAL_MEMORY_DIR; the override path is dead and function always falls through to default LEGACY_KOALA_DIR path, making LATTICE_GLOBAL_MEMORY_DIR override in legacy read path inert",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:27:42.524Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-005",
+      "_hash": "462d461c2c7502780857613f6c5c5e3f7e07f245b95ff115234bdc39dbde194c",
+      "files": [
+        "packages/main/src/core/dev-memory.ts"
+      ]
     }
   ]
 }
