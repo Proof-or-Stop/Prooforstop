@@ -362,6 +362,17 @@
           "headHash": "8e516fc9e3be938608df733498e780f60a26fe75",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:40:12.419Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'bare-identifier detection' packages/main/src/tasks/gitroot-cwd-contract-smoke.ts | head",
+          "result": "pass",
+          "note": "Detection scans for identifier names projectRoot|root|metadataRoot, not just literal source text — covers aliasing.",
+          "headHash": "531a9f2a7d6e49c1292f2591db04baee88e9e7ec",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:13.593Z"
         }
       ]
     }
