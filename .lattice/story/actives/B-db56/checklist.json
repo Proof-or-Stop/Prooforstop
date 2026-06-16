@@ -351,6 +351,17 @@
           "headHash": "141f0b288d86b6f37db950115838054e9496c089",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:40:11.657Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'function runGit\\|function runGitNoThrow' packages/lab/src/handlers/lab.ts packages/main/src/core/declared-artifact-commit-check.ts packages/main/src/cli-engine.ts",
+          "result": "pass",
+          "note": "All 3 ad-hoc helpers still present with original signatures.",
+          "headHash": "8e516fc9e3be938608df733498e780f60a26fe75",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:12.419Z"
         }
       ]
     }
