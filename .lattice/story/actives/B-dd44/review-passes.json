@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-dd44:RP-001",
+      "agent": "lattice-review-behavior",
+      "note": "All four behavioral paths verified against code. (1) OFF-path (ledger flag unset/OFF): isUsageLedgerEnabled() returns false; both the preflight block and the budget-guard block are gated on `if (ledgerOn)` and are entirely skipped; buildClaudeSpawnArgs(file,false)==[\"--print\",file]; spawnSync is reached byte-identically to before. (2) Ledger ON, budget unset: recordBudgetBlock is called; resolveHardBudget reads env?? {} and finds neither LATTICE_ nor KOALA_ token; returns null -> notBlocked; spawnSync proceeds. (3) Hard budget set AND estimate strictly exceeds it: shouldBlockDispatch returns block=true; recordBudgetBlock returns {blocked:true,...}; buildBudgetBlockedDispatchResult is called and returns immediately; spawnSync at line 2020 is never reached. (4) Blocked return shape: buildBudgetBlockedDispatchResult returns DispatchRunResult with schemaVersion=lattice.dispatch_run.v1, status=failed, workers=[], authorityChanged/receiptVerified/productionDone=false — structurally identical to the existing exitCode!=0 failure return (lines 2098-2112); no new fields; compatible. (5) Budget-check error proceeds: shouldBlockDispatch and recordBudgetBlock both wrap in try/catch and return notBlocked/block=false on any error; fail-open confirmed. (6) Fail-closed once blocked: the appendUsageRecord call inside recordBudgetBlock is in its own inner try/catch whose catch block does NOT return notBlocked — it falls through to return {blocked:true,...}; a write failure cannot revert the block decision; spawnSync is never reached. (7) Strict boundary: isOverHardBudget uses strict > (line 545); estimate==budget returns false (not blocked). No behavioral regressions or malformed blocked-return found.",
+      "createdAt": "2026-06-16T21:02:55.837Z",
+      "reviewRound": "2026-06-16T21:00:37.935Z",
+      "reviewRunId": "B-dd44:RR-004",
+      "_hash": "3f177cb208d8dcc078d191f3bd4ce7938b168af2273247d4db2c431f02ecb48c"
+    }
+  ]
+}
