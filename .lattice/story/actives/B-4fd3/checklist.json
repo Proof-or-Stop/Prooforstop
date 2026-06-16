@@ -51,10 +51,10 @@
           "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
           "command": "npm run test:thin-init-assets-smoke",
           "result": "pass",
-          "note": "smoke Test1 跑真实 init CLI 走复制路径(giSrc 存在)，assertGitignoreCoversRegistry 确认产物 .gitignore 含 .lattice/usage/ 及全部 registry pattern",
-          "headHash": "751f968bcddb0557aa6a925d4cd316fc730d3dae",
-          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
-          "timestamp": "2026-06-16T21:11:29.627Z"
+          "note": "re-recorded post-fix(bf15f72a7): smoke Test1 跑真实 init CLI 复制路径，assertGitignoreCoversRegistry 确认产物含 .lattice/usage/ 及全 registry",
+          "headHash": "3df2bc83b45a09f4758561e3f66022f1cd588afa",
+          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
+          "timestamp": "2026-06-16T21:16:45.903Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
