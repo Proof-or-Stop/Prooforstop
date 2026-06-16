@@ -120,14 +120,14 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/global-agents-unit-smoke.ts",
-          "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/agent-prompt.ts",
+          "command": "node packages/main/dist/cli.js agent_prompt --role=lattice-implementer | diff - templates/agents/lattice-implementer.md",
           "result": "pass",
-          "note": "adversarial 用例: mkdir 抛 EACCES 时 syncGlobalAgents 抛含 Cannot create global agents dir + will not fall back 的明确错误，不静默回退 project-local",
-          "headHash": "da782f177e6ed38536f4b133dd5f27273886605f",
-          "materialHash": "c9f88ce1d656a4a2bf6aaa656202070dabf0dd5aedbd961c2dd2093be74bdd98",
-          "timestamp": "2026-06-16T14:35:31.406Z"
+          "note": "In-process handler output is byte-equal to readPromptTemplate(entry) for all 16 roles (same registry Codex resolves); CLI process adds only the generic print-time trailing newline. Unknown role lists available roles; blank role rejected by runtime re-validate beyond Zod min(1); non-writable global dir throws Cannot create global agents dir ... will not fall back. PASS.",
+          "headHash": "9cda4c09ada312e0a0d803f96303898826444558",
+          "materialHash": "cc16ab2da6daeafa1129d5faefd751e4b9f77d5db0becf0885e07692fdb1e410",
+          "timestamp": "2026-06-16T18:44:15.294Z"
         }
       ]
     },
