@@ -15,6 +15,22 @@
       "files": [
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-4bf8:F-002",
+      "desc": "quality-cleanup: lattice-llm-usage-ledger-execution-plan.md lines 413-414 and 487-489: the spec uses `usage.source=unavailable` as both a whole-record discriminator (lines 126, 423) and a per-dimension state within a provider-reported record (\"maps to usage.source=unavailable for the cache dimension\"). These usages contradict each other: a record cannot be simultaneously source=provider-reported (for input/output tokens) and source=unavailable (for cache dimensions) under a single enum field. The Multi-Provider Normalization section also says canonical maps those cache fields to \"unavailable for that dimension\" without specifying the concrete value (null? absent key? sentinel?). An implementer has no clear path. The spec must either define a per-dimension source sub-field on usage, or define the canonical field value for an unavailable dimension (e.g., null), or resolve the collision in the usage.source enum.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:03:00.069Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-004",
+      "_hash": "6fbc0d38defca37ad3cb4b528ce9cfc15d30896795178f8375ca53478c1304e4",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ]
     }
   ]
 }
