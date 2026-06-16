@@ -868,9 +868,9 @@
       "id": "CHK-005",
       "title": "Smoke/test suite wired + no regression",
       "context": "Add packages/main/src/tasks/usage-ledger-budget-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit; temp dir, no repo pollution), wired as npm test:usage-ledger-budget. Cover the policy resolution, the over-budget predicate, buildBlockedBudgetRecord validation, the blocked record appended + summary treatment (a blocked record is not provider-reported usage), and the fail-closed-only-when-configured behavior (simulated, since a live spawn can't run). Assert usage-ledger still imports ZERO other modules. Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch) no regression; node bin/lattice.js validate.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T20:55:18.775Z",
-      "endTime": null,
+      "endTime": "2026-06-16T21:00:25.015Z",
       "files": {
         "modify": [
           "packages/main/package.json"
