@@ -61,8 +61,8 @@
       "title": "Rename uppercase .Codex/ to .lattice-codex/ and update all 32 references",
       "context": "git mv all 18 .Codex/* contents into .lattice-codex/. Then in every tracked file outside .Codex/ that contains '.Codex/' or '\".Codex' as a path token, rewrite to '.lattice-codex/' or '.lattice-codex' — covers packages/lab/src/core/config.ts, packages/main/src/{cli-engine,cli-init,core/agent-asset-resolution,core/codex-adapter-checks,core/managed-assets,core/prompt-registry,init-assets,tasks/codex-registry-mode-smoke}.ts, .codex/hooks/lattice-scope-pretool.cjs, AGENTS.md/CHANGELOG.md/CLAUDE.md/README.md, 6 docs/audits + docs/guide-hooks.md + 8 decision-doc files, and experiments artifacts. KEEP lowercase .codex/ untouched (Codex CLI's mandatory hook dir contract). After: `git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice'` returns nothing; `npm run build` exit 0; `npm run test:e2e` ALL PASS; `node bin/lattice.js verify_codex` still passes 8/8 (codex adapter behavior unchanged, only the directory name moved).",
       "userSees": "`git grep -E '\\.Codex(/|\\b)'` returns no matches; ls shows .lattice-codex/ instead of .Codex/; lowercase .codex/ still present (Codex CLI requirement); build + e2e + verify_codex all green.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T20:45:06.212Z",
       "endTime": null,
       "files": {
         "modify": [
