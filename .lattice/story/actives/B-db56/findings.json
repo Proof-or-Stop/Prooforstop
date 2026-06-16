@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-db56:F-001",
+      "desc": "CHK-001:adversarial:1 evidence mismatch: intent requires proving that importing resolveGitCwd from a wrong internal path causes `npm run build` to fail (cannot-find-module). The recorded evidence command is `npm run test:gitroot-cwd-contract && npm run test:e2e` which passes cleanly and does not exercise the wrong-path import scenario at all. No transitive coverage exists for this specific failure mode. Advisory low: the choke-point is enforced by CHK-002 contract smoke at runtime; the build-time import-path guard is a secondary belt-and-suspenders test. Recommended fix: record a manual_transcript of `tsc` failing on a temp .ts file that imports from the internal (non-barrel) path.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T22:43:38.665Z",
+      "reviewRound": "2026-06-16T22:40:46.961Z",
+      "reviewRunId": "B-db56:RR-003",
+      "_hash": "2b360c7d21b63ae7bd29817e7c5a01c66f060efd3a6c6857c386ffbaa8730fa9",
+      "files": [
+        "packages/main/src/core/story-signed-workspace-resolution.ts"
+      ]
+    }
+  ]
+}
