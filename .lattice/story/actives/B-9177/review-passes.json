@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-16T04:38:12.090Z",
       "reviewRunId": "B-9177:RR-005",
       "_hash": "de89b7079a57d0b5abd028a0e81d272045a3031c99fcfdef9478fed81847c250"
+    },
+    {
+      "id": "B-9177:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-review of F-001 fix: gitFile wrapper blind spot is closed. Verified: (1) A future gitFile([commit|merge|reset], root) would be caught by matchMutationVerb + default fail-closed branch. (2) updatesStoryBranchRef is fail-closed: refs/heads/main, HEAD, and unknown-var templates all return false (main-mutation). --no-deref flag case also fail-closed. (3) The two new bootstrap sites (worktree.ts:358 commit-tree, worktree.ts:359 update-ref refs/heads/story) correctly classify as worktree-only (commit-tree = dangling object no ref write; update-ref = story-branch ref via branch variable which is always story/storyId). Total main-mutating count remains 7 (unchanged). (4) Original 4 lock-wrapping sites verified intact in cli-engine.ts, done-effects.ts, done-recover.ts, worktree.ts. guard exits 0 on production tree, exits 1 on negative demo. lattice validate passes all 17 sites, all 9 intents covered, all PASS.",
+      "createdAt": "2026-06-16T04:42:09.189Z",
+      "reviewRound": "2026-06-16T04:38:12.090Z",
+      "reviewRunId": "B-9177:RR-008",
+      "_hash": "99687df9e404e8ceed6755a134e88849cd6b9bc821777a4318122ca9daa73705"
     }
   ]
 }
