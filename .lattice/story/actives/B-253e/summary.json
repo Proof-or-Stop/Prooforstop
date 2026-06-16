@@ -1,0 +1,55 @@
+{
+  "storyId": "B-253e",
+  "changes": "Implemented the LLM usage ledger WRITER FOUNDATION (Slice 1) in packages/main/src/core/usage-ledger/: record.ts (types + strict validator — four cache-aware token fields, rejects stored totalTokens at any depth, usage.source enum, correlation/attribution/privacy/authority/integrity fields, per-dimension null!=0), ids.ts (mint ledgerCallId/attemptId/recordId + monotonic SequenceAllocator + supersedes; ids not derived from requestIdHash), writer.ts (single append-only choke-point with sha256 hash chain, genesis=null, caller integrity stripped, raw-content/secret deep-scan rejection, opt-in flag default OFF => strict no-op), summary.ts (informational reader; DerivedRecordTotal discriminated union so unknown is never coerced to 0; no gate consumption). Registered .lattice/usage/llm-usage.jsonl in runtime-artifact-registry.ts (materialHash=exclude, volatile, repairable, ignore .lattice/usage/). Added usage-ledger-smoke.ts (61 checks) wired as npm test:usage-ledger. No provider/estimate/budget/Authority wiring (deferred slices).",
+  "usage": "Inert by default: set LATTICE_USAGE_LEDGER=1 to enable the append-only writer; otherwise appendUsageRecord is a strict no-op (no file, no dir). The module is the single foundation later slices wire through. Run npm --prefix packages/main run test:usage-ledger to see all 61 foundation checks pass.",
+  "expectedOutcome": "npm run test:usage-ledger prints all-green (validator accepts valid + rejects stored-totalTokens/raw-content/malformed; writer hash-chains >=3 records + tamper detected; ids stable + supersedes; flag OFF => no file; registry classifies exclude/volatile/repairable; summary derived totals, no double-count, unknown!=0); build clean; only packages/main changed.",
+  "actualTranscript": "verify-b-253e.mjs: TOTAL 75 | PASS 75 | FAIL 0 (buildOk smokePass singleAppender regOk optIn summaryNotGate scopeClean cjk=0). test:usage-ledger: 61/61. validate --story=B-253e: ALL PASS 75/75. 3 REVIEW reviewers (concept/quality/test-coverage) passed; round-1 quality findings F-001 (dead code) + F-002 (null-coercion footgun) fixed and resolved; escalation not required (1/2).",
+  "outcomeDiff": "Expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Foundation slice only — the ledger is opt-in and INERT by default; nothing writes real records until later slices wire providers/dispatch. No estimate path, no budget enforcement, no Authority receipt path.",
+  "pitfalls": "Keep the single writer choke-point (only writer.ts does fs writes) when later slices wire providers — route through appendUsageRecord. Do not reintroduce a stored totalTokens or coerce unknown totals to 0 (DerivedRecordTotal is a discriminated union for that reason). The writer stays opt-in until a deliberate default-on rollout slice.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 685228
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 26036
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 451532
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 916747
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1509760
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 66644
+    }
+  },
+  "totalDurationMs": 3655949,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T01:46:47.502Z",
+  "updatedAt": "2026-06-16T01:46:47.502Z"
+}

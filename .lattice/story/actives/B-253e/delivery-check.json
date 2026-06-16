@@ -1,0 +1,94 @@
+{
+  "storyId": "B-253e",
+  "checkedAt": "2026-06-16T01:50:29.374Z",
+  "reviewRound": "2026-06-16T01:43:12.604Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-253e/plan.md#record.ts",
+      "promise": "record.ts defines JSONL record types + strict validator: four-field usage (inputTokens/outputTokens/cacheCreationInputTokens/cacheReadInputTokens NO totalTokens), usage.source enum, correlation fields, attribution, privacy flags, authority{mode,receiptId:null,receiptVerified:false}, integrity{previousRecordHash,recordHash}; rejects stored totalTokens at any nesting depth and raw content; per-dimension absence = null not 0",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/record.ts: UsageLedgerRecord has 4 token fields no totalTokens; FORBIDDEN_FIELD_NAMES set covers totaltokens + raw-content/secret fields; validateUsageLedgerRecord + scanForbiddenFields deep scan; validateTokenDimension rejects undefined/string/negative; sequence must be >=1; supersedesRecordIds required not omittable. Smoke 14 CHK-001 + 13 CHK-004 checks pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-253e/plan.md#ids.ts",
+      "promise": "ids.ts mints ledgerCallId/attemptId/recordId locally before dispatch never from provider.requestIdHash; SequenceAllocator provides monotonic per-(call+attempt) sequence; mintRetryAttempt reuses callId with new attemptId; buildSupersedes de-dupes and returns []",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/ids.ts: mintId uses randomUUID with no parameters; mint functions take no arguments preventing provider-hash derivation; SequenceAllocator.next is 1-based monotonic; mintRetryAttempt reuses supplied ledgerCallId; buildSupersedes filters falsy/duplicates. Smoke 8 CHK-003 checks pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-253e/plan.md#writer.ts",
+      "promise": "writer.ts is the single append-only choke-point: opt-in flag default OFF (strict no-op with no file/dir created); validates record pre-write including privacy/stored-total deep scan; computes sha256 hash chain; caller-supplied integrity stripped and recomputed preventing hash injection; appends exactly one JSON line; refuses to chain from corrupt predecessor; directory created on first write",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/writer.ts: isUsageLedgerEnabled returns false when env var absent; appendUsageRecord returns {written:false} immediately when disabled; stripIntegrity removes caller-supplied hash before pre-check; computeRecordHash over canonical JSON without recordHash field; appendFileSync one line; readLastRecordHash throws on corrupt JSON predecessor; mkdirSync recursive. Smoke 8 CHK-002 + 3 CHK-006-flag checks pass. Static choke-point check: only writer.ts in appenders."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-253e/plan.md#summary.ts",
+      "promise": "summary.ts is informational only: derives total = input+output+cacheCreation+cacheRead, picks latest non-superseded record per (ledgerCallId+attemptId), keeps estimates separate from provider-reported totals, reports unavailable/null-dim as unknown never 0; feeds NO gate and has no gate/verdict/decision field on return type",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/summary.ts: DerivedRecordTotal is a discriminated union (unknown:true->total:null | unknown:false->total:number) preventing null-to-0 coercion; summarizeRecords keeps estimateSubtotal separate from providerReportedTotal; selectLatestRecords uses superseded set + highest-sequence selection; UsageLedgerSummary has no gate/verdict field. Smoke 10 CHK-006-summary checks pass including gate-field absence check."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-253e/plan.md#runtime-artifact-registry.ts",
+      "promise": "runtime-artifact-registry.ts registers .lattice/usage/llm-usage.jsonl with id=llm-usage-ledger, matchers (exact + prefix .lattice/usage/), ignorePatterns [.lattice/usage/], materialHash=exclude, volatile=true, repairableTrackedArtifact=true",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/runtime-artifact-registry.ts: entry id=llm-usage-ledger with exact matcher for llm-usage.jsonl, prefix matcher for .lattice/usage/, ignorePatterns: [.lattice/usage/], materialHash:exclude, volatile:true, repairableTrackedArtifact:true. Smoke 3 CHK-005 checks pass including story-path non-match."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-253e/plan.md#out-of-scope",
+      "promise": "No provider adapters, no live dispatch, no estimate path, no budget enforcement, no Authority receipt path implemented — all deferred to later slices; only packages/main changed",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff --name-only: only packages/main/src/core/usage-ledger/*.ts, packages/main/src/core/runtime-artifact-registry.ts, packages/main/src/tasks/usage-ledger-smoke.ts, packages/main/package.json plus story metadata. Authority references in code are validator constraints enforcing receiptId:null and receiptVerified:false. No new provider/estimate/budget directories. verify-b-253e.mjs scopeClean=true."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-253e/plan.md#smoke-wiring",
+      "promise": "usage-ledger-smoke.ts committed and wired as npm test:usage-ledger script in packages/main/package.json",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/tasks/usage-ledger-smoke.ts: 61 checks committed. npm --prefix packages/main run test:usage-ledger executes and all 61 pass. Script existence confirmed by npm run output."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:usage-ledger: 61/61 pass. 4 valid record variants accepted (provider-reported, unavailable, prompt-size-estimate, null-cache-dims); 6 rejection cases (stored totalTokens, deep-nested totalTokens, missing recordId, out-of-enum source, sequence<1, supersedesRecordIds omitted); 3 adversarial (type coercion, undefined-vs-null, storyId omit vs null). verify-b-253e.mjs: 13 CHK-001 intents PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:usage-ledger: 61/61 pass. 3 lines parseable with each recordHash independently verified; hash-chain continuity rec0.prev=null/rec1.prev=rec0.hash/rec2.prev=rec1.hash; directory created on first write; tamper middle line causes chain error; append preserves prior lines; invalid record throws with no file written; corrupt last line refused; caller-forged integrity overwritten. Static choke-point: only writer.ts in appenders list."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:usage-ledger: 61/61 pass. ledgerCallId/attemptId/recordId prefixes verified; 100-id uniqueness; monotonic sequence; supersedes wiring; provider-hash non-derivation; retry reuses callId with new attemptId and sequence restarts at 1; 50 concurrent mints unique."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:usage-ledger: 61/61 pass. 9 forbidden fields rejected individually (rawPrompt, rawCompletion, rawTranscript, toolArguments, apiKey, authorizationHeader, providerSecret, providerApiKey, actorKey); deep nesting rejection (metadata.debug.rawPrompt); one forbidden field poisons whole record; writer refuses poisoned record and creates no file."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm --prefix packages/main run test:usage-ledger: 61/61 pass. Exact path classifies as id=llm-usage-ledger with materialHash=exclude, volatile=true, repairableTrackedArtifact=true; listRuntimeArtifactIgnorePatterns includes .lattice/usage/; adjacent prefix path matches; story-evidence path does NOT match."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "npm --prefix packages/main run test:usage-ledger: 61/61 pass. Flag default OFF + truthy-value parsing; 10 calls with flag OFF produces no file, no dir; flag ON produces one line. Summary: 4-field derived total identity; superseded estimate not double-counted; unavailable = unknown not 0; null cache dim = unknown not 0; highest-sequence wins; estimates separate from provider totals; estimate with null dims = unknown; no gate field on summary struct; absent ledger = empty summary; multi-attempt mix correct."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "npm --prefix packages/main run test:usage-ledger: 61/61 pass. node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs: TOTAL 75 | PASS 75 | FAIL 0 (buildOk=true smokePass=true singleAppender=true regOk=true optIn=true summaryNotGate=true scopeClean=true cjk=0). node bin/lattice.js validate --story=B-253e: ALL PASS 75/75. All test artifacts in OS tmpdir, no repo pollution."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises independently verified in source code. Real machine tests: 61-check smoke (all pass) + 75-intent acceptance verifier (all pass) + lattice validate 75/75. Foundation slice only — opt-in/inert by default by design; provider/estimate/budget/Authority wiring explicitly absent and out of scope. Edge + adversarial paths covered: stored-totalTokens deep scan, raw-content poison, hash injection, corrupt-predecessor refusal, flag-off strict no-op, unknown-not-0 discriminated union. No unresolved TODOs in non-test code. Scope clean: only packages/main changed."
+  },
+  "_hash": "7b6a7d7eae222188e43121f5ad6067309d649f956c7a33ee41a60ae9000b05ab"
+}

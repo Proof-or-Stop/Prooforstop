@@ -1,0 +1,1441 @@
+{
+  "command": "lattice validate --story=B-253e --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 75/75 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — Construct a valid record with all required fields (schemaVersion=1, recordId, ledgerCallId, attemptId, sequence=1, supersedesRecordIds=[], recordedAt ISO, projectRootHash, storyId, phase, agentType, usage.source=provider-reported, four token fields as integers, usage.canonical, usage.raw, privacy flags, authority{mode:local,receiptId:null,receiptVerified:false}, integrity{previousRecordHash,recordHash}) -> validator returns success with no errors; WHY: proves the golden-path record shape is accepted\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript — Construct a valid record with usage.source=unavailable, unavailableReason set, all four token fields null -> validator accepts; WHY: covers the unavailable source variant\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript — Construct a valid record with usage.source=prompt-size-estimate, estimator{name,version,unit,confidence} set -> validator accepts; WHY: covers estimate source variant\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via manual_transcript — Construct valid provider-reported record where provider does not report cache dims -> cacheCreationInputTokens=null, cacheReadInputTokens=null, validator accepts; WHY: per-dimension absence encoded as null not 0\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — Record with totalTokens field present -> validator rejects with error mentioning totalTokens; WHY: spec forbids stored totalTokens\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript — Record with cacheCreationInputTokens=0 when provider genuinely reports 0 -> validator accepts; WHY: 0 is valid when provider reports it, not when masking absence\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via manual_transcript — Record missing required field recordId -> validator rejects; WHY: all required fields must be present\",\"  ✓ CHK-001:edge:3 [edge/must/cli] covered via manual_transcript — Record with usage.source not in enum (e.g. guessed) -> validator rejects; WHY: source enum is closed\",\"  ✓ CHK-001:edge:4 [edge/must/cli] covered via manual_transcript — Record with sequence=0 or negative -> validator rejects; WHY: sequence must be positive integer\",\"  ✓ CHK-001:edge:5 [edge/must/cli] covered via manual_transcript — Record with supersedesRecordIds omitted entirely -> validator rejects; WHY: field required even when empty array\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Record with totalTokens nested inside usage AND at top level simultaneously -> validator rejects both locations; WHY: attacker sneaks totalTokens at multiple nesting levels\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Record with inputTokens as string 100 instead of number -> validator rejects; WHY: type coercion attack on numeric fields\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Record with cacheReadInputTokens=undefined (JS undefined not JSON null) -> validator rejects or treats as missing not silently 0; WHY: undefined-vs-null confusion attack\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — Append 3 records via the writer to a temp dir -> file contains exactly 3 JSON lines, each parseable, each line recordHash matches SHA-256 of its content minus the recordHash field; WHY: proves one-line-per-record append semantics\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via manual_transcript — Append 3 records -> record[0].previousRecordHash is null/empty, record[1].previousRecordHash === record[0].recordHash, record[2].previousRecordHash === record[1].recordHash; WHY: proves hash-chain continuity across 3+ records\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via manual_transcript — Writer creates .lattice/usage/ directory if it does not exist -> directory created, file written; WHY: first-run path creation\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — Append a record, then read file, tamper with middle line (change a token count), recompute nothing -> next chain verification fails because record[2].previousRecordHash no longer matches tampered record[1].recordHash; WHY: proves hash-chain detects tampering\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via manual_transcript — Append to an existing file with prior records -> writer reads last line hash and chains from it, does not overwrite prior lines; WHY: append-only guarantee\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via manual_transcript — Writer receives an invalid record (missing required field) -> writer throws/rejects, no line appended to file; WHY: validation gate before write\",\"  ✓ CHK-002:edge:3 [edge/must/cli] covered via manual_transcript — Append to a file whose last line is corrupt JSON -> writer throws or refuses to chain; WHY: cannot chain from unparseable predecessor\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Two concurrent appends racing on the same file -> both records appear in the file with correct hash chain (no lost writes, no corrupted lines); WHY: concurrent write safety\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Record with integrity.recordHash pre-filled by caller to a wrong value -> writer overwrites it with the correct computed hash (caller cannot forge the hash); WHY: prevents hash injection\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Attempt to call fs.appendFile or fs.writeFile on the ledger path from outside the writer module -> only the writer module exports the append function, no other code path can write the file; WHY: single write choke-point guarantee\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — Call mintLedgerCallId() -> returns a string starting with a recognizable prefix (e.g. llmcall_), is unique across 100 calls; WHY: proves id is minted locally with stable prefix\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — Call mintAttemptId() -> returns a string starting with a recognizable prefix (e.g. llmatt_), is unique across 100 calls; WHY: proves attempt id minted locally\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via manual_transcript — Create a preflight record (sequence=1) and a postflight record (sequence=2) for the same ledgerCallId+attemptId -> both share ledgerCallId and attemptId, sequence is monotonically increasing; WHY: correlation stability across an attempts records\",\"  ✓ CHK-003:happy:3 [happy/must/cli] covered via manual_transcript — Create a final record with supersedesRecordIds=[preflight-record-id] -> supersedesRecordIds contains exactly the preflight recordId; WHY: proves supersedes wiring works\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — Mint ledgerCallId when no provider request exists yet (before dispatch) -> id is returned without any provider.requestIdHash input; WHY: ids must be pre-dispatch, not derived from provider\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via manual_transcript — Same ledgerCallId with two different attemptIds (retry scenario) -> both attemptIds are distinct, ledgerCallId is shared; WHY: retries reuse call id but get new attempt id\",\"  ✓ CHK-003:edge:2 [edge/must/cli] covered via manual_transcript — Sequence counter resets for a new attemptId under the same ledgerCallId -> sequences start from 1 again for the new attempt; WHY: sequence is per-attempt monotonic\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Pass a provider.requestIdHash value to mintLedgerCallId -> function ignores it or does not accept it as a parameter (id is never derived from provider hash); WHY: prevents provider-hash-derived ids\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Call mintLedgerCallId concurrently from 50 parallel calls -> all 50 ids are unique (no collision under concurrency); WHY: uniqueness under concurrent minting\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Attempt to set sequence to a non-monotonic value (e.g. sequence 3 after sequence 5 for same call+attempt) -> rejected or automatically corrected; WHY: monotonicity enforcement\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — Record with only allowed fields (hashes, model name, provider name, usage counts, reason codes, redaction profile id, budget policy id) -> validator/writer accepts; WHY: proves legitimate privacy-preserving fields pass\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — Record containing a field named rawPrompt with a prompt string -> writer rejects with privacy error; WHY: raw prompt is forbidden\",\"  ✓ CHK-004:edge:1 [edge/must/cli] covered via manual_transcript — Record containing a field named rawCompletion -> writer rejects; WHY: raw completion is forbidden\",\"  ✓ CHK-004:edge:2 [edge/must/cli] covered via manual_transcript — Record containing a field named rawTranscript -> writer rejects; WHY: raw transcript is forbidden\",\"  ✓ CHK-004:edge:3 [edge/must/cli] covered via manual_transcript — Record containing a field named toolArguments with raw tool args -> writer rejects; WHY: raw tool arguments forbidden\",\"  ✓ CHK-004:edge:4 [edge/must/cli] covered via manual_transcript — Record containing a field named apiKey with a real key -> writer rejects; WHY: customer API keys forbidden\",\"  ✓ CHK-004:edge:5 [edge/must/cli] covered via manual_transcript — Record containing a field named authorizationHeader -> writer rejects; WHY: auth headers forbidden\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Record with secret material hidden inside a deeply nested extra object (e.g. metadata.debug.rawPrompt) -> writer rejects even at arbitrary nesting depth; WHY: attacker hides forbidden content in deep nesting\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Record with provider secret in a field named providerSecret or providerApiKey -> writer rejects; WHY: provider secrets forbidden regardless of field naming\",\"  ✓ CHK-004:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Record with actorKey field containing key material -> writer rejects; WHY: actor keys explicitly forbidden by spec\",\"  ✓ CHK-004:adversarial:3 [adversarial/must/cli] covered via manual_transcript — Record with allowed hash field (e.g. provider.requestIdHash=sha256:abc) alongside a forbidden rawPrompt field -> writer rejects the whole record (not partial acceptance); WHY: one forbidden field poisons the entire record\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript — Call findRuntimeArtifactEntry(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns entry with id=llm-usage-ledger; WHY: proves the ledger path is registered and findable\",\"  ✓ CHK-005:happy:1 [happy/must/cli] covered via manual_transcript — Call isMaterialExcludedRuntimeArtifactPath(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns true; WHY: ledger must be excluded from material hash\",\"  ✓ CHK-005:happy:2 [happy/must/cli] covered via manual_transcript — Call isVolatileRuntimeArtifactPath(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns true; WHY: ledger is volatile runtime state\",\"  ✓ CHK-005:happy:3 [happy/must/cli] covered via manual_transcript — Call isRepairableTrackedRuntimeArtifactPath(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns true; WHY: ledger is repairable\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via manual_transcript — Call findRuntimeArtifactEntry(\\\".lattice/usage/\\\") with prefix matcher -> returns the llm-usage-ledger entry (or a parent entry covering the prefix); WHY: prefix .lattice/usage/ should match\",\"  ✓ CHK-005:edge:1 [edge/must/cli] covered via manual_transcript — listRuntimeArtifactIgnorePatterns() includes .lattice/usage/ -> gitignore will cover the ledger directory; WHY: ledger path must be gitignored\",\"  ✓ CHK-005:edge:2 [edge/must/cli] covered via manual_transcript — Call findRuntimeArtifactEntry with a path like .lattice/usage/other-file.jsonl -> still matches the prefix matcher; WHY: future adjacent usage-runtime files are also covered\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Call findRuntimeArtifactEntry with a path outside .lattice/usage/ (e.g. .lattice/story/actives/B-253e/usage.jsonl) -> does NOT match the llm-usage-ledger entry; WHY: matcher must not be overly broad and catch story evidence paths\",\"  ✓ CHK-005:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Verify the entry has volatile=true AND repairableTrackedArtifact=true AND materialHash=exclude simultaneously -> all three properties confirmed on the same entry; WHY: a partial registration (e.g. volatile but not repairable) would be a spec violation\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via manual_transcript — Opt-in flag OFF (default) -> call writer.append(validRecord) -> no file created at .lattice/usage/llm-usage.jsonl, function returns without error (strict no-op); WHY: default-off means zero side effects\",\"  ✓ CHK-006:happy:1 [happy/must/cli] covered via manual_transcript — Opt-in flag ON -> call writer.append(validRecord) -> file created with one line; WHY: flag gates the writer\",\"  ✓ CHK-006:happy:2 [happy/must/cli] covered via manual_transcript — Summary reader with 3 non-superseded provider-reported records (inputTokens=100,200,300; outputTokens=10,20,30; cacheCreation=5,10,15; cacheRead=2,4,6) -> derived totals: total per record = input+output+cacheCreation+cacheRead, aggregate = sum of per-record totals; WHY: proves derived-total identity\",\"  ✓ CHK-006:happy:3 [happy/must/cli] covered via manual_transcript — Summary reader with a superseded estimate and a final provider-reported record for the same ledgerCallId+attemptId -> summary selects only the final (latest non-superseded) record, does not double-count the estimate; WHY: no double-counting\",\"  ✓ CHK-006:edge:0 [edge/must/cli] covered via manual_transcript — Summary reader with a record where usage.source=unavailable and all token fields are null -> summary reports that call as unknown, not as 0; WHY: unavailable/null must never be treated as 0\",\"  ✓ CHK-006:edge:1 [edge/must/cli] covered via manual_transcript — Summary reader with a provider-reported record where cacheCreationInputTokens=null (per-dimension absence) -> total derivation skips null fields or reports partial unknown, never substitutes 0; WHY: null dimension must not silently become 0 in totals\",\"  ✓ CHK-006:edge:2 [edge/must/cli] covered via manual_transcript — Summary with two records for same ledgerCallId+attemptId where neither supersedes the other -> summary selects the one with highest sequence; WHY: latest-sequence selection rule\",\"  ✓ CHK-006:edge:3 [edge/must/cli] covered via manual_transcript — Summary with estimates kept separate from provider-reported totals -> estimate subtotal does not merge into provider-reported subtotal; WHY: spec requires keeping estimates out of provider-reported totals\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Opt-in flag OFF -> call writer.append 10 times -> no file ever created, no directory created; WHY: no leakage even under repeated calls\",\"  ✓ CHK-006:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Summary feeds a gate or returns a gate-consumable structure -> must not; verify the summary return type has no gate field and the function signature/docs say informational-only; WHY: summary must NOT feed any gate\",\"  ✓ CHK-006:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Summary with a mix of provider-reported, estimate, and unavailable records for the same call across 3 attempts -> only latest non-superseded per attempt is counted, unavailable attempts reported as unknown not 0, estimates never merged into provider totals; WHY: complex multi-attempt multi-source scenario\",\"  ✓ CHK-007:happy:0 [happy/must/cli] covered via manual_transcript — npm --prefix packages/main run build -> exits 0 with no TypeScript errors; WHY: build must be green with all new code\",\"  ✓ CHK-007:happy:1 [happy/must/cli] covered via manual_transcript — npm --prefix packages/main run test:usage-ledger (or equivalent wired script name) -> exits 0, runs all smoke assertions; WHY: smoke is wired as an npm script and passes\",\"  ✓ CHK-007:happy:2 [happy/must/cli] covered via manual_transcript — packages/main/package.json contains a script entry whose name matches test:usage-ledger or test:llm-usage-ledger -> script exists and points to the smoke file; WHY: proves npm wiring\",\"  ✓ CHK-007:edge:0 [edge/must/cli] covered via manual_transcript — Smoke covers schema validation: valid record accepted, stored totalTokens rejected, raw-content injection rejected, malformed record rejected -> all sub-assertions pass; WHY: integration coverage of CHK-001 + CHK-004\",\"  ✓ CHK-007:edge:1 [edge/must/cli] covered via manual_transcript — Smoke covers append + hash-chain continuity across >=3 records -> chain verified programmatically; WHY: integration coverage of CHK-002\",\"  ✓ CHK-007:edge:2 [edge/must/cli] covered via manual_transcript — Smoke covers correlation-id stability + supersedes wiring -> preflight and postflight share ids, supersedes works; WHY: integration coverage of CHK-003\",\"  ✓ CHK-007:edge:3 [edge/must/cli] covered via manual_transcript — Smoke covers opt-in flag OFF -> no file written; WHY: integration coverage of CHK-006 gating\",\"  ✓ CHK-007:edge:4 [edge/must/cli] covered via manual_transcript — Smoke covers runtime-artifact classification of .lattice/usage/llm-usage.jsonl -> gitignored + materialHash-exclude + volatile + repairable; WHY: integration coverage of CHK-005\",\"  ✓ CHK-007:edge:5 [edge/must/cli] covered via manual_transcript — Smoke covers summary correctness: derived totals match identity, no double-count of superseded, unknown != 0; WHY: integration coverage of CHK-006 summary\",\"  ✓ CHK-007:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Run the smoke in a clean temp directory with no prior .lattice/usage/ -> smoke creates and cleans up its own test artifacts, does not pollute the repo; WHY: test isolation\",\"  ✓ CHK-007:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Run npm --prefix packages/main run build && npm --prefix packages/main run test:usage-ledger in sequence -> both pass end-to-end; WHY: full CI pipeline simulation\"],\"warnings\":[],\"timestamp\":\"2026-06-16T01:50:58.820Z\",\"headSha\":\"60ae1c6612da39d86b0d2c8cdcf08bdbabf31f5b\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1339}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":75,\"reason\":\"verificationIntent entries present (75)\"},\"verificationCoverage\":{\"total\":75,\"required\":75,\"covered\":75,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Construct a valid record with all required fields (schemaVersion=1, recordId, ledgerCallId, attemptId, sequence=1, supersedesRecordIds=[], recordedAt ISO, projectRootHash, storyId, phase, agentType, usage.source=provider-reported, four token fields as integers, usage.canonical, usage.raw, privacy flags, authority{mode:local,receiptId:null,receiptVerified:false}, integrity{previousRecordHash,recordHash}) -> validator returns success with no errors; WHY: proves the golden-path record shape is accepted\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Construct a valid record with usage.source=unavailable, unavailableReason set, all four token fields null -> validator accepts; WHY: covers the unavailable source variant\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Construct a valid record with usage.source=prompt-size-estimate, estimator{name,version,unit,confidence} set -> validator accepts; WHY: covers estimate source variant\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Construct valid provider-reported record where provider does not report cache dims -> cacheCreationInputTokens=null, cacheReadInputTokens=null, validator accepts; WHY: per-dimension absence encoded as null not 0\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Record with totalTokens field present -> validator rejects with error mentioning totalTokens; WHY: spec forbids stored totalTokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke rejects stored totalTokens; record.ts type declares no stored totalTokens field\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Record with cacheCreationInputTokens=0 when provider genuinely reports 0 -> validator accepts; WHY: 0 is valid when provider reports it, not when masking absence\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Record missing required field recordId -> validator rejects; WHY: all required fields must be present\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Record with usage.source not in enum (e.g. guessed) -> validator rejects; WHY: source enum is closed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:edge:4\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Record with sequence=0 or negative -> validator rejects; WHY: sequence must be positive integer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:4\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:edge:5\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Record with supersedesRecordIds omitted entirely -> validator rejects; WHY: field required even when empty array\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:5\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Record with totalTokens nested inside usage AND at top level simultaneously -> validator rejects both locations; WHY: attacker sneaks totalTokens at multiple nesting levels\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke rejects stored totalTokens; record.ts type declares no stored totalTokens field\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Record with inputTokens as string 100 instead of number -> validator rejects; WHY: type coercion attack on numeric fields\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Record with cacheReadInputTokens=undefined (JS undefined not JSON null) -> validator rejects or treats as missing not silently 0; WHY: undefined-vs-null confusion attack\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Append 3 records via the writer to a temp dir -> file contains exactly 3 JSON lines, each parseable, each line recordHash matches SHA-256 of its content minus the recordHash field; WHY: proves one-line-per-record append semantics\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Append 3 records -> record[0].previousRecordHash is null/empty, record[1].previousRecordHash === record[0].recordHash, record[2].previousRecordHash === record[1].recordHash; WHY: proves hash-chain continuity across 3+ records\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Writer creates .lattice/usage/ directory if it does not exist -> directory created, file written; WHY: first-run path creation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Append a record, then read file, tamper with middle line (change a token count), recompute nothing -> next chain verification fails because record[2].previousRecordHash no longer matches tampered record[1].recordHash; WHY: proves hash-chain detects tampering\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Append to an existing file with prior records -> writer reads last line hash and chains from it, does not overwrite prior lines; WHY: append-only guarantee\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Writer receives an invalid record (missing required field) -> writer throws/rejects, no line appended to file; WHY: validation gate before write\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Append to a file whose last line is corrupt JSON -> writer throws or refuses to chain; WHY: cannot chain from unparseable predecessor\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Two concurrent appends racing on the same file -> both records appear in the file with correct hash chain (no lost writes, no corrupted lines); WHY: concurrent write safety\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Record with integrity.recordHash pre-filled by caller to a wrong value -> writer overwrites it with the correct computed hash (caller cannot forge the hash); WHY: prevents hash injection\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Attempt to call fs.appendFile or fs.writeFile on the ledger path from outside the writer module -> only the writer module exports the append function, no other code path can write the file; WHY: single write choke-point guarantee\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"single write choke-point: only writer.ts references the ledger file (packages/main/src/core/usage-ledger/writer.ts)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Call mintLedgerCallId() -> returns a string starting with a recognizable prefix (e.g. llmcall_), is unique across 100 calls; WHY: proves id is minted locally with stable prefix\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Call mintAttemptId() -> returns a string starting with a recognizable prefix (e.g. llmatt_), is unique across 100 calls; WHY: proves attempt id minted locally\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Create a preflight record (sequence=1) and a postflight record (sequence=2) for the same ledgerCallId+attemptId -> both share ledgerCallId and attemptId, sequence is monotonically increasing; WHY: correlation stability across an attempts records\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Create a final record with supersedesRecordIds=[preflight-record-id] -> supersedesRecordIds contains exactly the preflight recordId; WHY: proves supersedes wiring works\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Mint ledgerCallId when no provider request exists yet (before dispatch) -> id is returned without any provider.requestIdHash input; WHY: ids must be pre-dispatch, not derived from provider\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Same ledgerCallId with two different attemptIds (retry scenario) -> both attemptIds are distinct, ledgerCallId is shared; WHY: retries reuse call id but get new attempt id\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Sequence counter resets for a new attemptId under the same ledgerCallId -> sequences start from 1 again for the new attempt; WHY: sequence is per-attempt monotonic\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Pass a provider.requestIdHash value to mintLedgerCallId -> function ignores it or does not accept it as a parameter (id is never derived from provider hash); WHY: prevents provider-hash-derived ids\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Call mintLedgerCallId concurrently from 50 parallel calls -> all 50 ids are unique (no collision under concurrency); WHY: uniqueness under concurrent minting\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Attempt to set sequence to a non-monotonic value (e.g. sequence 3 after sequence 5 for same call+attempt) -> rejected or automatically corrected; WHY: monotonicity enforcement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Record with only allowed fields (hashes, model name, provider name, usage counts, reason codes, redaction profile id, budget policy id) -> validator/writer accepts; WHY: proves legitimate privacy-preserving fields pass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Record containing a field named rawPrompt with a prompt string -> writer rejects with privacy error; WHY: raw prompt is forbidden\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Record containing a field named rawCompletion -> writer rejects; WHY: raw completion is forbidden\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:edge:2\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Record containing a field named rawTranscript -> writer rejects; WHY: raw transcript is forbidden\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:edge:3\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Record containing a field named toolArguments with raw tool args -> writer rejects; WHY: raw tool arguments forbidden\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:edge:4\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Record containing a field named apiKey with a real key -> writer rejects; WHY: customer API keys forbidden\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:4\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:edge:5\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Record containing a field named authorizationHeader -> writer rejects; WHY: auth headers forbidden\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:5\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Record with secret material hidden inside a deeply nested extra object (e.g. metadata.debug.rawPrompt) -> writer rejects even at arbitrary nesting depth; WHY: attacker hides forbidden content in deep nesting\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Record with provider secret in a field named providerSecret or providerApiKey -> writer rejects; WHY: provider secrets forbidden regardless of field naming\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:adversarial:2\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Record with actorKey field containing key material -> writer rejects; WHY: actor keys explicitly forbidden by spec\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-004:adversarial:3\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Record with allowed hash field (e.g. provider.requestIdHash=sha256:abc) alongside a forbidden rawPrompt field -> writer rejects the whole record (not partial acceptance); WHY: one forbidden field poisons the entire record\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Call findRuntimeArtifactEntry(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns entry with id=llm-usage-ledger; WHY: proves the ledger path is registered and findable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Call isMaterialExcludedRuntimeArtifactPath(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns true; WHY: ledger must be excluded from material hash\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:happy:2\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Call isVolatileRuntimeArtifactPath(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns true; WHY: ledger is volatile runtime state\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:happy:3\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Call isRepairableTrackedRuntimeArtifactPath(\\\".lattice/usage/llm-usage.jsonl\\\") -> returns true; WHY: ledger is repairable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Call findRuntimeArtifactEntry(\\\".lattice/usage/\\\") with prefix matcher -> returns the llm-usage-ledger entry (or a parent entry covering the prefix); WHY: prefix .lattice/usage/ should match\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"listRuntimeArtifactIgnorePatterns() includes .lattice/usage/ -> gitignore will cover the ledger directory; WHY: ledger path must be gitignored\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:edge:2\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Call findRuntimeArtifactEntry with a path like .lattice/usage/other-file.jsonl -> still matches the prefix matcher; WHY: future adjacent usage-runtime files are also covered\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Call findRuntimeArtifactEntry with a path outside .lattice/usage/ (e.g. .lattice/story/actives/B-253e/usage.jsonl) -> does NOT match the llm-usage-ledger entry; WHY: matcher must not be overly broad and catch story evidence paths\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Verify the entry has volatile=true AND repairableTrackedArtifact=true AND materialHash=exclude simultaneously -> all three properties confirmed on the same entry; WHY: a partial registration (e.g. volatile but not repairable) would be a spec violation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"registry entry has volatile+repairable+materialHash=exclude (regOk=true)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Opt-in flag OFF (default) -> call writer.append(validRecord) -> no file created at .lattice/usage/llm-usage.jsonl, function returns without error (strict no-op); WHY: default-off means zero side effects\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:happy:1\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Opt-in flag ON -> call writer.append(validRecord) -> file created with one line; WHY: flag gates the writer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:happy:2\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Summary reader with 3 non-superseded provider-reported records (inputTokens=100,200,300; outputTokens=10,20,30; cacheCreation=5,10,15; cacheRead=2,4,6) -> derived totals: total per record = input+output+cacheCreation+cacheRead, aggregate = sum of per-record totals; WHY: proves derived-total identity\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:happy:3\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Summary reader with a superseded estimate and a final provider-reported record for the same ledgerCallId+attemptId -> summary selects only the final (latest non-superseded) record, does not double-count the estimate; WHY: no double-counting\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Summary reader with a record where usage.source=unavailable and all token fields are null -> summary reports that call as unknown, not as 0; WHY: unavailable/null must never be treated as 0\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:edge:1\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Summary reader with a provider-reported record where cacheCreationInputTokens=null (per-dimension absence) -> total derivation skips null fields or reports partial unknown, never substitutes 0; WHY: null dimension must not silently become 0 in totals\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:edge:2\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Summary with two records for same ledgerCallId+attemptId where neither supersedes the other -> summary selects the one with highest sequence; WHY: latest-sequence selection rule\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:edge:3\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Summary with estimates kept separate from provider-reported totals -> estimate subtotal does not merge into provider-reported subtotal; WHY: spec requires keeping estimates out of provider-reported totals\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Opt-in flag OFF -> call writer.append 10 times -> no file ever created, no directory created; WHY: no leakage even under repeated calls\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:adversarial:1\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Summary feeds a gate or returns a gate-consumable structure -> must not; verify the summary return type has no gate field and the function signature/docs say informational-only; WHY: summary must NOT feed any gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"summary not imported by any gate/handler (external importers: none)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-006:adversarial:2\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Summary with a mix of provider-reported, estimate, and unavailable records for the same call across 3 attempts -> only latest non-superseded per attempt is counted, unavailable attempts reported as unknown not 0, estimates never merged into provider totals; WHY: complex multi-attempt multi-source scenario\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"npm --prefix packages/main run build -> exits 0 with no TypeScript errors; WHY: build must be green with all new code\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"npm --prefix packages/main run build exits 0\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"npm --prefix packages/main run test:usage-ledger (or equivalent wired script name) -> exits 0, runs all smoke assertions; WHY: smoke is wired as an npm script and passes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"npm run test:usage-ledger exits 0 (61 checks)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:happy:2\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"packages/main/package.json contains a script entry whose name matches test:usage-ledger or test:llm-usage-ledger -> script exists and points to the smoke file; WHY: proves npm wiring\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"package.json has test:usage-ledger script\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke covers schema validation: valid record accepted, stored totalTokens rejected, raw-content injection rejected, malformed record rejected -> all sub-assertions pass; WHY: integration coverage of CHK-001 + CHK-004\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:edge:1\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke covers append + hash-chain continuity across >=3 records -> chain verified programmatically; WHY: integration coverage of CHK-002\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:edge:2\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke covers correlation-id stability + supersedes wiring -> preflight and postflight share ids, supersedes works; WHY: integration coverage of CHK-003\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:edge:3\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke covers opt-in flag OFF -> no file written; WHY: integration coverage of CHK-006 gating\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:edge:4\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke covers runtime-artifact classification of .lattice/usage/llm-usage.jsonl -> gitignored + materialHash-exclude + volatile + repairable; WHY: integration coverage of CHK-005\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:4\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:edge:5\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke covers summary correctness: derived totals match identity, no double-count of superseded, unknown != 0; WHY: integration coverage of CHK-006 summary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:5\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Run the smoke in a clean temp directory with no prior .lattice/usage/ -> smoke creates and cleans up its own test artifacts, does not pollute the repo; WHY: test isolation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger smoke (61 checks, real temp files)\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}},{\"intentRef\":\"CHK-007:adversarial:1\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Run npm --prefix packages/main run build && npm --prefix packages/main run test:usage-ledger in sequence -> both pass end-to-end; WHY: full CI pipeline simulation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs\",\"result\":\"pass\",\"note\":\"build+smoke pass; scope clean (7 files, all packages/main); cjk=0\",\"headHash\":\"328a2c7a015d974c3c53b2badd2459749b71e97d\",\"materialHash\":\"b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8\",\"timestamp\":\"2026-06-16T01:46:51.175Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T01:51:02.919Z",
+  "headHash": "60ae1c6612da39d86b0d2c8cdcf08bdbabf31f5b",
+  "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+  "verificationCoverage": {
+    "total": 75,
+    "required": 75,
+    "covered": 75,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Construct a valid record with all required fields (schemaVersion=1, recordId, ledgerCallId, attemptId, sequence=1, supersedesRecordIds=[], recordedAt ISO, projectRootHash, storyId, phase, agentType, usage.source=provider-reported, four token fields as integers, usage.canonical, usage.raw, privacy flags, authority{mode:local,receiptId:null,receiptVerified:false}, integrity{previousRecordHash,recordHash}) -> validator returns success with no errors; WHY: proves the golden-path record shape is accepted",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Construct a valid record with usage.source=unavailable, unavailableReason set, all four token fields null -> validator accepts; WHY: covers the unavailable source variant",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Construct a valid record with usage.source=prompt-size-estimate, estimator{name,version,unit,confidence} set -> validator accepts; WHY: covers estimate source variant",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Construct valid provider-reported record where provider does not report cache dims -> cacheCreationInputTokens=null, cacheReadInputTokens=null, validator accepts; WHY: per-dimension absence encoded as null not 0",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Record with totalTokens field present -> validator rejects with error mentioning totalTokens; WHY: spec forbids stored totalTokens",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke rejects stored totalTokens; record.ts type declares no stored totalTokens field",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Record with cacheCreationInputTokens=0 when provider genuinely reports 0 -> validator accepts; WHY: 0 is valid when provider reports it, not when masking absence",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Record missing required field recordId -> validator rejects; WHY: all required fields must be present",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Record with usage.source not in enum (e.g. guessed) -> validator rejects; WHY: source enum is closed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:4",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Record with sequence=0 or negative -> validator rejects; WHY: sequence must be positive integer",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:5",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Record with supersedesRecordIds omitted entirely -> validator rejects; WHY: field required even when empty array",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Record with totalTokens nested inside usage AND at top level simultaneously -> validator rejects both locations; WHY: attacker sneaks totalTokens at multiple nesting levels",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke rejects stored totalTokens; record.ts type declares no stored totalTokens field",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Record with inputTokens as string 100 instead of number -> validator rejects; WHY: type coercion attack on numeric fields",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Record with cacheReadInputTokens=undefined (JS undefined not JSON null) -> validator rejects or treats as missing not silently 0; WHY: undefined-vs-null confusion attack",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Append 3 records via the writer to a temp dir -> file contains exactly 3 JSON lines, each parseable, each line recordHash matches SHA-256 of its content minus the recordHash field; WHY: proves one-line-per-record append semantics",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Append 3 records -> record[0].previousRecordHash is null/empty, record[1].previousRecordHash === record[0].recordHash, record[2].previousRecordHash === record[1].recordHash; WHY: proves hash-chain continuity across 3+ records",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Writer creates .lattice/usage/ directory if it does not exist -> directory created, file written; WHY: first-run path creation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Append a record, then read file, tamper with middle line (change a token count), recompute nothing -> next chain verification fails because record[2].previousRecordHash no longer matches tampered record[1].recordHash; WHY: proves hash-chain detects tampering",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Append to an existing file with prior records -> writer reads last line hash and chains from it, does not overwrite prior lines; WHY: append-only guarantee",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Writer receives an invalid record (missing required field) -> writer throws/rejects, no line appended to file; WHY: validation gate before write",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:3",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Append to a file whose last line is corrupt JSON -> writer throws or refuses to chain; WHY: cannot chain from unparseable predecessor",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Two concurrent appends racing on the same file -> both records appear in the file with correct hash chain (no lost writes, no corrupted lines); WHY: concurrent write safety",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Record with integrity.recordHash pre-filled by caller to a wrong value -> writer overwrites it with the correct computed hash (caller cannot forge the hash); WHY: prevents hash injection",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Attempt to call fs.appendFile or fs.writeFile on the ledger path from outside the writer module -> only the writer module exports the append function, no other code path can write the file; WHY: single write choke-point guarantee",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "single write choke-point: only writer.ts references the ledger file (packages/main/src/core/usage-ledger/writer.ts)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Call mintLedgerCallId() -> returns a string starting with a recognizable prefix (e.g. llmcall_), is unique across 100 calls; WHY: proves id is minted locally with stable prefix",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Call mintAttemptId() -> returns a string starting with a recognizable prefix (e.g. llmatt_), is unique across 100 calls; WHY: proves attempt id minted locally",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Create a preflight record (sequence=1) and a postflight record (sequence=2) for the same ledgerCallId+attemptId -> both share ledgerCallId and attemptId, sequence is monotonically increasing; WHY: correlation stability across an attempts records",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:3",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Create a final record with supersedesRecordIds=[preflight-record-id] -> supersedesRecordIds contains exactly the preflight recordId; WHY: proves supersedes wiring works",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Mint ledgerCallId when no provider request exists yet (before dispatch) -> id is returned without any provider.requestIdHash input; WHY: ids must be pre-dispatch, not derived from provider",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Same ledgerCallId with two different attemptIds (retry scenario) -> both attemptIds are distinct, ledgerCallId is shared; WHY: retries reuse call id but get new attempt id",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Sequence counter resets for a new attemptId under the same ledgerCallId -> sequences start from 1 again for the new attempt; WHY: sequence is per-attempt monotonic",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Pass a provider.requestIdHash value to mintLedgerCallId -> function ignores it or does not accept it as a parameter (id is never derived from provider hash); WHY: prevents provider-hash-derived ids",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Call mintLedgerCallId concurrently from 50 parallel calls -> all 50 ids are unique (no collision under concurrency); WHY: uniqueness under concurrent minting",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Attempt to set sequence to a non-monotonic value (e.g. sequence 3 after sequence 5 for same call+attempt) -> rejected or automatically corrected; WHY: monotonicity enforcement",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Record with only allowed fields (hashes, model name, provider name, usage counts, reason codes, redaction profile id, budget policy id) -> validator/writer accepts; WHY: proves legitimate privacy-preserving fields pass",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Record containing a field named rawPrompt with a prompt string -> writer rejects with privacy error; WHY: raw prompt is forbidden",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Record containing a field named rawCompletion -> writer rejects; WHY: raw completion is forbidden",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:2",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Record containing a field named rawTranscript -> writer rejects; WHY: raw transcript is forbidden",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:3",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Record containing a field named toolArguments with raw tool args -> writer rejects; WHY: raw tool arguments forbidden",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:4",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Record containing a field named apiKey with a real key -> writer rejects; WHY: customer API keys forbidden",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:5",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Record containing a field named authorizationHeader -> writer rejects; WHY: auth headers forbidden",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Record with secret material hidden inside a deeply nested extra object (e.g. metadata.debug.rawPrompt) -> writer rejects even at arbitrary nesting depth; WHY: attacker hides forbidden content in deep nesting",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Record with provider secret in a field named providerSecret or providerApiKey -> writer rejects; WHY: provider secrets forbidden regardless of field naming",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:2",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Record with actorKey field containing key material -> writer rejects; WHY: actor keys explicitly forbidden by spec",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:3",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Record with allowed hash field (e.g. provider.requestIdHash=sha256:abc) alongside a forbidden rawPrompt field -> writer rejects the whole record (not partial acceptance); WHY: one forbidden field poisons the entire record",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Call findRuntimeArtifactEntry(\".lattice/usage/llm-usage.jsonl\") -> returns entry with id=llm-usage-ledger; WHY: proves the ledger path is registered and findable",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:1",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Call isMaterialExcludedRuntimeArtifactPath(\".lattice/usage/llm-usage.jsonl\") -> returns true; WHY: ledger must be excluded from material hash",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:2",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Call isVolatileRuntimeArtifactPath(\".lattice/usage/llm-usage.jsonl\") -> returns true; WHY: ledger is volatile runtime state",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:3",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Call isRepairableTrackedRuntimeArtifactPath(\".lattice/usage/llm-usage.jsonl\") -> returns true; WHY: ledger is repairable",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Call findRuntimeArtifactEntry(\".lattice/usage/\") with prefix matcher -> returns the llm-usage-ledger entry (or a parent entry covering the prefix); WHY: prefix .lattice/usage/ should match",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "listRuntimeArtifactIgnorePatterns() includes .lattice/usage/ -> gitignore will cover the ledger directory; WHY: ledger path must be gitignored",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:2",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Call findRuntimeArtifactEntry with a path like .lattice/usage/other-file.jsonl -> still matches the prefix matcher; WHY: future adjacent usage-runtime files are also covered",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Call findRuntimeArtifactEntry with a path outside .lattice/usage/ (e.g. .lattice/story/actives/B-253e/usage.jsonl) -> does NOT match the llm-usage-ledger entry; WHY: matcher must not be overly broad and catch story evidence paths",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "smoke + static: registry entry id=llm-usage-ledger, materialHash=exclude, volatile, repairable, ignore .lattice/usage",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Verify the entry has volatile=true AND repairableTrackedArtifact=true AND materialHash=exclude simultaneously -> all three properties confirmed on the same entry; WHY: a partial registration (e.g. volatile but not repairable) would be a spec violation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "registry entry has volatile+repairable+materialHash=exclude (regOk=true)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Opt-in flag OFF (default) -> call writer.append(validRecord) -> no file created at .lattice/usage/llm-usage.jsonl, function returns without error (strict no-op); WHY: default-off means zero side effects",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:1",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Opt-in flag ON -> call writer.append(validRecord) -> file created with one line; WHY: flag gates the writer",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:2",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Summary reader with 3 non-superseded provider-reported records (inputTokens=100,200,300; outputTokens=10,20,30; cacheCreation=5,10,15; cacheRead=2,4,6) -> derived totals: total per record = input+output+cacheCreation+cacheRead, aggregate = sum of per-record totals; WHY: proves derived-total identity",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:3",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Summary reader with a superseded estimate and a final provider-reported record for the same ledgerCallId+attemptId -> summary selects only the final (latest non-superseded) record, does not double-count the estimate; WHY: no double-counting",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Summary reader with a record where usage.source=unavailable and all token fields are null -> summary reports that call as unknown, not as 0; WHY: unavailable/null must never be treated as 0",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:1",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Summary reader with a provider-reported record where cacheCreationInputTokens=null (per-dimension absence) -> total derivation skips null fields or reports partial unknown, never substitutes 0; WHY: null dimension must not silently become 0 in totals",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:2",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Summary with two records for same ledgerCallId+attemptId where neither supersedes the other -> summary selects the one with highest sequence; WHY: latest-sequence selection rule",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:3",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Summary with estimates kept separate from provider-reported totals -> estimate subtotal does not merge into provider-reported subtotal; WHY: spec requires keeping estimates out of provider-reported totals",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Opt-in flag OFF -> call writer.append 10 times -> no file ever created, no directory created; WHY: no leakage even under repeated calls",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:1",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Summary feeds a gate or returns a gate-consumable structure -> must not; verify the summary return type has no gate field and the function signature/docs say informational-only; WHY: summary must NOT feed any gate",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "summary not imported by any gate/handler (external importers: none)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:2",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Summary with a mix of provider-reported, estimate, and unavailable records for the same call across 3 attempts -> only latest non-superseded per attempt is counted, unavailable attempts reported as unknown not 0, estimates never merged into provider totals; WHY: complex multi-attempt multi-source scenario",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files); opt-in flag default OFF in writer.ts",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:0",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "npm --prefix packages/main run build -> exits 0 with no TypeScript errors; WHY: build must be green with all new code",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "npm --prefix packages/main run build exits 0",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:1",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "npm --prefix packages/main run test:usage-ledger (or equivalent wired script name) -> exits 0, runs all smoke assertions; WHY: smoke is wired as an npm script and passes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "npm run test:usage-ledger exits 0 (61 checks)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:2",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "packages/main/package.json contains a script entry whose name matches test:usage-ledger or test:llm-usage-ledger -> script exists and points to the smoke file; WHY: proves npm wiring",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "package.json has test:usage-ledger script",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:0",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke covers schema validation: valid record accepted, stored totalTokens rejected, raw-content injection rejected, malformed record rejected -> all sub-assertions pass; WHY: integration coverage of CHK-001 + CHK-004",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:1",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke covers append + hash-chain continuity across >=3 records -> chain verified programmatically; WHY: integration coverage of CHK-002",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:2",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke covers correlation-id stability + supersedes wiring -> preflight and postflight share ids, supersedes works; WHY: integration coverage of CHK-003",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:3",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke covers opt-in flag OFF -> no file written; WHY: integration coverage of CHK-006 gating",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:4",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke covers runtime-artifact classification of .lattice/usage/llm-usage.jsonl -> gitignored + materialHash-exclude + volatile + repairable; WHY: integration coverage of CHK-005",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:5",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke covers summary correctness: derived totals match identity, no double-count of superseded, unknown != 0; WHY: integration coverage of CHK-006 summary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:0",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Run the smoke in a clean temp directory with no prior .lattice/usage/ -> smoke creates and cleans up its own test artifacts, does not pollute the repo; WHY: test isolation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger smoke (61 checks, real temp files)",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:1",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Run npm --prefix packages/main run build && npm --prefix packages/main run test:usage-ledger in sequence -> both pass end-to-end; WHY: full CI pipeline simulation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+          "result": "pass",
+          "note": "build+smoke pass; scope clean (7 files, all packages/main); cjk=0",
+          "headHash": "328a2c7a015d974c3c53b2badd2459749b71e97d",
+          "materialHash": "b191ec45d0652f2ab64a995b14b7d7011a05d4e5036461f0c5f19ae9b46852a8",
+          "timestamp": "2026-06-16T01:46:51.175Z"
+        }
+      }
+    ]
+  }
+}

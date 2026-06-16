@@ -1,0 +1,418 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-253e:RR-001",
+      "storyId": "B-253e",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "startedAt": "2026-06-16T01:21:09.781Z",
+      "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+      "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "443942d874767cc298786fd2a0a58b7846f2d20feab6bfb9b95b47058272ccf1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3",
+          "a4fb9a31e8011a8760ca048b976ab75be40f1b6ad3908e45db58e572ea7567ba"
+        ],
+        "bindingHash": "0b35ef92da079a35a507618d41351a84c15c22312a8371db0a393b8641257839"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+        "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+        "bindingHash": "f10d092f467e136d3ca3f56c0f11aecf92a391f22302323810d234587b67d917"
+      },
+      "_hash": "bb47ea8f9ca6af1a3ef5b3257f229fc2ff483de2c0a8d5de3945f2f0ad0b5f84"
+    },
+    {
+      "reviewRunId": "B-253e:RR-002",
+      "storyId": "B-253e",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "startedAt": "2026-06-16T01:21:25.871Z",
+      "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+      "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "443942d874767cc298786fd2a0a58b7846f2d20feab6bfb9b95b47058272ccf1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3",
+          "a4fb9a31e8011a8760ca048b976ab75be40f1b6ad3908e45db58e572ea7567ba"
+        ],
+        "bindingHash": "0b35ef92da079a35a507618d41351a84c15c22312a8371db0a393b8641257839"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+        "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+        "bindingHash": "f10d092f467e136d3ca3f56c0f11aecf92a391f22302323810d234587b67d917"
+      },
+      "_hash": "29fee98d7a4b6bb6c50fc5c6da3e3ec88d4586d5f20ce6925123a705c59e8310"
+    },
+    {
+      "reviewRunId": "B-253e:RR-003",
+      "storyId": "B-253e",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "startedAt": "2026-06-16T01:21:26.042Z",
+      "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+      "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "443942d874767cc298786fd2a0a58b7846f2d20feab6bfb9b95b47058272ccf1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3",
+          "a4fb9a31e8011a8760ca048b976ab75be40f1b6ad3908e45db58e572ea7567ba"
+        ],
+        "bindingHash": "0b35ef92da079a35a507618d41351a84c15c22312a8371db0a393b8641257839"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+        "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+        "bindingHash": "f10d092f467e136d3ca3f56c0f11aecf92a391f22302323810d234587b67d917"
+      },
+      "_hash": "f01966644e20f2e567a357eb32d6fbb811f8c1c82d429028c9e84fc7e97a3089"
+    },
+    {
+      "reviewRunId": "B-253e:RR-004",
+      "storyId": "B-253e",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "startedAt": "2026-06-16T01:35:42.547Z",
+      "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+      "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "443942d874767cc298786fd2a0a58b7846f2d20feab6bfb9b95b47058272ccf1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3",
+          "a4fb9a31e8011a8760ca048b976ab75be40f1b6ad3908e45db58e572ea7567ba"
+        ],
+        "bindingHash": "0b35ef92da079a35a507618d41351a84c15c22312a8371db0a393b8641257839"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+        "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+        "bindingHash": "f10d092f467e136d3ca3f56c0f11aecf92a391f22302323810d234587b67d917"
+      },
+      "_hash": "9bf04902eea720635c9c4f7d5e4fb886535cd53883ab86030e91b40a871d0073"
+    },
+    {
+      "reviewRunId": "B-253e:RR-005",
+      "storyId": "B-253e",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "startedAt": "2026-06-16T01:35:51.559Z",
+      "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+      "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "443942d874767cc298786fd2a0a58b7846f2d20feab6bfb9b95b47058272ccf1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3",
+          "a4fb9a31e8011a8760ca048b976ab75be40f1b6ad3908e45db58e572ea7567ba"
+        ],
+        "bindingHash": "0b35ef92da079a35a507618d41351a84c15c22312a8371db0a393b8641257839"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+        "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+        "bindingHash": "f10d092f467e136d3ca3f56c0f11aecf92a391f22302323810d234587b67d917"
+      },
+      "_hash": "7c2120b877c5254847cc7b010b19f8d929fce40186239118c08f4280417b225f"
+    },
+    {
+      "reviewRunId": "B-253e:RR-006",
+      "storyId": "B-253e",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "startedAt": "2026-06-16T01:35:56.338Z",
+      "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+      "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "443942d874767cc298786fd2a0a58b7846f2d20feab6bfb9b95b47058272ccf1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3",
+          "a4fb9a31e8011a8760ca048b976ab75be40f1b6ad3908e45db58e572ea7567ba"
+        ],
+        "bindingHash": "0b35ef92da079a35a507618d41351a84c15c22312a8371db0a393b8641257839"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "050befd0490ea4521d93cc6bcea880c8fb841859",
+        "materialHash": "5e706b6516cc782801b53ba31be74a0e29d349431ffa513633ac5cbf11ad0f59",
+        "bindingHash": "f10d092f467e136d3ca3f56c0f11aecf92a391f22302323810d234587b67d917"
+      },
+      "_hash": "c902a3213e10845d7aac3859651b8d43f58173e3fc634e8312a25b7677397523"
+    },
+    {
+      "reviewRunId": "B-253e:RR-007",
+      "storyId": "B-253e",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T01:43:12.604Z",
+      "startedAt": "2026-06-16T01:43:57.492Z",
+      "headHash": "68d30cbc062f05af78c98707dd9159d04e3285d6",
+      "materialHash": "3acdf273889ea30d5a1a59c80e5aebd000be5f9e75e7a659755e91767c37141f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "3328197b51f3e2b85a634f791021c380a06a78c78ae388f018cf3b249edd75c1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "4ffaa984bc8757b361a618e704315f3dced4632362c7e7168a910b19cf57d9b3",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3"
+        ],
+        "bindingHash": "dac830aabdb18416634b4f23052d2edcb4bf1713bf43f60113a964b67387bb46"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "68d30cbc062f05af78c98707dd9159d04e3285d6",
+        "materialHash": "3acdf273889ea30d5a1a59c80e5aebd000be5f9e75e7a659755e91767c37141f",
+        "bindingHash": "7c3fe0c76aaa1575892821f2b6ea187b5473a075ffccf95bd8b1bb17d523bf4b"
+      },
+      "_hash": "ca5b2f806417fccbd00f7e36c98643d153a229a13f99956dd36230e914cc9e93"
+    },
+    {
+      "reviewRunId": "B-253e:RR-008",
+      "storyId": "B-253e",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-16T01:43:12.604Z",
+      "startedAt": "2026-06-16T01:44:09.253Z",
+      "headHash": "68d30cbc062f05af78c98707dd9159d04e3285d6",
+      "materialHash": "3acdf273889ea30d5a1a59c80e5aebd000be5f9e75e7a659755e91767c37141f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "3328197b51f3e2b85a634f791021c380a06a78c78ae388f018cf3b249edd75c1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "4ffaa984bc8757b361a618e704315f3dced4632362c7e7168a910b19cf57d9b3",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3"
+        ],
+        "bindingHash": "dac830aabdb18416634b4f23052d2edcb4bf1713bf43f60113a964b67387bb46"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "68d30cbc062f05af78c98707dd9159d04e3285d6",
+        "materialHash": "3acdf273889ea30d5a1a59c80e5aebd000be5f9e75e7a659755e91767c37141f",
+        "bindingHash": "7c3fe0c76aaa1575892821f2b6ea187b5473a075ffccf95bd8b1bb17d523bf4b"
+      },
+      "_hash": "552f271471780b4d85718d04487b258545e665720a27cdaa288074364a585eea"
+    },
+    {
+      "reviewRunId": "B-253e:RR-009",
+      "storyId": "B-253e",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-16T01:43:12.604Z",
+      "startedAt": "2026-06-16T01:44:20.873Z",
+      "headHash": "68d30cbc062f05af78c98707dd9159d04e3285d6",
+      "materialHash": "3acdf273889ea30d5a1a59c80e5aebd000be5f9e75e7a659755e91767c37141f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "0604bb28301196449c3a42cb83bb0aa713620544dcc5d6ffd79ec9dd04b88e6f",
+        "diffPackHash": "3328197b51f3e2b85a634f791021c380a06a78c78ae388f018cf3b249edd75c1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/usage-ledger/ids.ts",
+          "packages/main/src/core/usage-ledger/record.ts",
+          "packages/main/src/core/usage-ledger/summary.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1ee2499940db9af9ae59290cfb521d986b27ebdf17bf2c0ae6f6d70950153176",
+          "397734398b97c2ce5a44a2c4085c8e911f6e4bdd52ce92f115e66447897d71b9",
+          "3deb8c98a70d743fe34d2df54546546391ce6974be5e58598397f4e905d4f730",
+          "4ffaa984bc8757b361a618e704315f3dced4632362c7e7168a910b19cf57d9b3",
+          "732f3287c1c46c697239c2068e19ff0738e92bda8491abf62cd334012719f7d0",
+          "74796661dc7ea6daa447019a2397cba20f38f691b4a30b5eb6ae272c0a878ff3"
+        ],
+        "bindingHash": "dac830aabdb18416634b4f23052d2edcb4bf1713bf43f60113a964b67387bb46"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-253e",
+        "workspaceMode": "story-worktree",
+        "headHash": "68d30cbc062f05af78c98707dd9159d04e3285d6",
+        "materialHash": "3acdf273889ea30d5a1a59c80e5aebd000be5f9e75e7a659755e91767c37141f",
+        "bindingHash": "7c3fe0c76aaa1575892821f2b6ea187b5473a075ffccf95bd8b1bb17d523bf4b"
+      },
+      "_hash": "a172add9920c7fd4562aa92449991f42a3b556fca163172b87104b4497c5f961"
+    }
+  ]
+}
