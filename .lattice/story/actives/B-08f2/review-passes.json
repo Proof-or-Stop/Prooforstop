@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-16T00:36:43.708Z",
       "reviewRunId": "B-08f2:RR-013",
       "_hash": "63786a88c9a4e9f44a8b716c940e09692d11b79b20100a87f6f42c6a7dae460f"
+    },
+    {
+      "id": "B-08f2:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 new symbols changed in this round (pure docs rename propagation diff). Step 2/3: Verified 5 active-doc files updated to LATTICE_* env-var names (README.md, CLAUDE.md, docs/guide.md, docs/audits/lattice-token-cost-and-takeover-audit.md, docs/guide-hooks.md). F-005 fix confirmed: CLAUDE.md line 77 reads LATTICE_SESSION_BRIEF_FRESH_MINUTES. Gate grep KOALA_[A-Z] on active docs returns empty. No doc-code drift blockers remaining.",
+      "createdAt": "2026-06-16T00:48:44.035Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-015",
+      "_hash": "3afddd800b510024427bc9a8cec1037b1d4deb6e65015207c98224b3517e9547"
     }
   ]
 }
