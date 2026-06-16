@@ -109,6 +109,17 @@
           "headHash": "74cbb3864201d5c420a2a6d73b3d895da710f480",
           "materialHash": "ea4213312371c96108edc165fca6a3970543bb795da3a124394ff1fef6286992",
           "timestamp": "2026-06-16T21:22:44.811Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "edge: md forbidding an excluded-path (NON-generated) kind → no contradiction/pass; md with no do-not-create claim → pass; ancestor-dir prohibition of a generated child → flagged; smoke green",
+          "headHash": "79520fd391941e160ea799d7b782e2ca6977b7a1",
+          "materialHash": "ea4213312371c96108edc165fca6a3970543bb795da3a124394ff1fef6286992",
+          "timestamp": "2026-06-16T21:22:49.873Z"
         }
       ]
     },
