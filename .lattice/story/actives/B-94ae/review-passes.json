@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T20:59:59.763Z",
       "reviewRunId": "B-94ae:RR-001",
       "_hash": "5f391b03886fe74e9056115e4edca44c9cbeae523d3639b24f583470137da127"
+    },
+    {
+      "id": "B-94ae:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (1 checklist item, no riskSignals); verificationIntent intentionally skipped at PLAN per express-verification-policy; verificationEvidence entries = 0, must-gap count = 0. CHK-001 is a doc-only correctness fix — the verification is the observable diff: the false .Codex/hooks prohibition is removed and replaced with an accurate statement that host hooks are framework-managed init assets. No logic/integration test path exists to cover; no must-intent left unsatisfied. No blocker.",
+      "createdAt": "2026-06-16T21:01:47.407Z",
+      "reviewRound": "2026-06-16T20:59:59.763Z",
+      "reviewRunId": "B-94ae:RR-004",
+      "_hash": "fc9827cb2af8887cff831d15eb0c9f43345158132201365ee469ad3cb70ce5b9"
     }
   ]
 }
