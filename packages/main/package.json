@@ -102,6 +102,8 @@
     "test:codex-registry-mode-smoke": "node dist/tasks/codex-registry-mode-smoke.js",
     "test:thin-init-assets-smoke": "node dist/tasks/thin-init-assets-smoke.js",
     "test:lattice-branded-init-smoke": "node dist/tasks/thin-init-assets-smoke.js",
+    "test:global-agents-unit-smoke": "node dist/tasks/global-agents-unit-smoke.js",
+    "test:global-agents-init-smoke": "node dist/tasks/global-agents-init-smoke.js",
     "test:lattice-only-absence-smoke": "node dist/tasks/lattice-only-absence-smoke.js",
     "test:lattice-cli-migration-smoke": "node dist/tasks/lattice-cli-migration-smoke.js",
     "test:dispatch-run-smoke": "node dist/tasks/dispatch-run-smoke.js",
@@ -162,6 +164,7 @@
     "test:usage-ledger-estimate": "node dist/tasks/usage-ledger-estimate-smoke.js",
     "test:usage-ledger-diagnostics": "node dist/tasks/usage-ledger-diagnostics-smoke.js",
     "test:usage-ledger-dispatch": "node dist/tasks/usage-ledger-dispatch-smoke.js",
+    "test:usage-ledger-budget": "node dist/tasks/usage-ledger-budget-smoke.js",
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"
   },
   "dependencies": {

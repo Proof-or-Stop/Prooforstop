@@ -1,0 +1,171 @@
+{
+  "storyId": "B-097f",
+  "checkedAt": "2026-06-16T18:31:01.759Z",
+  "features": [
+    {
+      "feature": "Prompt content never lives under a host directory (no role body in Claude shim files)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "lattice agent_prompt --role=X serves role body from promptRegistryManifest() (shared CLI content endpoint)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Claude thin shims contain only frontmatter (name/description/tools) plus a CLI-fetch body instruction",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Shims live in global ~/.claude/agents; projects get zero agent files after fresh init",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "tools sandbox preserved in shim frontmatter (reviewer read-only sandbox not weakened)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Migration is explicit: normal lattice init only WARNs about existing project-local managed agent files",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Removal of managed agent files happens only under explicit --upgrade flag",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "--upgrade removes only 16 managed basenames (from templates/agents), never wildcards, preserves user-authored files",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "lattice doctor reports agentAssetMode: runtime-owned",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Contract documentation in lifecycle-artifact-scope.md describing host-neutral thin-shim policy",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Two-host single-source table showing Codex (manifest) and Claude (thin shim) both resolve from same registry",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "CLAUDE.md updated to state reviewers fetch role body via lattice agent_prompt (not materialized files)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Smoke/contract tests: clean init produces 0 project agent files + 16 global thin-shims",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "Smoke/contract test: agent_prompt output is byte-equal to promptRegistryManifest body",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "Smoke/contract test: --upgrade migration clears project-local managed files; user files preserved",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "prompt-token-cost-smoke and prompt-registry-smoke remain green",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "syncGlobalAgents is idempotent (re-running does not change already-correct shims)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Global directory not writable: error reported explicitly, no silent fallback to project-local",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Stale/broken symlinks or old full copies in ~/.claude/agents are auto-replaced during sync",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "lattice-runtime-owned-agent-assets-execution-plan.md Phase 6: verify_codex still passes without .Codex/agents (Codex side unchanged)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Codex side unchanged per B-4ee0; story description and decision explicitly state Codex side is not in scope for B-097f",
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "lattice-runtime-owned-agent-assets-execution-plan.md Phase 5: full-asset mode still works when explicitly requested (--asset-mode=full)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Execution plan Phase 5 is a separate story scope; B-097f focuses on global thin-shim path only; full-asset mode compatibility is not removed by this story",
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "AgentAssetResolution TypeScript interface (mode/projectPromptAssets/blockingIssues/authorityBoundary) from execution plan",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing artifact from prior Codex-side runtime-owned work (commit 015a009 2026-06-15 Add runtime-owned agent asset diagnostics). File packages/main/src/core/agent-asset-resolution.ts already exists and is consumed by codex-adapter-checks.ts, rollout-check.ts, and runtime-owned-agent-assets-smoke.ts. No B-097f branch commits touch this file. B-097f CHK-004 only adds the lattice doctor agentAssetMode readout which consumes this existing interface.",
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "covered": 19,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c3413f0cd2ba43b3aeb67edcba0bad22ef279bc792ba455ec2a3996b6e60e618",
+  "openQuestions": []
+}

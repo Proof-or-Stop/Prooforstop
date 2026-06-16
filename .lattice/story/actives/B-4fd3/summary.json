@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4fd3",
+  "changes": "cli-init.ts 的 .gitignore 复制分支(cpSync giSrc)复制后改为调用 mergeKoalaRuntimeIgnores 合并 registry runtime ignore 块；.gitignore managed 块补 .lattice/usage/；thin-init-assets-smoke.ts 新增 assertGitignoreCoversRegistry 回归断言（用 runtimeIgnoreMissing 校验全 registry 覆盖）",
+  "usage": "npm run test:thin-init-assets-smoke 现在在干净 main 通过；fresh lattice init 产出的 .gitignore 永远覆盖 runtime-artifact-registry 全集（含未来新增的 ignorePattern）",
+  "expectedOutcome": "npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed 退出码 0；git diff main -- .gitignore 显示 managed 块新增 .lattice/usage/",
+  "actualTranscript": "✓ global-thin init assets smoke passed（退出码 0）；git diff main -- .gitignore 显示 +.lattice/usage/ 在 # lattice runtime artifacts (managed) 块内；lattice validate 全绿（含 merge B-dd44 后的合并态重验）",
+  "outcomeDiff": "无差异，actual 与 expected 每一项吻合（见 evidence/transcript-diff.md）",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "thin-init-assets-smoke 仍未纳入 lattice validate battery（聚合归 B-99b6，本 story 范围外）",
+  "pitfalls": "verificationEvidence 必须在源码 commit 之后记录，否则 headHash 落后被标 stale（本 story round-1 F-001 即此坑，已回 DEV 重记修复）；合并 main 后 evidence materialHash 漂移需 verification_evidence_refresh_stale 刷新",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 194947
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 52111
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 407290
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 334255
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 373377
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 321788
+    }
+  },
+  "totalDurationMs": 1683776,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T21:24:56.517Z",
+  "updatedAt": "2026-06-16T21:24:56.517Z"
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-dd44",
+  "mode": "feature",
+  "allowed": [
+    "Add pure budget-policy resolution + over-budget predicate + buildBlockedBudgetRecord in core/usage-ledger/dispatch-usage.ts (zero cross-module imports); add a minimal fail-closed pre-spawn guard in the existing gated Claude seam in core/lattice-dispatch.ts; thread estimatedInputTokens from the preflight; add a smoke + npm script"
+  ],
+  "excluded": [
+    "Budget enforcement for codex or gemini dispatches",
+    "Budget modes that require signed authority evidence",
+    "Flipping the ledger writer default to on",
+    "Promoting records to signed authority receipts",
+    "Remediation of provider overages discovered after a call"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized one story per remaining ledger touchpoint (2026-06-16); scout rated this feasible. Block only when an explicit hard budget is set + exceeded; unset/OFF byte-identical.",
+  "createdAt": "2026-06-16T20:42:15.707Z",
+  "updatedAt": "2026-06-16T20:42:15.707Z",
+  "_hash": "c56052e6d684164592797eeb08db1fd77bbc712b2a6f438538d6835ed29097aa"
+}

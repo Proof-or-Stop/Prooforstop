@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-4fd3:F-001",
+      "desc": "All 6 verificationEvidence entries are stale: their headHash values (751f968, 21f25fd, 3cb20df, 7c710fe, d73afee, 8e1e948) predate the implementation commit bf15f72a7 that contains the actual cli-init.ts fix and assertGitignoreCoversRegistry addition. Evidence was registered before the code change landed, so the evidence cannot confirm the fixed behavior was exercised. validate --story=B-4fd3 reports 0/6 covered, 5 required missing. The story must return to DEV to re-record all 6 evidence entries against the current HEAD after the implementation commit.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:14:34.064Z",
+      "reviewRound": "2026-06-16T21:12:31.271Z",
+      "reviewRunId": "B-4fd3:RR-003",
+      "_hash": "f07664d02391f27db4bdedfda19a8e72b1922617ef0baa91819a0e3a5365439c",
+      "files": [
+        "packages/main/src/tasks/thin-init-assets-smoke.ts",
+        "packages/main/src/cli-init.ts"
+      ],
+      "resolvedReason": "已修复：原因是 6 条 verificationEvidence 在源码 commit(bf15f72a7) 之前记录，headHash 落后于实现 commit → validate 标 stale。回 DEV 后于 current HEAD 重跑 smoke 并重记全部 6 条 evidence（headHash 现 descend from bf15f72a7）。lattice validate --story 现报 total:6 required:5 covered:6 missingRequired:0；round-2 test-coverage reviewer 复核通过 RP-005。",
+      "resolvedAt": "2026-06-16T21:19:23.074Z"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "storyId": "B-4fd3",
+  "name": "fix-thin-init-gitignore-usage-drift",
+  "title": "修复 thin-init-assets-smoke 的 .lattice/usage .gitignore 漂移（init 复制路径不合并 registry runtime ignore）",
+  "description": "thin-init-assets-smoke 在干净 main 上也 FAIL：assertManagedOk 报 STALE_SAFE .gitignore missing runtime ignore pattern(s): .lattice/usage/。根因两层：(1) runtime-artifact-registry.ts 为 LLM usage ledger 声明 ignorePatterns=[.lattice/usage/]（B-08a1/B-253e 引入），managed-asset 检查以 registry 为真相源；(2) cli-init.ts 的 .gitignore 复制分支（giSrc 存在时 cpSync 主仓 .gitignore）不合并 registry runtime ignore 块，且主仓自身 .gitignore 的 managed 块陈旧（缺 .lattice/usage/）。自举场景下 smoke 跑 dev repo dist，init 复制到陈旧块 → 漂移 → fail。修复方向：让 init 复制路径同样以 registry 为真相源合并 runtime ignore 块，并 resync 主仓 .gitignore。聚合 smoke 进 validate battery 不在本 story 范围（归 B-99b6）。",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "gitignore",
+    "init",
+    "runtime-artifact-registry",
+    "smoke",
+    "usage-ledger"
+  ],
+  "createdAt": "2026-06-16T20:56:52.740Z",
+  "startedAt": "2026-06-16T20:56:52.740Z",
+  "endedAt": "2026-06-16T21:29:36.017Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T20:56:52.748Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:00:07.695Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:00:59.806Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:07:47.096Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:12:31.271Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:16:19.753Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:17:09.833Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:19:34.728Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:29:36.017Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T21:17:09.833Z"
+}

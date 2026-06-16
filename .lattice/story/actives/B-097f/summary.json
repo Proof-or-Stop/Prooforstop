@@ -1,0 +1,55 @@
+{
+  "storyId": "B-097f",
+  "changes": "Lattice agent prompt 收敛为 host-neutral 单一源:Claude 用 thin-shim(frontmatter+tools+CLI-fetch body),新增 lattice agent_prompt 命令从 registry 模板吐角色正文;init 项目内 0 agent 文件,16 thin-shim 放全局 ~/.claude/agents;显式 --upgrade 迁移已有 project-local;lattice doctor 报 agentAssetMode runtime-owned",
+  "usage": "claude 项目跑 lattice init → 全局 thin-shim、项目 0 文件;lattice agent_prompt --role=<name> 取角色正文;已有 project-local 的项目用 lattice init --upgrade 迁移到全局",
+  "expectedOutcome": "init [5/6] 输出 - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files);find 项目无 .claude/agents/*.md;ls ~/.claude/agents 含 16 个 thin-shim 实体文件",
+  "actualTranscript": "见 evidence/transcript-diff.md:init 项目 0 文件、全局 16 thin-shim(0 symlink)、tools 保留、agent_prompt byte-equal registry、普通 init 仅 warn、--upgrade 迁移 16 保留 my-custom、doctor runtime-owned,8 行全 ✅",
+  "outcomeDiff": "expected 与 actual 8 行逐项一致(transcript-diff.md 表格),无 diff",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Claude 平台限制:thin-shim 文件仍须存在于 ~/.claude/agents(宿主只能从磁盘发现 subagent),但其中只有指针无正文;预存 thin-init-assets-smoke 的 .lattice/usage gitignore 漂移(B-08a1 引入,非本 story scope)未在此修",
+  "pitfalls": "全局 lattice binary 指向主仓 dist,缺新命令时须用 worktree dist 跑 gate;真机测试必须设临时 HOME 避免污染真实 ~/.claude/agents;并发开发期间 main 被再次 merge 会漂移 materialHash 使 escalation verdict 失效,需分支与 main 齐平后紧凑重绑 fallback+verdict 再 DONE",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 211950
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 20596
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 1314369
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 15400247
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1220620
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 5636775
+    }
+  },
+  "totalDurationMs": 23804559,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T20:45:59.854Z",
+  "updatedAt": "2026-06-16T20:45:59.854Z"
+}

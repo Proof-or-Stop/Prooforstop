@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add path-reference drift validation to the CLAUDE.md docs-drift gate (reuse core/audit-scan scanPathDrift)",
+      "context": "validate-docs-drift.ts currently only diffs lattice command names vs the registry. Add a path-reference check that reuses scanPathDrift from core/audit-scan.ts (do not re-implement): file paths CLAUDE.md references that do not exist on disk are reported as drift. Keep the command-name scan unchanged; the path check is additive. Provide an allowlist seam (mirroring the existing 'do not build this CLI' command allowlist) for intentional examples/deleted-by-design paths.",
+      "userSees": "Running the docs-drift gate against a CLAUDE.md that references a non-existent path reports that path as drift (with the path and line), instead of passing silently; a CLAUDE.md whose paths all exist still passes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a managed-asset contradiction check (the P3 class) against core/managed-assets.ts",
+      "context": "Cross-check CLAUDE.md statements against the managed-asset registry (core/managed-assets.ts): a 'do not create <X>' / '<X> must not exist' claim for an <X> the registry says lattice init generates must be flagged as drift, since the framework itself produces it (this is exactly the .Codex/hooks line-77 contradiction). Reuse the registry as the source of truth; do not hardcode asset paths. Respect the same allowlist seam.",
+      "userSees": "A CLAUDE.md that forbids or denies a framework-generated managed asset (e.g. a host hook) fails the gate with a message naming the asset and the registry entry that contradicts it; a doc with no such contradiction passes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a regression smoke for the two new checks and wire it into the validate battery",
+      "context": "Add a smoke task (dist/tasks + a test:* script in packages/main/package.json, following the existing smoke pattern) that asserts: (a) a fixture CLAUDE.md with a stale path reference fails; (b) a fixture with a managed-asset contradiction fails; (c) a clean fixture passes; (d) command-name behavior is unchanged. Wire the script into the validate battery so REVIEW->TEST runs it. Use dependency-injected fixtures rather than mutating the real CLAUDE.md.",
+      "userSees": "`lattice validate` runs the new docs-drift smoke green, proving the gate flags stale paths and managed-asset contradictions while leaving clean docs and existing command-name checks unaffected.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

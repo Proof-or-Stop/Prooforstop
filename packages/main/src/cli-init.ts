@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync, chmodSync, rmSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, lstatSync, unlinkSync, chmodSync, rmSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
@@ -30,7 +30,13 @@ import {
 } from './init-assets.js';
 import type { InitAssetMode, InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
-import { renderManagedAssetCheck, runManagedAssetCheck } from './core/managed-assets.js';
+import {
+  migrateProjectLocalManagedAgents,
+  renderManagedAssetCheck,
+  runManagedAssetCheck,
+  scanProjectLocalManagedAgents,
+} from './core/managed-assets.js';
+import { resolveAgentTemplateDir, syncGlobalAgents } from './core/global-agents.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
@@ -42,6 +48,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageRoot = join(__dirname, '..'); // @lattice-agent/core package root
 const agentTemplateDir = [
+  resolveAgentTemplateDir(),
   join(packageRoot, 'templates', 'agents'),
   join(packageRoot, '..', '..', '.claude', 'agents'),
 ].find(existsSync);
@@ -187,7 +194,7 @@ function parseTargetDir(args: string[]): string | null {
 }
 
 function detectInitProfile(root: string): { profile: InitProfile; reason: string; compatibilityNote?: string } {
-  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.lattice-codex'));
+  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.Codex'));
   const hasClaudeMarkers = existsSync(join(root, 'CLAUDE.md')) || existsSync(join(root, '.claude'));
   if (hasCodexMarkers && hasClaudeMarkers) {
     return {
@@ -198,7 +205,7 @@ function detectInitProfile(root: string): { profile: InitProfile; reason: string
   if (hasCodexMarkers) {
     return {
       profile: 'codex',
-      reason: 'auto-detected Codex markers (AGENTS.md or .lattice-codex)',
+      reason: 'auto-detected Codex markers (AGENTS.md or .Codex)',
     };
   }
   if (hasClaudeMarkers) {
@@ -506,7 +513,7 @@ function cleanupCodexAssets() {
   removePathIfExists('.lattice-codex/agents', '.lattice-codex/agents');
   removePathIfExists('.lattice-codex/README.md', '.lattice-codex/README.md');
   removeCodexManifestIfManaged();
-  cleanupEmptyDirChain('.lattice-codex');
+  cleanupEmptyDirChain('.Codex');
   removeCodexWrapperIfManaged();
   removeCodexNativeHooksIfManaged();
 }
@@ -535,7 +542,9 @@ const dirs = [
   'docs/requirements/extracted',
 ];
 if (isGlobalThin) dirs.push('.lattice');
-if (wantsClaude) dirs.push('.claude/agents');
+// B-097f: do NOT create project .claude/agents — agent prompts resolve from the
+// user-global ~/.claude/agents single source. `.claude` (for hooks/settings) is
+// created on demand by the [6/6] block when wantsClaude.
 if (wantsCodex && selectedAssetMode === 'full') dirs.push('.lattice-codex/agents');
 for (const d of dirs) {
   const full = join(targetDir, d);
@@ -551,7 +560,17 @@ const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
   if (existsSync(giSrc)) {
     cpSync(giSrc, giPath);
-    console.log('  ✓ .gitignore (copied from Lattice template)');
+    // The template .gitignore can lag the runtime-artifact registry (e.g. a new
+    // ignorePattern added after the template was last synced). Re-merge from the
+    // registry so the copy path is registry-synced just like the existing-file
+    // branch below — keeps the registry the single source of truth (B-4fd3).
+    const merged = mergeKoalaRuntimeIgnores(readFileSync(giPath, 'utf8'));
+    if (merged.changed) {
+      writeFileSync(giPath, merged.content);
+      console.log('  ✓ .gitignore (copied from Lattice template, runtime ignores synced)');
+    } else {
+      console.log('  ✓ .gitignore (copied from Lattice template)');
+    }
   } else {
     const minimalGitignore = [
       'node_modules',
@@ -863,36 +882,49 @@ if (wantsClaude) {
   console.log('  - .claude/skills/koala (profile skip)');
 }
 
-// 5. agent 模板 → symlink/copy（发布包内置模板）
-console.log('\n[5/6] 同步 agent 模板...');
+// 5. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
+// Claude Code 只能从磁盘解析 subagent_type: lattice-*，但用户级全局
+// ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
+// prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
+// thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
+// `lattice agent_prompt --role=<name>` 从包内 registry 现取。
+console.log('\n[5/6] 同步 agent 适配器（全局 thin-shim 单一源）...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
+  // 仍然清理项目内历史遗留的 legacy koala-*.md（迁移到全局前的卫生）。
   cleanupGeneratedLegacyKoalaAgentPrompts(agentDstDir);
-  for (const file of readdirSync(agentTemplateDir)) {
-    if (!file.endsWith('.md')) continue;
-    const src = join(agentTemplateDir, file);
-    const dst = join(agentDstDir, file);
-    const linkTarget = src;
 
-    // 已是正确 symlink → skip
-    if (existsSync(dst)) {
-      try {
-        const stat = lstatSync(dst);
-        if (stat.isSymbolicLink() && readlinkSync(dst) === linkTarget) {
-          console.log(`  - .claude/agents/${file} (symlink ok)`);
-          continue;
-        }
-        // 旧 copy 或错误 symlink → 替换
-        unlinkSync(dst);
-        console.log(`  ↻ .claude/agents/${file} (replacing copy with symlink)`);
-      } catch {
-        // lstat 失败（断链等）→ 删除重建
-        try { unlinkSync(dst); } catch {}
-      }
+  // 确保全局源就绪：为 CLI 包 templates/agents 下每个 *.md 在 ~/.claude/agents
+  // 生成 thin-shim（保留 tools 沙箱、不含正文）。全局不可写时抛明确错误，
+  // 不静默回退 project-local。
+  const sync = syncGlobalAgents({ templateDir: agentTemplateDir });
+  console.log(
+    `  ✓ ${sync.globalDir} (synced=${sync.synced}, ok=${sync.skipped}, replaced=${sync.replaced} → ${sync.templateDir})`,
+  );
+  console.log('  - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files)');
+
+  // B-097f CHK-004: project-local .claude/agents shadows the global single
+  // source. Migrate ONLY the exact managed basenames, and ONLY under the
+  // explicit --upgrade flow. A normal init MUST NOT delete project files.
+  const projectScan = scanProjectLocalManagedAgents(targetDir, agentTemplateDir);
+  if (projectScan.managedFiles.length > 0) {
+    if (upgradeManagedAssets) {
+      const migration = migrateProjectLocalManagedAgents(
+        targetDir,
+        agentTemplateDir,
+        relPath => console.log(`  ↻ ${relPath} (migrated to global)`),
+      );
+      console.log(
+        `  ✓ migrated ${migration.removed.length} managed agent file(s) to global` +
+          (migration.preserved.length > 0 ? `; preserved ${migration.preserved.length} user file(s)` : '') +
+          (migration.dirRemoved ? '; removed empty .claude/agents' : ''),
+      );
+    } else {
+      console.log(
+        `  ⚠ ${projectScan.managedFiles.length} managed agent files found in .claude/agents; ` +
+          `run lattice init --upgrade to migrate to global`,
+      );
     }
-
-    symlinkSync(linkTarget, dst);
-    console.log(`  ✓ .claude/agents/${file} → ${linkTarget}`);
   }
 } else if (wantsClaude) {
   console.log('  - agent 模板目录不存在, skip');
@@ -901,12 +933,12 @@ if (wantsClaude && agentTemplateDir) {
 }
 
 if (!isGlobalThin && wantsCodex) {
-  const codexReadmePath = join(targetDir, '.lattice-codex', 'README.md');
+  const codexReadmePath = join(targetDir, '.Codex', 'README.md');
   if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
   console.log('  ✓ .lattice-codex/README.md');
 
-  const codexManifestPath = join(targetDir, '.lattice-codex', 'lattice.json');
+  const codexManifestPath = join(targetDir, '.Codex', 'lattice.json');
   writeFileSync(codexManifestPath, renderLatticeCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
   console.log('  ✓ .lattice-codex/lattice.json');
 } else if (isGlobalThin) {
@@ -920,7 +952,7 @@ if (!isGlobalThin && wantsCodex) {
 if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   console.log('  - .lattice-codex/agents (thin asset mode; prompts resolve from registry)');
 } else if (!isGlobalThin && wantsCodex && agentTemplateDir) {
-  const codexAgentDir = join(targetDir, '.lattice-codex', 'agents');
+  const codexAgentDir = join(targetDir, '.Codex', 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
   const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
   const agentPromptFileSet = new Set(agentPromptFiles);
@@ -1014,6 +1046,9 @@ if (wantsClaude) {
       console.log(`  ⚠ settings.json 合并失败: ${e.message}`);
     }
   } else {
+    // B-097f: .claude/agents is no longer pre-created, so ensure .claude exists
+    // before writing settings.json (hooks may have been skipped when absent).
+    mkdirSync(dirname(settingsPath), { recursive: true });
     writeFileSync(settingsPath, JSON.stringify({ hooks: claudeHooks }, null, 2) + '\n');
     console.log('  ✓ .claude/settings.json (created)');
   }

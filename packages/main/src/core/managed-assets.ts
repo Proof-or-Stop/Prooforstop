@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  rmSync,
   statSync,
   unlinkSync,
   writeFileSync,
@@ -43,6 +44,7 @@ import {
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './runtime-artifact-registry.js';
+import { listManagedAgentBasenames, resolveAgentTemplateDir } from './global-agents.js';
 
 export type ManagedAssetStatus =
   | 'OK'
@@ -1180,4 +1182,108 @@ export function managedAssetNextAction(result: ManagedAssetCheckResult): string 
   if (safe > 0) return 'run lattice check --apply to sync MISSING/STALE_SAFE assets';
   if (result.applied.length > 0) return 'safe managed asset drift repaired';
   return 'no managed asset drift';
+}
+
+// B-097f: Claude agent prompts are runtime-owned and resolve from the global
+// ~/.claude/agents single source. The observable mode string surfaced by
+// `lattice doctor` and the init migration flow.
+export const AGENT_ASSET_MODE_RUNTIME_OWNED = 'runtime-owned' as const;
+
+export interface ProjectLocalAgentScan {
+  /** Absolute project .claude/agents dir scanned. */
+  agentsDir: string;
+  /** The managed template basename set used for the exact-match comparison. */
+  managedBasenames: string[];
+  /** Project-local *.md files whose basename exactly matches a managed template. */
+  managedFiles: string[];
+  /** Project-local *.md files NOT in the managed set (user-authored — preserved). */
+  userFiles: string[];
+}
+
+/**
+ * Scan a project's `.claude/agents` for project-local managed agent files.
+ *
+ * "Managed" = basename exactly matches one of the running CLI package's
+ * `templates/agents/*.md`. This is the precise set the explicit `--upgrade`
+ * migration is allowed to delete; everything else is user-authored and
+ * preserved. Returns empty sets when the dir or template source is absent.
+ */
+export function scanProjectLocalManagedAgents(
+  projectRoot: string,
+  templateDir: string | null = resolveAgentTemplateDir(),
+): ProjectLocalAgentScan {
+  const agentsDir = join(projectRoot, '.claude', 'agents');
+  const managedBasenames = templateDir && existsSync(templateDir)
+    ? listManagedAgentBasenames(templateDir)
+    : [];
+  const managedSet = new Set(managedBasenames);
+  const managedFiles: string[] = [];
+  const userFiles: string[] = [];
+  if (existsSync(agentsDir)) {
+    let entries: string[] = [];
+    try {
+      entries = readdirSync(agentsDir).filter(file => file.endsWith('.md')).sort((a, b) => a.localeCompare(b));
+    } catch {
+      // PROBE: unreadable dir reports as empty; next run re-scans.
+      entries = [];
+    }
+    for (const file of entries) {
+      if (managedSet.has(file)) managedFiles.push(file);
+      else userFiles.push(file);
+    }
+  }
+  return { agentsDir, managedBasenames, managedFiles, userFiles };
+}
+
+export interface MigrateProjectLocalAgentsResult {
+  agentsDir: string;
+  removed: string[];
+  preserved: string[];
+  dirRemoved: boolean;
+}
+
+/**
+ * Migrate (delete) ONLY the exact managed agent basenames from a project's
+ * `.claude/agents`. NEVER wildcard-deletes; user-authored files are preserved.
+ * Removes the dir only if it becomes empty. Idempotent: no managed files → no-op.
+ *
+ * This is the explicit `--upgrade` migration. Callers must ensure the global
+ * single source is ready first (see syncGlobalAgents).
+ */
+export function migrateProjectLocalManagedAgents(
+  projectRoot: string,
+  templateDir: string | null = resolveAgentTemplateDir(),
+  log: (relPath: string) => void = () => {},
+): MigrateProjectLocalAgentsResult {
+  const scan = scanProjectLocalManagedAgents(projectRoot, templateDir);
+  const removed: string[] = [];
+  for (const file of scan.managedFiles) {
+    const full = join(scan.agentsDir, file);
+    try {
+      unlinkSync(full);
+      removed.push(file);
+      log(`.claude/agents/${file}`);
+    } catch {
+      // PROBE: a concurrent removal leaves nothing to migrate; treat as done.
+    }
+  }
+  // Remove the dir only if it is now empty (no user files, nothing left).
+  let dirRemoved = false;
+  if (existsSync(scan.agentsDir)) {
+    let remaining: string[] = [];
+    try {
+      remaining = readdirSync(scan.agentsDir);
+    } catch {
+      remaining = [];
+    }
+    if (remaining.length === 0) {
+      try {
+        rmSync(scan.agentsDir, { recursive: false, force: true });
+        dirRemoved = true;
+      } catch {
+        // PROBE: best-effort empty-dir cleanup.
+      }
+    }
+  }
+  return { agentsDir: scan.agentsDir, removed, preserved: scan.userFiles, dirRemoved };
 }

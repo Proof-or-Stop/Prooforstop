@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4fd3",
+  "allowedCommands": [
+    "git diff/status/add/commit",
+    "lattice validate",
+    "node packages/main/dist/cli.js",
+    "npm run build",
+    "npm run test:thin-init-assets-smoke"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".gitignore",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/tasks/thin-init-assets-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "治本：init 复制路径以 registry 为真相源；不改 registry 语义与 managed-assets 检查逻辑（仅 import 其已导出 helper）。managed-assets.ts/runtime-artifact-registry.ts blocked 为写保护，read/import 允许。",
+  "createdAt": "2026-06-16T20:59:46.259Z",
+  "updatedAt": "2026-06-16T20:59:46.259Z",
+  "_hash": "e6905e681ad679bc3df9bd399f9e1bedcba82d681aab5b152b4aee84c4ee7272"
+}
