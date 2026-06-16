@@ -84,6 +84,54 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parseClaudeCliOutput(validJsonEnvelope) where envelope has .result='Hello from Claude' and .usage={input_tokens:1000, output_tokens:300, cache_creation_input_tokens:5, cache_read_input_tokens:200} -> returns {resultText:'Hello from Claude', anthropicUsage:{input_tokens:1000, output_tokens:300, cache_creation_input_tokens:5, cache_read_input_tokens:200}}; WHY: covers the primary extraction path from a well-formed Claude Code JSON envelope",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(plainTextStdout) where input is 'Just some text output' (not JSON) -> returns {resultText:'Just some text output', anthropicUsage:null}; WHY: covers the raw-text fallback path for non-JSON CLI output",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parseClaudeCliOutput(malformedJson) where input is '{not valid json' -> returns {resultText:'{not valid json', anthropicUsage:null}; never throws; WHY: truncated/corrupt JSON must degrade gracefully to raw text",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithoutUsage) where input is valid JSON but lacks usage field {\"result\":\"hi\"} -> returns {resultText:'hi', anthropicUsage:null}; WHY: JSON envelope without usage block must not crash, usage is null",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithoutResult) where input is valid JSON but lacks result field {\"usage\":{\"input_tokens\":10,\"output_tokens\":5}} -> returns {resultText: raw stdout string, anthropicUsage: extracted or null depending on shape}; WHY: edge case where result text is missing but usage is present",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(emptyString) where input is '' -> returns {resultText:'', anthropicUsage:null}; never throws; WHY: empty stdout must not crash the parser",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithUsagePartialFields) where usage has only input_tokens and output_tokens but no cache fields -> returns anthropicUsage with those two fields and cache fields absent/undefined; WHY: Claude may not always report cache dimensions",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "parseClaudeCliOutput(jsonWithNestedResult) where stdout is deeply nested JSON (result inside result inside result, 50 levels) -> returns {resultText: raw stdout, anthropicUsage: null} or correctly extracts top-level; never throws, never stack-overflows; WHY: adversarial input shape must not crash parser with recursion",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithUsageTokensAsStrings) where usage.input_tokens='not a number' -> returns {resultText: extracted, anthropicUsage: null} (usage rejected because tokens are not numbers); WHY: adversarial type confusion in usage field must not produce bad numbers",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(veryLargeStdout) where input is 5MB of valid text -> returns {resultText: the full 5MB text, anthropicUsage: null}; does not OOM; WHY: Claude output can be arbitrarily large; parser must handle it",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
