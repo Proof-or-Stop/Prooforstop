@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Anthropic usage adapter (native four-field)",
       "context": "Add an adapter (e.g. core/usage-ledger/adapters/anthropic.ts) mapping an Anthropic Messages API usage object (input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens) into LedgerUsage: canonical {input,output,cacheCreation,cacheRead} from the four native fields, raw{providerUnits:'anthropic-usage-v1', payloadDigest}, source=provider-reported. input maps from input_tokens (already the uncached remainder). Unit-tested with a sample response incl. cache fields and a no-usage case -> unavailable.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T02:26:32.366Z",
       "endTime": null,
       "files": {
         "modify": [],
