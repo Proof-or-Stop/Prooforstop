@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ed70",
+  "allowedCommands": [
+    "find *",
+    "git add *",
+    "git commit *",
+    "git grep*",
+    "git mv *",
+    "git rm *",
+    "git status*",
+    "grep *",
+    "ls *",
+    "node bin/lattice.js *",
+    "npm --prefix * run *",
+    "npm run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".Codex",
+    ".gitignore",
+    ".lattice-codex",
+    "AGENTS.md",
+    "bin",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "docs",
+    "experiments",
+    "package.json",
+    "packages/lab/package.json",
+    "packages/lab/src",
+    "packages/main/src",
+    "packages/main/tests/fixtures",
+    "packages/utils/src",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "packages/main/src/core/intent-coverage.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Broad rename + removal touching code/docs/decisions. Lowercase .codex/ must be preserved as Codex CLI contract.",
+  "createdAt": "2026-06-16T20:35:21.811Z",
+  "updatedAt": "2026-06-16T20:35:21.811Z",
+  "_hash": "380300cbe6b9ec61ca08bc9af5e260afa99f2e835579632dd2791d1c77ee1999"
+}

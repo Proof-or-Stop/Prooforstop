@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix lab/package.json description: replace 'koala 离线优化实验室' with the Lattice equivalent",
+      "context": "packages/lab/package.json line 4 description currently reads 'koala 离线优化实验室：实验配置、隔离沙箱、patch guard 和基础评估骨架'. Replace 'koala' with 'Lattice' (preserve the rest of the wording). After: `grep -i koala packages/lab/package.json` returns nothing; `npm --prefix packages/lab run build` passes.",
+      "userSees": "packages/lab/package.json no longer mentions koala in its description; lab build still passes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rename uppercase .Codex/ to .lattice-codex/ and update all 32 references",
+      "context": "git mv all 18 .Codex/* contents into .lattice-codex/. Then in every tracked file outside .Codex/ that contains '.Codex/' or '\".Codex' as a path token, rewrite to '.lattice-codex/' or '.lattice-codex' — covers packages/lab/src/core/config.ts, packages/main/src/{cli-engine,cli-init,core/agent-asset-resolution,core/codex-adapter-checks,core/managed-assets,core/prompt-registry,init-assets,tasks/codex-registry-mode-smoke}.ts, .codex/hooks/lattice-scope-pretool.cjs, AGENTS.md/CHANGELOG.md/CLAUDE.md/README.md, 6 docs/audits + docs/guide-hooks.md + 8 decision-doc files, and experiments artifacts. KEEP lowercase .codex/ untouched (Codex CLI's mandatory hook dir contract). After: `git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice'` returns nothing; `npm run build` exit 0; `npm run test:e2e` ALL PASS; `node bin/lattice.js verify_codex` still passes 8/8 (codex adapter behavior unchanged, only the directory name moved).",
+      "userSees": "`git grep -E '\\.Codex(/|\\b)'` returns no matches; ls shows .lattice-codex/ instead of .Codex/; lowercase .codex/ still present (Codex CLI requirement); build + e2e + verify_codex all green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Remove the OMX disable guard entirely (the user never wanted omx in their workspace)",
+      "context": "Delete the entire omx-disable infrastructure: (a) remove '.omx/' from .gitignore; (b) git rm scripts/verify-omx-disabled.mjs and its 'test:omx-disabled' script entry in root package.json; (c) AGENTS.md item #12 ('本机禁用 OMX...') — remove this entire numbered item; (d) remove omx-refusing source code in packages/main/src/core/baseline.ts, baseline-suite-report.ts, dev-memory.ts, lattice-baseline.ts, runtime-artifact-registry.ts, handlers/capsule.ts, tasks/story-capsule-smoke.ts, tests/fixtures/baseline-risk-accepted-local-paths.json; (e) update the 10 decision docs that document the disable policy to reflect that omx is simply not supported (not 'supported-but-disabled'). After: `git grep -i 'omx' -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md'` returns nothing in active code/docs; `npm run build` + `npm run test:e2e` pass.",
+      "userSees": "No omx mentions remain in active code, scripts, .gitignore, AGENTS.md, or decision docs; build + e2e pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

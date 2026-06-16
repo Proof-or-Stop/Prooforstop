@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ed70",
+  "mode": "custom",
+  "allowed": [
+    "Fix the lab package.json description (koala → Lattice), rename the uppercase .Codex/ directory and all its references to .lattice-codex/, and remove the OMX disable-guard infrastructure end-to-end."
+  ],
+  "excluded": [
+    "Anything in the .lattice/ self-hosting metadata",
+    "intent-coverage.ts and the deferred .koala runtime path layer",
+    "The 308-file koala residual sweep (deferred to a new session)",
+    "The lowercase .codex/ Codex native hook directory (Codex CLI contract — must be preserved)"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User chose .lattice-codex name and confirmed omx was never wanted; bundling items 1+2+3 in this session, koala residual sweep deferred (2026-06-16).",
+  "createdAt": "2026-06-16T20:35:21.306Z",
+  "updatedAt": "2026-06-16T20:35:21.306Z",
+  "_hash": "a1b94826f40b8934fcfaaacef2aa61f6ecd5884c55987684ca5d8fe27c17bad0"
+}
