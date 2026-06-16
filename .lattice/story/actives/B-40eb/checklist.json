@@ -6,7 +6,18 @@
       "context": "对 packages/scripts/docs 逐文件判定：koala 品牌/散文=该清；.koala 运行时路径、盐值、decisions 历史、测试断言意图、CHANGELOG=该留。白名单写入 plan.md 与 understanding。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "PLAN artifact: plan.md and understanding contain classification of all 321 candidates into in-scope vs documented-exception categories; WHY: pure planning output, verified by artifact existence and completeness, not auto-testable code behavior",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-002",

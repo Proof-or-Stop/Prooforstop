@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "in-scope/exception 边界以既有守门测试 B-3cca branding 规则为权威，不另立标准",
+    "最小破坏：保留 process-lane 名 / legacy alias / .koala 运行时路径 / 盐值 / 测试断言意图，保证 build+e2e+validate 全绿",
+    "gate 驱动验收：story 4 将 branding 审计范围从 4 文件扩到全 active 范围当 verify gate，story 3 改到 gate 绿",
+    "分批可验证：按 lab→utils→scripts→main src→main tests→docs 分批，每批独立通过测试再继续"
+  ],
+  "drivers": [
+    "OSS 开源前去除用户可读的 koala 品牌（ship-clean 计划 story 3）",
+    "不破坏既定决策（B-3cca process-lane 保留）与现有 e2e 测试体系",
+    "与并行 B-ed70（lab/.Codex）及 7-story 环境不撞车、不返工"
+  ],
+  "options": [
+    {
+      "name": "A：语义全量 + 扩展 branding gate",
+      "pros": [
+        "复用 B-3cca 既定规则作判定边界，风险可控、不破坏既有测试",
+        "清掉所有用户可读品牌（注释/@title/CLI 文案/报错/prose/函数名/temp 前缀）",
+        "story 4 自然落地为『扩展 branding 审计范围』的 verify gate，两 story 各有实质"
+      ],
+      "cons": [
+        "仍是 272 文件/1655 行逐行 judgment，工作量大、需分批",
+        "process-lane 名等保留项不去除，git grep -i koala 仍非全 0（但有清单解释）"
+      ]
+    },
+    {
+      "name": "B：字面全量",
+      "pros": [
+        "最彻底，git grep -i koala 理论上全 0"
+      ],
+      "cons": [
+        "推翻 B-3cca 既定 process-lane 保留决策",
+        "需重写大量 e2e 测试、改 dispatch/agent 类型注册，撞车与返工风险最高"
+      ]
+    },
+    {
+      "name": "C：窄范围只散文+注释",
+      "pros": [
+        "最快最安全，不碰测试/脚本"
+      ],
+      "cons": [
+        "scripts 和测试里的 koala 品牌残留，verify gate 无法全绿"
+      ]
+    }
+  ],
+  "chosen": "A：语义全量 + 扩展 branding gate",
+  "rationale": "用户在精确盘点后明确选定方案 A。复用既有守门测试 B-3cca 的分类规则作为 in-scope/exception 权威边界，风险可控且不破坏既有测试与既定决策；story 4 自然落地为把 branding 审计范围扩到全 active 范围的 verify gate。方案 B 推翻既定决策且需重写大量测试，方案 C 残留脚本/测试品牌、gate 无法全绿，均被否决。",
+  "preMortem": [
+    {
+      "scenario": "改测试夹具里的品牌（runKoala* 函数名、mkdtemp 前缀 koala-*、koala.config.json 夹具）破坏 e2e 测试",
+      "trigger": "改了函数名却漏改引用，或改了断言意图夹具的 koala 字面量",
+      "consequence": "npm run test:e2e 失败，story 卡在 TEST",
+      "mitigation": "逐行用 B-3cca 规则判断：assertNotContains(...,'koala...') 等断言意图保留字面量；改函数名/temp 前缀时同步改全部引用；每批改完跑 lattice validate + e2e"
+    },
+    {
+      "scenario": "误改 process-lane 名（koala-codex / koala-review* 等）破坏 dispatch / agent 类型注册",
+      "trigger": "未遵循 branding NEUTRAL_TOKEN_PATTERNS，把 process-lane 名也改了",
+      "consequence": "dispatch 找不到 agent 类型，e2e / 真机 dispatch 失败",
+      "mitigation": "严格按 B-3cca 规则不动 process-lane 名；扩展后的 branding gate + e2e 双重把关；DEV 前用 perl 复刻规则生成『该改清单』，process-lane 名不在其中"
+    },
+    {
+      "scenario": "与并行 B-ed70 在 packages/lab/src/core/config.ts 和 lab/package.json 撞车",
+      "trigger": "本 story 改了 B-ed70 正在改的同一处",
+      "consequence": "DONE 合并冲突，需手工 rebase",
+      "mitigation": "lab/package.json description 与 config.ts 的 .Codex 行留给 B-ed70；本 story 只改 lab 其余文件；DONE 前 rebase main 检查冲突"
+    },
+    {
+      "scenario": "扩展 branding gate 到全 active 范围后，把『该留』的 koala（测试里 .koala 路径、koala.config.json 夹具）误判为 unclassified，gate 永远红",
+      "trigger": "扩展审计范围却没同步扩充 NEUTRAL_TOKEN_PATTERNS 的语境豁免",
+      "consequence": "story 4 verify gate 无法变绿，阻塞 DONE",
+      "mitigation": "story 4 扩展 gate 时同步扩充豁免规则（.koala 路径在测试语境、koala.config.json 断言夹具），先让 gate 对『story 3 改完的现状』为绿基线"
+    },
+    {
+      "scenario": "1655 行量大，单 session 难完成，中途中断留半改状态",
+      "trigger": "改到一半 session 结束 / 工具中断",
+      "consequence": "worktree 处于部分改名、测试红的中间态",
+      "mitigation": "按目录/类别分批，每批改完即跑测试并 commit（lattice checklist 跟踪进度）；worktree + Lattice story 本身可恢复，session_brief 续接"
+    }
+  ],
+  "timestamp": "2026-06-16T22:00:45.089Z"
+}
