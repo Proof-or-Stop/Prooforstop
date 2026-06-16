@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Privacy-preserving usage-evidence envelope shape + builder",
       "context": "In a new core/usage-ledger/authority-evidence.ts (pure; imports only ./ siblings + node), define a PrivacyPreservingUsageEvidenceEnvelope type and buildUsageEvidenceEnvelope(record) that encodes a ledger record as digests (e.g. sha256 of the canonical record via canonical-json.ts) + non-secret fields (model, provider name, usage counts, source, correlation ids, decision) needed for a future Authority submission. MUST contain NO raw prompt/transcript/secret/key/auth-header (reuse the privacy denylist / reject if present). Unit-tested: envelope built from a record contains a recordDigest + allowed fields and zero forbidden material.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T21:32:48.697Z",
       "endTime": null,
       "files": {
         "modify": [],
