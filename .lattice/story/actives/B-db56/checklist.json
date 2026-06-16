@@ -285,6 +285,17 @@
           "headHash": "505dcb8adbd69029d20c72466d74a48e22375e56",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:40:06.866Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:gitroot-cwd-contract",
+          "result": "pass",
+          "note": "Contract smoke exit 0 on HEAD — all sites are routed.",
+          "headHash": "52bca83f42e1f1a4f4bb930a545bfa7bf3282ffd",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:07.516Z"
         }
       ]
     }
