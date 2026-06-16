@@ -150,12 +150,12 @@
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
-          "command": "node --input-type=module -e (runtimeIgnoreMissing on drifted content)",
+          "command": "node -e drift-detection",
           "result": "pass",
-          "note": "node 验证：从 registry 全集删 .lattice/usage/ 构造 drift 内容，runtimeIgnoreMissing 返回 [.lattice/usage/]，证明断言会 FAIL 而非静默通过",
-          "headHash": "8e1e948e6b56016ee459603b62aabeff80fdd871",
-          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
-          "timestamp": "2026-06-16T21:11:43.126Z"
+          "note": "re-recorded post-fix: node 验证从 registry 全集删 .lattice/usage/ 构造 drift，runtimeIgnoreMissing 返回 [.lattice/usage/]，断言会 FAIL 非静默通过",
+          "headHash": "9ae2984604d5d131cb880b72e2d55945d94ecae5",
+          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
+          "timestamp": "2026-06-16T21:16:49.995Z"
         }
       ]
     }
