@@ -47,6 +47,22 @@
       "files": [
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-4bf8:F-004",
+      "desc": "doc-code-drift: The Required record constraints section (lines 408-414) states that if a provider does not expose cache-token fields at all, that maps to usage.source=unavailable for the cache dimension. The Multi-Provider Normalization section (lines 487-489) states that such providers map cacheCreation and cacheRead to unavailable for that dimension while still mapping input and output. But usage.source is a single record-level discriminator (provider-reported | prompt-size-estimate | unavailable); the doc does not define how a record with provider-reported input/output AND unavailable cache fields represents itself in usage.source, nor does it define a per-field source sub-schema, nullable cache fields, or split-record encoding. An implementer cannot determine from the doc alone whether to emit usage.source=provider-reported with null/absent cache fields, usage.source=unavailable for the whole record, or two separate records. The per-dimension language needs a concrete resolution: either define a mixed-source encoding (e.g. nullable cache fields under provider-reported), mandate a split-record approach, or clarify that the whole record becomes usage.source=unavailable when cache fields are missing.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-16T00:03:19.271Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-001",
+      "_hash": "0948cbcf3c1fcb50783170ea53723e2bcd5d8fc098c98908a02644aa6f91ff19",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ]
     }
   ]
 }
