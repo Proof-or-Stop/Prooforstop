@@ -426,6 +426,58 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build -> exits 0 with no TypeScript errors; WHY: build must be green with all new code",
+            "type": "cli"
+          },
+          {
+            "desc": "npm --prefix packages/main run test:usage-ledger (or equivalent wired script name) -> exits 0, runs all smoke assertions; WHY: smoke is wired as an npm script and passes",
+            "type": "cli"
+          },
+          {
+            "desc": "packages/main/package.json contains a script entry whose name matches test:usage-ledger or test:llm-usage-ledger -> script exists and points to the smoke file; WHY: proves npm wiring",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke covers schema validation: valid record accepted, stored totalTokens rejected, raw-content injection rejected, malformed record rejected -> all sub-assertions pass; WHY: integration coverage of CHK-001 + CHK-004",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers append + hash-chain continuity across >=3 records -> chain verified programmatically; WHY: integration coverage of CHK-002",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers correlation-id stability + supersedes wiring -> preflight and postflight share ids, supersedes works; WHY: integration coverage of CHK-003",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers opt-in flag OFF -> no file written; WHY: integration coverage of CHK-006 gating",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers runtime-artifact classification of .lattice/usage/llm-usage.jsonl -> gitignored + materialHash-exclude + volatile + repairable; WHY: integration coverage of CHK-005",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers summary correctness: derived totals match identity, no double-count of superseded, unknown != 0; WHY: integration coverage of CHK-006 summary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the smoke in a clean temp directory with no prior .lattice/usage/ -> smoke creates and cleans up its own test artifacts, does not pollute the repo; WHY: test isolation",
+            "type": "cli"
+          },
+          {
+            "desc": "Run npm --prefix packages/main run build && npm --prefix packages/main run test:usage-ledger in sequence -> both pass end-to-end; WHY: full CI pipeline simulation",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
