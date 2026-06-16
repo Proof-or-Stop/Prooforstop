@@ -251,6 +251,50 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:usage-ledger-diagnostics -> all checks pass, exits 0, prints summary with pass count; WHY: validates the smoke suite itself is wired and green",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build -> succeeds with no TypeScript errors in the new diagnostics.ts / usage-ledger-report.ts files; WHY: build must stay green after the new code lands",
+            "type": "cli"
+          },
+          {
+            "desc": "existing usage-ledger smokes still pass (npm run test:usage-ledger, npm run test:usage-ledger-adapter, npm run test:usage-ledger-estimate) -> no regression; WHY: new diagnostics layer must not break existing usage-ledger functionality",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke runs entirely in an OS temp dir -> after execution, no files left in the repo working tree (ls -la to check for pollution); WHY: follows existing smoke pattern of no repo pollution",
+            "type": "cli"
+          },
+          {
+            "desc": "package.json contains test:usage-ledger-diagnostics script entry -> npm run test:usage-ledger-diagnostics is a valid npm script; WHY: validates wiring in package.json",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "static grep assert: no file in packages/main/src/core/usage-ledger/ imports from outside the module (grep for from ../ patterns) -> zero matches; WHY: the zero-cross-module-import invariant must hold after adding diagnostics.ts",
+            "type": "cli"
+          },
+          {
+            "desc": "static grep assert: diagnostics.ts does not import from cli-engine, handlers, dispatch, gate, or any other Lattice module outside usage-ledger; WHY: ensures the new file maintains module isolation",
+            "type": "cli"
+          },
+          {
+            "desc": "the smoke file (usage-ledger-diagnostics-smoke.ts) includes at least one check that deep-scans the report object for gate/verdict/decision/blocker fields -> that check is present in the source; WHY: the smoke must mechanically enforce the no-gate invariant, not just assert shape",
+            "type": "cli"
+          },
+          {
+            "desc": "the smoke file includes a static-import-isolation check (grep for cross-module imports in usage-ledger dir) -> that check is present; WHY: the smoke must mechanically assert zero-cross-module imports at test time",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
