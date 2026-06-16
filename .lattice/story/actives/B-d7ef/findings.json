@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-d7ef:F-001",
+      "desc": "CHK-002:happy:0 and CHK-002:happy:1 intents require `test -f` commands confirming phase-protocol.ts and bridge-utils.ts are GONE from disk; recorded evidence for both is a static-import grep (git grep -nE from.*phase-protocol|bridge-utils) that does not cover disk-presence at all. Rule: evidence must concretely correspond to its intent. Live re-run confirms both files GONE, but the recorded evidence command is wrong for these intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T19:06:55.491Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-003",
+      "_hash": "7e44c3e65f3a828761c3f837747d4ac6e874fee93eff802f6a22659f41bee563",
+      "files": [
+        "packages/main/src/core/phase-protocol.ts",
+        "packages/main/src/verifier/bridge-utils.ts"
+      ]
+    }
+  ]
+}
