@@ -359,7 +359,12 @@ export function runReviewCliGates(
   if (deps.registryNames) {
     const mdReader = deps.mdFileReader ?? defaultMdFileReader;
     const mdContents = mdReader(deps.projectRoot);
-    docsDrift = runDocsDriftGate(mdContents, deps.registryNames);
+    // B-a7b0 CHK-001: pass repoRoot so the gate also runs path-reference drift
+    // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When projectRoot is absent the
+    // gate degrades to the command-only check (backward compatible).
+    docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {
+      repoRoot: deps.projectRoot,
+    });
     const docsDriftOk = docsDrift.status === 'pass' || docsDrift.status === 'skipped';
     gates.push({
       name: 'docs-drift',
@@ -370,6 +375,7 @@ export function runReviewCliGates(
         ...(docsDrift.missing.length > 0
           ? [`missing: ${docsDrift.missing.join(', ')}`]
           : []),
+        ...docsDrift.missingPaths.map((p) => `missing path: ${p}`),
         ...(docsDrift.stale.length > 0
           ? [`stale (advisory): ${docsDrift.stale.join(', ')}`]
           : []),
