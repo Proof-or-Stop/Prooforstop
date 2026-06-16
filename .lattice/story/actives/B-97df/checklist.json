@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Grouped aggregation by story/phase/role/model/provider",
       "context": "In a new core/usage-ledger/diagnostics.ts (or report.ts), add aggregation that consumes summary.ts's selection (latest non-superseded per ledgerCallId+attemptId) and rolls up canonical token dimensions by storyId, phase, agentType/role, model, and provider. Reuse summary.ts; do NOT re-implement selection/bucketing. Provider-reported vs prompt-size-estimate vs unavailable kept separate; unknown/unavailable stays unknown (never 0); superseded estimates excluded from final totals. Unit-tested across groups.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T14:43:50.935Z",
       "endTime": null,
       "files": {
         "modify": [],
