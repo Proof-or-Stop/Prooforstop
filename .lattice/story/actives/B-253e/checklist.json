@@ -92,6 +92,54 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Append 3 records via the writer to a temp dir -> file contains exactly 3 JSON lines, each parseable, each line recordHash matches SHA-256 of its content minus the recordHash field; WHY: proves one-line-per-record append semantics",
+            "type": "cli"
+          },
+          {
+            "desc": "Append 3 records -> record[0].previousRecordHash is null/empty, record[1].previousRecordHash === record[0].recordHash, record[2].previousRecordHash === record[1].recordHash; WHY: proves hash-chain continuity across 3+ records",
+            "type": "cli"
+          },
+          {
+            "desc": "Writer creates .lattice/usage/ directory if it does not exist -> directory created, file written; WHY: first-run path creation",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Append a record, then read file, tamper with middle line (change a token count), recompute nothing -> next chain verification fails because record[2].previousRecordHash no longer matches tampered record[1].recordHash; WHY: proves hash-chain detects tampering",
+            "type": "cli"
+          },
+          {
+            "desc": "Append to an existing file with prior records -> writer reads last line hash and chains from it, does not overwrite prior lines; WHY: append-only guarantee",
+            "type": "cli"
+          },
+          {
+            "desc": "Writer receives an invalid record (missing required field) -> writer throws/rejects, no line appended to file; WHY: validation gate before write",
+            "type": "cli"
+          },
+          {
+            "desc": "Append to a file whose last line is corrupt JSON -> writer throws or refuses to chain; WHY: cannot chain from unparseable predecessor",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two concurrent appends racing on the same file -> both records appear in the file with correct hash chain (no lost writes, no corrupted lines); WHY: concurrent write safety",
+            "type": "cli"
+          },
+          {
+            "desc": "Record with integrity.recordHash pre-filled by caller to a wrong value -> writer overwrites it with the correct computed hash (caller cannot forge the hash); WHY: prevents hash injection",
+            "type": "cli"
+          },
+          {
+            "desc": "Attempt to call fs.appendFile or fs.writeFile on the ledger path from outside the writer module -> only the writer module exports the append function, no other code path can write the file; WHY: single write choke-point guarantee",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
