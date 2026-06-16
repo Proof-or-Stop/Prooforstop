@@ -687,9 +687,9 @@
       "id": "CHK-004",
       "title": "Regression safety: unset/OFF byte-identical + block only when configured+exceeded",
       "context": "Tests/assertions: (a) ledger flag OFF => no budget code runs, dispatch byte-identical (spawn happens); (b) flag ON but no hard-budget env => decision proceeds, budgetPolicyId=null, spawn happens (byte-identical control flow); (c) flag ON + hard budget set + estimate over budget => a decision.kind=blocked record is written AND the provider spawn is SKIPPED AND a blocked result is returned; (d) flag ON + budget set + estimate under budget => proceeds + spawns. Prove the block only triggers in case (c).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:00:24.217Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-dispatch.ts"
