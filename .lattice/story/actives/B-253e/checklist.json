@@ -213,9 +213,9 @@
       "id": "CHK-002",
       "title": "Append-only writer to .lattice/usage/llm-usage.jsonl with hash chain",
       "context": "Add an append-only writer (e.g. core/usage-ledger/writer.ts): ensures .lattice/usage/ exists, validates each record, computes recordHash and chains previousRecordHash from the prior line, appends exactly one JSON line. Never rewrites/edits prior lines. Reads the last record's hash to chain. No-op when the opt-in flag (CHK-006) is off.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T01:09:40.604Z",
-      "endTime": null,
+      "endTime": "2026-06-16T01:20:08.678Z",
       "files": {
         "modify": [],
         "create": [
