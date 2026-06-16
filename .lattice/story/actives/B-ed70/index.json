@@ -4,7 +4,7 @@
   "title": "OSS naming cleanup: lab description + .Codex rename + omx removal",
   "description": "Pre-open-source naming cleanup, three coordinated items: (1) Fix the lab package description that still says 'koala 离线优化实验室' — change to lattice equivalent. (2) Rename the .Codex/ directory (project's own codex adapter assets, NOT the lowercase .codex/ which is Codex CLI's hard-required native hook dir) to .lattice-codex/ across all 32 referencing files; this resolves the case-insensitive filesystem collision risk on macOS. (3) Remove the OMX disable guard entirely — the user never wanted .omx polluting their workspace; delete the .gitignore entry, the verify-omx-disabled.mjs script, the AGENTS.md prohibition, and the source-code refusal logic that pretends omx is supported-but-disabled. Both items 2 and 3 touch decision documents, so this story will trip the always-on 3x2 decision-doc quorum gate (clearing it via the user-approved degraded 3x1 fallback per memory).",
   "type": "refactor",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "open-source-cleanup",
@@ -44,6 +44,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-16T20:35:44.966Z",
+      "branch": "story/B-ed70",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T20:44:58.032Z",
       "branch": "story/B-ed70",
       "user": "Harmonygo",
       "agent": "main"
