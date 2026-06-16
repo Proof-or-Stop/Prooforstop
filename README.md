@@ -257,7 +257,7 @@ Architecture and non-goals:
 
 ### Authority modes (off / shadow / enforce)
 
-Lattice CLI 0.3.5 exposes three authority modes through `KOALA_AUTHORITY_MODE`.
+Lattice CLI 0.3.5 exposes three authority modes through `LATTICE_AUTHORITY_MODE`.
 All three keep ordinary local story development free, local, and unblocked —
 `authority_status` will always report `localWorkflowUsable: true`. Local
 lifecycle gates (`story_advance`, `verification_evidence_add`, DONE) do **not**
@@ -277,8 +277,8 @@ Inspect what the local CLI thinks the authority surface looks like:
 lattice authority status --json
 
 # Probe what's missing if you try shadow / enforce
-KOALA_AUTHORITY_MODE=shadow lattice authority status --json
-KOALA_AUTHORITY_MODE=enforce lattice authority status --json
+LATTICE_AUTHORITY_MODE=shadow lattice authority status --json
+LATTICE_AUTHORITY_MODE=enforce lattice authority status --json
 
 # Conduit-side mirror of the same readiness fields
 lattice conduit status --json
@@ -303,8 +303,8 @@ lattice conduit explain --json
 
 **Important boundary**: this local JSON output (or `lattice` text output) is
 **not** authority evidence. The Python authority is the only source of a
-verified `AuthorityReceipt`. Even with `KOALA_AUTHORITY_URL`,
-`KOALA_AUTHORITY_ACTOR_KEY`, and `KOALA_AUTHORITY_RUNNER_ID` all set,
+verified `AuthorityReceipt`. Even with `LATTICE_AUTHORITY_URL`,
+`LATTICE_AUTHORITY_ACTOR_KEY`, and `LATTICE_AUTHORITY_RUNNER_ID` all set,
 `productionDone` stays `false` until a signed receipt is verified by a future
 receipt-backed runner path. See
 [`docs/requirements/decisions/authority-client-role.md`](docs/requirements/decisions/authority-client-role.md)
@@ -651,7 +651,7 @@ lattice init --verify-codex
 If a project has only the global CLI and no `bin/lattice-codex.js`, you can run it like this:
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
+LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief
 ```
 
 This ensures the activity is still accounted for under `source=codex` / `entrypoint=global-fallback` and that read-only entry points such as `session_brief` still leave a heartbeat; but without a bootstrap entry point, the `aux_*` commands may be unavailable. **Global CLI is heartbeat-only, not current-worktree gate/status evidence**; do not use its `status` / `validate` output as gate authority for the active story worktree.

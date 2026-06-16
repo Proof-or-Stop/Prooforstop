@@ -60,9 +60,8 @@ export function readAuthorityEnv(
   env: Record<string, string | undefined>,
   name: 'MODE' | 'URL' | 'TIMEOUT_MS',
 ): string | undefined {
-  const lattice = env[`LATTICE_AUTHORITY_${name}`];
-  if (typeof lattice === 'string') return lattice;
-  return env[`LATTICE_AUTHORITY_${name}`];
+  const value = env[`LATTICE_AUTHORITY_${name}`];
+  return typeof value === 'string' ? value : undefined;
 }
 
 /**
