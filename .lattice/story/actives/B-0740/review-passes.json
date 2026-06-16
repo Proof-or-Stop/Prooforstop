@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-0740:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 6 must-intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial) have concrete, non-tautological logic_test evidence. Wrapper-root cases (CHK-001 lines 319-374, CHK-002 case-e/f/g/h) genuinely exercise the new gitCwd code paths. Adversarial revert proofs are credible: CHK-001 asserts repairWrote===true (would fail if cwd=root), CHK-002 case-e deepEqual strips wrapper/ prefix (would fail without rebase). validate --story=B-0740 confirms 6/6 covered, result=pass. No gaps.",
+      "createdAt": "2026-06-16T01:18:10.207Z",
+      "reviewRound": "2026-06-16T01:16:26.552Z",
+      "reviewRunId": "B-0740:RR-003",
+      "_hash": "b05aefe712b2fe6565c42d22e3658b1cfcb6b6c13cff0127568bdc2c8dc389e6"
+    }
+  ]
+}
