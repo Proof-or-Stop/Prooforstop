@@ -176,6 +176,17 @@
           "headHash": "e1257ebf566ea59d9c222a2e36f7d8ab6e8b14b0",
           "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
           "timestamp": "2026-06-16T21:27:21.872Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "DI-fixture logic tests assert edge behaviors: clean fixture yields empty missingPaths AND empty managedAssetContradictions; injected pathExists/grepLiteral/managedAssetDefs only, real CLAUDE.md never read.",
+          "headHash": "b80cca00bce053eb1e26f0a1c95a0c1e7d077355",
+          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
+          "timestamp": "2026-06-16T21:27:28.060Z"
         }
       ]
     }
