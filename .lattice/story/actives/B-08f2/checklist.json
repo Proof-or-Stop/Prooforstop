@@ -731,6 +731,17 @@
           "headHash": "cf60c2e4e57c838b3ee783d6daff277b13764c85",
           "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
           "timestamp": "2026-06-16T00:15:46.321Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE '(\\|\\||\\?\\?)\\s*process.env.KOALA_' -- packages scripts bin",
+          "result": "pass",
+          "note": "No leftover `|| process.env.KOALA_X` shim (0 matches).",
+          "headHash": "1bfbc560048de046751208c650549dabc0aebbeb",
+          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
+          "timestamp": "2026-06-16T00:15:46.825Z"
         }
       ]
     }
