@@ -138,18 +138,18 @@
       "status": "in_progress",
       "startTime": "2026-06-16T18:22:14.095Z",
       "endTime": "2026-06-16T14:45:26.297Z",
-      "userSees": "在 claude profile 项目跑 lattice init --yes,[5/6] 段输出 - .claude/agents (resolved from global ~/.claude/agents; no per-project copies);find . -name *.md 不含任何 .claude/agents/*.md",
+      "userSees": "claude profile 项目跑 lattice init --yes,[5/6] 段输出 - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files);find . -name *.md 不含任何 .claude/agents/*.md",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "claude profile init 后项目内 0 个 .claude/agents 管理文件且输出全局解析提示",
+            "desc": "claude profile init 后项目内 0 个 .claude/agents 文件且输出全局 thin-shim 解析提示",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "core profile(无宿主标记)行为不变,仍 skip",
+            "desc": "core profile(无标记)行为不变仍 skip",
             "type": "cli",
             "priority": "must"
           }
