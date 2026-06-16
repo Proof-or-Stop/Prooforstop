@@ -39,7 +39,7 @@
       "desc": "doc-code-drift: JSON example has provider.name=openai and provider.model=gpt-5 but usage.raw.providerUnits=anthropic-usage-v1. The raw units label claims Anthropic format while the provider block claims OpenAI. A reader implementing the raw-view shape from this example would associate the wrong providerUnits discriminator with OpenAI calls. Either the provider block should use an Anthropic-shaped provider (which would also align with the Anthropic-shaped canonical mapping described in the Multi-Provider Normalization section), or the providerUnits value should be an OpenAI-shaped label. This is an internal contradiction in the only JSON example the doc provides.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-16T00:03:06.860Z",
@@ -48,7 +48,8 @@
       "_hash": "215eeca0124477fd59f2da8309c39e8275f225219536ccd2de359aebd2dab89d",
       "files": [
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T00:09:00.992Z"
     },
     {
       "id": "B-4bf8:F-004",
