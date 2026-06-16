@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T22:40:46.961Z",
       "reviewRunId": "B-db56:RR-001",
       "_hash": "66c220426188364302a8ab3a9751cf56e602859affe0205420635ea17bc1e224"
+    },
+    {
+      "id": "B-db56:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "CHK-001 cwd rerouting: pure parameter rewiring across all 29 changed files. Sites with storyId context use resolveGitCwd (auto-commit-metadata.ts, verifier.ts:739); sites without storyId use const gitCwd = projectRoot alias which satisfies the lexical contract. currentHead/headShaGitCwd stubs in verifier.ts are intentional (no storyId available). CHK-002 contract smoke: clean implementation, allowlist load-bearing and allowlists itself via -smoke.ts pattern, self-test runs KNOWN-GOOD + KNOWN-BAD before repo scan, GIT_CALL_REGEX lastIndex reset correctly on each call, BARE_CWD_REGEX non-global safe, failure message format correct, standalone runnable confirmed. No dead code, no unused imports, no new empty-catch swallowing, no shell/fn.ts isolation violations. One medium finding filed (F-002): misleading comment in done-effects.ts:68 claims callers route via resolveGitCwd but transition-orchestrator.ts:276 passes ctx.root directly.",
+      "createdAt": "2026-06-16T22:46:33.210Z",
+      "reviewRound": "2026-06-16T22:40:46.961Z",
+      "reviewRunId": "B-db56:RR-002",
+      "_hash": "d6f34d2a3a970e22abeac023ddd07a7e6ecb8cbf31d07ffc9975e2b24ceb95a8"
     }
   ]
 }
