@@ -72,9 +72,9 @@
       "title": "Thread resolved gitCwd into lint change-scope (resolveChangedFiles)",
       "context": "verifier.ts:630 and review-preflight.ts:334 call resolveChangedFiles({projectRoot}) without the resolved gitCwd; resolveChangedFiles / its defaultChangedFilesReader (validate-lint.ts) run git diff with cwd:projectRoot. Add an optional gitCwd to resolveChangedFiles (and its reader) and pass the gitCwd already resolved at verifier.ts:604 / review-preflight.ts so the change-scope git diff runs from the gitRoot on wrapper-root layouts. Keep the git-diff base and the tsconfig-relativity base consistent; fall back to root. Add a wrapper-root change-scope regression test.",
       "userSees": "`lattice validate --lint --story=B-xxx` on a wrapper-root project scopes lint to the changed packages (out-of-scope tsconfigs reported skipped) instead of silently falling back to full recursive tsc because the change-scope git diff failed.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T01:14:12.338Z",
       "verificationIntent": {
         "happy": [
           {
