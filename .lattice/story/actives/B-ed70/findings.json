@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/core/codex-adapter-checks.ts"
       ]
+    },
+    {
+      "id": "B-ed70:F-002",
+      "desc": "CHK-002:edge:4 evidence mismatch: intent requires the pretool hook internal .Codex reference rewritten to .lattice-codex; evidence ran grep -n lattice-codex (positive presence check only). The .Codex reference remains at .codex/hooks/lattice-scope-pretool.cjs line 93 (findRepoRoot detection probe). Evidence never ran grep -c .Codex on the file to verify absence. The file is git-tracked as .codex/ (excluded from the main postcondition scan), so the CHK-002:happy:0 sweep does not catch this residual. The .Codex probe in findRepoRoot is functionally benign on macOS (case-insensitive FS makes .codex and .Codex identical), but the intent explicitly required rewriting it and evidence claimed it was done when it was not.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:13:00.126Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-003",
+      "_hash": "f320d1c5165b3db4c927d20195398586c1a7e4de04d2fa317d721465f3a53a53",
+      "files": [
+        ".codex/hooks/lattice-scope-pretool.cjs"
+      ]
     }
   ]
 }
