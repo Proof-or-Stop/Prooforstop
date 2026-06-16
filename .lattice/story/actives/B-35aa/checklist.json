@@ -298,6 +298,17 @@
           "headHash": "89ad3a7271aa8a6062340835f98c4b4d6c1f2fc7",
           "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
           "timestamp": "2026-06-16T23:52:09.677Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- packages",
+          "result": "pass",
+          "note": "Empty — no packages/ changes.",
+          "headHash": "7076683eb977637f862a3cadc16cf1a0619e7aa3",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:10.320Z"
         }
       ]
     }
