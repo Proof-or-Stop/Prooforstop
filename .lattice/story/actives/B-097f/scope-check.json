@@ -1,6 +1,6 @@
 {
   "storyId": "B-097f",
-  "checkedAt": "2026-06-16T18:28:46.588Z",
+  "checkedAt": "2026-06-16T18:31:01.759Z",
   "features": [
     {
       "feature": "Prompt content never lives under a host directory (no role body in Claude shim files)",
@@ -150,22 +150,22 @@
       "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
     },
     {
-      "feature": "lattice-runtime-owned-agent-assets-execution-plan.md: AgentAssetResolution contract interface (mode/projectPromptAssets/blockingIssues)",
+      "feature": "AgentAssetResolution TypeScript interface (mode/projectPromptAssets/blockingIssues/authorityBoundary) from execution plan",
       "covered_by": null,
-      "status": "orphan-suspect",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing artifact from prior Codex-side runtime-owned work (commit 015a009 2026-06-15 Add runtime-owned agent asset diagnostics). File packages/main/src/core/agent-asset-resolution.ts already exists and is consumed by codex-adapter-checks.ts, rollout-check.ts, and runtime-owned-agent-assets-smoke.ts. No B-097f branch commits touch this file. B-097f CHK-004 only adds the lattice doctor agentAssetMode readout which consumes this existing interface.",
       "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
     }
   ],
   "summary": {
     "total": 21,
     "covered": 19,
-    "excluded": 2,
+    "excluded": 3,
     "gaps": 0,
-    "orphanSuspect": 1,
+    "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "e0b6ebce31c6c1b864d8ec202705301b07cc5fcc7f2e3dc461748035b5d4e887",
+  "_hash": "c3413f0cd2ba43b3aeb67edcba0bad22ef279bc792ba455ec2a3996b6e60e618",
   "openQuestions": []
 }
