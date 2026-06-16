@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9177",
+  "checkedAt": "2026-06-16T03:50:10.090Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "ed0392b7bb51c666429a0ee289f161d4e05b014eec297e61add81c2112d66bdd",
+  "executionBoundaryHash": "b6d329d4d554b64275fa26f3b679820eb5412799c790e66de556210a72fb797a",
+  "freshnessHash": "cdd9d1b54abaccb1201480a17cd864522c368ea63ea9a116acd7a4ce5752a76d",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Full per-session physical checkout isolation (a separate repo checkout per session) — the larger maximalist architecture change, intentionally deferred to a future design decision",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Full per-session physical checkout isolation (a separate repo checkout per session) — the larger maximalist architecture change, intentionally deferred to a future design decision",
+      "source": "scopeBoundary.excluded",
+      "text": "Full per-session physical checkout isolation (a separate repo checkout per session) — the larger maximalist architecture change, intentionally deferred to a future design decision",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "45c13fa8531fa935baf1a2e7c9213cd0fb795257d968f927defb4b5e14ae3605"
+}
