@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T04:38:12.090Z",
       "reviewRunId": "B-9177:RR-006",
       "_hash": "d5a90340dfac38b9402e8fd91a6aa48b4e88fe9b18f44137ddaaf5ef6dd192e5"
+    },
+    {
+      "id": "B-9177:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept-deletion check complete. No symbols were deleted or renamed in this change. The diff is purely additive: (1) cli-engine.ts commitFromDraftMetadataOnMain and commitFromDraftMetadataAndMergeMain had their bodies wrapped in withReentrantMainWriteLock — all local variable names and the function signatures are unchanged; (2) handlers/worktree.ts story_discard and dev_merge paths had calls to purgeSafeInitCommit and commitDiscardMetadata wrapped in withReentrantMainWriteLock at the callsite — all functions still exist; (3) a new tasks/main-write-lock-coverage.ts was added with its own exports (COVERAGE_MARKER, MutationSite, CoverageReport, SiteClass, scanMainMutationCoverage). The F-001 fix added gitFile wrapper recognition (GIT_CALL_OPENERS updated, updatesStoryBranchRef helper, WORKTREE_CWD_SYMBOLS set) and corresponding negative-fixture tests — all purely additive. Grepped the full src tree: zero dangling references, zero unused imports from deleted symbols. No concept residue found.",
+      "createdAt": "2026-06-16T04:40:07.417Z",
+      "reviewRound": "2026-06-16T04:38:12.090Z",
+      "reviewRunId": "B-9177:RR-007",
+      "_hash": "f62902b8e2f9d041ce83182441f8b960357b862ff02042bb8bb03c9987d3c88e"
     }
   ]
 }
