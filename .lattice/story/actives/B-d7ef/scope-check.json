@@ -1,0 +1,80 @@
+{
+  "storyId": "B-d7ef",
+  "checkedAt": "2026-06-16T19:01:43.723Z",
+  "features": [
+    {
+      "feature": "Delete the stray orphans junk file at repo root",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete phase-protocol.ts (truly-dead source module)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete bridge-utils.ts (truly-dead source module)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify no residual static or dynamic references to deleted modules remain in packages/scripts/bin",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "intent-coverage.ts must not be deleted (live dynamic fixture consumer)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 adversarial verificationIntent: intent-coverage.ts must survive (over-reach guard from discarded B-5740)",
+      "source": "description"
+    },
+    {
+      "feature": "verifier/dev-cli.ts must not be deleted (live serve launcher)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 adversarial verificationIntent: dev-cli.ts is a live module and must not be collateral damage",
+      "source": "description"
+    },
+    {
+      "feature": ".codex/.Codex/.lattice directory consolidation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description: .codex/.Codex consolidation is a separate decision, out of scope",
+      "source": "description"
+    },
+    {
+      "feature": ".lattice gitignore OSS-export step",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description: .lattice gitignore is an OSS-export step, out of scope",
+      "source": "description"
+    },
+    {
+      "feature": "OMX disable guard must not be touched (AGENTS.md-protected)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description: the OMX disable guard is kept, AGENTS.md-protected",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 4,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "76032b8827f949083d36e1d43a8f3f30899c5cb35216a802d3589159e4e6fd00",
+  "openQuestions": []
+}

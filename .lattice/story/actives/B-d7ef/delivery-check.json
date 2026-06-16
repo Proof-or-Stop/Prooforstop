@@ -1,0 +1,61 @@
+{
+  "storyId": "B-d7ef",
+  "checkedAt": "2026-06-16T19:14:49.129Z",
+  "reviewRound": "2026-06-16T19:03:54.889Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-d7ef/plan.md#CHK-001",
+      "promise": "orphans junk file deleted; git ls-files orphans returns empty; build and e2e unaffected",
+      "verifiedBy": "diff/git-ls-files/disk-check",
+      "evidence": "git diff confirms orphans deleted (was 1-line file with NO -). git ls-files orphans returns empty. test -f orphans: GONE. No static imports or references to orphans in packages/scripts/bin (git grep empty)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d7ef/plan.md#CHK-002",
+      "promise": "packages/main/src/core/phase-protocol.ts deleted; no live consumers remain; build passes",
+      "verifiedBy": "diff/git-ls-files/disk-check/grep",
+      "evidence": "git diff confirms deletion of 115-line module. git ls-files returns empty. File absent from disk. Zero static imports (git grep for from.*phase-protocol empty). Zero dynamic import() calls (empty). Zero require() calls (empty). Zero dist path references (empty). phase-gate-protocol.json file field is metadata label only, execute strings invoke verify-phase-gate-protocol.mjs not the deleted module. npm run build exit 0; npm run test:e2e ALL PASS (per transcript-diff.md)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d7ef/plan.md#CHK-002",
+      "promise": "packages/main/src/verifier/bridge-utils.ts deleted; no live consumers remain; build passes",
+      "verifiedBy": "diff/git-ls-files/disk-check/grep",
+      "evidence": "git diff confirms deletion of 33-line module. git ls-files returns empty. File absent from disk. Zero static imports, dynamic imports, require() calls, or dist path references (all git grep checks empty). audit-silent-catches-baseline.json contains 3 stale key/file references — historical baseline debt entries, not code that imports the deleted module. npm run build exit 0; npm run test:e2e ALL PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d7ef/plan.md#out-of-scope",
+      "promise": "intent-coverage.ts still present (over-reach guard held)",
+      "verifiedBy": "disk-check/grep",
+      "evidence": "test -f packages/main/src/core/intent-coverage.ts: EXISTS. File appears in done-oracle.ts:263, checklist.ts:224, done-closure.ts:65 — still live and referenced."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d7ef/plan.md#out-of-scope",
+      "promise": "verifier/dev-cli.ts still present (over-reach guard held)",
+      "verifiedBy": "disk-check/grep",
+      "evidence": "test -f packages/main/src/verifier/dev-cli.ts: EXISTS. Referenced in dev-host.ts:28."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d7ef/plan.md#out-of-scope",
+      "promise": "lab/.codex/.Codex directories untouched",
+      "verifiedBy": "diff/disk-check",
+      "evidence": "git diff main...HEAD -- lab/ .codex/ .Codex/ produces 0 lines. Both .codex and .Codex exist on disk with their contents intact."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transcript-diff.md records: git ls-files orphans (empty), test -f orphans (GONE), npm run build exit 0, npm run test:e2e ALL PASS. checklist.json verificationEvidence covers happy (3 items: index empty, disk gone, build+e2e pass), edge (deletion in git history, restore from HEAD fails), adversarial (no accidental source references). All 6 evidence entries verdict=success."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "transcript-diff.md records: both modules gone from index and disk, zero static/dynamic/require imports, zero dist path references, intent-coverage.ts SAFE, dev-cli.ts SAFE, lab/.codex/.Codex untouched, npm run build exit 0, npm run test:e2e ALL PASS, lattice validate PASS 24/24. checklist.json verificationEvidence covers happy (7 items), edge (6 items), adversarial (5 items). All 18 evidence entries verdict=success. phase-gate-protocol.json independently confirmed as metadata-only (execute strings run verify-phase-gate-protocol.mjs, not deleted module)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified from source: 3 deletions confirmed gone from index and disk, 0 live consumers found across all import/require/dynamic/dist vectors, both over-reach guards held (intent-coverage.ts and dev-cli.ts present), lab/.codex/.Codex untouched. Real-machine evidence covers happy + edge + adversarial paths for both checklist items, including build and full e2e suite. No TODOs or unresolved items found in the diff."
+  },
+  "_hash": "0c97ea87c34dcc351c2861160e4fa72ba48aa79263f60dbee538526f2979f4bb"
+}
