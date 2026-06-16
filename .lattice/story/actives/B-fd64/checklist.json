@@ -186,6 +186,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Negative control 1 (transport): a record with a simulated transport.accepted=true field on the record -> authority.receiptVerified remains false; transport acceptance is a network acknowledgment, NOT cryptographic verification; WHY: proves the gate does not conflate HTTP-level acceptance with receipt verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Negative control 2 (provider tokens): a record with provider-reported usage containing real token counts (inputTokens=500, outputTokens=200) -> authority.receiptVerified remains false; having real provider-reported usage is NOT proof of server verification; WHY: proves that accurate token accounting does not imply receipt verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Negative control 3 (local hash chain): a record with a valid integrity block (previousRecordHash + recordHash from the JSONL hash chain) -> authority.receiptVerified remains false; local hash-chain integrity is tamper-detection, NOT Authority verification; WHY: proves the ledger does not confuse its own integrity mechanism with external receipt verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Negative control 4 (copied receiptId): a record with authority.receiptId manually set to a real-looking receipt id (rcpt-genuine-looking-id) but NO injected verifier confirming it -> authority.receiptVerified remains false; copying a receiptId onto a record without the verifier gate confirming signature + subject is NOT verification; WHY: proves that simply possessing a receiptId string does not constitute verification — the verifier must independently confirm it",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All four negative controls combined on a single record: transport.accepted=true + real provider tokens + valid hash chain + copied receiptId, all present simultaneously, no injected verifier -> authority.receiptVerified=false; WHY: combined presence of all non-proof signals must not stack up to create a false verified state",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A record with copied receiptId + an injected verifier that returns verified=true BUT with mismatched subjectId (verifier confirms a different record) -> authority.receiptVerified=false; WHY: even with a genuine verifier response, replaying a receipt from a DIFFERENT subject must not work — this is the receipt-replay attack",
+            "type": "cli"
+          },
+          {
+            "desc": "A record where someone manually constructs the authority block with receiptVerified=true and all receipt-ref fields set, bypassing the gate entirely (direct object construction) -> validateUsageLedgerRecord rejects it; WHY: the validator is the last line of defense — even if code manually builds an authority block claiming verified=true, the validator must catch it for local records",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
