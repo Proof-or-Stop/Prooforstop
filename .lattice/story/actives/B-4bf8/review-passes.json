@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-16T00:10:14.232Z",
       "reviewRunId": "B-4bf8:RR-008",
       "_hash": "63af12051b0f5c5516d49e6422b6c8ecd5c8510a8e9ee7b61453aa86a875f74c"
+    },
+    {
+      "id": "B-4bf8:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols (pure docs diff, Fallback 1). Step 2/3: Full-text scan of docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md (831 lines, ~526 diff lines). Checked 5 areas: (1) four-field cache-token model coherent in prose and JSON — all four fields present in example with anthropic provider genuinely reporting 0, consistent with the rule that 0 is allowed only when provider genuinely reports it; (2) totalTokens never stored — removed from JSON example, all 5 occurrences in doc state it must NOT be stored, Derived Totals section and identity formula self-consistent; (3) record-shape example is Anthropic — provider.name anthropic, model claude-opus-4-8, usage.raw.providerUnits anthropic-usage-v1, all three internally consistent; (4) per-dimension absence rule (authoritative) — defined in Required record constraints, cross-referenced correctly in Multi-Provider Normalization and Rollout phase 4, no contradictions with the four-field presence rule (present-but-null vs absent are compatible); (5) Validation/Acceptance/Rollout all updated with four-field, no-stored-totalTokens, choke-point, streaming, estimation, attribution, and cost-derivability bullets. CMA expanded to Managed Agents (CMA) on first use. No blockers found.",
+      "createdAt": "2026-06-16T00:14:44.502Z",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "reviewRunId": "B-4bf8:RR-009",
+      "_hash": "a1e25759e94e7d4907a3aba76c5b04bab6df173c03c75cf5612dc20b9123bddc"
     }
   ]
 }
