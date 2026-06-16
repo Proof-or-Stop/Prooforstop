@@ -167,8 +167,10 @@ function assertReconcileNeverCommitsConflictMarkers(): void {
 
     // 2. The story worktree must not be left mid-merge.
     assert.equal(
-      existsSync(join(worktreeAbs, '.git')) || true, true,
-    ); // worktree dir sanity
+      existsSync(join(worktreeAbs, '.git')),
+      true,
+      'story worktree dir must have a .git file (linked-worktree sanity)',
+    );
     const mergeHead = join(root, '.git', 'worktrees', storyId, 'MERGE_HEAD');
     // A linked worktree stores MERGE_HEAD under .git/worktrees/<name>/; also
     // check the conventional location as a fallback.

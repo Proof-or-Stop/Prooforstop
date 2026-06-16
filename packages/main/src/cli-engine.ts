@@ -3571,36 +3571,52 @@ function mergeBaseBranchIntoStoryWorktreeResolvingMetadata(args: {
   // the post-advance (base/main) version. We merged `baseBranch` INTO the story
   // branch, so `--theirs` is the incoming base branch's version. Stage the
   // resolved content so no markers remain, then complete the merge commit.
-  for (const path of conflicted) {
-    // `git checkout --theirs` takes the base/main version for content (and
-    // add/add) conflicts. For a modify/delete conflict where base DELETED the
-    // path there is no "theirs" stage and checkout errors — in that case the
-    // deterministic "take base" resolution is to delete the path too.
-    const tookTheirs = runGitNoThrow(worktreeAbs, ['checkout', '--theirs', '--', path]);
-    if (tookTheirs.code === 0) {
-      gitCli(worktreeAbs, ['add', '--', path]);
-    } else {
-      gitCli(worktreeAbs, ['rm', '-f', '--', path]);
+  //
+  // The throwing gitCli calls below (stage / rm / commit) can fail for reasons
+  // outside our control (locked index, hook failure, disk error). If any of
+  // them throws, the exception must NOT escape with the worktree left mid-merge
+  // (MERGE_HEAD present) — that would require manual `git merge --abort`
+  // recovery. Wrap the resolution + commit in try/catch so ANY throw aborts the
+  // half-started merge before rethrowing, mirroring the out-of-bounds and
+  // still-unmerged abort+throw handling above.
+  try {
+    for (const path of conflicted) {
+      // `git checkout --theirs` takes the base/main version for content (and
+      // add/add) conflicts. For a modify/delete conflict where base DELETED the
+      // path there is no "theirs" stage and checkout errors — in that case the
+      // deterministic "take base" resolution is to delete the path too.
+      const tookTheirs = runGitNoThrow(worktreeAbs, ['checkout', '--theirs', '--', path]);
+      if (tookTheirs.code === 0) {
+        gitCli(worktreeAbs, ['add', '--', path]);
+      } else {
+        gitCli(worktreeAbs, ['rm', '-f', '--', path]);
+      }
     }
-  }
 
-  // Defensive: confirm no unmerged paths remain before committing so a marker
-  // can never reach a commit object. (Re-check the same invariant rather than
-  // trusting the loop above blindly — Handler coding convention.)
-  const stillUnmerged = runGitNoThrow(worktreeAbs, ['diff', '--name-only', '--diff-filter=U'])
-    .stdout
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-  if (stillUnmerged.length > 0) {
+    // Defensive: confirm no unmerged paths remain before committing so a marker
+    // can never reach a commit object. (Re-check the same invariant rather than
+    // trusting the loop above blindly — Handler coding convention.)
+    const stillUnmerged = runGitNoThrow(worktreeAbs, ['diff', '--name-only', '--diff-filter=U'])
+      .stdout
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+    if (stillUnmerged.length > 0) {
+      runGitNoThrow(worktreeAbs, ['merge', '--abort']);
+      throw new Error(
+        `INIT_CHECK reconcile: failed to fully resolve metadata conflict; unmerged paths remain:\n` +
+        `${stillUnmerged.join('\n')}\nAborted the merge to avoid committing conflict markers.`,
+      );
+    }
+
+    gitCli(worktreeAbs, ['-c', 'commit.gpgsign=false', 'commit', '--no-edit']);
+  } catch (e) {
+    // Any failure while resolving/committing the metadata conflict must leave
+    // the worktree clean rather than mid-merge. Abort the half-started merge
+    // (best-effort, no-throw) before surfacing the original error.
     runGitNoThrow(worktreeAbs, ['merge', '--abort']);
-    throw new Error(
-      `INIT_CHECK reconcile: failed to fully resolve metadata conflict; unmerged paths remain:\n` +
-      `${stillUnmerged.join('\n')}\nAborted the merge to avoid committing conflict markers.`,
-    );
+    throw e;
   }
-
-  gitCli(worktreeAbs, ['-c', 'commit.gpgsign=false', 'commit', '--no-edit']);
 }
 
 /**
