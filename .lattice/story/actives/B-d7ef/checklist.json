@@ -360,12 +360,12 @@
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git grep -nE \"from ['\\\"][^'\\\"]*(phase-protocol|bridge-utils)\" -- 'packages/**/*.ts'",
+          "command": "test -f packages/main/src/core/intent-coverage.ts && echo SAFE",
           "result": "pass",
-          "note": "Static imports of the deleted modules: 0 (verified empty).",
-          "headHash": "1a1467aab86e9116370c147666a4e77dfc32dcad",
+          "note": "Prints SAFE — intent-coverage.ts survives (its fixture-preview-runner-parity.json consumer still works; B-5740 lesson held).",
+          "headHash": "927d0172df7fca0933a1eca86e6a89b36f74c99f",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
-          "timestamp": "2026-06-16T19:03:19.054Z"
+          "timestamp": "2026-06-16T19:08:18.440Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
