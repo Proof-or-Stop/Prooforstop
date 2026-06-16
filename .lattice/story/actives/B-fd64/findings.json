@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/core/usage-ledger/authority-evidence.ts"
       ]
+    },
+    {
+      "id": "B-fd64:F-002",
+      "desc": "FORBIDDEN_NORMALIZED_NAMES in buildUsageEvidenceEnvelope missing tool-call and env-var entries: toolarguments, toolargs, rawtoolarguments, rawtoolargs, rawtoolresult, toolresult, env, environmentvariables, envvars are in record.ts denylist but absent from authority-evidence.ts supplementary set. Separator-variant forms like TOOL_ARGUMENTS or ENV_VARS evade BOTH scanForbiddenFields (exact-lowercase miss) and scanSeparatorVariants (missing entries), allowing the builder to compute a digest of a source record containing raw tool-call data or env vars without throwing ForbiddenEvidenceMaterialError.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T21:47:11.975Z",
+      "reviewRound": "2026-06-16T21:43:24.705Z",
+      "reviewRunId": "B-fd64:RR-004",
+      "_hash": "08a745568e91ee3906e133c3fba63b6fcea46c531118ff5aade680897953b9d7",
+      "files": [
+        "packages/main/src/core/usage-ledger/authority-evidence.ts"
+      ]
     }
   ]
 }
