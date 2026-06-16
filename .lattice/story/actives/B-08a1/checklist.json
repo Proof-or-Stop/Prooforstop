@@ -174,6 +174,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call buildProviderRecord(anthropic, sampleAnthropicResponse, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds:[]}, attribution{storyId:B-08a1,phase:DEV,agentType:implementer}) -> returned record passes validateUsageLedgerRecord({expectIntegrity:false}).ok===true; schemaVersion===1; recordId starts with llmuse_; ledgerCallId/attemptId match the correlation input; WHY: assembled record must be B-253e-valid end to end",
+            "type": "cli"
+          },
+          {
+            "desc": "Call buildProviderRecord for each of the three providers (anthropic, openai, gemini) with valid sample responses -> all three returned records pass the B-253e validator; WHY: cross-provider validation coverage",
+            "type": "cli"
+          },
+          {
+            "desc": "Assembled record has privacy.promptStored===false, privacy.transcriptStored===false, privacy.redactionProfile is a non-empty string; WHY: privacy flags are mandatory per spec",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call buildProviderRecord with attribution{storyId:null} (non-story call) -> record has storyId===null (not undefined, not omitted) and passes validator; WHY: non-story calls must record storyId=null explicitly per spec",
+            "type": "cli"
+          },
+          {
+            "desc": "Call buildProviderRecord with attribution including subagentId and threadId -> record carries both fields; WHY: nested/subagent attribution must propagate",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify assembled record uses correlation ids from ids.ts (recordId starts with llmuse_, ledgerCallId starts with llmcall_, attemptId starts with llmatt_) and NEVER derives them from a provider request id; pass a provider response with id/request_id fields -> those do NOT become recordId/ledgerCallId/attemptId; WHY: correlation ids must be locally minted, never provider-derived",
+            "type": "cli"
+          },
+          {
+            "desc": "Call buildProviderRecord with a provider response that contains a forbidden field (e.g. rawPrompt) -> assembler must not propagate it into the record, or if it does the B-253e validator catches it; WHY: privacy denylist enforcement at assembly time",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify authority block on assembled record has mode=local and receiptVerified=false (never local receipt-backed claims); WHY: local records must never claim receipt verification per spec boundary",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
