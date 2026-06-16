@@ -109,12 +109,32 @@ export interface LedgerPrivacy {
   redactionProfile: string;
 }
 
+/**
+ * Authority block on a LOCAL ledger record.
+ *
+ * `receiptVerified` is the load-bearing anti-overclaim field: for a local record
+ * it is ALWAYS the literal `false`. A record can only carry a VERIFIED receipt
+ * through the verification gate (authority-evidence.ts `verifyUsageReceipt`),
+ * which is a separate, gate-only authority block — it is never constructed by the
+ * local append path and never set here.
+ *
+ * The receipt-REFERENCE fields (`receiptId`, `receiptSubjectKind`,
+ * `receiptSubjectId`) are nullable. They may be set as a MERE REFERENCE to a
+ * receipt the record points at, but a reference is NOT verification: having a
+ * receiptId set does not (and must not) flip `receiptVerified`. The validator
+ * enforces that they are all-or-nothing (a partial reference is incoherent) and
+ * that `receiptVerified` stays `false` regardless of any reference.
+ */
 export interface LedgerAuthority {
   mode: AuthorityMode;
-  receiptId: null;
+  /** Nullable reference to a receipt this record points at (NOT verification). */
+  receiptId: string | null;
+  /** Always literal false for a local record — verification is gate-only. */
   receiptVerified: false;
-  receiptSubjectKind?: null;
-  receiptSubjectId?: null;
+  /** Subject kind of the referenced receipt; non-null only WITH receiptId. */
+  receiptSubjectKind?: string | null;
+  /** Subject id of the referenced receipt; non-null only WITH receiptId. */
+  receiptSubjectId?: string | null;
 }
 
 export interface LedgerIntegrity {
@@ -395,14 +415,38 @@ export function validateUsageLedgerRecord(
   if (!isPlainObject(record.authority)) {
     errors.push('authority must be an object');
   } else {
-    if (record.authority.mode !== 'local' && record.authority.mode !== 'shadow') {
-      errors.push(`authority.mode must be "local" or "shadow" (got ${describe(record.authority.mode)})`);
+    const authority = record.authority;
+    if (authority.mode !== 'local' && authority.mode !== 'shadow') {
+      errors.push(`authority.mode must be "local" or "shadow" (got ${describe(authority.mode)})`);
     }
-    if (record.authority.receiptId !== null) {
-      errors.push('authority.receiptId must be null for local records');
+
+    // receiptVerified is the anti-overclaim field. For a LOCAL record it must be
+    // the strict literal `false`. `!== false` rejects true, the string "true",
+    // truthy numbers, and undefined alike — a record cannot self-declare verified
+    // by hand-setting this field; verification is gate-only (authority-evidence).
+    if (authority.receiptVerified !== false) {
+      errors.push('authority.receiptVerified must be false for local records (verification is gate-only)');
     }
-    if (record.authority.receiptVerified !== false) {
-      errors.push('authority.receiptVerified must be false for local records');
+
+    // Receipt-reference fields are nullable but ALL-OR-NOTHING: a referenced
+    // receipt names a receiptId + subject kind + subject id together, or all
+    // three are null. A partial reference is incoherent and rejected. Note: a
+    // valid reference is NOT verification — receiptVerified still must be false.
+    const refFields: Array<[string, unknown]> = [
+      ['receiptId', authority.receiptId],
+      ['receiptSubjectKind', authority.receiptSubjectKind ?? null],
+      ['receiptSubjectId', authority.receiptSubjectId ?? null],
+    ];
+    for (const [label, value] of refFields) {
+      if (value !== null && (typeof value !== 'string' || value.length === 0)) {
+        errors.push(`authority.${label} must be a non-empty string or null (got ${describe(value)})`);
+      }
+    }
+    const presentCount = refFields.filter(([, value]) => value !== null && typeof value === 'string' && value.length > 0).length;
+    if (presentCount !== 0 && presentCount !== 3) {
+      errors.push(
+        'authority receipt-reference fields are all-or-nothing: receiptId + receiptSubjectKind + receiptSubjectId must be set together (a partial reference is incoherent)',
+      );
     }
   }
 
