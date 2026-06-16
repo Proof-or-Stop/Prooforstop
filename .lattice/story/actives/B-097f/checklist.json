@@ -38,9 +38,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "新增 Policy: global agents single source 段,契约点1明确全局 ~/.claude/agents 为唯一源 + 契约点3 init 零项目 agent 文件",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -48,9 +48,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "契约点2:symlink target 从 fileURLToPath(import.meta.url)->packageRoot->templates/agents 解析,非 hardcode dev 路径",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -58,9 +58,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "契约点5:迁移只删 16 个管理 basename,禁止通配,用户文件保留;契约点6 解释 project shadow user 优先级",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       ]
     },
@@ -103,9 +103,9 @@
           "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
           "result": "pass",
           "note": "syncGlobalAgents writes a thin-shim regular file per template: verbatim frontmatter (tools sandbox preserved, multi-line + inline forms), CLI-fetch body referencing lattice agent_prompt --role=<name>, role body absent. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -114,9 +114,9 @@
           "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
           "result": "pass",
           "note": "Idempotent re-run reports shim ok (skipped=N); old full copy, old symlink, broken link, drifted shim all unlink+rewrite (replaced=N) back to deterministic shim. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -125,9 +125,9 @@
           "command": "node packages/main/dist/cli.js agent_prompt --role=lattice-implementer | diff - templates/agents/lattice-implementer.md",
           "result": "pass",
           "note": "In-process handler output is byte-equal to readPromptTemplate(entry) for all 16 roles (same registry Codex resolves); CLI process adds only the generic print-time trailing newline. Unknown role lists available roles; blank role rejected by runtime re-validate beyond Zod min(1); non-writable global dir throws Cannot create global agents dir ... will not fall back. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       ]
     },
@@ -170,9 +170,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude",
           "result": "pass",
           "note": "claude profile init: [5/6] outputs synced=16 thin-shims to global ~/.claude/agents + line - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files). Project .claude/agents has 0 .md (dir not created). Global has 16 regular-file shims (0 symlinks). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -181,9 +181,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=core",
           "result": "pass",
           "note": "core profile (no markers): [5/6] prints - .claude/agents (profile skip); 0 project + 0 global agent files. Behavior unchanged. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -192,9 +192,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=all",
           "result": "pass",
           "note": "all profile (codex+claude): synced=16 global thin-shims, 0 project-local agent files. Codex/asset-mode not regressed (global-thin .Codex path unchanged). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       ]
     },
@@ -237,9 +237,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude --upgrade",
           "result": "pass",
           "note": "Pre-seeded 16 managed + 1 user (my-custom.md). --upgrade logs 16x ↻ migrated to global, removes exactly the 16 managed basenames, project count 17→1. Verified correct after thin-shim transform. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -248,9 +248,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude",
           "result": "pass",
           "note": "Normal init only WARNs: ⚠ 16 managed agent files found in .claude/agents; run lattice init --upgrade. Deletes nothing (17 files remain). User file my-custom.md preserved on every path. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -259,9 +259,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> doctor | grep agentAssetMode",
           "result": "pass",
           "note": "Migration removes only the 16 exact managed basenames (from templates/agents filename set), no wildcard clear; non-managed files always preserved. lattice doctor reports agentAssetMode: runtime-owned. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       ]
     },
@@ -303,9 +303,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "lifecycle-artifact-scope.md 重写为 host-neutral thin-shim 契约(两宿主同源表+7点);runtime-owned plan 加 Implementation Status(Claude 侧 B-097f landed);CLAUDE.md 加 Agent prompt 资产 host-neutral 单一源节",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -313,9 +313,9 @@
           "file": "CLAUDE.md",
           "result": "pass",
           "note": "旧 symlink/物化正文表述被 thin-shim+agent_prompt 取代;CLAUDE.md 明确 reviewer 第一步 run lattice agent_prompt 取正文",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -323,9 +323,9 @@
           "file": "CLAUDE.md",
           "result": "pass",
           "note": "文档命令 lattice agent_prompt --role=X 与实测一致(16 role byte-equal,非法 role 列可用列表);doctor agentAssetMode runtime-owned 与实现一致",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       ]
     },
@@ -368,9 +368,9 @@
           "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
           "result": "pass",
           "note": "Integration smoke (temp HOME, never touches real ~/.claude): fresh claude init → 0 project agent .md + 16 global thin-shim regular files (tools frontmatter + lattice agent_prompt body + no role-body slice); agent_prompt --role=X byte-equal registry body for all 16 (CLI adds only print newline). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.506Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -379,9 +379,9 @@
           "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
           "result": "pass",
           "note": "Smoke (c): --upgrade migrates 16 managed (removed), keeps my-custom.md byte-for-byte; normal init only WARNs run lattice init --upgrade and deletes nothing (17 remain). Smoke (d): second init idempotent synced=0 ok=16 replaced=0. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.506Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -390,9 +390,9 @@
           "command": "node dist/tasks/prompt-registry-smoke.js; node dist/tasks/prompt-token-cost-smoke.js; npm --prefix packages/main run build; lattice validate",
           "result": "pass",
           "note": "No-regress: prompt-registry-smoke (16 agents claude+codex), prompt-token-cost-smoke, runtime-owned-agent-assets-smoke all PASS. global-agents-unit-smoke PASS. packages/main build green. lattice validate 全绿 (main-write-lock-coverage + cli-e2e ALL PASS). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.506Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       ]
     }
