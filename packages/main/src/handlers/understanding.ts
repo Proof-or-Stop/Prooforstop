@@ -1,8 +1,8 @@
 /**
- * Understanding (Pre-context Intake snapshot, OMX style).
+ * Understanding (Pre-context Intake snapshot).
  *
  * The main agent structures and records the understanding of the task before breaking down the checklist in the PLAN phase.
- * Inspired by OMX ralph's step 0 — "no snapshot, no starting work".
+ * Embodies the "no snapshot, no starting work" discipline.
  *
  * First version soft introduction: only hint reminder when not filled, does not block advancement. Decide whether to harden the gate once enough data is collected.
  */

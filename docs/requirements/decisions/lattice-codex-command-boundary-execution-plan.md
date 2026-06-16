@@ -157,7 +157,7 @@ Suggested checklist:
 | Item | Intent | Likely files |
 | --- | --- | --- |
 | CHK-001 | Add or tighten the host-neutral command boundary in generated templates. | `packages/main/src/init-assets.ts`, generated dist output |
-| CHK-002 | Remove existing tracked docs guidance that routes workflow commands through Codex wrappers. | `README.md`, `.Codex/README.md`, `.codex/README.md` if tracked |
+| CHK-002 | Remove existing tracked docs guidance that routes workflow commands through Codex wrappers. | `README.md`, `.lattice-codex/README.md`, `.codex/README.md` if tracked |
 | CHK-003 | Add regression coverage for forbidden namespace guidance and allowed adapter commands. | `packages/main/src/tasks/*smoke.ts` |
 | CHK-004 | Verify runtime CLI output after build/dist sync. | `packages/main/dist/**`, validation transcript |
 
@@ -179,7 +179,7 @@ Required scan surfaces:
 - `AGENTS.md`
 - `CLAUDE.md`
 - `README.md`
-- `.Codex/`
+- `.lattice-codex/`
 - `.codex/`
 - `docs/`
 - `packages/main/src/`
@@ -279,7 +279,7 @@ assertions if they clearly verify rejection behavior.
 
 ```bash
 rg -n --hidden 'lattice\s+codex\s+(session_brief|aux_doc_list|story_|checklist_|validate|review_|finding_|summary_set|delivery_check_set|convergence_check)' \
-  AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .Codex .codex
+  AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .lattice-codex .codex
 ```
 
 Expected result:
@@ -296,7 +296,7 @@ with the adapter diagnostic command.
 
 ```bash
 rg -n --hidden 'lattice-codex\.js\s+doctor\b' \
-  README.md docs packages/main/src packages/main/dist .Codex .codex
+  README.md docs packages/main/src packages/main/dist .lattice-codex .codex
 ```
 
 Expected result:

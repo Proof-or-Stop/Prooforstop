@@ -40,6 +40,7 @@
     "test:auxiliary-worktree-cleanup-smoke": "node dist/tasks/auxiliary-worktree-cleanup-smoke.js",
     "test:worktree-node-modules-smoke": "node dist/tasks/worktree-node-modules-smoke.js",
     "test:validate-lint-change-scope-smoke": "node dist/tasks/validate-lint-change-scope-smoke.js",
+    "test:docs-drift-smoke": "node dist/tasks/docs-drift-path-drift-smoke.js",
     "test:storydir-inside-gitroot-smoke": "node dist/tasks/storydir-inside-gitroot-smoke.js",
     "test:storydir-inside-gitroot-suite": "node dist/tasks/storydir-inside-gitroot-suite.js",
     "test:story-metadata-protection-smoke": "node dist/tasks/story-metadata-protection-smoke.js",
@@ -164,6 +165,7 @@
     "test:usage-ledger-estimate": "node dist/tasks/usage-ledger-estimate-smoke.js",
     "test:usage-ledger-diagnostics": "node dist/tasks/usage-ledger-diagnostics-smoke.js",
     "test:usage-ledger-dispatch": "node dist/tasks/usage-ledger-dispatch-smoke.js",
+    "test:review-convergence-smoke": "node dist/tasks/review-convergence-smoke.js",
     "test:usage-ledger-budget": "node dist/tasks/usage-ledger-budget-smoke.js",
     "test:usage-ledger-authority": "node dist/tasks/usage-ledger-authority-smoke.js",
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"

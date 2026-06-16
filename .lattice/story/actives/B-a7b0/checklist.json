@@ -5,27 +5,201 @@
       "title": "Add path-reference drift validation to the CLAUDE.md docs-drift gate (reuse core/audit-scan scanPathDrift)",
       "context": "validate-docs-drift.ts currently only diffs lattice command names vs the registry. Add a path-reference check that reuses scanPathDrift from core/audit-scan.ts (do not re-implement): file paths CLAUDE.md references that do not exist on disk are reported as drift. Keep the command-name scan unchanged; the path check is additive. Provide an allowlist seam (mirroring the existing 'do not build this CLI' command allowlist) for intentional examples/deleted-by-design paths.",
       "userSees": "Running the docs-drift gate against a CLAUDE.md that references a non-existent path reports that path as drift (with the path and line), instead of passing silently; a CLAUDE.md whose paths all exist still passes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T21:15:48.797Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A CLAUDE.md fixture that references a path which does not exist on disk and has no source-literal reference makes the docs-drift gate return status fail with a missing-path entry naming the path",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A CLAUDE.md fixture whose referenced paths all exist (or are found via grep fallback) returns status pass; allowlisted intentional/deleted-by-design paths are not reported",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A path inside docs/story/ or a template placeholder (uppercase XXX) in the fixture is NOT reported as drift (existing scanPathDrift noise controls preserved); the command-name scan result for the same fixture is byte-identical to before",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Happy case: md references a non-existent path (pathExists=false, grep=false) -> runDocsDriftGate with repoRoot returns status fail and names the path in missingPaths; summary includes the path.",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Edge case: a referenced path that exists (pathExists=true) -> status pass, missingPaths empty; also covers grep-fallback (pathExists=false but grepLiteral=true) staying pass.",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Adversarial: docs/story/ path + uppercase-XXX placeholder + allowlisted path are NOT flagged; and command-name missing/stale result is byte-identical with vs without repoRoot (unregistered command still caught), proving the path check is purely additive.",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add a managed-asset contradiction check (the P3 class) against core/managed-assets.ts",
       "context": "Cross-check CLAUDE.md statements against the managed-asset registry (core/managed-assets.ts): a 'do not create <X>' / '<X> must not exist' claim for an <X> the registry says lattice init generates must be flagged as drift, since the framework itself produces it (this is exactly the .Codex/hooks line-77 contradiction). Reuse the registry as the source of truth; do not hardcode asset paths. Respect the same allowlist seam.",
       "userSees": "A CLAUDE.md that forbids or denies a framework-generated managed asset (e.g. a host hook) fails the gate with a message naming the asset and the registry entry that contradicts it; a doc with no such contradiction passes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T21:22:58.897Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A CLAUDE.md fixture that says do-not-create / must-not-exist for a path the managed-asset registry generates (a generated kind) makes the gate return status fail with a managed-asset-contradiction entry naming the asset and the registry definition that contradicts it",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A fixture that forbids a path the registry classifies as NON-generated (excluded-path / remove-extra) does NOT trigger a contradiction; a fixture with no do-not-create claims passes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A do-not-create claim for a generated asset that is present in the allowlist seam is NOT flagged (lets the real CLAUDE.md pending Codex-hooks claim pass until B-94ae); the check reads the registry rather than a hardcoded path list, proven by a fixture registry-provider injection",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "happy: injected codex-hooks generated def + md forbidding it → runDocsDriftGate status fail, asset+kind in managedAssetContradictions; smoke green",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "edge: md forbidding an excluded-path (NON-generated) kind → no contradiction/pass; md with no do-not-create claim → pass; ancestor-dir prohibition of a generated child → flagged; smoke green",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "adversarial: allowlisted pending Codex-hooks claim NOT flagged (real CLAUDE.md self-check pass); flipping injected def kind generated→excluded flips outcome (proves registry-driven, not hardcoded); absent defs → empty contradictions; smoke green",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Add a regression smoke for the two new checks and wire it into the validate battery",
       "context": "Add a smoke task (dist/tasks + a test:* script in packages/main/package.json, following the existing smoke pattern) that asserts: (a) a fixture CLAUDE.md with a stale path reference fails; (b) a fixture with a managed-asset contradiction fails; (c) a clean fixture passes; (d) command-name behavior is unchanged. Wire the script into the validate battery so REVIEW->TEST runs it. Use dependency-injected fixtures rather than mutating the real CLAUDE.md.",
       "userSees": "`lattice validate` runs the new docs-drift smoke green, proving the gate flags stale paths and managed-asset contradictions while leaving clean docs and existing command-name checks unaffected.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T21:27:37.578Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the new docs-drift smoke (node dist/tasks/<name>-smoke.js) exits 0 and prints a passed line, asserting (a) stale-path fixture fails, (b) managed-asset-contradiction fixture fails, (c) clean fixture passes, (d) command-name behavior unchanged",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke uses dependency-injected fixtures (in-memory md strings + injected pathExists/grep/registry providers) and never reads or mutates the real CLAUDE.md",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke is wired into the actual lattice validate battery (chained into root npm test) so REVIEW->TEST runs it; running npm test shows the smoke output line and a deliberately broken check makes npm test fail",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Compiled smoke runs all four behaviors (stale-path fail, managed-asset contradiction fail, clean pass, command-name unchanged) and prints \"docs-drift path+asset smoke passed\" with exit 0.",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "DI-fixture logic tests assert edge behaviors: clean fixture yields empty missingPaths AND empty managedAssetContradictions; injected pathExists/grepLiteral/managedAssetDefs only, real CLAUDE.md never read.",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Smoke is chained into root npm test (= lattice validate battery): test:main-write-lock-coverage && test:docs-drift-smoke && test:e2e. Observed output line \"docs-drift path+asset smoke passed\" during npm test, then \"✓ ALL PASS\". Negative control: breaking one assert in dist yields non-zero exit.",
+          "headHash": "b3cfee831c1f7d10a90217a90347d45fd59555a0",
+          "materialHash": "fd45c9d21109b9250ac15ecc1a36b9e0fcc0d1fee16146f97fdc153f567f3622",
+          "timestamp": "2026-06-16T21:49:44.152Z"
+        }
+      ]
     }
   ]
 }

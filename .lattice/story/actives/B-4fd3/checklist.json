@@ -8,9 +8,77 @@
         "CLAUDE.md#pre-push-hook--递归-tsc-gate"
       ],
       "userSees": "clean main 上 init 出来的 .gitignore managed 块含 .lattice/usage/；主仓 .gitignore 的 # lattice runtime artifacts (managed) 块新增 .lattice/usage/ 一行",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T21:11:49.248Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "init 复制路径(giSrc 存在)产出的 .gitignore managed 块含 .lattice/usage/",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "主仓 .gitignore 已含部分 runtime ignore 时合并幂等、不重复追加",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "registry 新增任意 ignorePattern 后复制路径仍输出全集（防再漂移）",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          ".gitignore"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "re-recorded post-fix(bf15f72a7): smoke Test1 跑真实 init CLI 复制路径，assertGitignoreCoversRegistry 确认产物含 .lattice/usage/ 及全 registry",
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "node -e runtimeIgnoreMissing(repo .gitignore)",
+          "result": "pass",
+          "note": "re-recorded post-fix: mergeKoalaRuntimeIgnores 幂等(desiredBlockLines 空→changed:false)；repo .gitignore runtimeIgnoreMissing=[] 证明再 merge 为 no-op",
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "node -e drift-detection",
+          "result": "pass",
+          "note": "re-recorded post-fix: 复制路径调 mergeKoalaRuntimeIgnores→listRuntimeArtifactIgnorePatterns()(全 registry)；node 验证去掉 pattern 后 runtimeIgnoreMissing 报出该项，registry 新增项必被纳入",
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +88,76 @@
         "CLAUDE.md#pre-push-hook--递归-tsc-gate"
       ],
       "userSees": "npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed；新增断言覆盖 registry→gitignore 一致性",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T21:11:51.066Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "clean main 上 npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed 且退出码 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "新增断言：init 产物 .gitignore 覆盖 listRuntimeArtifactIgnorePatterns() 全集",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "若 registry 含某 pattern 而 .gitignore 缺失，断言能 FAIL 暴露漂移（不静默通过）",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "re-recorded post-fix: clean main worktree 跑 smoke 输出 ✓ global-thin init assets smoke passed 退出码 0，不再报 STALE_SAFE .lattice/usage/",
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "re-recorded post-fix: assertGitignoreCoversRegistry 用 runtimeIgnoreMissing 校验 init 产物覆盖全 25 条 registry pattern，smoke 通过即全集覆盖",
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "node -e drift-detection",
+          "result": "pass",
+          "note": "re-recorded post-fix: node 验证从 registry 全集删 .lattice/usage/ 构造 drift，runtimeIgnoreMissing 返回 [.lattice/usage/]，断言会 FAIL 非静默通过",
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
+        }
+      ]
     }
   ]
 }

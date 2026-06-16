@@ -148,15 +148,6 @@ All formal Layer 3 artifacts must be under:
 .lattice/artifacts/baseline/layer3-loop-engineering-unlock
 ```
 
-The legacy path below must not be used for formal Layer 3 proof:
-
-```text
-.omx/artifacts/baseline/loop-engineering
-```
-
-`.omx` may exist only as unrelated runtime state. It is not a Lattice proof
-root.
-
 Every baseline run must write:
 
 ```text

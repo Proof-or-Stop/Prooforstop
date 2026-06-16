@@ -35,8 +35,8 @@ Lattice CLI + remote Lattice Authority fullAuthorityDone PASS
 Evidence anchors:
 
 - `docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md`
-- `.omx/artifacts/claude-remote-evidence-bundle-audit-20260609T172620Z.md`
-- `.omx/artifacts/codex-remote-evidence-bundle-audit-20260609T172620Z.md`
+- claude-remote-evidence-bundle-audit-20260609T172620Z.md (historical artifact, path removed B-ed70)
+- codex-remote-evidence-bundle-audit-20260609T172620Z.md (historical artifact, path removed B-ed70)
 
 Not yet proven by that bundle:
 

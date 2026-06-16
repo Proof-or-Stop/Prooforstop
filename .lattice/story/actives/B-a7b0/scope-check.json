@@ -1,0 +1,122 @@
+{
+  "storyId": "B-a7b0",
+  "checkedAt": "2026-06-16T21:09:01.986Z",
+  "features": [
+    {
+      "feature": "Add path-reference drift validation to runDocsDriftGate, reusing scanPathDrift from core/audit-scan.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Non-existent CLAUDE.md file-path references are reported as drift with path and line",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add managed-asset contradiction check cross-referencing core/managed-assets.ts registry (do-not-create / must-not-exist vs generated kinds)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Contradiction check reads managed-asset registry as source of truth, does not hardcode asset paths",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Provide an allowlist seam for path drift suppression mirroring the existing DOCS_DRIFT_ALLOWLIST",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Provide an allowlist seam for managed-asset contradiction suppression (covers real CLAUDE.md pending .Codex/hooks claim until B-94ae)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep existing command-name scan intact and additive; no behavior change for docs with no path/asset issues",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Only GENERATED kinds (managed-block/whole-file/claude-settings/codex-hooks/gitignore-runtime) trigger contradiction; NON-generated kinds (excluded-path/remove-extra) do not",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add a regression smoke task (dist/tasks/*-smoke.ts) with dependency-injected fixtures asserting all four behaviors",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire the regression smoke into the validate battery (root npm test / lattice validate)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke must NOT read or mutate the real CLAUDE.md; uses in-memory / injected-provider fixtures only",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Handler Encoding Convention: runtime re-validation of Zod-constrained fields at every consumption point",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Actual CLAUDE.md line 77 wording fix (the .Codex/hooks prohibition)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: the actual one-line CLAUDE.md:77 wording fix (separate story B-94ae)",
+      "source": "description"
+    },
+    {
+      "feature": ".Codex rename (B-ed70) — renaming the .Codex directory",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: the .Codex rename (B-ed70)",
+      "source": "description"
+    },
+    {
+      "feature": "Hook generation behavior changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: changing any hook generation behavior",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c0f3aec2d0e16a04fd686538c7280cf55a1a474d5df52cfee7db041e3a988c99",
+  "openQuestions": []
+}

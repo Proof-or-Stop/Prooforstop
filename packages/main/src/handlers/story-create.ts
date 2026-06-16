@@ -58,7 +58,7 @@ export class DuplicateStoryError extends Error {
 }
 
 /**
- * High-risk keyword detection (OMX ralplan --deliberate style).
+ * High-risk keyword detection (deliberate-mode style).
  * Automatically elevate priority + write riskSignals when any pattern matches.
  * When story_review sees riskSignals, it mandates decision.json + ≥3 preMortem (takes effect after decision 3 lands).
  */

@@ -169,7 +169,7 @@ function sha256(content: string): string {
 export function renderCodexPromptContent(content: string): string {
   return content
     .replace(/Claude Code/g, 'Codex')
-    .replace(/\.claude\/agents\//g, '.Codex/agents/');
+    .replace(/\.claude\/agents\//g, '.lattice-codex/agents/');
 }
 
 export function renderPromptForHost(content: string, host: PromptHost): string {

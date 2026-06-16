@@ -184,7 +184,6 @@ function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot:
 /**
  * DONE Final Checklist: gather all DONE phase verification items into an explicit checklist.
  * Print regardless of whether advance succeeds or fails, forcing main agent to read multi-layer verification status.
- * Corresponds to OMX ralph's <Final_Checklist>.
  */
 export type DoneCheckRow = OracleRow;
 

@@ -348,7 +348,7 @@
 
 #### B-5b3e — INIT_CHECK bootstrap 只落 story 分支
 
-- `handlers/worktree.ts` 重构 bootstrap 流程：资产文件（`.claude/`、`.Codex/`）只写入 story 分支，不再污染当前本地分支
+- `handlers/worktree.ts` 重构 bootstrap 流程：资产文件（`.claude/`、`.lattice-codex/`）只写入 story 分支，不再污染当前本地分支
 - 配套 `scripts/verify-init-check-bootstrap.mjs` 回归验证
 
 ### 测试覆盖与元数据回链
@@ -388,7 +388,7 @@
 - `core/machine.ts` 增加 null testIntent story 的 DONE gate 豁免逻辑
 - `core/reviewer-status.ts` 适配 null testIntent 的 reviewer 状态判断
 - `core/types.ts` 扩展类型定义
-- `AGENTS.md` 补充 worktree 中 `.Codex/` 和 `.claude/` 资产的说明
+- `AGENTS.md` 补充 worktree 中 `.lattice-codex/` 和 `.claude/` 资产的说明
 - 配套 `scripts/verify-testintent-null-gates.mjs`
 
 ### Bug 修复
@@ -412,10 +412,10 @@
 
 ### 本次纳入的未提交内容
 
-- 新增 `implementation-reviewer` agent，分别落在 `.claude/agents/implementation-reviewer.md` 与 `.Codex/agents/implementation-reviewer.md`，把“实现层风险审查”从 fixture/testIntent/user-value 审查中拆出来，职责边界更清楚。
+- 新增 `implementation-reviewer` agent，分别落在 `.claude/agents/implementation-reviewer.md` 与 `.lattice-codex/agents/implementation-reviewer.md`，把“实现层风险审查”从 fixture/testIntent/user-value 审查中拆出来，职责边界更清楚。
 - `packages/main/src/init-assets.ts` 把 `implementation-reviewer.md` 纳入默认生成资产，后续初始化新项目时 Claude/Codex 两侧都会同步带上这类 reviewer。
 - `packages/main/src/handlers/story-advance.ts` 在 `TEST_CASE_REVIEW` 提示中加入 implementation-reviewer advisory，明确主 agent 在进 TEST 前要做一次实现层自检。
-- `README.md` 补充 `.Codex/agents/implementation-reviewer.md` 入口，确保仓库内的 Codex 使用说明和实际资产一致。
+- `README.md` 补充 `.lattice-codex/agents/implementation-reviewer.md` 入口，确保仓库内的 Codex 使用说明和实际资产一致。
 - 新增 `scripts/verify-implementation-reviewer.mjs`，并提供 `npm run test:implementation-reviewer` 脚本入口，用来校验 agent 资产、`init-assets` 注册以及 `story_advance` 提示文案没有漂移。
 - 新增 `docs/requirements/decisions/stack-layering.md`，把 Claude Code / Codex、Superpowers、Koala 三层职责做成一份可复用的边界说明，便于后续继续演进 workflow 与 substrate。
 
@@ -442,7 +442,7 @@
 - `c1494fa`: 升级 `session_brief` 指挥台，让新 session 更快拿到 active story、health 和 next step。
 - `6a0e9be`: 加入 role-aware telemetry，后续可按 agent 角色区分运行记录。
 - `2c4fb0b`: 引入 product-reviewer lane，把“用户价值是否真的闭环”的提醒带进流程。
-- `c9610d8`: 产品化 Codex onboarding 资产，统一 `.Codex` 入口与 transform 约束。
+- `c9610d8`: 产品化 Codex onboarding 资产，统一 `.lattice-codex` 入口与 transform 约束。
 - `9fe0883`, `fa4a38d`: 稳固 koala 入口与 truth CLI wrapper，让 bootstrap / wrapper 场景更可靠。
 - `0e21a41`, `46438f1`: 加强 fail-fast audit 与 health 留痕，silent catch 和异常观测更加系统化。
 - `5a3e4f5`, `a9a58cb`, `2400e68`: 继续补 anti-stall、framework gap 与 browser screenshot smoke 这类高风险空洞，减少“看起来能跑、其实没覆盖”的盲区。
