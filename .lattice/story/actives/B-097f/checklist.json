@@ -339,6 +339,17 @@
           "headHash": "88e72a816a16c7c39a06af2bbb620e0dae68f988",
           "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
           "timestamp": "2026-06-16T18:48:51.457Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
+          "result": "pass",
+          "note": "Smoke (c): --upgrade migrates 16 managed (removed), keeps my-custom.md byte-for-byte; normal init only WARNs run lattice init --upgrade and deletes nothing (17 remain). Smoke (d): second init idempotent synced=0 ok=16 replaced=0. PASS.",
+          "headHash": "004f8b1a32c35c0ed9d812ff39ad6804cfecdf68",
+          "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
+          "timestamp": "2026-06-16T18:48:51.864Z"
         }
       ]
     }
