@@ -5,9 +5,9 @@
       "title": "Add path-reference drift validation to the CLAUDE.md docs-drift gate (reuse core/audit-scan scanPathDrift)",
       "context": "validate-docs-drift.ts currently only diffs lattice command names vs the registry. Add a path-reference check that reuses scanPathDrift from core/audit-scan.ts (do not re-implement): file paths CLAUDE.md references that do not exist on disk are reported as drift. Keep the command-name scan unchanged; the path check is additive. Provide an allowlist seam (mirroring the existing 'do not build this CLI' command allowlist) for intentional examples/deleted-by-design paths.",
       "userSees": "Running the docs-drift gate against a CLAUDE.md that references a non-existent path reports that path as drift (with the path and line), instead of passing silently; a CLAUDE.md whose paths all exist still passes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:15:48.797Z",
       "verificationIntent": {
         "happy": [
           {
