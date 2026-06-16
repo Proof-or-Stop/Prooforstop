@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-35aa:F-001",
+      "desc": "CHK-001:happy:2,3,4,5 evidence command mismatch: intents require grep for pinned numbers 151 / 70280 / 258 / 49, but all four evidence entries record command='grep -c ^## ', note='6 H2 sections'. The command field does not concretely correspond to the intent — violates B-d7ef bind-to-literal-command lesson. Reviewer independently verified all four numbers are present in the doc.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T23:56:13.895Z",
+      "reviewRound": "2026-06-16T23:52:14.893Z",
+      "reviewRunId": "B-35aa:RR-002",
+      "_hash": "8c0febd6fd7ca2fa4155a84b70133d000f2389e3d28150eed303968209d014fc",
+      "files": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ]
+    }
+  ]
+}
