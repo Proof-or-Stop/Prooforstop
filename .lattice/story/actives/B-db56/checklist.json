@@ -31,7 +31,19 @@
       "userSees": "`npm run test:gitroot-cwd-contract` passes on HEAD; running it after a deliberate regression injection fails with a clear pointer to the offending file:line and a remediation message naming resolveGitCwd.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+        ]
+      }
     }
   ]
 }
