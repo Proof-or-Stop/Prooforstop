@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-16T00:15:43.126Z",
       "reviewRunId": "B-1637:RR-004",
       "_hash": "3da109713a8de51e288d3d1365899d72454e0b8c830cd2a80910e7d274e9c1c2"
+    },
+    {
+      "id": "B-1637:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (no verificationIntent rows); judged delivered tests against behavior change directly. resolveDoctorGitCwd unit: all 3 resolver outcomes covered (wrapper→gitRoot subdir, plain→root fallback, null→root verbatim). E2E wrapper-root: real doctor() on real temp fixture, live stdout+stderr captured via process.write monkey-patch (the actual pre-fix leak path), asserts no FATAL_RE anywhere; report still produced. E2E plain-repo: unchanged behavior confirmed. Smoke test registered in both package.json files and passes green. No coverage gaps found.",
+      "createdAt": "2026-06-16T00:17:18.989Z",
+      "reviewRound": "2026-06-16T00:15:43.126Z",
+      "reviewRunId": "B-1637:RR-006",
+      "_hash": "67c1d4fca4cd5c699c2b06232d69de1a67d063bb8c52596c0f84cdefa6d1626a"
     }
   ]
 }
