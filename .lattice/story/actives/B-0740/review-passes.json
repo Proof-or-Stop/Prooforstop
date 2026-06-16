@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T01:58:56.058Z",
       "reviewRunId": "B-0740:RR-004",
       "_hash": "aa7459978d392ae656e840dbb591108a16c932e399b1bd39e63424bb2c2a94b9"
+    },
+    {
+      "id": "B-0740:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after 2-line duplicate-comment removal (commit 0d1097cff). Checked: (1) dead code — none found in doctor.ts, validate-lint.ts, verifier.ts, review-preflight.ts, or smoke tests; (2) type safety — as any casts in smoke test are stderr-capture monkey-patching confined to test scope, acceptable; production code is fully typed; (3) I/O isolation — no shells/ dir in this package, n/a; (4) duplicate comment confirmed removed — two remaining B-0740 CHK-002 occurrences serve distinct purposes (inline function comment vs full JSDoc block); (5) gitCwd threading is correct — resolveDoctorGitCwd/resolveGitCwd both return string (not optional), default parameter in repairStoryMetadataAllowlist is safe fallback for future callers. No blockers.",
+      "createdAt": "2026-06-16T02:02:22.448Z",
+      "reviewRound": "2026-06-16T01:58:56.058Z",
+      "reviewRunId": "B-0740:RR-005",
+      "_hash": "cf2a21d4c077dba690765ef09195073a9a8a1079c3533cf1f04d67d91a83711e"
     }
   ]
 }
