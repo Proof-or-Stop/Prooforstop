@@ -401,7 +401,7 @@ function summarizeChecklist(cl: ChecklistData | null): ChecklistSummary | null {
   return summary;
 }
 
-interface NextStepCtx {
+export interface NextStepCtx {
   storyId: string;
   phase: string;
   checklist: ChecklistSummary | null;
@@ -548,7 +548,7 @@ function normalizeSessionCommandHints(text: string): string {
     .replace(/(\]\s+)(finding_list|reviewer_list|review_run_start|review_pass_set|story_advance|checklist_get)\b/g, '$1lattice $2');
 }
 
-function computeNextStep(c: NextStepCtx): string {
+export function computeNextStep(c: NextStepCtx): string {
   const sid = c.storyId;
   if (isMetaContainer(sid, c.phase)) return metaContainerNextStep(sid);
   const openBugs = c.bugs?.bugs.filter(b => b.status === 'open') ?? [];
