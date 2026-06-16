@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定稿 global-agents 单一真相源资产契约",
+      "context": "明确:全局 ~/.claude/agents 为唯一 agent prompt 源,symlink 指向运行中 CLI 包 templates/agents(解析方式对 npm -g 与本地 dev 都健壮);项目内零 agent 文件;与 B-4ee0 global-thin / runtime-owned-agent-assets 执行计划口径对齐",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "实现全局 ~/.claude/agents 同步机制",
+      "context": "把 16 个 agent 模板 symlink 到 ~/.claude/agents,target 解析自运行中 CLI 包(非 hardcode dev 路径);幂等、可重复跑;断链/旧 copy 自动替换。决定挂在 init 还是独立 lattice 子命令(PLAN 决策)",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "改 lattice init:claude/all profile 不再写项目 .claude/agents",
+      "context": "cli-init.ts [5/6] 段当前 wantsClaude 时 symlink 进项目;改为确保全局源就绪 + 输出提示,项目内不再创建 .claude/agents 条目",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "迁移已有项目的 project-local .claude/agents",
+      "context": "已存在项目里的 .claude/agents(copy 或指向 dev 路径的 symlink)需能被清理回落全局解析;注意 Claude Code 项目级会 shadow 用户级,stale 文件不清会破坏一致性。提供 --upgrade 或迁移路径",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "更新决策文档与 CLAUDE.md 反映新契约",
+      "context": "lifecycle-artifact-scope.md / lattice-runtime-owned-agent-assets-execution-plan.md / CLAUDE.md 相关段同步为 global-agents 单一真相源口径",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "补 smoke/contract 验证并重新 build",
+      "context": "覆盖:干净项目 init 后项目内 0 个 agent .md;全局源存在且 symlink 有效;已有 project-local 被迁移清理;subagent_type 仍能解析。thin-init-assets-smoke 同类扩展 + npm run build",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

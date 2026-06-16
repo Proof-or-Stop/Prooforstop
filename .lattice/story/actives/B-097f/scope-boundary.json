@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-097f",
+  "mode": "feature",
+  "allowed": [
+    "实现把 16 个 agent 模板同步到全局 ~/.claude/agents 的机制(symlink 指向运行中 CLI 包 templates)",
+    "改 lattice init (cli-init.ts) 使 claude/all profile 不再向项目写 .claude/agents",
+    "更新 lifecycle-artifact-scope.md / runtime-owned-agent-assets 执行计划 / CLAUDE.md 反映 global-agents 单一真相源契约",
+    "补 smoke/contract 测试并 rebuild",
+    "迁移/清理已有项目里的 project-local .claude/agents,回落全局解析"
+  ],
+  "excluded": [
+    "不取消 subagent_type 机制(不做 CLI 内联吐 prompt 的方案 B)",
+    "不批量改写所有历史已 init 项目(只提供迁移路径,不主动扫全盘)",
+    "不改 Claude Code 平台本身的 subagent 加载顺序",
+    "不改 Codex 侧 asset-mode/global-thin 行为(B-4ee0 已收口)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "用户明确目的:所有项目统一从单一真相源(全局)解析 agent prompt 以保证改 Lattice 后一致;init 不再生成那么多 .md。已选全局 agents 目录方案。",
+  "createdAt": "2026-06-16T14:12:07.350Z",
+  "updatedAt": "2026-06-16T14:12:07.350Z",
+  "_hash": "232e61f052c1f6d58bf0fd4eb747787f312a0730c215c44d47d7d2f47e8f3379"
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-097f",
+  "checkedAt": "2026-06-16T14:12:44.827Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "232e61f052c1f6d58bf0fd4eb747787f312a0730c215c44d47d7d2f47e8f3379",
+  "executionBoundaryHash": "1dc3072b85923619d82d00bad31c30d5907acffad314b5f815592fe2aa88cb7a",
+  "freshnessHash": "c6276125b9a51a0f94572666c293a6860af0921ade79d2e29ae3d1763d465f71",
+  "effectiveExcludedKeywords": [
+    "不取消 subagent_type 机制(不做 CLI 内联吐 prompt 的方案 B)",
+    "不批量改写所有历史已 init 项目(只提供迁移路径,不主动扫全盘)",
+    "不改 Claude Code 平台本身的 subagent 加载顺序",
+    "不改 Codex 侧 asset-mode/global-thin 行为(B-4ee0 已收口)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "不取消 subagent_type 机制(不做 CLI 内联吐 prompt 的方案 B)",
+      "source": "scopeBoundary.excluded",
+      "text": "不取消 subagent_type 机制(不做 CLI 内联吐 prompt 的方案 B)",
+      "excluded": true
+    },
+    {
+      "keyword": "不批量改写所有历史已 init 项目(只提供迁移路径,不主动扫全盘)",
+      "source": "scopeBoundary.excluded",
+      "text": "不批量改写所有历史已 init 项目(只提供迁移路径,不主动扫全盘)",
+      "excluded": true
+    },
+    {
+      "keyword": "不改 Claude Code 平台本身的 subagent 加载顺序",
+      "source": "scopeBoundary.excluded",
+      "text": "不改 Claude Code 平台本身的 subagent 加载顺序",
+      "excluded": true
+    },
+    {
+      "keyword": "不改 Codex 侧 asset-mode/global-thin 行为(B-4ee0 已收口)",
+      "source": "scopeBoundary.excluded",
+      "text": "不改 Codex 侧 asset-mode/global-thin 行为(B-4ee0 已收口)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "2eb4c564100c6c488ce1475b448dc14da72d8d6f99776412c2166ed42ae1bb6d"
+}
