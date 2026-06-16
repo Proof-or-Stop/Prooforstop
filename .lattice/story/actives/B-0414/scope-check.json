@@ -1,0 +1,45 @@
+{
+  "storyId": "B-0414",
+  "checkedAt": "2026-06-16T00:57:25.926Z",
+  "features": [
+    {
+      "feature": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.touchpoints"
+    },
+    {
+      "feature": "docs/requirements/NAV.md",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.touchpoints"
+    },
+    {
+      "feature": "/Users/jek/Documents/lattice-console-demo.html",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "read-only prototype context for comparison; not an editable product or repository touchpoint in this document-only story",
+      "source": "description"
+    },
+    {
+      "feature": "docs/requirements/decisions/host-neutral-observability-console.md",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "read-only adopted source-of-truth anchor; referenced for consistency, not modified by this scope",
+      "source": "relatedDocs:docs/requirements/decisions/host-neutral-observability-console.md"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 2,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "889cc826e7e90863302a9977c028741e349cc2bef90cbd253f0247638b0ced1a",
+  "openQuestions": []
+}
