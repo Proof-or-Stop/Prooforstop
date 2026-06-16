@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "The verification gate is the ONLY path to receiptVerified=true; local append never sets it",
+    "Pluggable injected verifier keeps usage-ledger decoupled (no authority-signing import)",
+    "Envelope is digest-only + non-secret (reuse the privacy denylist); never raw content",
+    "A referenced receipt without genuine verification stays receiptVerified=false",
+    "Negative controls are load-bearing: prove the gate cannot be tricked"
+  ],
+  "drivers": [
+    "Freeze the evidence-envelope contract + anti-overclaim gate so a future server path plugs in cleanly",
+    "Spec forbids local overclaiming — receiptVerified must stay false until genuine verification",
+    "Keep the ledger module decoupled (zero cross-module imports)"
+  ],
+  "options": [
+    {
+      "name": "A: in-module authority-evidence.ts (envelope + pluggable gate) + record fields",
+      "pros": [
+        "Decoupled (injected verifier)",
+        "Honest anti-overclaim gate",
+        "Contract frozen for the future server"
+      ],
+      "cons": [
+        "Local effect is contract + gate, not a verified receipt (by design)"
+      ]
+    },
+    {
+      "name": "B: import authority-signing.ts into usage-ledger and verify locally",
+      "pros": [
+        "Real verification now"
+      ],
+      "cons": [
+        "Couples the ledger to the authority subsystem (breaks zero-cross-module-imports); no server/receipts locally anyway — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: in-module authority-evidence.ts (envelope + pluggable gate) + record fields",
+  "rationale": "A pluggable injected verifier freezes the envelope + verification contract and the anti-overclaim gate while keeping usage-ledger decoupled; locally everything stays receiptVerified=false (correct per spec), and the negative controls prove the gate cannot be tricked into a false authority claim.",
+  "preMortem": [
+    {
+      "scenario": "The gate is tricked into receiptVerified=true without genuine verification",
+      "trigger": "Accepting transport-ok / token presence / hash / copied id as proof",
+      "consequence": "Local record falsely claims authority",
+      "mitigation": "verified ONLY via injected verifier returning true + subject match; 4 negative controls (transport, tokens, hash, copied id) each assert receiptVerified stays false"
+    },
+    {
+      "scenario": "Envelope leaks raw content or a secret",
+      "trigger": "Copying record fields verbatim",
+      "consequence": "Privacy violation in evidence",
+      "mitigation": "Envelope = recordDigest + an explicit allowlist of non-secret fields; reuse the privacy denylist; smoke asserts zero forbidden material"
+    },
+    {
+      "scenario": "usage-ledger imports authority-signing (couples)",
+      "trigger": "Calling the real verifier directly",
+      "consequence": "Module loses zero-cross-module-imports",
+      "mitigation": "Verifier is injected; module imports only ./ siblings + node; smoke asserts zero cross-module imports"
+    },
+    {
+      "scenario": "Local append path accidentally sets receiptVerified=true",
+      "trigger": "Default/builder sets it",
+      "consequence": "Overclaim by default",
+      "mitigation": "Append/builders keep receiptVerified=false; validator rejects local receiptVerified!=false; only the gate can flip it; tested"
+    },
+    {
+      "scenario": "A receipt reference is treated as verification",
+      "trigger": "receiptId present => assumed verified",
+      "consequence": "Overclaim from a mere reference",
+      "mitigation": "receiptId/subject present without verifier confirmation stays receiptVerified=false; distinct negative control"
+    }
+  ],
+  "timestamp": "2026-06-16T21:26:19.172Z"
+}

@@ -4,7 +4,7 @@
   "title": "LLM usage ledger Touchpoint 6 (local slice): privacy-preserving usage-evidence envelope + receipt-reference fields + pluggable verification gate (stays receiptVerified=false locally)",
   "description": "Authority slice (spec Touchpoint 6 'Authority Server Receipt-Backed Path' + 'Local Non-authority Boundary'), scoped to the LOCAL, server-independent part only. No Authority Server is required to exist. Deliverables, all inside the usage-ledger module (preserving zero cross-module imports via a PLUGGABLE verifier interface — do NOT import the authority-signing module): (1) a privacy-preserving usage-evidence ENVELOPE shape + builder that encodes a ledger record as digests + non-secret fields needed for a future Authority Server submission (no raw prompt/transcript/secret/key — reuse the existing privacy denylist); (2) receipt-reference fields on the record's authority block (receiptId nullable, receiptSubjectKind, receiptSubjectId) kept nullable; (3) a verification GATE: verifyUsageReceipt(envelope, signedReceipt, verifyFn) that sets authority.receiptVerified=true and binds receiptId ONLY when an injected verifyFn confirms a real signed receipt AND subject binding matches; otherwise receiptVerified stays false. The local append path NEVER sets receiptVerified=true on its own. (4) Negative controls (per spec): transport acceptance is not proof; a provider response with real tokens is not proof; a local JSONL hash is not proof; a copied receiptId without signature+subject verification is not proof — all must keep receiptVerified=false. (5) A smoke. Out of scope: the Authority Server itself, network submission, real signature crypto (the verifier is injected/pluggable), promoting any local record to receipt-backed authority by default.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -19,7 +19,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-16T21:21:34.841Z",
   "startedAt": "2026-06-16T21:21:34.841Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T22:02:46.745Z",
   "events": [
     {
       "phase": "INIT",
@@ -36,11 +36,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:25:26.437Z",
+      "branch": "story/B-fd64",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:31:24.940Z",
+      "branch": "story/B-fd64",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:43:24.705Z",
+      "branch": "story/B-fd64",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:53:43.685Z",
+      "branch": "story/B-fd64",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:53:44.268Z",
+      "branch": "story/B-fd64",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:57:03.796Z",
+      "branch": "story/B-fd64",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T22:02:46.745Z",
+      "branch": "story/B-fd64",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-fd64",
-    "branch": "story/B-fd64",
-    "createdAt": "2026-06-16T21:25:11.783Z"
-  }
+  "currentReviewRound": "2026-06-16T21:53:44.268Z"
 }
