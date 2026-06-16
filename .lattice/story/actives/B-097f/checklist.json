@@ -234,12 +234,12 @@
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/cli-init.ts",
-          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --upgrade --yes --profile=claude",
+          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude --upgrade",
           "result": "pass",
-          "note": "真机: 预置 16 managed + my-custom.md 后 --upgrade 逐条 ↻ migrated to global，移除 16 个，输出 migrated 16 ...; preserved 1; 全局含 16 symlink",
-          "headHash": "0f14780ab2aeb142b0e53c2eeec488f7de16a6b3",
-          "materialHash": "2f521de1ad3e1313e304dae767346acd870b39ed0a541b4eace3fa1de9bf5346",
-          "timestamp": "2026-06-16T14:50:54.330Z"
+          "note": "Pre-seeded 16 managed + 1 user (my-custom.md). --upgrade logs 16x ↻ migrated to global, removes exactly the 16 managed basenames, project count 17→1. Verified correct after thin-shim transform. PASS.",
+          "headHash": "00f4f3666c80ab504ed2897730e9a38c1ea312d7",
+          "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
+          "timestamp": "2026-06-16T18:46:56.790Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
