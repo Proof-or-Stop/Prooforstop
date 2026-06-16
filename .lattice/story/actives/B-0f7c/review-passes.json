@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-16T19:41:00.483Z",
       "reviewRunId": "B-0f7c:RR-008",
       "_hash": "dc60c21140e434fd29336b31ebf5b4b06d9f80db69188b856c438440a5fa5da3"
+    },
+    {
+      "id": "B-0f7c:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 (RR-007). Scope: still exactly the 4 declared files (dispatch-usage.ts, lattice-dispatch.ts, usage-ledger-dispatch-smoke.ts, package.json) — no dispatch-runner / cli-engine / handlers touched. One-way seam intact: dispatch-usage.ts imports only ./ sibling usage-ledger modules + node builtins (adapters/anthropic, assemble, estimate, ids, record, writer) — zero cross-module imports confirmed by grep. lattice-dispatch imports usage-ledger only via ./usage-ledger/dispatch-usage.js (single import line, confirmed). No re-implementation: reuses buildProviderRecord, buildEstimateRecord, bytesCharsEstimator, buildSupersedes, mintCallCorrelation, mintRecordId, appendUsageRecord. Record semantics correct: preflight seq=1 / supersedesRecordIds=[]; final seq=2 / supersedesRecordIds=[estimateRecordId] via buildSupersedes; provider-reported via anthropic adapter (buildProviderRecord); unavailable path builds source=unavailable seq=2 supersedes; served model bound via finalContext. Comment-only fix (F-001 / commit d7913f0) corrected misleading text about null-correlation behavior — old comment residue confirmed absent by grep. No concept deletions or replacements identified. No blocker.",
+      "createdAt": "2026-06-16T19:42:54.883Z",
+      "reviewRound": "2026-06-16T19:41:00.483Z",
+      "reviewRunId": "B-0f7c:RR-007",
+      "_hash": "e0301bb5861380350b379b04bf9b832f73b698276818bba75c8e83af8ef1e14a"
     }
   ]
 }
