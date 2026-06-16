@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-35aa",
+  "mode": "custom",
+  "allowed": [
+    "Create the test-runner consolidation decision document at docs/requirements/decisions/test-runner-consolidation-plan.md; commit it. No code changes; no edits to other decision documents; no edits to package.json or any smoke."
+  ],
+  "excluded": [
+    "Editing 151 smokes or 49 verify scripts",
+    "Editing any existing decision file in docs/requirements/decisions",
+    "Editing any package.json",
+    "Vitest evaluation work",
+    "Wiring c8 anywhere",
+    "Writing the actual runner code"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User chose Path B via Lattice workflow for Proposal #2 (2026-06-17).",
+  "createdAt": "2026-06-16T23:42:12.623Z",
+  "updatedAt": "2026-06-16T23:42:12.623Z",
+  "_hash": "64b371624bc563df0250a937b6158bba4e738b0faf0277a9999541b1c6206d0e"
+}
