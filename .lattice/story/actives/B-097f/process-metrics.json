@@ -1,12 +1,12 @@
 {
   "storyId": "B-097f",
-  "generatedAt": "2026-06-16T14:26:30.412Z",
+  "generatedAt": "2026-06-16T18:31:32.807Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 6,
-    "reviewRounds": 1,
+    "reviewRounds": 3,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -108,7 +108,7 @@
           ]
         },
         "replanCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -219,7 +219,7 @@
           ]
         },
         "devToPlanBounceCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -277,7 +277,7 @@
           "note": "proxy: no reviewer findings may indicate missing review, not code violation"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -309,7 +309,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
