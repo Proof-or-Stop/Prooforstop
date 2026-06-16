@@ -164,7 +164,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard exits 0 PASS on the real tree and is invoked under lattice validate (npm test chains test:main-write-lock-coverage before test:e2e — marker line present in validate output)",
+          "headHash": "146d8dedbe8b47540120634a7e79c51020473c83",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:55.645Z"
+        }
+      ]
     }
   ]
 }
