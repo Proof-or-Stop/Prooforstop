@@ -872,23 +872,26 @@ if (wantsClaude) {
   console.log('  - .claude/skills/koala (profile skip)');
 }
 
-// 5. agent 模板 → 全局单一源 ~/.claude/agents（B-097f）
+// 5. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
 // Claude Code 只能从磁盘解析 subagent_type: lattice-*，但用户级全局
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
-// 因此不再向项目写 16 个 agent 模板，改为确保全局源就绪 + 提示从全局解析。
-console.log('\n[5/6] 同步 agent 模板（全局单一源）...');
+// prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
+// thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
+// `lattice agent_prompt --role=<name>` 从包内 registry 现取。
+console.log('\n[5/6] 同步 agent 适配器（全局 thin-shim 单一源）...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
   // 仍然清理项目内历史遗留的 legacy koala-*.md（迁移到全局前的卫生）。
   cleanupGeneratedLegacyKoalaAgentPrompts(agentDstDir);
 
-  // 确保全局源就绪：把 CLI 包 templates/agents 下全部 *.md symlink 到
-  // ~/.claude/agents。全局不可写时抛明确错误，不静默回退 project-local。
+  // 确保全局源就绪：为 CLI 包 templates/agents 下每个 *.md 在 ~/.claude/agents
+  // 生成 thin-shim（保留 tools 沙箱、不含正文）。全局不可写时抛明确错误，
+  // 不静默回退 project-local。
   const sync = syncGlobalAgents({ templateDir: agentTemplateDir });
   console.log(
     `  ✓ ${sync.globalDir} (synced=${sync.synced}, ok=${sync.skipped}, replaced=${sync.replaced} → ${sync.templateDir})`,
   );
-  console.log('  - .claude/agents (resolved from global ~/.claude/agents; no per-project copies)');
+  console.log('  - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files)');
 
   // B-097f CHK-004: project-local .claude/agents shadows the global single
   // source. Migrate ONLY the exact managed basenames, and ONLY under the
