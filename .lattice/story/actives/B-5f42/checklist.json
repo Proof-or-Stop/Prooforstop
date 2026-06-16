@@ -151,6 +151,17 @@
           "headHash": "6192282181fd4094c121a7af64ca8350d9c9187a",
           "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
           "timestamp": "2026-06-16T23:08:47.412Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 3: legacy Chinese in a path outside the current story dir is NOT flagged by english-artifact-gate (diff/story-scoped)",
+          "headHash": "9f92350d13777c86562768d850aa0a56d54f1e38",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:48.371Z"
         }
       ]
     },
