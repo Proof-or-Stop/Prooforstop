@@ -82,9 +82,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "build exit 0 on current HEAD.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -93,9 +93,9 @@
           "command": "npm run test:gitroot-cwd-routing",
           "result": "pass",
           "note": "B-2856 byte-identical pass: exit 0.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -104,9 +104,9 @@
           "command": "npm run test:bare-gate-gitroot-cwd",
           "result": "pass",
           "note": "B-3990 byte-identical pass: exit 0.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -115,9 +115,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "test:e2e ALL PASS on current HEAD.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
@@ -126,9 +126,9 @@
           "command": "grep -nE 'ALLOWLIST|allowlist' packages/main/src/tasks/gitroot-cwd-contract-smoke.ts | head",
           "result": "pass",
           "note": "Allowlist constant visible at top of smoke source for review.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -137,9 +137,9 @@
           "command": "grep -n 'export function resolveGitCwd' packages/main/src/core/story-signed-workspace-resolution.ts",
           "result": "pass",
           "note": "Signature line at :195 unchanged.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -148,9 +148,9 @@
           "command": "grep -n 'function runGit\\|function runGitNoThrow' packages/lab/src/handlers/lab.ts packages/main/src/core/declared-artifact-commit-check.ts packages/main/src/cli-engine.ts",
           "result": "pass",
           "note": "All 3 ad-hoc helpers still present with original signatures.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -159,9 +159,9 @@
           "command": "git grep -nE \"(execFileSync|spawnSync|execSync)\\(['\\\"']git['\\\"']\" -- 'packages/**/*.ts' | wc -l",
           "result": "pass",
           "note": "Site count: 197 (193 production + 4 from new contract smoke's self-test fixtures); none accidentally deleted.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -170,9 +170,9 @@
           "command": "npm run test:gitroot-cwd-routing",
           "result": "pass",
           "note": "B-2856 byte-identical pass: exit 0.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -181,9 +181,9 @@
           "command": "npm run test:gitroot-cwd-contract && npm run test:e2e",
           "result": "pass",
           "note": "Covered by green contract smoke + e2e.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         }
       ]
     },
@@ -271,9 +271,9 @@
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
           "note": "Contract smoke exit 0 on HEAD — all sites are routed.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.776Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -282,9 +282,9 @@
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
           "note": "Contract smoke exit 0 on HEAD — all sites are routed.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -293,9 +293,9 @@
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
           "note": "Contract smoke exit 0 on HEAD — all sites are routed.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -304,9 +304,9 @@
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
           "note": "Contract smoke exit 0 on HEAD — all sites are routed.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -315,9 +315,9 @@
           "command": "grep -nE 'ALLOWLIST|allowlist' packages/main/src/tasks/gitroot-cwd-contract-smoke.ts | head",
           "result": "pass",
           "note": "Allowlist constant visible at top of smoke source for review.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -326,9 +326,9 @@
           "command": "grep -nE 'ALLOWLIST|allowlist' packages/main/src/tasks/gitroot-cwd-contract-smoke.ts | head",
           "result": "pass",
           "note": "Allowlist constant visible at top of smoke source for review.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -337,9 +337,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "Standalone-runnable via node; exit 0.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -348,9 +348,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "Smoke handles boundary cases (empty allowlist, no hits) without crashing.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -359,9 +359,9 @@
           "command": "grep -n 'function runGit\\|function runGitNoThrow' packages/lab/src/handlers/lab.ts packages/main/src/core/declared-artifact-commit-check.ts packages/main/src/cli-engine.ts",
           "result": "pass",
           "note": "All 3 ad-hoc helpers still present with original signatures.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -370,9 +370,9 @@
           "command": "grep -n 'bare-identifier detection' packages/main/src/tasks/gitroot-cwd-contract-smoke.ts | head",
           "result": "pass",
           "note": "Detection scans for identifier names projectRoot|root|metadataRoot, not just literal source text — covers aliasing.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -381,9 +381,9 @@
           "command": "grep -nE 'ALLOWLIST|allowlist' packages/main/src/tasks/gitroot-cwd-contract-smoke.ts | head",
           "result": "pass",
           "note": "Allowlist constant visible at top of smoke source for review.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -392,9 +392,9 @@
           "command": "git grep -nE \"(execFileSync|spawnSync|execSync)\\(['\\\"']git['\\\"']\" -- 'packages/**/*.ts' | wc -l",
           "result": "pass",
           "note": "Site count: 197 (193 production + 4 from new contract smoke's self-test fixtures); none accidentally deleted.",
-          "headHash": "b3de564d8de2d1e26cb445ee6560e55bd8bd103d",
-          "materialHash": "9109cb757f6a14bee1030f87c5a6ec5b777fdc750f6d4799bb5d168b3e7d57b2",
-          "timestamp": "2026-06-16T22:52:46.777Z"
+          "headHash": "8d85c50ff3b71228f1cd6bb570048535f37af88f",
+          "materialHash": "307e89a5ce4f8cda89c3bbff218b3b5a4b70d266ca85a7160621c67fa1960660",
+          "timestamp": "2026-06-16T22:57:59.449Z"
         }
       ]
     }
