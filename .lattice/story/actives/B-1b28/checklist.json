@@ -15,6 +15,90 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "isUsageLedgerEnabled({}) === true (unset env returns ON by default); WHY: the core behavioral flip, must return true when LATTICE_USAGE_LEDGER is absent",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"1\"}) === true; WHY: explicit ON still works after flip",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"true\"}) === true; WHY: truthy string parsed as enabled",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"on\"}) === true; WHY: truthy on parsed as enabled",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"yes\"}) === true; WHY: truthy yes parsed as enabled",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"0\"}) === false; WHY: escape hatch explicit 0 disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"false\"}) === false; WHY: explicit false disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"off\"}) === false; WHY: explicit off disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"no\"}) === false; WHY: explicit no disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({KOALA_USAGE_LEDGER:\"1\"}) === true; WHY: legacy KOALA_ alias honored as fallback",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({KOALA_USAGE_LEDGER:\"0\"}) === false; WHY: KOALA_ alias escape hatch works",
+            "type": "cli"
+          },
+          {
+            "desc": "writer.ts comment updated from Default OFF to Default ON with escape-hatch note; WHY: doc accuracy",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"\"}) === false; WHY: empty string is falsy edge case, maps to disabled not the unset default-ON path",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\" 1 \"}) === true; WHY: whitespace-padded truthy value is trimmed",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\" FALSE \"}) === false; WHY: case-insensitive + trimmed falsy",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_ takes precedence over KOALA_ when both set: {LATTICE:0,KOALA:1} => false; WHY: LATTICE_ wins ?? chain",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"2\"}) === false; WHY: only 1/true/on/yes are truthy, random numeric must not enable",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"enabled\"}) === false; WHY: word that sounds truthy but not in allowed set must not enable",
+            "type": "cli"
+          },
+          {
+            "desc": "Re-read on every call (not memoized): env=0 => false, delete env => true, env=1 => true in sequence; WHY: process-lifetime toggle without restart",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
