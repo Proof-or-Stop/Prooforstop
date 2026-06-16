@@ -97,7 +97,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-convergence.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "assessReviewConvergence returns stalled=true with English message for [2,2,1] at round>=4 (smoke case a)",
+          "headHash": "c36d2fdaee28eca14a185cc21cdac5559a22b810",
+          "materialHash": "d88e494089b3f4e17b8b25bae9779e8a22249347adf1063f57751d51dc1e9d8b",
+          "timestamp": "2026-06-16T21:27:24.119Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
