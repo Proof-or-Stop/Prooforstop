@@ -315,8 +315,8 @@ comparable without discarding provider fidelity.
     "runnerIdHash": "sha256:..."
   },
   "provider": {
-    "name": "openai",
-    "model": "gpt-5",
+    "name": "anthropic",
+    "model": "claude-opus-4-8",
     "requestIdHash": "sha256:..."
   },
   "decision": {
@@ -410,8 +410,20 @@ Required record constraints:
   `cacheReadInputTokens`) must be present on every provider-reported record. A
   value of `0` is only allowed when the provider genuinely reports `0` for that
   field; it must never be inferred or used to paper over a field the provider did
-  not return. If a provider does not expose cache-token fields at all, that maps
-  to `usage.source=unavailable` for the cache dimension rather than a silent `0`.
+  not return.
+- Per-dimension absence rule (authoritative): `usage.source` is a record-level
+  discriminator describing the source of the PRIMARY input/output counts. A
+  provider that returns input/output counts is `provider-reported` for the whole
+  record, even when it does not report cache dimensions. Do NOT overload
+  `usage.source` to express per-dimension absence (there is no
+  "`usage.source=unavailable` for the cache dimension"). Instead, when a provider
+  does not report a cache dimension, set the canonical
+  `cacheCreationInputTokens` / `cacheReadInputTokens` (and the matching
+  `usage.canonical.cacheCreation` / `usage.canonical.cacheRead`) to `null` (JSON
+  `null`), never `0` and never omitted. `null` means "unavailable for this
+  dimension" and is explicitly distinct from a provider-reported `0`. This
+  preserves the "never treat missing as zero" principle at the field level
+  (`null`, not `0`).
 - `inputTokens` is the uncached remainder, not the total input; cached input is
   accounted for separately in `cacheReadInputTokens` and
   `cacheCreationInputTokens`.
@@ -484,9 +496,17 @@ Mapping rules (provider cache/cached-token fields to canonical cache fields):
   `cacheCreation` according to what the provider actually reports; a value the
   provider does not report must not be inferred (see the provider-reported
   constraint on never inferring `0`).
-- Providers that do not expose cache tokens at all map `cacheCreation` and
-  `cacheRead` to unavailable for that dimension rather than a silent `0`, while
-  still mapping `input` and `output`.
+- Providers that do not expose cache tokens at all set the canonical
+  `cacheCreation` and `cacheRead` to `null` (and likewise the record's
+  `cacheCreationInputTokens` / `cacheReadInputTokens`) rather than a silent `0`,
+  while still mapping `input` and `output`. The record stays
+  `usage.source=provider-reported` because input/output are provider-reported;
+  per-dimension absence is expressed by setting those cache fields to `null`, not
+  by `usage.source` (see the per-dimension absence rule under "Required record
+  constraints"). For example, an OpenAI-style provider that reports only
+  input/output emits `cacheCreationInputTokens: null` and
+  `cacheReadInputTokens: null` (canonical `cacheCreation: null`,
+  `cacheRead: null`).
 - `canonical.input` follows the same uncached-remainder semantics as
   `inputTokens`: it is the uncached input only, not the gross input.
 
@@ -750,8 +770,11 @@ npm --prefix packages/main run test:llm-usage-ledger-authority-boundary
      provider digest and the canonical view with explicit cache-field mapping;
    - capture cache tokens (`cacheCreationInputTokens`, `cacheReadInputTokens`)
      and streaming/terminal-event usage per provider;
-   - record unavailable usage explicitly for unsupported providers and for
-     cache dimensions a provider does not report (never a silent `0`);
+   - record `usage.source=unavailable` explicitly for unsupported providers;
+   - for a provider-reported record where the provider does not report a cache
+     dimension, set that canonical cache field to `null` (never a silent `0`),
+     keeping the record `provider-reported` (see the per-dimension absence rule
+     under "Required record constraints");
    - prefer the provider `count_tokens` endpoint for estimates where available;
    - avoid arbitrary estimator tuning unless it fixes a real correctness issue.
 5. Authority receipt-backed path:
