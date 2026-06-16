@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T19:34:32.280Z",
       "reviewRunId": "B-0f7c:RR-001",
       "_hash": "4fe4ca2094076523a1e0c2c64c1c584d8a957d59e8ebaccff9e262e1fad320c3"
+    },
+    {
+      "id": "B-0f7c:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "OFF path byte-identical: buildClaudeSpawnArgs(false) returns literal [--print, promptFile]; spawnSync uses those exact args; rawStdout assigned to stdout with no parseClaudeCliOutput call. ON path: spawnArgs gains --output-format json; parseClaudeCliOutput extracts .result as human text; stdout set to parsed.resultText not raw JSON. Downstream: stdout feeds ONLY appendTranscript (line 1976); receipt, collection, runnerRecord and DispatchRunResult return object draw from exitCode/git/record fields only - none read stdout. Double fallback: if parseClaudeCliOutput throws, catch resets stdout=rawStdout. isUsageLedgerEnabled gates correctly on LATTICE_USAGE_LEDGER=1/true/on/yes; all other values (unset, 0, false) are OFF. No behavioral regression in either path.",
+      "createdAt": "2026-06-16T19:36:48.196Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-002",
+      "_hash": "fc6ff160e5e166238ad096f7423d8ebe8a28aaab2fe36321cd62fb104511aec4"
     }
   ]
 }
