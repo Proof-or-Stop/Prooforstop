@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-16T00:10:14.232Z",
       "reviewRunId": "B-4bf8:RR-010",
       "_hash": "a30a73c077b881ea52b6c009b92b5f6cb574c0c8e2bcd7ead69046865b6629f2"
+    },
+    {
+      "id": "B-4bf8:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round quality review (RR-008) against HEAD c1669d5. Changed files: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md + .lattice metadata only — no source code. JSON example self-consistent: provider.name=anthropic / provider.model=claude-opus-4-8 matches usage.raw.providerUnits=anthropic-usage-v1. All four cache fields present in both top-level usage (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) and canonical (input, output, cacheCreation, cacheRead). No totalTokens stored. Per-dimension absence rule (authoritative) at lines 414-426 specifies canonical cacheCreation/cacheRead=null when provider does not report that dimension, never 0; rule at lines 408-413 permits 0 when provider genuinely reports 0 — both rules are internally consistent and correctly applied: the Anthropic example shows 0 (not null) because anthropic-usage-v1 does report cache fields, making 0 a genuine provider-returned zero for a no-cache-activity call, not an inferred value. No dangerous defaults: authority.receiptVerified=false, authority.mode=local, promptStored=false, transcriptStored=false. No doc-promise-undelivered issues: this is an execution plan (no source code delivered by design). Dead code: none (doc only). Type safety: N/A. I/O shell isolation: N/A. No findings.",
+      "createdAt": "2026-06-16T00:11:38.124Z",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "reviewRunId": "B-4bf8:RR-008",
+      "_hash": "63af12051b0f5c5516d49e6422b6c8ecd5c8510a8e9ee7b61453aa86a875f74c"
     }
   ]
 }
