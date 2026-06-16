@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-16T19:41:00.483Z",
       "reviewRunId": "B-0f7c:RR-006",
       "_hash": "340b9ea6dbd84ad4c7499c95bb516cfabaf75e8813524f80f83652a6b55f9399"
+    },
+    {
+      "id": "B-0f7c:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verifier 44/44, dispatch smoke 38/38 on HEAD 3fdb517 (only behavioral delta from evidenced c4a370e is one inline comment correction in dispatch-usage.ts; all static invariants hold: buildOk, dispatchSmoke, noRegression, offByteIdentical, seamGated, zeroImport, modelHandled, noForbidden, scopeClean). All 44 must-intents covered by valid manual_transcript evidence, no gaps.",
+      "createdAt": "2026-06-16T19:42:30.919Z",
+      "reviewRound": "2026-06-16T19:41:00.483Z",
+      "reviewRunId": "B-0f7c:RR-008",
+      "_hash": "dc60c21140e434fd29336b31ebf5b4b06d9f80db69188b856c438440a5fa5da3"
     }
   ]
 }
