@@ -30,7 +30,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "computeNextStep INIT/INIT_CHECK gitReady=false+gitRoot resolved -> points to INIT_CHECK, no git init",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "plain no-gitRoot -> git-init message byte-identical (full-string equality)",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "gitReady=true cross-check matches the wrapper-root-resolved guidance; no crash on flag combos",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -62,7 +97,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "wrapper-root non-git cwd: fatal captured in pipe, not leaked; leak-control proves pre-fix default leaks",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "ordinary main branch: not rejected (negative control), behavior unchanged",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "real worktree-* checked-out branch: nesting rejection preserved",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -94,7 +164,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts gitRoot-aware guidance on the wrapper-root case",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts plain no-gitRoot keeps git-init + nesting unchanged",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts real nesting still rejected + no spurious fatal on wrapper-root (7/7 checks)",
+          "headHash": "8ccb0c705c6bfbb1d009cc390ad1e9a3e0cd9c1b",
+          "materialHash": "6ba9ada72f2fc47bfb94d931f63f1b9c085a7932a851792b65e4877442507f1b",
+          "timestamp": "2026-06-16T00:38:35.842Z"
+        }
+      ]
     }
   ]
 }
