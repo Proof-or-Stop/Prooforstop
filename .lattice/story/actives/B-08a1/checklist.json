@@ -643,9 +643,9 @@
       "id": "CHK-006",
       "title": "Unavailable + per-dimension null semantics across providers",
       "context": "Centralize the rule: a provider response with NO usage -> source=unavailable + unavailableReason (never zeros). A provider that reports primary input/output but not a given cache dimension -> that canonical cache field = null (never 0, never via usage.source). Verified for anthropic (all four present), openai (cacheCreation null), gemini (cacheCreation null, cacheRead null when absent).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T02:32:57.503Z",
-      "endTime": null,
+      "endTime": "2026-06-16T02:40:21.001Z",
       "files": {
         "modify": [
           "packages/main/src/core/usage-ledger/adapters/openai.ts",
