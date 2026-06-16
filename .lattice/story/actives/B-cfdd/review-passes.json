@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-16T21:36:47.324Z",
       "reviewRunId": "B-cfdd:RR-006",
       "_hash": "963ee50ecb58b585f1b589c0df20b8393015fff4183ca3fdb782afd3b8c55ba5"
+    },
+    {
+      "id": "B-cfdd:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "F-001 short-window guard is correctly placed (before trend logic), no-op on production path, clearly documented in JSDoc and inline comment; new smoke case (f) covers the two short-window inputs and confirms full-window classifications are unchanged; no Chinese in code/comments, no dead code, no empty catch, no type-safety issues in the changed files.",
+      "createdAt": "2026-06-16T21:37:51.177Z",
+      "reviewRound": "2026-06-16T21:36:47.324Z",
+      "reviewRunId": "B-cfdd:RR-005",
+      "_hash": "62feef9a042f647ecd2828a7962d07eb65c41bd81c7e5282d9356469dc0b67fe"
     }
   ]
 }
