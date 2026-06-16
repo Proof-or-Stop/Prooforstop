@@ -68,6 +68,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Feed OpenAI response with prompt_tokens_details.cached_tokens present {usage:{prompt_tokens:800,completion_tokens:300,prompt_tokens_details:{cached_tokens:200}}} -> canonical.input=800, canonical.output=300, canonical.cacheRead=200, canonical.cacheCreation===null (NOT 0); source=provider-reported; raw.providerUnits=openai-usage-v1; WHY: OpenAI reports cache reads but never cache writes, cacheCreation must be null",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed OpenAI response WITHOUT prompt_tokens_details (older API / model that does not report cache) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported (input/output present); WHY: per-dimension absence = null, never 0, and source stays provider-reported",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Feed OpenAI response with prompt_tokens_details.cached_tokens=0 (cache feature active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); cacheCreation still null; WHY: 0 from provider is a real zero, distinct from null (absent)",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed OpenAI response with prompt_tokens_details present but empty object {} (no cached_tokens key) -> canonical.cacheRead===null; WHY: missing cached_tokens key inside details = null, not inferred as 0",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Feed OpenAI response with usage=null/undefined -> source=unavailable with unavailableReason; never zeros; WHY: no-usage must be explicit unavailable",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed OpenAI response and verify cacheCreation is STRICTLY null (typeof check), not 0, not undefined, not omitted -> assert cacheCreation===null using strict equality; WHY: the spec says null never 0 for unreported dimensions, this is the key adversarial contract",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed OpenAI response with string token counts {prompt_tokens:100,completion_tokens:50} -> adapter rejects or coerces safely (must not produce NaN or string in canonical); WHY: string coercion attack from a malicious provider payload",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
