@@ -254,9 +254,9 @@
       "id": "CHK-003",
       "title": "Gemini usage adapter (cacheCreation=null)",
       "context": "Add adapters/gemini.ts mapping usageMetadata.promptTokenCount->canonical.input, candidatesTokenCount->output, cachedContentTokenCount->cacheRead, cacheCreation=null. raw{providerUnits:'gemini-usage-v1', payloadDigest}. Tested: response with cachedContentTokenCount, without it (cacheRead null), and no-usage -> unavailable.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T02:29:36.873Z",
-      "endTime": null,
+      "endTime": "2026-06-16T02:40:12.780Z",
       "files": {
         "modify": [],
         "create": [
