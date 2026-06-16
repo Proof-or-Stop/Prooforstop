@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T00:16:54.496Z",
       "reviewRunId": "B-08f2:RR-001",
       "_hash": "cbbb72c9227b80744861c9fa71321c6dc1425dd3f0d6890eea5f1af9d7dbebec"
+    },
+    {
+      "id": "B-08f2:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 36 verificationIntents across 3 checklist items have non-failing evidence. Live re-run confirms: residual gate (git grep KOALA_[A-Z] in scope) returns zero; no-shim scan returns zero; LEGACY_KOALA_ preserved (7 refs) in lattice-paths.ts; docs/koala/legacy gone and framework-audit kept; npm run build exits 0; npm run test:e2e exits 0. Two pre-existing failures (test:fail-fast-health: aux_sync unregistered command; test:role-telemetry: .koala activity-path deferred) confirmed pre-existing on main branch — not caused by this story. Evidence mapping for CHK-002:edge:0 uses an indirect command (git ls-files docs/koala/legacy) but the underlying fact (no test file sets process.env.KOALA_ at runtime) is substantiated by the broader residual gate scan over packages/main/src/tasks/ returning zero. No coverage blocker found.",
+      "createdAt": "2026-06-16T00:22:50.066Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-004",
+      "_hash": "835a5d3ca9fe8e09e7a7698e70fd2cc72a7f38be40ec427a1fbab2942f076fc5"
     }
   ]
 }
