@@ -22,6 +22,19 @@
         }
       ],
       "_hash": "c493ed46263d586270d8826ad103b4043c121698f4ef6f20fd699230a84f5a0e"
+    },
+    {
+      "timestamp": "2026-06-16T21:06:12.429Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when 让 lattice init 的 .gitignore 复制路径以 registry 为真相源合并 runtime ignore 块，并 resync 主仓 .gitignore + 回归保护：clean main 上 thin-init-assets-smoke 通过 + 防 registry→gitignore 再漂移的断言 are performed simultaneously?)"
+        }
+      ],
+      "_hash": "130e62ca40456497bac408b6a7d787d5b88a3a56c60664c893e019868648edd0"
     }
   ]
 }
