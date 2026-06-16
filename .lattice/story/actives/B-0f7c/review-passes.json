@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T19:34:32.280Z",
       "reviewRunId": "B-0f7c:RR-003",
       "_hash": "b8857085b084b03150105b2f5912fada28280c8a7a2526fb5663c5e1f6267e9a"
+    },
+    {
+      "id": "B-0f7c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All INVs verified. INV-1 holds: OFF path uses buildClaudeSpawnArgs(promptFile, false) -> [\"--print\", promptFile] with no ledger code executed; stdout assigned from rawStdout with no parse. INV-2: parseClaudeCliOutput never throws, returns raw+null on any non-JSON/shape-mismatch. INV-3: all ledger calls wrapped in try/catch in both dispatch-usage.ts and lattice-dispatch.ts outer guard. INV-4: dispatch-usage.ts imports only ./siblings + node: confirmed; lattice-dispatch.ts imports usage-ledger only via dispatch-usage.js confirmed by static check. INV-5: buildSupersedes(estimateRecordId) passed as supersedesRecordIds in provider-reported final; summarizeRecords excludes superseded records. One low/missing finding registered (F-001): misleading inline comment in recordDispatchFinal at line 333 says \"skip rather than mint\" but code mints and continues. No blockers; no dead code in changed files; no type-safety issues; no I/O isolation violations.",
+      "createdAt": "2026-06-16T19:38:44.423Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-004",
+      "_hash": "7f7ad92abb3c63a735085177e757fabd661b59bd57dff77100cd94bba1ad720a"
     }
   ]
 }
