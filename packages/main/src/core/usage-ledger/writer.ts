@@ -32,6 +32,7 @@ import {
 } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import { canonicalJson } from './canonical-json.js';
 import {
   type UsageLedgerRecord,
   type UsageLedgerRecordInput,
@@ -62,30 +63,6 @@ export function isUsageLedgerEnabled(env: NodeJS.ProcessEnv = process.env): bool
   if (raw === undefined) return false;
   const normalized = raw.trim().toLowerCase();
   return normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'yes';
-}
-
-/**
- * Canonical JSON serialization for hashing: keys sorted recursively, `undefined`
- * omitted, JSON `null` preserved. Self-contained so the ledger does not couple
- * to the Authority signing module. Deterministic across insertion order.
- */
-function canonicalJson(value: unknown): string {
-  return JSON.stringify(sortValue(value));
-}
-
-function sortValue(value: unknown): unknown {
-  if (value === null) return null;
-  if (Array.isArray(value)) return value.map(sortValue);
-  if (typeof value === 'object') {
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      const child = (value as Record<string, unknown>)[key];
-      if (child === undefined) continue;
-      out[key] = sortValue(child);
-    }
-    return out;
-  }
-  return value;
 }
 
 /**

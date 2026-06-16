@@ -1,0 +1,985 @@
+{
+  "command": "lattice validate --story=B-08a1 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 51/51 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — Feed Anthropic response with all four usage fields {input_tokens:500,output_tokens:200,cache_creation_input_tokens:100,cache_read_input_tokens:50} -> canonical.input=500, canonical.output=200, canonical.cacheCreation=100, canonical.cacheRead=50; usage.source=provider-reported; raw.providerUnits=anthropic-usage-v1; WHY: covers main mapping path and all four native fields to canonical\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript — Feed Anthropic response with zero cache fields {input_tokens:1200,output_tokens:340,cache_creation_input_tokens:0,cache_read_input_tokens:0} -> canonical cacheCreation=0 and cacheRead=0 (genuine provider-reported zero, NOT null); WHY: confirms 0 is preserved when provider genuinely reports zero, never coerced to null\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — Feed Anthropic response with input_tokens=0 and output_tokens=0 (provider reports zero tokens, empty prompt) -> source=provider-reported NOT unavailable; WHY: zero is a valid provider report, never downgrade to unavailable\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript — Feed Anthropic response with very large token counts (input_tokens=999999999, output_tokens=500000) -> canonical carries the large values without overflow or truncation; WHY: no silent overflow on large provider counts\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Feed Anthropic response with usage=null/undefined (no usage block) -> source=unavailable with non-empty unavailableReason, never zeros; WHY: no-usage response must never silently become zero\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Feed Anthropic response with raw.payloadDigest -> verify it is a sha256:hex hash of the provider usage payload (deterministic); WHY: ensures raw provenance is preserved for audit\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Feed Anthropic response with negative token count {input_tokens:-1,...} -> adapter either throws or produces a record that fails B-253e validateUsageLedgerRecord (negative dimension rejected); WHY: rogue provider negative counts must be caught\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — Feed OpenAI response with prompt_tokens_details.cached_tokens present {usage:{prompt_tokens:800,completion_tokens:300,prompt_tokens_details:{cached_tokens:200}}} -> canonical.input=800, canonical.output=300, canonical.cacheRead=200, canonical.cacheCreation===null (NOT 0); source=provider-reported; raw.providerUnits=openai-usage-v1; WHY: OpenAI reports cache reads but never cache writes, cacheCreation must be null\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via manual_transcript — Feed OpenAI response WITHOUT prompt_tokens_details (older API / model that does not report cache) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported (input/output present); WHY: per-dimension absence = null, never 0, and source stays provider-reported\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — Feed OpenAI response with prompt_tokens_details.cached_tokens=0 (cache feature active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); cacheCreation still null; WHY: 0 from provider is a real zero, distinct from null (absent)\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via manual_transcript — Feed OpenAI response with prompt_tokens_details present but empty object {} (no cached_tokens key) -> canonical.cacheRead===null; WHY: missing cached_tokens key inside details = null, not inferred as 0\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Feed OpenAI response with usage=null/undefined -> source=unavailable with unavailableReason; never zeros; WHY: no-usage must be explicit unavailable\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Feed OpenAI response and verify cacheCreation is STRICTLY null (typeof check), not 0, not undefined, not omitted -> assert cacheCreation===null using strict equality; WHY: the spec says null never 0 for unreported dimensions, this is the key adversarial contract\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Feed OpenAI response with string token counts {prompt_tokens:100,completion_tokens:50} -> adapter rejects or coerces safely (must not produce NaN or string in canonical); WHY: string coercion attack from a malicious provider payload\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — Feed Gemini response with cachedContentTokenCount present {usageMetadata:{promptTokenCount:600,candidatesTokenCount:250,cachedContentTokenCount:150}} -> canonical.input=600, canonical.output=250, canonical.cacheRead=150, canonical.cacheCreation===null; source=provider-reported; raw.providerUnits=gemini-usage-v1; WHY: Gemini reports cache reads via cachedContentTokenCount but never cache writes\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — Feed Gemini response WITHOUT cachedContentTokenCount (model/request that does not use cached content) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported; WHY: per-dimension absence is null, record stays provider-reported because primary counts exist\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — Feed Gemini response with cachedContentTokenCount=0 (cache active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); WHY: 0 is a real provider-reported zero distinct from null\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via manual_transcript — Feed Gemini response with totalTokenCount field present alongside prompt/candidates -> adapter ignores totalTokenCount (forbidden stored total); output record must NOT contain totalTokens; WHY: Gemini API returns totalTokenCount but it must never propagate to the ledger record\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Feed Gemini response with usageMetadata=null/undefined -> source=unavailable with unavailableReason; WHY: no-usage must be explicit unavailable, never zeros\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Feed Gemini response and verify cacheCreation is STRICTLY null via typeof/=== check, not 0, not undefined -> assert cacheCreation === null; WHY: cacheCreation is the key null-never-0 contract for Gemini\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Feed Gemini response with candidatesTokenCount missing but promptTokenCount present -> adapter must handle gracefully (output=null or unavailable, not inferred as 0); WHY: partial provider response where output dimension is missing\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — Call buildProviderRecord(anthropic, sampleAnthropicResponse, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds:[]}, attribution{storyId:B-08a1,phase:DEV,agentType:implementer}) -> returned record passes validateUsageLedgerRecord({expectIntegrity:false}).ok===true; schemaVersion===1; recordId starts with llmuse_; ledgerCallId/attemptId match the correlation input; WHY: assembled record must be B-253e-valid end to end\",\"  ✓ CHK-004:happy:1 [happy/must/cli] covered via manual_transcript — Call buildProviderRecord for each of the three providers (anthropic, openai, gemini) with valid sample responses -> all three returned records pass the B-253e validator; WHY: cross-provider validation coverage\",\"  ✓ CHK-004:happy:2 [happy/must/cli] covered via manual_transcript — Assembled record has privacy.promptStored===false, privacy.transcriptStored===false, privacy.redactionProfile is a non-empty string; WHY: privacy flags are mandatory per spec\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — Call buildProviderRecord with attribution{storyId:null} (non-story call) -> record has storyId===null (not undefined, not omitted) and passes validator; WHY: non-story calls must record storyId=null explicitly per spec\",\"  ✓ CHK-004:edge:1 [edge/must/cli] covered via manual_transcript — Call buildProviderRecord with attribution including subagentId and threadId -> record carries both fields; WHY: nested/subagent attribution must propagate\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Verify assembled record uses correlation ids from ids.ts (recordId starts with llmuse_, ledgerCallId starts with llmcall_, attemptId starts with llmatt_) and NEVER derives them from a provider request id; pass a provider response with id/request_id fields -> those do NOT become recordId/ledgerCallId/attemptId; WHY: correlation ids must be locally minted, never provider-derived\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Call buildProviderRecord with a provider response that contains a forbidden field (e.g. rawPrompt) -> assembler must not propagate it into the record, or if it does the B-253e validator catches it; WHY: privacy denylist enforcement at assembly time\",\"  ✓ CHK-004:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Verify authority block on assembled record has mode=local and receiptVerified=false (never local receipt-backed claims); WHY: local records must never claim receipt verification per spec boundary\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript — Feed Anthropic streaming terminal event (message_delta with final usage {input_tokens:1000,output_tokens:400,...}) -> extracted usage has source=provider-reported with correct canonical mapping; WHY: streaming final usage must be read from the terminal event, not from earlier deltas\",\"  ✓ CHK-005:happy:1 [happy/must/cli] covered via manual_transcript — Feed OpenAI streaming final chunk with usage block {prompt_tokens:500,completion_tokens:200,...} -> extracted usage has source=provider-reported; WHY: OpenAI stream includes usage only in the final chunk\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via manual_transcript — Feed mid-stream error with partial usage available (e.g. terminal event received with output_tokens:50 before timeout) -> source=provider-reported with partial counts preserved (NOT downgraded to unavailable); WHY: spec says partial real counts from a failed stream are still provider-reported\",\"  ✓ CHK-005:edge:1 [edge/must/cli] covered via manual_transcript — Feed streaming sequence where only output_tokens is reported (input_tokens missing from partial event) -> the available dimension is preserved, missing dimension is null; WHY: partial provider data is still provider-reported, not unavailable\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Feed stream that errors with NO terminal usage event at all (connection reset before any usage) -> source=unavailable with unavailableReason describing the error; WHY: truly no usage data means unavailable, never silent zeros\",\"  ✓ CHK-005:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Feed stream with multiple usage events (intermediate + terminal) -> extractor uses only the LAST/terminal usage, not intermediate ones; WHY: intermediate deltas may carry cumulative counts, only the terminal one is authoritative\",\"  ✓ CHK-005:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Feed stream error that produces a usage object with all zeros {input_tokens:0,output_tokens:0,...} -> source=provider-reported (genuine zero from provider), NOT unavailable; WHY: zero is a valid provider report per spec, unavailable is only for truly no data\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via manual_transcript — Anthropic adapter with all four fields reported -> all four canonical fields are numeric (none null); usage.source=provider-reported; WHY: Anthropic reports all four natively so no dimension should be null\",\"  ✓ CHK-006:happy:1 [happy/must/cli] covered via manual_transcript — OpenAI adapter: cacheCreation===null always; cacheRead===null when prompt_tokens_details absent, cacheRead===numeric when present; WHY: verifies the null-never-0 contract for OpenAI unreported dimensions\",\"  ✓ CHK-006:happy:2 [happy/must/cli] covered via manual_transcript — Gemini adapter: cacheCreation===null always; cacheRead===null when cachedContentTokenCount absent, cacheRead===numeric when present; WHY: verifies the null-never-0 contract for Gemini unreported dimensions\",\"  ✓ CHK-006:edge:0 [edge/must/cli] covered via manual_transcript — All three providers: no-usage response (usage block missing/null) -> source=unavailable with non-empty unavailableReason for EACH provider, never source=provider-reported with zeros; WHY: cross-provider unavailable semantics must be consistent\",\"  ✓ CHK-006:edge:1 [edge/must/cli] covered via manual_transcript — Verify that for unavailable records, the four token dimension fields (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) are null (not 0) across all providers; WHY: unavailable means absence, never coerced to numeric zero\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Attempt to set cacheCreation=0 on an OpenAI record (provider does not report it) -> must remain null; if someone manually sets it to 0, the null-never-0 rule is violated; WHY: verifies adapter enforces null over 0 for unreported dimensions regardless of input\",\"  ✓ CHK-006:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Verify source field is NEVER set to unavailable just because a cache dimension is absent; a record with valid input/output but missing cache -> source=provider-reported, cache dimensions=null; WHY: per-dimension absence must NOT overload source to express missing cache\",\"  ✓ CHK-006:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Cross-provider: assembled records from all three providers with various null/non-null patterns all pass B-253e validateUsageLedgerRecord -> validator.ok===true for every combination; WHY: ensures null dimensions are valid per the validator schema\",\"  ✓ CHK-007:happy:0 [happy/must/cli] covered via manual_transcript — npm --prefix packages/main run test:usage-ledger-adapter exits 0 and prints pass markers for all test groups (anthropic, openai, gemini, assembler, streaming, unavailable/null); WHY: smoke must be wired as npm script and actually run all adapter tests green\",\"  ✓ CHK-007:happy:1 [happy/must/cli] covered via manual_transcript — Assembled record round-trips through B-253e writer (appendUsageRecord with opt-in ON, temp dir) -> writer returns written:true; re-read the JSONL line and validateUsageLedgerRecord({expectIntegrity:true}).ok===true; WHY: proves adapter output integrates end-to-end with the foundation writer\",\"  ✓ CHK-007:happy:2 [happy/must/cli] covered via manual_transcript — npm --prefix packages/main run build exits 0 (TypeScript compiles clean with the new adapter files); WHY: build green is a gating requirement\",\"  ✓ CHK-007:edge:0 [edge/must/cli] covered via manual_transcript — Smoke test uses temp directory for writer round-trip (no .lattice/usage pollution in the repo); verify temp dir is created and cleaned up or at least isolated; WHY: tests must not pollute the working repo\",\"  ✓ CHK-007:edge:1 [edge/must/cli] covered via manual_transcript — Smoke covers the writer round-trip with hash chain verification (verifyLedgerChain on the temp file returns valid records); WHY: integrity chain must be correct for round-tripped adapter records\",\"  ✓ CHK-007:adversarial:0 [adversarial/must/cli] covered via manual_transcript — git diff of the story branch vs main never touches dispatch-runner or lattice-dispatch files -> verify no files matching *dispatch-runner* or *lattice-dispatch* appear in the diff; WHY: story scope boundary: adapters must NOT be wired into live dispatch\",\"  ✓ CHK-007:adversarial:1 [adversarial/must/cli] covered via manual_transcript — Smoke test exit code is non-zero when any individual test case fails (e.g. if a canonical field is wrong) -> verify the smoke follows the existing smoke pattern of process.exit(1) on failure; WHY: a smoke that silently passes on failure is useless\"],\"warnings\":[],\"timestamp\":\"2026-06-16T03:06:24.704Z\",\"headSha\":\"c3fd10b773b7c8af9f0f1fc7d413d962d078385f\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2136}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":51,\"reason\":\"verificationIntent entries present (51)\"},\"verificationCoverage\":{\"total\":51,\"required\":51,\"covered\":51,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Feed Anthropic response with all four usage fields {input_tokens:500,output_tokens:200,cache_creation_input_tokens:100,cache_read_input_tokens:50} -> canonical.input=500, canonical.output=200, canonical.cacheCreation=100, canonical.cacheRead=50; usage.source=provider-reported; raw.providerUnits=anthropic-usage-v1; WHY: covers main mapping path and all four native fields to canonical\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Feed Anthropic response with zero cache fields {input_tokens:1200,output_tokens:340,cache_creation_input_tokens:0,cache_read_input_tokens:0} -> canonical cacheCreation=0 and cacheRead=0 (genuine provider-reported zero, NOT null); WHY: confirms 0 is preserved when provider genuinely reports zero, never coerced to null\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Feed Anthropic response with input_tokens=0 and output_tokens=0 (provider reports zero tokens, empty prompt) -> source=provider-reported NOT unavailable; WHY: zero is a valid provider report, never downgrade to unavailable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Feed Anthropic response with very large token counts (input_tokens=999999999, output_tokens=500000) -> canonical carries the large values without overflow or truncation; WHY: no silent overflow on large provider counts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Feed Anthropic response with usage=null/undefined (no usage block) -> source=unavailable with non-empty unavailableReason, never zeros; WHY: no-usage response must never silently become zero\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Feed Anthropic response with raw.payloadDigest -> verify it is a sha256:hex hash of the provider usage payload (deterministic); WHY: ensures raw provenance is preserved for audit\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Feed Anthropic response with negative token count {input_tokens:-1,...} -> adapter either throws or produces a record that fails B-253e validateUsageLedgerRecord (negative dimension rejected); WHY: rogue provider negative counts must be caught\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Feed OpenAI response with prompt_tokens_details.cached_tokens present {usage:{prompt_tokens:800,completion_tokens:300,prompt_tokens_details:{cached_tokens:200}}} -> canonical.input=800, canonical.output=300, canonical.cacheRead=200, canonical.cacheCreation===null (NOT 0); source=provider-reported; raw.providerUnits=openai-usage-v1; WHY: OpenAI reports cache reads but never cache writes, cacheCreation must be null\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Feed OpenAI response WITHOUT prompt_tokens_details (older API / model that does not report cache) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported (input/output present); WHY: per-dimension absence = null, never 0, and source stays provider-reported\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Feed OpenAI response with prompt_tokens_details.cached_tokens=0 (cache feature active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); cacheCreation still null; WHY: 0 from provider is a real zero, distinct from null (absent)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Feed OpenAI response with prompt_tokens_details present but empty object {} (no cached_tokens key) -> canonical.cacheRead===null; WHY: missing cached_tokens key inside details = null, not inferred as 0\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Feed OpenAI response with usage=null/undefined -> source=unavailable with unavailableReason; never zeros; WHY: no-usage must be explicit unavailable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Feed OpenAI response and verify cacheCreation is STRICTLY null (typeof check), not 0, not undefined, not omitted -> assert cacheCreation===null using strict equality; WHY: the spec says null never 0 for unreported dimensions, this is the key adversarial contract\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke asserts cacheCreation===null; openai.ts hardcodes cacheCreation=null\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Feed OpenAI response with string token counts {prompt_tokens:100,completion_tokens:50} -> adapter rejects or coerces safely (must not produce NaN or string in canonical); WHY: string coercion attack from a malicious provider payload\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Feed Gemini response with cachedContentTokenCount present {usageMetadata:{promptTokenCount:600,candidatesTokenCount:250,cachedContentTokenCount:150}} -> canonical.input=600, canonical.output=250, canonical.cacheRead=150, canonical.cacheCreation===null; source=provider-reported; raw.providerUnits=gemini-usage-v1; WHY: Gemini reports cache reads via cachedContentTokenCount but never cache writes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Feed Gemini response WITHOUT cachedContentTokenCount (model/request that does not use cached content) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported; WHY: per-dimension absence is null, record stays provider-reported because primary counts exist\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Feed Gemini response with cachedContentTokenCount=0 (cache active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); WHY: 0 is a real provider-reported zero distinct from null\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Feed Gemini response with totalTokenCount field present alongside prompt/candidates -> adapter ignores totalTokenCount (forbidden stored total); output record must NOT contain totalTokens; WHY: Gemini API returns totalTokenCount but it must never propagate to the ledger record\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.935Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Feed Gemini response with usageMetadata=null/undefined -> source=unavailable with unavailableReason; WHY: no-usage must be explicit unavailable, never zeros\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Feed Gemini response and verify cacheCreation is STRICTLY null via typeof/=== check, not 0, not undefined -> assert cacheCreation === null; WHY: cacheCreation is the key null-never-0 contract for Gemini\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke asserts cacheCreation===null; gemini.ts hardcodes cacheCreation=null\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Feed Gemini response with candidatesTokenCount missing but promptTokenCount present -> adapter must handle gracefully (output=null or unavailable, not inferred as 0); WHY: partial provider response where output dimension is missing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Call buildProviderRecord(anthropic, sampleAnthropicResponse, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds:[]}, attribution{storyId:B-08a1,phase:DEV,agentType:implementer}) -> returned record passes validateUsageLedgerRecord({expectIntegrity:false}).ok===true; schemaVersion===1; recordId starts with llmuse_; ledgerCallId/attemptId match the correlation input; WHY: assembled record must be B-253e-valid end to end\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke: assembled records pass the B-253e validator; assemble.ts runs the validator\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Call buildProviderRecord for each of the three providers (anthropic, openai, gemini) with valid sample responses -> all three returned records pass the B-253e validator; WHY: cross-provider validation coverage\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke: assembled records pass the B-253e validator; assemble.ts runs the validator\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Assembled record has privacy.promptStored===false, privacy.transcriptStored===false, privacy.redactionProfile is a non-empty string; WHY: privacy flags are mandatory per spec\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Call buildProviderRecord with attribution{storyId:null} (non-story call) -> record has storyId===null (not undefined, not omitted) and passes validator; WHY: non-story calls must record storyId=null explicitly per spec\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Call buildProviderRecord with attribution including subagentId and threadId -> record carries both fields; WHY: nested/subagent attribution must propagate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Verify assembled record uses correlation ids from ids.ts (recordId starts with llmuse_, ledgerCallId starts with llmcall_, attemptId starts with llmatt_) and NEVER derives them from a provider request id; pass a provider response with id/request_id fields -> those do NOT become recordId/ledgerCallId/attemptId; WHY: correlation ids must be locally minted, never provider-derived\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke: correlation/recordId are ids.ts-minted; assemble.ts uses mintRecordId\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Call buildProviderRecord with a provider response that contains a forbidden field (e.g. rawPrompt) -> assembler must not propagate it into the record, or if it does the B-253e validator catches it; WHY: privacy denylist enforcement at assembly time\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-004:adversarial:2\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Verify authority block on assembled record has mode=local and receiptVerified=false (never local receipt-backed claims); WHY: local records must never claim receipt verification per spec boundary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Feed Anthropic streaming terminal event (message_delta with final usage {input_tokens:1000,output_tokens:400,...}) -> extracted usage has source=provider-reported with correct canonical mapping; WHY: streaming final usage must be read from the terminal event, not from earlier deltas\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Feed OpenAI streaming final chunk with usage block {prompt_tokens:500,completion_tokens:200,...} -> extracted usage has source=provider-reported; WHY: OpenAI stream includes usage only in the final chunk\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Feed mid-stream error with partial usage available (e.g. terminal event received with output_tokens:50 before timeout) -> source=provider-reported with partial counts preserved (NOT downgraded to unavailable); WHY: spec says partial real counts from a failed stream are still provider-reported\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Feed streaming sequence where only output_tokens is reported (input_tokens missing from partial event) -> the available dimension is preserved, missing dimension is null; WHY: partial provider data is still provider-reported, not unavailable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Feed stream that errors with NO terminal usage event at all (connection reset before any usage) -> source=unavailable with unavailableReason describing the error; WHY: truly no usage data means unavailable, never silent zeros\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Feed stream with multiple usage events (intermediate + terminal) -> extractor uses only the LAST/terminal usage, not intermediate ones; WHY: intermediate deltas may carry cumulative counts, only the terminal one is authoritative\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-005:adversarial:2\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Feed stream error that produces a usage object with all zeros {input_tokens:0,output_tokens:0,...} -> source=provider-reported (genuine zero from provider), NOT unavailable; WHY: zero is a valid provider report per spec, unavailable is only for truly no data\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Anthropic adapter with all four fields reported -> all four canonical fields are numeric (none null); usage.source=provider-reported; WHY: Anthropic reports all four natively so no dimension should be null\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:happy:1\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"OpenAI adapter: cacheCreation===null always; cacheRead===null when prompt_tokens_details absent, cacheRead===numeric when present; WHY: verifies the null-never-0 contract for OpenAI unreported dimensions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke: cacheCreation===null (never 0) for openai/gemini; source not downgraded for absent cache dim\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:happy:2\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Gemini adapter: cacheCreation===null always; cacheRead===null when cachedContentTokenCount absent, cacheRead===numeric when present; WHY: verifies the null-never-0 contract for Gemini unreported dimensions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke: cacheCreation===null (never 0) for openai/gemini; source not downgraded for absent cache dim\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"All three providers: no-usage response (usage block missing/null) -> source=unavailable with non-empty unavailableReason for EACH provider, never source=provider-reported with zeros; WHY: cross-provider unavailable semantics must be consistent\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:edge:1\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Verify that for unavailable records, the four token dimension fields (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) are null (not 0) across all providers; WHY: unavailable means absence, never coerced to numeric zero\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Attempt to set cacheCreation=0 on an OpenAI record (provider does not report it) -> must remain null; if someone manually sets it to 0, the null-never-0 rule is violated; WHY: verifies adapter enforces null over 0 for unreported dimensions regardless of input\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke: cacheCreation===null (never 0) for openai/gemini; source not downgraded for absent cache dim\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:adversarial:1\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Verify source field is NEVER set to unavailable just because a cache dimension is absent; a record with valid input/output but missing cache -> source=provider-reported, cache dimensions=null; WHY: per-dimension absence must NOT overload source to express missing cache\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-006:adversarial:2\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Cross-provider: assembled records from all three providers with various null/non-null patterns all pass B-253e validateUsageLedgerRecord -> validator.ok===true for every combination; WHY: ensures null dimensions are valid per the validator schema\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"npm --prefix packages/main run test:usage-ledger-adapter exits 0 and prints pass markers for all test groups (anthropic, openai, gemini, assembler, streaming, unavailable/null); WHY: smoke must be wired as npm script and actually run all adapter tests green\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"npm test:usage-ledger-adapter exits 0 (50 checks); script wired in package.json\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Assembled record round-trips through B-253e writer (appendUsageRecord with opt-in ON, temp dir) -> writer returns written:true; re-read the JSONL line and validateUsageLedgerRecord({expectIntegrity:true}).ok===true; WHY: proves adapter output integrates end-to-end with the foundation writer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"assembled record round-trips through the B-253e writer (in smoke)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-007:happy:2\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"npm --prefix packages/main run build exits 0 (TypeScript compiles clean with the new adapter files); WHY: build green is a gating requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"npm --prefix packages/main run build exits 0\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke test uses temp directory for writer round-trip (no .lattice/usage pollution in the repo); verify temp dir is created and cleaned up or at least isolated; WHY: tests must not pollute the working repo\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke uses a temp dir for the writer round-trip (no repo pollution)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-007:edge:1\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Smoke covers the writer round-trip with hash chain verification (verifyLedgerChain on the temp file returns valid records); WHY: integrity chain must be correct for round-tripped adapter records\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke covers writer round-trip + hash-chain; foundation smoke 61/61 (no regression)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"git diff of the story branch vs main never touches dispatch-runner or lattice-dispatch files -> verify no files matching *dispatch-runner* or *lattice-dispatch* appear in the diff; WHY: story scope boundary: adapters must NOT be wired into live dispatch\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"diff never touches dispatch-runner/lattice-dispatch; scope clean (8 files all packages/main)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}},{\"intentRef\":\"CHK-007:adversarial:1\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Smoke test exit code is non-zero when any individual test case fails (e.g. if a canonical field is wrong) -> verify the smoke follows the existing smoke pattern of process.exit(1) on failure; WHY: a smoke that silently passes on failure is useless\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs\",\"result\":\"pass\",\"note\":\"smoke exits non-zero on any failed case (✗ + process.exit)\",\"headHash\":\"30fd44004b818c5230fe49ca0b5b0742d9138969\",\"materialHash\":\"9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c\",\"timestamp\":\"2026-06-16T03:04:30.936Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T03:06:28.314Z",
+  "headHash": "c3fd10b773b7c8af9f0f1fc7d413d962d078385f",
+  "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+  "verificationCoverage": {
+    "total": 51,
+    "required": 51,
+    "covered": 51,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Feed Anthropic response with all four usage fields {input_tokens:500,output_tokens:200,cache_creation_input_tokens:100,cache_read_input_tokens:50} -> canonical.input=500, canonical.output=200, canonical.cacheCreation=100, canonical.cacheRead=50; usage.source=provider-reported; raw.providerUnits=anthropic-usage-v1; WHY: covers main mapping path and all four native fields to canonical",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Feed Anthropic response with zero cache fields {input_tokens:1200,output_tokens:340,cache_creation_input_tokens:0,cache_read_input_tokens:0} -> canonical cacheCreation=0 and cacheRead=0 (genuine provider-reported zero, NOT null); WHY: confirms 0 is preserved when provider genuinely reports zero, never coerced to null",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Feed Anthropic response with input_tokens=0 and output_tokens=0 (provider reports zero tokens, empty prompt) -> source=provider-reported NOT unavailable; WHY: zero is a valid provider report, never downgrade to unavailable",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Feed Anthropic response with very large token counts (input_tokens=999999999, output_tokens=500000) -> canonical carries the large values without overflow or truncation; WHY: no silent overflow on large provider counts",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Feed Anthropic response with usage=null/undefined (no usage block) -> source=unavailable with non-empty unavailableReason, never zeros; WHY: no-usage response must never silently become zero",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Feed Anthropic response with raw.payloadDigest -> verify it is a sha256:hex hash of the provider usage payload (deterministic); WHY: ensures raw provenance is preserved for audit",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Feed Anthropic response with negative token count {input_tokens:-1,...} -> adapter either throws or produces a record that fails B-253e validateUsageLedgerRecord (negative dimension rejected); WHY: rogue provider negative counts must be caught",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Feed OpenAI response with prompt_tokens_details.cached_tokens present {usage:{prompt_tokens:800,completion_tokens:300,prompt_tokens_details:{cached_tokens:200}}} -> canonical.input=800, canonical.output=300, canonical.cacheRead=200, canonical.cacheCreation===null (NOT 0); source=provider-reported; raw.providerUnits=openai-usage-v1; WHY: OpenAI reports cache reads but never cache writes, cacheCreation must be null",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Feed OpenAI response WITHOUT prompt_tokens_details (older API / model that does not report cache) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported (input/output present); WHY: per-dimension absence = null, never 0, and source stays provider-reported",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Feed OpenAI response with prompt_tokens_details.cached_tokens=0 (cache feature active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); cacheCreation still null; WHY: 0 from provider is a real zero, distinct from null (absent)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Feed OpenAI response with prompt_tokens_details present but empty object {} (no cached_tokens key) -> canonical.cacheRead===null; WHY: missing cached_tokens key inside details = null, not inferred as 0",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Feed OpenAI response with usage=null/undefined -> source=unavailable with unavailableReason; never zeros; WHY: no-usage must be explicit unavailable",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Feed OpenAI response and verify cacheCreation is STRICTLY null (typeof check), not 0, not undefined, not omitted -> assert cacheCreation===null using strict equality; WHY: the spec says null never 0 for unreported dimensions, this is the key adversarial contract",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke asserts cacheCreation===null; openai.ts hardcodes cacheCreation=null",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Feed OpenAI response with string token counts {prompt_tokens:100,completion_tokens:50} -> adapter rejects or coerces safely (must not produce NaN or string in canonical); WHY: string coercion attack from a malicious provider payload",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Feed Gemini response with cachedContentTokenCount present {usageMetadata:{promptTokenCount:600,candidatesTokenCount:250,cachedContentTokenCount:150}} -> canonical.input=600, canonical.output=250, canonical.cacheRead=150, canonical.cacheCreation===null; source=provider-reported; raw.providerUnits=gemini-usage-v1; WHY: Gemini reports cache reads via cachedContentTokenCount but never cache writes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Feed Gemini response WITHOUT cachedContentTokenCount (model/request that does not use cached content) -> canonical.cacheRead===null AND canonical.cacheCreation===null; source still provider-reported; WHY: per-dimension absence is null, record stays provider-reported because primary counts exist",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Feed Gemini response with cachedContentTokenCount=0 (cache active but nothing cached) -> canonical.cacheRead=0 (genuine zero, not null); WHY: 0 is a real provider-reported zero distinct from null",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Feed Gemini response with totalTokenCount field present alongside prompt/candidates -> adapter ignores totalTokenCount (forbidden stored total); output record must NOT contain totalTokens; WHY: Gemini API returns totalTokenCount but it must never propagate to the ledger record",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.935Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Feed Gemini response with usageMetadata=null/undefined -> source=unavailable with unavailableReason; WHY: no-usage must be explicit unavailable, never zeros",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Feed Gemini response and verify cacheCreation is STRICTLY null via typeof/=== check, not 0, not undefined -> assert cacheCreation === null; WHY: cacheCreation is the key null-never-0 contract for Gemini",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke asserts cacheCreation===null; gemini.ts hardcodes cacheCreation=null",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Feed Gemini response with candidatesTokenCount missing but promptTokenCount present -> adapter must handle gracefully (output=null or unavailable, not inferred as 0); WHY: partial provider response where output dimension is missing",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Call buildProviderRecord(anthropic, sampleAnthropicResponse, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds:[]}, attribution{storyId:B-08a1,phase:DEV,agentType:implementer}) -> returned record passes validateUsageLedgerRecord({expectIntegrity:false}).ok===true; schemaVersion===1; recordId starts with llmuse_; ledgerCallId/attemptId match the correlation input; WHY: assembled record must be B-253e-valid end to end",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke: assembled records pass the B-253e validator; assemble.ts runs the validator",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Call buildProviderRecord for each of the three providers (anthropic, openai, gemini) with valid sample responses -> all three returned records pass the B-253e validator; WHY: cross-provider validation coverage",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke: assembled records pass the B-253e validator; assemble.ts runs the validator",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:2",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Assembled record has privacy.promptStored===false, privacy.transcriptStored===false, privacy.redactionProfile is a non-empty string; WHY: privacy flags are mandatory per spec",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Call buildProviderRecord with attribution{storyId:null} (non-story call) -> record has storyId===null (not undefined, not omitted) and passes validator; WHY: non-story calls must record storyId=null explicitly per spec",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Call buildProviderRecord with attribution including subagentId and threadId -> record carries both fields; WHY: nested/subagent attribution must propagate",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Verify assembled record uses correlation ids from ids.ts (recordId starts with llmuse_, ledgerCallId starts with llmcall_, attemptId starts with llmatt_) and NEVER derives them from a provider request id; pass a provider response with id/request_id fields -> those do NOT become recordId/ledgerCallId/attemptId; WHY: correlation ids must be locally minted, never provider-derived",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke: correlation/recordId are ids.ts-minted; assemble.ts uses mintRecordId",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Call buildProviderRecord with a provider response that contains a forbidden field (e.g. rawPrompt) -> assembler must not propagate it into the record, or if it does the B-253e validator catches it; WHY: privacy denylist enforcement at assembly time",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:2",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Verify authority block on assembled record has mode=local and receiptVerified=false (never local receipt-backed claims); WHY: local records must never claim receipt verification per spec boundary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Feed Anthropic streaming terminal event (message_delta with final usage {input_tokens:1000,output_tokens:400,...}) -> extracted usage has source=provider-reported with correct canonical mapping; WHY: streaming final usage must be read from the terminal event, not from earlier deltas",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:1",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Feed OpenAI streaming final chunk with usage block {prompt_tokens:500,completion_tokens:200,...} -> extracted usage has source=provider-reported; WHY: OpenAI stream includes usage only in the final chunk",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Feed mid-stream error with partial usage available (e.g. terminal event received with output_tokens:50 before timeout) -> source=provider-reported with partial counts preserved (NOT downgraded to unavailable); WHY: spec says partial real counts from a failed stream are still provider-reported",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Feed streaming sequence where only output_tokens is reported (input_tokens missing from partial event) -> the available dimension is preserved, missing dimension is null; WHY: partial provider data is still provider-reported, not unavailable",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Feed stream that errors with NO terminal usage event at all (connection reset before any usage) -> source=unavailable with unavailableReason describing the error; WHY: truly no usage data means unavailable, never silent zeros",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Feed stream with multiple usage events (intermediate + terminal) -> extractor uses only the LAST/terminal usage, not intermediate ones; WHY: intermediate deltas may carry cumulative counts, only the terminal one is authoritative",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:2",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Feed stream error that produces a usage object with all zeros {input_tokens:0,output_tokens:0,...} -> source=provider-reported (genuine zero from provider), NOT unavailable; WHY: zero is a valid provider report per spec, unavailable is only for truly no data",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Anthropic adapter with all four fields reported -> all four canonical fields are numeric (none null); usage.source=provider-reported; WHY: Anthropic reports all four natively so no dimension should be null",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:1",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "OpenAI adapter: cacheCreation===null always; cacheRead===null when prompt_tokens_details absent, cacheRead===numeric when present; WHY: verifies the null-never-0 contract for OpenAI unreported dimensions",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke: cacheCreation===null (never 0) for openai/gemini; source not downgraded for absent cache dim",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:2",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Gemini adapter: cacheCreation===null always; cacheRead===null when cachedContentTokenCount absent, cacheRead===numeric when present; WHY: verifies the null-never-0 contract for Gemini unreported dimensions",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke: cacheCreation===null (never 0) for openai/gemini; source not downgraded for absent cache dim",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "All three providers: no-usage response (usage block missing/null) -> source=unavailable with non-empty unavailableReason for EACH provider, never source=provider-reported with zeros; WHY: cross-provider unavailable semantics must be consistent",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:1",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Verify that for unavailable records, the four token dimension fields (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) are null (not 0) across all providers; WHY: unavailable means absence, never coerced to numeric zero",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Attempt to set cacheCreation=0 on an OpenAI record (provider does not report it) -> must remain null; if someone manually sets it to 0, the null-never-0 rule is violated; WHY: verifies adapter enforces null over 0 for unreported dimensions regardless of input",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke: cacheCreation===null (never 0) for openai/gemini; source not downgraded for absent cache dim",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:1",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Verify source field is NEVER set to unavailable just because a cache dimension is absent; a record with valid input/output but missing cache -> source=provider-reported, cache dimensions=null; WHY: per-dimension absence must NOT overload source to express missing cache",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:2",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Cross-provider: assembled records from all three providers with various null/non-null patterns all pass B-253e validateUsageLedgerRecord -> validator.ok===true for every combination; WHY: ensures null dimensions are valid per the validator schema",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-adapter smoke (50 checks, sample payloads + round-trip)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:0",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "npm --prefix packages/main run test:usage-ledger-adapter exits 0 and prints pass markers for all test groups (anthropic, openai, gemini, assembler, streaming, unavailable/null); WHY: smoke must be wired as npm script and actually run all adapter tests green",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "npm test:usage-ledger-adapter exits 0 (50 checks); script wired in package.json",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:1",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Assembled record round-trips through B-253e writer (appendUsageRecord with opt-in ON, temp dir) -> writer returns written:true; re-read the JSONL line and validateUsageLedgerRecord({expectIntegrity:true}).ok===true; WHY: proves adapter output integrates end-to-end with the foundation writer",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "assembled record round-trips through the B-253e writer (in smoke)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:2",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "npm --prefix packages/main run build exits 0 (TypeScript compiles clean with the new adapter files); WHY: build green is a gating requirement",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "npm --prefix packages/main run build exits 0",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:0",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke test uses temp directory for writer round-trip (no .lattice/usage pollution in the repo); verify temp dir is created and cleaned up or at least isolated; WHY: tests must not pollute the working repo",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke uses a temp dir for the writer round-trip (no repo pollution)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:1",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Smoke covers the writer round-trip with hash chain verification (verifyLedgerChain on the temp file returns valid records); WHY: integrity chain must be correct for round-tripped adapter records",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke covers writer round-trip + hash-chain; foundation smoke 61/61 (no regression)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:0",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "git diff of the story branch vs main never touches dispatch-runner or lattice-dispatch files -> verify no files matching *dispatch-runner* or *lattice-dispatch* appear in the diff; WHY: story scope boundary: adapters must NOT be wired into live dispatch",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "diff never touches dispatch-runner/lattice-dispatch; scope clean (8 files all packages/main)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:1",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Smoke test exit code is non-zero when any individual test case fails (e.g. if a canonical field is wrong) -> verify the smoke follows the existing smoke pattern of process.exit(1) on failure; WHY: a smoke that silently passes on failure is useless",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+          "result": "pass",
+          "note": "smoke exits non-zero on any failed case (✗ + process.exit)",
+          "headHash": "30fd44004b818c5230fe49ca0b5b0742d9138969",
+          "materialHash": "9926d256671a514b3b8efa3865fdcd450ec335c52bf41869db6c11fa987f306c",
+          "timestamp": "2026-06-16T03:04:30.936Z"
+        }
+      }
+    ]
+  }
+}
