@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T21:43:24.705Z",
       "reviewRunId": "B-fd64:RR-001",
       "_hash": "f81ea40408af144142dcbcc4de4c6844abb9d4a4fe584158251c4159caf4d842"
+    },
+    {
+      "id": "B-fd64:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 38/38 intents covered on current HEAD (ed2fa10); smoke 37 checks all green; F-001 null-subject overclaim bypass concretely tested (2 cases: null-storyId envelope + real-story envelope, both receiptVerified=false); F-002 separator-variant denylist concretely tested (TOOL_ARGUMENTS, ENV_VARS, RAW_TOOL_ARGUMENTS -> rejected) + drift sanity (denylist derived from record.ts FORBIDDEN_FIELD_NAMES); all must-priority intents CHK-001 through CHK-005 have valid non-fail evidence; no gaps, no waivers required.",
+      "createdAt": "2026-06-16T21:55:25.097Z",
+      "reviewRound": "2026-06-16T21:53:44.268Z",
+      "reviewRunId": "B-fd64:RR-008",
+      "_hash": "4f008855962f60bfa4388a4d80e75b8a2893ed0aff6e455bdb1fde2f0b8c3681"
     }
   ]
 }
