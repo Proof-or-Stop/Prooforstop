@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rename the KoalaConfig interface to LatticeConfig across its definition and all type references",
+      "context": "In packages/main/src/core/config.ts rename `export interface KoalaConfig` -> `LatticeConfig` and update DEFAULT_CONFIG / _cache annotations; update all type references in the other 4 files (run `git grep -lw KoalaConfig -- packages` for the full set). No exported `KoalaConfig` alias is kept (OSS prep, no external users). After the change `npm run build` (tsc) must pass with no type errors and `git grep -w KoalaConfig -- packages` returns nothing.",
+      "userSees": "`git grep -w KoalaConfig -- packages` returns nothing; `npm run build` and `npm run test:e2e` pass with LatticeConfig as the project-config type.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
