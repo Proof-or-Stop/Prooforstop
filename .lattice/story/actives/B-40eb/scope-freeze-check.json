@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-40eb",
+  "checkedAt": "2026-06-16T21:37:35.694Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "40e3e7dd122857a1e53f18a14753960cbea52949d9aa7a9034109b85f7a769d4",
+  "executionBoundaryHash": "9e951be8635168109e230b93a3d0139813bee3260371ac9116f1195752734e63",
+  "freshnessHash": "b079153f6c3263a789c893a0c591e1fcc04aa763f9eeac2e2135a19d8b00f81f",
+  "effectiveExcludedKeywords": [
+    ".koala/ 运行时路径引用（单独的 storage migration，本 story 不动）",
+    "B-ed70 正在改的 lab/package.json description 与 packages/lab/src/core/config.ts 的 .Codex 引用",
+    "CHANGELOG.md / git 历史 / docs/story 历史记录",
+    "docs/requirements/decisions/**.md 历史决策文档（3×2 gate 须排除）",
+    "jek.md（用户私有）、docs/koala/framework-audit/（ACTIVE B-META 路径）",
+    "测试断言意图夹具（lattice-only-absence-smoke、cli-engine-branding-smoke 等故意断言 koala 被忽略/识别，改了破坏测试意图）",
+    "签名盐值 koala-init-check-integrity-v1 / koala-delivery-check-integrity-v1（改动会破坏现有签名验证）"
+  ],
+  "keywordHits": [
+    {
+      "keyword": ".koala/ 运行时路径引用（单独的 storage migration，本 story 不动）",
+      "source": "scopeBoundary.excluded",
+      "text": ".koala/ 运行时路径引用（单独的 storage migration，本 story 不动）",
+      "excluded": true
+    },
+    {
+      "keyword": "B-ed70 正在改的 lab/package.json description 与 packages/lab/src/core/config.ts 的 .Codex 引用",
+      "source": "scopeBoundary.excluded",
+      "text": "B-ed70 正在改的 lab/package.json description 与 packages/lab/src/core/config.ts 的 .Codex 引用",
+      "excluded": true
+    },
+    {
+      "keyword": "CHANGELOG.md / git 历史 / docs/story 历史记录",
+      "source": "scopeBoundary.excluded",
+      "text": "CHANGELOG.md / git 历史 / docs/story 历史记录",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/requirements/decisions/**.md 历史决策文档（3×2 gate 须排除）",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/requirements/decisions/**.md 历史决策文档（3×2 gate 须排除）",
+      "excluded": true
+    },
+    {
+      "keyword": "jek.md（用户私有）、docs/koala/framework-audit/（ACTIVE B-META 路径）",
+      "source": "scopeBoundary.excluded",
+      "text": "jek.md（用户私有）、docs/koala/framework-audit/（ACTIVE B-META 路径）",
+      "excluded": true
+    },
+    {
+      "keyword": "测试断言意图夹具（lattice-only-absence-smoke、cli-engine-branding-smoke 等故意断言 koala 被忽略/识别，改了破坏测试意图）",
+      "source": "scopeBoundary.excluded",
+      "text": "测试断言意图夹具（lattice-only-absence-smoke、cli-engine-branding-smoke 等故意断言 koala 被忽略/识别，改了破坏测试意图）",
+      "excluded": true
+    },
+    {
+      "keyword": "签名盐值 koala-init-check-integrity-v1 / koala-delivery-check-integrity-v1（改动会破坏现有签名验证）",
+      "source": "scopeBoundary.excluded",
+      "text": "签名盐值 koala-init-check-integrity-v1 / koala-delivery-check-integrity-v1（改动会破坏现有签名验证）",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "1168cf1a9391710cb362acab6c916ee02e50edc33e2f57c83388ec1a9a51cc2e"
+}

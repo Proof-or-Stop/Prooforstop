@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "PLAN：精确分类 321 候选为 in-scope（该清）/ documented-exception（该留），产出白名单",
+      "context": "对 packages/scripts/docs 逐文件判定：koala 品牌/散文=该清；.koala 运行时路径、盐值、decisions 历史、测试断言意图、CHANGELOG=该留。白名单写入 plan.md 与 understanding。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "清理 packages/lab 的 koala-lab 品牌 → lattice-lab（协调 B-ed70）",
+      "context": "lab/src/core/*.ts、handlers/lab.ts、tool-defs.ts、profiles 里的 @title/注释/报错/CLI 文案 koala-lab → lattice-lab。避开 B-ed70 在做的 package.json description（CHK-001）与 config.ts 的 .Codex 行（CHK-002）。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "清理 packages/main 源码里的 koala 品牌注释与 CLI 文案",
+      "context": "排除 .koala 运行时路径、盐值、测试断言意图后，改源码注释/字符串里的 koala 品牌为 Lattice。逐文件确认非运行时路径。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "清理 scripts/verify-*.mjs 等脚本里的 koala 品牌/注释",
+      "context": "scripts 下 39 候选，区分 koala 品牌注释（改）与 .koala 路径引用（留）。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "处理测试 smoke/fixtures 的 koala：改非意图夹具、保留测试断言意图",
+      "context": "37 个 koala.config.json fixture + smoke 测试：lattice-only-absence-smoke、cli-engine-branding-smoke 等故意断言 koala 被忽略/识别的保留；纯历史/无意图夹具按需改。逐个判定。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "清理根文档 2 处 prose（CLAUDE.md 与 docs/guide.md）",
+      "context": "CLAUDE.md:924 的 docs/koala/reviewer-redesign.md 路径引用、docs/guide.md:60 的 Koala/Lattice prose。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "验收 gate：git grep -i koala 在 active 范围只剩 documented-exceptions 白名单",
+      "context": "跑 git grep -i koala 排除白名单，断言为空；lattice validate 全绿；build + e2e 通过。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
