@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: doctor-gitroot-probe-smoke.ts:46-47 splits a single module into two consecutive import statements (import { createDoctorHandlers } from doctor.js + import { resolveDoctorGitCwd } from doctor.js); should be merged into one import statement for maintainability",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T00:11:04.038Z",
@@ -14,7 +14,9 @@
       "_hash": "2be689022f5dc626a52da7a5399a25467fdb255cbd86f38daf5994bae5611b46",
       "files": [
         "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Merged the two consecutive imports from ../handlers/doctor.js into a single import statement in doctor-gitroot-probe-smoke.ts; rebuilt and re-ran the smoke (exit 0).",
+      "resolvedAt": "2026-06-16T00:15:18.429Z"
     }
   ]
 }
