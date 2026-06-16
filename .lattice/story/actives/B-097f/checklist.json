@@ -180,10 +180,10 @@
           "file": "packages/main/src/cli-init.ts",
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=core",
           "result": "pass",
-          "note": "真机: core profile [5/6] 输出 - .claude/agents (profile skip); 全局 ~/.claude/agents 未创建，行为不变",
-          "headHash": "065fc9a2c0f66322dbe65e468c06ac1b6bbb261d",
-          "materialHash": "61101e0a93a79c17ef4124dafd04d41aafa86cde18183276ed55b604b1918f31",
-          "timestamp": "2026-06-16T14:45:24.402Z"
+          "note": "core profile (no markers): [5/6] prints - .claude/agents (profile skip); 0 project + 0 global agent files. Behavior unchanged. PASS.",
+          "headHash": "0a96013dcb41e476e664092c43a21e0f1ef04e38",
+          "materialHash": "17f7de538c8d606445dedcd2c1cef47b3ee8348a42b69c3d4b9c0f85dca23188",
+          "timestamp": "2026-06-16T18:46:10.731Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
