@@ -159,7 +159,9 @@
     "test:usage-ledger": "node dist/tasks/usage-ledger-smoke.js",
     "test:done-merge-scope-smoke": "node dist/tasks/done-merge-scope-smoke.js",
     "test:usage-ledger-adapter": "node dist/tasks/usage-ledger-adapter-smoke.js",
-    "test:usage-ledger-estimate": "node dist/tasks/usage-ledger-estimate-smoke.js"
+    "test:usage-ledger-estimate": "node dist/tasks/usage-ledger-estimate-smoke.js",
+    "test:usage-ledger-diagnostics": "node dist/tasks/usage-ledger-diagnostics-smoke.js",
+    "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"
   },
   "dependencies": {
     "@lattice-agent/lab": "0.3.1",
