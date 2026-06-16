@@ -91,6 +91,62 @@
         "test": [
           "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:gitroot-cwd-contract exits 0 on HEAD (after CHK-001 reroutes are in place) -- the smoke finds zero violations; WHY: confirms contract smoke correctly passes when all sites are routed",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke script is wired in root package.json: jq .scripts[\"test:gitroot-cwd-contract\"] package.json returns a non-null command; WHY: confirms npm script registration",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke script is wired in packages/main/package.json: jq .scripts[\"test:gitroot-cwd-contract\"] packages/main/package.json returns a non-null command; WHY: confirms inner-package script registration",
+            "type": "cli"
+          },
+          {
+            "desc": "Deliberate regression injection: temporarily add execFileSync(git,[status],{cwd:projectRoot}) to a non-allowlisted .ts file, run npm run test:gitroot-cwd-contract -- exits non-zero with output containing the offending file:line and the word resolveGitCwd in the remediation message; WHY: confirms the contract actually catches regressions",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke processes its own inline known-bad fixture row and reports it as a violation (self-test) -- run the smoke with a flag or inspect its source to confirm it includes at least one known-bad fixture that it catches; WHY: ensures the smoke is not trivially passing because of an empty allowlist or empty grep results",
+            "type": "cli"
+          },
+          {
+            "desc": "Allowlist includes exactly the expected entries: story-signed-workspace-resolution.ts (resolveGitCwd definition), lab.ts (runGit), cli-engine.ts (runGitNoThrow), declared-artifact-commit-check.ts (runGit) -- no more, no fewer; WHY: allowlist inflation defeats the contract",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke file packages/main/src/tasks/gitroot-cwd-contract-smoke.ts exists and is executable via node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js after build; WHY: confirms the smoke is a standalone runnable, not just a library module",
+            "type": "cli"
+          },
+          {
+            "desc": "Running the smoke on an empty or non-existent packages dir (e.g., from a temp dir with no .ts files) -- smoke exits 0 with no violations (vacuous pass, not crash); WHY: boundary condition for repos where grep returns nothing",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Remove the entire allowlist from the smoke source (empty it), then run -- smoke MUST fail because resolveGitCwd definition site and the 3 helpers would now be flagged as violations; WHY: proves the allowlist is load-bearing and the smoke does not have a backdoor pass-all path",
+            "type": "cli"
+          },
+          {
+            "desc": "Add a bare-cwd git call using a VARIABLE ALIAS (e.g., const root = projectRoot; execFileSync(git,[status],{cwd:root})) -- smoke should still catch it OR the contract documentation explains this is a known limitation of grep-based analysis; WHY: adversarial evasion test for indirect references",
+            "type": "cli"
+          },
+          {
+            "desc": "Add a new site that is allowlisted but does NOT use resolveGitCwd (forge an allowlist entry) -- smoke passes, but git diff of the allowlist shows the addition, making it reviewable; WHY: tests that allowlist changes are visible in code review (the contract enforcement is both automated + review-gated)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the contract smoke after reverting CHK-001 reroutes (simulate a full regression to pre-story state) -- smoke MUST fail with multiple violations listing specific file:line entries; WHY: confirms the smoke would have caught the original 193-site problem",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
