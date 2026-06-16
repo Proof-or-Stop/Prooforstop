@@ -164,7 +164,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Compiled smoke runs all four behaviors (stale-path fail, managed-asset contradiction fail, clean pass, command-name unchanged) and prints \"docs-drift path+asset smoke passed\" with exit 0.",
+          "headHash": "e1257ebf566ea59d9c222a2e36f7d8ab6e8b14b0",
+          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
+          "timestamp": "2026-06-16T21:27:21.872Z"
+        }
+      ]
     }
   ]
 }
