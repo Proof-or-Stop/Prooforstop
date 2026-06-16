@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T02:40:52.780Z",
       "reviewRunId": "B-08a1:RR-001",
       "_hash": "3a5a9c4b96da251b39c5b4ae72adb53bab1e262b9f8eb6a6571a311b98d79063"
+    },
+    {
+      "id": "B-08a1:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete — no issues found. (1) No duplicate record/validator/writer concepts: shared.ts imports LedgerUsage/TokenDimension/UsageCanonical from ../record.js and mintRecordId from ./ids.js; assemble.ts imports validateUsageLedgerRecord from record.js and mintRecordId from ids.js — B-253e foundations are reused, not re-implemented. payloadDigest in shared.ts is a new payload-level primitive distinct from writer.ts record-level hashing — two separate concerns, no duplication. (2) Four-field model (input/output/cacheCreation/cacheRead) is used consistently across all three adapters and assemble.ts. totalTokenCount from Gemini is explicitly ignored: the GeminiUsageMetadata interface intentionally omits it, the comment calls it out, and the smoke test asserts it never reaches the stored record. No stored totalTokens field anywhere in new code. (3) Scope honored: git diff --name-only shows only packages/main/** and .lattice/story/actives/B-08a1/**; no dispatch-runner, lattice-dispatch, estimate/budget/receipt code added. (4) Null-never-0 semantics consistent: readReportedDimension returns null for absent/null/undefined fields; no ?? 0, || 0, or default-zero coercion patterns anywhere in new files. cacheCreation is null (TypeScript typed TokenDimension = null, never 0) for both OpenAI and Gemini. buildUnavailableUsage always emits four null token fields. No concept deletions or replacements detected this round.",
+      "createdAt": "2026-06-16T02:43:48.385Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-003",
+      "_hash": "22448860def66b86c096e34307d023361bbc7a5bc64f2ced38d899d7fd3b3bf6"
     }
   ]
 }
