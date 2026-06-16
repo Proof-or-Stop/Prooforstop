@@ -297,9 +297,9 @@
       "id": "CHK-002",
       "title": "buildBlockedBudgetRecord (pure, validated)",
       "context": "Add buildBlockedBudgetRecord(model, estimateResult, correlation, attribution, budgetPolicyId, reasonCode) parallel to buildUnavailableFinalRecord: a record with decision.kind='blocked', budgetPolicyId, reasonCode (e.g. 'hard_budget_exceeded'), usage.source='prompt-size-estimate' (the estimate that triggered the block) or 'unavailable', supersedesRecordIds=[estimateRecordId]. It MUST pass validateUsageLedgerRecord. Never throws. Tested: produces a valid blocked record; decision.kind is blocked; supersedes the estimate.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:00:22.573Z",
       "files": {
         "modify": [],
         "create": [
