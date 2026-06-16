@@ -154,7 +154,8 @@
     "test:authority-live-python-full-e2e": "node dist/tasks/authority-live-python-full-e2e-smoke.js",
     "test:authority-live-python-stub": "node dist/tasks/authority-live-python-stub-smoke.js",
     "test:cli-engine-branding-smoke": "node dist/tasks/cli-engine-branding-smoke.js",
-    "test:usage-ledger": "node dist/tasks/usage-ledger-smoke.js"
+    "test:usage-ledger": "node dist/tasks/usage-ledger-smoke.js",
+    "test:usage-ledger-adapter": "node dist/tasks/usage-ledger-adapter-smoke.js"
   },
   "dependencies": {
     "@lattice-agent/lab": "0.3.1",
