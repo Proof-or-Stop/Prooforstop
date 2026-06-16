@@ -116,6 +116,66 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"0\"}) === false; WHY: escape hatch returns disabled, same as pre-rollout default",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => appendUsageRecord is strict no-op: call 10 times, no file created, no .lattice dir created; WHY: writer creates zero side effects when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => buildClaudeSpawnArgs(promptFile,false) === [\"--print\",promptFile]; WHY: spawn args are byte-identical to pre-rollout (no --output-format json)",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => recordDispatchPreflight returns null, writes nothing; WHY: preflight is strict no-op when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => recordDispatchFinal returns immediately, writes nothing; WHY: final is strict no-op when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => resolveHardBudget with env lacking LATTICE_HARD_BUDGET_TOKENS returns null; shouldBlockDispatch(false,...) returns {block:false,budget:null}; WHY: budget guard is inert when ledger disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 + LATTICE_HARD_BUDGET_TOKENS=1000 => shouldBlockDispatch(false,...,999) still {block:false}; WHY: even with a budget configured, disabled ledger means no block",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => recordBudgetBlock returns notBlocked even when LATTICE_HARD_BUDGET_TOKENS is set and estimate exceeds it; WHY: the full orchestrator path short-circuits on disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => no .lattice/usage/ directory after appendUsageRecord + recordDispatchPreflight + recordDispatchFinal + recordBudgetBlock in sequence; WHY: the entire pipeline leaves zero filesystem trace",
+            "type": "cli"
+          },
+          {
+            "desc": "KOALA_USAGE_LEDGER=0 (legacy alias) produces same byte-identical no-op as LATTICE_USAGE_LEDGER=0; WHY: legacy alias escape hatch parity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After flipping default ON, run the FULL escape-hatch sequence with env=0: isUsageLedgerEnabled=false, append 10x no-op, preflight null, final no-op, budget inert, buildClaudeSpawnArgs=[--print,file] — confirm every observable is byte-identical to pre-rollout behavior; WHY: end-to-end regression proof that the escape hatch restores EXACT legacy behavior",
+            "type": "cli"
+          },
+          {
+            "desc": "With env=0, attempt appendUsageRecord with a valid record containing actual data — confirm {written:false} and zero bytes on disk; WHY: even with a perfect record the writer must not sneak a write through when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "With env=0, confirm parseClaudeCliOutput is still callable (pure function, no gate) but the seam never reaches it because buildClaudeSpawnArgs omits --output-format json; WHY: the disabled path never produces JSON output to parse",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
