@@ -81,7 +81,7 @@
       "desc": "doc-code-drift: CLAUDE.md line 77 still references KOALA_SESSION_BRIEF_FRESH_MINUTES but .claude/hooks/session-brief-reminder.cjs was renamed to LATTICE_SESSION_BRIEF_FRESH_MINUTES in this diff; docs/guide-hooks.md was updated correctly but CLAUDE.md was missed",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-16T00:40:27.292Z",
@@ -92,7 +92,8 @@
         "CLAUDE.md",
         ".claude/hooks/session-brief-reminder.cjs",
         "docs/guide-hooks.md"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T00:48:38.201Z"
     },
     {
       "id": "B-08f2:F-006",
