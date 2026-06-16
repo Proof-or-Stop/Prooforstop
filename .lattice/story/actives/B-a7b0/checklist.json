@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Happy case: md references a non-existent path (pathExists=false, grep=false) -> runDocsDriftGate with repoRoot returns status fail and names the path in missingPaths; summary includes the path.",
+          "headHash": "d6bd1219178ff0289c7dd370e251d403c816f896",
+          "materialHash": "54e2e3fe79e233a40ad7a3d5cd567edd134abc34d9742be983f57141f285c6a7",
+          "timestamp": "2026-06-16T21:15:32.091Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
