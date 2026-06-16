@@ -128,6 +128,78 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -nE \"\\.Codex(/|\\b)\" -- . \":(exclude).lattice\" \":(exclude).codex\" → exits 1 (no matches); WHY: proves all uppercase .Codex references removed from tracked files outside exclusions",
+            "type": "cli"
+          },
+          {
+            "desc": "ls .lattice-codex/README.md .lattice-codex/lattice.json .lattice-codex/agents/lattice-implementer.md → exit 0; WHY: confirms git mv moved the 18 internal files into the new directory",
+            "type": "cli"
+          },
+          {
+            "desc": "test ! -d .Codex → exit 0; WHY: confirms the old uppercase .Codex/ directory no longer exists",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build → exit 0; WHY: all source references updated correctly so TypeScript compiles",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e → exit 0; WHY: end-to-end suite passes with the renamed paths",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js verify_codex → 8/8 pass; WHY: codex adapter behavioral contract unchanged after path rename",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ls .codex/hooks.json .codex/hooks/lattice-scope-pretool.cjs → exit 0; WHY: lowercase .codex/ Codex CLI hard contract files must be intact and untouched by the rename",
+            "type": "cli"
+          },
+          {
+            "desc": "find .lattice-codex -type f | wc -l → matches original .Codex file count; WHY: no files lost during git mv — boundary check on file count preservation",
+            "type": "cli"
+          },
+          {
+            "desc": "git grep -nE \"\\.lattice-codex(/|\\b)\" -- packages/main/src/core/codex-adapter-checks.ts → matches at least one line; WHY: spot-check that a key source file was actually rewritten (not just directory moved)",
+            "type": "cli"
+          },
+          {
+            "desc": "git grep -nE \"\\.lattice-codex\" -- CLAUDE.md → matches; WHY: spot-check top-level docs were rewritten",
+            "type": "cli"
+          },
+          {
+            "desc": "git grep -nE \"\\.lattice-codex\" -- .codex/hooks/lattice-scope-pretool.cjs → matches; WHY: the pretool hook references .Codex/ internally and must be rewritten to .lattice-codex/",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git grep -n \"\\.codex/\" -- . \":(exclude).lattice\" | grep -v hooks | grep -v hooks.json → exits 1; WHY: adversarial probe that lowercase .codex/ references only exist for the Codex CLI hook files, not as stale .Codex references that were accidentally lowercased",
+            "type": "cli"
+          },
+          {
+            "desc": "test -d .lattice && ls .lattice/story/actives/B-ed70/checklist.json → exit 0; WHY: over-reach guard — .lattice/ metadata directory must be completely untouched by the .Codex rename",
+            "type": "cli"
+          },
+          {
+            "desc": "test -f packages/main/src/dev-cli.ts → exit 0; WHY: over-reach guard — dev-cli.ts is NOT in CHK-002 scope and must still exist unchanged",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js verify_codex 2>&1 | grep -E \"(FAIL|fail|Error)\" → exits 1 (no failures); WHY: adversarial double-check that verify_codex output contains zero failure indicators, not just a zero exit code",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only HEAD -- .codex/ | wc -l → 0; WHY: adversarial proof that lowercase .codex/ directory had zero file changes — the rename must not have touched it",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
