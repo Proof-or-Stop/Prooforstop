@@ -39,9 +39,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "WRAPPER-ROOT --repair installs allowlist (repairWrote:true, repairError:null, no leading fatal) → re-scan safe; gitRoot/.gitignore gets the managed !.lattice/story/actives/** allowlist. Real-machine doctor --repair on a /tmp wrapper-root fixture confirmed repairWrote:true RUN1.",
-          "headHash": "fca68419c52da21010433590aa81f0e90234a0fa",
-          "materialHash": "8673bb77053f545cc980e62b667f774a5989d7415555c5fd9ad5932439affd63",
-          "timestamp": "2026-06-16T01:16:34.908Z"
+          "headHash": "27a03999d72b337797f5938341aa79dac2dddf80",
+          "materialHash": "160fc629f9a99f5690bbf158a6d46b4b55e554e08032333f0ca1e2fee89159e6",
+          "timestamp": "2026-06-16T02:03:14.258Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "WRAPPER-ROOT second --repair is a no-op (repairWrote:false, repairError:null, gitRoot/.gitignore byte-for-byte unchanged). Real-machine RUN2 confirmed repairWrote:false. Plain-repo existing repair check (metadataRoot==gitRoot) preserved as byte-identical reference via gitCwd=root default.",
-          "headHash": "fca68419c52da21010433590aa81f0e90234a0fa",
-          "materialHash": "8673bb77053f545cc980e62b667f774a5989d7415555c5fd9ad5932439affd63",
-          "timestamp": "2026-06-16T01:16:34.908Z"
+          "headHash": "27a03999d72b337797f5938341aa79dac2dddf80",
+          "materialHash": "160fc629f9a99f5690bbf158a6d46b4b55e554e08032333f0ca1e2fee89159e6",
+          "timestamp": "2026-06-16T02:03:14.267Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "Regression proven NOT a tautology: reverting the source fix (cwd:root + drop gitCwd param) makes the wrapper-root smoke FAIL with AssertionError repairWrote false!==true and a tsc TS2554 at the call site, proving the test catches the exact wrapper-root blind spot; restoring the fix turns it green (12 checks).",
-          "headHash": "fca68419c52da21010433590aa81f0e90234a0fa",
-          "materialHash": "8673bb77053f545cc980e62b667f774a5989d7415555c5fd9ad5932439affd63",
-          "timestamp": "2026-06-16T01:16:34.908Z"
+          "headHash": "27a03999d72b337797f5938341aa79dac2dddf80",
+          "materialHash": "160fc629f9a99f5690bbf158a6d46b4b55e554e08032333f0ca1e2fee89159e6",
+          "timestamp": "2026-06-16T02:03:14.267Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "Case (e) wrapper-root: stub reader emits gitRoot-relative wrapper/backend/* paths; resolveChangedFiles with gitCwd=gitRoot rebases to projectRoot-relative backend/* (wrapper/ stripped) and computeOutOfScopeTsconfigs correctly skips out-of-scope frontend.",
-          "headHash": "fca68419c52da21010433590aa81f0e90234a0fa",
-          "materialHash": "8673bb77053f545cc980e62b667f774a5989d7415555c5fd9ad5932439affd63",
-          "timestamp": "2026-06-16T01:16:34.908Z"
+          "headHash": "27a03999d72b337797f5938341aa79dac2dddf80",
+          "materialHash": "160fc629f9a99f5690bbf158a6d46b4b55e554e08032333f0ca1e2fee89159e6",
+          "timestamp": "2026-06-16T02:03:14.267Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "Case (f) plain-repo identity: gitCwd==projectRoot output byte-identical to gitCwd omitted; case (e2) out-of-projectRoot path rebases to ..-prefixed and triggers documented fail-closed; case (h) empty diff WITH gitCwd set still resolves to [] (valid empty scope), not undefined.",
-          "headHash": "fca68419c52da21010433590aa81f0e90234a0fa",
-          "materialHash": "8673bb77053f545cc980e62b667f774a5989d7415555c5fd9ad5932439affd63",
-          "timestamp": "2026-06-16T01:16:34.908Z"
+          "headHash": "27a03999d72b337797f5938341aa79dac2dddf80",
+          "materialHash": "160fc629f9a99f5690bbf158a6d46b4b55e554e08032333f0ca1e2fee89159e6",
+          "timestamp": "2026-06-16T02:03:14.267Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "Case (g) throwing reader WITH gitCwd set still resolves to undefined (full tsc, never skip-all; throw never converted into []). Adversarial revert proof: removing the rebase line made wrapper-root case (e) FAIL on the deepEqual (unrebased wrapper/backend != projectRoot-relative backend), proving the test catches the base-mismatch bug; rebase restored and smoke re-greened.",
-          "headHash": "fca68419c52da21010433590aa81f0e90234a0fa",
-          "materialHash": "8673bb77053f545cc980e62b667f774a5989d7415555c5fd9ad5932439affd63",
-          "timestamp": "2026-06-16T01:16:34.908Z"
+          "headHash": "27a03999d72b337797f5938341aa79dac2dddf80",
+          "materialHash": "160fc629f9a99f5690bbf158a6d46b4b55e554e08032333f0ca1e2fee89159e6",
+          "timestamp": "2026-06-16T02:03:14.267Z"
         }
       ]
     }
