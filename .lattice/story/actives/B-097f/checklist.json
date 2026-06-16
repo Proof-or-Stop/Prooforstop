@@ -6,7 +6,31 @@
       "context": "明确:全局 ~/.claude/agents 为唯一 agent prompt 源,symlink 指向运行中 CLI 包 templates/agents(解析方式对 npm -g 与本地 dev 都健壮);项目内零 agent 文件;与 B-4ee0 global-thin / runtime-owned-agent-assets 执行计划口径对齐",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "docs/requirements/decisions/lifecycle-artifact-scope.md 中可读到一段 global-agents 契约:全局 ~/.claude/agents 为唯一 agent prompt 源、项目内零 agent 文件、symlink target 从运行中 CLI 包解析、迁移只删 16 个管理 basename",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "契约文档明确写出全局唯一源 + 项目零 agent 文件",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "契约说明 symlink target 从运行中 CLI 包解析而非 hardcode dev 路径",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "契约明确迁移只按 16 个管理 basename 删除,不碰用户自建 agent",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
