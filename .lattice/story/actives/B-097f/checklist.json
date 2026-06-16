@@ -94,7 +94,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
+          "result": "pass",
+          "note": "happy 用例: 注入 in-memory fs 后 syncGlobalAgents 对每个 *.md 模板创建 symlink 指向 templateDir，synced=N、target 校验通过",
+          "headHash": "fc9f1ce1cc55d3ad816d84bae820e4e522252954",
+          "materialHash": "c9f88ce1d656a4a2bf6aaa656202070dabf0dd5aedbd961c2dd2093be74bdd98",
+          "timestamp": "2026-06-16T14:35:27.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
