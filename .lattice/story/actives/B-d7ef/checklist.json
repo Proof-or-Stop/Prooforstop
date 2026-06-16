@@ -5,9 +5,9 @@
       "title": "Delete the stray 'orphans' junk file at repo root",
       "context": "git rm the tracked root file 'orphans' (5 bytes, content 'NO -'). After: `git ls-files orphans` returns nothing; build + e2e unaffected.",
       "userSees": "`git ls-files orphans` returns nothing; the junk file is gone.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T19:02:15.076Z",
-      "endTime": null,
+      "endTime": "2026-06-16T19:03:21.835Z",
       "files": {
         "modify": [
           "orphans"
