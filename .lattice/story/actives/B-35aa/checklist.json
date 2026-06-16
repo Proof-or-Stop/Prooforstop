@@ -110,7 +110,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "ls docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "File exists.",
+          "headHash": "72ab6bbbd3cc87c2aa91748d73a3ebf22ff07c6c",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:51:56.944Z"
+        }
+      ]
     }
   ]
 }
