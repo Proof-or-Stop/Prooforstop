@@ -118,6 +118,25 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // B-253e CHK-005: the local LLM usage ledger (.lattice/usage/llm-usage.jsonl)
+    // is a mutable runtime diagnostic — budget accounting and operator
+    // diagnostics, NOT story evidence, validation evidence, or gate-consumed
+    // proof. doctor / material-hash / runtime-artifact repair / gitignore must
+    // treat it like other mutable runtime diagnostics under .lattice/. The
+    // prefix matcher also covers future adjacent usage-runtime files under
+    // .lattice/usage/ without catching unrelated paths (e.g. story evidence).
+    id: 'llm-usage-ledger',
+    description: 'local LLM usage diagnostic ledger',
+    matchers: [
+      { kind: 'exact', value: '.lattice/usage/llm-usage.jsonl' },
+      { kind: 'prefix', value: '.lattice/usage/' },
+    ],
+    ignorePatterns: ['.lattice/usage/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'serve-metadata',
     description: 'Transient dev-server handshake file.',
     matchers: [
