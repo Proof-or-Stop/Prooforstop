@@ -53,7 +53,89 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "JSON example has all four token fields",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prose: input_tokens is the uncached remainder",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "references CMA model_usage",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Required record constraints mention cache fields",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "JSON example has no totalTokens",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "billableUnits/example includes cache entries",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "totalTokens only in derived/not-stored context (5 lines)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no source files changed (1 non-meta: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -104,7 +186,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example block has no totalTokens",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "identity formula present",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "totals derived in summary layer, not stored",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "constraints: totalTokens absent or marked not-stored",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no total-type billableUnits entry",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "every totalTokens occurrence is in not-stored/derived context",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation does not assert totalTokens presence",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -155,7 +309,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "count_tokens preferred estimator",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "confidence high|medium|low",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "estimate bound to model ID / model-version-specific",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "fallback chain count_tokens>tokenizer>bytes",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "estimator + confidence in constraints",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "bytes only as fallback, not primary",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example estimator block (if object) includes confidence",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -210,7 +436,89 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "storyId=null for non-story calls",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "subagent propagation of parent storyId",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "role/agentType field",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "captured at preflight from active context",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example includes storyId + role/agentType",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "subagentId/threadId field",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no statement dropping null-storyId records",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts null-storyId + subagent",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -257,7 +565,69 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "single writer choke-point",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "reconciliation of dispatch vs ledger",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "reconciliation keyed on ledgerCallId+attemptId",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "bypassed-writer under-count failure mode",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "touchpoints reinforce choke-point",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts reconciliation/completeness",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -308,7 +678,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "streaming usage from terminal event",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "partial usage on error/timeout",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "unavailable only when truly no count",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "consistent with failed-request rule",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "partial counts tied to provider-reported",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prohibits treating missing as zero",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts streaming/partial/failure usage",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -355,7 +797,69 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "both raw + canonical view required",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "explicit per-provider mapping rules",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "canonical uses four-field shape",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "adapter touchpoint consistent with dual view",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no statement discarding raw units",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example includes both raw + canonical",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -406,7 +910,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "pricingRef/pricingVersion field",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-008:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "price table/snapshot + multipliers",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-008:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prohibits absolute prices in record",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no dollar amount in JSON example",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "cache multipliers addressed",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no hardcoded dollar amounts (\\$<digit> count=0)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance mentions pricing/pricingRef",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
@@ -481,7 +1057,139 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts cache-token recording",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance mentions no-stored-total/derived",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation mentions estimator confidence/count_tokens",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation mentions null + subagent attribution",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "CMA expanded on first use",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Rollout references new fields",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "cross-refs consistent: no removed field referenced as stored",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes reconciliation/completeness",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes streaming/failure",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "diff is only the doc (non-meta changed: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no CJK (count=0)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation does not assert totalTokens presence",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes canonical + pricingRef",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
+      ]
     }
   ]
 }
