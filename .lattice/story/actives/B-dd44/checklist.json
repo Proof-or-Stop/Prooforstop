@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure budget-policy resolution + over-budget predicate",
+      "context": "In core/usage-ledger/dispatch-usage.ts add a pure resolveHardBudget(env) that reads LATTICE_HARD_BUDGET_TOKENS (fallback KOALA_HARD_BUDGET_TOKENS), parses a positive integer, returns { hardBudgetTokens: number, budgetPolicyId: string } | null (null when unset/invalid -> no enforcement). Add a pure isOverHardBudget(estimatedInputTokens, hardBudgetTokens) -> boolean. Unit-tested: unset -> null (no enforcement); valid -> policy; estimate over/under the ceiling.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "buildBlockedBudgetRecord (pure, validated)",
+      "context": "Add buildBlockedBudgetRecord(model, estimateResult, correlation, attribution, budgetPolicyId, reasonCode) parallel to buildUnavailableFinalRecord: a record with decision.kind='blocked', budgetPolicyId, reasonCode (e.g. 'hard_budget_exceeded'), usage.source='prompt-size-estimate' (the estimate that triggered the block) or 'unavailable', supersedesRecordIds=[estimateRecordId]. It MUST pass validateUsageLedgerRecord. Never throws. Tested: produces a valid blocked record; decision.kind is blocked; supersedes the estimate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fail-closed pre-spawn guard in the Claude seam",
+      "context": "In runClaudeCodeRealLeafDispatch (lattice-dispatch.ts), inside the existing isUsageLedgerEnabled() gate and AFTER the preflight estimate: resolveHardBudget; if a budget is set AND isOverHardBudget(preflight estimate): append buildBlockedBudgetRecord, SKIP the spawnSync, and return a blocked dispatch result (do not call the provider). If no budget is set (or estimate within budget), proceed exactly as today. All budget work in try/catch; a budget-check error must NOT wrongly block (on error, proceed as today). Budget UNSET or flag OFF => byte-identical to current dispatch.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression safety: unset/OFF byte-identical + block only when configured+exceeded",
+      "context": "Tests/assertions: (a) ledger flag OFF => no budget code runs, dispatch byte-identical (spawn happens); (b) flag ON but no hard-budget env => decision proceeds, budgetPolicyId=null, spawn happens (byte-identical control flow); (c) flag ON + hard budget set + estimate over budget => a decision.kind=blocked record is written AND the provider spawn is SKIPPED AND a blocked result is returned; (d) flag ON + budget set + estimate under budget => proceeds + spawns. Prove the block only triggers in case (c).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Smoke/test suite wired + no regression",
+      "context": "Add packages/main/src/tasks/usage-ledger-budget-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit; temp dir, no repo pollution), wired as npm test:usage-ledger-budget. Cover the policy resolution, the over-budget predicate, buildBlockedBudgetRecord validation, the blocked record appended + summary treatment (a blocked record is not provider-reported usage), and the fail-closed-only-when-configured behavior (simulated, since a live spawn can't run). Assert usage-ledger still imports ZERO other modules. Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch) no regression; node bin/lattice.js validate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
