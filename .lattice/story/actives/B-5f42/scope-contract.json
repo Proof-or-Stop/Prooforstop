@@ -28,8 +28,16 @@
         "package.json",
         "packages/main/package.json"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to fix critical finding F-002: english-only-guard.cjs was registered in getClaudeHooks but not in cli-init.ts HOOK_FILES, so fresh lattice init never copied it. The one-line HOOK_FILES addition lives in cli-init.ts, outside the original plan file set.",
+      "timestamp": "2026-06-16T23:18:29.432Z",
+      "paths": [
+        "packages/main/src/cli-init.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-16T23:09:02.384Z",
-  "updatedAt": "2026-06-16T23:09:35.877Z"
+  "updatedAt": "2026-06-16T23:18:29.432Z"
 }
