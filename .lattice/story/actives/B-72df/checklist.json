@@ -7,7 +7,30 @@
       "userSees": "A new test fails before the fix (DONE blocked by an unrelated dirty file) and passes after (DONE proceeds; unrelated file preserved); lattice validate green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "repro: DONE precondition blocked by an unrelated dirty tracked file today; proceeds after fix",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "clean main worktree: precondition unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the unrelated dirty file is left byte-identical (not clobbered)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
