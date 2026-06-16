@@ -1,0 +1,87 @@
+{
+  "storyId": "B-0740",
+  "checkedAt": "2026-06-16T00:55:53.061Z",
+  "features": [
+    {
+      "feature": "Thread resolved gitRoot/gitCwd into repairStoryMetadataAllowlist in doctor.ts so wrapper-root --repair installs allowlist from the correct git repo",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Add wrapper-root regression test for doctor --repair (first-run writes allowlist, second run is no-op, plain-repo byte-identical)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Thread resolved gitCwd into resolveChangedFiles (validate-lint.ts defaultChangedFilesReader) so lint change-scope git diff runs from gitRoot on wrapper-root layouts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Pass resolved gitCwd into resolveChangedFiles call sites (verifier.ts:630 and review-preflight.ts:334)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add wrapper-root regression test for lint change-scope (changed paths rebased, out-of-scope tsconfigs skipped, plain-repo identity, throw/empty distinction preserved)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Fall back to root when no gitRoot resolves so plain repos are byte-identical (both doctor --repair and lint change-scope)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "gitRoot-aware worktree bootstrap (INIT_CHECK dev_start / B-e791 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description: B-e791 separate concurrent story; scope-boundary.json confirmation note explicitly excludes B-e791 (INIT git-readiness/dev_start) scope",
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "verification_intent_repair command (P1 mid-flight repair)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Delivered by B-4e06 (per midflight plan Delivered section); out of scope for B-0740 which is a combination-review stacking gap fix only",
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "story_review diagnostic upgrade for legacy evidence-without-intent (P1 diagnostic)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Delivered by B-4e06; out of scope for B-0740",
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "sourceManifestDigest help import error fix (P3)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per midflight plan: P3 resolved and not reproduced; B-0740 description confirms no P3 work",
+      "source": "decisions:lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 6,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0ab0548d75403f13dbdb38bcfce066531bbea7a4f45fcc768aa544bc9bc786cb",
+  "openQuestions": []
+}
