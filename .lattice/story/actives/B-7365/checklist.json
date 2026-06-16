@@ -69,9 +69,9 @@
       "title": "Run the reconcile metadata commit + merge under the main-write-lock so concurrent main commits cannot race it",
       "context": "Verify whether commitInitCheckMetadataAndMergeMain holds the main-write-lock (core/main-write-lock.ts, B-f60c) across BOTH the main metadata commit and the merge-into-story step. If not, bring the merge under the same lock so another session cannot move main mid-reconcile.",
       "userSees": "Concurrent story_advance INIT_CHECK from multiple sessions no longer corrupts metadata; the lock serializes the reconcile.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T02:14:30.208Z",
-      "endTime": null,
+      "endTime": "2026-06-16T02:21:44.147Z",
       "verificationIntent": {
         "happy": [
           {
