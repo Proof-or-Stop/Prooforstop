@@ -272,25 +272,25 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "git diff main...HEAD 显示 lifecycle-artifact-scope.md / lattice-runtime-owned-agent-assets-execution-plan.md / CLAUDE.md 三处均更新为 global-agents 单一源口径,旧的 project .claude/agents 物化口径被修正",
+      "userSees": "git diff main...HEAD 显示 lifecycle-artifact-scope.md(thin-shim 契约 + 两宿主同源表)/ lattice-runtime-owned-agent-assets-execution-plan.md / CLAUDE.md 三处更新;CLAUDE.md 写明 reviewer 从 lattice agent_prompt 取角色正文",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "三份文档反映 global-agents 单一真相源契约",
+            "desc": "三份文档反映 host-neutral thin-shim + 共享 registry 端点契约",
             "type": "docs",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "移除/修正旧的 project-local .claude/agents 物化口径",
+            "desc": "修正旧的 init 往项目/全局物化 agent 正文的表述",
             "type": "docs",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "文档描述与实际 init 输出一致(无 docs-drift)",
+            "desc": "文档与实际 init / agent_prompt 输出一致(无 docs-drift)",
             "type": "docs",
             "priority": "must"
           }
