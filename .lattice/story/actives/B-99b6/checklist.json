@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a smokes aggregator and wire it into the lattice validate run path",
+      "context": "Add a test:smokes (or similar) script that runs the wrapper-root / gitRoot smokes (storydir-inside-gitroot-smoke/suite, gitroot-cwd-routing, bare-gate-gitroot-cwd) and any other currently-orphaned smokes, and make lattice validate execute it (chain into root test, or a validate.command). Decide fast vs --full placement for slower fixture-building smokes.",
+      "userSees": "lattice validate runs the wrapper-root smokes (their output appears in the validate run) and a deliberately-broken smoke makes lattice validate fail.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify the aggregated smokes run and pass under lattice validate; a regression blocks",
+      "context": "Confirm lattice validate (and the CLI gate path) now executes the aggregated smokes green, and add a guard/test proving a smoke failure surfaces as a validate failure (no silent skip). Cross-check no double-run / excessive slowdown.",
+      "userSees": "lattice validate GREEN with the smokes included; intentionally breaking one of them turns lattice validate red.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
