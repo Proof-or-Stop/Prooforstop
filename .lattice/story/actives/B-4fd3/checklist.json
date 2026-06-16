@@ -33,6 +33,16 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          ".gitignore"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
       }
     },
     {
