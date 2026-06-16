@@ -1,4 +1,5 @@
 import { execFileSync, execSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   existsSync,
   lstatSync,
@@ -34,6 +35,16 @@ import {
   type DispatchRunnerRecord,
 } from './dispatch-runner.js';
 import type { StoryStore } from './store.js';
+// THIN ONE-WAY SEAM: dispatch imports the usage ledger only through this single
+// in-module orchestrator. dispatch-usage.ts keeps zero cross-module imports, so
+// the dependency is strictly one-way (dispatch -> usage-ledger, never back).
+import {
+  isUsageLedgerEnabled,
+  parseClaudeCliOutput,
+  recordDispatchFinal,
+  recordDispatchPreflight,
+  type DispatchUsageContext,
+} from './usage-ledger/dispatch-usage.js';
 
 export type HostRuntimeId = 'fake' | 'claude-code' | 'gemini' | 'codex';
 export type HostRuntimeStatus = 'ready' | 'scaffolded' | 'unavailable';
@@ -1836,6 +1847,34 @@ function runFakeLeafDispatch(
   };
 }
 
+/**
+ * Documented attribution constants for the claude-code leaf dispatch usage
+ * ledger seam. The dispatch path has no story phase of its own; `agentType` names
+ * the seam so usage diagnostics can group claude-code dispatch calls.
+ */
+const DISPATCH_LEDGER_PHASE = 'dispatch';
+const DISPATCH_LEDGER_AGENT_TYPE = 'lattice-dispatch:claude-code';
+/** Best-effort model default for the preflight estimate (before the provider reports). */
+const DISPATCH_LEDGER_ESTIMATE_MODEL = 'claude-code';
+
+/**
+ * Pure spawn-arg builder for the claude-code leaf dispatch. EXTRACTED so the
+ * OFF-vs-ON arg shape is unit-testable WITHOUT changing OFF behavior:
+ *   - ledger OFF -> exactly ['--print', promptFile] (byte-identical to today);
+ *   - ledger ON  -> ['--print', promptFile, '--output-format', 'json'] so the
+ *     host emits the JSON envelope we parse for usage.
+ * The OFF branch returns the literal original array; the ON branch only APPENDS.
+ */
+export function buildClaudeSpawnArgs(promptFile: string, ledgerOn: boolean): string[] {
+  if (!ledgerOn) return ['--print', promptFile];
+  return ['--print', promptFile, '--output-format', 'json'];
+}
+
+/** Deterministic projectRootHash for ledger records (sha256 of the root path). */
+function dispatchProjectRootHash(root: string): string {
+  return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
+}
+
 function runClaudeCodeRealLeafDispatch(
   root: string,
   record: DispatchRecord,
@@ -1848,18 +1887,49 @@ function runClaudeCodeRealLeafDispatch(
   const promptFile = resolve(root, record.promptFile);
   assertClaudePrintLauncherAllowed(executionPolicy.commandAllowlist, 'dispatch_run:');
   const commandTemplate = runtime.invocationTemplate ?? ['claude', '--print', '<prompt-file>'];
-  const invocation = ['claude', '--print', promptFile];
   const commandLabel = CLAUDE_PRINT_LAUNCHER;
   const transcriptPath = resolve(root, record.transcriptFile);
   const commandEnv = buildRequiredCommandEnv(executionPolicy);
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
+
+  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
+  // INV-1: ledgerOn drives the arg shape; when OFF the builder returns the literal
+  // original ['--print', promptFile] and stdout is used raw, exactly as before.
+  // INV-3: every ledger call below is wrapped in try/catch and proceeds on error.
+  const ledgerOn = isUsageLedgerEnabled();
+  const ledgerCtx: DispatchUsageContext = {
+    storyId: record.storyId,
+    phase: DISPATCH_LEDGER_PHASE,
+    agentType: DISPATCH_LEDGER_AGENT_TYPE,
+    model: DISPATCH_LEDGER_ESTIMATE_MODEL,
+  };
+  const ledgerOpts = {
+    recordedAt: runnerStartedAt,
+    projectRootHash: dispatchProjectRootHash(root),
+    command: commandLabel,
+    host: { kind: record.selectedHost },
+  };
+  let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
+  if (ledgerOn) {
+    try {
+      const promptText = readFileSync(promptFile, 'utf8');
+      ledgerHandle = recordDispatchPreflight(root, ledgerCtx, promptText, ledgerOpts);
+    } catch (error) {
+      appendTranscript(transcriptPath, [
+        `[${nowIso()}] usage-ledger preflight skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
+      ]);
+    }
+  }
+
+  const spawnArgs = buildClaudeSpawnArgs(promptFile, ledgerOn);
+  const invocation = ['claude', ...spawnArgs];
   appendTranscript(transcriptPath, [
     `[${nowIso()}] claude-code real subprocess starting`,
     `[${nowIso()}] cwd ${record.worktree.worktreePath} (${worktreeAbs})`,
     `[${nowIso()}] invocation ${invocation.join(' ')}`,
   ]);
 
-  const result = spawnSync('claude', ['--print', promptFile], {
+  const result = spawnSync('claude', spawnArgs, {
     cwd: worktreeAbs,
     env: commandEnv,
     encoding: 'utf8',
@@ -1868,7 +1938,36 @@ function runClaudeCodeRealLeafDispatch(
   });
   const timedOut = spawnTimedOut(result, timeoutMs);
   const exitCode = spawnExitCode(result, timedOut);
-  const stdout = spawnOutputText(result.stdout).trimEnd();
+  const rawStdout = spawnOutputText(result.stdout).trimEnd();
+  // INV-1/INV-2: OFF -> stdout is the raw text, byte-identical to today. ON ->
+  // parse the JSON envelope; resultText is the downstream text (raw fallback when
+  // the output is not JSON/usage), and the parsed usage feeds the final record.
+  let stdout = rawStdout;
+  if (ledgerOn) {
+    try {
+      const parsed = parseClaudeCliOutput(rawStdout);
+      stdout = parsed.resultText;
+      // INV-5: the provider-reported final supersedes the preflight estimate.
+      // Bind the real served model from the envelope (token counts are
+      // model-version-specific; diagnostics group by model). recordDispatchFinal
+      // falls back to the best-effort default only when parsed.model is null.
+      recordDispatchFinal(
+        root,
+        ledgerCtx,
+        ledgerHandle?.correlation ?? null,
+        ledgerHandle?.estimateRecordId ?? null,
+        parsed.anthropicUsage,
+        parsed.model,
+        ledgerOpts,
+      );
+    } catch (error) {
+      // Never let a ledger/parse error break dispatch: fall back to raw stdout.
+      stdout = rawStdout;
+      appendTranscript(transcriptPath, [
+        `[${nowIso()}] usage-ledger final skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
+      ]);
+    }
+  }
   const stderr = spawnOutputText(result.stderr).trimEnd();
   const spawnError = result.error ? String(result.error.message || result.error).trim() : '';
   const runnerEndedAt = nowIso();
