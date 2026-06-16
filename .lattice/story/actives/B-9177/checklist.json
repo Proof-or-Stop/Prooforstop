@@ -71,7 +71,30 @@
       "userSees": "lattice validate green with a regression guard that turns red if a new main-mutating path is added without the main-write-lock.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The coverage guard passes green when all main-mutating paths are locked, and runs inside lattice validate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Guard does not false-positive on story-worktree-only paths (merging main into a story branch needs no lock)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative fixture: an unlocked main-mutating primitive makes the guard go RED (proves it bites)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
