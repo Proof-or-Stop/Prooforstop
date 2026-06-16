@@ -350,6 +350,17 @@
           "headHash": "004f8b1a32c35c0ed9d812ff39ad6804cfecdf68",
           "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
           "timestamp": "2026-06-16T18:48:51.864Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node dist/tasks/prompt-registry-smoke.js; node dist/tasks/prompt-token-cost-smoke.js; npm --prefix packages/main run build; lattice validate",
+          "result": "pass",
+          "note": "No-regress: prompt-registry-smoke (16 agents claude+codex), prompt-token-cost-smoke, runtime-owned-agent-assets-smoke all PASS. global-agents-unit-smoke PASS. packages/main build green. lattice validate 全绿 (main-write-lock-coverage + cli-e2e ALL PASS). PASS.",
+          "headHash": "e423f41b19ffc1a34cfaf8d39c5bcac2b628fa69",
+          "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
+          "timestamp": "2026-06-16T18:48:52.274Z"
         }
       ]
     }
