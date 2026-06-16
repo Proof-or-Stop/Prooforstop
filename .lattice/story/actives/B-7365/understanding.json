@@ -1,0 +1,26 @@
+{
+  "task": "commitInitCheckMetadataAndMergeMain (cli-engine.ts ~3412) commits the INIT_CHECK metadata on main, then runs git merge of the base branch into the story worktree (~3473). Under concurrent main-branch churn that merge conflicts on the story's machine-generated index.json and either leaves unresolved git conflict markers committed (so the CLI can no longer parse the story) or fails mid-merge. The reconcile is not wrapped in the main-write-lock. Observed corrupting metadata twice this session (B-3990, B-e791), each needing manual repair.",
+  "outcome": "When two sessions advance INIT_CHECK concurrently (or main churns during the reconcile), the story's index.json is NEVER left with git conflict markers: the reconcile serializes its metadata-commit + merge under the main-write-lock, and on any residual conflict it resolves the machine-generated story metadata deterministically to the authoritative post-advance state (never commits markers, never strands the user). lattice commands keep parsing the story throughout.",
+  "facts": [
+    "commitInitCheckMetadataAndMergeMain is at packages/main/src/cli-engine.ts ~3412; it commits INIT_CHECK metadata on main then gitCli(worktreeAbs, ['merge', currentBranch, '--no-edit']) at ~3473-3478.",
+    "The reconcile is NOT wrapped in withMainWriteLock (grep confirms no lock import/usage in cli-engine.ts).",
+    "core/main-write-lock.ts (B-f60c) exports withMainWriteLock and withReentrantMainWriteLock(mainRepoRoot, fn, {label}); releases on throw; doctor has a stuck-lock check.",
+    "Observed twice this session: the merge left <<<<<<< / ======= / >>>>>>> markers in index.json; manual repair = take main's committed index.json + complete/clear the merge.",
+    "Story metadata is machine-generated, so the post-INIT_CHECK (main-committed) state is authoritative for a deterministic resolution."
+  ],
+  "constraints": [
+    "Never leave or commit git conflict markers in machine-generated story metadata.",
+    "The lock must wrap BOTH the main metadata commit and the merge-into-story step so concurrent main commits cannot race between them.",
+    "Deterministic resolution must cover ALL conflicted story-metadata paths under the storyDir, not just index.json.",
+    "Do not change INIT_CHECK semantics otherwise; the reconcile must stay idempotent on retry; plain single-session flow byte-identical."
+  ],
+  "unknowns": [
+    "withMainWriteLock vs withReentrantMainWriteLock — the reconcile may run within a context that already holds the lock (story_advance), so reentrant is likely safer; implementer confirms the call context."
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/tasks/"
+  ],
+  "timestamp": "2026-06-16T01:57:26.363Z"
+}
