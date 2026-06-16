@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Flip the writer default to ON; keep the explicit-OFF escape hatch",
+      "context": "In core/usage-ledger/writer.ts isUsageLedgerEnabled(): when LATTICE_USAGE_LEDGER (fallback KOALA_USAGE_LEDGER) is UNSET/undefined, return true (default ON). Keep the existing truthy/falsey parsing so 0/false/off/no/'' explicitly DISABLE. Default ON; explicit OFF respected. Unit-tested: unset -> true; '0'/'false'/'off'/'no' -> false; '1'/'true'/'on'/'yes' -> true.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Escape-hatch regression proof: =0 restores legacy behavior",
+      "context": "Prove that LATTICE_USAGE_LEDGER=0 restores the exact pre-rollout default-off behavior: isUsageLedgerEnabled()=false; appendUsageRecord is a strict no-op (no file/dir created); the Claude seam (runClaudeCodeRealLeafDispatch) uses the original spawn args ['--print', promptFile] (buildClaudeSpawnArgs(file,false)) and raw stdout; the budget guard is inert (no block); recordDispatchPreflight/Final no-op. Byte-identical to the historical default-off. Tested explicitly with the env var set to 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Default-on behavior + safety holds",
+      "context": "With the env var UNSET: isUsageLedgerEnabled()=true; appendUsageRecord writes; the Claude seam uses --output-format json with the B-0f7c raw-text fallback on parse failure; ledger errors are caught and never break dispatch; budget is NOT auto-enabled (no LATTICE_HARD_BUDGET_TOKENS => no block). Tested: unset env => writer writes + the seam's enabled path is taken + a parse failure still yields raw text + a ledger error does not propagate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke wired + no regression + doc/default note",
+      "context": "Add packages/main/src/tasks/usage-ledger-default-on-smoke.ts (or extend an existing smoke; follow the *-smoke.ts pattern; ✓/✗, non-zero exit; temp dir; restore env hermetically) wired as an npm script, covering CHK-001/002/003. Update any doc/comment that states the flag default (e.g. a comment in writer.ts or a ledger doc) to reflect default-on + the =0 escape hatch. Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget/-authority) passes with the NEW default; node bin/lattice.js validate. Assert usage-ledger still imports zero other modules.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1b28",
+  "checkedAt": "2026-06-16T22:07:42.264Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "dded6f35b8666e2ba1fbe59bc9a79725f8d50415d29f98927e5e10d1e3210c49",
+  "executionBoundaryHash": "8a938ebd6dbb9cdee1238a1b128e12b6ba97d773f7d68b285d2376d78074257c",
+  "freshnessHash": "a6cf58c4757b498d966592575f7f113dfcaaa31adfeb0bd9c431e6287a771e7b",
+  "effectiveExcludedKeywords": [
+    "Adding any new enforcement or gate",
+    "Changing the dispatch seam, budget, or authority logic",
+    "codex or gemini hosts",
+    "Editing dispatch-runner / cli-engine / handlers"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding any new enforcement or gate",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding any new enforcement or gate",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the dispatch seam, budget, or authority logic",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the dispatch seam, budget, or authority logic",
+      "excluded": true
+    },
+    {
+      "keyword": "codex or gemini hosts",
+      "source": "scopeBoundary.excluded",
+      "text": "codex or gemini hosts",
+      "excluded": true
+    },
+    {
+      "keyword": "Editing dispatch-runner / cli-engine / handlers",
+      "source": "scopeBoundary.excluded",
+      "text": "Editing dispatch-runner / cli-engine / handlers",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5d396bfb98d31bb837004f13468e9307054a4e7943bb0ea68ff0db106206735f"
+}
