@@ -187,6 +187,17 @@
           "headHash": "86fbb817248a46fbb68cc64158baaae71dc6c23d",
           "materialHash": "d88e494089b3f4e17b8b25bae9779e8a22249347adf1063f57751d51dc1e9d8b",
           "timestamp": "2026-06-16T21:27:26.493Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-convergence-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "Advisory path is append-only inside try/catch; never throws, base output preserved, transition result unaffected (smoke case e non-blocking proof)",
+          "headHash": "949d1a8990b0e7a92fa3c69a9941532b801a0f88",
+          "materialHash": "d88e494089b3f4e17b8b25bae9779e8a22249347adf1063f57751d51dc1e9d8b",
+          "timestamp": "2026-06-16T21:27:27.011Z"
         }
       ]
     }
