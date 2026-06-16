@@ -15,6 +15,16 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
       }
     },
     {
