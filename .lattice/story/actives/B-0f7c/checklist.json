@@ -19,12 +19,54 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "test",
+            "desc": "recordDispatchPreflight(root, ctx{storyId:S-test, phase:dev, agentType:leaf}, 'Hello world prompt', opts) with flag ON -> returns {correlation, estimateRecordId} where correlation has llmcall_/llmatt_ prefixed ids; ledger file contains exactly 1 line with source=prompt-size-estimate, estimator.confidence=low, inputTokens>0, outputTokens=null, storyId=S-test; WHY: covers main happy path - preflight estimate written and correlation handle returned",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal(root, ctx, correlation, estimateRecordId, anthropicUsage{input_tokens:500, output_tokens:200, cache_creation:10, cache_read:50}, model) with flag ON -> ledger gains 2nd line with source=provider-reported, inputTokens=500, outputTokens=200, supersedesRecordIds=[estimateRecordId]; summarizeRecords providerReportedTotal counts ONLY the final (no double-count with estimate); WHY: covers supersede path and critical no-double-count invariant",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal(root, ctx, correlation, estimateRecordId, null, model) with flag ON -> ledger gains line with source=unavailable, supersedesRecordIds=[estimateRecordId], unavailableReason non-empty; summary counts it as unknown (not provider-reported, not estimate); WHY: covers unavailable-usage path when CLI returns no usage",
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "recordDispatchPreflight with empty string promptText -> returns correlation with estimateRecordId; estimate record has inputTokens=0 (bytesCharsEstimator on empty yields 0); never throws; WHY: boundary - zero-length prompt must not produce NaN or negative",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchPreflight with 1MB promptText -> returns correlation; inputTokens is large positive integer (~250000); completes in <500ms; WHY: sync bytes/chars estimator must handle large input without blocking",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal with anthropicUsage missing cache fields entirely ({input_tokens:100, output_tokens:50}) -> adapts gracefully; cache dimensions are null on record (not 0); WHY: real Claude responses may omit cache fields when caching not used",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchPreflight with storyId=null (non-story call) -> record written with storyId:null (present, not omitted, not undefined); WHY: non-story dispatches must record usage with explicit null storyId per record spec",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recordDispatchPreflight when appendUsageRecord throws (corrupt last line in existing ledger) -> returns null (never throws); WHY: never-throws invariant is critical safety contract - ledger failures must not propagate to dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal when buildProviderRecord throws (negative token count in anthropicUsage) -> does not throw to caller; WHY: adversarial provider response must not crash dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchPreflight with flag OFF (LATTICE_USAGE_LEDGER unset) -> returns null; no file created; no directory created (.lattice/usage/ must not exist); WHY: flag-off invariant means ZERO side effects",
+            "type": "cli"
+          },
+          {
+            "desc": "Two concurrent recordDispatchPreflight calls with same storyId -> each gets DISTINCT correlation (different ledgerCallId, attemptId, recordId); ledger has 2 lines with distinct recordIds; WHY: id minting must be collision-resistant under concurrency",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
