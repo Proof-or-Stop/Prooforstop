@@ -127,8 +127,8 @@ function git(cwd: string, args: string[]): void {
 }
 
 function createTmpRepo(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-matrix-'));
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-matrix-'));
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

@@ -37,7 +37,7 @@
  * the story dir (checklist.json) must be resolved the same way.
  *
  * Pattern mirrors init-check-atomicity-smoke.ts (self-contained node script,
- * mkdtemp git repo, koala.config.json + .gitignore, StoryStore seeding).
+ * mkdtemp git repo, lattice.config.json + .gitignore, StoryStore seeding).
  */
 
 import { strict as assert } from 'node:assert';
@@ -70,7 +70,7 @@ function initRepo(prefix: string): string {
   git(root, ['config', 'user.name', 'Lattice Smoke']);
   // Make local merges deterministic regardless of the host git config.
   git(root, ['config', 'commit.gpgsign', 'false']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

@@ -59,7 +59,7 @@ const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Latt
  * checks run against it.
  */
 function buildScopedMergeRepo(storyId: string): { root: string } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-merge-scope-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-scope-'));
 
   write(root, '.gitignore', '.lattice/activity.jsonl\n');
   write(root, 'shared/unrelated.txt', 'unrelated baseline content\n');
@@ -225,7 +225,7 @@ function assertCleanMainPasses(): void {
  * A non-git directory cannot read git HEAD, so the precondition must fail fast.
  */
 function assertMainWorktreeUnavailableStillThrows(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-merge-scope-nogit-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-scope-nogit-'));
   try {
     // No `git init` — this directory has no git metadata.
     write(root, 'placeholder.txt', 'not a git repo\n');
