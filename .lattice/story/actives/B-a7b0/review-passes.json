@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T21:38:09.638Z",
       "reviewRunId": "B-a7b0:RR-006",
       "_hash": "938a3b83c93bcdffeb6bcd57bcba6837db13f4e7900c7be6553b0b5cf69e1417"
+    },
+    {
+      "id": "B-a7b0:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed for round 2 (RR-004). Diff is purely additive: (1) ManagedAssetDefinition changed from private to export interface — same name, no concept deletion, consumers in review-preflight.ts and validate-docs-drift.ts correctly import it as a named type. (2) ALL_MANAGED_ASSET_KINDS is a NEW export — no prior symbol deleted or renamed. (3) validate-docs-drift.ts imports ALL_MANAGED_ASSET_KINDS as MANAGED_ASSET_KIND_VALUES to avoid collision with a local const of the same name (line 258) — intentional, consistent. (4) runDocsDriftGate call site updated with opts parameter — no concept deletion, purely extended. (5) No CLAUDE.md/README changes so no doc-promise-undelivered risk. (6) No deleted symbols with dangling residual references found. Zero findings.",
+      "createdAt": "2026-06-16T21:41:07.466Z",
+      "reviewRound": "2026-06-16T21:38:09.638Z",
+      "reviewRunId": "B-a7b0:RR-004",
+      "_hash": "245706d899242a418b190f440e2c65050fd58fab99fa499f653f1d06a3b7caac"
     }
   ]
 }
