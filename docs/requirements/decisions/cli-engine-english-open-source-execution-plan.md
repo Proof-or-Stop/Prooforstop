@@ -20,7 +20,7 @@ that reviewers should approve before implementation begins.
 - Do not modify `packages/main/src/cli-engine.ts` in this documentation story.
 - Do not modify the existing untracked
   `docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md`.
-- Do not touch `.omx/`, `docs/story/`, or `packages/main/tests/fixtures/`.
+- Do not touch `docs/story/` or `packages/main/tests/fixtures/`. (omx removed B-ed70)
 - Do not remove legacy `koala` compatibility semantics as part of translation.
 - Do not hide compatibility terms such as `KOALA_*`, `koala.config.json`, or
   legacy alias documentation when they are still runtime facts.

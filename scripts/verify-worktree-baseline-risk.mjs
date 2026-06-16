@@ -41,7 +41,7 @@ const background = `## 触发事件
 2026-05-13 baseline-risk smoke references B-risk and CHK-001 so story_create accepts the synthetic story. The goal is to verify that volatile runtime residue stays hidden while real user edits remain visible before worktree creation in this temporary repository.
 
 ## 关键洞察
-The baseline warning should surface material files that a human would lose when relying on a fresh worktree, but it should hide Koala runtime noise such as .omx logs. This synthetic story needs only enough background structure to satisfy the current story_create gate without changing the verification intent.
+The baseline warning should surface material files that a human would lose when relying on a fresh worktree, but it should hide volatile runtime noise such as files under .lattice/runtime/. This synthetic story needs only enough background structure to satisfy the current story_create gate without changing the verification intent.
 
 ## 方案取舍
 Keeping the background inline here is simpler than introducing a fixture file for a one-off smoke. The content stays deterministic, meets the four-section minimum, and keeps the script focused on baseline-risk semantics instead of broader story lifecycle setup.
@@ -87,14 +87,14 @@ try {
   runKoala('init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
 
   mkdirSync(join(temp, 'experiments', 'configs'), { recursive: true });
-  mkdirSync(join(temp, '.omx', 'logs'), { recursive: true });
+  mkdirSync(join(temp, '.lattice', 'runtime'), { recursive: true });
   writeFileSync(join(temp, 'experiments', 'configs', 'new-chart.json'), '{"chartType":"replay-delta"}\n');
-  writeFileSync(join(temp, '.omx', 'logs', 'turns.jsonl'), '{}\n');
+  writeFileSync(join(temp, '.lattice', 'runtime', 'turns.jsonl'), '{}\n');
 
   const createdWorktree = runKoala('story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
   assertIncludes(createdWorktree, 'Baseline risk', 'confirm baseline warning');
   assertIncludes(createdWorktree, 'experiments/configs/new-chart.json', 'confirm material path');
-  assertNotIncludes(createdWorktree, '.omx/logs/turns.jsonl', 'confirm volatile path hidden');
+  assertNotIncludes(createdWorktree, '.lattice/runtime/turns.jsonl', 'confirm volatile path hidden');
 
   git(['add', 'experiments/configs/new-chart.json']);
   git(['commit', '-m', 'baseline: add chart config']);

@@ -117,9 +117,7 @@ For this unlock run, the selected proof artifact root is:
 .lattice/artifacts/baseline/layer2-engineering-unlock
 ```
 
-The unlock proof pack must use that selected root. `.omx` is not part of this
-proof pack and must not be used as the formal artifact root for Layer 2
-Engineering unlock evidence.
+The unlock proof pack must use that selected root.
 
 | Baseline ID | Name | What it verifies | PASS means |
 |---|---|---|---|

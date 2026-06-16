@@ -11,7 +11,6 @@
  * @changes
  *   - [CHK-004] Add capsule_show/update/handoff/run_add handlers
  *   - [CHK-005] Surface strict reference validation for forged/missing evidence refs
- *   - [CHK-006] Keep .omx outside the capsule command surface
  */
 import type { HandlerContext } from './context.js';
 import type { ProcessEvent } from '../core/types.js';

@@ -1,7 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { createHash } from 'node:crypto';
-import { isForbiddenOmxPath } from './runtime-artifact-registry.js';
 
 export type BaselineExpectedOutcome = 'PASS' | 'EXPECTED_BLOCK';
 export type BaselineOutcome = BaselineExpectedOutcome | 'FAIL' | 'INVALID';
@@ -342,9 +341,6 @@ function isRestrictedPath(root: string, path: string): boolean {
 }
 
 function assertAllowedPath(root: string, path: string): void {
-  if (isForbiddenOmxPath(path)) {
-    throw new Error(`baseline_suite_report refuses to use disabled .omx path: ${relative(root, path)}`);
-  }
   if (isRestrictedPath(root, path)) {
     throw new Error(`baseline_suite_report refuses to read restricted path: ${relative(root, path)}`);
   }

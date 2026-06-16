@@ -509,7 +509,6 @@ fullAuthorityDone: false
 - Do not make local reviewer runs into Authority receipts.
 - Do not make Claude CLI or Codex CLI authoritative by host brand.
 - Do not scan nested repositories and pick one implicitly.
-- Do not touch legacy `.omx` material.
 
 ## Acceptance Criteria
 

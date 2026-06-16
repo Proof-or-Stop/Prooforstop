@@ -23,7 +23,6 @@
 9. 用户指令始终覆盖此文件
 10. **禁止直接读写 `docs/story/` 和 `tests/fixtures/` 目录下的文件**。所有 story 操作走 `lattice story_*`/`lattice checklist_*`/`lattice bug_*` 命令，所有 fixture 操作走 `lattice fixture_*` 命令。直接 Read/Edit 这些 JSON 文件会绕过流程校验
 11. **工程完成 ≠ 任务完成**。一个 story 真正完成的标志是用户能从产品视角说"好了"，不是事件链路打通 / 测试通过 / 函数返回正确这些工程指标。详见底部「用户价值验收（优先于技术链路验证）」段。开发者必须既有程序思维又有产品思维，两边都完整才叫完成。
-12. **本机禁用 OMX**：不要运行 `omx` 命令，不要读写 `.omx/`，也不要把 `.omx/` 当作 Lattice runtime artifact、baseline artifact 或证据目录。只有在用户明确要求检查/移除这个禁用 guard 时，才可以触碰相关禁用配置本身。
 
 ## 项目配置（lattice.config.json）
 
@@ -64,7 +63,7 @@
 - gate 只能消费签名、hash、evidence、check artifact 等结构化事实，不能靠“检查通过”之类文本当证据。
 - `packages/main/src/core/process-fact-registry.ts` 是流程事实 registry：它从 `COMMAND_POLICIES` + `PROCESS_FACT_LEVELS` 组装 command facts，并显式登记 reviewer lane、artifact、required semantics。新增/修改 gate evidence、review lane、signed artifact、validation/review-pass/finding 语义时，必须同时更新 registry 和 `scripts/verify-process-fact-contract.mjs`，不能只改 prompt 或文档。
 - runtime / environment facts 不混入 process registry。`packages/main/src/core/runtime-fact-registry.ts` 只登记 CLI entrypoint、global core realpath、project-local bin、Node/package version、validate source、external-reference-policy 等运行环境事实；`doctor` 通过 `Runtime scan:` 展示，`scripts/verify-runtime-fact-contract.mjs` 负责防回退。外部项目对 Orchestrate 本地 symlink/realpath 期望只能 warn/advisory，不能 hard fail。`external-reference-policy` 是 bounded docs/config policy scan，不代表联网探活；localhost / 127.0.0.1 / ::1 视为 internal example。
-- runtime artifact paths 也有独立 registry。`packages/main/src/core/runtime-artifact-registry.ts` 只登记 CLI 运行时文件/日志/缓存（activity log、legacy activity log、runtime cache、trace cache、serve metadata、debug/browser logs）及其 gitignore/materialHash/repair 语义；`currentMaterialHash`、baseline risk、`story_sync_main`、`init` 和 `doctor` 必须消费这张表，不能各自硬编码 activity log 路径。story evidence path 是流程证据，不属于 runtime artifact。本机禁用 OMX 后，`.omx/` 不允许重新登记为 runtime artifact 或 baseline 输出目录。
+- runtime artifact paths 也有独立 registry。`packages/main/src/core/runtime-artifact-registry.ts` 只登记 CLI 运行时文件/日志/缓存（activity log、legacy activity log、runtime cache、trace cache、serve metadata、debug/browser logs）及其 gitignore/materialHash/repair 语义；`currentMaterialHash`、baseline risk、`story_sync_main`、`init` 和 `doctor` 必须消费这张表，不能各自硬编码 activity log 路径。story evidence path 是流程证据，不属于 runtime artifact。
 
 ## Story 阶段流转
 

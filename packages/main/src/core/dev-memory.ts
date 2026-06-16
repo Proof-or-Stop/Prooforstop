@@ -8,7 +8,7 @@
  *            story    → <storyDir>/<storyId>/dev-memory-candidates.jsonl
  *            legacy   → read-only fallback from matching .koala/dev-memory files
  *   - Non-authoritative: entries CANNOT satisfy Lattice gate evidence
- *   - No .omx, no structured schema that looks like gate artifacts
+ *   - No structured schema that looks like gate artifacts
  *   - Deterministic: path resolution works without a Lattice daemon running
  */
 

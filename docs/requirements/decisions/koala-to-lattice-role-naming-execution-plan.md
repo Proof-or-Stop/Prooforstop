@@ -160,7 +160,6 @@ Inventory before and after the migration:
 rg -n --hidden \
   --glob '!docs/story/**' \
   --glob '!tests/fixtures/**' \
-  --glob '!.omx/**' \
   --glob '!.git/**' \
   --glob '!.worktrees/**' \
   '\bkoala-(implementer|review|evaluator)' \
@@ -175,7 +174,6 @@ trees:
 rg -n --hidden \
   --glob '!docs/story/**' \
   --glob '!tests/fixtures/**' \
-  --glob '!.omx/**' \
   --glob '!.git/**' \
   --glob '!.worktrees/**' \
   --glob '!docs/koala/**' \
