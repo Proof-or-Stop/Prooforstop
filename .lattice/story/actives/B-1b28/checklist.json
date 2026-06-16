@@ -820,9 +820,9 @@
       "id": "CHK-004",
       "title": "Smoke wired + no regression + doc/default note",
       "context": "Add packages/main/src/tasks/usage-ledger-default-on-smoke.ts (or extend an existing smoke; follow the *-smoke.ts pattern; ✓/✗, non-zero exit; temp dir; restore env hermetically) wired as an npm script, covering CHK-001/002/003. Update any doc/comment that states the flag default (e.g. a comment in writer.ts or a ledger doc) to reflect default-on + the =0 escape hatch. Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget/-authority) passes with the NEW default; node bin/lattice.js validate. Assert usage-ledger still imports zero other modules.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T22:28:40.371Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/usage-ledger-smoke.ts",
