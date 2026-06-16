@@ -57,7 +57,16 @@
       "context": "Implement + test the spec's negative controls: transport accepted=true is NOT verification; a provider response with real token counts is NOT verification; a local JSONL hash chain is NOT verification; a copied receiptId without an injected verifier confirming signature+subject is NOT verification. In every case authority.receiptVerified stays false. Each negative control is a distinct smoke assertion.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/authority-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
