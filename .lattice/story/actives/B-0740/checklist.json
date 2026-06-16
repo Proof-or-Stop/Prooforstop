@@ -39,7 +39,30 @@
       "userSees": "`lattice validate --lint --story=B-xxx` on a wrapper-root project scopes lint to the changed packages (out-of-scope tsconfigs reported skipped) instead of silently falling back to full recursive tsc because the change-scope git diff failed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "on a wrapper-root layout, resolveChangedFiles with gitCwd=gitRoot returns the changed paths rebased to projectRoot-relative, and computeOutOfScopeTsconfigs correctly marks out-of-scope tsconfigs",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plain repo (gitCwd==projectRoot) rebase is identity: resolveChangedFiles output is byte-identical to passing no gitCwd",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "throwing changedFilesReader still returns undefined (full recursive tsc, never skip-all); genuinely empty diff returns [] — the throw/empty distinction survives the rebase",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
