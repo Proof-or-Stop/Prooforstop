@@ -840,7 +840,7 @@ export async function startServe(options: ServeOptions) {
   }
   if (!bridgeWsPort) {
     console.log(`  ⚠ Project core not found. Please start the project first:`);
-    console.log(`    KOALA_SERVE_PORT=<port> npx tsx src/main.ts`);
+    console.log(`    LATTICE_SERVE_PORT=<port> npx tsx src/main.ts`);
     console.log(`    or npm run serve (will automatically start the core)`);
     return;
   }
@@ -950,7 +950,7 @@ export async function startServe(options: ServeOptions) {
 
             if (contentType.includes('text/html')) {
               let html = await resp.text();
-              const injection = `<script>window.__KOALA_WS_PORT=${wsPort};${clientScript}</script>${CONSOLE_HOOK_SCRIPT}`;
+              const injection = `<script>window.__LATTICE_WS_PORT=${wsPort};${clientScript}</script>${CONSOLE_HOOK_SCRIPT}`;
               html = html.includes('</head>')
                 ? html.replace('</head>', `${injection}</head>`)
                 : injection + html;

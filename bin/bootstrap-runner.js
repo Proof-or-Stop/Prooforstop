@@ -42,7 +42,7 @@ function printBootstrapFailure(error) {
   console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
   console.error('    Use this for current-worktree gate/status/validate checks while developing Lattice.');
   console.error('  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):');
-  console.error('    KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice <command>');
+  console.error('    LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice <command>');
   console.error('    Use only for session_brief heartbeat or post-merge main checks; may lag this worktree.');
 
   if (error) {
@@ -76,7 +76,7 @@ export async function runLocalBootstrap() {
         }
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        process.env.KOALA_LAB_IMPORT_ERROR = err.message;
+        process.env.LATTICE_LAB_IMPORT_ERROR = err.message;
       }
     }
 

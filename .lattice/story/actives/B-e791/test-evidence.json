@@ -1,0 +1,196 @@
+{
+  "command": "lattice validate --story=B-e791 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — wrapper-root with a configured+resolvable gitRoot: guidance says ready for INIT_CHECK, not git init the metadata root\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — plain non-git project with no configured gitRoot: keeps the existing git-init guidance (byte-identical)\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — configured gitRoot present but unresolvable: safe fallback, no crash\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — wrapper-root INIT_CHECK: nesting check emits no fatal: not a git repository\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — plain repo: nesting check behavior unchanged\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — actually inside a worktree-* branch: nesting is still rejected\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — tests assert gitRoot-aware guidance on a wrapper-root fixture\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — tests assert plain no-gitRoot keeps git-init guidance + nesting unchanged\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts) — tests assert real nesting still rejected + no spurious fatal on wrapper-root\"],\"warnings\":[],\"timestamp\":\"2026-06-16T01:02:29.602Z\",\"headSha\":\"88fef4f29256f7b84270c62a7fde68445d77901d\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2421}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"wrapper-root with a configured+resolvable gitRoot: guidance says ready for INIT_CHECK, not git init the metadata root\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"computeNextStep INIT/INIT_CHECK gitReady=false+gitRoot resolved -> points to INIT_CHECK, no git init\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.019Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"plain non-git project with no configured gitRoot: keeps the existing git-init guidance (byte-identical)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"plain no-gitRoot -> git-init message byte-identical (full-string equality)\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.019Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"configured gitRoot present but unresolvable: safe fallback, no crash\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"gitReady=true cross-check matches the wrapper-root-resolved guidance; no crash on flag combos\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.019Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"wrapper-root INIT_CHECK: nesting check emits no fatal: not a git repository\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"wrapper-root non-git cwd: fatal captured in pipe, not leaked; leak-control proves pre-fix default leaks\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.019Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"plain repo: nesting check behavior unchanged\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"ordinary main branch: not rejected (negative control), behavior unchanged\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.019Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"actually inside a worktree-* branch: nesting is still rejected\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"real worktree-* checked-out branch: nesting rejection preserved\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.020Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"tests assert gitRoot-aware guidance on a wrapper-root fixture\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"smoke asserts gitRoot-aware guidance on the wrapper-root case\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.020Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"tests assert plain no-gitRoot keeps git-init guidance + nesting unchanged\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"smoke asserts plain no-gitRoot keeps git-init + nesting unchanged\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.020Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"tests assert real nesting still rejected + no spurious fatal on wrapper-root\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts\",\"command\":\"npm run test:gitroot-init-guidance-quiet-nesting\",\"result\":\"pass\",\"note\":\"smoke asserts real nesting still rejected + no spurious fatal on wrapper-root (7/7 checks)\",\"headHash\":\"1ef1fa53a4558b64b3401d3addf64626276ced6c\",\"materialHash\":\"7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1\",\"timestamp\":\"2026-06-16T01:02:26.020Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T01:02:30.077Z",
+  "headHash": "88fef4f29256f7b84270c62a7fde68445d77901d",
+  "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "wrapper-root with a configured+resolvable gitRoot: guidance says ready for INIT_CHECK, not git init the metadata root",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "computeNextStep INIT/INIT_CHECK gitReady=false+gitRoot resolved -> points to INIT_CHECK, no git init",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "plain non-git project with no configured gitRoot: keeps the existing git-init guidance (byte-identical)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "plain no-gitRoot -> git-init message byte-identical (full-string equality)",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "configured gitRoot present but unresolvable: safe fallback, no crash",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "gitReady=true cross-check matches the wrapper-root-resolved guidance; no crash on flag combos",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "wrapper-root INIT_CHECK: nesting check emits no fatal: not a git repository",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "wrapper-root non-git cwd: fatal captured in pipe, not leaked; leak-control proves pre-fix default leaks",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "plain repo: nesting check behavior unchanged",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "ordinary main branch: not rejected (negative control), behavior unchanged",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "actually inside a worktree-* branch: nesting is still rejected",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "real worktree-* checked-out branch: nesting rejection preserved",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "tests assert gitRoot-aware guidance on a wrapper-root fixture",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts gitRoot-aware guidance on the wrapper-root case",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "tests assert plain no-gitRoot keeps git-init guidance + nesting unchanged",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts plain no-gitRoot keeps git-init + nesting unchanged",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "tests assert real nesting still rejected + no spurious fatal on wrapper-root",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts real nesting still rejected + no spurious fatal on wrapper-root (7/7 checks)",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        }
+      }
+    ]
+  }
+}

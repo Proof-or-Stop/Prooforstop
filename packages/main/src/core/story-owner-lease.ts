@@ -103,7 +103,7 @@ export interface StoryOwnerLease {
  * supersedes the earlier ppid-anchor design).
  *
  *   sessionId =
- *     KOALA_SESSION_ID                                       (sessionSource: koala-env)
+ *     LATTICE_SESSION_ID                                       (sessionSource: koala-env)
  *     ?? CLAUDE_CODE_SESSION_ID                              (sessionSource: claude-code-env)
  *     ?? deriveLocalSessionId(hostname, root, process.ppid)  (sessionSource: derived-ppid)
  *
@@ -119,7 +119,7 @@ export interface StoryOwnerLease {
  * non-Claude environments where the parent shell genuinely IS persistent.
  *
  * PRIMARY sources are env vars that are stable per real session:
- *   1. `KOALA_SESSION_ID` — canonical Koala override; the future Koala
+ *   1. `LATTICE_SESSION_ID` — canonical Koala override; the future Koala
  *      adapter / server injection entry point. Highest priority.
  *   2. `CLAUDE_CODE_SESSION_ID` — already present in the Claude Code
  *      environment and verified stable for the lifetime of a Claude Code
@@ -154,7 +154,7 @@ export interface SessionIdentity {
 
 /** The subset of environment variables `resolveSessionIdentity` consults. */
 export interface SessionEnv {
-  KOALA_SESSION_ID?: string | undefined;
+  LATTICE_SESSION_ID?: string | undefined;
   CLAUDE_CODE_SESSION_ID?: string | undefined;
 }
 
@@ -196,7 +196,7 @@ export function resolveSessionIdentity(
   env: SessionEnv,
   inputs: SessionDerivationInputs,
 ): SessionIdentity {
-  const koala = trimToNull(env.KOALA_SESSION_ID);
+  const koala = trimToNull(env.LATTICE_SESSION_ID);
   if (koala !== null) return { sessionId: koala, sessionSource: 'koala-env' };
 
   const claude = trimToNull(env.CLAUDE_CODE_SESSION_ID);
@@ -249,7 +249,7 @@ export function getSessionIdentity(): SessionIdentity {
   if (cachedSessionIdentity !== null) return cachedSessionIdentity;
   cachedSessionIdentity = resolveSessionIdentity(
     {
-      KOALA_SESSION_ID: process.env.KOALA_SESSION_ID,
+      LATTICE_SESSION_ID: process.env.LATTICE_SESSION_ID,
       CLAUDE_CODE_SESSION_ID: process.env.CLAUDE_CODE_SESSION_ID,
     },
     { hostname: hostname(), root: resolveSessionRoot(), ppid: process.ppid },

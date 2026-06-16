@@ -70,10 +70,10 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   if (branch.ok) event.branch = branch.output;
   const user = gitProbe('git config user.name');
   if (user.ok) event.user = user.output;
-  event.sessionId = process.env.KOALA_SESSION_ID
+  event.sessionId = process.env.LATTICE_SESSION_ID
     || process.env.CLAUDE_SESSION_ID
     || undefined;
-  event.agent = process.env.KOALA_AGENT || 'main';
+  event.agent = process.env.LATTICE_AGENT || 'main';
   return event;
 }
 

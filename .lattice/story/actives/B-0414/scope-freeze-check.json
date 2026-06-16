@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0414",
+  "checkedAt": "2026-06-16T00:52:07.066Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "259314621c4d801ac2267096de8cfc467b2297edf0b434e0ce8aa9de0983b077",
+  "executionBoundaryHash": "6a478d0747958bf588c591d36955954427a547be9b23e946f04ae7b7aa99518e",
+  "freshnessHash": "d583825b71b5abda369d9ef032e01f509ec45400c9a378bdb122a43d1545d579",
+  "effectiveExcludedKeywords": [
+    "Do not change Lattice authority, receipt, workflow, or CLI runtime behavior",
+    "Do not edit docs/story/** or tests/fixtures/** directly",
+    "Do not implement the web console or data adapter in this story",
+    "Do not move or rewrite the external HTML prototype"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change Lattice authority, receipt, workflow, or CLI runtime behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change Lattice authority, receipt, workflow, or CLI runtime behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not edit docs/story/** or tests/fixtures/** directly",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not edit docs/story/** or tests/fixtures/** directly",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement the web console or data adapter in this story",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement the web console or data adapter in this story",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not move or rewrite the external HTML prototype",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not move or rewrite the external HTML prototype",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "dc010b460e1ddc7c8cf928543ad76b7f73536f082df4b803ba83a16a819589f1"
+}

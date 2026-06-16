@@ -978,8 +978,8 @@ try {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
 
-  const previousPackagedRuntime = process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
-  process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
+  const previousPackagedRuntime = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
+  process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
   const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-conflict-'));
   try {
     mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
@@ -999,12 +999,12 @@ try {
     assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale koala local bins');
   } finally {
     rmSync(packagedConflictRoot, { recursive: true, force: true });
-    if (previousPackagedRuntime === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
-    else process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntime;
+    if (previousPackagedRuntime === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntime;
   }
 
-  const previousPackagedRuntimeClean = process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
-  process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
+  const previousPackagedRuntimeClean = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
+  process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
   const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-clean-'));
   try {
     const packagedCli = join(packagedCleanRoot, 'packaged-koala');
@@ -1020,8 +1020,8 @@ try {
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
   } finally {
     rmSync(packagedCleanRoot, { recursive: true, force: true });
-    if (previousPackagedRuntimeClean === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
-    else process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntimeClean;
+    if (previousPackagedRuntimeClean === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntimeClean;
   }
 
   const checkRoot = mkdtempSync(join(tmpdir(), 'koala-check-runtime-surface-'));

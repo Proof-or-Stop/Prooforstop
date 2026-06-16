@@ -1,0 +1,11 @@
+## Trigger Event
+2026-06-16: While driving story B-3990 (a small verifier.ts fix) through INIT_CHECK during a period of very high concurrent main churn (a per-bug session fleet plus several DONE merges), the INIT_CHECK reconcile left git conflict markers in .lattice/story/actives/B-3990/index.json. git status showed an AA (both-added) unmerged entry with no MERGE_HEAD, and every lattice command failed with 'Expected double-quoted property name in JSON ... line 7'. Manual repair (git show main:index.json into the worktree, git add) unblocked it.
+
+## Key Insights
+The culprit is commitInitCheckMetadataAndMergeMain in packages/main/src/cli-engine.ts: it commits INIT_CHECK metadata on main, then runs git merge of the base branch into the story worktree. If main moved (another session committed) between the metadata commit and the merge, or the story-branch and main both touched index.json's phase line, the merge conflicts. Story metadata is machine-generated; the post-advance state is authoritative, so a conflict should be auto-resolvable or a clean abort. The main-write-lock (B-f60c) is meant to serialize main writes; this path may not be fully under it. B-804c (Bug 2, DONE) reworked INIT_CHECK atomicity in cli-engine.ts but a grep of its diff shows it did not touch this reconcile-merge conflict handling.
+
+## Solution Tradeoffs
+Option A: make the reconcile merge conflict-safe for metadata — on a conflicted merge of story metadata, resolve deterministically in favor of the post-advance state (or use a metadata merge strategy), so markers are never committed. Option B: detect a conflicted/failed merge and abort cleanly (reset the merge) + emit a recovery command (story_reconcile / done_recover), never leaving markers. Option C: ensure the whole reconcile (metadata commit + merge) runs under the main-write-lock so concurrent main commits cannot race it. A and B are user-facing safety; C addresses the race root cause. Likely A or B plus C.
+
+## Conversational Texture
+Surfaced as a real incident during the B-3990 DONE drive in this session; the user asked to open a dedicated story to harden the reconcile. The fix should include a reproduction (drive INIT_CHECK reconcile against a divergent main and assert no markers are committed) before the fix, per the debugging contract.

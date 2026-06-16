@@ -1,0 +1,34 @@
+{
+  "task": "Implement the LLM usage ledger writer FOUNDATION (Slice 1) in packages/main/src per docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md: record types + schema validator, append-only hash-chained writer to .lattice/usage/llm-usage.jsonl, correlation-id generation, raw-content/secret rejection, runtime-artifact registration, opt-in flag (default OFF), informational summary reader, and a wired smoke test. No provider wiring, no estimate path, no budget enforcement, no Authority — deferred to later slices.",
+  "outcome": "Running the new smoke (npm --prefix packages/main run test:usage-ledger, or via the suite) prints all-green: the validator accepts a valid four-field record and REJECTS a record that stores totalTokens, carries raw prompt/transcript/secret/API-key/auth-header, or is malformed; the append-only writer creates .lattice/usage/llm-usage.jsonl and chains previousRecordHash->recordHash across multiple appends (chain verifies); correlation ids stay stable across an attempt's records with a monotonic sequence and working supersedesRecordIds; with the opt-in flag OFF the writer is a no-op and NO file is created; the ledger path classifies as gitignored + materialHash=exclude + volatile + repairableTrackedArtifact; and the summary reader derives total = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens, selects the latest non-superseded record per ledgerCallId+attemptId (never double-counting superseded estimates), and reports unavailable/null as unknown (never 0). `npm --prefix packages/main run build` is clean.",
+  "facts": [
+    "Greenfield: no usage-ledger code exists under packages/main/src",
+    "packages/main/src/core/runtime-artifact-registry.ts exists and is where the ledger path must be registered (id, matchers, ignorePatterns, materialHash, volatile, repairableTrackedArtifact)",
+    "The spec (B-4bf8-corrected) defines the JSON Ledger Record Shape, Required record constraints, Call/Attempt Correlation, Runtime Artifact Classification, and Privacy Constraints",
+    "Four-field cache-aware usage (inputTokens uncached-remainder, outputTokens, cacheCreationInputTokens, cacheReadInputTokens); NO stored totalTokens; per-dimension absence = null (never 0, never via usage.source)",
+    "usage.source discriminator = provider-reported | prompt-size-estimate | unavailable; authority.mode=local / receiptVerified=false for local records"
+  ],
+  "constraints": [
+    "Opt-in / inert by default: writer is a no-op unless the opt-in flag is set",
+    "Single writer choke-point: exactly one exported append path (structural — later slices wire through it)",
+    "Reuse the existing runtime-artifact-registry; classify the ledger path materialHash=exclude/volatile/repairable so it never pollutes evidence or gate hashes",
+    "Summary is informational ONLY — must not feed any gate",
+    "Code only under packages/main/src + its tests; no provider/estimate/budget/authority wiring",
+    "Record shape must match the spec exactly; validator rejects stored totalTokens and raw-content"
+  ],
+  "unknowns": [
+    "Exact runtime-artifact-registry entry shape/array to append to (confirm by reading the file)",
+    "How the opt-in flag is best expressed (env var vs config) consistent with existing Lattice flag conventions",
+    "Where existing *-smoke.ts tests live + how they wire into package.json (follow the existing pattern)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/core/usage-ledger/ids.ts",
+    "packages/main/src/core/usage-ledger/summary.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/usage-ledger-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-16T01:05:03.713Z"
+}

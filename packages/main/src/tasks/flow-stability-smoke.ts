@@ -1720,7 +1720,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /DONE pre-check still has/);
     // B-4b22: lattice_metadata_changes is a passing category, so the git-working-tree
     // row now reports PASS with "pass: blocking=0 ...; passed=N (lattice_metadata_changes=N)".
-    // The KOALA_WRITE side-effect hint only appears when the row fails, so it is
+    // The LATTICE_WRITE side-effect hint only appears when the row fails, so it is
     // no longer asserted here. session_brief still surfaces "Working tree dirty
     // (N files)" because dirt exists even when policy allows it.
     assert.match(testBrief, /\[PASS\] git working tree/);
@@ -2196,7 +2196,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.match(byId.get('git-working-tree')?.hint ?? '', /fixture_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /unexpected_dirty_files/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
-    assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|KOALA_WRITE/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|LATTICE_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=lattice-review-delivery/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /main agent must not self-sign/);
@@ -2499,8 +2499,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   // health noise.
   {
     const root = mkdtempSync(join(tmpdir(), 'lattice-auto-commit-nongit-'));
-    const previousHealthPath = process.env.KOALA_HEALTH_PATH;
-    process.env.KOALA_HEALTH_PATH = join(root, 'health.jsonl');
+    const previousHealthPath = process.env.LATTICE_HEALTH_PATH;
+    process.env.LATTICE_HEALTH_PATH = join(root, 'health.jsonl');
     try {
       writeFakeMetadata(root, 'B-test1');
       const out = autoCommitStoryMetadata(root, 'B-test1', 'artifact_declare');
@@ -2511,8 +2511,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
         'non-git roots must not produce mutation:storyMetadataCommit health issues',
       );
     } finally {
-      if (previousHealthPath === undefined) delete process.env.KOALA_HEALTH_PATH;
-      else process.env.KOALA_HEALTH_PATH = previousHealthPath;
+      if (previousHealthPath === undefined) delete process.env.LATTICE_HEALTH_PATH;
+      else process.env.LATTICE_HEALTH_PATH = previousHealthPath;
       rmSync(root, { recursive: true, force: true });
     }
   }
@@ -2521,8 +2521,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   // failures remain health-reportable mutation failures.
   {
     const { root, storyId } = setupAutoCommitFixture();
-    const previousHealthPath = process.env.KOALA_HEALTH_PATH;
-    process.env.KOALA_HEALTH_PATH = join(root, 'health.jsonl');
+    const previousHealthPath = process.env.LATTICE_HEALTH_PATH;
+    process.env.LATTICE_HEALTH_PATH = join(root, 'health.jsonl');
     try {
       gitCheckoutNewBranch(root, `story/${storyId}`);
       writeFakeMetadata(root, storyId);
@@ -2536,8 +2536,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       assert.equal(issues[0].context.projectRoot, root);
     } finally {
       rmSync(join(root, '.git', 'index.lock'), { force: true });
-      if (previousHealthPath === undefined) delete process.env.KOALA_HEALTH_PATH;
-      else process.env.KOALA_HEALTH_PATH = previousHealthPath;
+      if (previousHealthPath === undefined) delete process.env.LATTICE_HEALTH_PATH;
+      else process.env.LATTICE_HEALTH_PATH = previousHealthPath;
       rmSync(root, { recursive: true, force: true });
     }
   }

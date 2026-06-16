@@ -4,7 +4,7 @@
  * Receive command → execute → return result
  */
 
-const WS_PORT = (window as any).__KOALA_WS_PORT || 9876;
+const WS_PORT = (window as any).__LATTICE_WS_PORT || 9876;
 const WS_URL = `ws://${location.hostname}:${WS_PORT}`;
 
 let ws: WebSocket | null = null;

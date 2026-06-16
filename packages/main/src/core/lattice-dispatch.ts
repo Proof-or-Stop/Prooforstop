@@ -446,7 +446,7 @@ function detectCommandPath(command: string): string | null {
 }
 
 function currentCodexSessionAvailable(): boolean {
-  return process.env.KOALA_ACTIVITY_SOURCE === 'codex'
+  return process.env.LATTICE_ACTIVITY_SOURCE === 'codex'
     || typeof process.env.CODEX_SESSION_ID === 'string'
     || typeof process.env.CODEX_HOME === 'string';
 }

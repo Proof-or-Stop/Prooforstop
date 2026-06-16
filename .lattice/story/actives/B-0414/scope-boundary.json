@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0414",
+  "mode": "maintenance",
+  "allowed": [
+    "Create docs/requirements/decisions/lattice-console-demo-mvp-requirements.md as a detailed recommendation document",
+    "Optionally update docs/requirements/NAV.md to link the new document",
+    "Use /Users/jek/Documents/lattice-console-demo.html only as read-only prototype context",
+    "Use docs/requirements/decisions/host-neutral-observability-console.md as the existing source-of-truth anchor"
+  ],
+  "excluded": [
+    "Do not change Lattice authority, receipt, workflow, or CLI runtime behavior",
+    "Do not edit docs/story/** or tests/fixtures/** directly",
+    "Do not implement the web console or data adapter in this story",
+    "Do not move or rewrite the external HTML prototype"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked on 2026-06-16 to open a story and provide a detailed requirements recommendation document for the Lattice console demo.",
+  "createdAt": "2026-06-16T00:49:01.721Z",
+  "updatedAt": "2026-06-16T00:49:01.721Z",
+  "_hash": "259314621c4d801ac2267096de8cfc467b2297edf0b434e0ce8aa9de0983b077"
+}

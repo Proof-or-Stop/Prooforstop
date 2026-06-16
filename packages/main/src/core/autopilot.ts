@@ -521,7 +521,7 @@ export function buildAutopilotStatus(
     localAvailable: true,
     modes: AUTOPILOT_MODES,
     defaultMode: 'local',
-    authorityModeEnv: env.LATTICE_AUTHORITY_MODE || env.KOALA_AUTHORITY_MODE || 'off',
+    authorityModeEnv: env.LATTICE_AUTHORITY_MODE || 'off',
     authorityReady: authority.readinessWarnings.length === 0 && authority.authorityUrlConfigured && authority.actorKeyConfigured && authority.runnerConfigured,
     localWorkflowUsable: true,
     localReviewCertified: false,

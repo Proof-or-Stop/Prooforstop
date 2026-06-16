@@ -4,7 +4,7 @@
   "title": "Make INIT git-readiness guidance gitRoot-aware and run the dev_start nesting-check in the resolved gitRoot",
   "description": "A residual of the gitRoot-resolution defect class (Bug 1 / B-2856), distinct from B-1637 (which owns lattice doctor). On a wrapper-root project (metadataRoot is not a git repo, configured gitRoot resolves), two guidance/cosmetic issues mislead users even though the INIT_CHECK bootstrap itself already works (verified by reproduction): (1) session.ts next-step and non-git advisories use gitReady = isGitRepository(ctx.root), which only inspects the metadataRoot, so they tell the user to git init the metadata root when a valid gitRoot is configured (session.ts around lines 549, 554, 694, 889, 921); (2) the dev_start nesting check in worktree.ts around line 795 runs git rev-parse in process.cwd() (the metadataRoot), emitting a swallowed-but-alarming fatal: not a git repository on wrapper-root projects. Fix: make the git-readiness guidance gitRoot-aware (reuse the configuredGitRootStatus / signed-workspace resolution already present at session.ts around line 918) so it stops telling configured-gitRoot users to git init the metadata root, and run or guard the nesting check in the resolved gitRoot so no spurious fatal line is printed. Scope is guidance text plus the nesting-check cwd only. Do NOT touch: lattice doctor probes (B-1637 owns that), bootstrap behavior, gate pass/fail semantics, git command text, or the already-fixed sites (B-2856 concept/cluster-sync/channel/verifier/worktree ops, B-3990 bare CLI gate).",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -15,7 +15,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-16T00:21:18.334Z",
   "startedAt": "2026-06-16T00:21:18.334Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T01:02:32.546Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:26:26.319Z",
+      "branch": "story/B-e791",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:30:40.432Z",
+      "branch": "story/B-e791",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:38:44.682Z",
+      "branch": "story/B-e791",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:41:12.653Z",
+      "branch": "story/B-e791",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:46:13.454Z",
+      "branch": "story/B-e791",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:48:17.098Z",
+      "branch": "story/B-e791",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:02:32.546Z",
+      "branch": "story/B-e791",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-e791",
-    "branch": "story/B-e791",
-    "createdAt": "2026-06-16T00:24:47.700Z"
-  }
+  "currentReviewRound": "2026-06-16T00:46:13.454Z"
 }

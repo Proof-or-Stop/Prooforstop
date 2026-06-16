@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce: a test that drives the INIT_CHECK reconcile against a divergent main and asserts no conflict markers are committed into index.json",
+      "context": "Set up a story-branch index.json (phase INIT) and a main index.json (phase INIT_CHECK) that conflict, run the reconcile merge path, and assert the committed index.json parses as JSON with no <<<<<<< / ======= / >>>>>>> markers. Function/integration level. This is the failing repro per the debugging contract.",
+      "userSees": "A new test fails before the fix (markers committed) and passes after (clean post-advance index.json), and lattice validate stays green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the reconcile merge conflict-safe: deterministic metadata resolution or clean abort + recovery, never commit markers",
+      "context": "In commitInitCheckMetadataAndMergeMain (cli-engine.ts): on a conflicted merge of machine-generated story metadata, either resolve deterministically (post-advance/main wins for index.json) or detect the conflict, abort the merge (git merge --abort / reset), and surface a clear recovery command. Do not leave or commit conflict markers.",
+      "userSees": "If a reconcile conflict occurs, the story metadata stays parseable (CLI keeps working) or the user gets an explicit recovery instruction instead of a silent JSON-parse crash on every command.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run the reconcile metadata commit + merge under the main-write-lock so concurrent main commits cannot race it",
+      "context": "Verify whether commitInitCheckMetadataAndMergeMain holds the main-write-lock (core/main-write-lock.ts, B-f60c) across BOTH the main metadata commit and the merge-into-story step. If not, bring the merge under the same lock so another session cannot move main mid-reconcile.",
+      "userSees": "Concurrent story_advance INIT_CHECK from multiple sessions no longer corrupts metadata; the lock serializes the reconcile.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

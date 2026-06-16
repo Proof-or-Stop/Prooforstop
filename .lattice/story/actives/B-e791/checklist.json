@@ -5,27 +5,201 @@
       "title": "Make session.ts git-readiness guidance gitRoot-aware (stop telling configured-gitRoot users to git init the metadata root)",
       "context": "gitReady = isGitRepository(ctx.root) only checks metadataRoot. When a configured gitRoot resolves (configuredGitRootStatus / signed-workspace, already available around session.ts:918), the INIT and INIT_CHECK next-step strings (around 549, 554) and the non-git advisories (around 694, 889, 921) must NOT instruct git init the metadata root; they should guide the user to proceed to INIT_CHECK. Reuse the existing resolution; do not add a second resolver. Plain non-git projects with no configured gitRoot keep the existing message.",
       "userSees": "On a wrapper-root project (configured gitRoot resolves), lattice session_brief / next no longer say the current project is not a git repository, run git init; instead they say the story is ready for INIT_CHECK.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T00:33:33.911Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root with a configured+resolvable gitRoot: guidance says ready for INIT_CHECK, not git init the metadata root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plain non-git project with no configured gitRoot: keeps the existing git-init guidance (byte-identical)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "configured gitRoot present but unresolvable: safe fallback, no crash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "computeNextStep INIT/INIT_CHECK gitReady=false+gitRoot resolved -> points to INIT_CHECK, no git init",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "plain no-gitRoot -> git-init message byte-identical (full-string equality)",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "gitReady=true cross-check matches the wrapper-root-resolved guidance; no crash on flag combos",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Run or guard the dev_start nesting check in the resolved gitRoot so wrapper-root prints no spurious fatal: not a git repository",
       "context": "worktree.ts around line 795 runs git rev-parse --abbrev-ref HEAD in process.cwd() (metadataRoot). Run it in the resolved gitRoot (resolveBootstrapGitRoot result) or skip cleanly when the metadataRoot is not a git repo, so the swallowed-but-printed fatal line disappears. Behavior (the nesting rejection) must be unchanged for real in-worktree cases; only the spurious stderr on wrapper-root is removed.",
       "userSees": "lattice story_advance INIT_CHECK on a wrapper-root project no longer prints a fatal: not a git repository line; the worktree is still created and nesting is still rejected when actually inside a worktree.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T00:33:36.930Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root INIT_CHECK: nesting check emits no fatal: not a git repository",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plain repo: nesting check behavior unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "actually inside a worktree-* branch: nesting is still rejected",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "wrapper-root non-git cwd: fatal captured in pipe, not leaked; leak-control proves pre-fix default leaks",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "ordinary main branch: not rejected (negative control), behavior unchanged",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.019Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "real worktree-* checked-out branch: nesting rejection preserved",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Tests: wrapper-root fixture asserts gitRoot-aware guidance + no spurious fatal line; plain repo unchanged",
       "context": "Function-level tests: (a) the guidance helper returns the INIT_CHECK-ready message (not git init) when a gitRoot is configured + resolves, and keeps the git-init message for a plain non-git project with no gitRoot; (b) the nesting check produces no fatal: not a git repository for a wrapper-root metadataRoot. Do not shell to the global lattice binary.",
       "userSees": "lattice validate green with new tests covering the wrapper-root guidance + nesting-check-quiet behavior and the plain-repo unchanged case.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T00:38:00.498Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "tests assert gitRoot-aware guidance on a wrapper-root fixture",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tests assert plain no-gitRoot keeps git-init guidance + nesting unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "tests assert real nesting still rejected + no spurious fatal on wrapper-root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts gitRoot-aware guidance on the wrapper-root case",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts plain no-gitRoot keeps git-init + nesting unchanged",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts",
+          "command": "npm run test:gitroot-init-guidance-quiet-nesting",
+          "result": "pass",
+          "note": "smoke asserts real nesting still rejected + no spurious fatal on wrapper-root (7/7 checks)",
+          "headHash": "1ef1fa53a4558b64b3401d3addf64626276ced6c",
+          "materialHash": "7f291a2efd236c3dbec6cbe2d75dd1135b3a770121fc75cc1fec9ea1536a79b1",
+          "timestamp": "2026-06-16T01:02:26.020Z"
+        }
+      ]
     }
   ]
 }

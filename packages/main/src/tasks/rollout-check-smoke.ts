@@ -22,7 +22,7 @@ const repoRoot = join(here, '..', '..', '..', '..');
 function runCli(args: string[]): string {
   return execFileSync(process.execPath, [cliPath, '--root', repoRoot, ...args], {
     cwd: repoRoot,
-    env: { ...process.env, KOALA_ACTIVITY_RECORD_READONLY: '0' },
+    env: { ...process.env, LATTICE_ACTIVITY_RECORD_READONLY: '0' },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -35,7 +35,7 @@ function runJson(args: string[]): RolloutCheckResult {
 function runCliFailure(args: string[]): { status: number | null; stderr: string; stdout: string } {
   const result = spawnSync(process.execPath, [cliPath, '--root', repoRoot, ...args], {
     cwd: repoRoot,
-    env: { ...process.env, KOALA_ACTIVITY_RECORD_READONLY: '0' },
+    env: { ...process.env, LATTICE_ACTIVITY_RECORD_READONLY: '0' },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });

@@ -60,9 +60,8 @@ export function readAuthorityEnv(
   env: Record<string, string | undefined>,
   name: 'MODE' | 'URL' | 'TIMEOUT_MS',
 ): string | undefined {
-  const lattice = env[`LATTICE_AUTHORITY_${name}`];
-  if (typeof lattice === 'string') return lattice;
-  return env[`KOALA_AUTHORITY_${name}`];
+  const value = env[`LATTICE_AUTHORITY_${name}`];
+  return typeof value === 'string' ? value : undefined;
 }
 
 /**
@@ -358,9 +357,7 @@ export function parseAuthorityTrustEnv(
 
 function trustEnvValue(env: Record<string, string | undefined>, suffix: string): string | undefined {
   const canonical = env[`LATTICE_AUTHORITY_${suffix}`];
-  if (typeof canonical === 'string' && canonical.trim().length > 0) return canonical.trim();
-  const legacy = env[`KOALA_AUTHORITY_${suffix}`];
-  return typeof legacy === 'string' && legacy.trim().length > 0 ? legacy.trim() : undefined;
+  return typeof canonical === 'string' && canonical.trim().length > 0 ? canonical.trim() : undefined;
 }
 
 /**
@@ -388,15 +385,13 @@ export function normalizeAuthorityTrustEnv(
   return out;
 }
 
-/** Read an arbitrary LATTICE_AUTHORITY_<suffix> env var with KOALA_ legacy fallback. */
+/** Read an arbitrary LATTICE_AUTHORITY_<suffix> env var. */
 function authorityEnvBySuffix(
   env: Record<string, string | undefined>,
   suffix: string,
 ): string | undefined {
   const lattice = env[`LATTICE_AUTHORITY_${suffix}`];
-  if (typeof lattice === 'string' && lattice.trim().length > 0) return lattice.trim();
-  const legacy = env[`KOALA_AUTHORITY_${suffix}`];
-  return typeof legacy === 'string' && legacy.trim().length > 0 ? legacy.trim() : undefined;
+  return typeof lattice === 'string' && lattice.trim().length > 0 ? lattice.trim() : undefined;
 }
 
 export interface ResolveAuthorityConfigInput {

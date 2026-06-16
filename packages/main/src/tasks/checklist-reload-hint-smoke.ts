@@ -57,11 +57,11 @@ const background = [
   'A maintainer sees the conclusion on stdout and a separate reload reminder on stderr after each checklist_update.',
 ].join('\n\n');
 
-// Pin KOALA_SESSION_ID so all child processes — including the bash -c pipeline
+// Pin LATTICE_SESSION_ID so all child processes — including the bash -c pipeline
 // in Test 3 — share one stable session and don't trip the owner-lease gate via
 // a different ppid-derived id.
-const origSessionId = process.env.KOALA_SESSION_ID;
-process.env.KOALA_SESSION_ID = 'smoke-reload-hint';
+const origSessionId = process.env.LATTICE_SESSION_ID;
+process.env.LATTICE_SESSION_ID = 'smoke-reload-hint';
 
 const root = mkdtempSync(join(tmpdir(), 'koala-reload-hint-'));
 try {
@@ -138,9 +138,9 @@ try {
 } finally {
   rmSync(root, { recursive: true, force: true });
   if (origSessionId === undefined) {
-    delete process.env.KOALA_SESSION_ID;
+    delete process.env.LATTICE_SESSION_ID;
   } else {
-    process.env.KOALA_SESSION_ID = origSessionId;
+    process.env.LATTICE_SESSION_ID = origSessionId;
   }
 }
 

@@ -61,7 +61,7 @@ function runKoalaFromCwd(
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
   for (const key of Object.keys(env)) {
-    if (key.startsWith('LATTICE_AUTHORITY_') || key.startsWith('KOALA_AUTHORITY_')) {
+    if (key.startsWith('LATTICE_AUTHORITY_')) {
       delete env[key];
     }
   }

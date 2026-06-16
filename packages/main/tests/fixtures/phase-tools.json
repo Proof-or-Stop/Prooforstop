@@ -285,7 +285,7 @@
       "run_type": "cli",
       "fn": "task_scan",
       "file": "mcp/handlers/task",
-      "execute": "const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const env=Object.assign({},process.env,{KOALA_PHASE:\"TEST\"});const out=execSync(\"koala help\",{cwd:$root,encoding:\"utf-8\",timeout:30000,env:env});return out.includes(\"story_create\")&&out.includes(\"bug_report\")&&!out.includes(\"当前 Story\")",
+      "execute": "const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const env=Object.assign({},process.env,{LATTICE_PHASE:\"TEST\"});const out=execSync(\"koala help\",{cwd:$root,encoding:\"utf-8\",timeout:30000,env:env});return out.includes(\"story_create\")&&out.includes(\"bug_report\")&&!out.includes(\"当前 Story\")",
       "expect": true,
       "intentRef": "CHK-003:adversarial:2",
       "sandbox": false

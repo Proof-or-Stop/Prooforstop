@@ -477,7 +477,7 @@ export async function runFlowE2E(flowName: string, scanRoot: string): Promise<Fl
 
   // projectRoot is intentionally isolated: flow e2e must not write story
   // artifacts or worktree metadata into the developer's real checkout.
-  const projectRoot = process.env.KOALA_E2E_PROJECT_ROOT;
+  const projectRoot = process.env.LATTICE_E2E_PROJECT_ROOT;
   const sandbox = await createSandbox(projectRoot);
   const steps: FlowE2EStepResult[] = [];
   const context: Record<string, unknown> = {};

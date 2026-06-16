@@ -402,16 +402,16 @@ withTempContext('INIT reviewers cannot mutate checklist definitions directly', (
 withTempContext('INIT reviewers cannot mutate story-level scope fields directly', (root, store) => {
   seedStory(store);
   const handlers = createStoryQueryHandlers({ root, store, scanRoot: join(root, 'packages/main') });
-  const previousAgent = process.env.KOALA_AGENT;
-  process.env.KOALA_AGENT = 'lattice-review-story-init';
+  const previousAgent = process.env.LATTICE_AGENT;
+  process.env.LATTICE_AGENT = 'lattice-review-story-init';
   try {
     assert.throws(() => handlers.story_update({
       storyId: STORY_ID,
       title: 'Reviewer tries to add future capability',
     }), /init_reviewer_story_scope_mutation_blocked/);
   } finally {
-    if (previousAgent === undefined) delete process.env.KOALA_AGENT;
-    else process.env.KOALA_AGENT = previousAgent;
+    if (previousAgent === undefined) delete process.env.LATTICE_AGENT;
+    else process.env.LATTICE_AGENT = previousAgent;
   }
   assert.throws(() => handlers.story_update({
     storyId: STORY_ID,

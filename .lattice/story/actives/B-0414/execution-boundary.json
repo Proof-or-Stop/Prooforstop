@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0414",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node bin/lattice.js aux_doc_list",
+    "node bin/lattice.js session_brief",
+    "node bin/lattice.js story_create",
+    "node bin/lattice.js validate",
+    "npm test",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/host-neutral-observability-console.md",
+    "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    ".worktrees",
+    "docs/story",
+    "packages/main/dist",
+    "packages/main/src",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Document-only story; implementation and runtime behavior are out of scope.",
+  "createdAt": "2026-06-16T00:49:01.721Z",
+  "updatedAt": "2026-06-16T00:49:01.721Z",
+  "_hash": "6a478d0747958bf588c591d36955954427a547be9b23e946f04ae7b7aa99518e"
+}

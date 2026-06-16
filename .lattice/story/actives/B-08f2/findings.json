@@ -1,0 +1,117 @@
+{
+  "findings": [
+    {
+      "id": "B-08f2:F-001",
+      "desc": "doc-code-drift: deletion of docs/koala/legacy/root-markdown/ (12 files) in this diff leaves dangling path references in 4 decision docs that were not updated: docs/requirements/decisions/root-document-migration-guide.md (lines 112,117), docs/requirements/decisions/root-markdown-migration-execution-solution.md (lines 32,42,43,136), docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md (lines 49,103), docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md (line 279). These docs reference docs/koala/legacy/root-markdown/ paths that no longer exist on disk. The references are historical-lineage prose (not hyperlinks), but an operator following them will find a dead path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-16T00:20:01.870Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-003",
+      "_hash": "d9aa99e30371ef66e522d1754e1eab512ce52992c122fc380aa1ae77d8831d58",
+      "files": [
+        "docs/requirements/decisions/root-document-migration-guide.md",
+        "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md"
+      ],
+      "dismissReason": "Deferred to the later active-docs sweep story (program phase 4). F-001 is 4 historical-lineage prose references in docs/requirements/decisions/*.md pointing at the now-removed docs/koala/legacy/ archive. Fixing them requires editing decision docs, which trips the always-on 3x2 decision-doc quorum gate — disproportionate overhead for this env-var rename story. The references are non-hyperlink historical prose (medium, non-blocking); they will be corrected in bulk when the active-docs sweep handles decision docs through the proper 3x2 process.",
+      "dismissedAt": "2026-06-16T00:37:47.486Z"
+    },
+    {
+      "id": "B-08f2:F-002",
+      "desc": "dead-code: packages/main/src/core/dev-memory.ts:185 resolveLegacyGlobalMemoryPath() has always-false branch after rename — condition `override && !process.env.LATTICE_GLOBAL_MEMORY_DIR` can never be true because override IS process.env.LATTICE_GLOBAL_MEMORY_DIR; the override path is dead and function always falls through to default LEGACY_KOALA_DIR path, making LATTICE_GLOBAL_MEMORY_DIR override in legacy read path inert",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:27:42.524Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-005",
+      "_hash": "462d461c2c7502780857613f6c5c5e3f7e07f245b95ff115234bdc39dbde194c",
+      "files": [
+        "packages/main/src/core/dev-memory.ts"
+      ],
+      "resolvedAt": "2026-06-16T00:40:00.905Z"
+    },
+    {
+      "id": "B-08f2:F-003",
+      "desc": "dead-code: packages/main/src/core/config.ts:359 resolveProjectRoot() reads LATTICE_PROJECT_ROOT twice on consecutive lines — line 358 already returns if set, making line 359 unreachable dead code; same pattern in packages/main/src/core/dev-memory.ts:207 and packages/main/src/cli-engine.ts:2751 resolveRoot()",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:27:48.356Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-005",
+      "_hash": "4bd185b647cc05b5ab13a05dd2973caaad0c4fe9575b430420a9d773bfc2add5",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedAt": "2026-06-16T00:40:05.947Z"
+    },
+    {
+      "id": "B-08f2:F-004",
+      "desc": "dead-code: five fallback-chain functions collapsed to same-variable double-reads after KOALA_AUTHORITY_ -> LATTICE_AUTHORITY_ rename — authority-mode.ts:readAuthorityEnv (line 65), authority-mode.ts:trustEnvValue (line 362), authority-client.ts:authorityEnvValue (line 1053), authority-job-loop-live.ts:liveEnv (line 323), handlers/lattice-cli.ts:envValue (line 87) — in each case `legacy` is now same as `canonical`/`lattice`, so the legacy branch is unreachable dead code; behavior is correct but code is misleading",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:27:56.121Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-005",
+      "_hash": "ad39cfa6420893ff4bcaa5262ff80f48f37801560749b54f9888a351d459744e",
+      "files": [
+        "packages/main/src/core/authority-mode.ts",
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-job-loop-live.ts",
+        "packages/main/src/handlers/lattice-cli.ts"
+      ],
+      "resolvedAt": "2026-06-16T00:49:48.296Z"
+    },
+    {
+      "id": "B-08f2:F-005",
+      "desc": "doc-code-drift: CLAUDE.md line 77 still references KOALA_SESSION_BRIEF_FRESH_MINUTES but .claude/hooks/session-brief-reminder.cjs was renamed to LATTICE_SESSION_BRIEF_FRESH_MINUTES in this diff; docs/guide-hooks.md was updated correctly but CLAUDE.md was missed",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-16T00:40:27.292Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-011",
+      "_hash": "127a643aaf2dc1a53cbd4a2c50a05ea2661bd4caaad6c41da96c9d6719de1450",
+      "files": [
+        "CLAUDE.md",
+        ".claude/hooks/session-brief-reminder.cjs",
+        "docs/guide-hooks.md"
+      ],
+      "resolvedAt": "2026-06-16T00:48:38.201Z"
+    },
+    {
+      "id": "B-08f2:F-006",
+      "desc": "dead-code: packages/main/src/core/authority-mode.ts:65 readAuthorityEnv() still has a dead-code double-read introduced by the KOALA_AUTHORITY_->LATTICE_AUTHORITY_ rename — line 63 reads env[`LATTICE_AUTHORITY_${name}`] into lattice, line 64 returns it if string, and line 65 `return env[LATTICE_AUTHORITY_${name}]` is unreachable dead code (if lattice was undefined/non-string, re-reading the same key returns the same undefined). F-004 fix commit addressed trustEnvValue/authorityEnvValue/liveEnv/envValue (4 of 5 instances listed in F-004) but missed readAuthorityEnv. Fix: `return env[LATTICE_AUTHORITY_${name}]` directly, removing the unused lattice variable and dead fallback line.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:40:31.950Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-012",
+      "_hash": "fc35a806314a5ca9bf3ab7a5b10b1ad076cb142b1abbb73e31174093aacae7b4",
+      "files": [
+        "packages/main/src/core/authority-mode.ts"
+      ],
+      "resolvedAt": "2026-06-16T00:49:43.739Z"
+    }
+  ]
+}
