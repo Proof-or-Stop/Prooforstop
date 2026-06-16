@@ -211,8 +211,6 @@ export function resolveChangedFiles(deps: {
     // do NOT skip-all — return undefined so callers run full recursive tsc.
     return undefined;
   }
-  // Rebase AFTER the throw boundary. Only when gitCwd is set AND differs from
-  // projectRoot (wrapper-root); otherwise identity (plain repo, byte-identical).
   const lines = raw.split('\n');
   // Rebase AFTER the throw boundary. Only when gitCwd is set AND differs from
   // projectRoot (wrapper-root); otherwise identity (plain repo, byte-identical).
