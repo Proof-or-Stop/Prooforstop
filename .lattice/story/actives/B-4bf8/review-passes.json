@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T00:00:30.448Z",
       "reviewRunId": "B-4bf8:RR-006",
       "_hash": "91f501a4c8d6234d553498e4dacffbd84f3e7076caea392012f69a5d6ac7d8af"
+    },
+    {
+      "id": "B-4bf8:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs re-review: 0 symbols changed in diff for this lane (pure doc amendment). Compared 2 targeted paragraphs: (1) the JSON record-shape example and (2) the Required record constraints / per-dimension absence rule. Both round-1 findings are fixed — F-003: provider.name=anthropic + model=claude-opus-4-8 now match providerUnits=anthropic-usage-v1; F-004: authoritative per-dimension absence rule added at lines 414-426, null encoding specified (never 0), multi-provider and rollout sections cross-reference it, no stale usage.source-per-dimension language remains. No new inconsistencies found.",
+      "createdAt": "2026-06-16T00:09:16.612Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-005",
+      "_hash": "0a82d6769ac2325ff5eb8de5e928e3acce90fdd3aa30f55c32643509cd04258e"
     }
   ]
 }
