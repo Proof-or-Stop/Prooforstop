@@ -149,6 +149,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Structural assertion: with isUsageLedgerEnabled()=true, the dispatch seam calls recordDispatchPreflight before spawn AND calls recordDispatchFinal after spawn with the parsed anthropicUsage; spawn args include --output-format json (or equivalent structured-output flag); WHY: verifies the gated seam wiring is present in the enabled branch",
+            "type": "cli"
+          },
+          {
+            "desc": "Structural assertion: with isUsageLedgerEnabled()=true, parseClaudeCliOutput is called on stdout and its resultText is used as the downstream result text (not raw stdout); WHY: verifies result text flows through the parser when enabled",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Structural assertion: the seam derives storyId from record.storyId (not hardcoded); phase/agentType from dispatch context or documented constants; model from parsed JSON for the final and a best-effort default for the estimate; WHY: attribution must be contextually correct, not placeholder",
+            "type": "cli"
+          },
+          {
+            "desc": "Structural assertion: all ledger calls (recordDispatchPreflight, recordDispatchFinal, parseClaudeCliOutput) are wrapped in try/catch so dispatch never breaks from a ledger error; WHY: the seam must be fault-isolated from dispatch",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Structural assertion: with isUsageLedgerEnabled()=false (the disabled branch), spawn args are exactly ['--print', promptFile] (no --output-format json); stdout is used as-is (raw text, no parseClaudeCliOutput call); no recordDispatchPreflight or recordDispatchFinal calls; WHY: the byte-identical invariant for flag OFF - the disabled path must be EXACTLY the pre-change code",
+            "type": "cli"
+          },
+          {
+            "desc": "Simulated: with flag ON but Claude CLI returning plain text (not JSON) as stdout -> parseClaudeCliOutput returns {resultText: raw text, anthropicUsage: null}; seam uses raw text as result; recordDispatchFinal records unavailable (not throws); dispatch yields the raw text to caller; WHY: parse-failure fallback must preserve dispatch output and record unavailable",
+            "type": "cli"
+          },
+          {
+            "desc": "Structural assertion: dispatch-usage.ts is the ONLY import from usage-ledger in lattice-dispatch.ts (no direct import of writer/record/ids/summary); WHY: the one-way seam mandate requires a single thin import surface",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
