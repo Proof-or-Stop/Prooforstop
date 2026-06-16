@@ -219,6 +219,17 @@
           "headHash": "9d8ebbf18db93a962f69e74571ce4746edb3d09a",
           "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
           "timestamp": "2026-06-16T23:08:48.842Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 3 (scope) + Test 5 (real defaultGitLogReader parses git log main..HEAD with 0 notes, proving the %x1f/%x1e delimiter fix)",
+          "headHash": "7b5259ffcc32269eb005ca9c65000750e4b64cb5",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:49.291Z"
         }
       ]
     }
