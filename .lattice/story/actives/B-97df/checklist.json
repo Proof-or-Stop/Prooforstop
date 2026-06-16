@@ -296,9 +296,9 @@
       "id": "CHK-003",
       "title": "Read-only diagnostics report builder (feeds no gate)",
       "context": "Add a buildUsageReport(records, {priceTable?}) that assembles a structured report object: overall totals (by source), per-group breakdowns (story/model/role/...), counts (provider-reported/estimate/unavailable), unknown count, and optional cost when a price table is given. It MUST be read-only and feed NO gate (no gate/verdict/decision/blocker field; not imported by any handler/gate). Tested: report shape correct; no gate-consumable field; deterministic.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T14:55:10.118Z",
       "files": {
         "modify": [],
         "create": [
