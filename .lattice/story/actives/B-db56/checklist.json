@@ -340,6 +340,17 @@
           "headHash": "5d089c581bf2c8994632da004a2905bc50051f7e",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:40:10.729Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke handles boundary cases (empty allowlist, no hits) without crashing.",
+          "headHash": "141f0b288d86b6f37db950115838054e9496c089",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:11.657Z"
         }
       ]
     }
