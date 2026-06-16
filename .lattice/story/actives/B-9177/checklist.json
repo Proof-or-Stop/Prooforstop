@@ -109,6 +109,17 @@
           "headHash": "d17284b037d53d6849d1eaaef5adaac31482937f",
           "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
           "timestamp": "2026-06-16T04:24:54.464Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "npm --prefix packages/main run test:main-write-lock-smoke",
+          "result": "pass",
+          "note": "main-write-lock-smoke reentrancy cases green (no self-deadlock); lattice validate ALL PASS confirms DONE/draft/discard flows still complete with the reentrant lock",
+          "headHash": "e6cf4dc6896639927f03c386742f50e9a417bfae",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:54.863Z"
         }
       ]
     },
