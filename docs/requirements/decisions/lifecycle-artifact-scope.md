@@ -205,9 +205,11 @@ keeps one file per role, but that file is a **content-free shim**.
    body is **not** copied or symlinked into any host directory.
 
 2. **`lattice agent_prompt --role=<name>` is the shared content endpoint.** It
-   returns the canonical role body straight from `promptRegistryManifest()` (the
-   same registry the Codex manifest resolves). Claude shims fetch from it; Codex
-   resolves the same registry. There is one content source, byte-for-byte.
+   returns the canonical role body by reading the package registry template
+   (`templates/agents/<role>.md`) — the same template set the prompt registry
+   manifest (`promptRegistryManifest()`) is built from and that the Codex manifest
+   resolves against. Claude shims fetch from this command; Codex resolves the same
+   template set. There is one content source, byte-for-byte.
 
 3. **Shims live in global `~/.claude/agents`; projects get zero agent files.** The
    16 shims are generated once into the user-global `~/.claude/agents` so Claude

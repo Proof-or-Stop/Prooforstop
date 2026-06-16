@@ -618,10 +618,11 @@ template/adapter rewrites outside its declared scope.
   `subagent_type` + `tools` sandbox). So Claude keeps one file per role, but the
   file is a **content-free thin shim**: frontmatter (`name`/`description`/`tools`)
   plus a body that instructs the agent to run `lattice agent_prompt --role=<name>`.
-  The role **body** is never copied or symlinked onto disk; it is served from the
-  package registry by the new `lattice agent_prompt` command, which reads the same
-  `promptRegistryManifest()` the Codex manifest resolves (byte-for-byte one
-  source). `lattice init` writes zero project `.claude/agents` files; the 16 shims
+  The role **body** is never copied or symlinked onto disk; it is served by the
+  new `lattice agent_prompt` command, which reads the canonical registry template
+  (`templates/agents/<role>.md`) — the same template set the prompt registry
+  manifest (`promptRegistryManifest()`) is built from and that the Codex manifest
+  resolves against (byte-for-byte one source). `lattice init` writes zero project `.claude/agents` files; the 16 shims
   live once in global `~/.claude/agents`. Migration of pre-existing project-local
   managed files is explicit (`lattice init --upgrade` only; normal init merely
   WARNs), deletes only managed basenames, preserves user files. `lattice doctor`
