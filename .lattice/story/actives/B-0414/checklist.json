@@ -84,9 +84,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T01:01:33.618Z",
       "userSees": "User sees heading text \"Visual and Interaction Requirements\" plus sections \"Click Target Requirements\" and \"Product Logic Requirements for Clicks\" in the new document.",
       "files": {
         "modify": [
@@ -117,7 +117,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"^## 4. MVP Goals|^## 5. Non-goals|^## 6. Data Source Contract|^## 7. Required Console Pages|^## 9. Core User Flows|recovery command|authority boundary|^## 10. MVP Phasing|^## 11. Acceptance Criteria|^## 12. Verification Plan\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The document includes the required goals, non-goals, CLI data-source contract, pages, user flows, recovery and authority language, phasing, acceptance criteria, and verification plan.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.660Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"spacing|symmetry|minimal|restrained hierarchy|semantic color|Visual and Interaction Requirements|Aesthetic Rules|Layout Requirements\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "Section 8 requires aesthetic spacing, symmetry, minimalism, restrained hierarchy, semantic color, layout alignment, and visual QA.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.700Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"Click Target Requirements|Product Logic Requirements for Clicks|Every clickable element|meaningful detail|disabled-state explanation|product-logical action\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "Sections 8.3 and 8.4 require every clickable target to resolve and preserve Lattice product logic.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.734Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
