@@ -230,6 +230,17 @@
           "headHash": "259eb447634444c47bfc3088315ea308ffefacb4",
           "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
           "timestamp": "2026-06-16T00:15:30.987Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'process.env.KOALA_[A-Z]' -- bin .Codex .claude",
+          "result": "pass",
+          "note": "No KOALA_ setter/reader remains in wrapper assets (residual gate 0).",
+          "headHash": "86b11a2555bd3ec276e5f806df3f6029cb01779d",
+          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
+          "timestamp": "2026-06-16T00:15:31.593Z"
         }
       ]
     },
