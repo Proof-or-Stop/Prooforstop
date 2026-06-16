@@ -129,6 +129,17 @@
           "headHash": "c68cf89aa2a74f8de072abfff1e4a7c0e226310c",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:39:59.123Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'export function resolveGitCwd' packages/main/src/core/story-signed-workspace-resolution.ts",
+          "result": "pass",
+          "note": "Signature line at :195 unchanged.",
+          "headHash": "f106586c866e0829bf94c1141e1abcc39d61316d",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:39:59.842Z"
         }
       ]
     },
