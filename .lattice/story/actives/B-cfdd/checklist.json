@@ -39,7 +39,30 @@
       "userSees": "assessReviewConvergence returns stalled=false for a healthy decreasing series like [2,1,0] and stalled=true with an English advisory for a flat/rising series like [2,2,1] at round 4.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assessReviewConvergence returns stalled=true with an English advisory for a flat/rising series like [2,2,1] at round >= STALL_MIN_ROUNDS",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Returns stalled=false when roundCount is below STALL_MIN_ROUNDS regardless of counts",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Returns stalled=false for a healthy decreasing series like [2,1,0] — no false alarm on convergence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
