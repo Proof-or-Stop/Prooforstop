@@ -1,0 +1,48 @@
+{
+  "storyId": "B-ed70",
+  "name": "oss-naming-cleanup-lab-codex-omx",
+  "title": "OSS naming cleanup: lab description + .Codex rename + omx removal",
+  "description": "Pre-open-source naming cleanup, three coordinated items: (1) Fix the lab package description that still says 'koala 离线优化实验室' — change to lattice equivalent. (2) Rename the .Codex/ directory (project's own codex adapter assets, NOT the lowercase .codex/ which is Codex CLI's hard-required native hook dir) to .lattice-codex/ across all 32 referencing files; this resolves the case-insensitive filesystem collision risk on macOS. (3) Remove the OMX disable guard entirely — the user never wanted .omx polluting their workspace; delete the .gitignore entry, the verify-omx-disabled.mjs script, the AGENTS.md prohibition, and the source-code refusal logic that pretends omx is supported-but-disabled. Both items 2 and 3 touch decision documents, so this story will trip the always-on 3x2 decision-doc quorum gate (clearing it via the user-approved degraded 3x1 fallback per memory).",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "medium",
+  "keywords": [
+    "open-source-cleanup",
+    "koala-to-lattice",
+    "codex-adapter",
+    "omx-removal",
+    "case-insensitive-fs",
+    "ship-clean"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-16T20:31:59.582Z",
+  "startedAt": "2026-06-16T20:31:59.582Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T20:31:59.590Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive: the keyword token only appears as part of a cited audit-doc filename docs/audits/lattice-token-cost-and-takeover-audit.md in the .Codex reference list, not because this story modifies any security/credential/token logic. This is a pure naming cleanup (lab description rebrand + directory rename + omx guard removal); no security or credential code is changed.",
+      "at": "2026-06-16T20:32:11.068Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ed70",
+    "branch": "story/B-ed70",
+    "createdAt": "2026-06-16T20:35:22.730Z"
+  }
+}
