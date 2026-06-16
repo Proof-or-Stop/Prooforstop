@@ -4,7 +4,7 @@
   "title": "Thread resolved gitRoot into doctor --repair and lint change-scoping (combination-review stacking gaps)",
   "description": "The read-only combination review of the 5 parallel framework merges (B-2856/B-804c/B-854c/B-a749/B-1637), per docs/requirements/decisions/story-lifecycle.md, found two confirmed (adversarially verified) stacking gaps where the gitRoot resolution from B-2856/B-1637 was not propagated to two sibling git invocations added by parallel stories. (1) HIGH: doctor.ts repairStoryMetadataAllowlist (B-854c's --repair; def at doctor.ts:942, git rev-parse --show-toplevel with cwd:root at :945) is called with `root` (metadataRoot) at doctor.ts:166. B-1637 threaded gitProbeCwd into the three scan functions (lines 64/73/101) but NOT into the repair call. So on a wrapper-root project (metadataRoot != gitRoot, e.g. ClawCreek where gitRoot=clawcreek and the wrapper root is not a git repo), `lattice doctor --repair` returns 'fatal: not a git repository' and the data-loss-protection allowlist is never installed — the repair silently no-ops on exactly the layout that needs it. (2) MEDIUM: verifier.ts:630 and review-preflight.ts:334 call resolveChangedFiles({projectRoot}) without the resolved gitCwd that B-2856 threads into the channel/concept gates; in wrapper-root the change-scope `git diff` runs from the non-git metadataRoot, fails, and falls back to full recursive tsc (fails safe, but B-a749's change-scope optimization is silently disabled). Outcome: thread the already-resolved gitRoot into both sites (reusing resolveDoctorGitCwd / the B-2856 resolveGitCwd), falling back to root when no gitRoot resolves so plain repos are byte-identical, so doctor --repair works on wrapper-root and lint change-scoping is effective there. Two refuted false alarms (a bootstrap force-add inconsistency and a claimed B-804c INIT-phase regression based on an inverted merge order) are explicitly NOT in scope. Scope: doctor.ts repair cwd + verifier.ts/review-preflight.ts/validate-lint.ts change-scope cwd threading + wrapper-root regression tests.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "gitRoot",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-06-16T00:46:33.797Z",
   "startedAt": "2026-06-16T00:46:33.797Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T02:20:09.514Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,11 +41,66 @@
       "user": "Harmonygo",
       "sessionId": "lattice-combofix",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:51:30.652Z",
+      "branch": "story/B-0740",
+      "user": "Harmonygo",
+      "sessionId": "lattice-combofix",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:56:43.001Z",
+      "branch": "story/B-0740",
+      "user": "Harmonygo",
+      "sessionId": "lattice-combofix",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:16:26.552Z",
+      "branch": "story/B-0740",
+      "user": "Harmonygo",
+      "sessionId": "lattice-combofix",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:58:55.544Z",
+      "branch": "story/B-0740",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:58:56.058Z",
+      "branch": "story/B-0740",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:04:21.967Z",
+      "branch": "story/B-0740",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:20:09.514Z",
+      "branch": "story/B-0740",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-0740",
-    "branch": "story/B-0740",
-    "createdAt": "2026-06-16T00:49:21.672Z"
-  }
+  "currentReviewRound": "2026-06-16T01:58:56.058Z"
 }

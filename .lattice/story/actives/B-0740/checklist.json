@@ -5,18 +5,134 @@
       "title": "Thread resolved gitRoot into doctor --repair (repairStoryMetadataAllowlist)",
       "context": "doctor.ts:166 calls repairStoryMetadataAllowlist(root); its git rev-parse --show-toplevel (doctor.ts:945) uses cwd:root (metadataRoot). Add a gitCwd parameter (mirroring the three scan functions that already take gitProbeCwd) and pass the gitProbeCwd resolved at doctor.ts:63 (resolveDoctorGitCwd) at the line 166 call site, so the repair installs the managed allowlist on wrapper-root projects. Fall back to root when no gitRoot resolves. Add a wrapper-root --repair regression test.",
       "userSees": "`lattice doctor --repair` on a wrapper-root project (metadataRoot != gitRoot) installs the metadata-protection allowlist and the re-scan reports clear, instead of returning 'fatal: not a git repository' / wrote:false and changing nothing.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T01:06:11.256Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doctor --repair on a wrapper-root fixture (metadataRoot != gitRoot) installs the managed allowlist: wrote:true on first run, and the metadata-protection re-scan reports clear",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "second --repair run on the same wrapper-root fixture is a no-op (wrote:false, allowlist already present)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "plain repo (gitCwd defaults to root) --repair behavior is byte-identical to today: wrote-then-noop, no fatal line",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "WRAPPER-ROOT --repair installs allowlist (repairWrote:true, repairError:null, no leading fatal) → re-scan safe; gitRoot/.gitignore gets the managed !.lattice/story/actives/** allowlist. Real-machine doctor --repair on a /tmp wrapper-root fixture confirmed repairWrote:true RUN1.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "WRAPPER-ROOT second --repair is a no-op (repairWrote:false, repairError:null, gitRoot/.gitignore byte-for-byte unchanged). Real-machine RUN2 confirmed repairWrote:false. Plain-repo existing repair check (metadataRoot==gitRoot) preserved as byte-identical reference via gitCwd=root default.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Regression proven NOT a tautology: reverting the source fix (cwd:root + drop gitCwd param) makes the wrapper-root smoke FAIL with AssertionError repairWrote false!==true and a tsc TS2554 at the call site, proving the test catches the exact wrapper-root blind spot; restoring the fix turns it green (12 checks).",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Thread resolved gitCwd into lint change-scope (resolveChangedFiles)",
       "context": "verifier.ts:630 and review-preflight.ts:334 call resolveChangedFiles({projectRoot}) without the resolved gitCwd; resolveChangedFiles / its defaultChangedFilesReader (validate-lint.ts) run git diff with cwd:projectRoot. Add an optional gitCwd to resolveChangedFiles (and its reader) and pass the gitCwd already resolved at verifier.ts:604 / review-preflight.ts so the change-scope git diff runs from the gitRoot on wrapper-root layouts. Keep the git-diff base and the tsconfig-relativity base consistent; fall back to root. Add a wrapper-root change-scope regression test.",
       "userSees": "`lattice validate --lint --story=B-xxx` on a wrapper-root project scopes lint to the changed packages (out-of-scope tsconfigs reported skipped) instead of silently falling back to full recursive tsc because the change-scope git diff failed.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T01:14:12.338Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "on a wrapper-root layout, resolveChangedFiles with gitCwd=gitRoot returns the changed paths rebased to projectRoot-relative, and computeOutOfScopeTsconfigs correctly marks out-of-scope tsconfigs",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plain repo (gitCwd==projectRoot) rebase is identity: resolveChangedFiles output is byte-identical to passing no gitCwd",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "throwing changedFilesReader still returns undefined (full recursive tsc, never skip-all); genuinely empty diff returns [] — the throw/empty distinction survives the rebase",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (e) wrapper-root: stub reader emits gitRoot-relative wrapper/backend/* paths; resolveChangedFiles with gitCwd=gitRoot rebases to projectRoot-relative backend/* (wrapper/ stripped) and computeOutOfScopeTsconfigs correctly skips out-of-scope frontend.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.938Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (f) plain-repo identity: gitCwd==projectRoot output byte-identical to gitCwd omitted; case (e2) out-of-projectRoot path rebases to ..-prefixed and triggers documented fail-closed; case (h) empty diff WITH gitCwd set still resolves to [] (valid empty scope), not undefined.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.939Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (g) throwing reader WITH gitCwd set still resolves to undefined (full tsc, never skip-all; throw never converted into []). Adversarial revert proof: removing the rebase line made wrapper-root case (e) FAIL on the deepEqual (unrebased wrapper/backend != projectRoot-relative backend), proving the test catches the base-mismatch bug; rebase restored and smoke re-greened.",
+          "headHash": "3e8ebd09c8cef775c6e268995950502c926abd56",
+          "materialHash": "925e4ca1517653e5f39191ba336761ce4ae5b8d99b3318e422ecc52ddde5df41",
+          "timestamp": "2026-06-16T02:15:55.939Z"
+        }
+      ]
     }
   ]
 }

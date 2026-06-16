@@ -163,7 +163,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // allowlist (reusing managed-assets mergeRuntimeGitignore — idempotent), then
       // re-scans so a safe project reports clear after repair and a second run is a no-op.
       if (args?.repair && storyMetadataProtection.evaluated && storyMetadataProtection.needsRepair) {
-        const result = repairStoryMetadataAllowlist(root);
+        const result = repairStoryMetadataAllowlist(root, gitProbeCwd);
         storyMetadataRepair = { requested: true, wrote: result.wrote, error: result.error };
         storyMetadataProtection = scanStoryMetadataProtection(root, store, gitProbeCwd);
       }
@@ -939,10 +939,10 @@ function neutralizeConflictingLatticeDirIgnore(content: string): { content: stri
  *      BLOCK_START/END markers, dedupes) to add the allowlist.
  * Writes only when content changes, so a second --repair run is a no-op.
  */
-function repairStoryMetadataAllowlist(root: string): { wrote: boolean; repoRoot: string | null; error?: string } {
+function repairStoryMetadataAllowlist(root: string, gitCwd: string = root): { wrote: boolean; repoRoot: string | null; error?: string } {
   let repoRoot: string;
   try {
-    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: gitCwd, encoding: 'utf-8' }).trim();
   } catch (e: any) {
     return { wrote: false, repoRoot: null, error: e?.message || String(e) };
   }
