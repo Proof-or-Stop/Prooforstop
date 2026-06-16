@@ -61,8 +61,8 @@
       "id": "CHK-002",
       "title": "Receipt-reference fields on the authority block",
       "context": "Extend the record authority block (record.ts) to allow nullable receiptId plus receiptSubjectKind and receiptSubjectId (both nullable), while KEEPING the existing rule that local records have receiptVerified=false and receiptId=null by default. Update the validator so a local record still requires receiptVerified=false; receiptId/receiptSubjectKind/receiptSubjectId may be non-null only together (a referenced receipt) but that alone does NOT make it verified. Tested: a local record validates with the nullable fields; a record claiming receiptVerified=true without going through the gate is rejected or only allowed via the gate.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T21:34:12.931Z",
       "endTime": null,
       "files": {
         "modify": [
