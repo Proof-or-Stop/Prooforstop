@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T21:10:44.729Z",
       "reviewRunId": "B-dd44:RR-008",
       "_hash": "d121d7177ebcf99dd3369068ac60977ae6d6c15450863d0a9947a630f27c67a2"
+    },
+    {
+      "id": "B-dd44:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review of B-dd44 F-001 fix on HEAD b4e3dab. All three fix points confirmed: (1) resolveHardBudget uses env??process.env at dispatch-usage.ts:524; (2) lattice-dispatch.ts:1971 passes env:process.env into ledgerOpts; (3) smoke adds 6 F-001 production-path regression checks (prodOpts no-env, resolveHardBudget(undefined), over-budget enforces, under-budget proceeds, no-budget no-op, ledger-OFF no-op). Test results: build 0 errors, 41/41 smoke, 65/65 verifier, all 4 ledger suites (61+50+55+38+34 checks) pass with zero regression. Dead code: none. Type safety: no as any, no empty catch swallowing errors (all catch blocks either return fail-open or re-record blocked state with documented rationale). I/O isolation: lattice-dispatch imports usage-ledger only via dispatch-usage.js (confirmed by CHK-005 static check). No blockers found. F-001 is fully resolved: the budget guard now enforces in production.",
+      "createdAt": "2026-06-16T21:12:46.932Z",
+      "reviewRound": "2026-06-16T21:10:44.729Z",
+      "reviewRunId": "B-dd44:RR-005",
+      "_hash": "581353c2d24a95cefd53e86f8467de99a85fc00d797c02d4af37c10ce18d4208"
     }
   ]
 }
