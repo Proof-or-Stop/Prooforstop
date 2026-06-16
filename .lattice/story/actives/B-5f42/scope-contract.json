@@ -1,0 +1,35 @@
+{
+  "storyId": "B-5f42",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/core/managed-assets.ts",
+    ".claude/settings.json",
+    "packages/main/src/handlers/review-preflight.ts"
+  ],
+  "allowedCreate": [
+    ".claude/hooks/english-only-guard.cjs",
+    "packages/main/src/core/cjk-detect.ts",
+    "packages/main/src/handlers/english-artifact-gate.ts",
+    "packages/main/src/tasks/english-only-guards-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/english-only-guards-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CHK-003 registers the new english-only-guards smoke as an npm test script (root + packages/main), which the plan explicitly calls for; required to run the test by name and is a minimal additive package.json change",
+      "timestamp": "2026-06-16T23:09:35.877Z",
+      "paths": [
+        "package.json",
+        "packages/main/package.json"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-16T23:09:02.384Z",
+  "updatedAt": "2026-06-16T23:09:35.877Z"
+}
