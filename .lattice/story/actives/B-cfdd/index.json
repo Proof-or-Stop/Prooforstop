@@ -1,0 +1,40 @@
+{
+  "storyId": "B-cfdd",
+  "name": "review-convergence-stall-advisory",
+  "title": "Add a soft REVIEW convergence-stall advisory so non-converging review rounds are flagged mechanically",
+  "description": "REVIEW round convergence currently relies on three implicit conventions: per-round severity de-escalation, the dismiss-with-reason option, and operator discipline. Each finding-fix commit changes the source tree, which stales that round's review-run bindings (content-aware materialHash) and forces a fresh REVIEW round. There is no mechanical signal when rounds keep cycling without converging (each round still surfacing new blocking findings), so an operator who keeps fixing minor findings instead of dismissing them can livelock, and a genuinely stuck story gives no escalation hint. Scope: add a SOFT, advisory-only convergence-stall detector. It reads the existing review-round count (already derived from story events) and the per-round blocking-finding counts (findings already carry reviewRound; review-escalation already groups by round), and when the story has entered REVIEW at least a threshold number of times AND the recent rounds show no downward trend in blocking findings, it emits an English advisory plus an escalation suggestion (Debugging Contract: 3+ fix attempts surfacing new problems = likely an architecture issue; or dismiss advisory findings rather than re-rounding). The advisory is appended to the story_advance REVIEW output. It MUST NOT block any transition. Thresholds are module constants (no CLI, no config). EXPLICITLY OUT OF SCOPE: any hard cap or blocking gate, auto-dismiss of findings, changing the round de-escalation rules, per-session configurable thresholds, and targeted/partial re-review (reducing per-round cost is a separate larger story). All produced artifacts and the advisory string are English-only.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-06-16T20:59:46.658Z",
+  "startedAt": "2026-06-16T20:59:46.658Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T20:59:46.659Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "State Machine/Gate",
+      "reason": "Mention-not-modify false positive: this story only appends an English advisory string to the REVIEW output and adds a pure helper; it does not modify any gate, guard, or state-machine transition. Confirmed by both INIT reviewers.",
+      "at": "2026-06-16T21:03:58.133Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-cfdd",
+    "branch": "story/B-cfdd",
+    "createdAt": "2026-06-16T21:04:12.261Z"
+  }
+}
