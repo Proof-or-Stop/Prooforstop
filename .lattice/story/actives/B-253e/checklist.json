@@ -342,8 +342,8 @@
       "id": "CHK-006",
       "title": "Opt-in flag gating + informational summary reader",
       "context": "Gate the writer behind an opt-in flag (env var or config, default OFF) so it is fully inert by default (Rollout Phase 2). Add a summary reader that parses the JSONL and reports totals derived as total=inputTokens+outputTokens+cacheCreationInputTokens+cacheReadInputTokens, selects the latest non-superseded accounting record per ledgerCallId+attemptId, keeps estimates out of provider-reported totals, and reports unavailable/null as unknown (never zero). Summary is informational only — it must NOT feed any gate. Tested: flag OFF => writer no-ops; summary never double-counts superseded estimates and never treats unknown as 0.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T01:11:24.251Z",
       "endTime": null,
       "files": {
         "modify": [
