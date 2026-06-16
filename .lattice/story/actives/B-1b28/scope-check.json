@@ -1,0 +1,150 @@
+{
+  "storyId": "B-1b28",
+  "checkedAt": "2026-06-16T22:10:46.833Z",
+  "features": [
+    {
+      "feature": "Flip isUsageLedgerEnabled() default: unset env var returns true (ON)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep explicit-OFF escape hatch: 0/false/off/no/empty string returns false",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update writer comment to reflect default-on (remove stale default-OFF note)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "LATTICE_USAGE_LEDGER=0 restores byte-identical legacy behavior (writer no-op, original spawn args, inert budget guard)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "With =0: appendUsageRecord is a strict no-op (no file/dir created)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "With =0: Claude seam uses original spawn args [--print, promptFile] and raw stdout",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "With =0: budget guard is inert (no block)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Default-on does NOT auto-enable budget blocking (no LATTICE_HARD_BUDGET_TOKENS => no block)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "With unset env: appendUsageRecord writes ledger records",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "With unset env: Claude seam uses --output-format json with B-0f7c raw-text fallback on parse failure",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Ledger errors caught and never break dispatch (error isolation safety)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New smoke test (usage-ledger-default-on-smoke.ts) covering CHK-001/002/003, wired as npm script",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update existing usage-ledger-smoke.ts assertion (was asserting default OFF) so suite stays green",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget/-authority) passes with new default",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "node bin/lattice.js validate passes",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Assert usage-ledger module imports zero other modules (isolation invariant)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No changes to seam/budget/authority logic (out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "description explicitly states: Out of scope: changing the seam/budget/authority logic, any new enforcement, codex/gemini",
+      "source": "description"
+    },
+    {
+      "feature": "No changes to dispatch-runner/cli-engine/codex/gemini code",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "description explicitly states: Out of scope: codex/gemini; decision.json: minimal change, one-line default flip",
+      "source": "description"
+    },
+    {
+      "feature": "Spec Phase 6: enable append-only local usage records by default (high-level phase deliverable)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 17,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f67e5c493ec1e350e8c5000cf48e6d8f7e0fb2d6d76cf83298f75a2cb2ef4ad8",
+  "openQuestions": []
+}
