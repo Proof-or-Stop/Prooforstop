@@ -71,26 +71,26 @@
       "status": "in_progress",
       "startTime": "2026-06-16T18:22:13.606Z",
       "endTime": "2026-06-16T14:35:40.494Z",
-      "userSees": "跑同步后 ls -la ~/.claude/agents 显示 16 个有效 symlink → 运行中 CLI 包 templates/agents;重复跑输出 (symlink ok),断链/旧 copy 显示 ↻ replaced",
+      "userSees": "ls ~/.claude/agents 显示 16 个 thin-shim 实体文件;cat lattice-review-scope-plan.md 看到 frontmatter 保留 tools: Read, Grep, Glob, Bash + body 为 run lattice agent_prompt --role=lattice-review-scope-plan(无角色正文);lattice agent_prompt --role=lattice-implementer 打印 registry 完整角色正文",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "同步后 ~/.claude/agents 含 16 个 symlink 指向 CLI 包 templates",
+            "desc": "syncGlobalAgents 在 ~/.claude/agents 生成 16 个 thin-shim(frontmatter+tools 取自 registry,body 为 CLI-fetch 指令)",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "重复跑幂等;断链/旧 copy 自动替换重建",
+            "desc": "幂等:重复跑不变;模板 frontmatter 变更 shim 同步;断链/旧 symlink/旧全量 copy 自动替换为 shim",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "~/.claude/agents 不可写时明确报错,不静默回退 project-local",
-            "type": "logic",
+            "desc": "lattice agent_prompt --role=X 从 promptRegistryManifest() 同一 registry 吐正文(与 Codex 同源 byte-equal);全局不可写报错不静默回退",
+            "type": "cli",
             "priority": "must"
           }
         ]
