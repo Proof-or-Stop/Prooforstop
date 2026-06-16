@@ -747,6 +747,17 @@
           "headHash": "653d5a279f27cc2bca7cdd50d488c682f00b805f",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:12.168Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -inE 'omx.*(disable|refuse|block|forbidden|policy)' -- .",
+          "result": "pass",
+          "note": "Returns empty — no remaining 'disable/refuse omx' policy language.",
+          "headHash": "2c61aa672820729176a37ae170e76ec6394d71cb",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:12.678Z"
         }
       ]
     }
