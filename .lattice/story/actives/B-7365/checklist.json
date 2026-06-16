@@ -39,7 +39,30 @@
       "userSees": "If a reconcile conflict occurs, the story metadata stays parseable (CLI keeps working) or the user gets an explicit recovery instruction instead of a silent JSON-parse crash on every command.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "on a merge conflict the reconcile resolves story metadata to the post-advance state and completes (no markers)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "no-conflict reconcile path unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "conflict spanning multiple metadata paths under storyDir is fully resolved deterministically",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
