@@ -304,25 +304,25 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "npm --prefix packages/main run thin-init-assets-smoke 全绿(扩展断言);prompt-token-cost-smoke 与 prompt-registry-smoke 仍全绿;npm run build 绿;lattice validate 全绿",
+      "userSees": "npm --prefix packages/main run <smoke> 全绿:断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt 输出 byte-equal registry body + --upgrade 迁移;prompt-token-cost-smoke 与 prompt-registry-smoke 仍全绿;npm run build 绿;lattice validate 全绿",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "smoke 断言干净项目 init 后项目 0 agent 文件 + 全局源 16 symlink 就绪",
+            "desc": "smoke 断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt==registry body",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、init 仅 warn",
+            "desc": "smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、普通 init 仅 warn",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "既有 prompt-token-cost-smoke 与 prompt-registry-smoke 改动后仍绿 + build + validate 绿",
+            "desc": "既有 prompt-token-cost-smoke 与 prompt-registry-smoke 仍绿 + build + validate 绿",
             "type": "cli",
             "priority": "must"
           }
