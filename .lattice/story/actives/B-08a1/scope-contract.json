@@ -1,0 +1,27 @@
+{
+  "storyId": "B-08a1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/adapters/gemini.ts",
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts",
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/adapters/gemini.ts",
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/core/usage-ledger/streaming.ts",
+    "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-16T02:40:37.061Z",
+  "updatedAt": "2026-06-16T02:40:37.061Z"
+}
