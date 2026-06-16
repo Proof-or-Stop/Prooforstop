@@ -29,7 +29,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, realpathSync, rmSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { assertMainWorktreeReadyForMerge } from '../handlers/done-effects.js';
@@ -111,7 +111,7 @@ function assertUnrelatedDirtyPathPasses(): void {
     assert.doesNotThrow(() => {
       returned = assertMainWorktreeReadyForMerge(storyId, root);
     }, 'unrelated dirty tracked path must NOT block the DONE precondition');
-    assert.equal(returned, root, 'precondition must return the resolved main merge root');
+    assert.equal(realpathSync(returned), realpathSync(root), 'precondition must return the resolved main merge root');
 
     // The unrelated file must be byte-identical (no clobber / no side effect).
     assert.equal(
@@ -183,7 +183,7 @@ function assertCleanMainPasses(): void {
     assert.doesNotThrow(() => {
       returned = assertMainWorktreeReadyForMerge(storyId, root);
     }, 'clean main worktree must pass the DONE precondition');
-    assert.equal(returned, root, 'precondition must return the resolved main merge root on clean path');
+    assert.equal(realpathSync(returned), realpathSync(root), 'precondition must return the resolved main merge root on clean path');
     console.log('  ✓ clean main worktree passes (B-e74e happy path unchanged)');
   } finally {
     rmSync(root, { recursive: true, force: true });
