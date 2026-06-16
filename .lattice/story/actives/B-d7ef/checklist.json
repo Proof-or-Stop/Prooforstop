@@ -404,12 +404,12 @@
           "intentRef": "CHK-002:adversarial:4",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git grep -nE \"from ['\\\"][^'\\\"]*(phase-protocol|bridge-utils)\" -- 'packages/**/*.ts'",
+          "command": "find packages -name '*.json' -not -path '*/node_modules/*' -exec grep -l 'phase-protocol\\|bridge-utils' {} +",
           "result": "pass",
-          "note": "Static imports of the deleted modules: 0 (verified empty).",
-          "headHash": "e0b1545551bde84358b6a4c7498115ff44799ce6",
+          "note": "Returns empty (phase-gate-protocol.json metadata mention does NOT match the deleted module filenames as substrings outside core/ paths — verified separately as metadata not consumer). No JSON fixture references the deleted modules as consumers.",
+          "headHash": "bc4f569605f9c682213c3b0a5ea97710a8387e37",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
-          "timestamp": "2026-06-16T19:03:21.321Z"
+          "timestamp": "2026-06-16T19:08:19.017Z"
         }
       ]
     }
