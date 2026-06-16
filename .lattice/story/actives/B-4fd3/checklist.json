@@ -45,7 +45,30 @@
       "userSees": "npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed；新增断言覆盖 registry→gitignore 一致性",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "clean main 上 npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed 且退出码 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "新增断言：init 产物 .gitignore 覆盖 listRuntimeArtifactIgnorePatterns() 全集",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "若 registry 含某 pattern 而 .gitignore 缺失，断言能 FAIL 暴露漂移（不静默通过）",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
