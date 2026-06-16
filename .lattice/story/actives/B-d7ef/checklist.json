@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Delete the stray 'orphans' junk file at repo root",
+      "context": "git rm the tracked root file 'orphans' (5 bytes, content 'NO -'). After: `git ls-files orphans` returns nothing; build + e2e unaffected.",
+      "userSees": "`git ls-files orphans` returns nothing; the junk file is gone.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Delete 2 truly-dead source modules (phase-protocol + bridge-utils) and verify no residual references",
+      "context": "git rm packages/main/src/core/phase-protocol.ts and packages/main/src/verifier/bridge-utils.ts. Each has 0 static imports AND 0 dynamic/path consumers (verified). Confirm after: (a) git grep for static import patterns of either module name across packages/scripts/bin returns no live code import; (b) git grep for dist path references (dist/core/phase-protocol.js, dist/verifier/bridge-utils.js) and dynamic import() calls referencing them across packages including tests/fixtures returns nothing; (c) intent-coverage.ts STILL EXISTS (the discarded-B-5740 false-positive guard); (d) `npm run build` (tsc) and `npm run test:e2e` pass.",
+      "userSees": "The 2 modules are gone; intent-coverage.ts still present; `npm run build` and `npm run test:e2e` pass; no live code or fixture references them.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
