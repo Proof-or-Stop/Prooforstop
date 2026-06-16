@@ -207,7 +207,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 1: detectCjk detects a code-point-built Chinese string with positions and ignores ASCII/English",
+          "headHash": "9d8ebbf18db93a962f69e74571ce4746edb3d09a",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:48.842Z"
+        }
+      ]
     }
   ]
 }
