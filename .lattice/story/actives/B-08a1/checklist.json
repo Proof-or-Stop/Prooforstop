@@ -231,6 +231,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Feed Anthropic streaming terminal event (message_delta with final usage {input_tokens:1000,output_tokens:400,...}) -> extracted usage has source=provider-reported with correct canonical mapping; WHY: streaming final usage must be read from the terminal event, not from earlier deltas",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed OpenAI streaming final chunk with usage block {prompt_tokens:500,completion_tokens:200,...} -> extracted usage has source=provider-reported; WHY: OpenAI stream includes usage only in the final chunk",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Feed mid-stream error with partial usage available (e.g. terminal event received with output_tokens:50 before timeout) -> source=provider-reported with partial counts preserved (NOT downgraded to unavailable); WHY: spec says partial real counts from a failed stream are still provider-reported",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed streaming sequence where only output_tokens is reported (input_tokens missing from partial event) -> the available dimension is preserved, missing dimension is null; WHY: partial provider data is still provider-reported, not unavailable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Feed stream that errors with NO terminal usage event at all (connection reset before any usage) -> source=unavailable with unavailableReason describing the error; WHY: truly no usage data means unavailable, never silent zeros",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed stream with multiple usage events (intermediate + terminal) -> extractor uses only the LAST/terminal usage, not intermediate ones; WHY: intermediate deltas may carry cumulative counts, only the terminal one is authoritative",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed stream error that produces a usage object with all zeros {input_tokens:0,output_tokens:0,...} -> source=provider-reported (genuine zero from provider), NOT unavailable; WHY: zero is a valid provider report per spec, unavailable is only for truly no data",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
