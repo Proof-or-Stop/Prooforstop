@@ -93,7 +93,7 @@
       "desc": "CHK-001:adversarial:0 evidence too narrow: intent requires git grep -niE koala -- packages/lab/ → empty (lab-wide sweep) but evidence ran grep -i koala packages/lab/package.json (single file only). If the full lab-wide sweep were run it would exit 0 (matches found) because packages/lab/src/core/ contains many pre-existing koala references unrelated to this story. The intent expectation is over-scoped relative to CHK-001 scope (only package.json description was changed). The underlying story goal is met (package.json has no koala), but the adversarial intent as written cannot be satisfied and evidence deliberately avoided running it.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-16T21:26:16.854Z",
@@ -102,7 +102,8 @@
       "_hash": "f06fa3eb2379523e394727e7f1527ef5f57228421d6e726c747c036b9598d57d",
       "files": [
         "packages/lab/package.json"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T21:28:11.113Z"
     },
     {
       "id": "B-ed70:F-007",
