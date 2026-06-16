@@ -1,0 +1,29 @@
+{
+  "task": "Flip isUsageLedgerEnabled() in core/usage-ledger/writer.ts so an UNSET LATTICE_USAGE_LEDGER defaults to ENABLED, keeping 0/false/off/no as a full escape hatch; update the existing usage-ledger smoke assertion + the writer 'Default OFF' comment; add a default-on smoke; no other logic changed.",
+  "outcome": "isUsageLedgerEnabled({}) now returns TRUE (unset => enabled); LATTICE_USAGE_LEDGER=0/false/off/no (and KOALA_) => false. npm test:usage-ledger-default-on + the updated full ledger suite are all-green and prove: (1) escape hatch — with =0, the writer is a strict no-op, buildClaudeSpawnArgs(file,false)=['--print',promptFile], the budget guard is inert => byte-identical to the historical default-off; (2) default-on — with the env unset, the writer writes, the Claude seam takes its enabled path with the B-0f7c raw-text fallback on parse failure, a ledger error never propagates, and NO budget block occurs (budget needs LATTICE_HARD_BUDGET_TOKENS). The existing usage-ledger-smoke default assertion and the writer 'Default OFF' comment are updated. Build clean; the full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget/-authority) passes with the new default; usage-ledger keeps zero cross-module imports.",
+  "facts": [
+    "writer.ts isUsageLedgerEnabled(): currently `if (raw === undefined) return false;` then only 1/true/on/yes -> true; so flipping the unset case to true is a 1-line change and 0/false/off/no remain disabled automatically",
+    "EXISTING test usage-ledger-smoke.ts asserts isUsageLedgerEnabled({})===false (must flip to true) and writer.ts lines ~54-59 comment says 'Default OFF' (must update) — else regression",
+    "B-0f7c hardened the Claude seam: --output-format json with raw-text fallback on parse failure + all ledger work in try/catch (default-on safe)",
+    "B-dd44 budget block is gated on LATTICE_HARD_BUDGET_TOKENS; with default-on but no budget env, resolveHardBudget returns null => no block",
+    "isUsageLedgerEnabled accepts an optional env arg defaulting to process.env"
+  ],
+  "constraints": [
+    "Flip ONLY the unset default; 0/false/off/no must still disable (escape hatch)",
+    "=0 must restore byte-identical legacy behavior (writer no-op, original spawn args, inert budget guard)",
+    "Do NOT change the seam/budget/authority logic; rely on the existing B-0f7c fallbacks",
+    "Default-on must NOT auto-enable budget blocking",
+    "usage-ledger keeps zero cross-module imports; only writer.ts + smokes/doc change"
+  ],
+  "unknowns": [
+    "Exact other places (if any) that assert the default OFF (grep isUsageLedgerEnabled across tests)",
+    "Whether a ledger doc states the default and needs updating"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/tasks/usage-ledger-smoke.ts",
+    "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-16T22:08:51.265Z"
+}
