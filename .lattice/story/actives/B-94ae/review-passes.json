@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T20:59:59.763Z",
       "reviewRunId": "B-94ae:RR-004",
       "_hash": "fc9827cb2af8887cff831d15eb0c9f43345158132201365ee469ad3cb70ce5b9"
+    },
+    {
+      "id": "B-94ae:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols changed (pure docs diff, Fallback 1 applied). Step 2/3: compared the Claude Prompt Hook paragraph in CLAUDE.md (line ~74) against the new wording and 4 codebase facts. All claims verified: (1) .claude/hooks/lattice-scope-pretool.cjs exists and is git-tracked (confirmed via git ls-files); (2) Codex adapter generates its own .codex/hooks/lattice-scope-pretool.cjs via renderCodexPretoolScopeHookScript() in managed-assets.ts:732-736; (3) packages/main/src/init-assets.ts exists as the generation source; (4) packages/main/src/core/managed-assets.ts exists as the generation source; (5) no .Codex literal introduced by this diff — git grep .Codex in CLAUDE.md returns only pre-existing line 773 (.Codex/lattice.json in a table row); (6) new wording does not contradict any other section of CLAUDE.md. No blockers found.",
+      "createdAt": "2026-06-16T21:02:32.676Z",
+      "reviewRound": "2026-06-16T20:59:59.763Z",
+      "reviewRunId": "B-94ae:RR-003",
+      "_hash": "965e78f1cbaf513b45ae5ee19be7f1e801d88de534258bb4e5e9a576a20f0ce2"
     }
   ]
 }
