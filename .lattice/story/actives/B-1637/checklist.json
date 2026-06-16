@@ -5,18 +5,18 @@
       "title": "Route doctor's git probes through the resolved gitRoot",
       "context": "doctor.ts:505 (git ls-files -z), :554 (git rev-parse --show-toplevel), :760 (git ls-files -- leaf) and :773 (git check-ignore -- leaf) run with cwd=root (metadataRoot). Resolve the configured gitRoot once (reuse resolveConfiguredGitRoot / the B-198c evaluateStoryDirConfigInsideGitRoot resolution at doctor.ts:93) and pass it as cwd to these git calls; fall back to root when no gitRoot resolves; keep the existing try/catch graceful degradation; and quiet the inherited git stderr so a caught probe failure no longer leaks a fatal line.",
       "userSees": "Running `lattice doctor` from a wrapper-root project (metadataRoot != gitRoot, e.g. ClawCreek) prints the normal report with NO leading `fatal: not a git repository` lines.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T00:06:56.755Z"
     },
     {
       "id": "CHK-002",
       "title": "Add a regression test for doctor git-probe gitRoot resolution",
       "context": "Cover (a) wrapper-root: metadataRoot != gitRoot, the git probes run from the resolved gitRoot and emit no fatal output; (b) plain repo: behavior unchanged. Use the existing dependency-injection seams (the probe runners) rather than spawning real git against a real non-git directory where injection exists.",
       "userSees": "`lattice validate` runs the new test green, proving doctor's git probes resolve the gitRoot and produce no fatal noise on wrapper-root projects while plain repos are unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T00:06:57.210Z"
     }
   ]
 }

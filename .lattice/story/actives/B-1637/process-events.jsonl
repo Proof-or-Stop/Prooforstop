@@ -1,2 +1,13 @@
 {"type":"dispatch","storyId":"B-1637","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"lattice-review-story-init","timestamp":"2026-06-15T23:52:45.077Z"}
 {"type":"dispatch","storyId":"B-1637","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-15T23:52:47.992Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-16T00:06:56.756Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-16T00:06:57.211Z"}
+{"type":"review_pass","storyId":"B-1637","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-1637:RP-001","timestamp":"2026-06-16T00:10:58.862Z"}
+{"type":"review_pass","storyId":"B-1637","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-1637:RP-002","timestamp":"2026-06-16T00:11:03.433Z"}
+{"type":"reviewer_finding","storyId":"B-1637","command":"finding_add","role":"reviewer","agent":"lattice-review-quality","result":"pass","findingId":"B-1637:F-001","severity":"low","missingAttribution":false,"timestamp":"2026-06-16T00:11:04.038Z"}
+{"type":"review_pass","storyId":"B-1637","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-1637:RP-003","timestamp":"2026-06-16T00:11:16.591Z"}
+{"type":"review_pass","storyId":"B-1637","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-1637:RP-004","timestamp":"2026-06-16T00:16:47.911Z"}
+{"type":"review_pass","storyId":"B-1637","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-1637:RP-005","timestamp":"2026-06-16T00:17:15.843Z"}
+{"type":"review_pass","storyId":"B-1637","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-1637:RP-006","timestamp":"2026-06-16T00:17:18.990Z"}
+{"type":"dirty_gate_audit","storyId":"B-1637","gate":"done-gate","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-1637/owner-lease.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-16T00:20:33.693Z"}
+{"type":"dirty_gate_audit","storyId":"B-1637","gate":"done-gate","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-1637/owner-lease.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-16T00:20:56.057Z"}
