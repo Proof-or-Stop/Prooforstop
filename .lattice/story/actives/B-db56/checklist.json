@@ -384,6 +384,17 @@
           "headHash": "9589364f2efedd1988eca39a34b96dda6f3e1cb8",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:40:15.036Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE \"(execFileSync|spawnSync|execSync)\\(['\\\"']git['\\\"']\" -- 'packages/**/*.ts' | wc -l",
+          "result": "pass",
+          "note": "Site count: 197 (193 production + 4 from new contract smoke's self-test fixtures); none accidentally deleted.",
+          "headHash": "44de98e0fe303094fe6f93960759d4f55c73f6a6",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:15.986Z"
         }
       ]
     }
