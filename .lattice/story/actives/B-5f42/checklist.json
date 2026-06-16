@@ -46,7 +46,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 6 spawns english-only-guard.cjs with a CJK git-commit and lattice metadata command; hook prints the english-only warning on stderr and exits 0",
+          "headHash": "ddd539b4a81817f1682c3252c2453f24e3036443",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:42.819Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
