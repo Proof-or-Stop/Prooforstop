@@ -40,7 +40,16 @@
       "context": "Add verifyUsageReceipt(envelope, signedReceipt, verify) where verify is an INJECTED async/sync function (signedReceipt, envelope) -> { verified: boolean, subjectKind?, subjectId? }. Only when verify returns verified=true AND the subject binding matches the envelope does the gate return an authority block with receiptVerified=true + receiptId + receiptSubject*. Otherwise it returns receiptVerified=false. The usage-ledger module does NOT import the authority-signing module (verifier is injected) — preserves zero cross-module imports. Tested: injected verifier true+matching-subject -> verified; true+mismatched-subject -> NOT verified; false -> not verified.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/authority-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
