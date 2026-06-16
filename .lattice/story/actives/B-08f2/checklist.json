@@ -5,9 +5,9 @@
       "title": "Hard-rename every KOALA_* env var to LATTICE_* across code, JSON config, wrapper assets, and hook-contract docs (no koala fallback)",
       "context": "Eliminate KOALA_* env vars with no fallback: (a) for the 17 vars with a LATTICE_* dual-read twin, delete the `|| process.env.KOALA_X` fallback (e.g. registry.ts:289, cli-validate.ts:7); (b) for the 38 KOALA-only vars, RENAME process.env.KOALA_X -> process.env.LATTICE_X across reads AND setters (incl. bin/lattice-codex.js setters), JSON configs, .Codex/ and .claude/ wrapper assets, and hook-contract docs (docs/guide-hooks.md: KOALA_COMMAND/KOALA_NEW_PHASE/KOALA_OLD_PHASE/KOALA_PHASE/KOALA_STAGE). Do NOT touch LEGACY_KOALA_* path constants in core/lattice-paths.ts (those belong to the deferred .koala path work). After the change `npm run build` must pass.",
       "userSees": "`npm run build` passes; grepping code/config/wrappers for KOALA_ env names returns nothing.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T23:59:33.979Z",
-      "endTime": null,
+      "endTime": "2026-06-16T00:12:17.219Z",
       "files": {
         "modify": [
           ".Codex/README.md",
