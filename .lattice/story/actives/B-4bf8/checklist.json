@@ -865,9 +865,9 @@
       "id": "CHK-008",
       "title": "Cost derivability: price/pricingRef snapshot",
       "context": "Add that cost is derived only in a layer that pins model+date to a price table (per-model $/MTok + cache multipliers, which change over time). Record a pricingVersion/pricingRef (not a hardcoded price) on the record or specify the snapshot mechanism; do not bake absolute prices into the append-only record beyond a reference.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T23:54:07.428Z",
-      "endTime": null,
+      "endTime": "2026-06-16T00:00:10.201Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
