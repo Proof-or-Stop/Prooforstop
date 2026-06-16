@@ -109,6 +109,17 @@
           "headHash": "d432f9360ec1406e09817a49c897ccea63d0daba",
           "materialHash": "812a118e51a005d1a62e564f49b6dcea55ebd681d4790950048f8e168487c790",
           "timestamp": "2026-06-16T01:13:03.839Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (f) plain-repo identity: gitCwd==projectRoot output byte-identical to gitCwd omitted; case (e2) out-of-projectRoot path rebases to ..-prefixed and triggers documented fail-closed; case (h) empty diff WITH gitCwd set still resolves to [] (valid empty scope), not undefined.",
+          "headHash": "330e487b8f06c6bff84567431c250ddbd26d67c9",
+          "materialHash": "812a118e51a005d1a62e564f49b6dcea55ebd681d4790950048f8e168487c790",
+          "timestamp": "2026-06-16T01:13:11.862Z"
         }
       ]
     }
