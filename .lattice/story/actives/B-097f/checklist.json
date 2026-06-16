@@ -255,13 +255,13 @@
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/managed-assets.ts",
-          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> doctor / doctor --format=json",
+          "file": "packages/main/src/handlers/doctor.ts",
+          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> doctor | grep agentAssetMode",
           "result": "pass",
-          "note": "迁移只按 16 精确管理 basename(scanProjectLocalManagedAgents 从 templates/agents 派生)删除，不通配，my-custom.md 保留; lattice doctor 文本+JSON 均输出 agentAssetMode: runtime-owned",
-          "headHash": "da92b6302603f661e458316a5b522a632fd0fdd8",
-          "materialHash": "2f521de1ad3e1313e304dae767346acd870b39ed0a541b4eace3fa1de9bf5346",
-          "timestamp": "2026-06-16T14:50:55.884Z"
+          "note": "Migration removes only the 16 exact managed basenames (from templates/agents filename set), no wildcard clear; non-managed files always preserved. lattice doctor reports agentAssetMode: runtime-owned. PASS.",
+          "headHash": "dbf0befb4bc44abb43a290b4388818848a9503cd",
+          "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
+          "timestamp": "2026-06-16T18:46:57.614Z"
         }
       ]
     },
