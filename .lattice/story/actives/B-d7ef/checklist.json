@@ -91,6 +91,17 @@
           "headHash": "ff16ae157f8a2b804ea511f1c8d028a97778ec88",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
           "timestamp": "2026-06-16T19:03:09.788Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git checkout HEAD -- orphans",
+          "result": "pass",
+          "note": "Fails — file absent at HEAD (deletion finalized).",
+          "headHash": "769aa5990534f6c5b0469400890a92bf560817ce",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:10.363Z"
         }
       ]
     },
