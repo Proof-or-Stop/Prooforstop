@@ -74,7 +74,16 @@
       "context": "Add a helper that extracts final usage from a streaming terminal event / final message (e.g. Anthropic message_delta/final, OpenAI stream final usage, Gemini final usageMetadata) and partial usage when a stream errors/times out mid-way. If any count exists -> provider-reported (partial allowed); only when truly none -> unavailable with a reason. Tested with a terminal-event sample and a mid-stream-error sample per the spec's streaming/failure rules.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/streaming.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-006",
