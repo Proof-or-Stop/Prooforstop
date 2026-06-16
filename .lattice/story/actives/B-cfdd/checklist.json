@@ -37,9 +37,9 @@
       "title": "Implement core/review-convergence.ts pure function plus threshold constants and the advisory message builder",
       "context": "Pure function assessReviewConvergence(roundCount, perRoundBlockingCounts) returning { stalled, message? }. Trend-based heuristic (NOT a raw round ceiling): stalled = roundCount >= STALL_MIN_ROUNDS (e.g. 4) AND the last STALL_WINDOW (e.g. 3) rounds show no downward trend in blocking counts (still surfacing new blockers, not trending toward 0). No I/O. Thresholds are module constants, no CLI/config (YAGNI). Message is English-only and includes the escalation suggestion (Debugging Contract escalation plus a dismiss-don't-re-round hint).",
       "userSees": "assessReviewConvergence returns stalled=false for a healthy decreasing series like [2,1,0] and stalled=true with an English advisory for a flat/rising series like [2,2,1] at round 4.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:12:12.707Z",
       "verificationIntent": {
         "happy": [
           {
