@@ -1,0 +1,93 @@
+# Plan: B-097f Init 从单一全局 ~/.claude/agents 解析 Lattice agent prompt
+
+设计真相源: decision.json (chosen = A 全局 ~/.claude/agents 单一源) + understanding.json。
+关键约束: Claude Code 项目级 `.claude/agents/` shadow 用户级 `~/.claude/agents/`(同名项目优先)→ 迁移必须删 project-local 管理文件,全局源才生效。
+
+## CHK-001: 定稿 global-agents 单一真相源资产契约
+
+**Owner**: main-agent
+**DependsOn**: none
+**Files**:
+- Modify: docs/requirements/decisions/lifecycle-artifact-scope.md (新增 global-agents 契约节)
+**Verify**:
+- `git diff main...HEAD -- docs/requirements/decisions/lifecycle-artifact-scope.md` 含 global-agents 契约段
+**DoneWhen**:
+- 契约明确写出:全局 `~/.claude/agents` 为唯一 agent prompt 源;init 项目内零 agent 文件;symlink target 从运行中 CLI 包(`__dirname/..` → templates/agents)解析;迁移只按 16 个管理 basename 删除,不碰用户自建 agent
+- 契约说明 project-level shadow user-level 的解析优先级,据此说明为何必须删 project-local
+
+## CHK-002: 实现全局 ~/.claude/agents 同步机制
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-001
+**Files**:
+- Create: packages/main/src/core/global-agents.ts (新模块:resolveGlobalAgentsDir / syncGlobalAgents,纯逻辑 + 可注入 fs)
+- Modify: packages/main/src/cli-init.ts (引用同步函数)
+- Test: packages/main/src/tasks/ 下新增或扩展 smoke(见 CHK-006)
+**Verify**:
+- 真机:`node packages/main/dist/cli.js init --yes`(claude profile)后 `ls -la ~/.claude/agents` 含 16 个 symlink → CLI 包 templates/agents
+- 重复跑输出 `(symlink ok)`;预置断链/旧 copy 后跑输出 `↻ replaced`
+**DoneWhen**:
+- `resolveGlobalAgentsDir()` 用 `os.homedir()` 算 `~/.claude/agents`,可注入 home 供测试
+- 同步把 `agentTemplateDir`(从运行中 CLI 包解析,复用 cli-init 现有 packageRoot 逻辑)下全部 `*.md` symlink 到全局目录;幂等;断链/旧 copy 自动 unlink 重建;目录缺失则 mkdir -p
+- 全局目录不可写/HOME 异常时抛明确错误(可操作提示),**不**静默回退 project-local
+- 纯逻辑用依赖注入 fs 单测,不依赖真实 HOME
+
+## CHK-003: 改 lattice init — claude/all profile 不再写项目 .claude/agents
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-002
+**Files**:
+- Modify: packages/main/src/cli-init.ts ([5/6] 段 ~869-920:wantsClaude 分支)
+**Verify**:
+- 真机:claude profile 项目 `init --yes` 后 `find . -name '*.md'` 不含 `.claude/agents/*.md`;[5/6] 输出 `- .claude/agents (resolved from global ~/.claude/agents; no per-project copies)`
+- all profile(同时有 .Codex + .claude 标记)同样不写 project-local agent
+- core profile(无标记)输出不变(本就 skip)
+**DoneWhen**:
+- wantsClaude 分支改为:调 CHK-002 的 syncGlobalAgents 确保全局源就绪 + 打印全局解析提示;**不再** symlink 进项目 `.claude/agents`
+- 不创建项目 `.claude/agents` 目录(除非迁移需要,见 CHK-004)
+- codex 侧 / asset-mode 行为保持不变(不回归 B-4ee0)
+
+## CHK-004: 迁移已有项目的 project-local .claude/agents
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-002, CHK-003
+**Files**:
+- Modify: packages/main/src/cli-init.ts (迁移逻辑,可复用 managed-assets 已知模板名集合)
+- 可选 Modify: packages/main/src/core/managed-assets.ts (暴露 16 个管理 basename 列表 + 断链/doctor 检查)
+**Verify**:
+- 真机:预置含 16 个 project-local `.claude/agents/*.md` + 1 个用户自建 `my-custom.md` 的项目,跑 `init`(或 `--upgrade`)后:16 个管理文件被移除并逐条 `↻ migrated to global`,`my-custom.md` 保留
+**DoneWhen**:
+- 迁移只按 16 个精确管理 basename(来自 agentTemplateDir 的文件名集合)删除项目 `.claude/agents` 中同名项;通配清空被禁止
+- 删除前确保全局源已就绪(CHK-002);逐条 log 删除项
+- 非管理文件一律保留;`.claude/agents` 仅剩用户文件时保留目录,空目录可清理
+- doctor/upgrade 可复用同逻辑修复历史项目
+
+## CHK-005: 更新决策文档与 CLAUDE.md 反映新契约
+
+**Owner**: main-agent
+**DependsOn**: CHK-003, CHK-004
+**Files**:
+- Modify: docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md (补 Claude 侧 global-agents 落地)
+- Modify: CLAUDE.md (init / agent 资产相关段:改为 global-agents 单一源口径)
+- Modify: docs/requirements/decisions/lifecycle-artifact-scope.md (CHK-001 已起,收口)
+**Verify**:
+- `git diff main...HEAD` 三处文档均更新;旧的 "project .claude/agents 物化" 口径被修正
+- docs-drift CLI gate 通过
+**DoneWhen**:
+- 三份文档描述与实际 init 输出一致;无残留的 "init 往项目写 agent 模板" 旧表述
+
+## CHK-006: 补 smoke/contract 验证并重新 build
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-002, CHK-003, CHK-004
+**Files**:
+- Create/Modify: packages/main/src/tasks/(扩展 thin-init-assets-smoke 或新增 global-agents-smoke)
+- Test: 对应 .test.ts
+**Verify**:
+- `npm --prefix packages/main run <smoke>` 全绿
+- `npm run build`(根)/ `npm --prefix packages/main run build` 绿
+- `lattice validate` 全绿
+**DoneWhen**:
+- smoke 覆盖:(a) 干净 claude-marker 项目 init 后项目内 0 个 agent `.md` 且全局源含 16 symlink;(b) 已有 project-local 16 文件被迁移清理、用户自建文件保留;(c) syncGlobalAgents 幂等 + 断链修复;(d) 全局不可写时报错不回退
+- subagent_type 从全局解析的实际可用性:若无法在 smoke 中机械验证 Claude Code 解析行为,则文档化平台优先级行为并由 DEV 真机 spawn 一次确认
+- build + validate 绿
