@@ -179,8 +179,19 @@ function matchException(file: string, snippet: string): ExceptionEntry | null {
  *   - `git(cwd, ['…','merge',…])`               (done-recover.ts, auxiliary — cwd 1st)
  *   - `git('reset --hard …', cwd)`              (worktree.ts — args string, cwd 2nd)
  *   - `runGitNoThrow(cwd, ['merge',…])`         (cli-engine.ts — cwd 1st)
+ *   - `runGitArgs(['merge',…], cwd)`            (done-effects.ts — args 1st, cwd 2nd)
+ *   - `gitFile(['commit-tree',…], cwd[, env])`  (worktree.ts — args 1st, cwd 2nd,
+ *                                                 cwd OPTIONAL, defaults to `root`)
  *   - `execSync('git merge main …', { cwd })`   (done-effects.ts — cwd in opts)
  *   - `execFileSync('git', ['commit',…], {cwd})`(auto-commit-metadata.ts — cwd in opts)
+ *
+ * `gitFile` (handlers/worktree.ts `createScopedStoryBootstrapCommit`) is the
+ * scoped story-branch bootstrap plumbing: `write-tree` / `commit-tree` /
+ * `update-ref refs/heads/story/<id>`. Its mutation verbs (`commit-tree`,
+ * `update-ref`) are recognized + classified by TARGET (a dangling commit object
+ * / a story-branch ref ⇒ NOT main), so a FUTURE `gitFile([…,'commit',…], root)`
+ * or `gitFile(['update-ref','refs/heads/main',…], root)` that DOES mutate main
+ * would be caught (fail-closed) instead of slipping through unseen.
  *
  * The verb MUST be a real git SUBCOMMAND token — a standalone quoted arg
  * (`'commit'`) or the first word of a single-string git arg (`'reset --hard'`).
@@ -202,7 +213,7 @@ interface VerbMatch {
 }
 
 /** git-wrapper call openers, recognized at a span start. */
-const GIT_CALL_OPENERS = /\b(gitCli|runGitNoThrow|runGitArgs|git)\s*\(|\bexec(File)?Sync\s*\(\s*['"`]git/;
+const GIT_CALL_OPENERS = /\b(gitCli|runGitNoThrow|runGitArgs|gitFile|git)\s*\(|\bexec(File)?Sync\s*\(\s*['"`]git/;
 
 /**
  * A git-wrapper call SPAN: the full call text from the opener to the matching
@@ -283,8 +294,13 @@ function extractCwdSymbol(text: string): string | null {
   const arrayArgsCwd = text.match(/\b(?:gitCli|git|runGitNoThrow)\s*\(\s*([A-Za-z_$][\w$]*)\s*,\s*\[/);
   if (arrayArgsCwd) return arrayArgsCwd[1];
 
-  // runGitArgs([...], SYMBOL) — local done-effects helper: args FIRST, cwd SECOND.
-  const argsThenCwd = text.match(/\brunGitArgs\s*\(\s*\[.*?\]\s*,\s*([A-Za-z_$][\w$]*)/);
+  // runGitArgs([...], SYMBOL) / gitFile([...], SYMBOL[, env]) — args FIRST, cwd
+  // SECOND. `gitFile` (handlers/worktree.ts) shares this shape: `gitFile(args,
+  // cwd = root, env?)`. The cwd arg is OPTIONAL (defaults to `root` when only the
+  // args array is passed, e.g. `gitFile(['rev-parse', …])`), so a missing 2nd arg
+  // resolves to null here and the default branch then treats it as main
+  // (fail-closed) — correct, since `gitFile([...])` with no cwd runs in `root`.
+  const argsThenCwd = text.match(/\b(?:runGitArgs|gitFile)\s*\(\s*\[.*?\]\s*,\s*([A-Za-z_$][\w$]*)/);
   if (argsThenCwd) return argsThenCwd[1];
 
   return null;
@@ -347,6 +363,39 @@ const WORKTREE_CWD_SYMBOLS = new Set([
 const MAIN_CWD_SYMBOLS = new Set([
   'root', 'gitRoot', 'gitMainRoot', 'mainMergeRoot', 'mainRepoRoot', 'repoRoot',
 ]);
+
+/**
+ * Does an `update-ref` call (joined span text) write a STORY-BRANCH ref rather
+ * than `refs/heads/main`? Used to clear the scoped-bootstrap
+ * `update-ref refs/heads/${branch}` site (story-branch creation) without opening
+ * a hole for `update-ref refs/heads/main`.
+ *
+ * FAIL-CLOSED: returns true ONLY for a ref target that is EXPLICITLY a story
+ * branch — a literal `refs/heads/story/...` or a `refs/heads/${branch|storyBranch|…}`
+ * template whose interpolated variable is a recognized story-branch name. Any
+ * `refs/heads/main` literal, a bare/symbolic ref (`HEAD`, `refs/heads/${ref}`
+ * with an unknown var), or no parseable target → returns false → the caller
+ * treats it as a main mutation (must be locked).
+ */
+const STORY_BRANCH_REF_VARS = new Set(['branch', 'storyBranch', 'storyBranchRef']);
+
+function updatesStoryBranchRef(text: string): boolean {
+  // The ref target is the first quoted/template arg AFTER the `update-ref` verb
+  // token. Find the verb, then inspect the immediately-following quoted literal.
+  const m = text.match(/['"`]\s*update-ref\s*['"`]\s*,\s*([`'"])([^`'"]*)\1/);
+  if (!m) return false;
+  const refLiteral = m[2];
+  // Hard reject anything that targets main, HEAD, or a symbolic main ref.
+  if (/(^|\/)main$/.test(refLiteral) || /\bHEAD\b/.test(refLiteral)) return false;
+  // Literal story-branch ref: refs/heads/story/<id>
+  if (/^refs\/heads\/story\//.test(refLiteral)) return true;
+  // Templated story-branch ref: refs/heads/${branch} where the interpolated var
+  // is a recognized story-branch variable (and ONLY that — fail-closed on
+  // unknown vars like ${ref} that could resolve to main).
+  const tmpl = refLiteral.match(/^refs\/heads\/\$\{?\s*([A-Za-z_$][\w$]*)\s*\}?$/);
+  if (tmpl && STORY_BRANCH_REF_VARS.has(tmpl[1])) return true;
+  return false;
+}
 
 /**
  * Find the enclosing-scope start for a site and whether a lock-acquisition
@@ -501,6 +550,38 @@ export function scanMainMutationCoverage(input: ScanInput): CoverageReport {
         continue;
       }
 
+      // (2b) Ref-target / object-only classification (preMortem #1: classify by
+      //      TARGET, not just cwd). Two plumbing verbs run against the MAIN
+      //      checkout cwd (`repoRoot`) during scoped story-branch bootstrap
+      //      (`createScopedStoryBootstrapCommit`, handlers/worktree.ts) but do NOT
+      //      mutate main:
+      //        - `commit-tree` produces a DANGLING commit object and writes NO
+      //          ref. By itself it can never mutate any branch — only the paired
+      //          `update-ref` moves a ref, and THAT is classified by its target
+      //          below. So a bare commit-tree is never a main mutation.
+      //        - `update-ref refs/heads/story/<id>` (or `refs/heads/${branch}`
+      //          where `branch` is the story branch) writes a STORY-branch ref,
+      //          not main. Fail-closed: only a ref EXPLICITLY recognized as a
+      //          non-main branch is cleared here; `update-ref refs/heads/main`,
+      //          `update-ref HEAD`, or any unrecognized/symbolic target falls
+      //          through to the default branch and is treated as a main mutation.
+      if (verb === 'commit-tree') {
+        sites.push({
+          file, line: span.startLine, verb, snippet,
+          classification: 'worktree-only', locked: false, verdict: 'OK',
+          reason: 'commit-tree writes a dangling commit OBJECT, not a ref — never a main mutation by itself (the paired update-ref is classified by its target)',
+        });
+        continue;
+      }
+      if (verb === 'update-ref' && updatesStoryBranchRef(span.text)) {
+        sites.push({
+          file, line: span.startLine, verb, snippet,
+          classification: 'worktree-only', locked: false, verdict: 'OK',
+          reason: 'update-ref writes a refs/heads/story/<id> (story-branch) ref, not refs/heads/main — story-branch creation, not a main mutation',
+        });
+        continue;
+      }
+
       // (3) Default branch (fail-closed): a MAIN-checkout cwd (or an UNKNOWN cwd
       //     symbol — conservative) that mutates main MUST be locked in-body. An
       //     unrecognized brand-new primitive lands here and fails if unlocked.
@@ -619,7 +700,66 @@ export function assertNegativeFixtureBites(): void {
     'a worktree-cwd merge of main is classified worktree-only (no false positive)',
   );
 
-  console.log(`${COVERAGE_MARKER} negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK)`);
+  // ── gitFile RECOGNITION (B-9177:F-001) ────────────────────────────────────
+  // The fix taught the scanner the `gitFile(args, cwd[, env])` wrapper. These
+  // controls prove the recognition actually CLOSES the false-negative gap (a
+  // future gitFile main mutation now bites) AND keeps the legitimate scoped
+  // story-branch bootstrap shape GREEN.
+
+  // (a) A FUTURE unlocked `gitFile([…,'commit',…], root)` on main MUST bite.
+  const gitFileUnlockedCommit = [
+    'function shipsAnUnlockedMainCommitViaGitFile(root: string) {',
+    "  gitFile(['commit', '-m', 'oops on main via gitFile'], root);",
+    '}',
+  ].join('\n');
+  const gitFileCommitReport = scanMainMutationCoverage({
+    files: ['handlers/worktree.ts'],
+    readFile: () => gitFileUnlockedCommit,
+  });
+  assert.equal(gitFileCommitReport.violations.length, 1, 'an unlocked gitFile commit on main MUST be a violation (recognition closed the gap)');
+  assert.equal(gitFileCommitReport.violations[0].verb, 'commit', 'the gitFile violation is the commit');
+  assert.equal(gitFileCommitReport.violations[0].classification, 'main-mutation', 'the gitFile commit on root is a main mutation');
+
+  // (b) A FUTURE `gitFile(['update-ref', 'refs/heads/main', …], root)` MUST bite
+  //     (the story-branch ref carve-out must NOT leak to refs/heads/main).
+  const gitFileUpdateMain = [
+    'function shipsAnUnlockedMainRefUpdate(root: string) {',
+    "  gitFile(['update-ref', 'refs/heads/main', commit], root);",
+    '}',
+  ].join('\n');
+  const gitFileMainRefReport = scanMainMutationCoverage({
+    files: ['handlers/worktree.ts'],
+    readFile: () => gitFileUpdateMain,
+  });
+  assert.equal(gitFileMainRefReport.violations.length, 1, 'an unlocked gitFile update-ref of refs/heads/main MUST be a violation');
+  assert.equal(gitFileMainRefReport.violations[0].verb, 'update-ref', 'the gitFile main-ref violation is the update-ref');
+
+  // (c) The LEGITIMATE scoped story-branch bootstrap shape (commit-tree builds a
+  //     dangling object; update-ref writes refs/heads/${branch}) must stay GREEN
+  //     — no lock required, classified worktree-only (preMortem #1: by target).
+  const bootstrapShape = [
+    'function createScopedStoryBootstrapCommit(repoRoot: string, branch: string) {',
+    "  const commit = gitFile(['commit-tree', tree, '-p', head, '-m', 'lattice: init'], repoRoot);",
+    "  gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);",
+    '}',
+  ].join('\n');
+  const bootstrapReport = scanMainMutationCoverage({
+    files: ['handlers/worktree.ts'],
+    readFile: () => bootstrapShape,
+  });
+  assert.equal(bootstrapReport.violations.length, 0, 'the scoped story-branch bootstrap (commit-tree + update-ref refs/heads/${branch}) must NOT be a violation');
+  assert.equal(
+    bootstrapReport.sites.find((s) => s.verb === 'commit-tree')?.classification,
+    'worktree-only',
+    'commit-tree (dangling object, no ref write) is classified worktree-only',
+  );
+  assert.equal(
+    bootstrapReport.sites.find((s) => s.verb === 'update-ref')?.classification,
+    'worktree-only',
+    'update-ref of a refs/heads/story branch is classified worktree-only',
+  );
+
+  console.log(`${COVERAGE_MARKER} negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)`);
 }
 
 function runGuard(): void {
