@@ -22,10 +22,13 @@
     "Where existing *-smoke.ts tests live + how they wire into package.json (follow the existing pattern)"
   ],
   "touchpoints": [
-    "packages/main/src/core/usage-ledger/ (new: record.ts, writer.ts, summary.ts, ids.ts)",
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/core/usage-ledger/ids.ts",
+    "packages/main/src/core/usage-ledger/summary.ts",
     "packages/main/src/core/runtime-artifact-registry.ts",
-    "packages/main/src/tasks/usage-ledger-smoke.ts (new)",
-    "packages/main/package.json (test script)"
+    "packages/main/src/tasks/usage-ledger-smoke.ts",
+    "packages/main/package.json"
   ],
-  "timestamp": "2026-06-16T00:58:52.533Z"
+  "timestamp": "2026-06-16T01:05:03.713Z"
 }
