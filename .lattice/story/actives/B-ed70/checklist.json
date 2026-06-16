@@ -5,9 +5,9 @@
       "title": "Fix lab/package.json description: replace 'koala 离线优化实验室' with the Lattice equivalent",
       "context": "packages/lab/package.json line 4 description currently reads 'koala 离线优化实验室：实验配置、隔离沙箱、patch guard 和基础评估骨架'. Replace 'koala' with 'Lattice' (preserve the rest of the wording). After: `grep -i koala packages/lab/package.json` returns nothing; `npm --prefix packages/lab run build` passes.",
       "userSees": "packages/lab/package.json no longer mentions koala in its description; lab build still passes.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T20:45:05.526Z",
-      "endTime": null,
+      "endTime": "2026-06-16T20:46:30.286Z",
       "files": {
         "modify": [
           "packages/lab/package.json"
