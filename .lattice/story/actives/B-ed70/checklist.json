@@ -207,9 +207,9 @@
       "title": "Remove the OMX disable guard entirely (the user never wanted omx in their workspace)",
       "context": "Delete the entire omx-disable infrastructure: (a) remove '.omx/' from .gitignore; (b) git rm scripts/verify-omx-disabled.mjs and its 'test:omx-disabled' script entry in root package.json; (c) AGENTS.md item #12 ('本机禁用 OMX...') — remove this entire numbered item; (d) remove omx-refusing source code in packages/main/src/core/baseline.ts, baseline-suite-report.ts, dev-memory.ts, lattice-baseline.ts, runtime-artifact-registry.ts, handlers/capsule.ts, tasks/story-capsule-smoke.ts, tests/fixtures/baseline-risk-accepted-local-paths.json; (e) update the 10 decision docs that document the disable policy to reflect that omx is simply not supported (not 'supported-but-disabled'). After: `git grep -i 'omx' -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md'` returns nothing in active code/docs; `npm run build` + `npm run test:e2e` pass.",
       "userSees": "No omx mentions remain in active code, scripts, .gitignore, AGENTS.md, or decision docs; build + e2e pass.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T20:45:06.837Z",
-      "endTime": null,
+      "endTime": "2026-06-16T20:59:48.099Z",
       "files": {
         "modify": [
           ".gitignore",
