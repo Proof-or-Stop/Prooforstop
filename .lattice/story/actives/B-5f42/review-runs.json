@@ -1,0 +1,169 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-5f42:RR-001",
+      "storyId": "B-5f42",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-16T23:09:40.084Z",
+      "startedAt": "2026-06-16T23:10:11.687Z",
+      "headHash": "c58d112ac1c82f3fa1f80449328f3e5fd5b0f20a",
+      "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "efddfd8672d083a753cee97afa92b048c397815a064b9ad1132e27ad3a875860",
+        "diffPackHash": "0abbdad567982239bfb708d3f01ad21daecb6aca6e34347c74a04b50bbf05124",
+        "reviewedChangedFiles": [
+          ".claude/hooks/english-only-guard.cjs",
+          ".claude/settings.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/cjk-detect.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "269a15d4ef02e0a9cdd78be8d6171928949c2fab285302a345188705f77b6ef8",
+          "3df2d8e48b2feaa75992ba773dda1eba59ef55ac6448cf876af6379f8a252c66",
+          "56a13acadb4c7677de1bb525e2123f64c6596b3fb3844f60c651b679ec653918",
+          "5c4d0647bf4f99a52a8612b0412702746020ba58778dc21e95899eab69807da2",
+          "6094941eb6156774215a7009ca34a0fcea58373e201294f90ff75bd3d0e48374",
+          "8ca6892e3f391d4a5578b703fae731ed02c25339926f17d985e12c34cf2d1c29",
+          "8cc9d4eef7cca97952f7a411b98642169829c1e187efa41ca977c4c46f2747b2",
+          "94ef703025b042359af72d97b5be1a8cafc43387730f45e0bef306bd3a1d09d8",
+          "a3a5b9b88d20411c561a5abf4513764176173be7be90cb7a95c21591db095fd7",
+          "d246d2d266c28e45bc1852926121ffe223bfc0df030144a34eb2c163e8441e6e",
+          "e16087fe124a712c880d6fb12ec8ce40bee0808de6ab601c32f49b3521b50f37",
+          "ee6eec0cf209245d76e4773f7df028b33a16b44ff4cef9901cc9ce4e3dbe6de3"
+        ],
+        "bindingHash": "35076d154395836b3eb5472296fb73da9a3845448b420579bfc8fc021f7e1b1d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "workspaceMode": "story-worktree",
+        "headHash": "c58d112ac1c82f3fa1f80449328f3e5fd5b0f20a",
+        "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+        "bindingHash": "6ede56e6833379fc71e77799b83ee2101f8a41421800191ca18af4d9c3106efc"
+      },
+      "_hash": "0490a942bb02817b6796b4a395ff89a7611bed3815c66d9ed9448924db551f29"
+    },
+    {
+      "reviewRunId": "B-5f42:RR-002",
+      "storyId": "B-5f42",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T23:09:40.084Z",
+      "startedAt": "2026-06-16T23:10:22.604Z",
+      "headHash": "c58d112ac1c82f3fa1f80449328f3e5fd5b0f20a",
+      "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "efddfd8672d083a753cee97afa92b048c397815a064b9ad1132e27ad3a875860",
+        "diffPackHash": "0abbdad567982239bfb708d3f01ad21daecb6aca6e34347c74a04b50bbf05124",
+        "reviewedChangedFiles": [
+          ".claude/hooks/english-only-guard.cjs",
+          ".claude/settings.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/cjk-detect.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "269a15d4ef02e0a9cdd78be8d6171928949c2fab285302a345188705f77b6ef8",
+          "3df2d8e48b2feaa75992ba773dda1eba59ef55ac6448cf876af6379f8a252c66",
+          "56a13acadb4c7677de1bb525e2123f64c6596b3fb3844f60c651b679ec653918",
+          "5c4d0647bf4f99a52a8612b0412702746020ba58778dc21e95899eab69807da2",
+          "6094941eb6156774215a7009ca34a0fcea58373e201294f90ff75bd3d0e48374",
+          "8ca6892e3f391d4a5578b703fae731ed02c25339926f17d985e12c34cf2d1c29",
+          "8cc9d4eef7cca97952f7a411b98642169829c1e187efa41ca977c4c46f2747b2",
+          "94ef703025b042359af72d97b5be1a8cafc43387730f45e0bef306bd3a1d09d8",
+          "a3a5b9b88d20411c561a5abf4513764176173be7be90cb7a95c21591db095fd7",
+          "d246d2d266c28e45bc1852926121ffe223bfc0df030144a34eb2c163e8441e6e",
+          "e16087fe124a712c880d6fb12ec8ce40bee0808de6ab601c32f49b3521b50f37",
+          "ee6eec0cf209245d76e4773f7df028b33a16b44ff4cef9901cc9ce4e3dbe6de3"
+        ],
+        "bindingHash": "35076d154395836b3eb5472296fb73da9a3845448b420579bfc8fc021f7e1b1d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "workspaceMode": "story-worktree",
+        "headHash": "c58d112ac1c82f3fa1f80449328f3e5fd5b0f20a",
+        "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+        "bindingHash": "6ede56e6833379fc71e77799b83ee2101f8a41421800191ca18af4d9c3106efc"
+      },
+      "_hash": "6d08e9f4e53aa148225d394420fc9e6e93d669fa30992e48927ea54cd92b018f"
+    },
+    {
+      "reviewRunId": "B-5f42:RR-003",
+      "storyId": "B-5f42",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-16T23:09:40.084Z",
+      "startedAt": "2026-06-16T23:10:56.200Z",
+      "headHash": "c58d112ac1c82f3fa1f80449328f3e5fd5b0f20a",
+      "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "efddfd8672d083a753cee97afa92b048c397815a064b9ad1132e27ad3a875860",
+        "diffPackHash": "0abbdad567982239bfb708d3f01ad21daecb6aca6e34347c74a04b50bbf05124",
+        "reviewedChangedFiles": [
+          ".claude/hooks/english-only-guard.cjs",
+          ".claude/settings.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/cjk-detect.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "269a15d4ef02e0a9cdd78be8d6171928949c2fab285302a345188705f77b6ef8",
+          "3df2d8e48b2feaa75992ba773dda1eba59ef55ac6448cf876af6379f8a252c66",
+          "56a13acadb4c7677de1bb525e2123f64c6596b3fb3844f60c651b679ec653918",
+          "5c4d0647bf4f99a52a8612b0412702746020ba58778dc21e95899eab69807da2",
+          "6094941eb6156774215a7009ca34a0fcea58373e201294f90ff75bd3d0e48374",
+          "8ca6892e3f391d4a5578b703fae731ed02c25339926f17d985e12c34cf2d1c29",
+          "8cc9d4eef7cca97952f7a411b98642169829c1e187efa41ca977c4c46f2747b2",
+          "94ef703025b042359af72d97b5be1a8cafc43387730f45e0bef306bd3a1d09d8",
+          "a3a5b9b88d20411c561a5abf4513764176173be7be90cb7a95c21591db095fd7",
+          "d246d2d266c28e45bc1852926121ffe223bfc0df030144a34eb2c163e8441e6e",
+          "e16087fe124a712c880d6fb12ec8ce40bee0808de6ab601c32f49b3521b50f37",
+          "ee6eec0cf209245d76e4773f7df028b33a16b44ff4cef9901cc9ce4e3dbe6de3"
+        ],
+        "bindingHash": "35076d154395836b3eb5472296fb73da9a3845448b420579bfc8fc021f7e1b1d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5f42",
+        "workspaceMode": "story-worktree",
+        "headHash": "c58d112ac1c82f3fa1f80449328f3e5fd5b0f20a",
+        "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+        "bindingHash": "6ede56e6833379fc71e77799b83ee2101f8a41421800191ca18af4d9c3106efc"
+      },
+      "_hash": "6d8c808612caa08dea9777264548775e5fa9a9b3982944896b8dbd9753eed7c5"
+    }
+  ]
+}

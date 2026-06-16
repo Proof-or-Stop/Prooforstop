@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5f42:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9 must-intents (3 per CHK-001/002/003, each with happy/edge/adversarial lanes) have valid non-fail evidence. CHK-001 all three covered by integration_test referencing smoke Test 6 (hook spawn behavior). CHK-002 happy+edge by integration_test (smoke Test 4 gate-block/pass), adversarial by logic_test (smoke Test 3 scope). CHK-003 all three by logic_test (smoke Test 1 detector, Test 2 keep-in-sync, Test 3 scope). Evidence recorded after implementation commits (ddd539b..c1e8e03 all follow a9b7c7e CHK-003 and ea4cca55 CHK-001 and 26006073 CHK-002). Smoke suite ran 6 tests, all pass. Deliberate-fail proof confirmed: Test 4 flips gate ok=false on CJK fixture then ok=true on English-only. verificationCoverage=9/9, 0 missing.",
+      "createdAt": "2026-06-16T23:11:07.107Z",
+      "reviewRound": "2026-06-16T23:09:40.084Z",
+      "reviewRunId": "B-5f42:RR-003",
+      "_hash": "16403c4d9c1d2225cbe9fc33521282c84c57d8405d2a49c3808c859cca9204a7"
+    }
+  ]
+}
