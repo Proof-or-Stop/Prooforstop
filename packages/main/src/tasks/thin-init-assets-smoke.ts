@@ -23,7 +23,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
-import { renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
+import { renderManagedAssetCheck, runManagedAssetCheck, runtimeIgnoreMissing } from '../core/managed-assets.js';
+import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cliPath = join(packageRoot, 'dist', 'cli.js');
@@ -62,6 +63,24 @@ function assertManagedOk(root: string, assetMode: 'full' | 'thin' | 'global-thin
 function assertCodexOk(root: string): void {
   const result = runCodexAdapterChecks(root, { executeHeartbeats: false });
   assert.equal(result.ok, true, renderCodexAdapterChecks(result));
+}
+
+// B-4fd3 regression guard: the .gitignore produced by init must cover the FULL
+// runtime-artifact registry ignore set, not just whatever the copied template
+// happened to contain. This mechanically catches any future registry→.gitignore
+// drift (a new ignorePattern added to the registry but not synced into init's
+// copy path / the repo .gitignore), which is exactly how .lattice/usage/ slipped
+// through and made this smoke fail on clean main.
+function assertGitignoreCoversRegistry(root: string): void {
+  const giPath = join(root, '.gitignore');
+  assert.equal(existsSync(giPath), true, '.gitignore should exist after init');
+  const content = readFileSync(giPath, 'utf8');
+  const missing = runtimeIgnoreMissing(content);
+  assert.equal(
+    missing.length,
+    0,
+    `init .gitignore is missing registry runtime ignore pattern(s): ${missing.join(', ')} (full set: ${listRuntimeArtifactIgnorePatterns().join(', ')})`,
+  );
 }
 
 // ─── Test 1: Fresh default (global-thin) ─────────────────────────────────────
@@ -110,6 +129,8 @@ try {
   // Global codex verify should pass without local bin shims
   assertCodexOk(globalThinRoot);
   assertManagedOk(globalThinRoot, 'global-thin', 'core');
+  // B-4fd3: init's .gitignore must cover the whole runtime ignore registry.
+  assertGitignoreCoversRegistry(globalThinRoot);
 } finally {
   rmSync(globalThinRoot, { recursive: true, force: true });
 }
