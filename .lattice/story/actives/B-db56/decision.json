@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Single choke-point beats whack-a-mole per-call-site fixes",
+    "Grep-contract is cheap and catches the defect class at the SOURCE, not just the symptoms",
+    "Preserve existing helper shapes (lab.ts/cli-engine.ts/declared-artifact-commit-check.ts runGit-style) — they have real stdout/exit-code value",
+    "Keep the two prior wrapper-root smokes byte-identical so we don't lose their existing assertions"
+  ],
+  "drivers": [
+    "A defect class has recurred across 5+ stories; per-call-site fixes do not prevent recurrence",
+    "Wrapper-root layout is the canonical OSS deployment topology — calls failing here block real operators",
+    "Contract tests are the team's established pattern, not eslint"
+  ],
+  "options": [
+    {
+      "name": "Choke-point + grep contract (chosen)",
+      "pros": [
+        "Cheap",
+        "Catches defect class",
+        "No structural rewrite"
+      ],
+      "cons": [
+        "Grep contract has FP risk for edge syntax — needs careful regex + allowlist"
+      ]
+    },
+    {
+      "name": "ESLint custom rule",
+      "pros": [
+        "Structural enforcement"
+      ],
+      "cons": [
+        "High integration cost; team prefers smoke-test contracts"
+      ]
+    },
+    {
+      "name": "Per-call-site reroute only, no contract",
+      "pros": [
+        "Smallest diff"
+      ],
+      "cons": [
+        "Does not prevent recurrence — same as the current state we're trying to escape"
+      ]
+    }
+  ],
+  "chosen": "Choke-point + grep contract (chosen)",
+  "rationale": "Aligns with team's existing smoke-test contract pattern (gitroot-cwd-routing-smoke, bare-gate-gitroot-cwd-smoke already exist); cheapest preventive measure; catches the defect AT THE SOURCE not just at the symptom.",
+  "preMortem": [
+    {
+      "scenario": "The grep contract has a regex false positive and starts failing on legitimate code",
+      "trigger": "Regex matches a STRING that contains 'execFileSync' / 'spawnSync' inside a comment or another smoke-fixture file",
+      "consequence": "CI breaks for unrelated changes; team disables the contract",
+      "mitigation": "Scope the grep to actual call-expression syntax (e.g. match `(execFileSync|spawnSync|execSync)\\(['\\\"']git['\\\"']`); exclude test/smoke files and existing fixture files via an explicit allowlist; add a self-test where the contract smoke runs against a small fixture of known-good + known-bad samples"
+    },
+    {
+      "scenario": "Rerouting a call site changes runtime behavior because the caller relied on cwd defaulting to process.cwd() (not metadataRoot)",
+      "trigger": "Some sites pass `{cwd}` implicitly assuming process.cwd; rerouting forces an explicit resolved cwd",
+      "consequence": "Subtle regressions where git ran in a different dir than before",
+      "mitigation": "For each site, READ the caller context before rewriting; for sites that genuinely want process.cwd, leave them untouched and document via allowlist; the 2 existing smokes (gitroot-cwd-routing, bare-gate-gitroot-cwd) must still pass byte-identically — they are the strongest existing safety net"
+    },
+    {
+      "scenario": "resolveGitCwd is itself a git child-process caller (via internal probes) and the grep contract flags it as a bare-projectRoot site",
+      "trigger": "resolveGitCwd internally calls git rev-parse to verify the gitRoot — chicken-and-egg",
+      "consequence": "Contract smoke fails on the helper itself",
+      "mitigation": "Allowlist resolveGitCwd's own file (story-signed-workspace-resolution.ts) and the 3 ad-hoc helpers in the contract smoke's allowlist; the allowlist is part of the contract source, reviewable in the same PR"
+    },
+    {
+      "scenario": "The 193 number undercounts (e.g. helpers like runGit hide additional git calls inside them, or template strings produce `git` as a variable)",
+      "trigger": "Trusting a single grep pattern",
+      "consequence": "Some call sites are missed in the audit, defect class is not fully killed",
+      "mitigation": "Cross-check with `git grep -nE \"['\\\"']git['\\\"'],\\s*\\[\" -- 'packages/**/*.ts'` AND `git grep -nE \"runGit\\(|runGitNoThrow\\(\" -- 'packages/**/*.ts'`; the audit count must reconcile across both scans; the contract smoke covers the literal-git case, the wrapper helpers are themselves allowlisted but their callers go through the same audit"
+    }
+  ],
+  "timestamp": "2026-06-16T22:11:05.508Z"
+}

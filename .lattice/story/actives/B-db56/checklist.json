@@ -7,7 +7,22 @@
       "userSees": "Every git call site uses a cwd obtained from resolveGitCwd (or an existing helper that itself takes a resolved cwd); both existing wrapper-root smokes still pass; build + e2e green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/core/declared-artifact-commit-check.ts",
+          "packages/main/src/core/cluster-sync.ts",
+          "packages/lab/src/handlers/lab.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
