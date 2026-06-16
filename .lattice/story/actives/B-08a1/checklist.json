@@ -345,6 +345,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run test:usage-ledger-adapter exits 0 and prints pass markers for all test groups (anthropic, openai, gemini, assembler, streaming, unavailable/null); WHY: smoke must be wired as npm script and actually run all adapter tests green",
+            "type": "cli"
+          },
+          {
+            "desc": "Assembled record round-trips through B-253e writer (appendUsageRecord with opt-in ON, temp dir) -> writer returns written:true; re-read the JSONL line and validateUsageLedgerRecord({expectIntegrity:true}).ok===true; WHY: proves adapter output integrates end-to-end with the foundation writer",
+            "type": "cli"
+          },
+          {
+            "desc": "npm --prefix packages/main run build exits 0 (TypeScript compiles clean with the new adapter files); WHY: build green is a gating requirement",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke test uses temp directory for writer round-trip (no .lattice/usage pollution in the repo); verify temp dir is created and cleaned up or at least isolated; WHY: tests must not pollute the working repo",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers the writer round-trip with hash chain verification (verifyLedgerChain on the temp file returns valid records); WHY: integrity chain must be correct for round-tripped adapter records",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff of the story branch vs main never touches dispatch-runner or lattice-dispatch files -> verify no files matching *dispatch-runner* or *lattice-dispatch* appear in the diff; WHY: story scope boundary: adapters must NOT be wired into live dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test exit code is non-zero when any individual test case fails (e.g. if a canonical field is wrong) -> verify the smoke follows the existing smoke pattern of process.exit(1) on failure; WHY: a smoke that silently passes on failure is useless",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
