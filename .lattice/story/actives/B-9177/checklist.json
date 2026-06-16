@@ -37,9 +37,9 @@
       "title": "Close the gaps: wrap any remaining unlocked main-mutating path in withReentrantMainWriteLock",
       "context": "For each unlocked main-mutating path found in the audit, wrap its main commit/merge/ref-update critical section in withReentrantMainWriteLock (reentrant, since some run within already-locked contexts). If the audit finds none remaining, record that and proceed to the guard. Do not change command semantics; lock-only.",
       "userSees": "Each previously-unlocked main-mutating path now acquires the main-write-lock; concurrent sessions are serialized on those paths (no race corruption).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T04:06:03.079Z",
       "verificationIntent": {
         "happy": [
           {
