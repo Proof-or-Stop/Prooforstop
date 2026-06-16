@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-1b28:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 63 verificationIntent entries (CHK-001:happy:0-11 + edge:0-3 + adversarial:0-2; CHK-002:happy:0-6 + edge:0-2 + adversarial:0-2; CHK-003:happy:0-6 + edge:0-4 + adversarial:0-4; CHK-004:happy:0-7 + edge:0-2 + adversarial:0-2) have concrete logic_test evidence via usage-ledger-default-on-smoke.ts + verify-b-1b28.mjs. Live runs confirmed: smoke exits 0 with 30 named checks covering default-ON flip, =0 byte-identical escape hatch, raw-text fallback, error swallowing, budget guard, KOALA_ alias, precedence, memoization-free re-read, and full ledger suite (7 smokes) regression-free. writer.ts comment updated to Default ON; env mutations hermetic; temp dir cleanup in finally; zero cross-module imports verified. No coverage gap found.",
+      "createdAt": "2026-06-16T22:31:37.503Z",
+      "reviewRound": "2026-06-16T22:29:31.413Z",
+      "reviewRunId": "B-1b28:RR-001",
+      "_hash": "8ce893cfd13db50c0c1db0ddc71bce935fd51aefc278ef6f63f4b93d3e8aa9a3"
+    }
+  ]
+}
