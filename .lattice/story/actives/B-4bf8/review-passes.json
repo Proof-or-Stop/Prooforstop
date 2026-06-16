@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-4bf8:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup check complete. The target document (lattice-llm-usage-ledger-execution-plan.md) contains totalTokens exactly 5 times; every occurrence is an explicit prohibition or not-stored/derived statement (lines 418, 450, 671, 731, 777). The JSON example block at line 296 contains only the four-field model (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) with no totalTokens. No old two-field (input/output/total) prose remains asserting the model as current. All non-doc occurrences are in .lattice/story/ workflow artifacts (checklist, plan, understanding, evidence) that correctly describe the task and its removal. No concept residue found; deletion is complete.",
+      "createdAt": "2026-06-16T00:01:53.726Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-003",
+      "_hash": "2c316bd131da8aeaaafeb5a34683a51cf0b863bce07de6327e48f7e36ff8438c"
+    }
+  ]
+}

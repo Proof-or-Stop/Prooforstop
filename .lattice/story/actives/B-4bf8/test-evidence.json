@@ -1,15 +1,15 @@
 {
   "command": "lattice validate --story=B-4bf8 --json",
-  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 69 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/69 covered (69 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — grep the JSON example block -> contains cacheCreationInputTokens AND cacheReadInputTokens AND inputTokens AND outputTokens as four distinct fields; WHY: the example is the de-facto spec, must show all four cache-aware token fields\",\"  ✗ CHK-001:happy:1 [happy/must/cli] missing — prose states that inputTokens (or input_tokens) is the uncached remainder, not the total input -> grep for uncached remainder; WHY: prevents implementer misreading inputTokens as gross input\",\"  ✗ CHK-001:happy:2 [happy/must/cli] missing — doc references CMA span.model_request_end.model_usage (or Managed Agents model_usage) as prior art -> grep for model_usage or model_request_end; WHY: establishes provenance for the four-field shape\",\"  ✗ CHK-001:happy:3 [happy/must/cli] missing — Required record constraints section mentions all four token fields as required (or specifies when-required semantics) -> grep constraints section for cacheCreation and cacheRead; WHY: folds in product-reviewer advisory about constraints clarity\",\"  ✗ CHK-001:edge:0 [edge/must/cli] missing — JSON example does NOT contain a totalTokens field (CHK-002 removes it but CHK-001 example should already omit or CHK-002 will) -> grep for totalTokens inside JSON block -> expect absent OR expect CHK-002 removes it; WHY: catch inconsistency if CHK-001 adds four fields but leaves stale totalTokens\",\"  ✗ CHK-001:edge:1 [edge/must/cli] missing — billableUnits array in the example, if still present, includes cache-type entries (cache_creation, cache_read) or the example omits billableUnits entirely -> grep billableUnits; WHY: catch stale billableUnits that only lists input/output without cache\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] missing — search entire doc for the string totalTokens -> must appear ONLY in derived/summary context (CHK-002), never as a stored field in the record shape or example; WHY: adversarial check that old two-field model is fully purged from record-level prose\",\"  ✗ CHK-001:adversarial:1 [adversarial/must/cli] missing — verify no source-code files (.ts, .js, .json schema files) are modified in the git diff for this story -> git diff --name-only vs main; WHY: scope creep guard -- this is doc-only\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — grep entire JSON example block for totalTokens -> absent; WHY: totalTokens is a derived field and must not be stored per-record\",\"  ✗ CHK-002:happy:1 [happy/must/cli] missing — doc contains the identity formula total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens (or equivalent) -> grep for the identity; WHY: the summary layer must define how totals are computed\",\"  ✗ CHK-002:happy:2 [happy/must/cli] missing — prose explicitly states totals are computed in the summary layer, not stored per-record -> grep for summary layer or summary-derived; WHY: prevents implementers from re-adding totalTokens\",\"  ✗ CHK-002:edge:0 [edge/must/cli] missing — grep Required record constraints for totalTokens -> absent; WHY: catch constraints section still listing totalTokens as required even after example removal\",\"  ✗ CHK-002:edge:1 [edge/must/cli] missing — grep billableUnits entries for a total-type entry -> absent; WHY: catch totalTokens smuggled back via billableUnits\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] missing — count all occurrences of totalTokens in the entire doc -> each occurrence must be in a context that says derived/summary/not-stored; WHY: adversarial full-text scan to catch any stale reference that still treats totalTokens as a stored field\",\"  ✗ CHK-002:adversarial:1 [adversarial/must/cli] missing — grep Validation/Smoke Plan for totalTokens -> must reference its removal or absence, not assert its presence; WHY: catch stale validation assertion that still tests for stored totalTokens\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — doc mentions count_tokens as the preferred estimation method (provider endpoint) -> grep for count_tokens; WHY: ensures estimate path prefers provider tokenizer over local heuristics\",\"  ✗ CHK-003:happy:1 [happy/must/cli] missing — doc specifies estimator confidence ranking high|medium|low -> grep for confidence and high|medium|low; WHY: ensures estimate records carry a confidence discriminator\",\"  ✗ CHK-003:happy:2 [happy/must/cli] missing — doc requires estimate to be bound to exact provider.model (model-version-specific) -> grep for model-version or provider.model in estimate context; WHY: counts differ across model versions, binding prevents stale estimates\",\"  ✗ CHK-003:edge:0 [edge/must/cli] missing — fallback chain is explicitly ordered: count_tokens > local tokenizer > bytes/chars -> grep for fallback or ordered preference; WHY: catch missing fallback order that would leave implementers guessing\",\"  ✗ CHK-003:edge:1 [edge/must/cli] missing — estimator.name and estimator.version still required in constraints alongside new confidence field -> grep constraints for estimator; WHY: catch regression where adding confidence drops existing estimator fields\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] missing — grep entire doc for bytes-per-char or bytes heuristic as a PRIMARY estimator (not fallback) -> must only appear as lowest-confidence fallback; WHY: adversarial check that cheap heuristics are not accidentally promoted to preferred\",\"  ✗ CHK-003:adversarial:1 [adversarial/must/cli] missing — grep JSON example for estimator block -> if present, must include confidence field; WHY: catch example updated with estimator but missing the new confidence field, creating prose-example mismatch\",\"  ✗ CHK-004:happy:0 [happy/must/cli] missing — doc specifies storyId=null for non-story calls (global validate, daemon) and explicitly states they are NOT dropped -> grep for storyId and null; WHY: non-story usage must still be recorded\",\"  ✗ CHK-004:happy:1 [happy/must/cli] missing — doc describes subagent/nested call propagation of parent storyId plus subagent/thread id -> grep for subagent or nested or propagat; WHY: ensures nested calls are traceable to parent story\",\"  ✗ CHK-004:happy:2 [happy/must/cli] missing — doc adds role or agentType field (implementer|reviewer|main or similar) -> grep for role or agentType; WHY: enables per-story breakdown by role\",\"  ✗ CHK-004:happy:3 [happy/must/cli] missing — doc specifies storyId/phase captured at preflight (call time) from active lease/session context -> grep for preflight or call time in attribution context; WHY: prevents post-hoc attribution errors\",\"  ✗ CHK-004:edge:0 [edge/must/cli] missing — JSON example block includes storyId field (already present) and now also includes role/agentType field -> grep JSON example for agentType or role; WHY: catch prose-updated-but-example-not inconsistency\",\"  ✗ CHK-004:edge:1 [edge/must/cli] missing — subagent propagation specifies a subagentId or threadId field in the record -> grep for subagentId or threadId; WHY: without an id field, subagent propagation is unimplementable\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/cli] missing — grep for any statement that drops or filters out storyId=null records -> must be absent; WHY: adversarial check that null-story records are not silently excluded from summaries\",\"  ✗ CHK-004:adversarial:1 [adversarial/must/cli] missing — grep for storyId in Validation/Smoke Plan -> must assert null-storyId recording and subagent propagation; WHY: catch stale Validation section that does not test the new attribution rules\",\"  ✗ CHK-005:happy:0 [happy/must/cli] missing — doc contains a section (or subsection) about single writer choke-point requiring all provider dispatch to flow through one ledger-writing path -> grep for choke-point or single writer; WHY: ensures completeness by construction\",\"  ✗ CHK-005:happy:1 [happy/must/cli] missing — doc contains a reconciliation section/paragraph describing periodic check of dispatch events vs ledger records -> grep for reconciliation or reconcil; WHY: catch completeness gaps where dispatch bypasses the writer\",\"  ✗ CHK-005:edge:0 [edge/must/cli] missing — reconciliation references ledgerCallId+attemptId as the correlation key -> grep reconciliation context for ledgerCallId; WHY: reconciliation without the right key is unimplementable\",\"  ✗ CHK-005:edge:1 [edge/must/cli] missing — doc addresses the failure mode of a bypassed writer (silent under-count) -> grep for bypass or under-count or silent; WHY: motivates why the choke-point exists\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/cli] missing — grep Implementation Touchpoints for any new implementation slice that could bypass the choke-point (e.g., a second writer path) -> must not introduce contradictory multi-writer guidance; WHY: adversarial check for internal doc contradiction\",\"  ✗ CHK-005:adversarial:1 [adversarial/must/cli] missing — grep Validation/Smoke Plan for reconciliation or completeness assertion -> must be present; WHY: catch stale Validation that omits completeness testing\",\"  ✗ CHK-006:happy:0 [happy/must/cli] missing — doc specifies streaming usage must be read from the terminal stream event (message_delta or final message) -> grep for terminal stream event or message_delta; WHY: streaming responses require reading usage from the last event, not assuming non-streaming shape\",\"  ✗ CHK-006:happy:1 [happy/must/cli] missing — doc specifies partial output usage on error/timeout mid-stream must still be recorded -> grep for partial or error or timeout in streaming context; WHY: errored calls still consume budget\",\"  ✗ CHK-006:happy:2 [happy/must/cli] missing — doc clarifies usage.source=unavailable only when truly no count exists -> grep for unavailable and truly or no reliable; WHY: prevents lazy unavailable marking when partial counts are available\",\"  ✗ CHK-006:edge:0 [edge/must/cli] missing — existing rule about failed requests writing ledger entries (line 81 area) is consistent with new streaming/failure guidance -> grep for failed request in both existing and new sections; WHY: catch contradiction between existing failure rule and new streaming failure rule\",\"  ✗ CHK-006:edge:1 [edge/must/cli] missing — if streaming section references provider-reported source, it specifies that partial counts from a terminal event still qualify as provider-reported -> grep for provider-reported near streaming; WHY: partial real counts should not be downgraded to estimate\",\"  ✗ CHK-006:adversarial:0 [adversarial/must/cli] missing — grep entire doc for any statement that sets unavailable usage to zero or treats missing as zero-cost -> must be absent or explicitly prohibited; WHY: adversarial check for the most dangerous accounting error\",\"  ✗ CHK-006:adversarial:1 [adversarial/must/cli] missing — grep Validation/Smoke Plan for streaming or partial or failure usage assertion -> must be present; WHY: catch stale Validation that omits streaming/failure test\",\"  ✗ CHK-007:happy:0 [happy/must/cli] missing — doc requires BOTH raw provider units AND a normalized canonical view {input, output, cacheCreation, cacheRead} -> grep for canonical or normalized and raw or provider-specific; WHY: resolves the tension between fidelity and cross-source summaries\",\"  ✗ CHK-007:happy:1 [happy/must/cli] missing — doc includes explicit mapping rules for how each providers cache/cached-token fields map to the canonical cache fields -> grep for mapping or map; WHY: without mapping rules, normalization is unimplementable\",\"  ✗ CHK-007:edge:0 [edge/must/cli] missing — canonical view uses {input, output, cacheCreation, cacheRead} (four fields matching CHK-001) not a different set -> grep for canonical field names; WHY: catch inconsistency between CHK-001 four-field model and CHK-007 canonical names\",\"  ✗ CHK-007:edge:1 [edge/must/cli] missing — provider adapter extraction touchpoint (existing section 2) is consistent with new dual-view requirement -> grep Implementation Touchpoints section 2 for canonical or raw; WHY: catch contradiction between existing touchpoint and new requirement\",\"  ✗ CHK-007:adversarial:0 [adversarial/must/cli] missing — grep for any statement that discards raw provider units in favor of only the canonical view -> must be absent; WHY: adversarial check that raw fidelity is not lost despite normalization\",\"  ✗ CHK-007:adversarial:1 [adversarial/must/cli] missing — JSON example includes both raw provider units (e.g., billableUnits or provider-specific block) and canonical fields -> grep example for both; WHY: catch prose-updated-but-example-not showing only one view\",\"  ✗ CHK-008:happy:0 [happy/must/cli] missing — doc adds pricingRef or pricingVersion field for cost derivation -> grep for pricingRef or pricingVersion; WHY: cost must be derived from a pinned price table, not hardcoded\",\"  ✗ CHK-008:happy:1 [happy/must/cli] missing — doc specifies snapshot mechanism or price table (per-model per-MTok + cache multipliers, which change over time) -> grep for snapshot or price table or multiplier; WHY: prices change, so records must reference a versioned table\",\"  ✗ CHK-008:happy:2 [happy/must/cli] missing — doc explicitly prohibits absolute prices baked into append-only records -> grep for absolute price or hardcoded or baked; WHY: prevents per-record cost fields that become stale when prices change\",\"  ✗ CHK-008:edge:0 [edge/must/cli] missing — JSON example record does NOT contain a cost or price field with a dollar amount -> grep JSON example for cost or price with numeric values; WHY: catch example contradicting the no-absolute-prices rule\",\"  ✗ CHK-008:edge:1 [edge/must/cli] missing — doc addresses cache multipliers (cache reads cost less, cache writes cost more than base input) in pricing context -> grep for cache and multiplier or cost; WHY: cache tokens have different per-token costs, pricing must handle this\",\"  ✗ CHK-008:adversarial:0 [adversarial/must/cli] missing — grep entire doc for any hardcoded dollar amount -> must be absent from record-level prose; WHY: adversarial check for accidentally baked-in prices\",\"  ✗ CHK-008:adversarial:1 [adversarial/must/cli] missing — grep Acceptance Criteria for pricing or pricingRef -> must be mentioned; WHY: catch stale Acceptance Criteria that omits the pricing constraint\",\"  ✗ CHK-009:happy:0 [happy/must/cli] missing — Validation/Smoke Plan section asserts four-field cache-token recording -> grep Validation section for cacheCreation or cacheRead or cache token; WHY: Validation must cover all CHK-001 through CHK-008 changes\",\"  ✗ CHK-009:happy:1 [happy/must/cli] missing — Acceptance Criteria section mentions no stored totalTokens or derived totals -> grep Acceptance Criteria for totalTokens or derived or summary; WHY: Acceptance must reflect CHK-002 change\",\"  ✗ CHK-009:happy:2 [happy/must/cli] missing — Validation section mentions estimator confidence and count_tokens preference -> grep for confidence or count_tokens; WHY: must reflect CHK-003\",\"  ✗ CHK-009:happy:3 [happy/must/cli] missing — Validation section mentions call-time attribution including null storyId and subagent -> grep for null or subagent in Validation; WHY: must reflect CHK-004\",\"  ✗ CHK-009:happy:4 [happy/must/cli] missing — CMA expanded on first use in the document (Claude Managed Agents or similar) -> grep for first occurrence of CMA with expansion; WHY: acronym must be defined for readers\",\"  ✗ CHK-009:happy:5 [happy/must/cli] missing — Rollout Phases section updated to reference new fields (cache tokens, reconciliation, pricing, streaming) -> grep Rollout for cache or reconciliation or pricing; WHY: Rollout must be consistent with the amended spec\",\"  ✗ CHK-009:edge:0 [edge/must/cli] missing — internal cross-references are consistent: no section references a field name that was removed (e.g., totalTokens as required) -> grep for totalTokens in Required record constraints, Acceptance Criteria, Rollout -> must be absent or only in derived context; WHY: catch stale cross-references\",\"  ✗ CHK-009:edge:1 [edge/must/cli] missing — Acceptance Criteria includes reconciliation and completeness -> grep for reconciliation in Acceptance; WHY: CHK-005 requirement must appear in acceptance\",\"  ✗ CHK-009:edge:2 [edge/must/cli] missing — Acceptance Criteria includes streaming/failure usage -> grep for streaming or partial in Acceptance; WHY: CHK-006 requirement must appear in acceptance\",\"  ✗ CHK-009:adversarial:0 [adversarial/must/cli] missing — git diff --name-only main...HEAD shows ONLY docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice/ metadata files changed; no .ts/.js/.json source files -> WHY: this is a doc-only story, any source code change is scope creep\",\"  ✗ CHK-009:adversarial:1 [adversarial/must/cli] missing — doc contains no new CJK characters (stays English) -> grep for Unicode CJK range in the doc; WHY: background mentions Chinese user framing but doc must stay English\",\"  ✗ CHK-009:adversarial:2 [adversarial/must/cli] missing — Validation/Smoke Plan does not still assert totalTokens presence (stale assertion) -> grep Validation for totalTokens -> must not assert its presence; WHY: catch stale validation that contradicts CHK-002\",\"  ✗ CHK-009:adversarial:3 [adversarial/must/cli] missing — Acceptance Criteria includes canonical normalization (CHK-007) and pricingRef (CHK-008) -> grep Acceptance for canonical and pricing; WHY: catch incomplete Acceptance update that omits later CHK items\"],\"warnings\":[],\"timestamp\":\"2026-06-15T23:56:28.332Z\",\"headSha\":\"fd65672853b3dc5f1d3daf97a23ecad9a9c0181e\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1174}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":69,\"reason\":\"verificationIntent entries present (69)\"},\"verificationCoverage\":{\"total\":69,\"required\":69,\"covered\":0,\"missingRequired\":69,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep the JSON example block -> contains cacheCreationInputTokens AND cacheReadInputTokens AND inputTokens AND outputTokens as four distinct fields; WHY: the example is the de-facto spec, must show all four cache-aware token fields\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"prose states that inputTokens (or input_tokens) is the uncached remainder, not the total input -> grep for uncached remainder; WHY: prevents implementer misreading inputTokens as gross input\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"doc references CMA span.model_request_end.model_usage (or Managed Agents model_usage) as prior art -> grep for model_usage or model_request_end; WHY: establishes provenance for the four-field shape\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Required record constraints section mentions all four token fields as required (or specifies when-required semantics) -> grep constraints section for cacheCreation and cacheRead; WHY: folds in product-reviewer advisory about constraints clarity\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"JSON example does NOT contain a totalTokens field (CHK-002 removes it but CHK-001 example should already omit or CHK-002 will) -> grep for totalTokens inside JSON block -> expect absent OR expect CHK-002 removes it; WHY: catch inconsistency if CHK-001 adds four fields but leaves stale totalTokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"billableUnits array in the example, if still present, includes cache-type entries (cache_creation, cache_read) or the example omits billableUnits entirely -> grep billableUnits; WHY: catch stale billableUnits that only lists input/output without cache\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"search entire doc for the string totalTokens -> must appear ONLY in derived/summary context (CHK-002), never as a stored field in the record shape or example; WHY: adversarial check that old two-field model is fully purged from record-level prose\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"verify no source-code files (.ts, .js, .json schema files) are modified in the git diff for this story -> git diff --name-only vs main; WHY: scope creep guard -- this is doc-only\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"grep entire JSON example block for totalTokens -> absent; WHY: totalTokens is a derived field and must not be stored per-record\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"doc contains the identity formula total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens (or equivalent) -> grep for the identity; WHY: the summary layer must define how totals are computed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"prose explicitly states totals are computed in the summary layer, not stored per-record -> grep for summary layer or summary-derived; WHY: prevents implementers from re-adding totalTokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"grep Required record constraints for totalTokens -> absent; WHY: catch constraints section still listing totalTokens as required even after example removal\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"grep billableUnits entries for a total-type entry -> absent; WHY: catch totalTokens smuggled back via billableUnits\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"count all occurrences of totalTokens in the entire doc -> each occurrence must be in a context that says derived/summary/not-stored; WHY: adversarial full-text scan to catch any stale reference that still treats totalTokens as a stored field\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"grep Validation/Smoke Plan for totalTokens -> must reference its removal or absence, not assert its presence; WHY: catch stale validation assertion that still tests for stored totalTokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"doc mentions count_tokens as the preferred estimation method (provider endpoint) -> grep for count_tokens; WHY: ensures estimate path prefers provider tokenizer over local heuristics\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"doc specifies estimator confidence ranking high|medium|low -> grep for confidence and high|medium|low; WHY: ensures estimate records carry a confidence discriminator\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"doc requires estimate to be bound to exact provider.model (model-version-specific) -> grep for model-version or provider.model in estimate context; WHY: counts differ across model versions, binding prevents stale estimates\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"fallback chain is explicitly ordered: count_tokens > local tokenizer > bytes/chars -> grep for fallback or ordered preference; WHY: catch missing fallback order that would leave implementers guessing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"estimator.name and estimator.version still required in constraints alongside new confidence field -> grep constraints for estimator; WHY: catch regression where adding confidence drops existing estimator fields\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"grep entire doc for bytes-per-char or bytes heuristic as a PRIMARY estimator (not fallback) -> must only appear as lowest-confidence fallback; WHY: adversarial check that cheap heuristics are not accidentally promoted to preferred\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"grep JSON example for estimator block -> if present, must include confidence field; WHY: catch example updated with estimator but missing the new confidence field, creating prose-example mismatch\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc specifies storyId=null for non-story calls (global validate, daemon) and explicitly states they are NOT dropped -> grep for storyId and null; WHY: non-story usage must still be recorded\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc describes subagent/nested call propagation of parent storyId plus subagent/thread id -> grep for subagent or nested or propagat; WHY: ensures nested calls are traceable to parent story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc adds role or agentType field (implementer|reviewer|main or similar) -> grep for role or agentType; WHY: enables per-story breakdown by role\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:3\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc specifies storyId/phase captured at preflight (call time) from active lease/session context -> grep for preflight or call time in attribution context; WHY: prevents post-hoc attribution errors\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"JSON example block includes storyId field (already present) and now also includes role/agentType field -> grep JSON example for agentType or role; WHY: catch prose-updated-but-example-not inconsistency\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"subagent propagation specifies a subagentId or threadId field in the record -> grep for subagentId or threadId; WHY: without an id field, subagent propagation is unimplementable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"grep for any statement that drops or filters out storyId=null records -> must be absent; WHY: adversarial check that null-story records are not silently excluded from summaries\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"grep for storyId in Validation/Smoke Plan -> must assert null-storyId recording and subagent propagation; WHY: catch stale Validation section that does not test the new attribution rules\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"doc contains a section (or subsection) about single writer choke-point requiring all provider dispatch to flow through one ledger-writing path -> grep for choke-point or single writer; WHY: ensures completeness by construction\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"doc contains a reconciliation section/paragraph describing periodic check of dispatch events vs ledger records -> grep for reconciliation or reconcil; WHY: catch completeness gaps where dispatch bypasses the writer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"reconciliation references ledgerCallId+attemptId as the correlation key -> grep reconciliation context for ledgerCallId; WHY: reconciliation without the right key is unimplementable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"doc addresses the failure mode of a bypassed writer (silent under-count) -> grep for bypass or under-count or silent; WHY: motivates why the choke-point exists\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"grep Implementation Touchpoints for any new implementation slice that could bypass the choke-point (e.g., a second writer path) -> must not introduce contradictory multi-writer guidance; WHY: adversarial check for internal doc contradiction\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"grep Validation/Smoke Plan for reconciliation or completeness assertion -> must be present; WHY: catch stale Validation that omits completeness testing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"doc specifies streaming usage must be read from the terminal stream event (message_delta or final message) -> grep for terminal stream event or message_delta; WHY: streaming responses require reading usage from the last event, not assuming non-streaming shape\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:1\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"doc specifies partial output usage on error/timeout mid-stream must still be recorded -> grep for partial or error or timeout in streaming context; WHY: errored calls still consume budget\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:2\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"doc clarifies usage.source=unavailable only when truly no count exists -> grep for unavailable and truly or no reliable; WHY: prevents lazy unavailable marking when partial counts are available\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"existing rule about failed requests writing ledger entries (line 81 area) is consistent with new streaming/failure guidance -> grep for failed request in both existing and new sections; WHY: catch contradiction between existing failure rule and new streaming failure rule\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:edge:1\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"if streaming section references provider-reported source, it specifies that partial counts from a terminal event still qualify as provider-reported -> grep for provider-reported near streaming; WHY: partial real counts should not be downgraded to estimate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"grep entire doc for any statement that sets unavailable usage to zero or treats missing as zero-cost -> must be absent or explicitly prohibited; WHY: adversarial check for the most dangerous accounting error\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:adversarial:1\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"grep Validation/Smoke Plan for streaming or partial or failure usage assertion -> must be present; WHY: catch stale Validation that omits streaming/failure test\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"doc requires BOTH raw provider units AND a normalized canonical view {input, output, cacheCreation, cacheRead} -> grep for canonical or normalized and raw or provider-specific; WHY: resolves the tension between fidelity and cross-source summaries\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"doc includes explicit mapping rules for how each providers cache/cached-token fields map to the canonical cache fields -> grep for mapping or map; WHY: without mapping rules, normalization is unimplementable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"canonical view uses {input, output, cacheCreation, cacheRead} (four fields matching CHK-001) not a different set -> grep for canonical field names; WHY: catch inconsistency between CHK-001 four-field model and CHK-007 canonical names\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:edge:1\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"provider adapter extraction touchpoint (existing section 2) is consistent with new dual-view requirement -> grep Implementation Touchpoints section 2 for canonical or raw; WHY: catch contradiction between existing touchpoint and new requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"grep for any statement that discards raw provider units in favor of only the canonical view -> must be absent; WHY: adversarial check that raw fidelity is not lost despite normalization\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:adversarial:1\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"JSON example includes both raw provider units (e.g., billableUnits or provider-specific block) and canonical fields -> grep example for both; WHY: catch prose-updated-but-example-not showing only one view\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:happy:0\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"doc adds pricingRef or pricingVersion field for cost derivation -> grep for pricingRef or pricingVersion; WHY: cost must be derived from a pinned price table, not hardcoded\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:happy:1\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"doc specifies snapshot mechanism or price table (per-model per-MTok + cache multipliers, which change over time) -> grep for snapshot or price table or multiplier; WHY: prices change, so records must reference a versioned table\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:happy:2\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"doc explicitly prohibits absolute prices baked into append-only records -> grep for absolute price or hardcoded or baked; WHY: prevents per-record cost fields that become stale when prices change\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:edge:0\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"JSON example record does NOT contain a cost or price field with a dollar amount -> grep JSON example for cost or price with numeric values; WHY: catch example contradicting the no-absolute-prices rule\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:edge:1\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"doc addresses cache multipliers (cache reads cost less, cache writes cost more than base input) in pricing context -> grep for cache and multiplier or cost; WHY: cache tokens have different per-token costs, pricing must handle this\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:adversarial:0\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"grep entire doc for any hardcoded dollar amount -> must be absent from record-level prose; WHY: adversarial check for accidentally baked-in prices\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:adversarial:1\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"grep Acceptance Criteria for pricing or pricingRef -> must be mentioned; WHY: catch stale Acceptance Criteria that omits the pricing constraint\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:happy:0\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Validation/Smoke Plan section asserts four-field cache-token recording -> grep Validation section for cacheCreation or cacheRead or cache token; WHY: Validation must cover all CHK-001 through CHK-008 changes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:happy:1\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Acceptance Criteria section mentions no stored totalTokens or derived totals -> grep Acceptance Criteria for totalTokens or derived or summary; WHY: Acceptance must reflect CHK-002 change\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:happy:2\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Validation section mentions estimator confidence and count_tokens preference -> grep for confidence or count_tokens; WHY: must reflect CHK-003\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:happy:3\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Validation section mentions call-time attribution including null storyId and subagent -> grep for null or subagent in Validation; WHY: must reflect CHK-004\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:happy:4\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"CMA expanded on first use in the document (Claude Managed Agents or similar) -> grep for first occurrence of CMA with expansion; WHY: acronym must be defined for readers\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:happy:5\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Rollout Phases section updated to reference new fields (cache tokens, reconciliation, pricing, streaming) -> grep Rollout for cache or reconciliation or pricing; WHY: Rollout must be consistent with the amended spec\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:edge:0\",\"itemId\":\"CHK-009\",\"lane\":\"edge\",\"desc\":\"internal cross-references are consistent: no section references a field name that was removed (e.g., totalTokens as required) -> grep for totalTokens in Required record constraints, Acceptance Criteria, Rollout -> must be absent or only in derived context; WHY: catch stale cross-references\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:edge:1\",\"itemId\":\"CHK-009\",\"lane\":\"edge\",\"desc\":\"Acceptance Criteria includes reconciliation and completeness -> grep for reconciliation in Acceptance; WHY: CHK-005 requirement must appear in acceptance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:edge:2\",\"itemId\":\"CHK-009\",\"lane\":\"edge\",\"desc\":\"Acceptance Criteria includes streaming/failure usage -> grep for streaming or partial in Acceptance; WHY: CHK-006 requirement must appear in acceptance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:adversarial:0\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"git diff --name-only main...HEAD shows ONLY docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice/ metadata files changed; no .ts/.js/.json source files -> WHY: this is a doc-only story, any source code change is scope creep\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:adversarial:1\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"doc contains no new CJK characters (stays English) -> grep for Unicode CJK range in the doc; WHY: background mentions Chinese user framing but doc must stay English\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:adversarial:2\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"Validation/Smoke Plan does not still assert totalTokens presence (stale assertion) -> grep Validation for totalTokens -> must not assert its presence; WHY: catch stale validation that contradicts CHK-002\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-009:adversarial:3\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"Acceptance Criteria includes canonical normalization (CHK-007) and pricingRef (CHK-008) -> grep Acceptance for canonical and pricing; WHY: catch incomplete Acceptance update that omits later CHK items\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-15T23:56:28.394Z",
-  "headHash": "fd65672853b3dc5f1d3daf97a23ecad9a9c0181e",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 69/69 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — grep the JSON example block -> contains cacheCreationInputTokens AND cacheReadInputTokens AND inputTokens AND outputTokens as four distinct fields; WHY: the example is the de-facto spec, must show all four cache-aware token fields\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript — prose states that inputTokens (or input_tokens) is the uncached remainder, not the total input -> grep for uncached remainder; WHY: prevents implementer misreading inputTokens as gross input\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript — doc references CMA span.model_request_end.model_usage (or Managed Agents model_usage) as prior art -> grep for model_usage or model_request_end; WHY: establishes provenance for the four-field shape\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via manual_transcript — Required record constraints section mentions all four token fields as required (or specifies when-required semantics) -> grep constraints section for cacheCreation and cacheRead; WHY: folds in product-reviewer advisory about constraints clarity\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — JSON example does NOT contain a totalTokens field (CHK-002 removes it but CHK-001 example should already omit or CHK-002 will) -> grep for totalTokens inside JSON block -> expect absent OR expect CHK-002 removes it; WHY: catch inconsistency if CHK-001 adds four fields but leaves stale totalTokens\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript — billableUnits array in the example, if still present, includes cache-type entries (cache_creation, cache_read) or the example omits billableUnits entirely -> grep billableUnits; WHY: catch stale billableUnits that only lists input/output without cache\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — search entire doc for the string totalTokens -> must appear ONLY in derived/summary context (CHK-002), never as a stored field in the record shape or example; WHY: adversarial check that old two-field model is fully purged from record-level prose\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript — verify no source-code files (.ts, .js, .json schema files) are modified in the git diff for this story -> git diff --name-only vs main; WHY: scope creep guard -- this is doc-only\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — grep entire JSON example block for totalTokens -> absent; WHY: totalTokens is a derived field and must not be stored per-record\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via manual_transcript — doc contains the identity formula total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens (or equivalent) -> grep for the identity; WHY: the summary layer must define how totals are computed\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via manual_transcript — prose explicitly states totals are computed in the summary layer, not stored per-record -> grep for summary layer or summary-derived; WHY: prevents implementers from re-adding totalTokens\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — grep Required record constraints for totalTokens -> absent; WHY: catch constraints section still listing totalTokens as required even after example removal\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via manual_transcript — grep billableUnits entries for a total-type entry -> absent; WHY: catch totalTokens smuggled back via billableUnits\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — count all occurrences of totalTokens in the entire doc -> each occurrence must be in a context that says derived/summary/not-stored; WHY: adversarial full-text scan to catch any stale reference that still treats totalTokens as a stored field\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via manual_transcript — grep Validation/Smoke Plan for totalTokens -> must reference its removal or absence, not assert its presence; WHY: catch stale validation assertion that still tests for stored totalTokens\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — doc mentions count_tokens as the preferred estimation method (provider endpoint) -> grep for count_tokens; WHY: ensures estimate path prefers provider tokenizer over local heuristics\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — doc specifies estimator confidence ranking high|medium|low -> grep for confidence and high|medium|low; WHY: ensures estimate records carry a confidence discriminator\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via manual_transcript — doc requires estimate to be bound to exact provider.model (model-version-specific) -> grep for model-version or provider.model in estimate context; WHY: counts differ across model versions, binding prevents stale estimates\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — fallback chain is explicitly ordered: count_tokens > local tokenizer > bytes/chars -> grep for fallback or ordered preference; WHY: catch missing fallback order that would leave implementers guessing\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via manual_transcript — estimator.name and estimator.version still required in constraints alongside new confidence field -> grep constraints for estimator; WHY: catch regression where adding confidence drops existing estimator fields\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — grep entire doc for bytes-per-char or bytes heuristic as a PRIMARY estimator (not fallback) -> must only appear as lowest-confidence fallback; WHY: adversarial check that cheap heuristics are not accidentally promoted to preferred\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via manual_transcript — grep JSON example for estimator block -> if present, must include confidence field; WHY: catch example updated with estimator but missing the new confidence field, creating prose-example mismatch\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — doc specifies storyId=null for non-story calls (global validate, daemon) and explicitly states they are NOT dropped -> grep for storyId and null; WHY: non-story usage must still be recorded\",\"  ✓ CHK-004:happy:1 [happy/must/cli] covered via manual_transcript — doc describes subagent/nested call propagation of parent storyId plus subagent/thread id -> grep for subagent or nested or propagat; WHY: ensures nested calls are traceable to parent story\",\"  ✓ CHK-004:happy:2 [happy/must/cli] covered via manual_transcript — doc adds role or agentType field (implementer|reviewer|main or similar) -> grep for role or agentType; WHY: enables per-story breakdown by role\",\"  ✓ CHK-004:happy:3 [happy/must/cli] covered via manual_transcript — doc specifies storyId/phase captured at preflight (call time) from active lease/session context -> grep for preflight or call time in attribution context; WHY: prevents post-hoc attribution errors\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — JSON example block includes storyId field (already present) and now also includes role/agentType field -> grep JSON example for agentType or role; WHY: catch prose-updated-but-example-not inconsistency\",\"  ✓ CHK-004:edge:1 [edge/must/cli] covered via manual_transcript — subagent propagation specifies a subagentId or threadId field in the record -> grep for subagentId or threadId; WHY: without an id field, subagent propagation is unimplementable\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — grep for any statement that drops or filters out storyId=null records -> must be absent; WHY: adversarial check that null-story records are not silently excluded from summaries\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/cli] covered via manual_transcript — grep for storyId in Validation/Smoke Plan -> must assert null-storyId recording and subagent propagation; WHY: catch stale Validation section that does not test the new attribution rules\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript — doc contains a section (or subsection) about single writer choke-point requiring all provider dispatch to flow through one ledger-writing path -> grep for choke-point or single writer; WHY: ensures completeness by construction\",\"  ✓ CHK-005:happy:1 [happy/must/cli] covered via manual_transcript — doc contains a reconciliation section/paragraph describing periodic check of dispatch events vs ledger records -> grep for reconciliation or reconcil; WHY: catch completeness gaps where dispatch bypasses the writer\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via manual_transcript — reconciliation references ledgerCallId+attemptId as the correlation key -> grep reconciliation context for ledgerCallId; WHY: reconciliation without the right key is unimplementable\",\"  ✓ CHK-005:edge:1 [edge/must/cli] covered via manual_transcript — doc addresses the failure mode of a bypassed writer (silent under-count) -> grep for bypass or under-count or silent; WHY: motivates why the choke-point exists\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via manual_transcript — grep Implementation Touchpoints for any new implementation slice that could bypass the choke-point (e.g., a second writer path) -> must not introduce contradictory multi-writer guidance; WHY: adversarial check for internal doc contradiction\",\"  ✓ CHK-005:adversarial:1 [adversarial/must/cli] covered via manual_transcript — grep Validation/Smoke Plan for reconciliation or completeness assertion -> must be present; WHY: catch stale Validation that omits completeness testing\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via manual_transcript — doc specifies streaming usage must be read from the terminal stream event (message_delta or final message) -> grep for terminal stream event or message_delta; WHY: streaming responses require reading usage from the last event, not assuming non-streaming shape\",\"  ✓ CHK-006:happy:1 [happy/must/cli] covered via manual_transcript — doc specifies partial output usage on error/timeout mid-stream must still be recorded -> grep for partial or error or timeout in streaming context; WHY: errored calls still consume budget\",\"  ✓ CHK-006:happy:2 [happy/must/cli] covered via manual_transcript — doc clarifies usage.source=unavailable only when truly no count exists -> grep for unavailable and truly or no reliable; WHY: prevents lazy unavailable marking when partial counts are available\",\"  ✓ CHK-006:edge:0 [edge/must/cli] covered via manual_transcript — existing rule about failed requests writing ledger entries (line 81 area) is consistent with new streaming/failure guidance -> grep for failed request in both existing and new sections; WHY: catch contradiction between existing failure rule and new streaming failure rule\",\"  ✓ CHK-006:edge:1 [edge/must/cli] covered via manual_transcript — if streaming section references provider-reported source, it specifies that partial counts from a terminal event still qualify as provider-reported -> grep for provider-reported near streaming; WHY: partial real counts should not be downgraded to estimate\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/cli] covered via manual_transcript — grep entire doc for any statement that sets unavailable usage to zero or treats missing as zero-cost -> must be absent or explicitly prohibited; WHY: adversarial check for the most dangerous accounting error\",\"  ✓ CHK-006:adversarial:1 [adversarial/must/cli] covered via manual_transcript — grep Validation/Smoke Plan for streaming or partial or failure usage assertion -> must be present; WHY: catch stale Validation that omits streaming/failure test\",\"  ✓ CHK-007:happy:0 [happy/must/cli] covered via manual_transcript — doc requires BOTH raw provider units AND a normalized canonical view {input, output, cacheCreation, cacheRead} -> grep for canonical or normalized and raw or provider-specific; WHY: resolves the tension between fidelity and cross-source summaries\",\"  ✓ CHK-007:happy:1 [happy/must/cli] covered via manual_transcript — doc includes explicit mapping rules for how each providers cache/cached-token fields map to the canonical cache fields -> grep for mapping or map; WHY: without mapping rules, normalization is unimplementable\",\"  ✓ CHK-007:edge:0 [edge/must/cli] covered via manual_transcript — canonical view uses {input, output, cacheCreation, cacheRead} (four fields matching CHK-001) not a different set -> grep for canonical field names; WHY: catch inconsistency between CHK-001 four-field model and CHK-007 canonical names\",\"  ✓ CHK-007:edge:1 [edge/must/cli] covered via manual_transcript — provider adapter extraction touchpoint (existing section 2) is consistent with new dual-view requirement -> grep Implementation Touchpoints section 2 for canonical or raw; WHY: catch contradiction between existing touchpoint and new requirement\",\"  ✓ CHK-007:adversarial:0 [adversarial/must/cli] covered via manual_transcript — grep for any statement that discards raw provider units in favor of only the canonical view -> must be absent; WHY: adversarial check that raw fidelity is not lost despite normalization\",\"  ✓ CHK-007:adversarial:1 [adversarial/must/cli] covered via manual_transcript — JSON example includes both raw provider units (e.g., billableUnits or provider-specific block) and canonical fields -> grep example for both; WHY: catch prose-updated-but-example-not showing only one view\",\"  ✓ CHK-008:happy:0 [happy/must/cli] covered via manual_transcript — doc adds pricingRef or pricingVersion field for cost derivation -> grep for pricingRef or pricingVersion; WHY: cost must be derived from a pinned price table, not hardcoded\",\"  ✓ CHK-008:happy:1 [happy/must/cli] covered via manual_transcript — doc specifies snapshot mechanism or price table (per-model per-MTok + cache multipliers, which change over time) -> grep for snapshot or price table or multiplier; WHY: prices change, so records must reference a versioned table\",\"  ✓ CHK-008:happy:2 [happy/must/cli] covered via manual_transcript — doc explicitly prohibits absolute prices baked into append-only records -> grep for absolute price or hardcoded or baked; WHY: prevents per-record cost fields that become stale when prices change\",\"  ✓ CHK-008:edge:0 [edge/must/cli] covered via manual_transcript — JSON example record does NOT contain a cost or price field with a dollar amount -> grep JSON example for cost or price with numeric values; WHY: catch example contradicting the no-absolute-prices rule\",\"  ✓ CHK-008:edge:1 [edge/must/cli] covered via manual_transcript — doc addresses cache multipliers (cache reads cost less, cache writes cost more than base input) in pricing context -> grep for cache and multiplier or cost; WHY: cache tokens have different per-token costs, pricing must handle this\",\"  ✓ CHK-008:adversarial:0 [adversarial/must/cli] covered via manual_transcript — grep entire doc for any hardcoded dollar amount -> must be absent from record-level prose; WHY: adversarial check for accidentally baked-in prices\",\"  ✓ CHK-008:adversarial:1 [adversarial/must/cli] covered via manual_transcript — grep Acceptance Criteria for pricing or pricingRef -> must be mentioned; WHY: catch stale Acceptance Criteria that omits the pricing constraint\",\"  ✓ CHK-009:happy:0 [happy/must/cli] covered via manual_transcript — Validation/Smoke Plan section asserts four-field cache-token recording -> grep Validation section for cacheCreation or cacheRead or cache token; WHY: Validation must cover all CHK-001 through CHK-008 changes\",\"  ✓ CHK-009:happy:1 [happy/must/cli] covered via manual_transcript — Acceptance Criteria section mentions no stored totalTokens or derived totals -> grep Acceptance Criteria for totalTokens or derived or summary; WHY: Acceptance must reflect CHK-002 change\",\"  ✓ CHK-009:happy:2 [happy/must/cli] covered via manual_transcript — Validation section mentions estimator confidence and count_tokens preference -> grep for confidence or count_tokens; WHY: must reflect CHK-003\",\"  ✓ CHK-009:happy:3 [happy/must/cli] covered via manual_transcript — Validation section mentions call-time attribution including null storyId and subagent -> grep for null or subagent in Validation; WHY: must reflect CHK-004\",\"  ✓ CHK-009:happy:4 [happy/must/cli] covered via manual_transcript — CMA expanded on first use in the document (Claude Managed Agents or similar) -> grep for first occurrence of CMA with expansion; WHY: acronym must be defined for readers\",\"  ✓ CHK-009:happy:5 [happy/must/cli] covered via manual_transcript — Rollout Phases section updated to reference new fields (cache tokens, reconciliation, pricing, streaming) -> grep Rollout for cache or reconciliation or pricing; WHY: Rollout must be consistent with the amended spec\",\"  ✓ CHK-009:edge:0 [edge/must/cli] covered via manual_transcript — internal cross-references are consistent: no section references a field name that was removed (e.g., totalTokens as required) -> grep for totalTokens in Required record constraints, Acceptance Criteria, Rollout -> must be absent or only in derived context; WHY: catch stale cross-references\",\"  ✓ CHK-009:edge:1 [edge/must/cli] covered via manual_transcript — Acceptance Criteria includes reconciliation and completeness -> grep for reconciliation in Acceptance; WHY: CHK-005 requirement must appear in acceptance\",\"  ✓ CHK-009:edge:2 [edge/must/cli] covered via manual_transcript — Acceptance Criteria includes streaming/failure usage -> grep for streaming or partial in Acceptance; WHY: CHK-006 requirement must appear in acceptance\",\"  ✓ CHK-009:adversarial:0 [adversarial/must/cli] covered via manual_transcript — git diff --name-only main...HEAD shows ONLY docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice/ metadata files changed; no .ts/.js/.json source files -> WHY: this is a doc-only story, any source code change is scope creep\",\"  ✓ CHK-009:adversarial:1 [adversarial/must/cli] covered via manual_transcript — doc contains no new CJK characters (stays English) -> grep for Unicode CJK range in the doc; WHY: background mentions Chinese user framing but doc must stay English\",\"  ✓ CHK-009:adversarial:2 [adversarial/must/cli] covered via manual_transcript — Validation/Smoke Plan does not still assert totalTokens presence (stale assertion) -> grep Validation for totalTokens -> must not assert its presence; WHY: catch stale validation that contradicts CHK-002\",\"  ✓ CHK-009:adversarial:3 [adversarial/must/cli] covered via manual_transcript — Acceptance Criteria includes canonical normalization (CHK-007) and pricingRef (CHK-008) -> grep Acceptance for canonical and pricing; WHY: catch incomplete Acceptance update that omits later CHK items\"],\"warnings\":[],\"timestamp\":\"2026-06-16T00:01:12.076Z\",\"headSha\":\"155d734dbfb012d2e7572606f1eaf4ddfc828573\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1233}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":69,\"reason\":\"verificationIntent entries present (69)\"},\"verificationCoverage\":{\"total\":69,\"required\":69,\"covered\":69,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep the JSON example block -> contains cacheCreationInputTokens AND cacheReadInputTokens AND inputTokens AND outputTokens as four distinct fields; WHY: the example is the de-facto spec, must show all four cache-aware token fields\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"JSON example has all four token fields\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"prose states that inputTokens (or input_tokens) is the uncached remainder, not the total input -> grep for uncached remainder; WHY: prevents implementer misreading inputTokens as gross input\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"prose: input_tokens is the uncached remainder\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"doc references CMA span.model_request_end.model_usage (or Managed Agents model_usage) as prior art -> grep for model_usage or model_request_end; WHY: establishes provenance for the four-field shape\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"references CMA model_usage\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Required record constraints section mentions all four token fields as required (or specifies when-required semantics) -> grep constraints section for cacheCreation and cacheRead; WHY: folds in product-reviewer advisory about constraints clarity\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Required record constraints mention cache fields\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"JSON example does NOT contain a totalTokens field (CHK-002 removes it but CHK-001 example should already omit or CHK-002 will) -> grep for totalTokens inside JSON block -> expect absent OR expect CHK-002 removes it; WHY: catch inconsistency if CHK-001 adds four fields but leaves stale totalTokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"JSON example has no totalTokens\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"billableUnits array in the example, if still present, includes cache-type entries (cache_creation, cache_read) or the example omits billableUnits entirely -> grep billableUnits; WHY: catch stale billableUnits that only lists input/output without cache\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"billableUnits/example includes cache entries\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"search entire doc for the string totalTokens -> must appear ONLY in derived/summary context (CHK-002), never as a stored field in the record shape or example; WHY: adversarial check that old two-field model is fully purged from record-level prose\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"totalTokens only in derived/not-stored context (5 lines)\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"verify no source-code files (.ts, .js, .json schema files) are modified in the git diff for this story -> git diff --name-only vs main; WHY: scope creep guard -- this is doc-only\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"no source files changed (1 non-meta: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"grep entire JSON example block for totalTokens -> absent; WHY: totalTokens is a derived field and must not be stored per-record\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"example block has no totalTokens\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"doc contains the identity formula total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens (or equivalent) -> grep for the identity; WHY: the summary layer must define how totals are computed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"identity formula present\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"prose explicitly states totals are computed in the summary layer, not stored per-record -> grep for summary layer or summary-derived; WHY: prevents implementers from re-adding totalTokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"totals derived in summary layer, not stored\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"grep Required record constraints for totalTokens -> absent; WHY: catch constraints section still listing totalTokens as required even after example removal\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"constraints: totalTokens absent or marked not-stored\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"grep billableUnits entries for a total-type entry -> absent; WHY: catch totalTokens smuggled back via billableUnits\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"no total-type billableUnits entry\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"count all occurrences of totalTokens in the entire doc -> each occurrence must be in a context that says derived/summary/not-stored; WHY: adversarial full-text scan to catch any stale reference that still treats totalTokens as a stored field\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"every totalTokens occurrence is in not-stored/derived context\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"grep Validation/Smoke Plan for totalTokens -> must reference its removal or absence, not assert its presence; WHY: catch stale validation assertion that still tests for stored totalTokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation does not assert totalTokens presence\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"doc mentions count_tokens as the preferred estimation method (provider endpoint) -> grep for count_tokens; WHY: ensures estimate path prefers provider tokenizer over local heuristics\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"count_tokens preferred estimator\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"doc specifies estimator confidence ranking high|medium|low -> grep for confidence and high|medium|low; WHY: ensures estimate records carry a confidence discriminator\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"confidence high|medium|low\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"doc requires estimate to be bound to exact provider.model (model-version-specific) -> grep for model-version or provider.model in estimate context; WHY: counts differ across model versions, binding prevents stale estimates\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"estimate bound to model ID / model-version-specific\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"fallback chain is explicitly ordered: count_tokens > local tokenizer > bytes/chars -> grep for fallback or ordered preference; WHY: catch missing fallback order that would leave implementers guessing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"fallback chain count_tokens>tokenizer>bytes\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"estimator.name and estimator.version still required in constraints alongside new confidence field -> grep constraints for estimator; WHY: catch regression where adding confidence drops existing estimator fields\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"estimator + confidence in constraints\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"grep entire doc for bytes-per-char or bytes heuristic as a PRIMARY estimator (not fallback) -> must only appear as lowest-confidence fallback; WHY: adversarial check that cheap heuristics are not accidentally promoted to preferred\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"bytes only as fallback, not primary\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"grep JSON example for estimator block -> if present, must include confidence field; WHY: catch example updated with estimator but missing the new confidence field, creating prose-example mismatch\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"example estimator block (if object) includes confidence\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc specifies storyId=null for non-story calls (global validate, daemon) and explicitly states they are NOT dropped -> grep for storyId and null; WHY: non-story usage must still be recorded\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"storyId=null for non-story calls\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc describes subagent/nested call propagation of parent storyId plus subagent/thread id -> grep for subagent or nested or propagat; WHY: ensures nested calls are traceable to parent story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"subagent propagation of parent storyId\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc adds role or agentType field (implementer|reviewer|main or similar) -> grep for role or agentType; WHY: enables per-story breakdown by role\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"role/agentType field\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:happy:3\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"doc specifies storyId/phase captured at preflight (call time) from active lease/session context -> grep for preflight or call time in attribution context; WHY: prevents post-hoc attribution errors\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"captured at preflight from active context\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"JSON example block includes storyId field (already present) and now also includes role/agentType field -> grep JSON example for agentType or role; WHY: catch prose-updated-but-example-not inconsistency\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"example includes storyId + role/agentType\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"subagent propagation specifies a subagentId or threadId field in the record -> grep for subagentId or threadId; WHY: without an id field, subagent propagation is unimplementable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"subagentId/threadId field\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"grep for any statement that drops or filters out storyId=null records -> must be absent; WHY: adversarial check that null-story records are not silently excluded from summaries\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"no statement dropping null-storyId records\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"grep for storyId in Validation/Smoke Plan -> must assert null-storyId recording and subagent propagation; WHY: catch stale Validation section that does not test the new attribution rules\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation asserts null-storyId + subagent\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"doc contains a section (or subsection) about single writer choke-point requiring all provider dispatch to flow through one ledger-writing path -> grep for choke-point or single writer; WHY: ensures completeness by construction\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"single writer choke-point\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"doc contains a reconciliation section/paragraph describing periodic check of dispatch events vs ledger records -> grep for reconciliation or reconcil; WHY: catch completeness gaps where dispatch bypasses the writer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"reconciliation of dispatch vs ledger\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"reconciliation references ledgerCallId+attemptId as the correlation key -> grep reconciliation context for ledgerCallId; WHY: reconciliation without the right key is unimplementable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"reconciliation keyed on ledgerCallId+attemptId\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"doc addresses the failure mode of a bypassed writer (silent under-count) -> grep for bypass or under-count or silent; WHY: motivates why the choke-point exists\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"bypassed-writer under-count failure mode\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"grep Implementation Touchpoints for any new implementation slice that could bypass the choke-point (e.g., a second writer path) -> must not introduce contradictory multi-writer guidance; WHY: adversarial check for internal doc contradiction\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"touchpoints reinforce choke-point\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"grep Validation/Smoke Plan for reconciliation or completeness assertion -> must be present; WHY: catch stale Validation that omits completeness testing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation asserts reconciliation/completeness\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"doc specifies streaming usage must be read from the terminal stream event (message_delta or final message) -> grep for terminal stream event or message_delta; WHY: streaming responses require reading usage from the last event, not assuming non-streaming shape\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"streaming usage from terminal event\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-006:happy:1\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"doc specifies partial output usage on error/timeout mid-stream must still be recorded -> grep for partial or error or timeout in streaming context; WHY: errored calls still consume budget\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"partial usage on error/timeout\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-006:happy:2\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"doc clarifies usage.source=unavailable only when truly no count exists -> grep for unavailable and truly or no reliable; WHY: prevents lazy unavailable marking when partial counts are available\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"unavailable only when truly no count\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"existing rule about failed requests writing ledger entries (line 81 area) is consistent with new streaming/failure guidance -> grep for failed request in both existing and new sections; WHY: catch contradiction between existing failure rule and new streaming failure rule\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"consistent with failed-request rule\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-006:edge:1\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"if streaming section references provider-reported source, it specifies that partial counts from a terminal event still qualify as provider-reported -> grep for provider-reported near streaming; WHY: partial real counts should not be downgraded to estimate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"partial counts tied to provider-reported\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"grep entire doc for any statement that sets unavailable usage to zero or treats missing as zero-cost -> must be absent or explicitly prohibited; WHY: adversarial check for the most dangerous accounting error\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"prohibits treating missing as zero\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-006:adversarial:1\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"grep Validation/Smoke Plan for streaming or partial or failure usage assertion -> must be present; WHY: catch stale Validation that omits streaming/failure test\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation asserts streaming/partial/failure usage\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"doc requires BOTH raw provider units AND a normalized canonical view {input, output, cacheCreation, cacheRead} -> grep for canonical or normalized and raw or provider-specific; WHY: resolves the tension between fidelity and cross-source summaries\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"both raw + canonical view required\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"doc includes explicit mapping rules for how each providers cache/cached-token fields map to the canonical cache fields -> grep for mapping or map; WHY: without mapping rules, normalization is unimplementable\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"explicit per-provider mapping rules\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"canonical view uses {input, output, cacheCreation, cacheRead} (four fields matching CHK-001) not a different set -> grep for canonical field names; WHY: catch inconsistency between CHK-001 four-field model and CHK-007 canonical names\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"canonical uses four-field shape\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-007:edge:1\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"provider adapter extraction touchpoint (existing section 2) is consistent with new dual-view requirement -> grep Implementation Touchpoints section 2 for canonical or raw; WHY: catch contradiction between existing touchpoint and new requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"adapter touchpoint consistent with dual view\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"grep for any statement that discards raw provider units in favor of only the canonical view -> must be absent; WHY: adversarial check that raw fidelity is not lost despite normalization\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"no statement discarding raw units\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-007:adversarial:1\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"JSON example includes both raw provider units (e.g., billableUnits or provider-specific block) and canonical fields -> grep example for both; WHY: catch prose-updated-but-example-not showing only one view\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"example includes both raw + canonical\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-008:happy:0\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"doc adds pricingRef or pricingVersion field for cost derivation -> grep for pricingRef or pricingVersion; WHY: cost must be derived from a pinned price table, not hardcoded\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"pricingRef/pricingVersion field\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-008:happy:1\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"doc specifies snapshot mechanism or price table (per-model per-MTok + cache multipliers, which change over time) -> grep for snapshot or price table or multiplier; WHY: prices change, so records must reference a versioned table\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"price table/snapshot + multipliers\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-008:happy:2\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"doc explicitly prohibits absolute prices baked into append-only records -> grep for absolute price or hardcoded or baked; WHY: prevents per-record cost fields that become stale when prices change\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"prohibits absolute prices in record\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-008:edge:0\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"JSON example record does NOT contain a cost or price field with a dollar amount -> grep JSON example for cost or price with numeric values; WHY: catch example contradicting the no-absolute-prices rule\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"no dollar amount in JSON example\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-008:edge:1\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"doc addresses cache multipliers (cache reads cost less, cache writes cost more than base input) in pricing context -> grep for cache and multiplier or cost; WHY: cache tokens have different per-token costs, pricing must handle this\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"cache multipliers addressed\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-008:adversarial:0\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"grep entire doc for any hardcoded dollar amount -> must be absent from record-level prose; WHY: adversarial check for accidentally baked-in prices\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"no hardcoded dollar amounts (\\\\$<digit> count=0)\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-008:adversarial:1\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"grep Acceptance Criteria for pricing or pricingRef -> must be mentioned; WHY: catch stale Acceptance Criteria that omits the pricing constraint\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Acceptance mentions pricing/pricingRef\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:happy:0\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Validation/Smoke Plan section asserts four-field cache-token recording -> grep Validation section for cacheCreation or cacheRead or cache token; WHY: Validation must cover all CHK-001 through CHK-008 changes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation asserts cache-token recording\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:happy:1\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Acceptance Criteria section mentions no stored totalTokens or derived totals -> grep Acceptance Criteria for totalTokens or derived or summary; WHY: Acceptance must reflect CHK-002 change\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Acceptance mentions no-stored-total/derived\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:happy:2\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Validation section mentions estimator confidence and count_tokens preference -> grep for confidence or count_tokens; WHY: must reflect CHK-003\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation mentions estimator confidence/count_tokens\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:happy:3\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Validation section mentions call-time attribution including null storyId and subagent -> grep for null or subagent in Validation; WHY: must reflect CHK-004\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation mentions null + subagent attribution\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:happy:4\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"CMA expanded on first use in the document (Claude Managed Agents or similar) -> grep for first occurrence of CMA with expansion; WHY: acronym must be defined for readers\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:happy:4\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"CMA expanded on first use\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:happy:5\",\"itemId\":\"CHK-009\",\"lane\":\"happy\",\"desc\":\"Rollout Phases section updated to reference new fields (cache tokens, reconciliation, pricing, streaming) -> grep Rollout for cache or reconciliation or pricing; WHY: Rollout must be consistent with the amended spec\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:happy:5\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Rollout references new fields\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:edge:0\",\"itemId\":\"CHK-009\",\"lane\":\"edge\",\"desc\":\"internal cross-references are consistent: no section references a field name that was removed (e.g., totalTokens as required) -> grep for totalTokens in Required record constraints, Acceptance Criteria, Rollout -> must be absent or only in derived context; WHY: catch stale cross-references\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"cross-refs consistent: no removed field referenced as stored\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:edge:1\",\"itemId\":\"CHK-009\",\"lane\":\"edge\",\"desc\":\"Acceptance Criteria includes reconciliation and completeness -> grep for reconciliation in Acceptance; WHY: CHK-005 requirement must appear in acceptance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Acceptance includes reconciliation/completeness\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:edge:2\",\"itemId\":\"CHK-009\",\"lane\":\"edge\",\"desc\":\"Acceptance Criteria includes streaming/failure usage -> grep for streaming or partial in Acceptance; WHY: CHK-006 requirement must appear in acceptance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Acceptance includes streaming/failure\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:adversarial:0\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"git diff --name-only main...HEAD shows ONLY docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice/ metadata files changed; no .ts/.js/.json source files -> WHY: this is a doc-only story, any source code change is scope creep\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"diff is only the doc (non-meta changed: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:adversarial:1\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"doc contains no new CJK characters (stays English) -> grep for Unicode CJK range in the doc; WHY: background mentions Chinese user framing but doc must stay English\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"no CJK (count=0)\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:adversarial:2\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"Validation/Smoke Plan does not still assert totalTokens presence (stale assertion) -> grep Validation for totalTokens -> must not assert its presence; WHY: catch stale validation that contradicts CHK-002\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Validation does not assert totalTokens presence\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}},{\"intentRef\":\"CHK-009:adversarial:3\",\"itemId\":\"CHK-009\",\"lane\":\"adversarial\",\"desc\":\"Acceptance Criteria includes canonical normalization (CHK-007) and pricingRef (CHK-008) -> grep Acceptance for canonical and pricing; WHY: catch incomplete Acceptance update that omits later CHK items\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-009:adversarial:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs\",\"result\":\"pass\",\"note\":\"Acceptance includes canonical + pricingRef\",\"headHash\":\"b4b73d9570dcf330b96414d83a8499bc1c1c1b68\",\"materialHash\":\"e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331\",\"timestamp\":\"2026-06-16T00:00:03.673Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T00:01:14.718Z",
+  "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
   "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
   "verificationCoverage": {
     "total": 69,
     "required": 69,
-    "covered": 0,
-    "missingRequired": 69,
+    "covered": 69,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,17 @@
         "desc": "grep the JSON example block -> contains cacheCreationInputTokens AND cacheReadInputTokens AND inputTokens AND outputTokens as four distinct fields; WHY: the example is the de-facto spec, must show all four cache-aware token fields",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "JSON example has all four token fields",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-001:happy:1",
@@ -27,7 +37,17 @@
         "desc": "prose states that inputTokens (or input_tokens) is the uncached remainder, not the total input -> grep for uncached remainder; WHY: prevents implementer misreading inputTokens as gross input",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prose: input_tokens is the uncached remainder",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-001:happy:2",
@@ -36,7 +56,17 @@
         "desc": "doc references CMA span.model_request_end.model_usage (or Managed Agents model_usage) as prior art -> grep for model_usage or model_request_end; WHY: establishes provenance for the four-field shape",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "references CMA model_usage",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-001:happy:3",
@@ -45,7 +75,17 @@
         "desc": "Required record constraints section mentions all four token fields as required (or specifies when-required semantics) -> grep constraints section for cacheCreation and cacheRead; WHY: folds in product-reviewer advisory about constraints clarity",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Required record constraints mention cache fields",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-001:edge:0",
@@ -54,7 +94,17 @@
         "desc": "JSON example does NOT contain a totalTokens field (CHK-002 removes it but CHK-001 example should already omit or CHK-002 will) -> grep for totalTokens inside JSON block -> expect absent OR expect CHK-002 removes it; WHY: catch inconsistency if CHK-001 adds four fields but leaves stale totalTokens",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "JSON example has no totalTokens",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-001:edge:1",
@@ -63,7 +113,17 @@
         "desc": "billableUnits array in the example, if still present, includes cache-type entries (cache_creation, cache_read) or the example omits billableUnits entirely -> grep billableUnits; WHY: catch stale billableUnits that only lists input/output without cache",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "billableUnits/example includes cache entries",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-001:adversarial:0",
@@ -72,7 +132,17 @@
         "desc": "search entire doc for the string totalTokens -> must appear ONLY in derived/summary context (CHK-002), never as a stored field in the record shape or example; WHY: adversarial check that old two-field model is fully purged from record-level prose",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "totalTokens only in derived/not-stored context (5 lines)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-001:adversarial:1",
@@ -81,7 +151,17 @@
         "desc": "verify no source-code files (.ts, .js, .json schema files) are modified in the git diff for this story -> git diff --name-only vs main; WHY: scope creep guard -- this is doc-only",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no source files changed (1 non-meta: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-002:happy:0",
@@ -90,7 +170,17 @@
         "desc": "grep entire JSON example block for totalTokens -> absent; WHY: totalTokens is a derived field and must not be stored per-record",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example block has no totalTokens",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-002:happy:1",
@@ -99,7 +189,17 @@
         "desc": "doc contains the identity formula total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens (or equivalent) -> grep for the identity; WHY: the summary layer must define how totals are computed",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "identity formula present",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-002:happy:2",
@@ -108,7 +208,17 @@
         "desc": "prose explicitly states totals are computed in the summary layer, not stored per-record -> grep for summary layer or summary-derived; WHY: prevents implementers from re-adding totalTokens",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "totals derived in summary layer, not stored",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-002:edge:0",
@@ -117,7 +227,17 @@
         "desc": "grep Required record constraints for totalTokens -> absent; WHY: catch constraints section still listing totalTokens as required even after example removal",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "constraints: totalTokens absent or marked not-stored",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-002:edge:1",
@@ -126,7 +246,17 @@
         "desc": "grep billableUnits entries for a total-type entry -> absent; WHY: catch totalTokens smuggled back via billableUnits",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no total-type billableUnits entry",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-002:adversarial:0",
@@ -135,7 +265,17 @@
         "desc": "count all occurrences of totalTokens in the entire doc -> each occurrence must be in a context that says derived/summary/not-stored; WHY: adversarial full-text scan to catch any stale reference that still treats totalTokens as a stored field",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "every totalTokens occurrence is in not-stored/derived context",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-002:adversarial:1",
@@ -144,7 +284,17 @@
         "desc": "grep Validation/Smoke Plan for totalTokens -> must reference its removal or absence, not assert its presence; WHY: catch stale validation assertion that still tests for stored totalTokens",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation does not assert totalTokens presence",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-003:happy:0",
@@ -153,7 +303,17 @@
         "desc": "doc mentions count_tokens as the preferred estimation method (provider endpoint) -> grep for count_tokens; WHY: ensures estimate path prefers provider tokenizer over local heuristics",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "count_tokens preferred estimator",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-003:happy:1",
@@ -162,7 +322,17 @@
         "desc": "doc specifies estimator confidence ranking high|medium|low -> grep for confidence and high|medium|low; WHY: ensures estimate records carry a confidence discriminator",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "confidence high|medium|low",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-003:happy:2",
@@ -171,7 +341,17 @@
         "desc": "doc requires estimate to be bound to exact provider.model (model-version-specific) -> grep for model-version or provider.model in estimate context; WHY: counts differ across model versions, binding prevents stale estimates",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "estimate bound to model ID / model-version-specific",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-003:edge:0",
@@ -180,7 +360,17 @@
         "desc": "fallback chain is explicitly ordered: count_tokens > local tokenizer > bytes/chars -> grep for fallback or ordered preference; WHY: catch missing fallback order that would leave implementers guessing",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "fallback chain count_tokens>tokenizer>bytes",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-003:edge:1",
@@ -189,7 +379,17 @@
         "desc": "estimator.name and estimator.version still required in constraints alongside new confidence field -> grep constraints for estimator; WHY: catch regression where adding confidence drops existing estimator fields",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "estimator + confidence in constraints",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-003:adversarial:0",
@@ -198,7 +398,17 @@
         "desc": "grep entire doc for bytes-per-char or bytes heuristic as a PRIMARY estimator (not fallback) -> must only appear as lowest-confidence fallback; WHY: adversarial check that cheap heuristics are not accidentally promoted to preferred",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "bytes only as fallback, not primary",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-003:adversarial:1",
@@ -207,7 +417,17 @@
         "desc": "grep JSON example for estimator block -> if present, must include confidence field; WHY: catch example updated with estimator but missing the new confidence field, creating prose-example mismatch",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example estimator block (if object) includes confidence",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:happy:0",
@@ -216,7 +436,17 @@
         "desc": "doc specifies storyId=null for non-story calls (global validate, daemon) and explicitly states they are NOT dropped -> grep for storyId and null; WHY: non-story usage must still be recorded",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "storyId=null for non-story calls",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:happy:1",
@@ -225,7 +455,17 @@
         "desc": "doc describes subagent/nested call propagation of parent storyId plus subagent/thread id -> grep for subagent or nested or propagat; WHY: ensures nested calls are traceable to parent story",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "subagent propagation of parent storyId",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:happy:2",
@@ -234,7 +474,17 @@
         "desc": "doc adds role or agentType field (implementer|reviewer|main or similar) -> grep for role or agentType; WHY: enables per-story breakdown by role",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "role/agentType field",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:happy:3",
@@ -243,7 +493,17 @@
         "desc": "doc specifies storyId/phase captured at preflight (call time) from active lease/session context -> grep for preflight or call time in attribution context; WHY: prevents post-hoc attribution errors",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "captured at preflight from active context",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:edge:0",
@@ -252,7 +512,17 @@
         "desc": "JSON example block includes storyId field (already present) and now also includes role/agentType field -> grep JSON example for agentType or role; WHY: catch prose-updated-but-example-not inconsistency",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example includes storyId + role/agentType",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:edge:1",
@@ -261,7 +531,17 @@
         "desc": "subagent propagation specifies a subagentId or threadId field in the record -> grep for subagentId or threadId; WHY: without an id field, subagent propagation is unimplementable",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "subagentId/threadId field",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:adversarial:0",
@@ -270,7 +550,17 @@
         "desc": "grep for any statement that drops or filters out storyId=null records -> must be absent; WHY: adversarial check that null-story records are not silently excluded from summaries",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no statement dropping null-storyId records",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-004:adversarial:1",
@@ -279,7 +569,17 @@
         "desc": "grep for storyId in Validation/Smoke Plan -> must assert null-storyId recording and subagent propagation; WHY: catch stale Validation section that does not test the new attribution rules",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts null-storyId + subagent",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-005:happy:0",
@@ -288,7 +588,17 @@
         "desc": "doc contains a section (or subsection) about single writer choke-point requiring all provider dispatch to flow through one ledger-writing path -> grep for choke-point or single writer; WHY: ensures completeness by construction",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "single writer choke-point",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-005:happy:1",
@@ -297,7 +607,17 @@
         "desc": "doc contains a reconciliation section/paragraph describing periodic check of dispatch events vs ledger records -> grep for reconciliation or reconcil; WHY: catch completeness gaps where dispatch bypasses the writer",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "reconciliation of dispatch vs ledger",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-005:edge:0",
@@ -306,7 +626,17 @@
         "desc": "reconciliation references ledgerCallId+attemptId as the correlation key -> grep reconciliation context for ledgerCallId; WHY: reconciliation without the right key is unimplementable",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "reconciliation keyed on ledgerCallId+attemptId",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-005:edge:1",
@@ -315,7 +645,17 @@
         "desc": "doc addresses the failure mode of a bypassed writer (silent under-count) -> grep for bypass or under-count or silent; WHY: motivates why the choke-point exists",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "bypassed-writer under-count failure mode",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-005:adversarial:0",
@@ -324,7 +664,17 @@
         "desc": "grep Implementation Touchpoints for any new implementation slice that could bypass the choke-point (e.g., a second writer path) -> must not introduce contradictory multi-writer guidance; WHY: adversarial check for internal doc contradiction",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "touchpoints reinforce choke-point",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-005:adversarial:1",
@@ -333,7 +683,17 @@
         "desc": "grep Validation/Smoke Plan for reconciliation or completeness assertion -> must be present; WHY: catch stale Validation that omits completeness testing",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts reconciliation/completeness",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-006:happy:0",
@@ -342,7 +702,17 @@
         "desc": "doc specifies streaming usage must be read from the terminal stream event (message_delta or final message) -> grep for terminal stream event or message_delta; WHY: streaming responses require reading usage from the last event, not assuming non-streaming shape",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "streaming usage from terminal event",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-006:happy:1",
@@ -351,7 +721,17 @@
         "desc": "doc specifies partial output usage on error/timeout mid-stream must still be recorded -> grep for partial or error or timeout in streaming context; WHY: errored calls still consume budget",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "partial usage on error/timeout",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-006:happy:2",
@@ -360,7 +740,17 @@
         "desc": "doc clarifies usage.source=unavailable only when truly no count exists -> grep for unavailable and truly or no reliable; WHY: prevents lazy unavailable marking when partial counts are available",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "unavailable only when truly no count",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-006:edge:0",
@@ -369,7 +759,17 @@
         "desc": "existing rule about failed requests writing ledger entries (line 81 area) is consistent with new streaming/failure guidance -> grep for failed request in both existing and new sections; WHY: catch contradiction between existing failure rule and new streaming failure rule",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "consistent with failed-request rule",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-006:edge:1",
@@ -378,7 +778,17 @@
         "desc": "if streaming section references provider-reported source, it specifies that partial counts from a terminal event still qualify as provider-reported -> grep for provider-reported near streaming; WHY: partial real counts should not be downgraded to estimate",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "partial counts tied to provider-reported",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-006:adversarial:0",
@@ -387,7 +797,17 @@
         "desc": "grep entire doc for any statement that sets unavailable usage to zero or treats missing as zero-cost -> must be absent or explicitly prohibited; WHY: adversarial check for the most dangerous accounting error",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prohibits treating missing as zero",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-006:adversarial:1",
@@ -396,7 +816,17 @@
         "desc": "grep Validation/Smoke Plan for streaming or partial or failure usage assertion -> must be present; WHY: catch stale Validation that omits streaming/failure test",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts streaming/partial/failure usage",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-007:happy:0",
@@ -405,7 +835,17 @@
         "desc": "doc requires BOTH raw provider units AND a normalized canonical view {input, output, cacheCreation, cacheRead} -> grep for canonical or normalized and raw or provider-specific; WHY: resolves the tension between fidelity and cross-source summaries",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "both raw + canonical view required",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-007:happy:1",
@@ -414,7 +854,17 @@
         "desc": "doc includes explicit mapping rules for how each providers cache/cached-token fields map to the canonical cache fields -> grep for mapping or map; WHY: without mapping rules, normalization is unimplementable",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "explicit per-provider mapping rules",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-007:edge:0",
@@ -423,7 +873,17 @@
         "desc": "canonical view uses {input, output, cacheCreation, cacheRead} (four fields matching CHK-001) not a different set -> grep for canonical field names; WHY: catch inconsistency between CHK-001 four-field model and CHK-007 canonical names",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "canonical uses four-field shape",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-007:edge:1",
@@ -432,7 +892,17 @@
         "desc": "provider adapter extraction touchpoint (existing section 2) is consistent with new dual-view requirement -> grep Implementation Touchpoints section 2 for canonical or raw; WHY: catch contradiction between existing touchpoint and new requirement",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "adapter touchpoint consistent with dual view",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-007:adversarial:0",
@@ -441,7 +911,17 @@
         "desc": "grep for any statement that discards raw provider units in favor of only the canonical view -> must be absent; WHY: adversarial check that raw fidelity is not lost despite normalization",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no statement discarding raw units",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-007:adversarial:1",
@@ -450,7 +930,17 @@
         "desc": "JSON example includes both raw provider units (e.g., billableUnits or provider-specific block) and canonical fields -> grep example for both; WHY: catch prose-updated-but-example-not showing only one view",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example includes both raw + canonical",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-008:happy:0",
@@ -459,7 +949,17 @@
         "desc": "doc adds pricingRef or pricingVersion field for cost derivation -> grep for pricingRef or pricingVersion; WHY: cost must be derived from a pinned price table, not hardcoded",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "pricingRef/pricingVersion field",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-008:happy:1",
@@ -468,7 +968,17 @@
         "desc": "doc specifies snapshot mechanism or price table (per-model per-MTok + cache multipliers, which change over time) -> grep for snapshot or price table or multiplier; WHY: prices change, so records must reference a versioned table",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "price table/snapshot + multipliers",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-008:happy:2",
@@ -477,7 +987,17 @@
         "desc": "doc explicitly prohibits absolute prices baked into append-only records -> grep for absolute price or hardcoded or baked; WHY: prevents per-record cost fields that become stale when prices change",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prohibits absolute prices in record",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-008:edge:0",
@@ -486,7 +1006,17 @@
         "desc": "JSON example record does NOT contain a cost or price field with a dollar amount -> grep JSON example for cost or price with numeric values; WHY: catch example contradicting the no-absolute-prices rule",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no dollar amount in JSON example",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-008:edge:1",
@@ -495,7 +1025,17 @@
         "desc": "doc addresses cache multipliers (cache reads cost less, cache writes cost more than base input) in pricing context -> grep for cache and multiplier or cost; WHY: cache tokens have different per-token costs, pricing must handle this",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "cache multipliers addressed",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-008:adversarial:0",
@@ -504,7 +1044,17 @@
         "desc": "grep entire doc for any hardcoded dollar amount -> must be absent from record-level prose; WHY: adversarial check for accidentally baked-in prices",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no hardcoded dollar amounts (\\$<digit> count=0)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-008:adversarial:1",
@@ -513,7 +1063,17 @@
         "desc": "grep Acceptance Criteria for pricing or pricingRef -> must be mentioned; WHY: catch stale Acceptance Criteria that omits the pricing constraint",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance mentions pricing/pricingRef",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:happy:0",
@@ -522,7 +1082,17 @@
         "desc": "Validation/Smoke Plan section asserts four-field cache-token recording -> grep Validation section for cacheCreation or cacheRead or cache token; WHY: Validation must cover all CHK-001 through CHK-008 changes",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts cache-token recording",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:happy:1",
@@ -531,7 +1101,17 @@
         "desc": "Acceptance Criteria section mentions no stored totalTokens or derived totals -> grep Acceptance Criteria for totalTokens or derived or summary; WHY: Acceptance must reflect CHK-002 change",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance mentions no-stored-total/derived",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:happy:2",
@@ -540,7 +1120,17 @@
         "desc": "Validation section mentions estimator confidence and count_tokens preference -> grep for confidence or count_tokens; WHY: must reflect CHK-003",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation mentions estimator confidence/count_tokens",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:happy:3",
@@ -549,7 +1139,17 @@
         "desc": "Validation section mentions call-time attribution including null storyId and subagent -> grep for null or subagent in Validation; WHY: must reflect CHK-004",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation mentions null + subagent attribution",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:happy:4",
@@ -558,7 +1158,17 @@
         "desc": "CMA expanded on first use in the document (Claude Managed Agents or similar) -> grep for first occurrence of CMA with expansion; WHY: acronym must be defined for readers",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "CMA expanded on first use",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:happy:5",
@@ -567,7 +1177,17 @@
         "desc": "Rollout Phases section updated to reference new fields (cache tokens, reconciliation, pricing, streaming) -> grep Rollout for cache or reconciliation or pricing; WHY: Rollout must be consistent with the amended spec",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:happy:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Rollout references new fields",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:edge:0",
@@ -576,7 +1196,17 @@
         "desc": "internal cross-references are consistent: no section references a field name that was removed (e.g., totalTokens as required) -> grep for totalTokens in Required record constraints, Acceptance Criteria, Rollout -> must be absent or only in derived context; WHY: catch stale cross-references",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "cross-refs consistent: no removed field referenced as stored",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:edge:1",
@@ -585,7 +1215,17 @@
         "desc": "Acceptance Criteria includes reconciliation and completeness -> grep for reconciliation in Acceptance; WHY: CHK-005 requirement must appear in acceptance",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes reconciliation/completeness",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:edge:2",
@@ -594,7 +1234,17 @@
         "desc": "Acceptance Criteria includes streaming/failure usage -> grep for streaming or partial in Acceptance; WHY: CHK-006 requirement must appear in acceptance",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes streaming/failure",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:adversarial:0",
@@ -603,7 +1253,17 @@
         "desc": "git diff --name-only main...HEAD shows ONLY docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice/ metadata files changed; no .ts/.js/.json source files -> WHY: this is a doc-only story, any source code change is scope creep",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "diff is only the doc (non-meta changed: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:adversarial:1",
@@ -612,7 +1272,17 @@
         "desc": "doc contains no new CJK characters (stays English) -> grep for Unicode CJK range in the doc; WHY: background mentions Chinese user framing but doc must stay English",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no CJK (count=0)",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:adversarial:2",
@@ -621,7 +1291,17 @@
         "desc": "Validation/Smoke Plan does not still assert totalTokens presence (stale assertion) -> grep Validation for totalTokens -> must not assert its presence; WHY: catch stale validation that contradicts CHK-002",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation does not assert totalTokens presence",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       },
       {
         "intentRef": "CHK-009:adversarial:3",
@@ -630,7 +1310,17 @@
         "desc": "Acceptance Criteria includes canonical normalization (CHK-007) and pricingRef (CHK-008) -> grep Acceptance for canonical and pricing; WHY: catch incomplete Acceptance update that omits later CHK items",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-009:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes canonical + pricingRef",
+          "headHash": "b4b73d9570dcf330b96414d83a8499bc1c1c1b68",
+          "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+          "timestamp": "2026-06-16T00:00:03.673Z"
+        }
       }
     ]
   }
