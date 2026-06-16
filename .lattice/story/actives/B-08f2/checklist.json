@@ -148,8 +148,8 @@
       "title": "Update tests and smoke fixtures that assert KOALA_* env-var names so the suite reflects LATTICE_* only",
       "context": "The smoke/regression tests that set or assert KOALA_* env names (e.g. runtime-environment-checks, codex-adapter, hook-contract, health, story-owner-lease smokes) must be updated to LATTICE_*. Recorded historical fixtures that legitimately contain KOALA_ as past data are out of scope unless they gate a test. After the change `npm run test:e2e` and the affected `npm run test:*` suites must pass.",
       "userSees": "`npm run test:e2e` passes and the env-related smoke suites pass with LATTICE_* assertions.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T00:12:22.736Z",
       "endTime": null,
       "files": {
         "modify": [
