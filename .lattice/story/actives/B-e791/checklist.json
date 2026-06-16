@@ -71,7 +71,30 @@
       "userSees": "lattice validate green with new tests covering the wrapper-root guidance + nesting-check-quiet behavior and the plain-repo unchanged case.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "tests assert gitRoot-aware guidance on a wrapper-root fixture",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tests assert plain no-gitRoot keeps git-init guidance + nesting unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "tests assert real nesting still rejected + no spurious fatal on wrapper-root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
