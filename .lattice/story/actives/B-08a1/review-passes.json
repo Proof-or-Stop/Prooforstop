@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T02:50:56.734Z",
       "reviewRunId": "B-08a1:RR-004",
       "_hash": "1d4c6820f8bd9b3598db73ee751b684f205447a5cd38059c9af756b4e56cf80b"
+    },
+    {
+      "id": "B-08a1:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review clean. F-001: readReportedDimension malformed-value branch now uses `value as unknown as TokenDimension` with explicit comment naming B-253e as the rejection point — documented deliberate unsoundness, not silent coercion. F-002: standalone canonical-json.ts file exports canonicalJson/sortValue as single source; both writer.ts and adapters/shared.ts import it; no duplicate copies remain. Build exit 0, adapter suite 50/50, foundation suite 61/61 (chain-verification and round-trip tests confirm byte-identical hashing across both consumers). No new dead code, type-safety, or I/O-isolation issues found in the changed files.",
+      "createdAt": "2026-06-16T02:53:56.875Z",
+      "reviewRound": "2026-06-16T02:50:56.734Z",
+      "reviewRunId": "B-08a1:RR-005",
+      "_hash": "d4ea54713fadb7ceffd74076a88fec92c380470769d8587205e5f8771afe9afc"
     }
   ]
 }
