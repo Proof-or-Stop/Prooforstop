@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T00:00:30.448Z",
       "reviewRunId": "B-4bf8:RR-002",
       "_hash": "e7a55b4d3118d8157f79ed10c484286a8e876bee3f82e597755e513ee0c93d57"
+    },
+    {
+      "id": "B-4bf8:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review clean. Checked: (1) Dead code — none applicable (doc-only story, no source). (2) Type safety — none applicable (doc-only story). (3) I/O shell isolation — none applicable (no source). (4) F-001 fix verified: JSON example now has provider.name=anthropic, model=claude-opus-4-8, usage.raw.providerUnits=anthropic-usage-v1 — fully self-consistent; all four cache fields present (0 values correctly showing provider-reported zeros), raw+canonical both present, no totalTokens field. (5) F-002 fix verified: Per-dimension absence rule (authoritative) paragraph (lines 414-426) unambiguously confines usage.source to a record-level discriminator and mandates JSON null for unreported cache dimensions — applied consistently in Required record constraints, Multi-Provider Normalization, and Rollout phase 4. (6) Diff scope verified: only docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice metadata changed — no source files touched. No new dead code, type safety, or I/O isolation issues found.",
+      "createdAt": "2026-06-16T00:09:02.000Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-006",
+      "_hash": "91f501a4c8d6234d553498e4dacffbd84f3e7076caea392012f69a5d6ac7d8af"
     }
   ]
 }
