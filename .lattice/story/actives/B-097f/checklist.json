@@ -167,25 +167,25 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "npm --prefix packages/main run <smoke> 全绿:断言干净项目 init 后项目 0 agent .md + 全局源 16 symlink 就绪 + 已有 project-local 被迁移;npm run build 绿",
+      "userSees": "npm --prefix packages/main run thin-init-assets-smoke 全绿(扩展断言);prompt-token-cost-smoke 与 prompt-registry-smoke 仍全绿;npm run build 绿;lattice validate 全绿",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "smoke 断言干净项目 init 后项目 0 agent 文件 + 全局源就绪",
+            "desc": "smoke 断言干净项目 init 后项目 0 agent 文件 + 全局源 16 symlink 就绪",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "smoke 断言已有 project-local 被迁移清理、用户文件保留",
+            "desc": "smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、init 仅 warn",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "实测/文档化 subagent_type 从全局解析成功 + npm run build 绿",
+            "desc": "既有 prompt-token-cost-smoke 与 prompt-registry-smoke 改动后仍绿 + build + validate 绿",
             "type": "cli",
             "priority": "must"
           }
