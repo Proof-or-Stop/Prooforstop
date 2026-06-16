@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-747e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. git grep -nw KoalaConfig -- packages: EMPTY. git grep -nE type|as KoalaConfig -- packages: EMPTY. interface LatticeConfig confirmed in packages/main/src/core/config.ts at line 26. All 4 consumers (dirty-worktree.ts, hooks.ts, story-signed-workspace-resolution.ts, workflow-policy.ts) correctly import and use LatticeConfig. Over-reach guard passed: diff touches exactly 5 core files in packages/main/src/core — no lab package, no fixtures, no koala.config.json, no comments or prose. No backward-compat alias present. Rename is complete and clean. No blocker.",
+      "createdAt": "2026-06-16T02:55:57.238Z",
+      "reviewRound": "2026-06-16T02:54:49.812Z",
+      "reviewRunId": "B-747e:RR-001",
+      "_hash": "763e629965f4e2d75826b2bdd3e6bd48e5a43bb5d32108cece0431e94051feb6"
+    }
+  ]
+}
