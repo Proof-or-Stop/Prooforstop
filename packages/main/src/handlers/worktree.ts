@@ -25,14 +25,14 @@ import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
 
-export interface GlobalKoalaLinkRepairOptions {
+export interface GlobalLatticeLinkRepairOptions {
   globalPackagePath?: string;
   globalPackageRoot?: string;
   unlinkImpl?: typeof unlinkSync;
   symlinkImpl?: typeof symlinkSync;
 }
 
-export interface GlobalKoalaLinkRepairResult {
+export interface GlobalLatticeLinkRepairResult {
   action: 'relinked' | 'skipped';
   message: string;
 }
@@ -67,7 +67,7 @@ function entryExists(path: string): boolean {
   }
 }
 
-function resolveGlobalCorePackagePaths(options: GlobalKoalaLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
+function resolveGlobalCorePackagePaths(options: GlobalLatticeLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
   if (options.globalPackagePath) {
     return [{
       path: options.globalPackagePath,
@@ -99,8 +99,8 @@ function repairOneGlobalCoreLinkBeforeWorktreeDelete(
   worktreePath: string,
   mainRepoRoot: string,
   resolvedGlobalPackage: ResolvedGlobalCorePackagePath,
-  options: GlobalKoalaLinkRepairOptions,
-): GlobalKoalaLinkRepairResult {
+  options: GlobalLatticeLinkRepairOptions,
+): GlobalLatticeLinkRepairResult {
   const globalPackagePath = resolvedGlobalPackage.path;
   const packageDescription = describeGlobalCorePackage(resolvedGlobalPackage);
 
@@ -140,11 +140,11 @@ function repairOneGlobalCoreLinkBeforeWorktreeDelete(
   return { action: 'relinked', message: `✓ global ${packageDescription} has been relinked from story worktree to ${mainPackagePath}` };
 }
 
-export function repairGlobalKoalaLinkBeforeWorktreeDelete(
+export function repairGlobalLatticeLinkBeforeWorktreeDelete(
   worktreePath: string,
   mainRepoRoot: string,
-  options: GlobalKoalaLinkRepairOptions = {},
-): GlobalKoalaLinkRepairResult {
+  options: GlobalLatticeLinkRepairOptions = {},
+): GlobalLatticeLinkRepairResult {
   const resolvedGlobalPackages = resolveGlobalCorePackagePaths(options);
   if (resolvedGlobalPackages.length === 0) {
     return { action: 'skipped', message: `global ${CANONICAL_CORE_PACKAGE_NAME} path not found, skipping relink` };

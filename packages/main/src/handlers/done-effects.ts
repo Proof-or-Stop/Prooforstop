@@ -46,7 +46,7 @@ import { execFileSync, execSync, spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
-import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
+import { repairGlobalLatticeLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
@@ -774,7 +774,7 @@ export async function applyDoneMergeEffects(
       // state or genuine leakage we want to erase.
       if (existsSync(wtPathAbs) || isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
         const wasRegisteredWorktree = isRegisteredWorktree(mainRepoRoot, wtPathAbs);
-        const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
+        const repair = repairGlobalLatticeLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
         if (repair.action === 'relinked') mergeLines.push(repair.message);
         let removeFailure: string | null = null;
         try {

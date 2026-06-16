@@ -489,7 +489,7 @@ export function buildCapabilityProbe(host: string): CapabilityProbe {
 
 export function renderCapabilityListText(list: CapabilityList = buildCapabilityList()): string {
   const lines: string[] = [
-    `Koala capability profiles (${list.schemaVersion})`,
+    `Lattice capability profiles (${list.schemaVersion})`,
     '',
     `Authority: productionDone requires ${list.authorityRules.receiptCapability}; handoffCanManufactureProductionDone=${list.authorityRules.handoffCanManufactureProductionDone}`,
     `Categories: ${list.categories.map(c => c.id).join(', ')}`,
@@ -529,7 +529,7 @@ export function renderCapabilityProbeText(probe: CapabilityProbe): string {
     .map(c => `${c.category}=${c.status}`);
 
   const lines: string[] = [
-    `Koala capability probe (${probe.schemaVersion})`,
+    `Lattice capability probe (${probe.schemaVersion})`,
     `host: ${probe.host}`,
     `requestedHost: ${probe.requestedHost}`,
     `matchedFallback: ${probe.matchedFallback}`,
