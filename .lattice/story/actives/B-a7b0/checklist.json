@@ -97,7 +97,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "happy: injected codex-hooks generated def + md forbidding it → runDocsDriftGate status fail, asset+kind in managedAssetContradictions; smoke green",
+          "headHash": "74cbb3864201d5c420a2a6d73b3d895da710f480",
+          "materialHash": "ea4213312371c96108edc165fca6a3970543bb795da3a124394ff1fef6286992",
+          "timestamp": "2026-06-16T21:22:44.811Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
