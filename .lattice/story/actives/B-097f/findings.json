@@ -18,6 +18,22 @@
         "packages/main/src/handlers/agent-prompt.ts",
         "packages/main/src/core/prompt-registry.ts"
       ]
+    },
+    {
+      "id": "B-097f:F-002",
+      "desc": "concept-cleanup: agent-symlink deletion incomplete: packages/main/src/cli-init.ts line 3 still imports symlinkSync and readlinkSync from fs but both symbols became unused when the [5/6] symlink-based agent sync code was replaced by the thin-shim syncGlobalAgents() approach. The import suggests symlinks are still used for agent files, misleading future readers and creating dead code.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-16T19:01:07.633Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-004",
+      "_hash": "4655f31ad72abcee22259400d61d53bb8d1eb1583e6f30e85e145b6bbdf6a5dc",
+      "files": [
+        "packages/main/src/cli-init.ts"
+      ]
     }
   ]
 }
