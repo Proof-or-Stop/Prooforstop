@@ -524,9 +524,9 @@
       "id": "CHK-005",
       "title": "Completeness guarantee: single writer choke-point + reconciliation",
       "context": "Add a section requiring all provider dispatch to flow through a single ledger-writing choke-point, plus a periodic reconciliation check (count of provider dispatch events vs count of ledger final records per ledgerCallId+attemptId) that surfaces gaps. Accuracy = completeness, not just per-record correctness; a bypassed writer silently under-counts.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T23:52:45.778Z",
-      "endTime": null,
+      "endTime": "2026-06-16T00:00:06.941Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
