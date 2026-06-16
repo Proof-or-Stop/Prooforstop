@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T22:36:19.529Z",
       "reviewRunId": "B-1b28:RR-004",
       "_hash": "9140fc9997ac8809e2494e22cdd521ba90d0805c53447176a81948c8f607a8ba"
+    },
+    {
+      "id": "B-1b28:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 63 intents (CHK-001 through CHK-004, happy/edge/adversarial, all priority=must) are covered by logic_test evidence pointing to usage-ledger-default-on-smoke.ts + verify-b-1b28.mjs. Live run of npm test:usage-ledger-default-on confirms 30 checks pass (default-ON flip, =0 escape hatch byte-identical no-op, parse fallback, ledger error swallowed, budget guard inert). Verifier reports TOTAL 63 | PASS 63 | FAIL 0 with all 8 ledger suites green. Doc-comment fix (commit bafba39) did not alter any behavioral logic; coverage is sufficient and no gaps found.",
+      "createdAt": "2026-06-16T22:38:39.686Z",
+      "reviewRound": "2026-06-16T22:36:19.529Z",
+      "reviewRunId": "B-1b28:RR-005",
+      "_hash": "3a2af268676094fc9b15519cde55542ffed2156cad68db667ccc4db8584b5a59"
     }
   ]
 }
