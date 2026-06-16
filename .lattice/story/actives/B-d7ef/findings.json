@@ -33,6 +33,23 @@
         "packages/main/src/core/phase-protocol.ts",
         "packages/main/src/verifier/bridge-utils.ts"
       ]
+    },
+    {
+      "id": "B-d7ef:F-003",
+      "desc": "CHK-002:edge:1 intent requires a grep for dynamic import() calls referencing phase-protocol or bridge-utils; CHK-002:adversarial:0 intent requires `test -f packages/main/src/core/intent-coverage.ts` returning SAFE. Both have static-import grep as evidence — neither covers the intended behavior. No other evidence entry cross-covers CHK-002:adversarial:0 (adversarial:1 covers dev-cli.ts, a different file). CHK-002:adversarial:4 intent requires find+grep over JSON files for phase-protocol/bridge-utils; recorded evidence is again the static-import grep (phase-gate-protocol.json has annotation-only file-label references, confirmed non-runtime, but the right evidence command was never run or recorded). Live re-runs confirm: dynamic import grep empty, intent-coverage.ts SAFE, JSON scan finds only annotation labels in phase-gate-protocol.json.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T19:07:18.880Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-003",
+      "_hash": "e846b4f8f5c47fb21ce4c4bf926274ed6e7f2d5df479c8ddb751e97d4b279775",
+      "files": [
+        "packages/main/src/core/intent-coverage.ts",
+        "packages/main/tests/fixtures/phase-gate-protocol.json"
+      ]
     }
   ]
 }
