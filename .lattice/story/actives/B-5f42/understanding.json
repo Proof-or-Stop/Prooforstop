@@ -2,12 +2,12 @@
   "task": "Make English-only-artifacts a mechanical fact via two layers: a warn-only PreToolUse(Bash) hook and a diff/story-scoped CJK gate in lattice validate",
   "outcome": "When an agent runs a git commit or lattice story-metadata command containing Chinese, the terminal immediately prints a warning like: warn english-only: CJK detected in artifact; Lattice artifacts must be English (the command still proceeds). When the current story commit messages or author-controlled metadata contain CJK, lattice validate prints an English failure line naming the file/commit and exits non-zero, blocking REVIEW to TEST; on English-only artifacts validate stays green and the gate passes.",
   "facts": [
-    ".claude/settings.json and .claude/hooks/*.cjs are framework-generated managed assets (worktree CLAUDE.md Claude Prompt Hook section); the generation source is init-assets.ts plus managed-assets.ts, and these must be edited rather than the artifacts",
-    "init-assets.ts getClaudeHooks() (~line 438) defines the settings.json hook map; hookCommand() builds the node command; hook .cjs script contents are embedded in init-assets.ts",
+    ".claude/settings.json and .claude/hooks/*.cjs are framework-generated managed assets; the generation source is init-assets.ts plus managed-assets.ts, and these must be edited rather than the artifacts",
+    "init-assets.ts getClaudeHooks() defines the settings.json hook map; hookCommand() builds the node command; hook .cjs script contents are embedded in init-assets.ts",
     "managed-assets.ts kind claude-settings plus mergeClaudeHooks keep .claude/settings.json synced for lattice check --apply",
     "the existing PreToolUse hook matches Edit/Write/MultiEdit/NotebookEdit; git commit and lattice commands run via Bash, so a new PreToolUse matcher Bash entry is needed",
-    "lattice validate --lint is a REVIEW to TEST preflight CLI gate; the new CJK gate should be a sibling preflight check wired into the same runner",
-    "pretool-scope-hook-smoke.ts and host-guard-matrix-smoke.ts cover hook generation and may need updates"
+    "the REVIEW to TEST CLI preflight is assembled in handlers/review-preflight.ts (runReviewCliGates), so the new CJK gate is added there",
+    "Phase 3 of the english-open-source execution plan is already implemented as tasks/english-open-source-surface-smoke.ts, which scans active .ts source and active .md docs; this story covers the distinct commit/story-metadata surface"
   ],
   "constraints": [
     "All new code, comments, commit messages, and story metadata must be English-only (dogfood the policy)",
@@ -22,8 +22,9 @@
     "packages/main/src/init-assets.ts",
     "packages/main/src/core/managed-assets.ts",
     "packages/main/src/core/cjk-detect.ts",
-    "packages/main/src/handlers/validate-lint.ts",
-    "packages/main/src/tasks"
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/english-artifact-gate.ts",
+    "packages/main/src/tasks/english-only-guards-smoke.ts"
   ],
-  "timestamp": "2026-06-16T22:35:22.833Z"
+  "timestamp": "2026-06-16T22:44:31.874Z"
 }

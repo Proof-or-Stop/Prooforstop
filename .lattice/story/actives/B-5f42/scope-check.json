@@ -1,6 +1,6 @@
 {
   "storyId": "B-5f42",
-  "checkedAt": "2026-06-16T22:41:01.838Z",
+  "checkedAt": "2026-06-16T22:46:11.318Z",
   "features": [
     {
       "feature": "Warn-only PreToolUse(Bash) hook that detects CJK in git commit and lattice story-metadata commands",
@@ -59,14 +59,14 @@
       "source": "description"
     },
     {
-      "feature": "Unit tests for CJK detector: positive (Chinese detected), negative (ASCII/English not detected), and mixed range cases",
+      "feature": "Unit tests for CJK detector: Chinese string detected; pure ASCII/English not detected",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Integration test: validate gate fails non-zero on a CJK fixture commit/metadata and passes English-only",
+      "feature": "Integration test: fixture CJK commit/story-metadata makes validate gate fail; English-only passes",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
@@ -89,16 +89,16 @@
     {
       "feature": "Phase 3 gate (english-open-source-surface-smoke): smoke test that fails on new Chinese text in active source AND active docs broadly (not limited to commits/story-metadata)",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "decisions/decisions/cli-engine-english-open-source-execution-plan.md"
+      "status": "excluded",
+      "excluded_by": "Already implemented as packages/main/src/tasks/english-open-source-surface-smoke.ts (B-a57f CHK-004), which scans packages/main/src/**/*.ts and active docs (README/guides/decisions/*.md) for CJK with an audited allowlist. This story covers the complementary surface (git commit messages + lattice story metadata) that Phase 3 does NOT scan.",
+      "source": "decisions/cli-engine-english-open-source-execution-plan.md"
     },
     {
       "feature": "Phase 3 gate explicit allowlists: review document, generated translation manifests, legacy archive docs, and compatibility tests are allowlisted",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "decisions/decisions/cli-engine-english-open-source-execution-plan.md"
+      "status": "excluded",
+      "excluded_by": "The allowlists belong to the Phase 3 active-source/doc gate already implemented in english-open-source-surface-smoke.ts, not to this story. This story scans commits and story metadata only, which have no legacy-Chinese allowlist requirement.",
+      "source": "decisions/cli-engine-english-open-source-execution-plan.md"
     },
     {
       "feature": "Out of scope: retroactively translating existing files",
@@ -120,36 +120,17 @@
       "status": "excluded",
       "excluded_by": "Story description says warn-only; CHK-001 title confirms non-blocking",
       "source": "description"
-    },
-    {
-      "feature": "Out of scope: Codex-host equivalent of the PreToolUse hook",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Story description explicitly states Codex-host equivalent is out of scope",
-      "source": "description"
     }
   ],
   "summary": {
-    "total": 18,
+    "total": 17,
     "covered": 12,
-    "excluded": 4,
-    "gaps": 2,
+    "excluded": 5,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "73ef2463279a64edadc7dccf4af1c26f8f3ed72fa1615e46275a4dd91000b79c",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "The decisions spec (cli-engine-english-open-source-execution-plan.md Phase 3) commits to a gate that fails on new Chinese text in active source AND active docs broadly. The story description explicitly excludes scanning arbitrary code/doc files and limits coverage to commits + lattice story metadata only. Are these two in tension? Is this story implementing only a partial subset of Phase 3 (with the broader active-source-scan deferred to a later story), or does the story description intentionally supersede the Phase 3 spec scope?",
-      "evidence": "Spec says: Phase 3 - Add A No-New-Chinese Gate: Add a smoke test that fails on new Chinese text in active source and active docs. Story description says: Out of scope: retroactively translating existing files, and scanning arbitrary code/doc files (coverage = commits + lattice story metadata).",
-      "sourcePointers": [
-        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#phase-3---add-a-no-new-chinese-gate",
-        "packages/main/src/tasks/english-open-source-surface-smoke.ts"
-      ],
-      "resolution": "No tension and no supersession. Phase 3 of the execution plan is ALREADY implemented as packages/main/src/tasks/english-open-source-surface-smoke.ts, which scans the active SOURCE surface (packages/main/src/**/*.ts) and active DOCS (README, guides, decisions/*.md) for CJK with an explicit allowlist. This story B-5f42 deliberately covers a DIFFERENT, non-overlapping surface that Phase 3 does not scan: git commit messages and lattice story metadata (process artifacts under .lattice/story/actives), which is exactly where the B-4fd3 violation occurred. The description exclusion of arbitrary code/doc files defers that surface to the existing Phase 3 gate, not to a future story. For consistency the new core/cjk-detect.ts uses the same CJK ranges (U+4E00-9FFF plus U+3400-4DBF) as english-open-source-surface-smoke.ts. Therefore the two are complementary guards on distinct surfaces, both forward-looking and scoped.",
-      "resolvedAt": "2026-06-16T22:42:53.553Z"
-    }
-  ]
+  "_hash": "f4bdbbc4d4003d92497cf25395c5e54ec022398302830eab645b10a964aac051",
+  "openQuestions": []
 }
