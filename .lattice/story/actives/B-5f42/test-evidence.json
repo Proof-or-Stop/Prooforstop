@@ -1,0 +1,97 @@
+{
+  "command": "lattice validate --story=B-5f42 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 9 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:docs-drift-smoke && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  main-write-lock-coverage: scanned 284 source files, 17 git mutation-verb sites\",\"    ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\",\"  main-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\",\"  main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\",\"  > lattice@0.3.5 test:review-convergence-smoke\",\"  > node packages/main/dist/tasks/review-convergence-smoke.js\",\"  review-convergence-smoke: (a) STALLED fires — advisory present:\",\"        WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\",\"          - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\",\"          - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\",\"  review-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\",\"  review-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\",\"  review-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\",\"  review-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\",\"  review-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\",\"  review-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\",\"  > lattice@0.3.5 test:docs-drift-smoke\",\"  > node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\",\"  docs-drift path+asset smoke passed\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/9 covered (9 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — A git commit or lattice story-metadata Bash command containing CJK triggers the hook to print an english-only warning to stderr\",\"  ✗ CHK-001:edge:0 [edge/must/cli] missing — English-only commands and non-matching Bash commands produce no warning and exit 0\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] missing — Malformed/empty stdin or missing tool_input does not crash the hook; it exits 0 (never blocks)\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — With a CJK commit message or current-story metadata, the validate preflight english-artifacts gate fails non-zero and names the offending file/commit, blocking REVIEW to TEST\",\"  ✗ CHK-002:edge:0 [edge/must/cli] missing — On English-only commits and metadata the gate passes and validate stays green\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — A legacy Chinese file outside the current story (e.g. another story dir or CLAUDE.md) is NOT flagged\",\"  ✗ CHK-003:happy:0 [happy/must/logic] missing — cjk-detect unit cases: a Chinese string is detected; pure ASCII/English is not\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — Scope test: a fixture path outside the current story is not flagged by the gate\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] missing — Keep-in-sync test: the self-contained hook CJK range matches the core detector range\"],\"warnings\":[],\"timestamp\":\"2026-06-16T22:50:27.014Z\",\"headSha\":\"17f0f0c82619dc48387cf87f2e3a50a35104f4a2\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:docs-drift-smoke && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nmain-write-lock-coverage: scanned 284 source files, 17 git mutation-verb sites\\n  ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\\n\\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\\n\\n> lattice@0.3.5 test:review-convergence-smoke\\n> node packages/main/dist/tasks/review-convergence-smoke.js\\n\\nreview-convergence-smoke: (a) STALLED fires — advisory present:\\n      WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\\n        - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\\n        - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\\nreview-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\\nreview-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\\nreview-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\\nreview-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\\nreview-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\\n\\nreview-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\\n\\n> lattice@0.3.5 test:docs-drift-smoke\\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\\n\\ndocs-drift path+asset smoke passed\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2591}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":0,\"missingRequired\":9,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A git commit or lattice story-metadata Bash command containing CJK triggers the hook to print an english-only warning to stderr\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"English-only commands and non-matching Bash commands produce no warning and exit 0\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Malformed/empty stdin or missing tool_input does not crash the hook; it exits 0 (never blocks)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"With a CJK commit message or current-story metadata, the validate preflight english-artifacts gate fails non-zero and names the offending file/commit, blocking REVIEW to TEST\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"On English-only commits and metadata the gate passes and validate stays green\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A legacy Chinese file outside the current story (e.g. another story dir or CLAUDE.md) is NOT flagged\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"cjk-detect unit cases: a Chinese string is detected; pure ASCII/English is not\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Scope test: a fixture path outside the current story is not flagged by the gate\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Keep-in-sync test: the self-contained hook CJK range matches the core detector range\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-16T22:50:27.090Z",
+  "headHash": "17f0f0c82619dc48387cf87f2e3a50a35104f4a2",
+  "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 0,
+    "missingRequired": 9,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A git commit or lattice story-metadata Bash command containing CJK triggers the hook to print an english-only warning to stderr",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "English-only commands and non-matching Bash commands produce no warning and exit 0",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Malformed/empty stdin or missing tool_input does not crash the hook; it exits 0 (never blocks)",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "With a CJK commit message or current-story metadata, the validate preflight english-artifacts gate fails non-zero and names the offending file/commit, blocking REVIEW to TEST",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "On English-only commits and metadata the gate passes and validate stays green",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A legacy Chinese file outside the current story (e.g. another story dir or CLAUDE.md) is NOT flagged",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "cjk-detect unit cases: a Chinese string is detected; pure ASCII/English is not",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Scope test: a fixture path outside the current story is not flagged by the gate",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Keep-in-sync test: the self-contained hook CJK range matches the core detector range",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      }
+    ]
+  }
+}

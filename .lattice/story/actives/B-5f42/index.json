@@ -4,7 +4,7 @@
   "title": "Enforce English-only artifacts via a warn-only PreToolUse hook plus a diff/story-scoped CJK gate in lattice validate",
   "description": "The English-only-artifacts rule currently lives only as a memory/prompt-layer fact with no mechanical enforcement. During B-4fd3 the agent had that memory loaded yet still wrote Lattice story metadata and commit messages in Chinese, because a passively-recalled context line does not fire at the action point. Per the CLAUDE.md flow-fact double-layer contract, a process/quality fact needs prompt guidance PLUS a hardcoded gate fallback. Add two layers: (1) a warn-only PreToolUse hook that detects CJK characters in git commit / lattice story-metadata commands and prints an immediate warning (non-blocking); (2) a diff/story-scoped CJK check in lattice validate that hard-blocks REVIEW to TEST when the current story commit messages or author-controlled story metadata contain CJK. Both must be forward-looking and scoped to the current story / branch diff only, never the whole repo (legacy Chinese must not be retroactively flagged). Out of scope: retroactively translating existing files, and scanning arbitrary code/doc files (coverage = commits + lattice story metadata).",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "hook",
@@ -44,6 +44,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-16T22:33:31.747Z",
+      "branch": "story/B-5f42",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T22:46:46.054Z",
       "branch": "story/B-5f42",
       "user": "Harmonygo",
       "agent": "main"
