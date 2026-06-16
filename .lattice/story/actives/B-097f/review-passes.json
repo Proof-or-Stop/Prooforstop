@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-16T19:05:43.534Z",
       "reviewRunId": "B-097f:RR-006",
       "_hash": "cef7becfea8ae69597f89ed6fd39532981ff25cc1a070990a517b5acfdc67c1b"
+    },
+    {
+      "id": "B-097f:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review: 12 symbols extracted from diff (agent_prompt handler + prompt-registry.ts). 3 doc paragraphs compared: (1) CLAUDE.md §Agent prompt 资产：host-neutral 单一源 (2) lifecycle-artifact-scope.md §Contract point 2 (3) execution-plan.md §Implementation Status. All three correctly state readPromptTemplate reads the body, promptRegistryManifest() is metadata/fingerprint only, agent_prompt lists available roles on unknown role, 16 shims match actual template count. The R1 F-001 fix is confirmed in place. No blockers.",
+      "createdAt": "2026-06-16T19:08:31.625Z",
+      "reviewRound": "2026-06-16T19:05:43.534Z",
+      "reviewRunId": "B-097f:RR-008",
+      "_hash": "cbce4227e07fd18ca8c8633a8fae098a3b67035fea49ff5f688f9dbcf4764295"
     }
   ]
 }
