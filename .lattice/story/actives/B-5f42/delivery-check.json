@@ -1,0 +1,35 @@
+{
+  "storyId": "B-5f42",
+  "checkedAt": "2026-06-16T23:26:35.954Z",
+  "reviewRound": "2026-06-16T23:18:34.507Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md (pre-existing, not modified by this story)",
+      "promise": "CLAUDE.md governs Lattice behavior. This story introduces no changes to CLAUDE.md, docs/, or any other documentation file. The diff was scanned exhaustively and produced zero output for all doc paths.",
+      "verifiedBy": "git diff main...HEAD -- CLAUDE.md docs/ (empty output confirmed)",
+      "evidence": "git diff main...HEAD produced zero output for CLAUDE.md and all docs/ paths. The only .md in the diff is .lattice/story/actives/B-5f42/plan.md (process artifact, not a feature doc). No undelivered documentation promise exists in this story."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "smoke Test 6 (english-only-guards-smoke.ts): (6a) git-commit containing CJK => hook prints warn english-only on stderr, exits 0; (6a-prime) lattice checklist_update with CJK => same warning, exits 0; (6b) English-only commit => no stderr output, exit 0; (6b-prime) unguarded command with CJK => silent, exit 0; (6c) empty/malformed stdin => exit 0 for all four variants. All assertions pass. Hook wired into .claude/settings.json (PreToolUse Bash matcher) and HOOK_FILES in cli-init.ts so lattice init installs it. transcript-diff.md Layer 1 confirms manual spawn also produced the expected warning text."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "smoke Test 4: CJK fixture (plan.md line 3 + injected commit sha a1b2c3d) flips runEnglishArtifactGate ok=false naming plan.md:3 and commit a1b2c3d; English-only fixture flips ok=true with zero violations. smoke Test 5: real defaultGitLogReader runs git log main..HEAD on live worktree, returns 0 notes (36 commit records clean). review-preflight.ts integration: english-artifacts gate runs in runReviewCliGates and PASSED on this story (all artifacts English). smoke Test 3 confirms legacy Chinese outside storyDir is NOT flagged (adversarial scope)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "smoke Test 1: detectCjk flags string built from U+4F60 U+597D at line 2 col 8/9 and U+3400 (Extension A) at col 2; isCjkCodepoint boundary checks 0x4E00/0x9FFF (in) and 0x4DFF/0x41 (out) all pass; pure ASCII strings return found=false. smoke Test 2: keep-in-sync extracts { start, end } pairs from english-only-guard.cjs and cjk-detect.ts and asserts deepEqual against exported CJK_RANGES; both match exactly. smoke Test 3: temp-dir scope isolation confirms gate never reads files outside storyDir. All 6 tests logged checkmarks; final line: All english-only guards smoke tests passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All three checklist items have integration/logic tests in english-only-guards-smoke.ts covering happy, edge (English-only input, Extension-A range, unguarded commands), and adversarial paths (malformed stdin, legacy Chinese outside story dir, CJK-fixture gate flip to ok=false then ok=true). No TODO/FIXME/HACK in new or modified source. No documentation files were modified, so there are no undelivered doc promises."
+  },
+  "_hash": "0b5f22243fa7327dbfc00751772d9f616849cabc6bcd20e8395f18952cd002c9"
+}
