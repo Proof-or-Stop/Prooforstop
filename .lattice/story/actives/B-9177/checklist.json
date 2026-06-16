@@ -69,9 +69,9 @@
       "title": "Regression guard + tests: mechanically flag any main-mutating commit path not under the lock",
       "context": "Add a test/guard (e.g. a static scan or a runtime assertion test) that fails if a CLI path commits to main without holding the lock, so a future B-7365-class gap is caught mechanically rather than by convention. Cover the gaps found and a negative case.",
       "userSees": "lattice validate green with a regression guard that turns red if a new main-mutating path is added without the main-write-lock.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T04:22:58.392Z",
       "verificationIntent": {
         "happy": [
           {
