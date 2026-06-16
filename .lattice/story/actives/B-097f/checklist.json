@@ -30,7 +30,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "新增 Policy: global agents single source 段,契约点1明确全局 ~/.claude/agents 为唯一源 + 契约点3 init 零项目 agent 文件",
+          "headHash": "bd500d5bea65dd85a5f4efc72d6400ceba931a49",
+          "materialHash": "46883686b1ce7a62c4535681a95ba08904cf8909e6f4ef9cb51fd4a22d07aa71",
+          "timestamp": "2026-06-16T14:27:55.622Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
