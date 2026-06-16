@@ -97,7 +97,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (e) wrapper-root: stub reader emits gitRoot-relative wrapper/backend/* paths; resolveChangedFiles with gitCwd=gitRoot rebases to projectRoot-relative backend/* (wrapper/ stripped) and computeOutOfScopeTsconfigs correctly skips out-of-scope frontend.",
+          "headHash": "d432f9360ec1406e09817a49c897ccea63d0daba",
+          "materialHash": "812a118e51a005d1a62e564f49b6dcea55ebd681d4790950048f8e168487c790",
+          "timestamp": "2026-06-16T01:13:03.839Z"
+        }
+      ]
     }
   ]
 }
