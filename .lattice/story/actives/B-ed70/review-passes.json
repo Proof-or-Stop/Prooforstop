@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T21:09:02.958Z",
       "reviewRunId": "B-ed70:RR-006",
       "_hash": "255ccd79451ab32cf5f654ca9ce03cb18e1532257c6b16a8a41515dc710e349c"
+    },
+    {
+      "id": "B-ed70:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "All 3 fixes verified correct. Gate 1: .codex/hooks/lattice-scope-pretool.cjs line 93 now probes .lattice-codex (no .Codex reference remains in changed code files). Gate 2: node scripts/verify-codex-assets.mjs exits 0. Gate 3: npm run build exits 0. Gate 4: npm run test:e2e ALL PASS. Gate 5: node bin/lattice.js verify_codex 8/8. Gate 6/7: no .Codex occurrences in any changed code file (.ts/.js/.cjs/.mjs). Fix 3: managed-assets.ts lines 593-597 have correct intentional-denylist comment explaining koala* token retention; .Codex/koala.json also corrected to .lattice-codex/koala.json. No dead code, type-safety, or I/O isolation issues found in the diff.",
+      "createdAt": "2026-06-16T21:22:40.227Z",
+      "reviewRound": "2026-06-16T21:20:07.360Z",
+      "reviewRunId": "B-ed70:RR-009",
+      "_hash": "6deaf5cce98e6d7112b379a9127bd5fe93d5bcdba7f5ca8b707db4d6b88dc9fb"
     }
   ]
 }
