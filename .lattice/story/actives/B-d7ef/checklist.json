@@ -102,6 +102,17 @@
           "headHash": "769aa5990534f6c5b0469400890a92bf560817ce",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
           "timestamp": "2026-06-16T19:03:10.363Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -n 'orphans' -- packages scripts bin",
+          "result": "pass",
+          "note": "No accidental references to 'orphans' in code (empty).",
+          "headHash": "9b79cc6a39484284f71817d40bfc0fbd38e15810",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:10.852Z"
         }
       ]
     },
