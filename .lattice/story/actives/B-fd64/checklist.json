@@ -546,9 +546,9 @@
       "id": "CHK-005",
       "title": "Smoke/test suite wired + no regression",
       "context": "Add packages/main/src/tasks/usage-ledger-authority-smoke.ts (follow existing *-smoke.ts; ✓/✗, non-zero exit; temp dir, no pollution), wired as npm test:usage-ledger-authority. Cover the envelope (privacy-safe, has digest), the nullable receipt-ref fields validating, the verification gate (verified only via injected verifier + subject match), and all negative controls. Assert usage-ledger still imports ZERO other modules (no authority-signing import). Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget) no regression; node bin/lattice.js validate.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T21:40:25.450Z",
-      "endTime": null,
+      "endTime": "2026-06-16T21:43:23.169Z",
       "files": {
         "modify": [
           "packages/main/package.json"
