@@ -247,7 +247,7 @@ function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKi
 }
 
 function isCodexCaseInsensitiveAlias(root: string, relPath: string, actualRelPath?: string): boolean {
-  if (!relPath.startsWith('.codex/') || !actualRelPath?.startsWith('.Codex/')) return false;
+  if (!relPath.startsWith('.codex/') || !actualRelPath?.startsWith('.lattice-codex/')) return false;
   try {
     const lower = statSync(join(root, relPath));
     const upper = statSync(join(root, actualRelPath));
@@ -494,8 +494,8 @@ export function detectManagedAssetProfile(root: string): InitProfile {
   const claude = readText(root, 'CLAUDE.md');
   const hasCodex = Boolean(
     (agents && hasManagedMarkers(agents))
-      || existsSync(join(root, '.Codex', 'lattice.json'))
-      || existsSync(join(root, '.Codex', 'agents'))
+      || existsSync(join(root, '.lattice-codex', 'lattice.json'))
+      || existsSync(join(root, '.lattice-codex', 'agents'))
       || existsSync(join(root, 'bin', 'lattice-codex.js'))
   );
   const hasClaude = Boolean(
@@ -517,7 +517,7 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
     const text = readText(root, globalThinConfig);
     if (text?.includes('global-thin')) return 'global-thin';
   }
-  if (existsSync(join(root, '.Codex', 'lattice.json')) || existsSync(join(root, '.Codex', 'agents'))) {
+  if (existsSync(join(root, '.lattice-codex', 'lattice.json')) || existsSync(join(root, '.lattice-codex', 'agents'))) {
     return 'full';
   }
   if (existsSync(join(root, 'bin', 'lattice.js'))) {
@@ -623,10 +623,15 @@ function isExpandedLatticeClaudeGuide(actual: string): boolean {
 }
 
 function appendLegacyRuntimeExclusions(defs: ManagedAssetDefinition[]): void {
+  // Legacy denylist: these are the OLD koala-era filenames that the
+  // koala-removal program is enforcing as NOT-allowed in the runtime tree.
+  // The literal `koala*` tokens here are intentional and must remain — they
+  // are the names being denied, not paths being created. Renaming them would
+  // silently disable the denylist for projects that still have these files.
   defs.push(
     { id: 'excluded:bin/koala.js', relPath: 'bin/koala.js', kind: 'excluded-path' },
     { id: 'excluded:bin/koala-codex.js', relPath: 'bin/koala-codex.js', kind: 'excluded-path' },
-    { id: 'excluded:.Codex/koala.json', relPath: '.Codex/koala.json', kind: 'excluded-path' },
+    { id: 'excluded:.lattice-codex/koala.json', relPath: '.lattice-codex/koala.json', kind: 'excluded-path' },
     { id: 'excluded:.codex/koala.json', relPath: '.codex/koala.json', kind: 'excluded-path' },
   );
 }
@@ -747,14 +752,14 @@ export function listManagedAssetDefinitions(
         true,
       ),
       wholeFile(
-        '.Codex:README.md',
-        '.Codex/README.md',
+        '.lattice-codex:README.md',
+        '.lattice-codex/README.md',
         renderCodexReadmeTemplate(assetMode, 'lattice'),
         actual => actual.includes('Codex + Koala') || actual.includes('Codex + Lattice'),
       ),
       wholeFile(
-        '.Codex:lattice.json',
-        '.Codex/lattice.json',
+        '.lattice-codex:lattice.json',
+        '.lattice-codex/lattice.json',
         renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
@@ -766,15 +771,15 @@ export function listManagedAssetDefinitions(
         actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
         true,
       ),
-      { id: 'excluded:.Codex/settings.json', relPath: '.Codex/settings.json', kind: 'excluded-path' },
+      { id: 'excluded:.lattice-codex/settings.json', relPath: '.lattice-codex/settings.json', kind: 'excluded-path' },
     );
     if (assetMode === 'full' && templates) {
       const files = listAgentPromptFiles(templates);
       for (const file of files) {
         const content = readFileSync(join(templates, file), 'utf-8');
         defs.push(wholeFile(
-          `.Codex/agents:${file}`,
-          `.Codex/agents/${file}`,
+          `.lattice-codex/agents:${file}`,
+          `.lattice-codex/agents/${file}`,
           renderCodexAgentContent(content),
           actual => isManagedPrompt(actual, file),
         ));
@@ -830,11 +835,11 @@ export function listManagedAssetDefinitions(
     }
   }
 
-  if (wantsCodex && assetMode === 'full' && templates && existsSync(join(projectRoot, '.Codex', 'agents'))) {
+  if (wantsCodex && assetMode === 'full' && templates && existsSync(join(projectRoot, '.lattice-codex', 'agents'))) {
     const expected = new Set(listAgentPromptFiles(templates));
-    for (const file of listAgentPromptFiles(join(projectRoot, '.Codex', 'agents'))) {
+    for (const file of listAgentPromptFiles(join(projectRoot, '.lattice-codex', 'agents'))) {
       if (!expected.has(file)) {
-        defs.push({ id: `.Codex/agents:extra:${file}`, relPath: `.Codex/agents/${file}`, kind: 'remove-extra' });
+        defs.push({ id: `.lattice-codex/agents:extra:${file}`, relPath: `.lattice-codex/agents/${file}`, kind: 'remove-extra' });
       }
     }
   }

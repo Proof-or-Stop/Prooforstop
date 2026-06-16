@@ -47,7 +47,7 @@ interface LocalAssetModeHint {
 
 const HOST_ASSET_DIRS: Array<{ host: PromptHost; relDir: string }> = [
   { host: 'claude', relDir: '.claude/agents' },
-  { host: 'codex', relDir: '.Codex/agents' },
+  { host: 'codex', relDir: '.lattice-codex/agents' },
 ];
 
 function packageRoot(): string {
@@ -87,7 +87,7 @@ function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
   const candidates = [
     join(projectRoot, '.lattice', 'lattice.json'),
     join(projectRoot, '.Lattice', 'lattice.json'),
-    join(projectRoot, '.Codex', 'lattice.json'),
+    join(projectRoot, '.lattice-codex', 'lattice.json'),
   ];
   for (const candidate of candidates) {
     if (!existsSync(candidate)) continue;
@@ -100,7 +100,7 @@ function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
       return { mode, source: normalizeRel(relative(projectRoot, candidate)) };
     }
     if (
-      normalizeRel(relative(projectRoot, candidate)) === '.Codex/lattice.json' &&
+      normalizeRel(relative(projectRoot, candidate)) === '.lattice-codex/lattice.json' &&
       parsed.adapterOwner === 'lattice' &&
       parsed.adapterKind === 'codex' &&
       parsed.promptMode === undefined

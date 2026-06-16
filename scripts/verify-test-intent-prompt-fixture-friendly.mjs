@@ -7,7 +7,7 @@ function assert(condition, message) {
 }
 
 const claude = readFileSync('.claude/agents/test-intent.md', 'utf8');
-const codex = readFileSync('.Codex/agents/test-intent.md', 'utf8');
+const codex = readFileSync('.lattice-codex/agents/test-intent.md', 'utf8');
 
 for (const [label, content] of [['claude', claude], ['codex', codex]]) {
   assert(content.includes('fixture-heavy item 的推荐字段'), `${label} prompt missing fixture-heavy section`);

@@ -271,7 +271,7 @@ export class StoryStore {
     this.writeJson(storyId, 'implementation-review.json', data);
   }
 
-  // ── Understanding (Pre-context Intake snapshot, OMX style) ──
+  // ── Understanding (Pre-context Intake snapshot) ──
 
   readUnderstanding(storyId: string): UnderstandingData | null {
     try {
@@ -301,7 +301,7 @@ export class StoryStore {
     this.writeJson(storyId, 'grill.json', data);
   }
 
-  // ── Decision (RALPLAN-DR structured decision, OMX style) ──
+  // ── Decision (RALPLAN-DR structured decision) ──
 
   readDecision(storyId: string): DecisionData | null {
     try {

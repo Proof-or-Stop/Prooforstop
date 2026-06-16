@@ -7,7 +7,7 @@
  * @priority high
  * @description
  * Verifies that verify_codex keeps lattice mirror mode strict while accepting
- * registry-backed thin prompt assets without .Codex/agents, and rejects
+ * registry-backed thin prompt assets without .lattice-codex/agents, and rejects
  * legacy-only Koala adapter assets as an active runtime path.
  * @changes
  * - [CHK-003] Cover lattice mirror, registry thin, registry drift, tampered registry hash,
@@ -56,7 +56,7 @@ function seedLegacyPrompts(root: string): void {
   for (const entry of registry.agents) {
     const source = readFileSync(entry.sourcePath, 'utf8');
     writeText(root, `.claude/agents/${entry.file}`, source);
-    writeText(root, `.Codex/agents/${entry.file}`, renderCodexAgentContent(source));
+    writeText(root, `.lattice-codex/agents/${entry.file}`, renderCodexAgentContent(source));
   }
 }
 
@@ -72,7 +72,7 @@ function assertOk(result: ReturnType<typeof runCodexAdapterChecks>): void {
 
 const mirrorRoot = makeRoot('codex-mirror');
 try {
-  writeText(mirrorRoot, '.Codex/lattice.json', renderLatticeCodexAdapterManifest());
+  writeText(mirrorRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest());
   seedLegacyPrompts(mirrorRoot);
   const mirror = runCodexAdapterChecks(mirrorRoot, { executeHeartbeats: false });
   assertOk(mirror);
@@ -85,7 +85,7 @@ try {
 
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-legacy-only-'));
 try {
-  writeText(legacyOnlyRoot, '.Codex/koala.json', renderLatticeCodexAdapterManifest());
+  writeText(legacyOnlyRoot, '.lattice-codex/koala.json', renderLatticeCodexAdapterManifest());
   writeText(legacyOnlyRoot, 'bin/koala.js', renderLatticeBootstrapScript(packageRoot));
   writeText(legacyOnlyRoot, 'bin/koala-codex.js', renderLatticeCodexWrapperScript());
   seedCodexNativeHooks(legacyOnlyRoot);
@@ -100,7 +100,7 @@ try {
 
 const thinRoot = makeRoot('codex-thin');
 try {
-  writeText(thinRoot, '.Codex/lattice.json', renderLatticeCodexAdapterManifest({ promptMode: 'registry' }));
+  writeText(thinRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest({ promptMode: 'registry' }));
   const thin = runCodexAdapterChecks(thinRoot, { executeHeartbeats: false });
   assertOk(thin);
   assert.equal(checkById(thin, 'manifest').status, 'pass');
@@ -114,7 +114,7 @@ const driftRoot = makeRoot('codex-registry-drift');
 try {
   const manifest = JSON.parse(renderLatticeCodexAdapterManifest({ promptMode: 'registry' }));
   manifest.recommendedEntrypoints[0].command = 'node bin/changed.js';
-  writeText(driftRoot, '.Codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
+  writeText(driftRoot, '.lattice-codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
   const drift = runCodexAdapterChecks(driftRoot, { executeHeartbeats: false });
   assert.equal(drift.ok, false, 'registry manifest static drift must be a hard failure');
   assert.equal(checkById(drift, 'manifest').status, 'fail');
@@ -128,7 +128,7 @@ const tamperedRoot = makeRoot('codex-tampered');
 try {
   const manifest = JSON.parse(renderLatticeCodexAdapterManifest({ promptMode: 'registry' }));
   manifest.promptRegistry.materialHash = 'tampered';
-  writeText(tamperedRoot, '.Codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
+  writeText(tamperedRoot, '.lattice-codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
   const tampered = runCodexAdapterChecks(tamperedRoot, { executeHeartbeats: false });
   assert.equal(tampered.ok, false, 'tampered registry manifest must be a hard failure');
   assert.equal(checkById(tampered, 'manifest').status, 'fail');

@@ -13,7 +13,7 @@ const codeLikeCommandNamePattern = /^[a-z][a-z0-9_.-]*(?::[a-z][a-z0-9_.-]*)*$/;
 const promptDirs = [
   'packages/main/templates/agents',
   '.claude/agents',
-  '.Codex/agents',
+  '.lattice-codex/agents',
 ];
 
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
@@ -667,7 +667,7 @@ function promptSemanticTokens(text) {
   for (const match of text.matchAll(/\bkoala\s+([a-z_][a-z0-9_]*)\b/g)) {
     tokens.add(`cmd:${match[1]}`);
   }
-  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.Codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
+  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.lattice-codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
     tokens.add(`path:${match[1].replace(/[),.;:]+$/, '')}`);
   }
   for (const name of ['review_run_start', 'finding_add', 'review_pass_set', 'init_check_set', 'scope_check_save', 'delivery_check_set', 'verification_evidence_add', 'verification_evidence_batch_add']) {
@@ -678,7 +678,7 @@ function promptSemanticTokens(text) {
 
 function comparePromptSemantics(promptMap) {
   const templateDir = 'packages/main/templates/agents';
-  const mirrorDirs = ['.claude/agents', '.Codex/agents'];
+  const mirrorDirs = ['.claude/agents', '.lattice-codex/agents'];
   const templateFiles = [...promptMap.keys()]
     .filter(relPath => relPath.startsWith(`${templateDir}/`))
     .sort();

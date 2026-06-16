@@ -109,7 +109,6 @@ Handling:
   process fact registries.
 - Keep material hash, baseline risk, repair, and gitignore semantics aligned
   with the registry instead of hard-coding paths in separate call sites.
-- Do not add `.omx/` or OMX-derived paths as runtime artifacts.
 - Do not use the `.gitignore` hunk to claim dev-memory data is ignored; that is
   outside this bucket unless a future story explicitly changes ignore policy.
 

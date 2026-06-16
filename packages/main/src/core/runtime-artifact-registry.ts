@@ -20,14 +20,6 @@ function rx(value: string): RegExp {
   return new RegExp(value);
 }
 
-export function isForbiddenOmxPath(path: string): boolean {
-  const normalized = normalizeRuntimeArtifactPath(path);
-  return normalized === '.omx' ||
-    normalized.startsWith('.omx/') ||
-    normalized.includes('/.omx/') ||
-    normalized.endsWith('/.omx');
-}
-
 export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'lattice-runtime-root-ignore',

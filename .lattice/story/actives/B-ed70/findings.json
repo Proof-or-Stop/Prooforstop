@@ -1,0 +1,126 @@
+{
+  "findings": [
+    {
+      "id": "B-ed70:F-001",
+      "desc": "CHK-002:happy:1,2,3 use the same git grep .Codex absence scan (the happy:0 command) instead of their own spec-d commands. happy:1 should ls .lattice-codex/README.md .lattice-codex/lattice.json .lattice-codex/agents/lattice-implementer.md; happy:2 should test ! -d .Codex; happy:3 should npm run build. Three distinct intents are collapsed onto one evidence command, so no evidence actually verifies: (a) the 18-file move was committed, (b) the old directory is gone, or (c) the build compiles. The underlying facts are confirmed by independent live checks (ls and build both pass), so this is an evidence-binding defect, not a code defect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:12:50.509Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-003",
+      "_hash": "7e77b5feff6b0e1e41b6d8bec49b434ddb6cb97914fdc07f6c6097fa64c7e31d",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ],
+      "resolvedAt": "2026-06-16T21:20:21.834Z"
+    },
+    {
+      "id": "B-ed70:F-002",
+      "desc": "CHK-002:edge:4 evidence mismatch: intent requires the pretool hook internal .Codex reference rewritten to .lattice-codex; evidence ran grep -n lattice-codex (positive presence check only). The .Codex reference remains at .codex/hooks/lattice-scope-pretool.cjs line 93 (findRepoRoot detection probe). Evidence never ran grep -c .Codex on the file to verify absence. The file is git-tracked as .codex/ (excluded from the main postcondition scan), so the CHK-002:happy:0 sweep does not catch this residual. The .Codex probe in findRepoRoot is functionally benign on macOS (case-insensitive FS makes .codex and .Codex identical), but the intent explicitly required rewriting it and evidence claimed it was done when it was not.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:13:00.126Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-003",
+      "_hash": "f320d1c5165b3db4c927d20195398586c1a7e4de04d2fa317d721465f3a53a53",
+      "files": [
+        ".codex/hooks/lattice-scope-pretool.cjs"
+      ],
+      "resolvedAt": "2026-06-16T21:20:22.428Z"
+    },
+    {
+      "id": "B-ed70:F-003",
+      "desc": "CHK-002:adversarial:0 wrong command AND failing postcondition: intent requires git grep -n \\.codex/ -- . :(exclude).lattice | grep -v hooks | grep -v hooks.json → exits 1. Evidence ran test -f .codex/hooks.json (existence check, completely different). When the actual intent command is run now it exits 0 with 4 matches in managed-assets.ts (lines 217, 597) and lattice-codex-command-boundary-execution-plan.md (lines 160, 183). These are legitimate .codex/ references (Codex CLI hook-dir path strings in production code and a decision doc), not stale lowercased .Codex refs — but the adversarial postcondition as written is not satisfied. The evidence never ran the correct command, so this gap was not caught at record time.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:13:10.251Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-003",
+      "_hash": "cf181edc5fee6aa7fd21356c46f3f137e07a75f869c3934527b3651483b9bbd4",
+      "files": [
+        "packages/main/src/core/managed-assets.ts",
+        "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+      ],
+      "resolvedAt": "2026-06-16T21:20:23.018Z"
+    },
+    {
+      "id": "B-ed70:F-004",
+      "desc": "CHK-001:happy:1 wrong command: intent requires grep -i lattice packages/lab/package.json to confirm replacement text Lattice 离线优化实验室 is present. Evidence ran grep -ri koala packages/lab/package.json (koala-absence check, same as happy:0), confirming nothing about the replacement text. CHK-003:happy:3 wrong command: intent requires npm run build exit 0; evidence ran git grep -inE omx (zero-residual scan, same as CHK-003:happy:0). Two distinct must-intents collapsed onto their item-level absence scans. Underlying facts verified live: grep -i lattice matches, npm run build exits 0. Code is correct; evidence binding is defective.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:13:42.596Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-007",
+      "_hash": "a9740ee9801d2050a45751ca03b27552a0cda8007f384a779259032953928eae",
+      "files": [
+        "packages/lab/package.json",
+        "package.json"
+      ],
+      "resolvedAt": "2026-06-16T21:20:23.609Z"
+    },
+    {
+      "id": "B-ed70:F-005",
+      "desc": "CHK-002:adversarial:1 and CHK-002:adversarial:2 wrong commands: adversarial:1 intent requires test -d .lattice && ls .lattice/story/actives/B-ed70/checklist.json; evidence ran git diff --name-only HEAD~5 HEAD | grep -c .lattice/ (a delta check, not an existence check). adversarial:2 intent requires test -f packages/main/src/dev-cli.ts; evidence ran test -f packages/main/src/verifier/dev-cli.ts — different path (verifier/ subdirectory), though the file is present at that path. Both underlying facts are confirmed live. Additionally CHK-003:adversarial:0 specifies packages/lab/src/core/intent-coverage.ts (non-existent path) while evidence correctly checked packages/main/src/core/intent-coverage.ts — intent contains wrong path, evidence silently corrected it without recording the discrepancy.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:14:26.321Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-008",
+      "_hash": "b04b66238cdcc3501271787e50ea3d9583561899b1c55815e67f7d909341b1b4",
+      "files": [
+        "packages/main/src/verifier/dev-cli.ts",
+        "packages/main/src/core/intent-coverage.ts"
+      ],
+      "resolvedAt": "2026-06-16T21:20:24.204Z"
+    },
+    {
+      "id": "B-ed70:F-006",
+      "desc": "CHK-001:adversarial:0 evidence too narrow: intent requires git grep -niE koala -- packages/lab/ → empty (lab-wide sweep) but evidence ran grep -i koala packages/lab/package.json (single file only). If the full lab-wide sweep were run it would exit 0 (matches found) because packages/lab/src/core/ contains many pre-existing koala references unrelated to this story. The intent expectation is over-scoped relative to CHK-001 scope (only package.json description was changed). The underlying story goal is met (package.json has no koala), but the adversarial intent as written cannot be satisfied and evidence deliberately avoided running it.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:26:16.854Z",
+      "reviewRound": "2026-06-16T21:20:07.360Z",
+      "reviewRunId": "B-ed70:RR-010",
+      "_hash": "f06fa3eb2379523e394727e7f1527ef5f57228421d6e726c747c036b9598d57d",
+      "files": [
+        "packages/lab/package.json"
+      ],
+      "resolvedAt": "2026-06-16T21:28:11.113Z"
+    },
+    {
+      "id": "B-ed70:F-007",
+      "desc": "CHK-001:adversarial:2 wrong command and impossible intent: intent requires test -f packages/lab/src/core/intent-coverage.ts → exit 0 (over-reach guard that an unrelated lab file still exists). Evidence ran grep -ri koala packages/lab/package.json — a completely different command that does not test file existence. Additionally the intent path itself is wrong: packages/lab/src/core/intent-coverage.ts does not exist (the file exists at packages/main/src/core/intent-coverage.ts). The over-reach guard concept is sound but the evidence does not implement it and the intent path is incorrect.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:26:24.141Z",
+      "reviewRound": "2026-06-16T21:20:07.360Z",
+      "reviewRunId": "B-ed70:RR-010",
+      "_hash": "313b762d6df44eedb079cf1f56dfb09fc51148143e96f76ed35bd5e9596dd456",
+      "files": [
+        "packages/lab/package.json"
+      ],
+      "resolvedAt": "2026-06-16T21:28:11.812Z"
+    }
+  ]
+}

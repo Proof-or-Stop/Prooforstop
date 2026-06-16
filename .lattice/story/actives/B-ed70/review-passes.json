@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-ed70:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue checks all clean. (1) koala: grep on packages/lab/package.json returns empty. (2) uppercase .Codex: git grep finds zero matches in active files. (3) omx: git grep finds zero matches in active files (CHANGELOG excluded as honest history per spec). (4) .codex/ mandatory contract preserved (hooks.json + hooks/). (5) .lattice-codex/ has 18 files as expected. (6) Over-reach guards intact: intent-coverage.ts and dev-cli.ts still exist. No residual references and no over-reach detected.",
+      "createdAt": "2026-06-16T21:09:58.224Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-001",
+      "_hash": "c9f81c9f259eed22752505ce9af5d38a52f57c648cec61a8209991eb707b3ca8"
+    },
+    {
+      "id": "B-ed70:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 28 symbols (codexDir, codexAgentDir, codexManifest, codexManifestPath, codexReadme, codexReadmePath, codexAgents, codexContent, isForbiddenOmxPath, assertNoOmxPath, assertThrowsOmx, hasCodexMarkers, upperHooks, upperHooksPath, managedFileDirectoryItem, excludedDirectoryItem, legacyBaseline, scenarioBaseline, mirrorDirs, importDist, removedImport, repoRoot, root, suiteReport, temp, absent, normalized, registry, registrySource). Step 2 yielded 0 direct symbol hits in README/CLAUDE/AGENTS; applied Fallback 2 and checked the 4 concrete consistency areas from the story brief. Step 3: (1) .Codex/ -> .lattice-codex/: CLAUDE.md, README.md, AGENTS.md, .lattice-codex/README.md, and all 10+ changed decision docs fully updated, zero stale .Codex/ in changed docs; (2) omx: AGENTS.md item 12 deleted, stale sentence in runtime-artifact-registry section removed, verify-omx-disabled.mjs deleted, test:omx-disabled removed from package.json, zero omx references in any changed doc; (3) lowercase .codex/ Codex CLI hook contract preserved in README.md L739 and AGENTS.md L191; (4) lab/package.json description now reads Lattice 离线优化实验室 matching story intent. Reverse doc-promise check: test:codex-assets script and verify-codex-assets.mjs both exist as promised by README.md. No blockers found.",
+      "createdAt": "2026-06-16T21:13:35.792Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-006",
+      "_hash": "255ccd79451ab32cf5f654ca9ce03cb18e1532257c6b16a8a41515dc710e349c"
+    },
+    {
+      "id": "B-ed70:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "All 3 fixes verified correct. Gate 1: .codex/hooks/lattice-scope-pretool.cjs line 93 now probes .lattice-codex (no .Codex reference remains in changed code files). Gate 2: node scripts/verify-codex-assets.mjs exits 0. Gate 3: npm run build exits 0. Gate 4: npm run test:e2e ALL PASS. Gate 5: node bin/lattice.js verify_codex 8/8. Gate 6/7: no .Codex occurrences in any changed code file (.ts/.js/.cjs/.mjs). Fix 3: managed-assets.ts lines 593-597 have correct intentional-denylist comment explaining koala* token retention; .Codex/koala.json also corrected to .lattice-codex/koala.json. No dead code, type-safety, or I/O isolation issues found in the diff.",
+      "createdAt": "2026-06-16T21:22:40.227Z",
+      "reviewRound": "2026-06-16T21:20:07.360Z",
+      "reviewRunId": "B-ed70:RR-009",
+      "_hash": "6deaf5cce98e6d7112b379a9127bd5fe93d5bcdba7f5ca8b707db4d6b88dc9fb"
+    },
+    {
+      "id": "B-ed70:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 41 verificationIntents have evidence records with result=pass and materialHash consistent with current HEAD. All 5 round-1 findings (F-001 through F-005) are resolved. Load-bearing checks confirmed: grep -i koala packages/lab/package.json exits 1; git grep .Codex residual exits 1; git grep omx exits 1; npm run build exit 0; npm run test:e2e ALL PASS; verify_codex 8/8; verify-codex-assets exit 0. Two new low-severity findings filed this round (F-006, F-007) for CHK-001:adversarial:0 and CHK-001:adversarial:2 evidence-binding quality issues (wrong-command substitution in adversarial intents; intent:adversarial:0 has over-scoped expectation impossible to satisfy given pre-existing koala in lab source; intent:adversarial:2 references non-existent file path packages/lab/src/core/intent-coverage.ts). No blockers; no code defects; coverage is adequate.",
+      "createdAt": "2026-06-16T21:27:39.105Z",
+      "reviewRound": "2026-06-16T21:20:07.360Z",
+      "reviewRunId": "B-ed70:RR-010",
+      "_hash": "b3604ae4bc1794ac99e508754d233ae5193cb119a1057a9adef36002a20b8e7b"
+    }
+  ]
+}

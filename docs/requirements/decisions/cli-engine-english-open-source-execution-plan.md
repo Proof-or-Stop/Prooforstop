@@ -20,7 +20,7 @@ that reviewers should approve before implementation begins.
 - Do not modify `packages/main/src/cli-engine.ts` in this documentation story.
 - Do not modify the existing untracked
   `docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md`.
-- Do not touch `.omx/`, `docs/story/`, or `packages/main/tests/fixtures/`.
+- Do not touch `docs/story/` or `packages/main/tests/fixtures/`.
 - Do not remove legacy `koala` compatibility semantics as part of translation.
 - Do not hide compatibility terms such as `KOALA_*`, `koala.config.json`, or
   legacy alias documentation when they are still runtime facts.
@@ -740,7 +740,7 @@ M303	640	schema	输出格式	Output format.	review-draft
 M304	642	command-description	显示 REVIEW reflection loop 记录策略（read-only）	Show REVIEW reflection loop recording policy (read-only)	review-draft
 M305	643	schema	输出 JSON	Emit JSON.	review-draft
 M306	644	schema	输出格式	Output format.	review-draft
-M307	647	comment	Understanding (Pre-context Intake snapshot, OMX 风格)	Understanding (pre-context intake snapshot, OMX-style legacy reference).	review-draft
+M307	647	comment	Understanding (Pre-context Intake snapshot)	Understanding (pre-context intake snapshot).	review-draft
 M308	648	command-description	PLAN 阶段落 task 理解快照（task/outcome/facts/constraints/unknowns/touchpoints）	Record the PLAN task understanding snapshot (task/outcome/facts/constraints/...)	review-draft
 M309	650	schema	一句话描述要解决的问题	One-sentence description of the problem to solve.	review-draft
 M310	651	schema	完成后能观察到什么变化	Observable outcome after completion.	review-draft
@@ -749,7 +749,7 @@ M312	653	schema	约束条件	Constraints.	review-draft
 M313	654	schema	未知问题（拆 checklist 前应消化）	Unknowns to resolve before splitting the checklist.	review-draft
 M314	655	schema	可能的代码触点	Possible code touchpoints.	review-draft
 M315	657	command-description	读取 understanding snapshot	Read the understanding snapshot	review-draft
-M316	660	comment	Decision (RALPLAN-DR 结构化决策, OMX ralplan 风格)	Decision (RALPLAN-DR structured decision, OMX ralplan-style legacy reference).	review-draft
+M316	660	comment	Decision (RALPLAN-DR 结构化决策)	Decision (RALPLAN-DR structured decision).	review-draft
 M317	661	command-description	PLAN 阶段落结构化决策（principles/drivers/options/chosen/preMortem）	Record a structured PLAN decision (principles/drivers/options/chosen/preMortem)	review-draft
 M318	663	schema	3-5 条设计原则	3-5 design principles.	review-draft
 M319	664	schema	top 3 关键约束	Top 3 key constraints.	review-draft
@@ -890,7 +890,7 @@ M453	1490	schema	同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISM
 M454	1491	schema	同步 MISSING/STALE_SAFE 管理资产到当前 Lattice 模板；等价于 --apply	Sync MISSING/STALE_SAFE managed assets to current Lattice templates; equivalent to --apply.	review-draft
 M455	1492	schema	输出 STALE_LOCAL_EDIT 的结构化人工审查摘要	Output structured manual review summary for STALE_LOCAL_EDIT.	review-draft
 M456	1493	schema	覆盖自动检测的 init profile	Override auto-detected init profile.	review-draft
-M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .Codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .Codex/agents, thin=use prompt registry.	review-draft
+M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .lattice-codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.	review-draft
 M458	1497	comment	Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)	Audit (framework self-audit: scan CLAUDE.md promises across stories versus actual CLI behavior drift).	review-draft
 M459	1498	command-description	框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）	Framework self-audit: scan CLAUDE.md drift, write audit finding plus report.md	review-draft
 M460	1499	schema	扫 CLAUDE.md / packages/main/CLAUDE.md 的 CLI 命令/flag/路径 drift（当前 MVP 唯一档）	Scan CLI command/flag/path drift in CLAUDE.md and packages/main/CLAUDE.md (current MVP only mode).	review-draft

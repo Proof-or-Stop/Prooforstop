@@ -74,7 +74,7 @@ lattice decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":
 建议先运行 lattice session_brief 恢复现场
 ```
 
-阈值可用 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。Claude hook/settings 只放在 `.claude/`，不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。
+阈值可用 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。每个 host 的 hook/settings 都是框架在 `lattice init` 时按 host 生成的 managed asset：Claude host 落在 `.claude/`（如 `.claude/hooks/lattice-scope-pretool.cjs`，已纳入 git），Codex adapter 落在其各自的 adapter 目录（同样由框架生成对应的 scope-guard hook）。这些是框架管理的生成产物，不要手写或手改；要调整 hook 行为请改生成源（`init-assets` / `core/managed-assets`），而不是直接编辑产物。
 
 ## 框架自省 audit 配置
 
@@ -770,7 +770,7 @@ Lattice agent prompt 的**正文（body）只有一个真相源**：包内 regis
 | 宿主 | 项目/全局里的薄适配 | 正文来源 |
 |---|---|---|
 | Claude | `.claude/agents/*.md` thin-shim（frontmatter `name`/`description`/`tools` + body 写「run `lattice agent_prompt --role=<name>`」，**无正文**） | `lattice agent_prompt`（registry） |
-| Codex | `.Codex/lattice.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
+| Codex | `.lattice-codex/lattice.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
 
 - **取正文命令**：`lattice agent_prompt --role=<name>`（如 `lattice-implementer` / `lattice-review-concept`），从 registry 吐角色正文；非法 role 列出可用 role。Claude shim 取它，Codex manifest 指它，两者 byte-equal 同源。
 - **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "lattice-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `lattice agent_prompt --role=<自身角色>` 取权威指令**再执行。

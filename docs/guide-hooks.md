@@ -30,7 +30,7 @@ This hook is only a soft reminder: it locates the repository from the hook JSON'
 Run lattice session_brief first to restore context
 ```
 
-The threshold can be adjusted with `LATTICE_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Lattice init does not create `.Codex/hooks` or `.Codex/settings.json`.
+The threshold can be adjusted with `LATTICE_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Lattice init does not create `.lattice-codex/hooks` or `.lattice-codex/settings.json`.
 
 ## When to Use
 

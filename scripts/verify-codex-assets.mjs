@@ -57,27 +57,27 @@ assert(CODEX_README_TEMPLATE.includes(LOCAL_MAIN_VERIFY_COMMAND), 'template miss
 assert(CODEX_README_TEMPLATE.includes(LOCAL_INIT_VERIFY_COMMAND), 'template missing init verification guidance');
 assert(CODEX_README_TEMPLATE.includes('node bin/lattice-codex.js doctor'), 'template missing Codex doctor guidance');
 assertNotIncludes(CODEX_README_TEMPLATE, 'node bin/koala-codex.js', 'template legacy Codex wrapper command');
-assertNotIncludes(CODEX_README_TEMPLATE, '.Codex/koala.json', 'template legacy Codex manifest');
+assertNotIncludes(CODEX_README_TEMPLATE, '.lattice-codex/koala.json', 'template legacy Codex manifest');
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala verify_codex`', 'template bare global verify guidance');
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala init --verify-codex`', 'template bare global init guidance');
 assert(renderLatticeCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
 assert(renderLatticeCodexAdapterManifest().includes(LOCAL_CODEX_VERIFY_COMMAND), 'lattice manifest template missing local wrapper note');
 assertNotIncludes(renderLatticeCodexAdapterManifest(), 'koala-codex', 'lattice manifest legacy wrapper note');
-assertNotIncludes(renderLatticeCodexAdapterManifest(), '.Codex/koala.json', 'lattice manifest legacy manifest note');
+assertNotIncludes(renderLatticeCodexAdapterManifest(), '.lattice-codex/koala.json', 'lattice manifest legacy manifest note');
 
-const codexReadme = readFileSync(join(root, '.Codex', 'README.md'), 'utf8');
-const manifest = readFileSync(join(root, '.Codex', 'lattice.json'), 'utf8');
+const codexReadme = readFileSync(join(root, '.lattice-codex', 'README.md'), 'utf8');
+const manifest = readFileSync(join(root, '.lattice-codex', 'lattice.json'), 'utf8');
 const rootReadme = readFileSync(join(root, 'README.md'), 'utf8');
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
 
-assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), '.Codex/README.md drifted from lattice template');
-assert(manifest === renderLatticeCodexAdapterManifest(), '.Codex/lattice.json drifted from template');
-assertIncludes(codexReadme, LOCAL_CODEX_VERIFY_COMMAND, '.Codex/README.md');
-assertIncludes(codexReadme, 'node bin/lattice-codex.js doctor', '.Codex/README.md');
-assertNotIncludes(codexReadme, 'node bin/koala-codex.js', '.Codex/README.md');
-assertNotIncludes(codexReadme, '.Codex/koala.json', '.Codex/README.md');
-assertNotIncludes(codexReadme, '`koala verify_codex`', '.Codex/README.md');
-assertNotIncludes(codexReadme, '`koala init --verify-codex`', '.Codex/README.md');
+assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), '.lattice-codex/README.md drifted from lattice template');
+assert(manifest === renderLatticeCodexAdapterManifest(), '.lattice-codex/lattice.json drifted from template');
+assertIncludes(codexReadme, LOCAL_CODEX_VERIFY_COMMAND, '.lattice-codex/README.md');
+assertIncludes(codexReadme, 'node bin/lattice-codex.js doctor', '.lattice-codex/README.md');
+assertNotIncludes(codexReadme, 'node bin/koala-codex.js', '.lattice-codex/README.md');
+assertNotIncludes(codexReadme, '.lattice-codex/koala.json', '.lattice-codex/README.md');
+assertNotIncludes(codexReadme, '`koala verify_codex`', '.lattice-codex/README.md');
+assertNotIncludes(codexReadme, '`koala init --verify-codex`', '.lattice-codex/README.md');
 assertIncludes(rootReadme, LOCAL_CODEX_VERIFY_COMMAND, 'README.md');
 assertIncludes(rootReadme, 'node bin/lattice-codex.js doctor', 'README.md');
 assertNotIncludes(rootReadme, '`koala verify_codex`', 'README.md');
@@ -105,7 +105,7 @@ function copyCodexAssetsToTemp() {
   writeTempConfig(dir);
   mkdirSync(join(dir, 'bin'), { recursive: true });
   for (const rel of [
-    '.Codex',
+    '.lattice-codex',
     '.codex',
     '.claude',
     'bin/lattice-codex.js',
@@ -139,7 +139,7 @@ function assertCheckFails(mutator, expectedId, label) {
 }
 
 assertCheckFails(
-  (dir) => writeFileSync(join(dir, '.Codex', 'lattice.json'), '{}\n'),
+  (dir) => writeFileSync(join(dir, '.lattice-codex', 'lattice.json'), '{}\n'),
   'manifest',
   'manifest drift',
 );
@@ -157,9 +157,9 @@ assertCheckFails(
   }
 }
 assertCheckFails(
-  (dir) => writeFileSync(join(dir, '.Codex', 'settings.json'), '{}\n'),
+  (dir) => writeFileSync(join(dir, '.lattice-codex', 'settings.json'), '{}\n'),
   'excluded-assets',
-  'forbidden .Codex/settings.json',
+  'forbidden .lattice-codex/settings.json',
 );
 assertCheckFails(
   (dir) => rmSync(join(dir, 'bin', 'lattice.js'), { force: true }),
@@ -389,7 +389,7 @@ assertGateStatus((dir, store) => {
     headHash: snapshot.headHash,
     materialHash: snapshot.materialHash,
   });
-  writeFileSync(join(dir, '.Codex', 'README.md'), `${codexReadme}\npost verification drift\n`);
+  writeFileSync(join(dir, '.lattice-codex', 'README.md'), `${codexReadme}\npost verification drift\n`);
 }, 'stale', 'post-verification Codex adapter edit');
 assertGateStatus((dir, store) => {
   const snapshot = computeCodexAdapterMaterialSnapshot(dir);

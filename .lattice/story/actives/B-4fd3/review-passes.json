@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-4fd3:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement found. This diff is purely additive: (1) cli-init.ts expands the .gitignore copy branch to call mergeKoalaRuntimeIgnores after cpSync — the symbol exists and is defined at line 89 of the same file; (2) thin-init-assets-smoke.ts adds assertGitignoreCoversRegistry (defined locally at line 74) and two imports (runtimeIgnoreMissing from managed-assets.ts:459 where it is exported; listRuntimeArtifactIgnorePatterns from runtime-artifact-registry.ts:255 where it is exported); (3) .gitignore adds .lattice/usage/ which is a pre-existing runtime artifact concept from B-253e/B-a5c9, now belatedly added to the managed block. The only removed lines are one log string (replaced in both branches) and one import line (extended with an additional named import). Zero dangling references introduced. Concept residue check complete: no blocker.",
+      "createdAt": "2026-06-16T21:13:48.392Z",
+      "reviewRound": "2026-06-16T21:12:31.271Z",
+      "reviewRunId": "B-4fd3:RR-001",
+      "_hash": "32237fb17278c54ffff0ac345c472fef9eecb066cb849757131ac1a4c2707087"
+    },
+    {
+      "id": "B-4fd3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed cli-init.ts (copy branch merge of runtime ignores), thin-init-assets-smoke.ts (new assertGitignoreCoversRegistry helper), and .gitignore (.lattice/usage/ addition). Dead code: none — both new imports (runtimeIgnoreMissing, listRuntimeArtifactIgnorePatterns) are used at lines 78 and 82. Type safety: no new as-any or empty-catch in added lines; pre-existing instances are outside the diff scope. I/O isolation: thin-init-assets-smoke.ts is a task/test runner (not a shell), imports from core directly which is appropriate. The fix correctly reuses mergeKoalaRuntimeIgnores (existing helper) post-cpSync to keep the copy branch registry-synced, matching the pattern on the existing-file branch. No duplication, no dead code, no type safety regressions.",
+      "createdAt": "2026-06-16T21:13:55.345Z",
+      "reviewRound": "2026-06-16T21:12:31.271Z",
+      "reviewRunId": "B-4fd3:RR-002",
+      "_hash": "44e3d395620456e8423d5adea303f2843b9dcc577648f08f8b942ec1bb7deae3"
+    },
+    {
+      "id": "B-4fd3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement in this diff. All 3 code changes (cli-init.ts copy branch, .gitignore, thin-init-assets-smoke.ts) are purely additive. No symbols deleted or replaced. Closing self-check: mergeKoalaRuntimeIgnores, runtimeIgnoreMissing, listRuntimeArtifactIgnorePatterns all verified to exist in codebase — no doc-promise-undelivered. Concept residue check completed with no blocker.",
+      "createdAt": "2026-06-16T21:18:04.606Z",
+      "reviewRound": "2026-06-16T21:17:09.833Z",
+      "reviewRunId": "B-4fd3:RR-004",
+      "_hash": "ff505ed446fb950d99aac67cef8f5ed6d322adc527edca3559b3f6f007016437"
+    },
+    {
+      "id": "B-4fd3:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review: 3 changed files (.gitignore, cli-init.ts, thin-init-assets-smoke.ts). Dead code: none — both new imports in smoke test (runtimeIgnoreMissing, listRuntimeArtifactIgnorePatterns) are used in assertGitignoreCoversRegistry; mergeKoalaRuntimeIgnores/readFileSync/writeFileSync already imported in cli-init.ts. Type safety: no as-any, no empty catch; mergeKoalaRuntimeIgnores returns typed {changed:boolean,content:string}, used correctly. I/O isolation: no shells/ files touched, cli-init.ts is itself an I/O entry point. Doc-promise: no CLAUDE.md/README changes in diff. No findings.",
+      "createdAt": "2026-06-16T21:18:37.213Z",
+      "reviewRound": "2026-06-16T21:17:09.833Z",
+      "reviewRunId": "B-4fd3:RR-005",
+      "_hash": "25fa70b757fbac172b7beb7e00f7ee0feba2f27c60e3a4d2f3aa954458b20788"
+    },
+    {
+      "id": "B-4fd3:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 evidence entries (5 must + 1 should) re-recorded post-fix commit bf15f72a7 with headHashes confirmed as descendants of the fix commit. CHK-001 happy/edge/adversarial and CHK-002 happy/edge/adversarial all have concrete, specific evidence matching intent descriptions. validate --story=B-4fd3 reports verificationCoverage total:6 required:5 covered:6 missingRequired:0.",
+      "createdAt": "2026-06-16T21:18:37.950Z",
+      "reviewRound": "2026-06-16T21:17:09.833Z",
+      "reviewRunId": "B-4fd3:RR-006",
+      "_hash": "66c1c6b9b744798ac9c417218bc159b53f1497eab2780572bdd4763d3c50e0d1"
+    }
+  ]
+}

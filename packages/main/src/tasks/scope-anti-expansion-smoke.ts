@@ -189,7 +189,7 @@ function writeGoodBoundaries(store: StoryStore): void {
     storyId: STORY_ID,
     allowedCommands: ['npm --prefix packages/main run build'],
     allowedTools: ['shell'],
-    excludedCommands: ['omx'],
+    excludedCommands: ['forbidden-cmd'],
     excludedTools: [],
     confirmedBy: 'scope-anti-expansion-smoke',
     confirmationNote: 'Synthetic execution boundary for smoke coverage.',
@@ -257,7 +257,7 @@ withTempContext('story_create persists initial scope and execution boundaries', 
       allowedCommands: ['npm --prefix packages/main run build'],
       allowedTools: ['shell'],
       allowedPaths: ['packages/main/src'],
-      excludedCommands: ['omx'],
+      excludedCommands: ['forbidden-cmd'],
       blockedPaths: ['packages/main/dist'],
     },
     forceNew: true,
@@ -267,7 +267,7 @@ withTempContext('story_create persists initial scope and execution boundaries', 
   assert.deepEqual(store.readScopeBoundary(storyId)?.allowed, ['INIT scope freeze correctness']);
   assert.deepEqual(store.readScopeBoundary(storyId)?.excluded, ['Authority expansion']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.allowedCommands, ['npm --prefix packages/main run build']);
-  assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedCommands, ['omx']);
+  assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedCommands, ['forbidden-cmd']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.allowedPaths, ['packages/main/src']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedPaths, ['packages/main/dist']);
 });
@@ -699,7 +699,7 @@ withTempGitContext('real discarded story digest blocks replacement without mitig
     storyId: replacementStoryId,
     allowedCommands: ['npm --prefix packages/main run build'],
     allowedTools: ['shell'],
-    excludedCommands: ['omx'],
+    excludedCommands: ['forbidden-cmd'],
     actor: 'scope-anti-expansion-smoke',
   });
 
@@ -813,7 +813,7 @@ withTempGitContext('background-only discarded direction blocks replacement and b
     storyId: replacementStoryId,
     allowedCommands: ['npm --prefix packages/main run build'],
     allowedTools: ['shell'],
-    excludedCommands: ['omx'],
+    excludedCommands: ['forbidden-cmd'],
     actor: 'scope-anti-expansion-smoke',
   });
 

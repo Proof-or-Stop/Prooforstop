@@ -3,7 +3,6 @@ dist
 
 # Lattice worktree + runtime
 .worktrees/
-.omx/
 **/activity.jsonl
 .lattice/activity.legacy-koala.jsonl
 .lattice/*
@@ -54,6 +53,7 @@ packages/koala-observer-cli/
 # lattice runtime artifacts (managed)
 **/owner-lease.json
 .lattice/locks/
+.lattice/usage/
 .Lattice/authority.md
 .Lattice/artifacts/baseline/
 .lattice/artifacts/baseline/

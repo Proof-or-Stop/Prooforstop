@@ -103,8 +103,8 @@ assert.match(
 );
 assert.doesNotMatch(
   codexPreToolEntry.hooks[0].command,
-  /\.Codex\/hooks/,
-  'Codex PreToolUse hook must not use uppercase .Codex/hooks',
+  /\.lattice-codex\/hooks/,
+  'Codex PreToolUse hook must not use uppercase .lattice-codex/hooks',
 );
 
 console.log('✓ Test 1b: getCodexHooks() includes PreToolUse');
@@ -158,11 +158,11 @@ try {
   const scopeHookPath = join(codexInitRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
   assert.ok(existsSync(hooksJsonPath), 'codex profile must generate lowercase .codex/hooks.json');
   assert.ok(existsSync(scopeHookPath), 'codex profile must generate lowercase .codex/hooks/lattice-scope-pretool.cjs');
-  const upperHooksPath = join(codexInitRoot, '.Codex', 'hooks');
+  const upperHooksPath = join(codexInitRoot, '.lattice-codex', 'hooks');
   if (existsSync(upperHooksPath)) {
     const lower = statSync(join(codexInitRoot, '.codex', 'hooks'));
     const upper = statSync(upperHooksPath);
-    assert.equal(upper.ino, lower.ino, 'uppercase .Codex/hooks path must only be the case-insensitive alias of lowercase .codex/hooks');
+    assert.equal(upper.ino, lower.ino, 'uppercase .lattice-codex/hooks path must only be the case-insensitive alias of lowercase .codex/hooks');
   }
 
   const generated = JSON.parse(readFileSync(hooksJsonPath, 'utf8'));

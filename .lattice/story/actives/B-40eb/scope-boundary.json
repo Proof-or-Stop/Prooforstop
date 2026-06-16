@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-40eb",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/lab/**：koala-lab 品牌（@title/注释/报错/CLI 文案）→ lattice-lab，避开 B-ed70 在改的 lab/package.json description 与 src/core/config.ts 的 .Codex 行",
+    "packages/main/src/**：源码注释与 CLI 文案里的 koala 品牌（排除 .koala 运行时路径、排除测试断言意图）→ Lattice",
+    "scripts/**/*.mjs：koala 品牌/注释 → Lattice",
+    "根文档 prose：CLAUDE.md:924 的 docs/koala/reviewer-redesign.md 路径、docs/guide.md:60 的 Koala/Lattice 措辞",
+    "测试 smoke/fixtures：非测试断言意图的 koala 夹具按需改名"
+  ],
+  "excluded": [
+    ".koala/ 运行时路径引用（单独的 storage migration，本 story 不动）",
+    "B-ed70 正在改的 lab/package.json description 与 packages/lab/src/core/config.ts 的 .Codex 引用",
+    "CHANGELOG.md / git 历史 / docs/story 历史记录",
+    "docs/requirements/decisions/**.md 历史决策文档（3×2 gate 须排除）",
+    "jek.md（用户私有）、docs/koala/framework-audit/（ACTIVE B-META 路径）",
+    "测试断言意图夹具（lattice-only-absence-smoke、cli-engine-branding-smoke 等故意断言 koala 被忽略/识别，改了破坏测试意图）",
+    "签名盐值 koala-init-check-integrity-v1 / koala-delivery-check-integrity-v1（改动会破坏现有签名验证）"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "用户在盘点暴露真实规模后明确选择“坚持全量大 story 3”（2026-06-16）",
+  "createdAt": "2026-06-16T21:36:39.710Z",
+  "updatedAt": "2026-06-16T21:36:39.710Z",
+  "_hash": "40e3e7dd122857a1e53f18a14753960cbea52949d9aa7a9034109b85f7a769d4"
+}

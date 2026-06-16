@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-94ae:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Doc-only change on CLAUDE.md line 77. New wording is accurate (host hooks are framework-managed init assets), unambiguous, introduces no .Codex literal (git grep confirms only pre-existing line 773 match), and creates no contradictions with surrounding text. Dead code: none. Type safety: N/A (no code). Shell isolation: N/A (no code). No blockers found.",
+      "createdAt": "2026-06-16T21:00:47.316Z",
+      "reviewRound": "2026-06-16T20:59:59.763Z",
+      "reviewRunId": "B-94ae:RR-002",
+      "_hash": "23635d60f1fea3943093d0f47059dce76b38b8591e73377a79f06aa75fb8ee16"
+    },
+    {
+      "id": "B-94ae:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No code symbol or concept deleted. The diff removes only a prose prohibition sentence from CLAUDE.md line 77 and replaces it with an accurate description. Remaining references to .Codex/hooks and .Codex/settings.json across the repo (codex-adapter-checks.ts, managed-assets.ts, test evidence, story history) are all in contextually correct roles (runtime exclusion checks, negative tests, DONE story artifacts) — none are residue from the deleted prohibition. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-16T21:01:00.126Z",
+      "reviewRound": "2026-06-16T20:59:59.763Z",
+      "reviewRunId": "B-94ae:RR-001",
+      "_hash": "5f391b03886fe74e9056115e4edca44c9cbeae523d3639b24f583470137da127"
+    },
+    {
+      "id": "B-94ae:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (1 checklist item, no riskSignals); verificationIntent intentionally skipped at PLAN per express-verification-policy; verificationEvidence entries = 0, must-gap count = 0. CHK-001 is a doc-only correctness fix — the verification is the observable diff: the false .Codex/hooks prohibition is removed and replaced with an accurate statement that host hooks are framework-managed init assets. No logic/integration test path exists to cover; no must-intent left unsatisfied. No blocker.",
+      "createdAt": "2026-06-16T21:01:47.407Z",
+      "reviewRound": "2026-06-16T20:59:59.763Z",
+      "reviewRunId": "B-94ae:RR-004",
+      "_hash": "fc9827cb2af8887cff831d15eb0c9f43345158132201365ee469ad3cb70ce5b9"
+    },
+    {
+      "id": "B-94ae:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols changed (pure docs diff, Fallback 1 applied). Step 2/3: compared the Claude Prompt Hook paragraph in CLAUDE.md (line ~74) against the new wording and 4 codebase facts. All claims verified: (1) .claude/hooks/lattice-scope-pretool.cjs exists and is git-tracked (confirmed via git ls-files); (2) Codex adapter generates its own .codex/hooks/lattice-scope-pretool.cjs via renderCodexPretoolScopeHookScript() in managed-assets.ts:732-736; (3) packages/main/src/init-assets.ts exists as the generation source; (4) packages/main/src/core/managed-assets.ts exists as the generation source; (5) no .Codex literal introduced by this diff — git grep .Codex in CLAUDE.md returns only pre-existing line 773 (.Codex/lattice.json in a table row); (6) new wording does not contradict any other section of CLAUDE.md. No blockers found.",
+      "createdAt": "2026-06-16T21:02:32.676Z",
+      "reviewRound": "2026-06-16T20:59:59.763Z",
+      "reviewRunId": "B-94ae:RR-003",
+      "_hash": "965e78f1cbaf513b45ae5ee19be7f1e801d88de534258bb4e5e9a576a20f0ce2"
+    }
+  ]
+}
