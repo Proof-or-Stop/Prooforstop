@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T21:09:02.958Z",
       "reviewRunId": "B-ed70:RR-001",
       "_hash": "c9f81c9f259eed22752505ce9af5d38a52f57c648cec61a8209991eb707b3ca8"
+    },
+    {
+      "id": "B-ed70:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 28 symbols (codexDir, codexAgentDir, codexManifest, codexManifestPath, codexReadme, codexReadmePath, codexAgents, codexContent, isForbiddenOmxPath, assertNoOmxPath, assertThrowsOmx, hasCodexMarkers, upperHooks, upperHooksPath, managedFileDirectoryItem, excludedDirectoryItem, legacyBaseline, scenarioBaseline, mirrorDirs, importDist, removedImport, repoRoot, root, suiteReport, temp, absent, normalized, registry, registrySource). Step 2 yielded 0 direct symbol hits in README/CLAUDE/AGENTS; applied Fallback 2 and checked the 4 concrete consistency areas from the story brief. Step 3: (1) .Codex/ -> .lattice-codex/: CLAUDE.md, README.md, AGENTS.md, .lattice-codex/README.md, and all 10+ changed decision docs fully updated, zero stale .Codex/ in changed docs; (2) omx: AGENTS.md item 12 deleted, stale sentence in runtime-artifact-registry section removed, verify-omx-disabled.mjs deleted, test:omx-disabled removed from package.json, zero omx references in any changed doc; (3) lowercase .codex/ Codex CLI hook contract preserved in README.md L739 and AGENTS.md L191; (4) lab/package.json description now reads Lattice 离线优化实验室 matching story intent. Reverse doc-promise check: test:codex-assets script and verify-codex-assets.mjs both exist as promised by README.md. No blockers found.",
+      "createdAt": "2026-06-16T21:13:35.792Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-006",
+      "_hash": "255ccd79451ab32cf5f654ca9ce03cb18e1532257c6b16a8a41515dc710e349c"
     }
   ]
 }

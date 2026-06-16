@@ -48,6 +48,23 @@
         "packages/main/src/core/managed-assets.ts",
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-ed70:F-004",
+      "desc": "CHK-001:happy:1 wrong command: intent requires grep -i lattice packages/lab/package.json to confirm replacement text Lattice 离线优化实验室 is present. Evidence ran grep -ri koala packages/lab/package.json (koala-absence check, same as happy:0), confirming nothing about the replacement text. CHK-003:happy:3 wrong command: intent requires npm run build exit 0; evidence ran git grep -inE omx (zero-residual scan, same as CHK-003:happy:0). Two distinct must-intents collapsed onto their item-level absence scans. Underlying facts verified live: grep -i lattice matches, npm run build exits 0. Code is correct; evidence binding is defective.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:13:42.596Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-007",
+      "_hash": "a9740ee9801d2050a45751ca03b27552a0cda8007f384a779259032953928eae",
+      "files": [
+        "packages/lab/package.json",
+        "package.json"
+      ]
     }
   ]
 }
