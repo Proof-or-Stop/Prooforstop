@@ -7,7 +7,30 @@
       "userSees": "`lattice doctor --repair` on a wrapper-root project (metadataRoot != gitRoot) installs the metadata-protection allowlist and the re-scan reports clear, instead of returning 'fatal: not a git repository' / wrote:false and changing nothing.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doctor --repair on a wrapper-root fixture (metadataRoot != gitRoot) installs the managed allowlist: wrote:true on first run, and the metadata-protection re-scan reports clear",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "second --repair run on the same wrapper-root fixture is a no-op (wrote:false, allowlist already present)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "plain repo (gitCwd defaults to root) --repair behavior is byte-identical to today: wrote-then-noop, no fatal line",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
