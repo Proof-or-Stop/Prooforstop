@@ -46,7 +46,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files orphans",
+          "result": "pass",
+          "note": "Returns empty — orphans removed from git index.",
+          "headHash": "71d2ef20e1ad1e0b9f883db21d3a37652e203d43",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:08.273Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
