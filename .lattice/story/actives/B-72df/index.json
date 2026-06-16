@@ -4,7 +4,7 @@
   "title": "DONE merge must not be blocked by unrelated uncommitted changes in the shared main worktree",
   "description": "story_advance DONE requires the ENTIRE main worktree clean (no dirty tracked files) before merging the story branch into main. On a shared main worktree where multiple sessions run concurrently, another session's legitimate uncommitted work (e.g. an INIT-phase decisions doc authored directly on main) blocks an unrelated story's DONE merge. Observed 2026-06-16: B-e791's DONE was blocked by B-0414's uncommitted NAV.md + decisions doc. The clean precondition is over-broad: the DONE merge only needs the paths it actually merges/touches to be clean (to avoid clobbering), not the whole tree. Fix: scope the DONE merge's main-clean precondition to the merge's affected paths so unrelated uncommitted changes do not block DONE, while still refusing (protecting) when the merge would touch a dirty path. Must never clobber any uncommitted work. This is distinct from B-e74e (DONE merge fail when the main worktree is unavailable) which is about availability, not unrelated-dirty contention.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -15,7 +15,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-16T02:57:30.564Z",
   "startedAt": "2026-06-16T02:57:30.564Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T03:44:35.136Z",
   "events": [
     {
       "phase": "INIT",
@@ -80,12 +80,15 @@
       "branch": "story/B-72df",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:44:35.136Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-72df",
-    "branch": "story/B-72df",
-    "createdAt": "2026-06-16T03:02:39.432Z"
-  },
   "currentReviewRound": "2026-06-16T03:35:34.200Z"
 }
