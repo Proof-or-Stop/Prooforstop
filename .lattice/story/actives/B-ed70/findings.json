@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-ed70:F-001",
+      "desc": "CHK-002:happy:1,2,3 use the same git grep .Codex absence scan (the happy:0 command) instead of their own spec-d commands. happy:1 should ls .lattice-codex/README.md .lattice-codex/lattice.json .lattice-codex/agents/lattice-implementer.md; happy:2 should test ! -d .Codex; happy:3 should npm run build. Three distinct intents are collapsed onto one evidence command, so no evidence actually verifies: (a) the 18-file move was committed, (b) the old directory is gone, or (c) the build compiles. The underlying facts are confirmed by independent live checks (ls and build both pass), so this is an evidence-binding defect, not a code defect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:12:50.509Z",
+      "reviewRound": "2026-06-16T21:09:02.958Z",
+      "reviewRunId": "B-ed70:RR-003",
+      "_hash": "7e77b5feff6b0e1e41b6d8bec49b434ddb6cb97914fdc07f6c6097fa64c7e31d",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ]
+    }
+  ]
+}
