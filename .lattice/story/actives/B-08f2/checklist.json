@@ -444,6 +444,17 @@
           "headHash": "d4410d2f7f4d1e2e27ec8f33ec8879c3e8c223c0",
           "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
           "timestamp": "2026-06-16T00:15:36.755Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -n '.koala' -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "'.koala' legacy path literal untouched in lattice-paths.ts.",
+          "headHash": "087d87b2c469d7dc6d476311ad00d923d40202fe",
+          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
+          "timestamp": "2026-06-16T00:15:37.241Z"
         }
       ]
     },
