@@ -76,6 +76,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "computeCost with injected price table (input=$3/MTok, output=$15/MTok, cacheRead=$0.30/MTok, cacheCreation=$3.75/MTok) and known token group (input=1000, output=500, cacheRead=2000, cacheCreation=100) -> returns correct dollar amount ($3*1000/1e6 + $15*500/1e6 + $0.30*2000/1e6 + $3.75*100/1e6); WHY: validates the core cost formula with all 4 dimensions including cache multipliers",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with NO price table supplied -> returns null/omitted cost (not 0); WHY: cost must be null when no pricing available, never a false zero",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "computeCost with unknown token dimension (e.g. cacheCreation=null in group totals) -> cost is unknown/null, not partially computed; WHY: unknown dims must propagate to cost, never silently treated as 0",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with all token dimensions = 0 (legitimate zeros, not nulls) -> cost is 0.0 (a real zero); WHY: true provider-reported zeros are valid and distinct from unknown",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost records pricingRef/pricingVersion from the supplied price table in the output; WHY: traceability requirement — operator must know which price table produced the cost",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep diagnostics.ts source for hardcoded dollar amounts or price constants (regex: /\\$\\d|\\d+\\.\\d+.*per|price\\s*=\\s*\\d/) -> zero matches; WHY: NO hardcoded prices allowed anywhere in the module source",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with a model not present in the price table -> cost is null/unknown for that model, not a crash or fallback to 0; WHY: missing model in price table must fail safe, not silently zero",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with extremely large token counts (Number.MAX_SAFE_INTEGER) -> no overflow, no NaN, returns a finite number or handles gracefully; WHY: prevents silent numeric corruption on high-volume ledgers",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
