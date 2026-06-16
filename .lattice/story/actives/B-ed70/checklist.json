@@ -581,7 +581,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -inE 'omx' -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md'",
+          "result": "pass",
+          "note": "Covered by zero-residual omx scan.",
+          "headHash": "1c1f0930d91d512970e44f1a97b640e1d102db64",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:03.429Z"
+        }
+      ]
     }
   ]
 }
