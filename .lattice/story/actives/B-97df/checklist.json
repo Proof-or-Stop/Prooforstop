@@ -133,6 +133,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildUsageReport(records, {}) with mixed source records -> report object contains: overall totals by source (providerReported, estimate, unavailable counts), per-group breakdowns (by story, model, role, provider), and unknownCount; WHY: validates report shape completeness",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport(records, {priceTable}) with price table -> report includes cost field in totals and per-group breakdowns; WHY: validates optional cost integration in report shape",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildUsageReport(records, {}) without price table -> report.cost is null/absent, not 0; WHY: cost field must not appear as a false zero when no pricing given",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport called twice with same records -> produces identical output (deterministic); WHY: report must be pure/deterministic for reproducible diagnostics",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport with empty records -> report has zero counts, empty groups, no crash; WHY: empty ledger must produce a valid empty report",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "report object keys checked: none of gate/verdict/decision/blocker/pass/fail/allowed/blocked fields exist at any nesting depth; WHY: the report MUST feed no gate — any gate-consumable field would violate the read-only constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "grep all files that import from diagnostics.ts -> none is a handler, gate, or cli-engine file; WHY: validates the module is not consumed by gate infrastructure (static import analysis)",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport with records containing provider.model=undefined or provider=undefined -> gracefully groups under an unknown key, does not crash with TypeError; WHY: real ledger data may have missing provider metadata",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
