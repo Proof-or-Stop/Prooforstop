@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T00:38:44.682Z",
       "reviewRunId": "B-e791:RR-002",
       "_hash": "50ffcf613ed901a47aa11f8969d1a6862a1806782da327d546f4679e4ac50378"
+    },
+    {
+      "id": "B-e791:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "R2 quality check: F-001 fix verified correct. `void execSync(...)` at smoke:241 properly discards the unused warm-up return value — the actual fixed-form assertion is performed by a separate re-run at lines 248-255 that captures stderr explicitly. The leak-control differential (pre-fix leaks `fatal: not a git repository`, fixed-form does not) is intact. No dead code, no empty catch, no shell-isolation violations introduced by the single-line change. Core changes (session.ts configuredGitRootResolved, worktree.ts stdio:pipe) unchanged from R1 where no blockers were found. No new issues in R2.",
+      "createdAt": "2026-06-16T00:47:14.524Z",
+      "reviewRound": "2026-06-16T00:46:13.454Z",
+      "reviewRunId": "B-e791:RR-005",
+      "_hash": "2eba55e7554af66dae035a9032e59bac87c0ff26f3a3387ee635be3ac2b70203"
     }
   ]
 }
