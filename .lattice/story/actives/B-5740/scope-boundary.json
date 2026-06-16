@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5740",
+  "mode": "maintenance",
+  "allowed": [
+    "Delete the stray 'orphans' junk file and the 3 confirmed-dead source modules listed in the checklist; scrub any residual references."
+  ],
+  "excluded": [
+    "Any source module other than the three listed dead files",
+    "Codex adapter directory restructuring",
+    "Re-enabling or touching any disabled-tool safety guard",
+    "Repo metadata tracking or ignore rules"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User said 'delete the certain ones' after the OSS cruft audit (2026-06-16).",
+  "createdAt": "2026-06-16T18:06:09.975Z",
+  "updatedAt": "2026-06-16T18:06:09.975Z",
+  "_hash": "892fa4ca6862792deb221c811367195d966fa6010f787592e691bde6cb58faad"
+}

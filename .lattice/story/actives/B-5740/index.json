@@ -4,7 +4,7 @@
   "title": "Remove the stray orphans junk file and 3 confirmed-dead source modules (OSS hygiene)",
   "description": "Pre-open-source hygiene. Delete a stray 5-byte junk file 'orphans' (content 'NO -', a shell-redirect mistake) at repo root, and 3 confirmed-dead source modules whose basenames AND exported symbols have zero references anywhere in the codebase: packages/main/src/core/intent-coverage.ts, packages/main/src/core/phase-protocol.ts, packages/main/src/verifier/bridge-utils.ts. Excluded from this story: verifier/dev-cli.ts (the lattice serve launcher — invocation path unconfirmed, not certain-dead), the omx disable guard (intentional, AGENTS.md-protected), the .codex/.Codex consolidation (separate decision), and the .lattice gitignore/untrack (must be an OSS-export-time step because gitignoring .lattice would break the self-hosting workflow's metadata commits).",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "low",
   "keywords": [
     "open-source-cleanup",
@@ -30,6 +30,14 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T18:06:12.100Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -38,5 +46,10 @@
       "reason": "False positive: the keyword verifier only appears as part of the file path packages/main/src/verifier/bridge-utils.ts (one of the dead modules being deleted), not because this story modifies the validation/verifier framework. This is a pure deletion of a confirmed-dead module (CreateBridgeOptions type, 0 references) plus a junk file; no validation-framework logic is changed.",
       "at": "2026-06-16T18:03:47.744Z"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5740",
+    "branch": "story/B-5740",
+    "createdAt": "2026-06-16T18:06:11.187Z"
+  }
 }
