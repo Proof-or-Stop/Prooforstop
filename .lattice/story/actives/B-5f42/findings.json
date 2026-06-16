@@ -21,7 +21,7 @@
       "desc": "doc-promise-undelivered: english-only-guard.cjs registered in getClaudeHooks() (init-assets.ts:446) as a managed PreToolUse hook but HOOK_FILES in cli-init.ts:56 does not include ENGLISH_ONLY_GUARD_HOOK_FILE — lattice init will never copy the hook to a target project; the hook also exists only in the worktree .claude/hooks/ not in the package hookSrcDir (packageRoot/../../.claude/hooks) so the source itself is missing for installation",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-16T23:12:37.413Z",
@@ -32,7 +32,9 @@
         "packages/main/src/cli-init.ts",
         "packages/main/src/init-assets.ts",
         ".claude/hooks/english-only-guard.cjs"
-      ]
+      ],
+      "resolvedReason": "Fixed in 71010e4: added ENGLISH_ONLY_GUARD_HOOK_FILE to HOOK_FILES in cli-init.ts; verified via lattice init into a temp dir with temp HOME that .claude/hooks/english-only-guard.cjs is now copied and settings.json references it.",
+      "resolvedAt": "2026-06-16T23:18:45.428Z"
     }
   ]
 }
