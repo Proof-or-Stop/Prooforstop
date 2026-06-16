@@ -334,7 +334,7 @@ function assertSafeResidualWorktreeRm(ctx: DoneWorktreeContext, target: string, 
  * Explicitly names the main worktree path in error messages so recovery
  * instructions point at the right directory.
  */
-function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string): string {
+export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string): string {
   const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot);
   let mainBranch: string;
   try {
