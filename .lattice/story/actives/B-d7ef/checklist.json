@@ -311,6 +311,17 @@
           "headHash": "62e7ca1db6aa40a98d5cef967ace11cdb83da786",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
           "timestamp": "2026-06-16T19:03:15.510Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE \"require\\(['\\\"][^'\\\"]*(phase-protocol|bridge-utils)\" -- packages",
+          "result": "pass",
+          "note": "No require() of the deleted modules.",
+          "headHash": "4142cdc192617cdcdfb7c9df2242dd1a595e88c7",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:15.973Z"
         }
       ]
     }
