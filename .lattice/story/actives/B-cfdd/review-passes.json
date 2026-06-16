@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T21:27:33.343Z",
       "reviewRunId": "B-cfdd:RR-002",
       "_hash": "85b0bd677796f5026cb6f7f237e7ede048376ec57ae4e9de1b314ee3b0587b71"
+    },
+    {
+      "id": "B-cfdd:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Change is purely additive: new review-convergence.ts module + smoke task + transition-effects.ts soft append. No symbols were deleted or renamed. All imports verified: resolveReviewRoundCount and isFindingBlocking exist in advisory.ts; loadConfig in config.ts; resolveWorkflowPolicy in workflow-policy.ts; StoryStore in store.ts; Finding, StoryInfo, StoryEvent in types.ts. The three symbols imported by the smoke (assessReviewConvergenceAtEntry, collectReviewConvergenceInputs, STALL_MIN_ROUNDS) are all exported from review-convergence.ts. Zero dangling references or deleted concepts found.",
+      "createdAt": "2026-06-16T21:29:52.765Z",
+      "reviewRound": "2026-06-16T21:27:33.343Z",
+      "reviewRunId": "B-cfdd:RR-003",
+      "_hash": "ba7911734b0e775ad5e0eaec5f48a95156627fb6ca6698e13d7652685c07a76e"
     }
   ]
 }
