@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-4bf8:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup check complete. The target document (lattice-llm-usage-ledger-execution-plan.md) contains totalTokens exactly 5 times; every occurrence is an explicit prohibition or not-stored/derived statement (lines 418, 450, 671, 731, 777). The JSON example block at line 296 contains only the four-field model (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) with no totalTokens. No old two-field (input/output/total) prose remains asserting the model as current. All non-doc occurrences are in .lattice/story/ workflow artifacts (checklist, plan, understanding, evidence) that correctly describe the task and its removal. No concept residue found; deletion is complete.",
+      "createdAt": "2026-06-16T00:01:53.726Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-003",
+      "_hash": "2c316bd131da8aeaaafeb5a34683a51cf0b863bce07de6327e48f7e36ff8438c"
+    },
+    {
+      "id": "B-4bf8:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-06-16T00:03:56.013Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-002",
+      "_hash": "e7a55b4d3118d8157f79ed10c484286a8e876bee3f82e597755e513ee0c93d57"
+    },
+    {
+      "id": "B-4bf8:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review clean. Checked: (1) Dead code — none applicable (doc-only story, no source). (2) Type safety — none applicable (doc-only story). (3) I/O shell isolation — none applicable (no source). (4) F-001 fix verified: JSON example now has provider.name=anthropic, model=claude-opus-4-8, usage.raw.providerUnits=anthropic-usage-v1 — fully self-consistent; all four cache fields present (0 values correctly showing provider-reported zeros), raw+canonical both present, no totalTokens field. (5) F-002 fix verified: Per-dimension absence rule (authoritative) paragraph (lines 414-426) unambiguously confines usage.source to a record-level discriminator and mandates JSON null for unreported cache dimensions — applied consistently in Required record constraints, Multi-Provider Normalization, and Rollout phase 4. (6) Diff scope verified: only docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice metadata changed — no source files touched. No new dead code, type safety, or I/O isolation issues found.",
+      "createdAt": "2026-06-16T00:09:02.000Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-006",
+      "_hash": "91f501a4c8d6234d553498e4dacffbd84f3e7076caea392012f69a5d6ac7d8af"
+    },
+    {
+      "id": "B-4bf8:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs re-review: 0 symbols changed in diff for this lane (pure doc amendment). Compared 2 targeted paragraphs: (1) the JSON record-shape example and (2) the Required record constraints / per-dimension absence rule. Both round-1 findings are fixed — F-003: provider.name=anthropic + model=claude-opus-4-8 now match providerUnits=anthropic-usage-v1; F-004: authoritative per-dimension absence rule added at lines 414-426, null encoding specified (never 0), multi-provider and rollout sections cross-reference it, no stale usage.source-per-dimension language remains. No new inconsistencies found.",
+      "createdAt": "2026-06-16T00:09:16.612Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-005",
+      "_hash": "0a82d6769ac2325ff5eb8de5e928e3acce90fdd3aa30f55c32643509cd04258e"
+    },
+    {
+      "id": "B-4bf8:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup re-check on current HEAD (c1669d5) complete. The target document lattice-llm-usage-ledger-execution-plan.md contains totalTokens exactly 5 times (lines 430, 462, 691, 751, 800); every occurrence is an explicit prohibition or not-stored/derived statement — none asserts it as a stored field. The JSON example block (lines 330-333) has only the four-field model (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) with no totalTokens. No old two-field (input/output/total) prose remains asserting the model as current. All non-doc occurrences are in .lattice/story/ workflow artifacts describing the removal task — not residue. Deletion is complete; no concept residue found.",
+      "createdAt": "2026-06-16T00:11:01.479Z",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "reviewRunId": "B-4bf8:RR-007",
+      "_hash": "64786b5844a07cd5e18f27a4078d74c2076d248177781f2a4d6ceda48d7c6dfd"
+    },
+    {
+      "id": "B-4bf8:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verifier TOTAL 69 | PASS 69 | FAIL 0; adversarially confirmed JSON block has all four token fields (no totalTokens), totalTokens appears only in not-stored/derived context (5 lines), uncached remainder prose present, diff scope is single doc file only, CJK=0, identity formula present. All 69 must-coverage assertions are substantive greps over the live doc. No gaps found.",
+      "createdAt": "2026-06-16T00:11:17.304Z",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "reviewRunId": "B-4bf8:RR-010",
+      "_hash": "a30a73c077b881ea52b6c009b92b5f6cb574c0c8e2bcd7ead69046865b6629f2"
+    },
+    {
+      "id": "B-4bf8:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round quality review (RR-008) against HEAD c1669d5. Changed files: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md + .lattice metadata only — no source code. JSON example self-consistent: provider.name=anthropic / provider.model=claude-opus-4-8 matches usage.raw.providerUnits=anthropic-usage-v1. All four cache fields present in both top-level usage (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) and canonical (input, output, cacheCreation, cacheRead). No totalTokens stored. Per-dimension absence rule (authoritative) at lines 414-426 specifies canonical cacheCreation/cacheRead=null when provider does not report that dimension, never 0; rule at lines 408-413 permits 0 when provider genuinely reports 0 — both rules are internally consistent and correctly applied: the Anthropic example shows 0 (not null) because anthropic-usage-v1 does report cache fields, making 0 a genuine provider-returned zero for a no-cache-activity call, not an inferred value. No dangerous defaults: authority.receiptVerified=false, authority.mode=local, promptStored=false, transcriptStored=false. No doc-promise-undelivered issues: this is an execution plan (no source code delivered by design). Dead code: none (doc only). Type safety: N/A. I/O shell isolation: N/A. No findings.",
+      "createdAt": "2026-06-16T00:11:38.124Z",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "reviewRunId": "B-4bf8:RR-008",
+      "_hash": "63af12051b0f5c5516d49e6422b6c8ecd5c8510a8e9ee7b61453aa86a875f74c"
+    },
+    {
+      "id": "B-4bf8:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols (pure docs diff, Fallback 1). Step 2/3: Full-text scan of docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md (831 lines, ~526 diff lines). Checked 5 areas: (1) four-field cache-token model coherent in prose and JSON — all four fields present in example with anthropic provider genuinely reporting 0, consistent with the rule that 0 is allowed only when provider genuinely reports it; (2) totalTokens never stored — removed from JSON example, all 5 occurrences in doc state it must NOT be stored, Derived Totals section and identity formula self-consistent; (3) record-shape example is Anthropic — provider.name anthropic, model claude-opus-4-8, usage.raw.providerUnits anthropic-usage-v1, all three internally consistent; (4) per-dimension absence rule (authoritative) — defined in Required record constraints, cross-referenced correctly in Multi-Provider Normalization and Rollout phase 4, no contradictions with the four-field presence rule (present-but-null vs absent are compatible); (5) Validation/Acceptance/Rollout all updated with four-field, no-stored-totalTokens, choke-point, streaming, estimation, attribution, and cost-derivability bullets. CMA expanded to Managed Agents (CMA) on first use. No blockers found.",
+      "createdAt": "2026-06-16T00:14:44.502Z",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "reviewRunId": "B-4bf8:RR-009",
+      "_hash": "a1e25759e94e7d4907a3aba76c5b04bab6df173c03c75cf5612dc20b9123bddc"
+    }
+  ]
+}

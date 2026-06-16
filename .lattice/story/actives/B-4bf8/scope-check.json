@@ -1,0 +1,213 @@
+{
+  "storyId": "B-4bf8",
+  "checkedAt": "2026-06-15T23:46:21.469Z",
+  "features": [
+    {
+      "feature": "Four-field cache-token model in the usage shape (inputTokens uncached-remainder, outputTokens, cacheCreationInputTokens, cacheReadInputTokens)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "State that input_tokens is the uncached remainder, not total input",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Correct the JSON Ledger Record Shape example (de-facto spec) to show all four cache-token fields",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Reference that Managed Agents (CMA) span.model_request_end.model_usage already uses these four fields",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Clarify Required record constraints: four cache-token fields required always vs only-when-non-zero on provider-reported records",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Remove derived totalTokens as a stored field in the ledger append record",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "State the identity total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens; require totals computed in the summary layer",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Estimate path must prefer the provider count_tokens endpoint (model-version-specific) over local tokenizer or bytes/chars",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Record estimator confidence (high|medium|low) for each estimate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Bind prompt-size estimate to the exact provider.model (model-version-specific count)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Capture storyId/phase from the active lease/session context at call time (preflight)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Non-story calls (global validate, daemon) record storyId=null and are NOT dropped",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Subagent/nested calls propagate the parent storyId plus a subagent/thread id",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Add role/agentType field (implementer|reviewer|main|...) for per-story breakdowns by role",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "All provider dispatch must flow through a single ledger-writing choke-point",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Periodic reconciliation check: count of provider dispatch events vs count of ledger final records per ledgerCallId+attemptId, surfacing gaps",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Streaming responses: read final usage from the terminal stream event, not assumed from non-streaming shape",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Error/timeout mid-stream: still record the partial output usage consumed",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "usage.source=unavailable only when truly no count exists (not on partial/failed results that did report usage)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Multi-provider: preserve raw provider-specific units (raw fidelity)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Multi-provider: normalized canonical {input, output, cacheCreation, cacheRead} view alongside raw",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Explicit mapping rules for how each provider cache/cached-token fields map to the canonical cache fields",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Cost derived only in a layer that pins model+date to a price table; record pricingVersion/pricingRef or snapshot mechanism",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Do not bake absolute prices into the append-only record beyond a reference",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Update Validation/Smoke Plan to assert all new accuracy fields (four-field cache tokens, no stored totalTokens, estimator confidence, attribution, reconciliation, streaming, canonical, pricingRef)",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Update Acceptance Criteria to assert all new accuracy fields",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Update Rollout Phases to reflect new accuracy requirements",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Cross-reference consistency pass throughout the doc (including expanding CMA abbreviation on first use)",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 28,
+    "covered": 28,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fa2ce327da94ac516bcaaf36c9cfb1e8a95d23f1f972053365909a2deccc3052",
+  "openQuestions": []
+}
