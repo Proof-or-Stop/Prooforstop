@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the koala residual verify-gate report at docs/requirements/decisions/koala-residual-verify-gate.md",
+      "context": "Create docs/requirements/decisions/koala-residual-verify-gate.md as a permanent verify-gate document. Run `git grep -i koala -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md'` and categorize every hit into either an exception class (with rationale) or a 'should be cleaned' list. Exception classes to enumerate at minimum: (1) .koala/ runtime paths (deferred storage migration); (2) LEGACY_KOALA_* constants in core/lattice-paths.ts; (3) Two signature salts koala-init-check-integrity-v1 / koala-delivery-check-integrity-v1; (4) docs/koala/framework-audit/ (ACTIVE B-META); (5) activity.legacy-koala.jsonl filename; (6) koala-to-lattice-role-naming-execution-plan.md and similar rename-plan documents (canonical naming maps); (7) managed-assets.ts intentional legacy-denylist tokens; (8) Historical decision docs (cc-learnings, role-separation, stack-layering — written 2026.04 with accurate historical product name); (9) smoke-test mkdtemp 'koala-XXX' prefixes and koala.config.json fixtures (regression tests verifying koala→Lattice rename); (10) scripts/verify-*.mjs same kind of regression fixtures; (11) .githooks/pre-push self-host detection by npm package name @koala-agent/core. The report ends with: 'Pre-OSS release verify procedure: run `git grep -i koala -- . :(exclude).lattice :(exclude)CHANGELOG.md` and confirm every hit matches one of the 11+ exception classes above or this story's misses-cleanup section; if any NEW unexplained koala appears, file a follow-up cleanup story before release.' After: the file exists, contains all hit categories with file path samples and rationale.",
+      "userSees": "`ls docs/requirements/decisions/koala-residual-verify-gate.md` succeeds; the file is a complete verify-gate report covering all current koala residual categories.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Clean up the small subset of genuine missed-cleanup koala hits identified in the report",
+      "context": "From CHK-001's 'should be cleaned' list, apply the actual edits. Expected scope (~30-50 hits): (a) docs/requirements/decisions/authority-client-role.md — KOALA_AUTHORITY_* env vars need renaming to LATTICE_AUTHORITY_* (B-08f2 renamed in active code but missed this decision doc — but be careful: editing decision docs trips the 3x2 quorum gate, may need degraded 3x1); (b) docs/metadata/task.json — task descriptions saying 'koala CLI 统一入口' / 'koala test / koala lint' need updating to lattice; (c) docs/guide.md 'Normal local Koala/Lattice' phrase; (d) .gitignore — remove koala-debug.log and packages/koala-observer-cli/ entries (the latter never existed); (e) .claude/settings.local.json mcp__koala-mcp__* wildcards (if any still point at non-existent MCP server); (f) CLAUDE.md reference to docs/koala/reviewer-redesign.md (verify the file still exists at that path or update the reference). Out of scope: any koala hit in any of the 11 documented exception classes. After: each cleaned hit verified by direct grep; build + e2e + lattice validate all pass.",
+      "userSees": "Each genuine miss identified in CHK-001 is fixed; running the verify-gate procedure from CHK-001's report against the new HEAD shows every remaining hit matches an exception class; build + e2e green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
