@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-a7b0:F-001",
+      "desc": "quality-cleanup: validate-docs-drift.ts:251 ALL_MANAGED_ASSET_KINDS is a manually-duplicated copy of the ManagedAssetKind union from managed-assets.ts with no exported runtime array to derive from; if a new kind is added to ManagedAssetKind, the runtime guard at line 383 (!ALL_MANAGED_ASSET_KINDS.has(kind)) will silently skip defs with that kind rather than treating them as generated assets — the Handler Encoding Convention re-validation set can drift from the canonical type without a compile-time error",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T21:32:11.337Z",
+      "reviewRound": "2026-06-16T21:28:15.259Z",
+      "reviewRunId": "B-a7b0:RR-002",
+      "_hash": "1c145fa15dc1b8dae6822618bf70cef1b08219e36ae0d84709c3a8273a87dd17",
+      "files": [
+        "packages/main/src/handlers/validate-docs-drift.ts"
+      ]
+    }
+  ]
+}
