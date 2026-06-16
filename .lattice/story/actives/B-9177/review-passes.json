@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T04:25:01.891Z",
       "reviewRunId": "B-9177:RR-001",
       "_hash": "064f39b05a15a8cc74b141366c5bd74841f9d0265402700ba406c1c6c1080b0f"
+    },
+    {
+      "id": "B-9177:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Lock wrapping is lock-ONLY with no semantic change in cli-engine.ts and worktree.ts. withReentrantMainWriteLock is the correct variant (prevents self-deadlock when nested). gitRoot in worktree.ts is resolved via resolveStorySignedWorkspace (consistent with sibling paths). The wrapper-root gap in from-draft functions (using plain root instead of resolveInitCheckGitMainRoot) is pre-existing on main and not introduced by this diff. The new main-write-lock-coverage.ts guard: no dead imports, properly typed (no unnecessary as-any), I/O isolated (pure scanMainMutationCoverage with injectable deps, I/O only in runGuard), EXCEPTIONS registry has 5 well-justified entries, fail-closed default, negative fixture proves the scanner bites.",
+      "createdAt": "2026-06-16T04:30:27.084Z",
+      "reviewRound": "2026-06-16T04:25:01.891Z",
+      "reviewRunId": "B-9177:RR-002",
+      "_hash": "3262724c36fd6694cef8b81d5926419f37fd4c7013e66799109ff4ef1675db11"
     }
   ]
 }
