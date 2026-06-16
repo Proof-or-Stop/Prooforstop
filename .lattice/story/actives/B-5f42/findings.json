@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: packages/main/src/core/cjk-detect.ts:78-82 — buildCjkRegex() is called and assigned to re, and re.lastIndex is reset at line 82, but re is never used for matching; detection is done entirely by isCjkCodepoint() at line 88; both the call and the lastIndex reset are dead code",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T23:12:36.067Z",
@@ -14,7 +14,9 @@
       "_hash": "e60ac7ec7e912fd2b62c86e7701f56cbd4d6ad261f48a943b0f3faed7e62b56d",
       "files": [
         "packages/main/src/core/cjk-detect.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in 71010e4: removed dead buildCjkRegex/cp/re in cjk-detect.ts; detection unchanged via isCjkCodepoint; keep-in-sync smoke still green.",
+      "resolvedAt": "2026-06-16T23:18:47.195Z"
     },
     {
       "id": "B-5f42:F-002",
