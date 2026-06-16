@@ -75,7 +75,16 @@
       "context": "Add an entry to packages/main/src/core/runtime-artifact-registry.ts for .lattice/usage/llm-usage.jsonl: id=llm-usage-ledger, matchers (exact path or prefix .lattice/usage/), ignorePatterns .lattice/usage/, materialHash=exclude, volatile=true, repairableTrackedArtifact=true, description = local LLM usage diagnostic ledger. Ensure gitignore/doctor/material-hash tooling treat it as a mutable runtime diagnostic. Tested: the path classifies as gitignored + materialHash-exclude + volatile + repairable.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-006",
