@@ -5,9 +5,9 @@
       "title": "Confirm and extract the two inputs: REVIEW round count and per-round blocking-finding counts",
       "context": "Round count is already derived from story events (how many times the story entered REVIEW) in core/guard-utils.ts / core/machine.ts; the DONE summary 'REVIEW: entered N times' uses it. Findings carry reviewRound and core/review-escalation.ts already groups findings by round and computes firstReviewRound. Produce a thin read-only accessor that returns { roundCount, perRoundBlockingCounts } for a story without duplicating existing logic.",
       "userSees": "A helper returns the current story's REVIEW round count and an ordered array of blocking-finding counts per round, sourced from existing event/finding data (verified by a smoke printing e.g. roundCount=3 perRound=[2,1,0]).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:12:12.289Z",
       "verificationIntent": {
         "happy": [
           {
