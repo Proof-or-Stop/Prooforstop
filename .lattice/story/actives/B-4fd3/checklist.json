@@ -52,9 +52,9 @@
           "command": "npm run test:thin-init-assets-smoke",
           "result": "pass",
           "note": "re-recorded post-fix(bf15f72a7): smoke Test1 跑真实 init CLI 复制路径，assertGitignoreCoversRegistry 确认产物含 .lattice/usage/ 及全 registry",
-          "headHash": "3df2bc83b45a09f4758561e3f66022f1cd588afa",
-          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
-          "timestamp": "2026-06-16T21:16:45.903Z"
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "node -e runtimeIgnoreMissing(repo .gitignore)",
           "result": "pass",
           "note": "re-recorded post-fix: mergeKoalaRuntimeIgnores 幂等(desiredBlockLines 空→changed:false)；repo .gitignore runtimeIgnoreMissing=[] 证明再 merge 为 no-op",
-          "headHash": "edd8fb89a261f89da4b8e84dcbc3d2cc2ccbdccb",
-          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
-          "timestamp": "2026-06-16T21:16:46.599Z"
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "command": "node -e drift-detection",
           "result": "pass",
           "note": "re-recorded post-fix: 复制路径调 mergeKoalaRuntimeIgnores→listRuntimeArtifactIgnorePatterns()(全 registry)；node 验证去掉 pattern 后 runtimeIgnoreMissing 报出该项，registry 新增项必被纳入",
-          "headHash": "561a19f6dd072b27d7a4b1edadbc5437cc06d65b",
-          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
-          "timestamp": "2026-06-16T21:16:47.192Z"
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
         }
       ]
     },
@@ -131,9 +131,9 @@
           "command": "npm run test:thin-init-assets-smoke",
           "result": "pass",
           "note": "re-recorded post-fix: clean main worktree 跑 smoke 输出 ✓ global-thin init assets smoke passed 退出码 0，不再报 STALE_SAFE .lattice/usage/",
-          "headHash": "d7c2c784dd0325bf9953e974b1b06e05f3262046",
-          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
-          "timestamp": "2026-06-16T21:16:47.731Z"
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,9 +142,9 @@
           "command": "npm run test:thin-init-assets-smoke",
           "result": "pass",
           "note": "re-recorded post-fix: assertGitignoreCoversRegistry 用 runtimeIgnoreMissing 校验 init 产物覆盖全 25 条 registry pattern，smoke 通过即全集覆盖",
-          "headHash": "70975f76352435830e15fe30e5a35d3fa11962e5",
-          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
-          "timestamp": "2026-06-16T21:16:48.789Z"
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,9 +153,9 @@
           "command": "node -e drift-detection",
           "result": "pass",
           "note": "re-recorded post-fix: node 验证从 registry 全集删 .lattice/usage/ 构造 drift，runtimeIgnoreMissing 返回 [.lattice/usage/]，断言会 FAIL 非静默通过",
-          "headHash": "9ae2984604d5d131cb880b72e2d55945d94ecae5",
-          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
-          "timestamp": "2026-06-16T21:16:49.995Z"
+          "headHash": "7f296bcd254a68c746292b5466924ccd3e1d2452",
+          "materialHash": "4a51fd976dade7b1f5e161bcd889a97fb892c171c8c26c0338e2eb02f9437d16",
+          "timestamp": "2026-06-16T21:24:41.066Z"
         }
       ]
     }
