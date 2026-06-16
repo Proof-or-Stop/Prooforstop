@@ -169,10 +169,10 @@
           "file": "packages/main/src/cli-init.ts",
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude",
           "result": "pass",
-          "note": "真机: 项目 .claude/agents *.md=0 且目录未创建; [5/6] 输出 .claude/agents (resolved from global ~/.claude/agents; no per-project copies); 全局 ~/.claude/agents 含 16 个 symlink 指向 CLI 包 templates/agents",
-          "headHash": "811be7b6f92628b5d9b785416d87918c047b4cce",
-          "materialHash": "61101e0a93a79c17ef4124dafd04d41aafa86cde18183276ed55b604b1918f31",
-          "timestamp": "2026-06-16T14:45:22.127Z"
+          "note": "claude profile init: [5/6] outputs synced=16 thin-shims to global ~/.claude/agents + line - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files). Project .claude/agents has 0 .md (dir not created). Global has 16 regular-file shims (0 symlinks). PASS.",
+          "headHash": "b79b6b9f5feca1e54eaf0aacd992189d1677cb2d",
+          "materialHash": "17f7de538c8d606445dedcd2c1cef47b3ee8348a42b69c3d4b9c0f85dca23188",
+          "timestamp": "2026-06-16T18:46:10.317Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
