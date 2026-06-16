@@ -93,7 +93,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User opens docs/requirements/NAV.md and sees a link to Lattice Console Demo MVP Requirements Recommendation under decisions.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV.md links to decisions/lattice-console-demo-mvp-requirements.md with the correct title.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV.md file count is updated consistently with the added decision document.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Navigation update is limited to the new document link and count, with no unrelated requirements navigation churn.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
