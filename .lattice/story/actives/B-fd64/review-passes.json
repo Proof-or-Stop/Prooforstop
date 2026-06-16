@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-16T21:53:44.268Z",
       "reviewRunId": "B-fd64:RR-007",
       "_hash": "8b417555a25a9ee93309eaeca6cf1eb7ae0731d745c6a6986c1fb3ba80b8fd6e"
+    },
+    {
+      "id": "B-fd64:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 2 (RR-006) clean on all axes. (1) Scope: exactly 4 non-lattice files changed (authority-evidence.ts, record.ts, usage-ledger-authority-smoke.ts, package.json); zero dispatch-runner/cli-engine/handlers/authority-signing files touched. (2) One-way decoupling intact: authority-evidence.ts imports only node:crypto, ./canonical-json.js, and ./record.js; the two authority-signing references in that file are prose comments, not imports; zero authority-signing imports found anywhere in usage-ledger core dir. (3) No dead/duplicate concepts: FORBIDDEN_FIELD_NAMES is now export const in record.ts (single source of truth) and imported from there by authority-evidence.ts and smoke — no drift-prone parallel copy. (4) Deleted concepts have zero residue: old LedgerAuthority field types (receiptId: null literal, receiptSubjectKind?: null, receiptSubjectId?: null) and the old validator message (authority.receiptId must be null for local records) are fully replaced; grep confirms zero residue. (5) record/authority semantics honor local-non-authority boundary: receiptVerified typed as literal false in LedgerAuthority; validator enforces !== false; the only receiptVerified: true path is inside verifyUsageReceipt behind the full gate condition; no local append path sets it. (6) No doc-promise-undelivered: INV numbering gap (1,2,4) is not a promised deliverable; no TODO/FIXME markers; no lattice command promises without implementations. No blockers.",
+      "createdAt": "2026-06-16T21:55:39.469Z",
+      "reviewRound": "2026-06-16T21:53:44.268Z",
+      "reviewRunId": "B-fd64:RR-006",
+      "_hash": "ab36ed7e763f6847bd81fb03b5ac3b5ca1fb6a8b6e6b7369b15404339ceb40a1"
     }
   ]
 }
