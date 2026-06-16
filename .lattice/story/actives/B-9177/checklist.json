@@ -187,6 +187,17 @@
           "headHash": "f90f6d02533ac905f0c6ae3ed7e14396c140eeee",
           "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
           "timestamp": "2026-06-16T04:24:56.067Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Negative fixture bites: --negative-demo exits 1 with VIOLATION on an unlocked main commit; the in-process negative fixture is also asserted during the normal green run",
+          "headHash": "d335cd1e9394cf0821a87ab5a77fc39b7fb32942",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:56.468Z"
         }
       ]
     }
