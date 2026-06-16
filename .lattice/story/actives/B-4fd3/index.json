@@ -4,7 +4,7 @@
   "title": "修复 thin-init-assets-smoke 的 .lattice/usage .gitignore 漂移（init 复制路径不合并 registry runtime ignore）",
   "description": "thin-init-assets-smoke 在干净 main 上也 FAIL：assertManagedOk 报 STALE_SAFE .gitignore missing runtime ignore pattern(s): .lattice/usage/。根因两层：(1) runtime-artifact-registry.ts 为 LLM usage ledger 声明 ignorePatterns=[.lattice/usage/]（B-08a1/B-253e 引入），managed-asset 检查以 registry 为真相源；(2) cli-init.ts 的 .gitignore 复制分支（giSrc 存在时 cpSync 主仓 .gitignore）不合并 registry runtime ignore 块，且主仓自身 .gitignore 的 managed 块陈旧（缺 .lattice/usage/）。自举场景下 smoke 跑 dev repo dist，init 复制到陈旧块 → 漂移 → fail。修复方向：让 init 复制路径同样以 registry 为真相源合并 runtime ignore 块，并 resync 主仓 .gitignore。聚合 smoke 进 validate battery 不在本 story 范围（归 B-99b6）。",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "gitignore",
@@ -69,6 +69,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-16T21:17:09.833Z",
+      "branch": "story/B-4fd3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:19:34.728Z",
       "branch": "story/B-4fd3",
       "user": "Harmonygo",
       "agent": "main"

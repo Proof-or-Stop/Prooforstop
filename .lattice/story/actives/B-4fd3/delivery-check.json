@@ -1,0 +1,24 @@
+{
+  "storyId": "B-4fd3",
+  "checkedAt": "2026-06-16T21:22:09.430Z",
+  "reviewRound": "2026-06-16T21:17:09.833Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:thin-init-assets-smoke exits 0 with output: ✓ global-thin init assets smoke passed. assertGitignoreCoversRegistry (new in this story) runs init CLI copy path and verifies the produced .gitignore covers all listRuntimeArtifactIgnorePatterns() entries. Covers: (1) happy path: init copy branch now calls mergeKoalaRuntimeIgnores, so .lattice/usage/ appears in .gitignore; (2) edge: mergeKoalaRuntimeIgnores returns changed:false when all patterns already present (idempotent); (3) adversarial: runtimeIgnoreMissing returns [.lattice/usage/] when pattern is stripped, so assertGitignoreCoversRegistry would FAIL on any future registry drift."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same npm run test:thin-init-assets-smoke run confirms: smoke passes end-to-end on clean main (no more STALE_SAFE AssertionError for .lattice/usage/). assertGitignoreCoversRegistry assertion mechanically guards against registry to .gitignore drift: any new registry ignorePattern not propagated by init will cause the smoke to FAIL. Transcript in .lattice/story/actives/B-4fd3/evidence/transcript-diff.md confirms exit 0 and no STALE_SAFE errors."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Zero docs promises (no .md files modified in the diff). Both CHK-001 and CHK-002 are covered by a real integration smoke test (npm run test:thin-init-assets-smoke) that spawns the actual init CLI, checks the produced .gitignore contains all registry patterns (happy), verifies mergeKoalaRuntimeIgnores idempotency (edge), and confirms drift detection is non-silent (adversarial). No new TODOs introduced by this story diff."
+  },
+  "_hash": "1ad565545af9761fbff5b382c207e1b82a1549c3dcf7a2650bbf46244568bedf"
+}
