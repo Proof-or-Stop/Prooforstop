@@ -1,0 +1,34 @@
+{
+  "task": "让 lattice init 把 Lattice agent prompt 模板收敛为单一全局真相源(~/.claude/agents,symlink 指向运行中 CLI 包),项目内不再物化 per-project agent .md,并迁移清理已存在的 project-local .claude/agents 以免 shadow 全局源",
+  "outcome": "在一个已用 Claude Code 的项目里跑 lattice init --yes,用户看到 [5/6] 同步 agent 模板 段输出 ✓ ~/.claude/agents (global single source: 16 templates synced) 和 - .claude/agents (resolved from global ~/.claude/agents; no per-project copies);随后 find . -name *.md(排除 .git)只列出 .lattice/Lattice.md 与 AGENTS.md(若项目原有 CLAUDE.md 则它仍在但非本次生成);在该项目里 Agent({subagent_type: lattice-implementer}) 仍能正常解析。对已有 project-local .claude/agents 的项目,跑 lattice init(或 --upgrade)后看到 ↻ .claude/agents/<file> (migrated to global ~/.claude/agents) 且项目内 16 个 Lattice 管理 agent 文件被移除、用户自有的非管理 agent 保留。",
+  "facts": [
+    "cli-init.ts:41-45 agentTemplateDir 从 packageRoot=join(__dirname,..) 解析,即运行中 CLI 包的 templates/agents,对 npm -g 安装也正确;当前看到 dev 路径仅因全局 lattice 指向本仓 dist",
+    "cli-init.ts:869-920 [5/6] 段:wantsClaude(claude/all profile) 时把 16 个模板 symlink 进项目 .claude/agents/;该行为只受 profile 轴控制,与 asset-mode(global-thin)正交",
+    "detectInitProfile(cli-init.ts:189-214) 按宿主标记自动判定:有 CLAUDE.md 或 .claude/ → claude profile;有 AGENTS.md 或 .Codex → codex;两者皆有 → all",
+    "B-4ee0(DONE)已用 global-thin 收回 Codex 侧(.Codex/agents 跳过,resolve from global registry),但 Claude 侧 .claude/agents 未收",
+    "Claude Code subagent 必须从磁盘解析 .claude/agents/*.md;支持用户级全局 ~/.claude/agents/ 作为所有项目共享源",
+    "已有 --upgrade(cli-init.ts:217,1055)与 managed-assets.ts 的 detectManagedAssetProfile/runManagedAssetCheck 机制可复用做迁移/清理"
+  ],
+  "constraints": [
+    "不取消 subagent_type 机制(用户已选全局目录方案 A,排除 CLI 内联方案 B)",
+    "迁移清理只能删 16 个 Lattice 管理模板同名文件,绝不删用户自建的非管理 agent",
+    "symlink target 必须从运行中 CLI 包解析,不得 hardcode dev 路径",
+    "全局同步必须幂等可重复;断链/旧 copy 自动替换;~/.claude/agents 不存在时创建",
+    "不主动全盘扫描历史项目;只在 init/--upgrade 被显式调用时迁移当前项目"
+  ],
+  "unknowns": [
+    "Claude Code subagent 解析优先级:project .claude/agents 是否 shadow user ~/.claude/agents(若是,迁移必须删 project-local 才能让全局生效)——需在 PLAN 末/DEV 初实测确认",
+    "~/.claude/agents 不可写或 HOME 异常时的降级行为(报错 vs 回退 project-local)",
+    "本 dev 仓(Orchestrate)自身依赖 project-local .claude/agents,改为全局后是否仍能 spawn 自己的 reviewer(需保证 dev 仓不被破坏)"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/templates/agents/",
+    "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-06-16T14:14:07.511Z"
+}

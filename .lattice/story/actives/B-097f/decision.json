@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "单一真相源:agent prompt 只存在于运行中 CLI 包,经全局 ~/.claude/agents symlink 暴露给所有项目",
+    "最小改动:复用现有 symlink/managed-assets 机制,不重构可用的 subagent_type 调用流",
+    "资产操作幂等且可重复:断链/旧 copy 自动修复,~/.claude/agents 缺失则创建",
+    "绝不破坏用户自有文件:迁移只动 16 个 Lattice 管理模板同名文件",
+    "target 从运行中 CLI 包解析,绝不 hardcode dev 路径"
+  ],
+  "drivers": [
+    "用户目的:改 Lattice 后所有项目行为一致(prompt 不能是各项目里的陈旧快照)",
+    "用户目的:lattice init 不再往项目生成那么多 .md",
+    "硬约束:Claude Code subagent 必须从磁盘解析,但支持用户级全局目录;项目级会 shadow 用户级"
+  ],
+  "options": [
+    {
+      "name": "A 全局 ~/.claude/agents 单一源",
+      "pros": [
+        "项目内 0 个 agent 文件,直接满足两目的",
+        "改 CLI 模板即全局即时生效(单一源)",
+        "改动集中在 init [5/6] 段 + 迁移逻辑,风险低",
+        "复用现有 symlink/managed-assets 机制"
+      ],
+      "cons": [
+        "需处理 project-local shadow 全局的迁移",
+        "依赖 Claude Code 全局目录解析行为",
+        "HOME 不可写时需降级策略"
+      ]
+    },
+    {
+      "name": "B 取消 subagent_type 由 CLI 内联吐 prompt",
+      "pros": [
+        "最贴单一来源语义,磁盘上零 agent 文件"
+      ],
+      "cons": [
+        "要重构整个 reviewer/implementer 调用流 + 改 CLAUDE.md 所有 spawn 点",
+        "gate/identity 可能依赖 subagent type,牵涉面大",
+        "工作量与回归风险显著高于 A"
+      ]
+    },
+    {
+      "name": "C 保留 project-local symlink 但指向全局安装",
+      "pros": [
+        "symlink target 更健壮"
+      ],
+      "cons": [
+        "项目内仍堆 16 个条目,未解决第二目的",
+        "治标不治本"
+      ]
+    }
+  ],
+  "chosen": "A 全局 ~/.claude/agents 单一源",
+  "rationale": "A 同时满足用户两个目的(项目零 agent 文件 + 单一真相源即时一致),改动集中且低风险,复用现有机制。B 虽最贴语义但需重构整个 reviewer 调用流、回归面大,用户已明确选 A。C 未解决项目文件泛滥,治标不治本。",
+  "preMortem": [
+    {
+      "scenario": "迁移不彻底:project-local 旧文件残留,Claude Code 项目级 shadow 全局,用户仍在用陈旧 prompt",
+      "trigger": "用户在已有 project-local .claude/agents 的项目重跑 init,但旧文件未被删除",
+      "consequence": "单一真相源失效,改 Lattice 后该项目行为不一致——正是本 story 要消灭的问题",
+      "mitigation": "init/--upgrade 显式删除项目内 16 个管理模板同名文件;smoke 断言 init 后 project-local 这 16 个不存在且 subagent 从全局解析成功"
+    },
+    {
+      "scenario": "误删用户自建 agent",
+      "trigger": "用户在 .claude/agents 放了与某 Lattice 模板同名或自定义的 agent 文件,迁移用通配/全清",
+      "consequence": "破坏用户资产,不可逆",
+      "mitigation": "迁移只按 16 个精确管理 basename 删除,绝不通配;非管理文件保留;逐个 log 删除项"
+    },
+    {
+      "scenario": "全局目录不可写导致 init 静默回退 project-local,重新引入 .md 泛滥",
+      "trigger": "受限环境 HOME 只读或 ~/.claude 不可写",
+      "consequence": "既没装成全局,又退回项目落盘,两个目的都没达成且无感知",
+      "mitigation": "检测不可写时明确报错 + 可操作提示,不静默回退 project-local;文档记录覆盖方式"
+    },
+    {
+      "scenario": "symlink target 失效(CLI 重装/路径变更后断链)",
+      "trigger": "npm -g 升级或包路径变动,全局 symlink 指向已消失路径",
+      "consequence": "subagent 解析失败,所有项目 reviewer 无法 spawn",
+      "mitigation": "全局同步幂等可重复修复断链;lattice doctor 增/复用断链检查;运行时断链给清晰报错指向 lattice init --upgrade"
+    }
+  ],
+  "timestamp": "2026-06-16T14:15:04.357Z"
+}

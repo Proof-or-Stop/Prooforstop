@@ -22,7 +22,31 @@
       "context": "cli-init.ts [5/6] 段当前 wantsClaude 时 symlink 进项目;改为确保全局源就绪 + 输出提示,项目内不再创建 .claude/agents 条目",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "在 claude profile 项目跑 lattice init --yes,[5/6] 段输出 - .claude/agents (resolved from global ~/.claude/agents; no per-project copies);find . -name *.md 不含任何 .claude/agents/*.md",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "claude profile init 后项目内 0 个 .claude/agents 管理文件且输出全局解析提示",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "core profile(无宿主标记)行为不变,仍 skip",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "all profile(codex+claude)同样不写 project-local agent 文件",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
