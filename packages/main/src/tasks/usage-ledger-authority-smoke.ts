@@ -36,6 +36,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 
 import {
+  FORBIDDEN_FIELD_NAMES,
   SCHEMA_VERSION,
   validateUsageLedgerRecord,
   type UsageLedgerRecord,
@@ -227,6 +228,50 @@ async function main(): Promise<void> {
     }
   });
 
+  await check('CHK-001 F-002: separator-variant tool-args / env names (TOOL_ARGUMENTS, ENV_VARS) -> rejected', () => {
+    // record.ts's FORBIDDEN_FIELD_NAMES carries toolarguments/toolargs/toolresult
+    // and env/envvars/environmentvariables. The derived normalized set must catch
+    // their separator variants so a record carrying raw tool args / env is never
+    // digested. Each must throw ForbiddenEvidenceMaterialError.
+    const variants: Array<Record<string, unknown>> = [
+      { TOOL_ARGUMENTS: 'rm -rf /' },
+      { tool_args: ['secret'] },
+      { RAW_TOOL_ARGUMENTS: 'x' },
+      { TOOL_RESULT: 'x' },
+      { ENV_VARS: { TOKEN: 'leak' } },
+      { ENVIRONMENT_VARIABLES: {} },
+      { env: { PATH: '/usr/bin' } },
+    ];
+    for (const variant of variants) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const record = validRecord({ ...(variant as any) });
+      assert.throws(
+        () => buildUsageEvidenceEnvelope(record),
+        ForbiddenEvidenceMaterialError,
+        `${JSON.stringify(variant)} must be caught (derived from record.ts denylist)`,
+      );
+    }
+  });
+
+  await check('CHK-001 F-002: normalized denylist is DERIVED from record.ts (no drift) — every name covered', () => {
+    // Sanity: the derived normalized set must contain the normalized form of each
+    // record.ts denylist entry, proving derivation (not a parallel hand copy).
+    for (const name of FORBIDDEN_FIELD_NAMES) {
+      const norm = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      // A separator-variant key normalizing to this name is caught by the builder.
+      const probe: Record<string, unknown> = {};
+      // Reconstruct a separator-bearing variant: insert an underscore mid-name.
+      const variantKey = name.length > 1 ? `${name[0]}_${name.slice(1)}` : name;
+      probe[variantKey] = 'probe';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      assert.throws(
+        () => buildUsageEvidenceEnvelope(validRecord({ ...(probe as any) })),
+        ForbiddenEvidenceMaterialError,
+        `record.ts denylist entry "${name}" (normalized "${norm}") must be caught by the derived set`,
+      );
+    }
+  });
+
   await check('CHK-001 deterministic: same record -> identical recordDigest', () => {
     const record = validRecord();
     const a = buildUsageEvidenceEnvelope(record).recordDigest;
@@ -346,6 +391,26 @@ async function main(): Promise<void> {
     const verify: ReceiptVerifier = () => ({ verified: true } as ReceiptVerifyResult);
     const block = await verifyUsageReceipt(envelope, signedReceipt, verify);
     assert.equal(block.receiptVerified, false, 'no subject binding -> cannot trust');
+    assert.equal(block.receiptId, null);
+  });
+
+  await check('CHK-003 F-001: verify true + subjectId=null on a null-storyId envelope -> receiptVerified=false', async () => {
+    // A non-story record validly has storyId=null. A verifier returning
+    // subjectId=null must NOT pass via null===null — a null is not a real binding.
+    const nullStoryEnvelope = buildUsageEvidenceEnvelope(validRecord({ storyId: null }));
+    assert.equal(nullStoryEnvelope.storyId, null, 'envelope storyId is null for a non-story record');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const verify: ReceiptVerifier = () => ({ verified: true, subjectKind: 'story', subjectId: null } as any);
+    const block = await verifyUsageReceipt(nullStoryEnvelope, signedReceipt, verify);
+    assert.equal(block.receiptVerified, false, 'null subject on both sides must NOT verify (overclaim bypass closed)');
+    assert.equal(block.receiptId, null);
+  });
+
+  await check('CHK-003 F-001: verify true + subjectId=null against a REAL-story envelope -> receiptVerified=false', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const verify: ReceiptVerifier = () => ({ verified: true, subjectKind: 'story', subjectId: null } as any);
+    const block = await verifyUsageReceipt(envelope, signedReceipt, verify);
+    assert.equal(block.receiptVerified, false, 'a null subjectId is never a valid binding, even vs a real story');
     assert.equal(block.receiptId, null);
   });
 

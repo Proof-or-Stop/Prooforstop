@@ -36,6 +36,7 @@ import { createHash } from 'node:crypto';
 
 import { canonicalJson } from './canonical-json.js';
 import {
+  FORBIDDEN_FIELD_NAMES,
   SCHEMA_VERSION,
   scanForbiddenFields,
   type AuthorityMode,
@@ -93,66 +94,29 @@ function sha256Hex(input: string): string {
   return createHash('sha256').update(input, 'utf8').digest('hex');
 }
 
-/**
- * Separator-free forms of forbidden field NAMES. The record.ts denylist matches
- * exact lowercased keys, which `ApiKey`/`RawPrompt`/`AUTHORIZATION` already hit
- * (and it intentionally ALLOWS metadata flags like `promptStored`, which are not
- * raw content). The one gap is a separator variant like `API_KEY`, which
- * lowercases to `api_key` and so misses the exact set. The builder runs THIS
- * supplementary scan: it strips every non-alphanumeric char from each key (so
- * `API_KEY` -> `apikey`, `raw-prompt` -> `rawprompt`) and rejects only when the
- * normalized form EXACTLY equals a forbidden name. Exact (not substring) match
- * preserves the denylist's allowance of `promptStored`/`transcriptStored`. This
- * is a local hardening of the builder only; it does not change the validator.
- */
-const FORBIDDEN_NORMALIZED_NAMES: ReadonlySet<string> = new Set([
-  'apikey',
-  'apikeys',
-  'apisecret',
-  'providersecret',
-  'providerapikey',
-  'providerkey',
-  'customerapikey',
-  'actorkey',
-  'actorsecret',
-  'privatekey',
-  'secret',
-  'secrets',
-  'secretkey',
-  'password',
-  'passphrase',
-  'credential',
-  'credentials',
-  'authorization',
-  'authorizationheader',
-  'authheader',
-  'bearertoken',
-  'accesstoken',
-  'refreshtoken',
-  'sessiontoken',
-  'rawprompt',
-  'prompt',
-  'rawcompletion',
-  'completion',
-  'rawtranscript',
-  'transcript',
-  'messages',
-  'rawmessages',
-  'rawresponse',
-  'responsebody',
-  'rawrequest',
-  'requestbody',
-  'rawcontent',
-  'content',
-  'totaltokens',
-  'totaltoken',
-  'tokentotal',
-  'totalusage',
-]);
-
 function normalizeKey(key: string): string {
   return key.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
+
+/**
+ * Separator-free forms of forbidden field NAMES, DERIVED from record.ts's single
+ * source of truth (FORBIDDEN_FIELD_NAMES) so the two can never drift: any name
+ * added to the validator's denylist is automatically caught here too. That set's
+ * entries are already lowercased; normalizing also strips separators so a variant
+ * like `API_KEY` (-> `apikey`), `TOOL_ARGUMENTS` (-> `toolarguments`), or
+ * `ENV_VARS` (-> `envvars`) is caught even though it lowercases to a form the
+ * exact-match record.ts scan would miss.
+ *
+ * The builder runs THIS supplementary scan in addition to record.ts's exact
+ * scanForbiddenFields: it strips every non-alphanumeric char from each key and
+ * rejects only when the normalized form EXACTLY equals a forbidden name. Exact
+ * (not substring) match preserves the denylist's allowance of legitimate flags
+ * such as `promptStored` / `transcriptStored`. This is a local hardening of the
+ * builder only; it does not change the validator.
+ */
+const FORBIDDEN_NORMALIZED_NAMES: ReadonlySet<string> = new Set(
+  [...FORBIDDEN_FIELD_NAMES].map(normalizeKey),
+);
 
 /**
  * Deep-scan for separator-variant forbidden field names (e.g. API_KEY). Uses an
@@ -287,15 +251,20 @@ function extractReceiptId(signedReceipt: unknown): string | null {
  *   - a verifier is injected (no verifier -> unverified);
  *   - the verifier does not throw (throw -> unverified, fail-safe);
  *   - verify.verified === true (strict boolean; truthy non-true -> unverified);
- *   - the verifier reported a subject (subjectKind AND subjectId present);
+ *   - the verifier reported a subject with a REAL string subjectId (a null or
+ *     missing subjectId is not a binding);
+ *   - the envelope itself binds a REAL string storyId (a non-story record with
+ *     storyId=null can never be receipt-verified);
  *   - that subject MATCHES the envelope's subject binding
  *     (envelope.storyId, with subjectKind 'story').
  *
  * The single load-bearing condition (quoted verbatim from the implementation):
  *
- *     result.verified === true &&
+ *     verified === true &&
  *     subjectKind === EXPECTED_SUBJECT_KIND &&
- *     subjectId !== undefined && subjectId === envelope.storyId
+ *     typeof subjectId === 'string' &&
+ *     typeof envelope.storyId === 'string' &&
+ *     subjectId === envelope.storyId
  *
  * When it holds we return receiptVerified=true with the receiptId + subject;
  * otherwise we return the fail-safe unverified block. A copied receiptId, a
@@ -336,12 +305,16 @@ export async function verifyUsageReceipt(
   const subjectId = result.subjectId;
 
   // The single gate condition. Strict === true rejects truthy non-boolean
-  // values (1, "true", {}). The subject binding must be a 'story' whose id
-  // equals the envelope's storyId — this defeats receipt replay across records.
+  // values (1, "true", {}). The subject binding must be a 'story' whose id is a
+  // real STRING on BOTH sides and equal — this defeats receipt replay across
+  // records AND the null-subject bypass: a non-story record (envelope.storyId =
+  // null) can never be receipt-verified, because a null subject is not a real
+  // binding (`subjectId === envelope.storyId` would otherwise pass for null===null).
   const passes =
     verified === true &&
     subjectKind === EXPECTED_SUBJECT_KIND &&
-    subjectId !== undefined &&
+    typeof subjectId === 'string' &&
+    typeof envelope.storyId === 'string' &&
     subjectId === envelope.storyId;
 
   if (!passes) {

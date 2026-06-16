@@ -185,8 +185,12 @@ export interface ValidationResult {
  * Forbidden field NAMES (lower-cased). A record carrying any of these at ANY
  * nesting depth is refused outright — one forbidden field poisons the whole
  * record. This is the Privacy Constraints denylist plus the stored-total ban.
+ *
+ * Exported so downstream privacy gates (e.g. authority-evidence.ts's envelope
+ * pre-scan) can DERIVE their denylist from this single source of truth instead
+ * of maintaining a parallel copy that could silently drift.
  */
-const FORBIDDEN_FIELD_NAMES: ReadonlySet<string> = new Set([
+export const FORBIDDEN_FIELD_NAMES: ReadonlySet<string> = new Set([
   // Pre-summed totals (must be summary-derived, never stored).
   'totaltokens',
   'totaltoken',
