@@ -117,7 +117,35 @@
       "context": "scripts 下 39 候选，区分 koala 品牌注释（改）与 .koala 路径引用（留）。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -i koala scripts/ filtered for brand comments (excluding .koala path refs) returns zero hits -> all brand comments in verify-*.mjs scripts cleaned; WHY: confirms scripts layer is brand-free",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep \\.koala scripts/ still returns expected .koala runtime path references -> runtime path references in scripts preserved as documented exceptions; WHY: ensures scripts that reference .koala for health checks etc. are not broken",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "node scripts/verify-fail-fast-health.mjs executes without error after cleanup -> script functionality preserved; WHY: ensures comment-only changes did not corrupt script logic",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Re-add a koala brand comment to a verify script, run git grep -i koala scripts/ through branding filter -> unclassified line detected; WHY: validates sweep completeness is detectable",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
