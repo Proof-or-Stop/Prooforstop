@@ -46,9 +46,9 @@
       "id": "CHK-002",
       "title": "清理 packages/lab 的 koala-lab 品牌 → lattice-lab（协调 B-ed70）",
       "context": "lab/src/core/*.ts、handlers/lab.ts、tool-defs.ts、profiles 里的 @title/注释/报错/CLI 文案 koala-lab → lattice-lab。避开 B-ed70 在做的 package.json description（CHK-001）与 config.ts 的 .Codex 行（CHK-002）。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T22:15:55.061Z",
-      "endTime": null,
+      "endTime": "2026-06-16T22:18:42.649Z",
       "verificationIntent": {
         "happy": [
           {
@@ -82,7 +82,49 @@
           }
         ]
       },
-      "userSees": "git grep koala-lab packages/lab 仅剩 B-ed70 负责的两处；npm --prefix packages/lab run build 通过"
+      "userSees": "git grep koala-lab packages/lab 仅剩 B-ed70 负责的两处；npm --prefix packages/lab run build 通过",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -niI koala-lab packages/lab/src",
+          "result": "pass",
+          "note": "Zero koala-lab brand hits remain in lab/src after rename to lattice-lab across core/handlers/tool-defs/profiles.",
+          "headHash": "1f94c9871bf4a1a601a30e2f15a768a79284bb11",
+          "materialHash": "d3d738b4034eebbe3bebe3a25c67e16d1afc57c94c4514c561222b5d473c0858",
+          "timestamp": "2026-06-16T22:18:42.688Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/lab run build",
+          "result": "pass",
+          "note": "tsc build exits 0 after the lab brand rename; no broken imports or string refs.",
+          "headHash": "1f94c9871bf4a1a601a30e2f15a768a79284bb11",
+          "materialHash": "d3d738b4034eebbe3bebe3a25c67e16d1afc57c94c4514c561222b5d473c0858",
+          "timestamp": "2026-06-16T22:18:42.722Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "git grep -nI Codex packages/lab/src/core/config.ts",
+          "result": "pass",
+          "note": "config.ts has no .Codex lines (B-ed70-owned); only koala-lab brand lines were changed there, line 71 $schema preserved.",
+          "headHash": "1f94c9871bf4a1a601a30e2f15a768a79284bb11",
+          "materialHash": "d3d738b4034eebbe3bebe3a25c67e16d1afc57c94c4514c561222b5d473c0858",
+          "timestamp": "2026-06-16T22:18:42.755Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "git grep -niI koala packages/lab/package.json",
+          "result": "pass",
+          "note": "package.json description (B-ed70-owned) untouched; no koala token present, zero changes by this story.",
+          "headHash": "1f94c9871bf4a1a601a30e2f15a768a79284bb11",
+          "materialHash": "d3d738b4034eebbe3bebe3a25c67e16d1afc57c94c4514c561222b5d473c0858",
+          "timestamp": "2026-06-16T22:18:42.789Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
