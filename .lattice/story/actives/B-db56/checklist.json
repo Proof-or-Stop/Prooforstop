@@ -173,6 +173,17 @@
           "headHash": "7152805abd4306df2aa887e7de0c8c6e4a1df001",
           "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
           "timestamp": "2026-06-16T22:40:03.121Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:gitroot-cwd-contract && npm run test:e2e",
+          "result": "pass",
+          "note": "Covered by green contract smoke + e2e.",
+          "headHash": "fc6adbbfcb5d9fd3bb70eb5e30d12c710a10bbee",
+          "materialHash": "195248cf7994dba75bb51aca1baf4ffda2ea0b70ad5d50f4703c813ae5adfa4c",
+          "timestamp": "2026-06-16T22:40:04.245Z"
         }
       ]
     },
