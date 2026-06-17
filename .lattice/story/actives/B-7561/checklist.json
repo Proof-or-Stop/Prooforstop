@@ -125,7 +125,55 @@
       "userSees": "`recall --story <id>` prints a ranked top-N list with match reasons; `recall --query \"worker schedule\"` returns keyword-matched stories; no files are written.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "recall --story <id> prints top-N ranked similar stories with match reasons + notable findings/decisions/outcome; WHY: proves the primary CLI mode works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "recall --query \"worker schedule\" returns keyword-matched stories from the store; WHY: proves the ad-hoc keyword query mode works",
+            "type": "cli"
+          },
+          {
+            "desc": "recall handler is registered in command-policy as readOnly and in config/registry/cli-engine with flat underscore name; WHY: proves registration wiring is complete",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "recall --story <nonexistent-id> prints an informative error or empty result, no crash; WHY: user may typo a story ID",
+            "type": "cli"
+          },
+          {
+            "desc": "recall --top 0 returns empty output, no crash; WHY: boundary for top-N parameter",
+            "type": "cli"
+          },
+          {
+            "desc": "recall with no --story and no --query prints usage/help, no crash; WHY: user omits required argument",
+            "type": "cli"
+          },
+          {
+            "desc": "recall --query with empty string returns empty result or error, no crash; WHY: degenerate query input",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recall --story <id> writes NOTHING to disk (no files created/modified in .lattice/ or anywhere); WHY: recall is read-only — any write violates the contract",
+            "type": "cli"
+          },
+          {
+            "desc": "recall --story <id> does not create a derived-index file anywhere; WHY: explicit contract — no FTS/derived-index",
+            "type": "cli"
+          },
+          {
+            "desc": "recall --query with special characters/injection (e.g. quotes, semicolons, newlines) does not crash or execute anything; WHY: input sanitization for CLI argument",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
