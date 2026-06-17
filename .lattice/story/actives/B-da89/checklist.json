@@ -5,18 +5,134 @@
       "title": "Decide the authoritative dev_start phase set and align command-policy.ts + config.ts so they agree",
       "context": "Examine dev_start's real recovery semantics in handlers/worktree.ts (what it does in each of INIT/INIT_CHECK/PLAN/DEV, and whether standalone invocation is meaningful/safe in INIT and DEV). Per the PLAN decision, either add dev_start to DEFAULT_PHASE_TOOLS for the missing phases (widen config up to command-policy's ['INIT','INIT_CHECK','PLAN','DEV']) or shrink command-policy allowedPhases to match config (['INIT_CHECK','PLAN']). Update whichever source moves so command-policy.allowedPhases and the isCommandAllowed view derived from DEFAULT_PHASE_TOOLS agree for dev_start. Do NOT change dev_start behavior, the bootstrap flow, or REVIEW/TEST/DONE refusal.",
       "userSees": "npm run test:process-fact-contract no longer reports a dev_start INIT or DEV policy/default phase drift; command-policy.allowedPhases and DEFAULT_PHASE_TOOLS agree on dev_start's phases.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T02:19:37.101Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After adding the literal dev_start to DEFAULT_PHASE_TOOLS INIT and DEV, command-policy.allowedPhases and the isCommandAllowed-from-config view agree for dev_start across all phases",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Only dev_start's phase permissions change; no other command shifts (exact literal added, not a wildcard) — contract reverse-direction check still holds",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "command-policy.ts and the handler's allowedPhases for dev_start are unchanged (config moves to match them); dev_start remains refused in REVIEW/TEST/DONE",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/config.ts",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "After adding dev_start to DEFAULT_PHASE_TOOLS INIT+DEV, the contract assertCommandPolicyPhaseAlignment passes (command-policy.allowedPhases === isCommandAllowed for dev_start across all phases); contract exit 0",
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/config.ts",
+          "command": "git diff --stat main...HEAD -- packages/main/src",
+          "result": "pass",
+          "note": "git diff shows ONLY config.ts with 2 insertions (the two literal dev_start lines); no other command or phase changed",
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/command-policy.ts",
+          "command": "git diff --stat main...HEAD -- packages/main/src/core/command-policy.ts packages/main/src/handlers/worktree.ts",
+          "result": "pass",
+          "note": "command-policy.ts and worktree.ts have ZERO diff vs main (config aligned up to them, not vice versa); dev_start still refused in REVIEW/TEST/DONE (allowedPhases unchanged at the 4 pre-REVIEW phases)",
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Regression guard: npm run test:process-fact-contract passes and a future dev_start phase divergence is caught",
       "context": "Confirm npm run test:process-fact-contract exits 0 after the alignment. Ensure the contract check (or an added focused assertion) would fail again if command-policy.allowedPhases and DEFAULT_PHASE_TOOLS diverge for dev_start in the future, so the fix is mechanically protected rather than by convention. If the existing verify-process-fact-contract.mjs already covers this once aligned, record that it is the guard; do not add a redundant test.",
       "userSees": "npm run test:process-fact-contract exits 0; re-introducing the INIT/DEV mismatch (locally) turns it red again, proving the divergence is mechanically caught.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T02:19:38.612Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:process-fact-contract exits 0 (no dev_start INIT/DEV drift) after the alignment",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The existing assertCommandPolicyPhaseAlignment in verify-process-fact-contract.mjs is confirmed as the guard; no redundant test added",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Re-introducing the INIT/DEV mismatch locally turns the contract red again (exit 1), proving the divergence is mechanically caught",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "npm run test:process-fact-contract exits 0 after the alignment (no dev_start INIT/DEV drift, no new drift surfaced)",
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "grep assertCommandPolicyPhaseAlignment",
+          "result": "pass",
+          "note": "The existing assertCommandPolicyPhaseAlignment in verify-process-fact-contract.mjs is the guard (asserts policy<->config agree for every command x phase, both directions); no redundant test added",
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Round-trip proof: removing dev_start from the DEV array turns the contract RED (exit 1, dev_start DEV policy/default phase drift); restoring it returns exit 0 — divergence is mechanically caught",
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.568Z"
+        }
+      ]
     }
   ]
 }

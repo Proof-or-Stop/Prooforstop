@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "Move config to match the authoritative intent, not the other way: three sources (handler guard, command-policy, B-804c) already agree on the 4-phase set; config is the lone outlier.",
+    "Never reduce a documented capability to satisfy a consistency check — narrowing would remove a real recovery path.",
+    "Keep the change minimal and literal (exact 'dev_start' entries), no behavior change, no wildcard widening.",
+    "Make the invariant mechanically enforced, not by convention (the existing contract check)."
+  ],
+  "drivers": [
+    "npm run test:process-fact-contract fails (exit 1) on dev_start INIT + DEV.",
+    "The dev_start handler REQUIRES INIT (atomic bootstrap) and permits DEV (manual recovery); config silently refuses a manual dev_start there via the phase-tools gate.",
+    "Two sources of truth for dev_start's phases disagree, with no guard catching future divergence until this story confirms the contract covers it."
+  ],
+  "options": [
+    {
+      "name": "Widen config to the 4-phase set (chosen)",
+      "pros": [
+        "Aligns config with the handler's own allowedPhases guard AND command-policy AND the B-804c intent.",
+        "Restores the documented manual dev_start recovery in DEV (and INIT), which the phase-tools gate currently refuses.",
+        "Additive and literal — lowest blast radius; no behavior or other-command change."
+      ],
+      "cons": [
+        "Permits a manual dev_start in INIT where there is no worktree yet — but the handler already allows/needs INIT and is idempotent, and owner-lease + scope-freeze gates still apply, so no new unsafe capability is introduced."
+      ]
+    },
+    {
+      "name": "Narrow command-policy to INIT_CHECK + PLAN",
+      "pros": [
+        "Also makes the two tables agree with a small edit."
+      ],
+      "cons": [
+        "Contradicts the dev_start handler's own allowedPhases = ['INIT','INIT_CHECK','PLAN','DEV'] guard — the handler would still accept INIT/DEV while policy refuses them, a new inconsistency.",
+        "Removes the documented bootstrap/recovery window (INIT required by the atomic flow; DEV manual recovery) — a real capability regression.",
+        "Rejected."
+      ]
+    }
+  ],
+  "chosen": "Widen config to the 4-phase set (chosen)",
+  "rationale": "The authoritative dev_start phase set is ['INIT','INIT_CHECK','PLAN','DEV'], independently asserted by the handler's own guard (worktree.ts:823, INIT required by the atomic bootstrap), by command-policy.ts, and by the B-804c reason. config.ts DEFAULT_PHASE_TOOLS is the only source with the narrower set and is the bug. Widening config restores the documented recovery capability and aligns all sources; narrowing command-policy would contradict the handler and remove capability, so it is rejected.",
+  "preMortem": [
+    {
+      "scenario": "Adding dev_start to INIT in DEFAULT_PHASE_TOOLS lets a user run a standalone dev_start in INIT and corrupt state.",
+      "trigger": "Manual lattice dev_start in INIT where no worktree exists yet.",
+      "consequence": "Unexpected early/duplicate worktree bootstrap.",
+      "mitigation": "No NEW capability is added: the handler already accepts INIT (it must, for the atomic flow) and is idempotent (re-bootstrap), and owner-lease + INIT scope-freeze gates still apply. The phase-tools gate was the only thing inconsistently blocking the manual path; aligning it matches the handler's existing contract. Confirm by reading the handler guard and running validate."
+    },
+    {
+      "scenario": "The edit uses a wildcard or wrong pattern that widens OTHER commands' phase permissions.",
+      "trigger": "Adding a broad pattern (e.g. 'dev_*') instead of the literal 'dev_start' to the phase arrays.",
+      "consequence": "Unintended commands become allowed in INIT/DEV; the contract's reverse check may pass while real permissions drift.",
+      "mitigation": "Add only the exact literal 'dev_start'. Run npm run test:process-fact-contract (it asserts both directions: policy<->config per command, and every DEFAULT_PHASE_TOOLS pattern maps to a policy-approved command)."
+    },
+    {
+      "scenario": "Fixing dev_start uncovers OTHER pre-existing drifts so the contract still fails.",
+      "trigger": "assertCommandPolicyPhaseAlignment iterates ALL commands; other mismatches could exist.",
+      "consequence": "npm run test:process-fact-contract still exits 1 after the dev_start fix.",
+      "mitigation": "The observed failure listed ONLY dev_start INIT + DEV. Re-run the full contract after the fix; if a different command drifts, it is out of this story's scope (separate story) and must be called out, not silently bundled. The goal is the contract fully green with the dev_start fix being the only change."
+    }
+  ],
+  "timestamp": "2026-06-17T02:11:58.024Z"
+}
