@@ -135,7 +135,48 @@
       "context": "CHANGELOG Unreleased entry naming the new gate + linking to scripts/verify-koala-residue.mjs. Update auto-memory file ~/.claude/projects/-Users-jek-Documents-CDR3/memory/koala-removal-ship-clean-program.md to mark story 4 DONE and correct the stale 7-hit claim (current = 0 unclassified). Memory edit is informational, not gated by the story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep -A5 'Unreleased' CHANGELOG.md` shows a bullet naming koala-residue gate + B-292d. Memory file updated (memory edit is informational, outside the gate).",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased mentions koala-residue gate -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ci koala-residue` outputs at least 1; WHY: change must be in Unreleased section",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG names B-292d story ID -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c B-292d` outputs at least 1; WHY: traceability",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG entry under Test infrastructure subsection (consistency with B-d7c3 + B-c6cf) -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c \"Test infrastructure\"` outputs at least 1; WHY: pattern consistency",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no CHANGELOG sections outside Unreleased touched -> `git diff main...HEAD -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased should be modified",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: no scripts/ files touched -> `git diff main...HEAD --name-only -- scripts/ | wc -l` outputs 0; WHY: script is byte-frozen",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
