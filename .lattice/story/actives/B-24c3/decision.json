@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Tests/config-only — production code frozen",
+    "No assertion weakened, no smoke logic changed",
+    "Finite timeoutMs ceilings (never Infinity)"
+  ],
+  "drivers": [
+    "B-6745 stabilized headline bugs but parallel-load races persist",
+    "CI signal needs consistent 162/162 PASS to be usable",
+    "Same pattern as B-2d6c CHK-002 + B-6745 CHK-002 — proven, low-risk"
+  ],
+  "options": [
+    {
+      "name": "(a) per-smoke timeoutMs bump (chosen)",
+      "pros": [
+        "Minimal scope",
+        "Proven pattern",
+        "Tests-only"
+      ],
+      "cons": [
+        "Doesnt address root cause of parallel slowdown"
+      ]
+    },
+    {
+      "name": "(b) Make runner adaptive",
+      "pros": [
+        "Root-cause fix"
+      ],
+      "cons": [
+        "Out of scope (runner frozen)"
+      ]
+    },
+    {
+      "name": "(c) Skip parallel-race smokes",
+      "pros": [
+        "Simple"
+      ],
+      "cons": [
+        "Loses coverage"
+      ]
+    }
+  ],
+  "chosen": "(a) per-smoke timeoutMs bump (chosen)",
+  "rationale": "User picked (a) on 2026-06-18. Same pattern as B-2d6c/B-6745. Runner is frozen; coverage loss unacceptable. Tests-only edits, finite ceilings, 0 production change.",
+  "preMortem": [
+    {
+      "scenario": "180s still insufficient under heavier load",
+      "trigger": "Run 4+ of test:all still times out for the same smokes",
+      "consequence": "User cannot trust the fix",
+      "mitigation": "3x parallel verify before DONE. If still flaky, bump further or file follow-up; do not declare DONE on flaky results."
+    },
+    {
+      "scenario": "experience-layer-digest-extract manifest entry conflicts with directory-scan dedup",
+      "trigger": "Runner sees BOTH manifest entry AND directory-scan discovery, runs it twice",
+      "consequence": "Test count incorrect",
+      "mitigation": "run-all-smokes-smoke.ts already covers this via discoveredSet dedup (B-6efb F-009 fix); verify via test:run-all-smokes-smoke after change."
+    },
+    {
+      "scenario": "lattice-baseline 360s still insufficient",
+      "trigger": "Serial standalone was 129s but under parallel load could spike higher",
+      "consequence": "Persistent flake",
+      "mitigation": "360s is ~3x serial; if 4+ runs continue timing out, escalate as production-rooted slowness (file follow-up; not B-24c3 scope)."
+    }
+  ],
+  "timestamp": "2026-06-17T23:53:13.708Z"
+}

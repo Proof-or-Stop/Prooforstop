@@ -6,7 +6,48 @@
       "context": "In packages/main/smoke-manifest.json, set timeoutMs=180000 for these 8 entries (or add the entry if missing): experience-layer-digest-extract, gap-log, init-check-fallback, scope-contract, story-capsule, story-create-concurrency, story-metadata-protection, unattended-dispatch. Each PASSES standalone in 9-21s — the 60s default is enough for serial but not for parallel worker-pool load. Bump margin: ~3x measured standalone.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep -A1 timeoutMs packages/main/smoke-manifest.json` shows 180000 for the 8 named entries (including the new experience-layer-digest-extract entry).",
+      "files": {
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "7 existing manifest entries have timeoutMs=180000 -> `python3 -c \"import json;m=json.load(open(\\\"packages/main/smoke-manifest.json\\\"));targets=[\\\"gap-log\\\",\\\"init-check-fallback\\\",\\\"scope-contract\\\",\\\"story-capsule\\\",\\\"story-create-concurrency\\\",\\\"story-metadata-protection\\\",\\\"unattended-dispatch\\\"];print(sum(1 for s in m[\\\"smokes\\\"] if s[\\\"name\\\"] in targets and s.get(\\\"timeoutMs\\\")==180000))\"` outputs 7; WHY: each entry must be bumped to 180000",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "experience-layer-digest-extract added to manifest with timeoutMs=180000 -> `python3 -c \"import json;m=json.load(open(\\\"packages/main/smoke-manifest.json\\\"));e=[s for s in m[\\\"smokes\\\"] if s[\\\"name\\\"]==\\\"experience-layer-digest-extract\\\"];print(\\\"OK\\\" if e and e[0].get(\\\"timeoutMs\\\")==180000 else \\\"MISSING\\\")\"` prints OK; WHY: smoke was discovered via directory-scan, now has explicit manifest entry",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke-manifest.json valid JSON -> `node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"./packages/main/smoke-manifest.json\\\",\\\"utf8\\\"))\";echo OK` prints OK; WHY: must remain parseable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run-all-smokes-smoke self-smoke still passes -> `node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b24c3-self.log 2>&1; echo $?` outputs 0; WHY: per pre-mortem D2 dedup check",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: only the 8 named entries changed (no other smokes affected) -> `git diff main...HEAD -- packages/main/smoke-manifest.json | grep -E \"^[+].*name\" | grep -vE \"gap-log|init-check-fallback|scope-contract|story-capsule|story-create-concurrency|story-metadata-protection|unattended-dispatch|experience-layer-digest-extract\" | wc -l` outputs 0; WHY: scope-boundary specifies these 8 only (and lattice-baseline in CHK-002)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
