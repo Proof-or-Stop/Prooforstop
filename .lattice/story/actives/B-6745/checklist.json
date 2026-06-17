@@ -49,7 +49,30 @@
       "userSees": "Running `npm run test:all`, the 5 previously-timing-out P5 smokes complete within their raised timeouts and PASS; the full suite reaches ~162/162 (modulo any genuinely-environmental skips), with no smoke logic changed and a real (non-infinite) timeout ceiling preserved.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:all completes with the 5 slow smokes PASS (not TIMEOUT) and the suite reaches ~162/162",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each of the 5 timeoutMs values in smoke-manifest.json is >= measured standalone wall time + margin (re-measure to confirm headroom)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No timeoutMs is infinite/absurd (a true hang still TIMEOUTs); finite ceilings preserved; no smoke logic changed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
