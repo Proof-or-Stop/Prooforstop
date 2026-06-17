@@ -233,7 +233,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/REVIEW.*TEST PREFLIGHT/,/EXAMPLES/' packages/main/src/cli-prompts.ts | grep -cE '^  [0-9]\\.'",
+          "result": "pass",
+          "note": "Returns 7 — cli-prompts.ts REVIEW->TEST PREFLIGHT block lists all 7 gates.",
+          "headHash": "00b8c4b9a3fbfa5a42ae33b62777261af1b91422",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:54.064Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
