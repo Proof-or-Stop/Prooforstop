@@ -137,6 +137,22 @@
       "files": [
         "packages/main/src/tasks/run-all-smokes.ts"
       ]
+    },
+    {
+      "id": "B-6efb:F-009",
+      "desc": "run-all-smokes.ts:61 SmokeResult.status union includes `SKIP` as a valid variant, but no code path in runOneSmoke (lines 131-181) ever returns status=SKIP. Skipped entries are pre-filtered by selectSmokes before reaching runOneSmoke. The SKIP branch is dead/unreachable and the ternary at line 205 also does not handle it, so any hypothetical SKIP leakthrough would be printed as FAIL.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:31.267Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-004",
+      "_hash": "d0138608dbbd436c11cfddf087fe8c37f92dc79475fed1149497c6d4b2ed3f1f",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ]
     }
   ]
 }
