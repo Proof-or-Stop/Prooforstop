@@ -121,6 +121,22 @@
         "packages/main/src/tasks/run-all-smokes-smoke.ts"
       ],
       "resolvedAt": "2026-06-17T02:21:38.279Z"
+    },
+    {
+      "id": "B-6efb:F-008",
+      "desc": "run-all-smokes.ts:116-118 selectSmokes pushes manifest-only entries that are not in discovered[] without deduplication — if manifest contains two entries with the same name (neither on disk), both are pushed to `all` and the smoke runs twice. No guard against this at line 110 (byName map overwrites silently) or at line 116 (includes check only deduplicates against discovered, not against already-pushed manifest extras).",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:23.931Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-004",
+      "_hash": "a712ff2d400cd0b7a0b2a8acdfe6379dc13eb9eaa97ed82b17f35c1e97eaa688",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ]
     }
   ]
 }
