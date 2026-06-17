@@ -516,12 +516,12 @@
           "intentRef": "CHK-003:happy:2",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "test -f packages/main/dist/tasks/run-all-smokes.js",
+          "command": "node -e \"const p=require('./packages/main/package.json'); console.log(p.scripts['test:run-all-smokes-smoke'])\"",
           "result": "pass",
-          "note": "dist artifact built.",
-          "headHash": "bc251fb392c95037a693d32a14be5f49349939ef",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:17.309Z"
+          "note": "Prints 'node dist/tasks/run-all-smokes-smoke.js' — confirms npm script wiring exact value.",
+          "headHash": "ecb350b154eb6bd98d717699b5cc00c64c7bd41f",
+          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
+          "timestamp": "2026-06-17T02:21:03.638Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
