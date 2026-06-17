@@ -75,7 +75,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graceful-sites-gitroot-cwd-wrapper-root-smoke.ts",
+          "command": "npm run test:graceful-sites-gitroot-cwd",
+          "result": "pass",
+          "note": "wrapper-root fixture: verifier currentHead + init-check repair audit resolve resolveGitCwd to the inner gitRoot (defined head hash), touchpoints detectMdTouchpointsFromGit reports docs/guide.md from gitRoot; the other 4 sites (handoff/codex/validation-executor/recover-evidence) resolve via resolveGitCwd/resolveProjectGitCwd covered by bare-gate + project-gitroot smokes",
+          "headHash": "de0e852cb329f8916bc098a0438402e9c910f12c",
+          "materialHash": "69b772cd66d2207436a10e4f59558593a73227d259360faa477279117f82d639",
+          "timestamp": "2026-06-17T23:10:56.316Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
