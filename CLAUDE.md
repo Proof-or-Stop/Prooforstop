@@ -817,6 +817,8 @@ lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intent
 | lint | `lattice validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 lattice 命令与 registry 对齐 | fail → block REVIEW→TEST |
 | codex-adapter | `node bin/lattice-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
+| english-artifacts | `english-artifacts` preflight (B-5f42, no standalone flag; standalone `npm run test:legacy -- english-only-guards`) | 本分支 commit + 当前 story 元数据必须英文(CJK 触发 fail) | fail → block REVIEW→TEST |
+| koala-residue | `koala-residue` preflight (B-292d, no standalone flag; standalone `npm run test:koala-residue`) | 全仓 git-tracked 源面扫描旧品牌字串残留(规则 + 允许 list 见 `scripts/verify-koala-residue.mjs`) | fail → block REVIEW→TEST |
 
 `lattice-review-channel` LLM agent 已退役（S1），由 `lattice validate --channel --story=<id>` CLI gate 接管；`lattice-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`lattice-review-quality` 假设 lint 已绿只审主观项。
 

@@ -1,0 +1,108 @@
+{
+  "storyId": "B-292d",
+  "checkedAt": "2026-06-17T17:36:05.649Z",
+  "features": [
+    {
+      "feature": "Wire scripts/verify-koala-residue.mjs as the 7th gate in REVIEW->TEST review-preflight.ts (KOALA_RESIDUE_GATE_LABEL constant + runKoalaResidueGate helper + PreflightGateName union + dispatch entry after docs-drift, before codex-adapter)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Pattern-mirror english-artifacts gate (B-5f42) as the implementation model for the new gate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Option (a) preflight-only chosen: no validate-koala-residue.ts handler created (over option (b) preflight+validate)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Decision a3: keep existing test:koala-residue npm test script (two-place coverage, no removal)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "scripts/verify-koala-residue.mjs is byte-frozen (must not be modified by this story)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "Update cli-prompts.ts REVIEW->TEST PREFLIGHT block from 5 to 7 gates (adding both english-artifacts missing from B-5f42 and new koala-residue)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update CLAUDE.md gate list to include koala-residue",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry naming the new koala-residue gate with B-292d story ID",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update koala-removal-ship-clean-program memory file to mark story 4 done and correct stale hit count",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "REVIEW->TEST gate must be fail-closed: infra failure blocks entry to TEST (policy from testing-infra.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "execFileSync with timeout to prevent hung subprocess (pre-mortem D2 constraint)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Failed gate prints hit lines via same path as english-artifacts BLOCK output",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rebuilt dist artifacts (review-preflight.js and cli-prompts.js) must reflect all changes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 13,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "495697ba21a080cd43698459d99cc71a79ca24a75e9085f0a0480fb4c38d5030",
+  "openQuestions": []
+}
