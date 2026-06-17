@@ -146,7 +146,47 @@
       "userSees": "npm run test:experience-layer-finding-signals exits 0 with 'smoke passed'; the committed verifier prints TOTAL N | PASS N | FAIL 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run test:experience-layer-finding-signals exits 0 and stdout contains smoke passed; WHY: proves the committed smoke test runs successfully end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke test uses hermetic temp dir and restores env -> no leftover .lattice/learning/ in project root after run; WHY: proves test isolation, no side effects on real project state",
+            "type": "cli"
+          },
+          {
+            "desc": "npm --prefix packages/main run build exits 0 with no new type errors -> build clean after all changes; WHY: no regression from new module additions",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke asserts zero-sample derivation (no findings seeded) -> signalScore is 0, not NaN, signals array empty; WHY: covers the zero-sample edge case within the committed test",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke asserts single-hit finding -> signalScore computed correctly with support=1 displayed; WHY: covers single-hit edge within the committed test",
+            "type": "cli"
+          },
+          {
+            "desc": "static import scan within smoke asserts zero outward imports (no ../../ in core/experience-layer-types.ts, core/learning-store.ts, core/finding-signals.ts) -> count is 0; WHY: enforces the usage-ledger isolation bar as a committed regression test",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "introduce a fake ../../ import in one of the experience-layer modules then run the static scan portion of the smoke -> smoke detects it and fails; WHY: proves the static scan is not vacuously true (would catch a real violation)",
+            "type": "cli"
+          },
+          {
+            "desc": "run the smoke test twice in succession -> both runs exit 0, no stale temp dir conflicts; WHY: proves hermetic cleanup is complete, no inter-run contamination",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
