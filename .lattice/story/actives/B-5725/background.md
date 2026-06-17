@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-16, while driving B-cfdd (the soft convergence-stall advisory) the team confirmed the re-review cost mechanism: each finding-fix commit changes the source tree, stales every reviewer's binding (one global materialHash in core/evidence-freshness.ts), and forces a fresh round where every active reviewer re-analyzes the whole diff from scratch. The user evaluated three ways to cut that cost and chose B-incremental specifically because it carries ZERO added under-review risk.
+
+## Key Insights
+Reviewer verdicts already record the headHash they were bound to (core/review-run.ts captureReviewRunSnapshot). git already exposes per-file blob hashes, and changedFilesBetween / a plain git diff between two commits is available (core/evidence-freshness.ts). So 'what changed since reviewer X last passed' is computable from existing data with no new persistence. The skip/carry-forward variant (B-skip) was rejected: an LLM reviewer's true dependency set is not statically provable, so skipping a reviewer can never reach hard-zero under-review risk. B-incremental never skips, so the gate stays identical and under-review is impossible by construction.
+
+## Solution Tradeoffs
+B-incremental (chosen): every reviewer still runs every round and still produces a fresh verdict (gate unchanged), but is fed only the diff since its last pass plus its prior verdict, so each re-run is cheaper. Pros: zero added under-review risk, small additive surface, no gate/binding change. Cons: still spawns every reviewer each round (saving is per-reviewer work, not fewer reviewers). Rejected alternative B-skip: carry forward unaffected reviewers -- larger saving but irreducible under-review risk. Rejected alternative: do nothing and rely on the existing converge-fixes-into-few-commits discipline plus the B-cfdd advisory -- zero cost but leaves each re-run doing redundant full analysis.
+
+## Conversational Texture
+The user reviewed the option comparison, explicitly picked B-incremental for its zero-under-review-risk property, and directed development through the full Lattice flow. A standing directive applies: no Chinese in any documents or code, including any emitted strings (everything English-only). The REVIEW->TEST gate and binding semantics must not change -- this story only enriches the reviewer's input.
