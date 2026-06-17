@@ -145,12 +145,9 @@ const DEFERRED_ALLOWLIST_EXACT = new Set<string>([
   //    story's allowed paths; each needs its own caller to thread a resolved gitCwd.
   'packages/lab/src/core/sandbox.ts',
   'packages/main/src/core/codex-adapter-checks.ts',
-  'packages/main/src/core/lattice-dispatch.ts',
   'packages/main/src/core/lattice-handoff.ts',
   'packages/main/src/core/review-run.ts',
   'packages/main/src/core/rollout-check.ts',
-  'packages/main/src/handlers/checklist.ts',
-  'packages/main/src/handlers/doctor.ts',
   'packages/main/src/handlers/done-effects.ts',
   'packages/main/src/handlers/init-check.ts',
   'packages/main/src/handlers/review-run.ts',
