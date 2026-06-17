@@ -205,6 +205,18 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/learning-validate.ts"
+        ],
+        "test": []
       }
     },
     {
