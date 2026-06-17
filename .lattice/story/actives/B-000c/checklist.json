@@ -52,7 +52,47 @@
       "userSees": "The smoke seeds findings via the store and asserts finding-signals.json contains the aggregated signals with correct signalScore/support and that derivation used the store accessor.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveFindingSignals with two findings sharing same localSignature (category=security, signatureTag=XSS, fileKind=ts, lifecyclePhase=review) where one is fixed_resolved and one is false_positive_dismissed -> produces single signal with signalScore = 1/(1+1+1) = 0.333..., support = 2; WHY: proves aggregation + formula correctness on the main path",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveFindingSignals reads findings via store.readFindings accessor, never via direct JSON.parse of findings.json -> smoke verifies the store accessor path was used; WHY: enforces the port-based read contract (architectural boundary)",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "deriveFindingSignals with zero findings -> produces empty signals array, signalScore never NaN or undefined; WHY: zero-sample edge case must not produce arithmetic errors",
+            "type": "cli"
+          },
+          {
+            "desc": "single finding (fixed_resolved) -> signalScore = 1/(1+0+1) = 0.5, support = 1; WHY: single-hit edge shows high score but low support, verifies support=1 is surfaced",
+            "type": "cli"
+          },
+          {
+            "desc": "finding with signatureTag absent -> localSignature degrades to category+fileKind only (coarse aggregation); WHY: proves graceful degradation when signatureTag not yet captured",
+            "type": "cli"
+          },
+          {
+            "desc": "partially_mitigated outcome contributes 0.5 to positive count -> signalScore reflects fractional positive; WHY: verifies the 0.5 weighting rule from the plan",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "findings with corrupt/missing required fields (no category, no fileKind) -> derivation skips or handles gracefully, never throws unhandled exception; WHY: real findings data may have legacy or malformed entries",
+            "type": "cli"
+          },
+          {
+            "desc": "findings.json is missing entirely (store.readFindings returns empty) -> derivation produces empty cache, does not throw; WHY: fresh project with no findings history must not break derivation",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
