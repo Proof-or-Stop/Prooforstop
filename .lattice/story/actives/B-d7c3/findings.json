@@ -365,6 +365,23 @@
       ],
       "resolvedReason": "Rebound to three-dot diff over *-smoke.ts EXCLUDING the 2 scope-ack'd files (provider-codex-smoke.ts + reviewer-quorum-smoke.ts had stale Run: comments updated per concept F-010). Returns 0 — all other task source byte-identical.",
       "resolvedAt": "2026-06-17T13:03:17.335Z"
+    },
+    {
+      "id": "B-d7c3:F-021",
+      "desc": "CHK-001:adversarial:0 evidence command does not match the intent literal. Intent specifies `git diff main -- 'packages/main/src/tasks/*-smoke.ts' | wc -l` outputs 0 (glob check covering all smoke task files). The bound evidence runs `git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l` — the two-file command from adv:1 — which does not cover the glob. The actual three-dot glob returns 25 (provider-codex-smoke.ts + reviewer-quorum-smoke.ts, both scope-ack'd). Evidence must either: (a) bind a command that matches the intent literally using the same exclusion pattern that CHK-002:adv:0 uses (`...\\:(exclude)...'`), or (b) include a waiver explaining why the glob cannot return 0 and citing the scope_contract_acknowledge that permits the two changed files.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T13:05:10.611Z",
+      "reviewRound": "2026-06-17T13:03:12.170Z",
+      "reviewRunId": "B-d7c3:RR-008",
+      "_hash": "ea2545e1bad38f6ee2fd304fc050e654d663d9a6f563c47c17b8a8f70b702b47",
+      "files": [
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+      ]
     }
   ]
 }
