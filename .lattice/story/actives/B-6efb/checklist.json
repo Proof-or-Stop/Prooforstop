@@ -588,6 +588,17 @@
           "headHash": "b3064a393e1682550ad2eba7557b8190694b4df8",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:29.864Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/main/src/core/intent-coverage.ts && echo SAFE",
+          "result": "pass",
+          "note": "intent-coverage.ts present (over-reach guard).",
+          "headHash": "7893ff5ab617ca6dee8d4d9da593225df7e7bd51",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:30.910Z"
         }
       ]
     }
