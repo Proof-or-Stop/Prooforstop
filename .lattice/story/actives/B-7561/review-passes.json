@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T16:06:28.119Z",
       "reviewRunId": "B-7561:RR-007",
       "_hash": "7d087a13809ad0cb3dfd3e3a4dfb65012e59b98a3d66ceba99094f10449d42e7"
+    },
+    {
+      "id": "B-7561:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "All three invariant checks pass. (1) Dead code: no unused imports — all five names from story-recall and both types from experience-layer-types are exercised in the handler body. (2) Type safety: no `as any`, no empty catch (the one catch in readProfileInput returns null with a comment explaining intent). (3) I/O shell isolation: recall.ts is a handler file (handlers/ layer), not a shell; it does not import fn.ts and the write-mutation grep is empty — confirmed read-only. New `story` alias is a clean `??` fallback at line 136 with no ambiguity. The two new smoke checks (large-set 121-candidate ranking at CHK-002:adversarial:0, malformed-profile no-crash at CHK-002:adversarial:2) are deterministic, self-contained in a mkdtempSync root, exercising the correct invariants without flakiness risk. The `story` alias is not directly exercised by a h.recall({story:...}) call in the smoke suite (only storyId= is used), but the alias path is a one-liner `??` that is trivially covered by the CLI parsing layer; this is below the threshold for a blocking finding. No dead code, no type-safety issue, no shell-isolation breach found.",
+      "createdAt": "2026-06-17T16:07:58.906Z",
+      "reviewRound": "2026-06-17T16:06:28.119Z",
+      "reviewRunId": "B-7561:RR-006",
+      "_hash": "1daf6958f5628efe206da90da254482f5d93d45802ab566ebf00daa9c4283413"
     }
   ]
 }
