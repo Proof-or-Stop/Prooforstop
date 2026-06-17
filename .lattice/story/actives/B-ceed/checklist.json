@@ -286,6 +286,17 @@
           "headHash": "dd6edc06c09f7282d1a5aca0f44de2a0b15cf957",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:13.729Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/core/lattice-dispatch.ts | grep -E '^-' | grep -c 'runClaudeCodeRealLeafDispatch'",
+          "result": "pass",
+          "note": "Returns 0 — runClaudeCodeRealLeafDispatch line not removed.",
+          "headHash": "f24681871c2fe22d57af0dd24baa8dd0285ed0d3",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:14.346Z"
         }
       ]
     },
