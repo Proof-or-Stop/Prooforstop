@@ -142,6 +142,17 @@
           "headHash": "15b2f9a5980a72faae2c8e33bc3f3e383695b6d6",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:06:45.100Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -s packages/main/coverage/index.html && echo HTML_OK",
+          "result": "pass",
+          "note": "Prints HTML_OK — 8994-byte non-empty HTML report generated at packages/main/coverage/index.html after test:coverage run.",
+          "headHash": "42eaac0cc64e83a38eeab6ceb43248838a171bb1",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:06:46.296Z"
         }
       ]
     },
