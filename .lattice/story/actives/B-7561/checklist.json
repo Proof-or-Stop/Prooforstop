@@ -182,7 +182,43 @@
       "userSees": "npm run test:experience-layer-recall exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:experience-layer-recall exits 0 and outputs smoke passed; WHY: proves the smoke script is wired and passes",
+            "type": "cli"
+          },
+          {
+            "desc": "Committed verifier prints TOTAL N | PASS N | FAIL 0; WHY: proves all smoke assertions pass with zero failures",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing experience-layer smokes still pass (no regression); WHY: new recall code must not break prior experience-layer functionality",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Build clean (tsc) after all changes with zero type errors; WHY: new types and imports must not break the build",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke is hermetic: runs successfully in a clean temp directory with no pre-existing .lattice/learning state; WHY: smoke must not depend on leftover state from prior runs",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Recall module (core/story-recall.ts) import fence is non-vacuous: file exists, contains real exports, and imports ONLY experience-layer-types + node: builtins; WHY: the import fence is the load-bearing isolation bar — must be checked as a mutation guard, not just a static fact",
+            "type": "cli"
+          },
+          {
+            "desc": "No derived-index file exists after smoke run: no file matching *recall-index* or *recall-cache* or *story-recall-derived* appears anywhere in .lattice/; WHY: explicit contract — recall is scan-only, no caching",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
