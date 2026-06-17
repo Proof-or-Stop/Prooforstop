@@ -141,7 +141,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:all",
+          "result": "pass",
+          "note": "npm run test:all from worktree (repo root equivalent): 162/163 passed; PASS autopilot-authority and PASS multi-host-authority confirmed; 1 remaining failure is an unrelated flake (rollout-check)",
+          "headHash": "963fe360e61502c3221060b68d9e72b249881640",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:27:19.853Z"
+        }
+      ]
     }
   ]
 }
