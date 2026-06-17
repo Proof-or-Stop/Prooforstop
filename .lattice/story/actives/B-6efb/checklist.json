@@ -356,6 +356,17 @@
           "headHash": "136e1b725cada020ba3f5afbd79a6986fcdbf7ea",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:07.020Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'timeoutMs' packages/main/dist/tasks/run-all-smokes.js",
+          "result": "pass",
+          "note": "Per-smoke timeout honored from manifest entry; defaults to 60_000ms.",
+          "headHash": "dc45df64c788e544cd43fda832310852f2cb64c2",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:08.159Z"
         }
       ]
     },
