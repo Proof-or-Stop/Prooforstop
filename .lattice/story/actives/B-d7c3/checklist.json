@@ -193,6 +193,17 @@
           "headHash": "c84784a016392e75b6ad0f34e7770595ccd79cb3",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:07.039Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- docs/requirements/decisions | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — decision docs untouched.",
+          "headHash": "4ae09fdf9a5b41ba53f4b8674ea833bbe9620e67",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:07.766Z"
         }
       ]
     },
