@@ -20,7 +20,7 @@
       "desc": "CHK-002:adversarial:2 lacks valid verificationEvidence: intent requires resolveEvidenceStrength=\"\" (empty string) -> rejected, but validateOptionalEnum() in finding.ts treats empty string as undefined and returns silently without throwing (line: `if (value === undefined || value === null || value === \"\") return undefined`). The smoke validation check only tests an invalid non-empty string (\"super\") and never exercises the empty-string path. No evidence record specifically binds this intent to a check that proves rejection of empty strings.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T12:34:48.617Z",
@@ -30,7 +30,9 @@
       "files": [
         "packages/main/src/handlers/finding.ts",
         "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "validateOptionalEnum now rejects an explicitly-provided empty/whitespace enum string (undefined still = omitted); applies to all enum fields. Smoke check 'CHK-002:adversarial:2 empty-string enum rejected' added. Commit fbfec03824.",
+      "resolvedAt": "2026-06-17T12:39:32.465Z"
     },
     {
       "id": "B-4f46:F-003",
