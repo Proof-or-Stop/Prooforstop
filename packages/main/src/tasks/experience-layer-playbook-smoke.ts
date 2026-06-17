@@ -52,6 +52,7 @@ import {
   readProposal,
   resolveProposalsDir,
   resolvePlaybooksPath,
+  writeProposal,
 } from '../core/learning-store.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { Finding, FindingData, StoryInfo } from '../core/types.js';
@@ -71,6 +72,20 @@ function check(label: string, fn: () => void): void {
   total += 1;
   try {
     fn();
+    passed += 1;
+    console.log(`check: ${label} — PASS`);
+  } catch (err) {
+    console.error(`check: ${label} — FAIL`);
+    console.error(err instanceof Error ? (err.stack ?? err.message) : String(err));
+    process.exitCode = 1;
+  }
+}
+
+/** Async-aware variant of `check` (awaits the body so async assertions count). */
+async function checkAsync(label: string, fn: () => Promise<void>): Promise<void> {
+  total += 1;
+  try {
+    await fn();
     passed += 1;
     console.log(`check: ${label} — PASS`);
   } catch (err) {
@@ -163,7 +178,7 @@ function proposalsSnapshot(root: string): string {
   return files.map((f) => `${f}::${readFileSync(join(dir, f), 'utf-8')}`).join('\n');
 }
 
-function run(): void {
+async function run(): Promise<void> {
   const savedEnv = { ...process.env };
   const savedCwd = process.cwd();
   const tmpRoots: string[] = [];
@@ -405,6 +420,109 @@ function run(): void {
       assert.ok(existsSync(resolvePlaybooksPath(root)), 'playbooks.json under .lattice/learning/');
       assert.ok(resolvePlaybooksPath(root).includes(join('.lattice', 'learning')), 'playbooks path is under .lattice/learning/');
     });
+
+    // ─── F-003: minted ids are globally unique across propose->approve cycles ─────
+    check('CHK-001:edge:2 unique ids across cycles (no duplicate after approve empties proposals/)', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-cycle'; const f = sampleFinding(storyId); seed(store, storyId, f);
+
+      // Cycle 1: propose -> approve (this clears the proposals/ directory).
+      const pid1 = h.playbook_propose({ finding: f.id }).match(/proposal (\S+) staged/)![1];
+      const digest1 = readProposal(root, pid1)!.proposalDigest;
+      h.playbook_approve({ proposalId: pid1, expectedProposalDigest: digest1 });
+      assert.equal(readProposal(root, pid1), null, 'cycle-1 proposal cleared (proposals/ now empty)');
+
+      // Cycle 2: a fresh propose must NOT reuse pid1 even though proposals/ is empty.
+      const pid2 = h.playbook_propose({ finding: f.id }).match(/proposal (\S+) staged/)![1];
+      assert.notEqual(pid2, pid1, 'second propose mints a DISTINCT id (id reuse bug fixed)');
+      const digest2 = readProposal(root, pid2)!.proposalDigest;
+      h.playbook_approve({ proposalId: pid2, expectedProposalDigest: digest2 });
+
+      const playbooks = readPlaybooks(root);
+      assert.equal(playbooks.length, 2, 'two candidates written across two cycles');
+      const ids = playbooks.map((p) => p.id);
+      assert.equal(new Set(ids).size, ids.length, 'no duplicate playbook id in playbooks.json');
+      assert.ok(ids.includes(pid1) && ids.includes(pid2), 'both distinct ids persisted');
+    });
+
+    // ─── F-001: a path-traversal proposalId is rejected by the safeProposalId guard ─
+    check('CHK-001:edge:1 path-traversal proposalId rejected (no file written/read outside proposals/)', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-trav'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      // A real proposal exists so the proposals/ directory is present (read path is live).
+      const realPid = h.playbook_propose({ finding: f.id }).match(/proposal (\S+) staged/)![1];
+
+      const hostile = ['../../etc/x', 'a/b', '..', '.', 'a\\b', 'x/../../y', 'a\0b'];
+      for (const id of hostile) {
+        // read path (diff / approve / reject) must throw on the traversal id …
+        assert.throws(() => h.playbook_diff({ proposalId: id }), /illegal path characters|non-empty/, `diff rejects "${id}"`);
+        assert.throws(() => h.playbook_approve({ proposalId: id, expectedProposalDigest: 'x'.repeat(64) }), /illegal path characters|non-empty/, `approve rejects "${id}"`);
+        assert.throws(() => h.playbook_reject({ proposalId: id }), /illegal path characters|non-empty/, `reject rejects "${id}"`);
+        // raw write path must throw too (guard fires before any fs write) …
+        assert.throws(
+          () => writeProposal(root, { ...readProposal(root, realPid)!, id }),
+          /illegal path characters|non-empty/,
+          `writeProposal rejects "${id}"`,
+        );
+      }
+
+      // Nothing escaped: only the single legitimate proposal file exists, and the
+      // approved-playbooks store was never created by a hostile id.
+      const dir = resolveProposalsDir(root);
+      const files = readdirSync(dir).filter((n) => n.endsWith('.json'));
+      assert.deepEqual(files.sort(), [`${realPid}.json`], 'no traversal file written under proposals/');
+      assert.equal(readPlaybooks(root).length, 0, 'no playbook written via a hostile id');
+    });
+
+    // ─── F-002: concurrent proposal writes are atomic (temp+rename) ──────────────
+    await checkAsync('CHK-001:adversarial:1 concurrent proposal writes (atomic temp+rename; reads complete-or-absent)', async () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createPlaybookHandlers(ctx);
+      const storyId = 'B-conc'; const f = sampleFinding(storyId); seed(store, storyId, f);
+      // Stamp a base proposal to clone the shape from.
+      const basePid = h.playbook_propose({ finding: f.id }).match(/proposal (\S+) staged/)![1];
+      const base = readProposal(root, basePid)!;
+
+      const N = 24;
+      const ids = Array.from({ length: N }, (_, i) => `PBP-${String(i + 100).padStart(3, '0')}`);
+      const mkProposal = (id: string): PlaybookProposal => {
+        const p: PlaybookProposal = { ...base, id, title: `concurrent ${id}` };
+        p.proposalDigest = computePlaybookProposalDigest(p);
+        return p;
+      };
+
+      // Fire all writes concurrently, interleaved with reads of the same set. The
+      // atomic temp+rename contract means each read sees either a fully-written,
+      // valid proposal or nothing at all — never a truncated/half-written file.
+      const ops: Array<Promise<void>> = [];
+      for (const id of ids) {
+        ops.push(Promise.resolve().then(() => { writeProposal(root, mkProposal(id)); }));
+        ops.push(Promise.resolve().then(() => {
+          const got = readProposal(root, id); // complete-or-absent
+          if (got !== null) {
+            assert.equal(got.id, id, 'interleaved read sees a complete (non-truncated) proposal');
+            assert.equal(got.proposalDigest, computePlaybookProposalDigest(got), 'interleaved read is digest-consistent (atomic)');
+          }
+        }));
+      }
+      await Promise.all(ops);
+
+      // After all writes settle, every proposal must be present, valid, and atomic.
+      for (const id of ids) {
+        const got = readProposal(root, id);
+        assert.ok(got, `proposal ${id} present after concurrent writes`);
+        assert.equal(got!.id, id, 'final read id matches');
+        assert.equal(got!.proposalDigest, computePlaybookProposalDigest(got!), `proposal ${id} digest-consistent (atomic, never half-written)`);
+      }
+      // No leftover temp files from the atomic writer.
+      const leftoverTmp = readdirSync(resolveProposalsDir(root)).filter((n) => n.includes('.tmp-'));
+      assert.deepEqual(leftoverTmp, [], 'no leftover .tmp- files from the atomic writer');
+    });
   } finally {
     process.chdir(savedCwd);
     process.env = savedEnv;
@@ -434,4 +552,7 @@ function run(): void {
   console.log('smoke passed');
 }
 
-run();
+run().catch((err) => {
+  console.error(err instanceof Error ? (err.stack ?? err.message) : String(err));
+  process.exitCode = 1;
+});

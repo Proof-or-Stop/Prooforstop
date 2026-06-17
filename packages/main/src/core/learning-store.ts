@@ -6,8 +6,9 @@
  * write (temp file + rename) and a stable/canonical key order so re-writing
  * identical data is byte-identical (idempotent on disk; never a spurious diff).
  *
- * Isolation bar: imports ONLY `node:` builtins and the leaf
- * `./experience-layer-types.js`. NO outward imports (no `../`, no `../../`).
+ * Isolation bar: imports ONLY `node:` builtins, the leaf
+ * `./experience-layer-types.js`, and `./digest.js` (itself a leaf importing only
+ * `node:crypto`). NO other outward imports (no `../`, no `../../`).
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';

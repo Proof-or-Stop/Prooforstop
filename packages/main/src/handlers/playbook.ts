@@ -34,21 +34,38 @@ import {
   computePlaybookProposalDigest,
   deleteProposal,
   listProposals,
+  readPlaybooks,
   readProposal,
   writeProposal,
 } from '../core/learning-store.js';
 import type { Finding } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 
-const PROPOSAL_ID_RE = /^PBP-(\d{3})$/;
+/**
+ * Numeric suffix of a `PBP-NNN` / `PB-NNN` id, or 0 when it does not match.
+ * Tolerates any digit width so an already-approved playbook minted before a
+ * width change still contributes to the global max.
+ */
+const ID_SUFFIX_RE = /^PBP?-(\d+)$/;
+function idSuffix(id: string): number {
+  const match = id.match(ID_SUFFIX_RE);
+  return match ? Number(match[1]) : 0;
+}
 
-/** Mint the next `PBP-NNN` id given the proposals already on disk. */
-function nextProposalId(existing: PlaybookProposal[]): string {
+/**
+ * Mint the next globally-unique `PBP-NNN` id.
+ *
+ * B-8387 F-003: the next id is the global MAX suffix across BOTH the in-flight
+ * proposals (proposals/) AND the already-approved playbooks (playbooks.json),
+ * never just the proposals/ directory. Scanning proposals/ alone would reset to
+ * PBP-001 after a propose->approve cycle empties the directory, so a second
+ * propose+approve would mint a duplicate id in playbooks.json. Folding the
+ * approved playbooks into the max keeps minted ids unique and never reused.
+ */
+function nextProposalId(proposals: PlaybookProposal[], playbooks: Playbook[]): string {
   let max = 0;
-  for (const proposal of existing) {
-    const match = proposal.id.match(PROPOSAL_ID_RE);
-    if (match) max = Math.max(max, Number(match[1]));
-  }
+  for (const proposal of proposals) max = Math.max(max, idSuffix(proposal.id));
+  for (const playbook of playbooks) max = Math.max(max, idSuffix(playbook.id));
   return `PBP-${String(max + 1).padStart(3, '0')}`;
 }
 
@@ -147,7 +164,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
 
       const desc = (finding.desc ?? '').trim();
       const proposal: PlaybookProposal = {
-        id: nextProposalId(listProposals(ctx.root)),
+        id: nextProposalId(listProposals(ctx.root), readPlaybooks(ctx.root)),
         title: desc ? `Playbook: ${desc.slice(0, 80)}` : `Playbook from ${finding.id}`,
         trigger: buildTrigger(finding),
         check: desc
