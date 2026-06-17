@@ -40,7 +40,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/{authority-job-loop-live,autopilot-authority,multi-host-authority}-smoke.js (from /tmp)",
+          "result": "pass",
+          "note": "All 3 smokes exit 0 from clean /tmp cwd on fresh build. Verified by main agent.",
+          "headHash": "9a2fa4e12565f1533cdbdb642ddb6de0f626adc1",
+          "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
+          "timestamp": "2026-06-17T22:43:14.247Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
