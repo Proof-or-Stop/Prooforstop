@@ -187,7 +187,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "allowlist split: BENIGN_BOOTSTRAP (12, with rationale) + empty pending; contract exits 0; detection self-tests intact",
+          "headHash": "7f6216335b08638a894046c0fa5fd0f738305722",
+          "materialHash": "0c1329ca8d903ed2c4b488a46e5fdd5fa5abfd351837881ac1db2d3092525dd4",
+          "timestamp": "2026-06-17T23:17:13.663Z"
+        }
+      ]
     }
   ]
 }
