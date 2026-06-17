@@ -31,6 +31,22 @@
       "files": [
         "lattice-console-serve.js"
       ]
+    },
+    {
+      "id": "B-32b9:F-003",
+      "desc": "CHK-004:edge:0 intent specifies an INIT-phase story with only 2 nodes as the edge condition. Evidence uses B-2d6c which is in DEV phase (not INIT) and has approximately 6 nodes (root, input, 1 init-dispatch, pending CHK, gate, done). Neither the phase condition (INIT) nor the node-count condition (2 nodes) matches the intent boundary. The auto-fit scale for a 2-node INIT story vs a 6-node DEV story may differ significantly; the specific edge case stated in the intent was not validated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T19:29:48.528Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-002",
+      "_hash": "473a4b7938c66ae67e4495d9497b0860137d76d4f101ca399334df3d1d78e02d",
+      "files": [
+        "lattice-console-serve.js"
+      ]
     }
   ]
 }
