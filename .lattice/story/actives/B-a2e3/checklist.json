@@ -286,6 +286,17 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/experience-layer-revalidation-smoke.ts"
+        ]
       }
     }
   ]
