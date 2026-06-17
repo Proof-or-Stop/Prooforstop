@@ -4,7 +4,7 @@
   "title": "Reconcile dev_start phase policy: command-policy allowedPhases vs config DEFAULT_PHASE_TOOLS drift on INIT/DEV",
   "description": "The process-fact contract check (scripts/verify-process-fact-contract.mjs, run via npm run test:process-fact-contract) fails on dev_start for the INIT and DEV phases with 'policy=true, isCommandAllowed=false'. Root cause: two sources of truth disagree about which phases permit dev_start. core/command-policy.ts declares dev_start allowedPhases = ['INIT','INIT_CHECK','PLAN','DEV'] (B-804c reason: an idempotent worktree (re-)bootstrap / recovery command allowed in the pre-REVIEW bootstrap window and refused in REVIEW/TEST/DONE). But core/config.ts DEFAULT_PHASE_TOOLS only lists dev_start under INIT_CHECK and PLAN (with a comment that story_advance internally calls dev_start so a standalone whitelist is only needed for the manual INIT_CHECK/PLAN recovery cases). The two disagree on INIT and DEV. Scope: (1) determine the correct phase set for dev_start by examining its actual recovery semantics (handlers/worktree.ts) and align command-policy.ts allowedPhases and config.ts DEFAULT_PHASE_TOOLS so they agree (decision: widen config up to the documented bootstrap window, OR narrow command-policy to match config — chosen in PLAN with rationale); (2) add/repair a regression guard so npm run test:process-fact-contract passes and a future dev_start phase divergence is caught. NOTE: this only reconciles the dev_start phase-policy drift; it does NOT change dev_start's behavior, the worktree bootstrap flow, or any other command's policy. All artifacts and emitted strings are English-only.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -15,7 +15,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-17T02:04:21.612Z",
   "startedAt": "2026-06-17T02:04:21.612Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T02:28:07.548Z",
   "events": [
     {
       "phase": "INIT",
@@ -80,12 +80,15 @@
       "branch": "story/B-da89",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:28:07.548Z",
+      "branch": "story/B-da89",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-da89",
-    "branch": "story/B-da89",
-    "createdAt": "2026-06-17T02:07:40.377Z"
-  },
   "currentReviewRound": "2026-06-17T02:21:08.224Z"
 }
