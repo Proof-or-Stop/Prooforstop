@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T02:41:55.130Z",
       "reviewRunId": "B-40eb:RR-004",
       "_hash": "a2b5f81701a34aa4792f8b1e3b26b11ba533a7c3948f52597cd845beaac69f1f"
+    },
+    {
+      "id": "B-40eb:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2 re-verification): F-001 resolved — CHK-001 edge/adversarial must intents now bound to node scripts/verify-koala-residue.mjs --self-test with 5 inline classify() unit tests, each with specific input fixture and asserted return value (UNCLASSIFIED/EXEMPT), 5/5 PASS; F-002 resolved — CHK-007:adversarial:0 now has EMPIRICAL evidence: staged probe file with koala brand triggered gate exit 1 naming packages/main/src/__residue_probe__.ts, git rm + rerun → exit 0; F-003 resolved — CHK-003:happy:0 and CHK-004:happy:0 evidence rebound to committed scripts/verify-koala-residue.mjs, /tmp/bf2.pl no longer referenced; F-004 resolved — CHK-005:adversarial:0 has EMPIRICAL allowlist mutation evidence: removing managed-assets.ts from LEGACY_LOGIC_FILES caused gate exit 1 with 16 hits, restoring → exit 0, proving guard is not vacuous. All four must-intents that were blocked in round 1 are now covered by durable, reproducible, committed gate evidence. No new blocker found.",
+      "createdAt": "2026-06-17T02:44:43.194Z",
+      "reviewRound": "2026-06-17T02:41:55.130Z",
+      "reviewRunId": "B-40eb:RR-006",
+      "_hash": "abcc35cb6c728facddb84674dc8082752272b8d070feb0e4c37417eb74cc11bf"
     }
   ]
 }
