@@ -156,6 +156,17 @@
           "headHash": "25829ba7b8ad849a44184dab989d25b2d3b216a3",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:52.772Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "ls packages/main/src/handlers/validate-koala-residue.ts 2>&1 | grep -c 'No such'",
+          "result": "pass",
+          "note": "Returns 1 — confirms option (a) preflight-only; no validate-koala-residue.ts handler created.",
+          "headHash": "a03f520b3c0fe0483b66d02ea761543728e79914",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:53.409Z"
         }
       ]
     },
