@@ -56,13 +56,15 @@
       "desc": "doc-promise-undelivered: learning-store.ts lines 9-10 header comment says 'imports ONLY node: builtins and the leaf ./experience-layer-types.js. NO outward imports' but the module now also imports './digest.js' (added by B-8387 at line 16). The B-8387 section comment at line 393 correctly states the full set ('node: builtins, ./digest.js, and the leaf ./experience-layer-types.js'), but the top-of-file module-level isolation-bar comment was not updated. This is misleading for future readers of the module header. Fix: update lines 9-10 to include './digest.js' in the isolation bar description.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-17T15:14:59.426Z",
       "reviewRound": "2026-06-17T15:07:10.454Z",
       "reviewRunId": "B-8387:RR-003",
-      "_hash": "81b16868fb76494d27633d3d228329e119a4842f4e65b676a2eef5e5eb7509d8"
+      "_hash": "81b16868fb76494d27633d3d228329e119a4842f4e65b676a2eef5e5eb7509d8",
+      "resolvedReason": "Fixed in commit 8f94dfbd: F-003 nextProposalId now global-max across proposals/ + playbooks.json (unique ids across cycles, tested); F-001 path-traversal proposalId rejection smoke; F-002 concurrent writeProposal atomicity smoke; F-004 learning-store header comment updated. Smoke 23/23.",
+      "resolvedAt": "2026-06-17T15:21:46.670Z"
     }
   ]
 }
