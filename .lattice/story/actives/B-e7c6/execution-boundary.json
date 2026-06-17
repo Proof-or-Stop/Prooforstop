@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e7c6",
+  "allowedCommands": [
+    "git grep",
+    "node scripts/verify-koala-residue.mjs",
+    "npm run build",
+    "npm run test:e2e",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/lab/src/core/config.ts",
+    "packages/main/tests/fixtures/lab-foundation.json",
+    "scripts/verify-koala-residue.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".koala",
+    "CHANGELOG.md",
+    "docs/requirements/decisions",
+    "docs/story",
+    "experiments"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "express story: rename lab schema id koala-lab -> lattice-lab (3 refs); experiments/ history untouched",
+  "createdAt": "2026-06-17T17:46:44.769Z",
+  "updatedAt": "2026-06-17T17:46:44.769Z",
+  "_hash": "165f24395471c7b90b022c37fce067587250531fd70eb4fa667eaf5b19df321c"
+}
