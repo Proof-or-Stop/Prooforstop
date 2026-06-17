@@ -187,12 +187,12 @@
           "intentRef": "CHK-001:adversarial:3",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git diff main -- scripts/verify-*.mjs | wc -l",
+          "command": "git diff main...HEAD -- 'scripts/verify-*.mjs' | wc -l",
           "result": "pass",
-          "note": "Returns 0 — verify-*.mjs scripts untouched.",
-          "headHash": "c84784a016392e75b6ad0f34e7770595ccd79cb3",
+          "note": "Returns 0 — B-d7c3 did NOT modify any verify-*.mjs. (Note: two-dot `git diff main` would show 2167 lines, but that is B-40eb's koala-residue-sweep change that landed on main AFTER this worktree was created. Three-dot diff is the correct over-reach guard.)",
+          "headHash": "2426f3107389f2e803dcf5188da12b5fcbe5b060",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:07.039Z"
+          "timestamp": "2026-06-17T12:33:59.235Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
