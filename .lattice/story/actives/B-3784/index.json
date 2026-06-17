@@ -4,7 +4,7 @@
   "title": "Fix autopilot-authority and multi-host-authority smokes: isolate from authority_trust.env via fileReader",
   "description": "autopilot-authority-smoke and multi-host-authority-smoke fail when authority_trust.env exists in the project root. The smokes call resolveAuthorityVerdictBacking and buildAutopilotRun without cwd or fileReader isolation, so loadAuthorityConfig reads authority_trust.env from process.cwd() and picks up the real staging URL, turning unit-level safety assertions into failures. Fix: pass fileReader stub in affected call sites. Zero production code changes.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "riskSignals": [
     {
@@ -47,6 +47,14 @@
       "branch": "story/B-3784",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:27:39.658Z",
+      "branch": "story/B-3784",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -60,5 +68,6 @@
     "path": ".worktrees/B-3784",
     "branch": "story/B-3784",
     "createdAt": "2026-06-17T23:11:26.335Z"
-  }
+  },
+  "currentReviewRound": "2026-06-17T23:27:39.658Z"
 }
