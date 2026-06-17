@@ -475,6 +475,17 @@
           "headHash": "e5e1fcd5aa01678559f331073cc14a93d9012b80",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:20.864Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c packages/main/coverage docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "Returns >=1 — doc mentions the packages/main/coverage output path.",
+          "headHash": "37ce928d9f7734e0cb0c92fba4f5981c8e71d349",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:22.065Z"
         }
       ]
     }
