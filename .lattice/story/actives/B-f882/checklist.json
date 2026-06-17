@@ -39,7 +39,30 @@
       "userSees": "`lattice validate` runs the new wrapper-root regression green, demonstrating the docs-drift preflight gate scopes its fs/git checks to the resolved gitRoot; the test is red if review-preflight reverts to passing metadataRoot as repoRoot.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New wrapper-root smoke builds a metadataRoot != gitRoot fixture, runs the docs-drift preflight path-drift check, and asserts an existing-under-gitRoot CLAUDE.md path is NOT reported missing; smoke exits 0 (green)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke is wired into the validate battery (root npm test) and actually runs under lattice validate --story=B-f882 (its name appears in the run output)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke is proven RED against pre-fix wiring (repoRoot=metadataRoot): with the fix reverted the smoke exits non-zero; uses DI/fixtures, no host-machine layout dependence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
