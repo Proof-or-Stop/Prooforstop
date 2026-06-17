@@ -511,6 +511,16 @@
           "headHash": "0986b9ef7900c71e891abc09791ea33ec819f6af",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
           "timestamp": "2026-06-17T02:15:02.402Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "logic_test",
+          "command": "git grep -ni koala CLAUDE.md",
+          "result": "pass",
+          "note": "全文件扫描(非仅 L924),残留全为 .koala 路径/盐值 documented-exception",
+          "headHash": "cdfa30eeee1dc9ff1af10948805fa296852711f1",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:15:03.180Z"
         }
       ]
     },
