@@ -80,6 +80,23 @@
         "scripts/verify-lab-scoring-core.mjs",
         "packages/lab/src/core/config.ts"
       ]
+    },
+    {
+      "id": "B-40eb:F-006",
+      "desc": "mechanical-rename-miss: scripts/verify-lab-normalized-score.mjs:34,47,75,87 creates temp project at .Codex/agents/ and updates prompts there, but packages/lab/src/core/config.ts now resolves .lattice-codex/agents/test-case-reviewer.md — lab create/run commands in this script will miss the file",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:36.665Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "4f3413b21df4cca777c74764cd12b0929e3290807229a56914ff4ccf9859bf70",
+      "files": [
+        "scripts/verify-lab-normalized-score.mjs",
+        "packages/lab/src/core/config.ts"
+      ]
     }
   ]
 }
