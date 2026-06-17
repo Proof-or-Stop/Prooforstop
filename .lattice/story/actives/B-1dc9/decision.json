@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Advisory-only: never affect gates or the reviewRunId binding",
+    "Mirror the existing grillSection advisory pattern",
+    "Rank by priority with support shown; top-N + progressive disclosure",
+    "Reuse learning-store(read) + appendActivityLog; zero outward coupling from the loader",
+    "Deterministic promptHash stays independent of hint content"
+  ],
+  "drivers": [
+    "Determinism: hints must not change reviewRunId promptHash",
+    "Signal quality: avoid one-hit noise (log(1+support))",
+    "Auditability: usage tracked via the activity log"
+  ],
+  "options": [
+    {
+      "name": "advisory-section-separate-from-promptHash",
+      "pros": [
+        "Mirrors the proven grillSection advisory pattern in story-review",
+        "Hints live in a channel separate from resolveReviewPromptHash -> deterministic reviewRunId binding unaffected",
+        "Reuses learning-store (read) + appendActivityLog; minimal new surface"
+      ],
+      "cons": [
+        "Hints are advisory and may be ignored",
+        "Loader ranking heuristics need a smoke to pin behavior"
+      ]
+    },
+    {
+      "name": "inject-into-reviewer-promptHash-prompt",
+      "pros": [
+        "Hints guaranteed in front of the reviewer"
+      ],
+      "cons": [
+        "Changes reviewRunId promptHash run-to-run as signals accumulate -> breaks reproducibility/freshness (violates determinism guardrail)"
+      ]
+    }
+  ],
+  "chosen": "advisory-section-separate-from-promptHash",
+  "rationale": "The execution plan mandates advisory-only surfacing that never enters the promptHash domain; folding hints into the reviewer promptHash prompt would break reproducibility. Mirroring grillSection keeps it in the proven advisory channel.",
+  "preMortem": [
+    {
+      "scenario": "Hints change the reviewRunId promptHash",
+      "trigger": "Hint content folded into resolveReviewPromptHash input",
+      "consequence": "Same code/material yields a different reviewRunId binding as signals grow -> reproducibility/freshness breaks",
+      "mitigation": "Keep hints in a channel separate from resolveReviewPromptHash; smoke asserts promptHash identical with/without hint content"
+    },
+    {
+      "scenario": "A low-support one-hit signal ranks to the top",
+      "trigger": "Ranking by score only",
+      "consequence": "Noise drowns real recurring issues",
+      "mitigation": "priority = signalScore*log(1+support)*recencyBoost; show support alongside score; top-N cap"
+    },
+    {
+      "scenario": "experience-hint-loader couples outward into core",
+      "trigger": "Importing gate/review internals",
+      "consequence": "Breaks the isolation bar",
+      "mitigation": "loader imports only learning-store(read)+types; smoke static-scans imports"
+    },
+    {
+      "scenario": "Usage events are unauditable or duplicated",
+      "trigger": "Ad-hoc logging",
+      "consequence": "surfacedCount cannot be reconstructed",
+      "mitigation": "single experience_hint_surfaced event via appendActivityLog; smoke asserts exactly-once on surface"
+    }
+  ],
+  "timestamp": "2026-06-17T13:14:05.969Z"
+}

@@ -1,0 +1,38 @@
+{
+  "findings": [
+    {
+      "id": "B-1dc9:F-001",
+      "desc": "experience-hint-loader.ts:62 ExperienceHint.priority JSDoc claims \"signalScore * log(1+support) * recencyBoost\" but for common_false_positive hints the actual computation is falsePositiveCount * log(1+support) * recencyBoost (line 195: computePriority(fpStrength, signal.support, boost)). The exported interface JSDoc misrepresents the priority formula for one of its two hint kinds. Fix: update the jsdoc to say \"For recurring: signalScore * log(1+support) * recencyBoost. For common_false_positive: falsePositiveCount * log(1+support) * recencyBoost.\"",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T13:40:47.410Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-001",
+      "_hash": "93d59a9a4abd04b2f22b9623f1a7b124161111a995a604cb663c5ad059c3fe3c",
+      "resolvedReason": "Updated ExperienceHint.priority JSDoc to describe both kinds: base=signalScore (recurring) / falsePositiveCount (common_false_positive). Commit 07d048a9.",
+      "resolvedAt": "2026-06-17T13:45:29.264Z"
+    },
+    {
+      "id": "B-1dc9:F-002",
+      "desc": "CHK-003:edge:0 verificationIntent claims \"Surface hints twice for the same story in the same review run -> exactly one experience_hint_surfaced event (deduplicated), not two\" but neither the code nor the smoke implements or tests this. The code fires one appendActivityLog per story_review() invocation unconditionally when hasExperienceHints is true (story-review.ts:545-553), so two calls to story_review() on the same story produce TWO events. The smoke (21 tests) never calls runStoryReview twice on the same storyId. The verificationEvidence for CHK-003:edge:0 cites npm run test:experience-layer-hint-injection which passes 21/21 but provides zero coverage of the cross-call dedup claim. Fix: either (a) add a dedup guard in story-review.ts that checks whether an event was already appended for this story in this review round, or (b) redefine the intent to mean \"within one story_review() call, exactly one event\" (which IS already true and tested), and add a smoke test for two consecutive calls to prove the current behavior clearly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T13:40:58.091Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-001",
+      "_hash": "ec4ba94c9d7f13251949ab30141c29f820e138bada9068672406fd9d75cc0635",
+      "files": [
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts"
+      ],
+      "resolvedReason": "Implemented exactly-once-per-review-round dedup in story-review.ts (key=story.currentReviewRound, fallback plan:phase; reads back activity log, skips duplicate). Added smoke check 'CHK-003:edge:0 surface twice same run => one event'. Smoke 22/22. Commit 07d048a9.",
+      "resolvedAt": "2026-06-17T13:45:29.923Z"
+    }
+  ]
+}

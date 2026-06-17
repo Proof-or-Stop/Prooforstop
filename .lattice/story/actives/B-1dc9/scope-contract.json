@@ -1,0 +1,23 @@
+{
+  "storyId": "B-1dc9",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/experience-hint-loader.ts",
+    "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+    ".lattice/story/actives/B-1dc9/evidence/verify-b-1dc9.mjs",
+    ".lattice/story/actives/B-1dc9/evidence/verify-result.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Phase 1.5: hint loader + story-review advisory section + smoke.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-17T13:34:17.001Z",
+  "updatedAt": "2026-06-17T13:34:17.001Z"
+}

@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-1dc9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 1.5: new experience-hint-loader.ts, advisory section in story-review.ts, smoke test. No concept deletion or rename detected. Diff is 2432 insertions / 16 deletions (checklist and handler edits only). Residual scan N/A — no concept words removed or replaced.",
+      "createdAt": "2026-06-17T13:35:15.755Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-003",
+      "_hash": "f8a67010a962ec8245ce5c6d262ee9a64db7c3e5db240a5be0eff82da8da9b9d"
+    },
+    {
+      "id": "B-1dc9:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 3 quality checks pass: no dead code (all helpers and imports in experience-hint-loader.ts are used), full type safety (no `as any`, no empty catch — catch logs a warning and resets the section), I/O shell isolation clean (loader imports only ./learning-store.js + ./experience-layer-types.js + node: builtins, story-review.ts is a handler not a shell). Critical guardrails confirmed: `git diff main...HEAD -- review-run.ts` is empty (promptHash domain untouched), usage event fires exactly once inside the hasExperienceHints branch, Date.now()/new Date() absent from the loader (caller injects opts.now for determinism). Smoke suite 21/21 PASS.",
+      "createdAt": "2026-06-17T13:37:58.751Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-002",
+      "_hash": "982868877a1091265bfed19fd9a7065ece84d7f7fd130dbb5d3a4c48ecbd1670"
+    },
+    {
+      "id": "B-1dc9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 30 intents across CHK-001 through CHK-004 have valid verificationEvidence bound to npm --prefix packages/main run test:experience-layer-hint-injection (manual_transcript) or logic_test (node .lattice/story/actives/B-1dc9/evidence/verify-b-1dc9.mjs); smoke 21/21 passed; verifier TOTAL 30 | PASS 30 | FAIL 0; each intent has a concrete, non-generic check: ranking damping, score threshold boundary, false-positive bucket, top-N truncation, progressive disclosure, advisory section present/absent, exactly-one event, promptHash guardrail, loader import fence (non-vacuous mutation), no regression. No blocker found.",
+      "createdAt": "2026-06-17T13:39:13.561Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-004",
+      "_hash": "0d428cfd3c2820b1d894ff1d95bbb6db4ea6a3e0febf2d65828b179deecb63a0"
+    },
+    {
+      "id": "B-1dc9:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Core functional correctness verified: (1) RANKING — loadExperienceHints ranks by signalScore*log(1+support)*recencyBoost with log damping so many-hit moderate outranks one-hit high-score (confirmed by smoke test + code); score>=0.65 recurring threshold (inclusive boundary tested); common_false_positive bucket (signalScore<0.45 + falsePositive>=2); top-N caps (3 recurring + 2 fp); support shown in summary; progressive disclosure (summary vs detail). (2) SURFACING — story-review _reviewPrompt includes the advisory hints section when signals exist and omits it when none (section label checked, mirroring grillSection+before Checklist). (3) GUARDRAIL — review-run.ts is byte-for-byte unchanged (git diff empty, confirmed by smoke + verifier); resolveReviewPromptHash output is byte-identical regardless of hint content (proven by smoke test). (4) USAGE — exactly one experience_hint_surfaced event written per story_review() call when hints surface; none written when hints empty or all filtered. All 21 smoke tests pass; committed verifier TOTAL 30 | PASS 30 | FAIL 0. Two findings raised: F-001 (low) — ExperienceHint.priority JSDoc inaccurate for FP hints; F-002 (medium) — CHK-003:edge:0 dedup claim unimplemented and untested. No blockers on the primary deliverable behaviors.",
+      "createdAt": "2026-06-17T13:41:14.724Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-001",
+      "_hash": "9de840689898a0e3079f68b3271dc429e9dee198337c1637d021799d48a9e4b2"
+    },
+    {
+      "id": "B-1dc9:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 1.5; no concept deletion/rename; residual scan N/A. Diff is 3415 insertions / 16 deletions in story metadata and story-review.ts — no concept words deleted or replaced en masse; concept residue check not triggered.",
+      "createdAt": "2026-06-17T13:46:23.052Z",
+      "reviewRound": "2026-06-17T13:45:33.991Z",
+      "reviewRunId": "B-1dc9:RR-005",
+      "_hash": "89e9e5ccb15cf97f239f06febb3df81554f7b0259003b69cbe0de0b40a42361d"
+    },
+    {
+      "id": "B-1dc9:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, type-safety issues, or I/O shell isolation violations found. experience-hint-loader.ts imports only learning-store + leaf types (no activity-log). The dedup logic in story-review.ts reads readActivityLogTail at call time and skips appendActivityLog when an experience_hint_surfaced event for (storyId, hintRoundKey) already exists — exactly-once per round, sound and non-flaky (hintRoundKey = story.currentReviewRound for REVIEW phase, plan:<phase> for PLAN phase; both are stable across repeated calls in the same round). The experienceHintsSection is injected only into story_review._reviewPrompt (PLAN-phase advisory channel) and never touches resolveReviewPromptHash, which is fed exclusively via handlers/review-run.ts from the caller-supplied prompt argument. review-run.ts diff is empty (confirmed). JSDoc on ExperienceHint.priority accurately documents that false_positive hints use falsePositiveCount as the base, not signalScore, matching toFalsePositiveHint. F-001 (JSDoc) and F-002 (dedup) fixes are both sound.",
+      "createdAt": "2026-06-17T13:47:30.555Z",
+      "reviewRound": "2026-06-17T13:45:33.991Z",
+      "reviewRunId": "B-1dc9:RR-007",
+      "_hash": "fabcca5daf15d53e53ef6a9ec8f27bd735bb6892daa60d7020b6df58f93cbe2f"
+    },
+    {
+      "id": "B-1dc9:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "F-001 RESOLVED: ExperienceHint.priority JSDoc (experience-hint-loader.ts:62-68) now explicitly describes both base variants — signalScore for recurring hints, falsePositiveCount for common_false_positive hints — plus the shared log(1+support) damping and recencyBoost. F-002 RESOLVED: dedup keyed on story.currentReviewRound (with plan:<phase> fallback); readActivityLogTail checks storyId+reviewRound before appending; CHK-003:edge:0 smoke assertion (surface twice same run => one event, new round => new event) passes. Guardrails confirmed: resolveReviewPromptHash is byte-identical with/without hints (smoke PASS), review-run.ts diff is empty (smoke PASS). formatExperienceHintsSection returns empty string and no event fires for empty/filtered signals. 22/22 smoke checks pass, exits 0, prints TOTAL 22 | PASS 22 | FAIL 0 + smoke passed.",
+      "createdAt": "2026-06-17T13:47:34.038Z",
+      "reviewRound": "2026-06-17T13:45:33.991Z",
+      "reviewRunId": "B-1dc9:RR-006",
+      "_hash": "630ebd77760eb27d35a07762e6f53b45ed38d24875c037ec7919218e479e8aec"
+    },
+    {
+      "id": "B-1dc9:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 30 verificationIntent entries (CHK-001 through CHK-004, happy/edge/adversarial, all priority=must) have concretely bound verificationEvidence pointing to npm --prefix packages/main run test:experience-layer-hint-injection; CHK-003:edge:0 (surface twice same run => exactly one event) now has a dedicated named smoke check 'CHK-003:edge:0 surface twice same run => one event' with a specific note and fresh headHash b0ee8aec; smoke ran 22/22 PASS; verifier printed TOTAL 30 | PASS 30 | FAIL 0; no generic fallback commands; no must-gap; no blocker.",
+      "createdAt": "2026-06-17T13:48:06.433Z",
+      "reviewRound": "2026-06-17T13:45:33.991Z",
+      "reviewRunId": "B-1dc9:RR-008",
+      "_hash": "5306a2d1e940e02d23c3d9096040e51ceb9381dbbecdae9a423687104e8885b2"
+    }
+  ]
+}

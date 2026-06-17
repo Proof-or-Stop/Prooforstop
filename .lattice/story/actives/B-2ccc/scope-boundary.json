@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2ccc",
+  "mode": "custom",
+  "allowed": [
+    "Add a smoke task and its npm script",
+    "Create leaf core/digest.ts with the canonical-JSON-digest primitives",
+    "Refactor decision-doc-promotion.ts to import those primitives from core/digest.ts"
+  ],
+  "excluded": [
+    "Adding the playbook lifecycle (Phase 2)",
+    "Altering decision-doc proposal/save behaviour",
+    "Changing any digest output value or hashing scheme",
+    "Wiring hints into reviewer prompts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "digest-extract refactor before Phase 2; user authorized full roadmap on 2026-06-17.",
+  "createdAt": "2026-06-17T13:58:24.325Z",
+  "updatedAt": "2026-06-17T13:58:24.325Z",
+  "_hash": "27b9f06aaeb0686533a57f929f8476b2f417960fcbf9277254ab1e0486304236"
+}
