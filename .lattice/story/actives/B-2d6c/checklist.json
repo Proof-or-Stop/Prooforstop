@@ -187,7 +187,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/lattice-baseline-smoke.js > /tmp/b2d6c-baseline.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — lattice-baseline-smoke passes in ~95s serial within the new 240s timeoutMs.",
+          "headHash": "f13eaaa2e75c19eabaaeeab16aaadb686fbe0084",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:09.652Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
