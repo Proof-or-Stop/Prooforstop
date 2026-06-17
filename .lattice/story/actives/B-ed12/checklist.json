@@ -74,6 +74,17 @@
           "headHash": "52e72f5e1952730e08b90d94fb0850ec6e674530",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T20:06:04.097Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/story-dedup-smoke.ts",
+          "command": "node packages/main/dist/tasks/story-dedup-smoke.js",
+          "result": "pass",
+          "note": "worktree-repair asserts post-B-097f host-neutral skip (canonical untouched, unmanaged legacy symlink not relinked); story-dedup expects normalized lowercased slug japanese-task; convergence-discarded asserts current check name All Stories completed + No parked backlog detail",
+          "headHash": "6b74badacfcb7f1c0e601d2ab76b3948ec80856a",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T20:06:09.369Z"
         }
       ]
     },
