@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-99b6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/symbol deletion completeness check: the diff is purely additive. The old `test` script body was replaced by a longer chain — no alias was deleted or renamed. All 8 newly wired targets (test:process-fact-contract, test:runtime-fact-contract, test:evidence-quality, test:anti-stall, test:storydir-inside-gitroot-smoke, test:gitroot-cwd-routing, test:bare-gate-gitroot-cwd, test:done-oracle-wrapper-root) resolve to existing root or packages/main definitions with backing dist/scripts files confirmed on disk. test:smokes-full references test:storydir-inside-gitroot-suite and test:all, both present in root. No concept deletion, no dangling references, no residue to report.",
+      "createdAt": "2026-06-17T18:12:03.537Z",
+      "reviewRound": "2026-06-17T18:10:26.494Z",
+      "reviewRunId": "B-99b6:RR-001",
+      "_hash": "2d8a3b70a6d3fd6e4785ad1ac5ea3b88bf49b6323108f65252cde3d9eb31382d"
+    }
+  ]
+}
