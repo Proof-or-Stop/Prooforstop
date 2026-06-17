@@ -148,10 +148,10 @@
           "verdict": "success",
           "command": "per-guard timing",
           "result": "pass",
-          "note": "Fast-gate delta is seconds-scale: process-fact-contract 2.0s, runtime-fact-contract 2.6s, evidence-quality 0.1s, anti-stall 0.2s, storydir-inside-gitroot-smoke 0.5s, gitroot-cwd-routing 1.4s, bare-gate-gitroot-cwd 0.4s, done-oracle-wrapper-root 0.8s => ~8s total added. The 7s storydir-suite and ~207s 160-smoke test:all stay OUT of the fast gate (behind test:smokes-full). No 160-smoke run in the per-commit/REVIEW->TEST path.",
-          "headHash": "a5cc85f05f6c7ac4aede46ffc601552067df428d",
-          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
-          "timestamp": "2026-06-17T18:08:45.523Z"
+          "note": "Post-merge refresh: fast-gate delta ~8s (8 fast guards), no 160-smoke run in fast gate; slow suite + test:all behind test:smokes-full.",
+          "headHash": "eb01fa3e8d0a5d892af4323ff1a1c6baf2d51c9b",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:19.603Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
