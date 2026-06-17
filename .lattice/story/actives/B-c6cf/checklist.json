@@ -344,6 +344,17 @@
           "headHash": "a2b052d0020872b9fa20d17f1365d47d935c04f4",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:06.476Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- CHANGELOG.md | grep -cE '\\+.*c8'",
+          "result": "pass",
+          "note": "Returns >=1 — CHANGELOG mentions c8 as the new dependency.",
+          "headHash": "c34deab6b2f044a7668ff58d3bef3019786e7212",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:08.702Z"
         }
       ]
     },
