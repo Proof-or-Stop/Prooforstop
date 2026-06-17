@@ -1,0 +1,40 @@
+{
+  "storyId": "B-292d",
+  "name": "koala-residue-preflight-gate-story4",
+  "title": "Story 4: wire verify-koala-residue.mjs into REVIEW->TEST preflight gate",
+  "description": "Add koala-residue as the 6th CLI gate in review-preflight.ts so story_advance to TEST blocks when scripts/verify-koala-residue.mjs returns non-zero. Completes the koala-removal ship-clean program for OSS launch. Purely additive; script and existing npm test wiring untouched.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "preflight",
+    "gate",
+    "ship-clean",
+    "oss-launch"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "priorityElevatedFrom": "P2",
+  "createdAt": "2026-06-17T17:21:39.963Z",
+  "startedAt": "2026-06-17T17:21:39.963Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T17:21:39.964Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
