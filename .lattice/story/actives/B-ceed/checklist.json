@@ -275,6 +275,17 @@
           "headHash": "b606a4f9b0838a81451b6df0fd40b337f9f90e95",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:13.139Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test > /tmp/b-ceed-npmtest.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — root test chain unchanged + still green.",
+          "headHash": "dd6edc06c09f7282d1a5aca0f44de2a0b15cf957",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:13.729Z"
         }
       ]
     },
