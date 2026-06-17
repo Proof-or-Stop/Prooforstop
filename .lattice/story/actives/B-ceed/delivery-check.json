@@ -1,0 +1,60 @@
+{
+  "storyId": "B-ceed",
+  "checkedAt": "2026-06-17T22:26:16.028Z",
+  "reviewRound": "2026-06-17T22:20:51.395Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "Unreleased entry documents gemini-cli.ts provider mirroring codex-cli.ts contract (geminiCliAvailable + runBoundedGeminiProvider, PATH discovery, stdin-closed spawnSync, digests, byte counts, bounded timeout, no raw transcript leakage)",
+      "verifiedBy": "diff/grep + Read",
+      "evidence": "CHANGELOG line 15 describes gemini-cli.ts and its full contract; source at packages/main/src/providers/gemini-cli.ts confirmed: exports geminiCliAvailable (line 19) and runBoundedGeminiProvider (line 97), spawnSync with empty stdin input for stdin-close, digest/byteCount capture only, no raw output surface"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "BoundedProviderName extended to include gemini; planned-steps-executor.ts PROVIDER_BINARY + defaultProviderAvailable + defaultBoundedProviderExecutor updated for gemini",
+      "verifiedBy": "grep + Read",
+      "evidence": "types.ts line 43: BoundedProviderName = codex | claude | gemini. planned-steps-executor.ts: PROVIDER_BINARY[gemini]=GEMINI_CLI_BINARY (line 357), defaultProviderAvailable returns geminiCliAvailable for gemini (line 394), defaultBoundedProviderExecutor.run dispatches to runBoundedGeminiProvider (line 409)"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "provider-gemini-smoke.ts proves the same 6 cases as provider-codex-smoke.ts (preflight / spawn capture / stdin-close / non-zero / missing / timeout)",
+      "verifiedBy": "Read file",
+      "evidence": "packages/main/src/tasks/provider-gemini-smoke.ts covers exactly 6 cases: (1) geminiCliAvailable preflight PATH resolution true and false, (2) real spawn capture with digest/bytes/exit/duration plus leakage invariant, (3) stdin-close no-hang, (4) non-zero exit terminal (not retried), (5) missing binary spawnError, (6) timeout timedOut=true"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "lattice-dispatch.ts adds runCodexRealLeafDispatch + runGeminiRealLeafDispatch sharing runBoundedRealLeafDispatch; dispatch_run switch routes codex/gemini to real paths; missing CLI falls back to claude-code with logged falling-back transcript line",
+      "verifiedBy": "grep + Read",
+      "evidence": "lattice-dispatch.ts line 2020: function runCodexRealLeafDispatch; line 2029: function runGeminiRealLeafDispatch; both call runBoundedRealLeafDispatch (line 1962). Dispatch switch (lines 2513-2529): codexCliAvailable() routes to runCodexRealLeafDispatch; else logs falling back to claude-code real dispatch and calls runClaudeCodeRealLeafDispatch. Same pattern for gemini (lines 2522-2529)."
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "runClaudeCodeRealLeafDispatch is untouched (called as fallback target only); runBoundedCodexProvider seam is byte-frozen",
+      "verifiedBy": "git diff",
+      "evidence": "git diff main...HEAD -- packages/main/src/providers/codex-cli.ts outputs 0 lines (byte-frozen confirmed). grep of removed lines for runClaudeCodeRealLeafDispatch returns 0 (function body not removed or altered)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "provider-gemini-smoke.ts: 6 assert cases verified by Read: (1) geminiCliAvailable PATH probe returns true/false, (2) runBoundedGeminiProvider: exitCode=0, spawnError=false, timedOut=false, stdoutBytes, stderrBytes, stdoutDigest, stderrDigest, argvDigest, durationMs all captured plus raw-transcript leakage invariant, (3) stdin-close no-hang, (4) non-zero exit captured terminally (attempts=1 with maxAttempts=3), (5) missing binary spawnError=true exitCode=null attempts=1, (6) timeout timedOut=true. Tests cover happy path and all 4 edge/adversarial cases."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "dispatch switch routing verified by grep: codexCliAvailable() branch at line 2514, geminiCliAvailable() branch at line 2523, fallback transcript lines at 2518 and 2527. npm test root chain passes (CHK-002:edge:1 evidence: exit code 0). No handlers/ files touched. runClaudeCodeRealLeafDispatch not removed. Compiled dist confirmed to contain runCodexRealLeafDispatch."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHANGELOG-only docs and memory item. Verified by awk: codex live-dispatch mentioned (count>=1), gemini mentioned, B-ceed named for traceability, fallback to claude-code mentioned, ### Test infrastructure subsection present, only Unreleased section touched.",
+      "waiverReason": "Pure documentation item (CHANGELOG entry and memory update); no executable behavior to test. Machine-verified by grep and awk against actual file content on disk."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified in source: gemini-cli.ts exports confirmed, BoundedProviderName updated, smoke covers 6 cases including all error paths, dispatch routing with fallback confirmed in lattice-dispatch.ts, codex-cli.ts seam frozen. Tests cover happy path plus 4 edge/adversarial cases (missing binary, timeout, non-zero exit, stdin-close). No unresolved TODOs found in non-test code."
+  },
+  "_hash": "f0fecdb3a8d1d549223d9c882cd334e2a10b12280eabf5fb6ebd19812c9d6711"
+}

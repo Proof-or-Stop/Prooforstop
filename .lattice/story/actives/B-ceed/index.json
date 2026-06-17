@@ -4,7 +4,7 @@
   "title": "Story #3: unblock codex + gemini real-host live dispatch (with claude-code fallback)",
   "description": "Add runCodexRealLeafDispatch + runGeminiRealLeafDispatch + providers/gemini-cli.ts + dispatch switch upgrade. Wires the existing runBoundedCodexProvider seam (B-1550) into dispatch_run and adds the equivalent gemini-cli provider + leaf. When both codex/gemini are unavailable in PATH, auto-fallback to claude-code real dispatch. Unblocks LLM usage ledger real-capture for codex/gemini per [[llm-usage-ledger-status]] memory. Out of scope: codex.ts/gemini.ts usage adapters (follow-up); Authority receipt-backed signing (future).",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "dispatch",
@@ -69,6 +69,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T22:20:51.395Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:23:28.614Z",
       "branch": "story/B-ceed",
       "user": "Harmonygo",
       "agent": "main"
