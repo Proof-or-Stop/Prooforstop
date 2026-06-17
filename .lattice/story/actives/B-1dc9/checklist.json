@@ -113,7 +113,39 @@
       "userSees": "The smoke asserts an experience_hint_surfaced event is appended when hints surface, and that resolveReviewPromptHash output is identical regardless of experience-hint content (deterministic reviewRunId binding unaffected).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Surface hints for a story -> exactly one experience_hint_surfaced event appended to activity log with correct storyId and hintIds; WHY: covers the usage tracking write path",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveReviewPromptHash(promptWithHints) === resolveReviewPromptHash(promptWithoutHints) -> byte-identical hash; WHY: covers the core promptHash determinism guardrail",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Surface hints twice for the same story in the same review run -> exactly one experience_hint_surfaced event (deduplicated), not two; WHY: exactly-once semantics boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "Surface with empty hint list (signals existed but all filtered out) -> no experience_hint_surfaced event appended; WHY: no-op boundary when hints are empty",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject hint content containing strings that look like promptHash-significant tokens (e.g. reviewRunId patterns, hash-like strings) -> resolveReviewPromptHash still byte-identical with and without; WHY: adversarial content that might accidentally leak into hash domain",
+            "type": "cli"
+          },
+          {
+            "desc": "Concurrent calls to surface hints for different stories -> each gets its own independent experience_hint_surfaced event with correct storyId, no cross-contamination; WHY: concurrency isolation",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
