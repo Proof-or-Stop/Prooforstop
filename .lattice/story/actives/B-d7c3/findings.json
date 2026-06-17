@@ -292,6 +292,23 @@
       ],
       "resolvedReason": "Evidence rebound to correct dimension: package.json key set comparison (REMOVED:[]). Original evidence used file diff which is wrong dimension AND two-dot which captured B-40eb's main-side changes.",
       "resolvedAt": "2026-06-17T12:54:05.775Z"
+    },
+    {
+      "id": "B-d7c3:F-017",
+      "desc": "CHK-001:adversarial:1 evidence note claims Returns 0 but live three-dot diff now returns 25. After scope_contract_acknowledge brought provider-codex-smoke.ts and reviewer-quorum-smoke.ts into scope (F-010 fix, commit 7188141fa), the command git diff main...HEAD -- packages/main/src/tasks/*-smoke.ts now outputs 25 lines. The evidence note was not updated to reflect this. Evidence claims a false output value; the note must be rebound to acknowledge the 2 scope-ack files were intentionally modified (25 diff lines, not 0).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T13:00:27.760Z",
+      "reviewRound": "2026-06-17T12:53:08.201Z",
+      "reviewRunId": "B-d7c3:RR-007",
+      "_hash": "63bf596f2ae756e166ea9d259da14c4c3656714cc7f15d055b8bbefa9cd15a63",
+      "files": [
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+      ]
     }
   ]
 }
