@@ -185,6 +185,17 @@
           "headHash": "4c0379f12b9448362f3eb56cc105314c0383331b",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:09:53.480Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/main/src/verifier/dev-cli.ts && echo SAFE",
+          "result": "pass",
+          "note": "dev-cli.ts present (over-reach guard).",
+          "headHash": "5bcd62dd4dbb774417b4fee7a0e2a8ede38f0c2e",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:09:54.777Z"
         }
       ]
     },
