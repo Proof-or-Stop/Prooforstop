@@ -60,7 +60,44 @@
       "context": "lattice-baseline-smoke times out at the 60s default. Three real remedies (all use existing smoke-manifest.json schema fields {name, tags?, timeoutMs?, skip?}): (a) genuinely slow → raise the smoke's timeoutMs entry in packages/main/smoke-manifest.json (e.g. 120000); (b) deadlock/hang → file finding_add severity=high with diagnosis, then either (b1) set skip:true on the manifest entry until the deadlock is fixed in a follow-up production story or (b2) leave skip:false and accept the failure (deferred to follow-up); (c) parallel-race that disappears under --jobs 1 → keep timeoutMs default but document the smoke as requires-serial in a code comment; if the runner ever adds a 'serial' tag the smoke can opt into it then. Pick the remedy that matches the diagnosis; document choice in CHANGELOG.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`node packages/main/dist/tasks/lattice-baseline-smoke.js` exits 0 (or is documented as skipped via manifest with finding pointer). Manifest only changed for the lattice-baseline entry.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice-baseline-smoke exits 0 within its timeoutMs -> `node packages/main/dist/tasks/lattice-baseline-smoke.js > /tmp/b2d6c-baseline.log 2>&1; echo $?` outputs 0; WHY: the TIMEOUT is resolved",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice-baseline appears in test:all output as PASS -> `npm run test:all 2>&1 | grep -cE \"^PASS lattice-baseline\"` outputs 1; WHY: passes in the runner context",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "manifest entry timeoutMs OR skip set (whichever remedy chosen) -> `node -e \"const m=require(\\\"./packages/main/smoke-manifest.json\\\");const e=m.smokes.find(s=>s.name===\\\"lattice-baseline\\\");console.log(\\\"timeoutMs=\\\"+e.timeoutMs+\\\" skip=\\\"+!!e.skip)\"` prints either timeoutMs > 60000 OR skip=true; WHY: documents the chosen remedy from preMortem D3",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no other manifest entries modified -> `git diff main...HEAD -- packages/main/smoke-manifest.json | grep -E \"^[-+]\" | grep -v lattice-baseline | grep -vE \"^[-+]{3}|^[-+]\\$|^[-+]\\\\s*\\\\{|^[-+]\\\\s*\\\\}|^[-+]\\\\s*\\\\\\\\\\\"smokes\\\\\\\\\\\":\" | wc -l` outputs 0; WHY: only lattice-baseline allowed to change in manifest",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
