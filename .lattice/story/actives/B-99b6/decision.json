@@ -1,0 +1,83 @@
+{
+  "principles": [
+    "RED must be visible: every wired guard is an invariant that must never sit RED unnoticed; the gate exists to surface failures, never to be relaxed to pass.",
+    "Minimal blast radius: touch only package.json scripts (+ optionally an aggregator); never alter guard/smoke assertion logic or gitRoot/process-fact-registry code.",
+    "No double-running: a guard already in the chain (gitroot-cwd-contract) must not be added again.",
+    "Fast gate stays fast: per-commit/REVIEW->TEST path runs only fast invariants; genuinely slow fixture builders go behind --full / CI.",
+    "Single source of truth for the gate: lattice validate and the REVIEW->TEST gate both run the root npm test chain, so wiring into that chain covers both with one edit."
+  ],
+  "drivers": [
+    "Incident: test:process-fact-contract sat RED on main invisibly because it was not in any validate path.",
+    "B-3990:F-001 systemic gap: wrapper-root/gitRoot smokes pass standalone but are invisible to validate.",
+    "Speed budget: REVIEW->TEST gate and per-commit validate must stay seconds-fast; storydir suite is ~7s.",
+    "Lowest-risk wiring given no validate.ts and no validate.command override exists."
+  ],
+  "options": [
+    {
+      "name": "A: chain fast guards into root npm test, slow suite via --full-reachable script",
+      "pros": [
+        "Both lattice validate and REVIEW->TEST gate run them with one edit (they share the npm test fallback).",
+        "Zero config-mechanism change; uses the existing fallback discovery path.",
+        "A guard failure naturally fails npm test -> fails validate -> blocks the gate (CHK-002 satisfied by construction).",
+        "Trivial to reason about which guards are gated (read the test script)."
+      ],
+      "cons": [
+        "Root test script line gets longer.",
+        "Need a separate explicitly-reachable path (test:all / a full aggregator) for the slow suite + 160-smoke run since no validate.ts interprets --full."
+      ]
+    },
+    {
+      "name": "B: add validate.command(s) array to lattice.config.json listing the battery",
+      "pros": [
+        "Explicit declarative battery in config.",
+        "Could express optional vs required per-command."
+      ],
+      "cons": [
+        "Larger surface change to config semantics for a wiring task; config.commands path is less exercised than the npm test fallback.",
+        "REVIEW->TEST gate and validate must both honor it; more moving parts to verify.",
+        "Higher risk for a maintenance-mode story whose only job is to RUN existing guards."
+      ]
+    },
+    {
+      "name": "C: introduce a project validate.ts that interprets --full and dispatches batteries",
+      "pros": [
+        "Native --full handling (verifier.ts passes --full through to validate.ts).",
+        "Most flexible fast/full split."
+      ],
+      "cons": [
+        "Largest new surface (a whole new project entrypoint) for a pure wiring story; over-engineering / gold-plating.",
+        "Changes the validate execution model (validate.ts takes precedence over npm test), risking unrelated behavior shifts.",
+        "Out of proportion to the strict scope."
+      ]
+    }
+  ],
+  "chosen": "A: chain fast guards into root npm test, slow suite via --full-reachable script",
+  "rationale": "Option A is the minimal, lowest-risk wiring: lattice validate and the REVIEW->TEST gate both fall back to the root npm test chain (confirmed: no validate.ts, no validate.command), so chaining the orphaned fast guards (process-fact-contract, runtime-fact-contract, a new root test:evidence-quality alias, anti-stall) and the fast wrapper-root smokes (storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root) into root test makes a guard failure block validate by construction (satisfying CHK-002). The slow storydir-inside-gitroot-suite (~7s) and the full 160-smoke test:all stay reachable via a documented full/CI aggregator, not the fast gate. B adds config-semantics risk and C introduces a whole new entrypoint — both disproportionate to a maintenance-mode wiring story (YAGNI). gitroot-cwd-contract is already chained and is excluded to avoid double-running.",
+  "preMortem": [
+    {
+      "scenario": "A newly-wired guard is actually RED when added, and the implementer excludes it to make the gate pass.",
+      "trigger": "npm test fails on the new guard step.",
+      "consequence": "The story ships a gate that silently omits a real invariant — re-creating the exact regression-blindness this story exists to kill.",
+      "mitigation": "Hard rule baked into PLAN: never exclude a guard to pass. Baseline verified all 9 candidates GREEN on main before wiring; if any goes RED, fix root cause or escalate, do not drop it from the chain."
+    },
+    {
+      "scenario": "A guard is added to the root test chain but is ALSO already present (double-run), or added in a way that the REVIEW->TEST gate skips it.",
+      "trigger": "Duplicate npm run line, or guard placed somewhere validate fallback does not execute.",
+      "consequence": "Wasted runtime, or false sense of coverage where the gate does not actually run the guard.",
+      "mitigation": "Audit the existing chain (gitroot-cwd-contract already present -> excluded). Verify in TEST that lattice validate output literally lists each newly-gated guard, and confirm the REVIEW->TEST gate path (same npm test fallback) executes them."
+    },
+    {
+      "scenario": "The slow storydir suite (or all 160 smokes) gets accidentally pulled into the fast gate, blowing the speed budget.",
+      "trigger": "Implementer chains test:all or the suite into root test instead of a --full/CI-only path.",
+      "consequence": "Every commit/REVIEW->TEST gate becomes slow, eroding trust in the gate.",
+      "mitigation": "Explicit fast-vs-full split in plan.md: fast guards in root test; storydir-suite + test:all only in a separate full aggregator. TEST step measures the fast-gate delta and confirms it stays seconds-fast."
+    },
+    {
+      "scenario": "A guard fails ONLY under the npm test chain (not standalone) due to cwd / env / ordering differences when run via the chain.",
+      "trigger": "A guard relies on cwd or an env var that differs when invoked as npm run inside the root test chain vs run directly.",
+      "consequence": "Spurious RED or, worse, spurious GREEN (guard no-ops in the chained context), defeating the purpose.",
+      "mitigation": "TEST step runs the FULL lattice validate (the real chain), not just standalone guards, and confirms each guard both runs and asserts. CHK-002 breaks a guard and confirms validate actually turns RED on it within the chain."
+    }
+  ],
+  "timestamp": "2026-06-17T17:55:16.943Z"
+}

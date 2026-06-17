@@ -4,7 +4,7 @@
   "title": "Aggregate standalone smoke tests into the lattice validate battery",
   "description": "Root package.json defines test as npm run test:e2e (only cli-e2e.js), and lattice validate's fallback runs npm test. So a family of real, passing smoke tests is invisible to validate, creating regression-blindness: test:storydir-inside-gitroot-smoke and test:storydir-inside-gitroot-suite (B-198c), test:gitroot-cwd-routing (B-2856), test:bare-gate-gitroot-cwd (B-3990), plus test:evidence-state-gate-smoke and test:authority-gate-* . This was surfaced as finding B-3990:F-001 (medium) and dismissed there as an out-of-scope systemic gap that needs its own story. Fix: add a single aggregator that the validate run executes (e.g. a test:smokes script chained into test, or a validate.command in lattice.config), so a future refactor of verifier.ts, the gitRoot resolvers, or the authority/evidence gates cannot silently break these fixes. Scope: wiring + the aggregator; do not change the smokes' assertions.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -15,7 +15,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-15T23:52:30.852Z",
   "startedAt": "2026-06-15T23:52:30.852Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T18:19:37.386Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,52 @@
       "user": "Harmonygo",
       "sessionId": "lattice-b99b6",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:54:20.121Z",
+      "branch": "story/B-99b6",
+      "user": "Harmonygo",
+      "sessionId": "lattice-b99b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:58:49.964Z",
+      "branch": "story/B-99b6",
+      "user": "Harmonygo",
+      "sessionId": "lattice-b99b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:10:26.494Z",
+      "branch": "story/B-99b6",
+      "user": "Harmonygo",
+      "sessionId": "lattice-b99b6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:13:50.420Z",
+      "branch": "story/B-99b6",
+      "user": "Harmonygo",
+      "sessionId": "lattice-b99b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:19:37.386Z",
+      "branch": "story/B-99b6",
+      "user": "Harmonygo",
+      "sessionId": "lattice-b99b6",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-99b6",
-    "branch": "story/B-99b6",
-    "createdAt": "2026-06-17T17:51:34.371Z"
-  }
+  "currentReviewRound": "2026-06-17T18:10:26.494Z"
 }
