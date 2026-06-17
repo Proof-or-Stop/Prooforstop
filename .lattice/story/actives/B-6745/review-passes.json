@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6745:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. git diff main HEAD shows only 3 non-metadata files changed: CHANGELOG.md (removes one B-ceed entry already merged to main), autopilot-authority-smoke.ts, and multi-host-authority-smoke.ts. The broader git diff main...HEAD three-dot diff includes B-ceed commits but those are already in main (merged via commit 747f90af7). Gemini provider confirmed present: grep finds gemini in types.ts BoundedProviderName. No production symbol deleted: gemini-cli.ts, lattice-dispatch.ts, planned-steps-executor.ts, provider-gemini-smoke.ts are all in main and untouched by this branch. The two smoke file changes add only hermetic isolation parameters (cwd:root + fileReader:NO_DISK) — no assert lines were deleted, no assertions weakened. Concept-residue check: no concept deletion or replacement detected. No blocker.",
+      "createdAt": "2026-06-17T23:03:55.657Z",
+      "reviewRound": "2026-06-17T23:02:40.347Z",
+      "reviewRunId": "B-6745:RR-003",
+      "_hash": "d94d68083ba70fd11eb21fdb9dda092e9c5b32aece6e79d34cac9a54a3b4c144"
+    }
+  ]
+}
