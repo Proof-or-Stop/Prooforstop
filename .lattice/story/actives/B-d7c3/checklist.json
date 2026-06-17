@@ -143,12 +143,12 @@
           "intentRef": "CHK-001:edge:2",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;print(len(json.load(open('packages/main/smoke-manifest.json'))['smokes']))\"",
+          "command": "python3 -c \"import os,json;m=json.load(open('packages/main/smoke-manifest.json'));bad=[s['name'] for s in m['smokes'] if not os.path.exists(f'packages/main/src/tasks/{s[chr(39)+chr(110)+chr(97)+chr(109)+chr(101)+chr(39)]}-smoke.ts')];print('ALL_MAPPED' if not bad else 'MISSING:'+','.join(bad))\"",
           "result": "pass",
-          "note": "Returns 139 (5 initial B-6efb entries + 134 collapsed from packages/main).",
-          "headHash": "9bf009a9beaea04edbbc8b5d7ee878f8f7a8c826",
+          "note": "Prints ALL_MAPPED — every manifest entry has a matching *-smoke.ts source under packages/main/src/tasks/.",
+          "headHash": "fb35e36d73dfc387cd5ce8c17a91aa1d154fd6b2",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:04.215Z"
+          "timestamp": "2026-06-17T12:33:57.915Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
