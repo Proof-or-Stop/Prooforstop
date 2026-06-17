@@ -62,6 +62,7 @@ import { createDoneClosureHandlers } from './handlers/done-closure.js';
 import { createDecisionDocQuorumHandlers } from './handlers/decision-doc-quorum.js';
 import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-promotion.js';
 import { createSignatureRegistryHandlers } from './handlers/signature-registry.js';
+import { createPlaybookHandlers } from './handlers/playbook.js';
 import { createReviewEscalationHandlers } from './handlers/review-escalation.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
@@ -226,6 +227,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-4f46 CHK-003: signature_registry_list / signature_registry_set — audit-only
   // catalog of finding signatureTags (Experience Layer Phase 1b). No gate reads it.
   registry.registerBatch(createSignatureRegistryHandlers(ctx));
+  // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle
+  // (playbook_propose/diff/approve/reject). Never files findings / touches gates;
+  // writes only under .lattice/learning/. Approve fails closed on a stale digest.
+  registry.registerBatch(createPlaybookHandlers(ctx));
   registry.registerBatch(createReviewEscalationHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));

@@ -1735,6 +1735,25 @@ Behavior:
     storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
   }},
 
+  // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle. Distil a
+  // resolved finding into a human-approved candidate playbook. NEVER files findings
+  // or touches gates; writes only under .lattice/learning/. Approve fails closed on
+  // a stale --expectedProposalDigest (decision-doc pattern); status is candidate, NOT active.
+  { name: 'playbook_propose', description: 'Stage a Playbook proposal distilled from a resolved finding (audit-only; never files a finding)', schema: {
+    finding: z.string().describe('Source finding id (e.g. B-xxx:F-001) to distil into a playbook proposal.'),
+    storyId: z.string().optional().describe('Optional story id; defaults to the prefix parsed from the finding id.'),
+  }},
+  { name: 'playbook_diff', description: 'Read-only render of the candidate Playbook that approve would write (no mutation)', schema: {
+    proposalId: z.string().describe('Proposal id (PBP-NNN) to render.'),
+  }},
+  { name: 'playbook_approve', description: 'Approve a staged proposal into a candidate Playbook (fails closed on a stale digest; never active)', schema: {
+    proposalId: z.string().describe('Proposal id (PBP-NNN) to approve.'),
+    expectedProposalDigest: z.string().describe('Must byte-match the stored proposalDigest; a stale/missing digest fails closed.'),
+  }},
+  { name: 'playbook_reject', description: 'Discard a staged Playbook proposal', schema: {
+    proposalId: z.string().describe('Proposal id (PBP-NNN) to discard.'),
+  }},
+
   // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering plus manual merge/split).
   //
   // No arguments (default mode): auto-cluster when files intersection is at least 50% and severity matches; write back clusters.json plus findings.clusterId.
