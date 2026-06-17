@@ -256,6 +256,17 @@
           "headHash": "62c99ff1588703569fcceff8d709075c6747bb02",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:54.647Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c english-artifacts packages/main/src/cli-prompts.ts",
+          "result": "pass",
+          "note": "Returns 1 — english-artifacts listed at item 6 (was missing before this story).",
+          "headHash": "d3c66b45415707f224fe1f16bead2b690e46e4e1",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:55.334Z"
         }
       ]
     },
