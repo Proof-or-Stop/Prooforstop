@@ -141,6 +141,17 @@
           "headHash": "516e42a02e9a6eb28f8d47865ff5c2078940aff9",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:09:45.338Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
+          "result": "pass",
+          "note": "Self-smoke verifies --jobs 1 and --jobs 4 produce same exit code (assertion in 9/9 checks).",
+          "headHash": "2ff265b8e0c9dbc1a0d00ba0079167476305c377",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:09:47.574Z"
         }
       ]
     },
