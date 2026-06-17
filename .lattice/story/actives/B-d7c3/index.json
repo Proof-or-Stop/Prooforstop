@@ -4,7 +4,7 @@
   "title": "B2: collapse the per-smoke test:* npm scripts into smoke-manifest entries",
   "description": "B2 of the test-runner consolidation sub-program. Per the A0 decision doc (B-35aa: docs/requirements/decisions/test-runner-consolidation-plan.md): collapse the 143 individual `test:X-smoke` npm scripts in packages/main/package.json and their 44 redundant root-level proxy entries into smoke-manifest.json entries. Each collapse: add a manifest row (or accept the directory-scan default) — then remove the per-smoke npm script. Operators run a smoke via `npm run test:all -- --select <name>` instead of `npm run test:X-smoke`. KEEP (do NOT collapse): root `test` main script + the 5 named scripts it invokes (test:main-write-lock-coverage / test:review-convergence-smoke / test:review-incremental-context-smoke / test:docs-drift-smoke / test:e2e) + test:all + test:run-all-smokes-smoke + 49 scripts/verify-*.mjs (out of B2 scope, follow-up). Also keep a thin compatibility shim `npm run test:legacy -- <name>` per the A0 doc.",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "test-infra",
@@ -117,6 +117,14 @@
       "branch": "story/B-d7c3",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:05:54.697Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -131,5 +139,5 @@
     "branch": "story/B-d7c3",
     "createdAt": "2026-06-17T12:16:05.591Z"
   },
-  "currentReviewRound": "2026-06-17T13:03:12.170Z"
+  "currentReviewRound": "2026-06-17T13:05:54.697Z"
 }
