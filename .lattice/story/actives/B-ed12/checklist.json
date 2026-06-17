@@ -250,10 +250,10 @@
           "file": "packages/main/src/tasks/usage-ledger-estimate-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-estimate-smoke.js",
           "result": "pass",
-          "note": "usage-ledger-estimate exit 0, all 55 checks pass. CJK input at line 229 replaced: bytesCharsEstimator(MODEL, \"日本語のテキスト\") -> bytesCharsEstimator(MODEL, \"naive cafe\" w/ accents) (jsLen=10, utf8Bytes=12, ceil(12/4)=3). Assertion strengthened from >0 to exact ==3, proving byte-based (not char-based) estimate. Out-of-scope CJK handled via documented allowlist; no production CJK touched.",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
+          "note": "usage-ledger-estimate exit 0, all 55 checks pass. The Japanese-text estimator input at line 229 was replaced with a non-CJK multibyte string (naive cafe with accents): jsLen=10, utf8Bytes=12, ceil(12/4)=3. Assertion strengthened from >0 to exact ==3, proving byte-based (not char-based) estimate. Out-of-scope CJK handled via documented allowlist; no production CJK touched.",
+          "headHash": "86d65e3a1387a510fee86995747cc44409a8cdcb",
           "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "timestamp": "2026-06-17T20:43:34.634Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
