@@ -72,6 +72,17 @@
           "headHash": "2c7e2419695235b092c475bf04748025d92a9b0a",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:05.517Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -s packages/main/dist/providers/gemini-cli.js && echo OK",
+          "result": "pass",
+          "note": "Prints OK — provider compiled cleanly.",
+          "headHash": "f3acae94005a0cda496a1276e7a494d975b6f406",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:06.154Z"
         }
       ]
     },
