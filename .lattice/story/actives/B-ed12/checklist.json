@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/init-check-fallback-smoke.js",
           "result": "pass",
           "note": "standalone EXIT=0 after adding scope_boundary_set+execution_boundary_set+scope_freeze_check before story_advance INIT_CHECK; asserts post-scope-boundary missing_init_check + fallback/repair behavior (diagnostic names reviewers + init_check_repair, fallback signs init-check that gate accepts)",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
           "result": "pass",
           "note": "standalone EXIT=0; edge case = scope-boundary precedence at INIT_CHECK. Smoke now seeds scope-boundary then re-freezes after story_update so the required-agents (missing_init_check_agent / product-reviewer) and init_check_tampered assertions are reached past the freeze gate; safety intent intact",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "standalone EXIT=0; adversarial/no-bypass = B-72df scoped dirty-main DONE check. Dirty README outside merge-affected set tolerated by scoped preflight, merge fails, and the test asserts NO BYPASS: main story stays TEST, main HEAD unchanged, worktree+branch survive (recoverable). No safety assertion weakened",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node packages/main/dist/tasks/worktree-repair-smoke.js",
           "result": "pass",
           "note": "standalone exit 0; also story-dedup-smoke.js + convergence-discarded-smoke.js standalone exit 0",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "node packages/main/dist/tasks/story-dedup-smoke.js",
           "result": "pass",
           "note": "worktree-repair asserts post-B-097f host-neutral skip (canonical untouched, unmanaged legacy symlink not relinked); story-dedup expects normalized lowercased slug japanese-task; convergence-discarded asserts current check name All Stories completed + No parked backlog detail",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/tasks/convergence-discarded-smoke.js",
           "result": "pass",
           "note": "each behavior confirmed correct vs production+story before test edit: B-097f canonical-only resolver (worktree.ts resolveGlobalCorePackagePaths) → sane skip; normalizeName lowercases all output (story-dedup.ts); checkConvergence check renamed to English All Stories completed (gap-analyze.ts:349, commit 6fff2110f). Zero production change; all 3 STALE not real bugs",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-only-absence-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node packages/main/dist/tasks/review-loop-smoke.js",
           "result": "pass",
           "note": "all 4 smokes EXIT=0 standalone; review-loop 38/38 passed. Updated to: Argument validation failed; runtime-owned manifest pass; Entrypoint+legacyKoalaAliasPreserved=false; storyDirPath mock",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
           "result": "pass",
           "note": "Only drifted assertions updated to current text/behavior: Parameter->Argument validation failed; Primary entrypoint->Entrypoint; legacyKoalaAliasPreserved true->false (koala alias removed); manifest fail->runtime-owned pass; review-loop store mock gains storyDirPath. Confirmed each against production source before editing.",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/review-loop-smoke.js",
           "result": "pass",
           "note": "review-loop 38/38: the 35 previously-passing sub-assertions are byte-for-byte unchanged (git diff shows only readStory storyId + storyDirPath mock added); no regex broadened (lattice-only-absence asserts specific runtime-owned detail; cli-arg asserts exact Argument validation failed text); zero production file touched.",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         }
       ]
     },
@@ -240,9 +240,9 @@
           "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js",
           "result": "pass",
           "note": "standalone exit 0: scanned 565 files, no CJK outside allowlist; in-scope CJK removed from usage-ledger smoke; 3 functional-CJK test fixtures + 2 pending-migration production files allowlisted per OQ-1; check logic unchanged",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -251,9 +251,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-estimate-smoke.js",
           "result": "pass",
           "note": "usage-ledger-estimate exit 0, all 55 checks pass. The Japanese-text estimator input at line 229 was replaced with a non-CJK multibyte string (naive cafe with accents): jsLen=10, utf8Bytes=12, ceil(12/4)=3. Assertion strengthened from >0 to exact ==3, proving byte-based (not char-based) estimate. Out-of-scope CJK handled via documented allowlist; no production CJK touched.",
-          "headHash": "86d65e3a1387a510fee86995747cc44409a8cdcb",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:43:34.634Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -262,9 +262,9 @@
           "command": "git diff -- packages/main/src/tasks/english-open-source-surface-smoke.ts",
           "result": "pass",
           "note": "git diff confirms ONLY allowlist data arrays + comments added (CJK detector, scan set, isFileAllowlisted/isAllowlistedLine/scanFile logic all unchanged). Zero production files edited (git status: only the 2 smoke .ts). Sibling CHK-001 done-preflight-smoke.ts assertions untouched (git diff --stat empty). usage-ledger byte-estimation assertion remains meaningful (exact ==3).",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         }
       ]
     },
@@ -307,9 +307,9 @@
           "command": "node packages/main/dist/tasks/gap-log-smoke.js; node packages/main/dist/tasks/story-create-concurrency-smoke.js; node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "all three standalone exit 0 after stale-fix; gap-log dedup hint + disproven/out-of-enum wording; story-create-concurrency hard-block/F-004/dupWarning/riskHint/concurrency-note wording; review-pass-discard residuals + has-been-dropped + reviewer-prompt wording. Zero production change.",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -318,9 +318,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Each smoke root-caused: ran standalone, read the production message source + behavior. ALL classified STALE (wording drift, behavior intact): gap-log dedup collapses to ONE finding; story-create still hard-blocks keyword-full-overlap (non-zero exit); discard fail-closed proven via repro (ok=false, phase stays INIT_CHECK, branch survives, error says discard stopped). No REAL-REGRESSION found.",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -329,9 +329,9 @@
           "command": "git diff --stat packages/main/src/tasks",
           "result": "pass",
           "note": "No assertion weakened or broadened: every fix updates a drifted regex to the CURRENT production string (e.g. Same gap already exists, Suspected duplicate of story, residuals checked/cleaned, discard stopped, As X reviewing). Safety intents preserved (dedup=1 finding, hard-block exits non-zero, fail-closed phase/branch survive). Zero production file touched (only the 3 *-smoke.ts test files changed).",
-          "headHash": "a2b8d862749aeb0bb9cee24e810d941de1f48e3e",
-          "materialHash": "63dbbbb27cc54378bab6185dc779ae08e5629aedce06f22339a67edb68580291",
-          "timestamp": "2026-06-17T20:38:05.153Z"
+          "headHash": "dd23d54c700e677632993c63a603a2563bc40cce",
+          "materialHash": "3a36b1e29c869a9b69a1b15074c47cc607156d5fa64d851f970a7719a214fbbe",
+          "timestamp": "2026-06-17T20:45:39.549Z"
         }
       ]
     }
