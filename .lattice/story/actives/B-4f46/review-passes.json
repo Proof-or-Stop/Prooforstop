@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T12:40:10.801Z",
       "reviewRunId": "B-4f46:RR-007",
       "_hash": "7de2761bb12d5e8ba5d342da9d21db6200eba1873e685c6f50d482486b341c84"
+    },
+    {
+      "id": "B-4f46:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "All three fixed invariants verified: (1) validateOptionalEnum in finding.ts correctly rejects empty-string and whitespace-only values (they are not undefined/null, not in allowed list => throws); undefined/null still returns undefined cleanly. (2) approveSignatureTag in learning-store.ts now throws on never-proposed tags and is idempotent on already-active. (3) Smoke test covers 16 named checks including F-001/F-002/F-003 adversarial paths with hermetic temp dirs. No dead code: all imports used (ChecklistData/StoryInfo/Finding used in helpers, listSignatureTags/resolveTag/readSignatureRegistry each have multiple call sites). No unsafe casts in production code (as unknown as string / as Record in test-only adversarial checks is intentional and appropriate). The void args on signature_registry_list is a standard TS no-op to acknowledge an intentionally unused optional parameter. advisory.ts grep returns zero hits for signatureTag/resolutionType/dismissReasonType/evidenceStrength. finding-verify.ts has an empty diff — unchanged. catch blocks: readSignatureRegistry graceful-degradation catch returns emptyRegistry() (correct); auto-propose catch logs console.warn then continues (best-effort non-blocking); atomicWriteJson cleanup catch is best-effort temp-file removal. No I/O shell isolation issue: no bridge.ts exists in the project. All new code quality gates pass.",
+      "createdAt": "2026-06-17T12:42:36.385Z",
+      "reviewRound": "2026-06-17T12:40:10.801Z",
+      "reviewRunId": "B-4f46:RR-008",
+      "_hash": "714d9648f40fa7f4b2aae66414fdfc18b9296a3c1bf1b3384bb202aa6c1b46f5"
     }
   ]
 }
