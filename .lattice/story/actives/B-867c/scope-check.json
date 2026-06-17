@@ -1,0 +1,122 @@
+{
+  "storyId": "B-867c",
+  "checkedAt": "2026-06-17T16:33:39.426Z",
+  "features": [
+    {
+      "feature": "Register 7 missing MAIN_TOOLS commands (playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set) in PROCESS_FACT_REGISTRY by adding entries to PROCESS_FACT_LEVELS",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Classify the 3 read-only commands (signature_registry_list, playbook_diff, recall) as L0 in the registry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Classify the 4 mutating commands (playbook_approve, playbook_propose, playbook_reject, signature_registry_set) as L2 in the registry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "None of the 7 commands have a gateConsumer (no gate reads them)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No command behavior change: edit target is ONLY process-fact-levels.ts, not handlers or cli-engine.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reconcile DEFAULT_PHASE_TOOLS phase allowlist drift for recall/signature_registry_*/playbook_* patterns across all phases",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DEFAULT_PHASE_TOOLS stays a subset of command-policy allowedPhases (safe direction preserved)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npm run test:process-fact-contract exits 0 (green) end-to-end as verification of record",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npx tsc still exits 0 (no type regression introduced by new entries)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Process facts need a typed registry: PROCESS_FACT_LEVELS is the source; when a maintainer adds a command, they must update the registry in sync (story-lifecycle.md spec)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "process-fact-registry + verify-process-fact-contract must validate MAIN_TOOLS and DEFAULT_PHASE_TOOLS are consistent (story-lifecycle.md spec)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Experience Layer commands (playbook/signature-registry/recall) must never file findings, touch gates, or affect gate logic (experience-layer spec principle 1: advisory only; never decide)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Do NOT wire the contract guard into lattice validate battery (B-99b6 owns that)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly scoped out in story description and plan.md Out of scope section: B-99b6 owns battery wiring",
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT touch gitRoot code (B-6666 owns that)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly scoped out in story description and plan.md Out of scope section: B-6666 owns gitRoot",
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT change any of the 7 commands handlers or cli-engine.ts wiring",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No-behavior-change constraint: this story only registers the commands in the process-fact registry, not modifying their behavior",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1cdafa8d9374f8a8331132655feb09612ddf3aef4f0c6a5ad8db3837476b81d8",
+  "openQuestions": []
+}
