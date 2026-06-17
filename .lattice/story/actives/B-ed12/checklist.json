@@ -231,7 +231,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js",
+          "result": "pass",
+          "note": "standalone exit 0: scanned 565 files, no CJK outside allowlist; in-scope CJK removed from usage-ledger smoke; 3 functional-CJK test fixtures + 2 pending-migration production files allowlisted per OQ-1; check logic unchanged",
+          "headHash": "3ec14390aee76105d399902088be6906397f92a6",
+          "materialHash": "84f697420a2848bb134e9b2bfca08780bf8907f10e06926285de21d3b506d0e8",
+          "timestamp": "2026-06-17T20:33:49.771Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
