@@ -2,8 +2,8 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "PLAN：精确分类 321 候选为 in-scope（该清）/ documented-exception（该留），产出白名单",
-      "context": "对 packages/scripts/docs 逐文件判定：koala 品牌/散文=该清；.koala 运行时路径、盐值、decisions 历史、测试断言意图、CHANGELOG=该留。白名单写入 plan.md 与 understanding。",
+      "title": "PLAN: classify candidates into in-scope (clean) vs documented-exception (keep), produce whitelist",
+      "context": "Per-file judgment over packages/scripts/docs: koala branding/prose = clean; .koala runtime paths, salts, decisions history, test-assertion intent, CHANGELOG = keep. Whitelist written into plan.md and understanding.",
       "status": "done",
       "startTime": null,
       "endTime": "2026-06-17T02:15:09.607Z",
@@ -40,14 +40,14 @@
           }
         ]
       },
-      "userSees": "该改清单文件数 272、行数 1655，分目录可见（main-src 81 / main-tests 128 / scripts 39 / lab 11 / docs-utils-root 13）",
+      "userSees": "must-change list: 272 files / 1655 lines, visible by directory (main-src 81 / main-tests 128 / scripts 39 / lab 11 / docs-utils-root 13)",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
-          "note": "self-test: 'koala-codex review then real Koala brand'→UNCLASSIFIED(strip neutral 后 brand 残留判 in-scope 边界); 5/5 PASS",
+          "note": "self-test: 'koala-codex review then real Koala brand' -> UNCLASSIFIED (brand remains after neutral-token strip, in-scope boundary); 5/5 PASS",
           "headHash": "aa3e27d58b4dbb6b488f2010ecff340931e51aa3",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:21.472Z"
@@ -57,7 +57,7 @@
           "kind": "logic_test",
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
-          "note": "self-test: '~/.koala/activity.json'→EXEMPT(运行时路径=documented-exception); 5/5 PASS",
+          "note": "self-test: '~/.koala/activity.json' -> EXEMPT (runtime path = documented-exception); 5/5 PASS",
           "headHash": "c5456840b9e4da7b2bbb194c784c2b75054b543c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:22.380Z"
@@ -67,7 +67,7 @@
           "kind": "logic_test",
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
-          "note": "self-test: 裸品牌 'the koala framework' 无 neutral→UNCLASSIFIED(不静默白名单); 5/5 PASS",
+          "note": "self-test: bare brand 'the koala framework' with no neutral token -> UNCLASSIFIED (not silently whitelisted); 5/5 PASS",
           "headHash": "0b95f7ff83b5ceddc561f64defdf72361134ca5f",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:23.292Z"
@@ -77,7 +77,7 @@
           "kind": "logic_test",
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
-          "note": "self-test: 'const KoalaFoo' 新标识符不匹配 neutral pattern→UNCLASSIFIED; 5/5 PASS",
+          "note": "self-test: 'const KoalaFoo' novel identifier matches no neutral pattern -> UNCLASSIFIED; 5/5 PASS",
           "headHash": "6f8a2877441a0aeaa5bf40fbba43937b6ae58c48",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:24.132Z"
@@ -86,8 +86,8 @@
     },
     {
       "id": "CHK-002",
-      "title": "清理 packages/lab 的 koala-lab 品牌 → lattice-lab（协调 B-ed70）",
-      "context": "lab/src/core/*.ts、handlers/lab.ts、tool-defs.ts、profiles 里的 @title/注释/报错/CLI 文案 koala-lab → lattice-lab。避开 B-ed70 在做的 package.json description（CHK-001）与 config.ts 的 .Codex 行（CHK-002）。",
+      "title": "Clean packages/lab koala-lab branding to lattice-lab (coordinate with B-ed70)",
+      "context": "lab/src/core/*.ts, handlers/lab.ts, tool-defs.ts, profiles @title/comments/errors/CLI prose koala-lab to lattice-lab. Avoid B-ed70 package.json description (CHK-001) and config.ts .Codex line (CHK-002).",
       "status": "done",
       "startTime": "2026-06-16T22:15:55.061Z",
       "endTime": "2026-06-16T22:18:42.649Z",
@@ -124,14 +124,14 @@
           }
         ]
       },
-      "userSees": "git grep koala-lab packages/lab 仅剩 B-ed70 负责的两处；npm --prefix packages/lab run build 通过",
+      "userSees": "git grep koala-lab packages/lab leaves only B-ed70 two spots; npm --prefix packages/lab run build passes",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
           "command": "git grep -ci koala-lab packages/lab/src",
           "result": "pass",
-          "note": "lab 源码 koala-lab 品牌已全部改 lattice-lab,零品牌残留",
+          "note": "lab source koala-lab branding all changed to lattice-lab, zero brand residue",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -141,7 +141,7 @@
           "kind": "manual_transcript",
           "command": "npm --prefix packages/lab run build",
           "result": "pass",
-          "note": "lab 改名后 build 成功,无断裂引用",
+          "note": "lab build passes after rename, no broken references",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -151,7 +151,7 @@
           "kind": "manual_transcript",
           "command": "git grep -ni koala packages/lab/src/core/config.ts",
           "result": "pass",
-          "note": "config.ts 仅剩 koala-lab/experiment.v1 schema id(wire)与 B-ed70 负责区,品牌已清",
+          "note": "config.ts leaves only the koala-lab/experiment.v1 schema id (wire) and B-ed70's area; branding cleaned",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -161,7 +161,7 @@
           "kind": "manual_transcript",
           "command": "git grep -ni koala packages/lab/package.json",
           "result": "pass",
-          "note": "package.json description 留给并行 B-ed70(协调约束)",
+          "note": "package.json description left to concurrent B-ed70 (coordination constraint)",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -170,8 +170,8 @@
     },
     {
       "id": "CHK-003",
-      "title": "清理 packages/main 源码里的 koala 品牌注释与 CLI 文案",
-      "context": "排除 .koala 运行时路径、盐值、测试断言意图后，改源码注释/字符串里的 koala 品牌为 Lattice。逐文件确认非运行时路径。",
+      "title": "Clean koala branding comments and CLI prose in packages/main source",
+      "context": "After excluding .koala runtime paths, salts, test-assertion intent, change koala branding in source comments/strings to Lattice. Confirm non-runtime-path per file.",
       "status": "done",
       "startTime": "2026-06-16T23:01:20.629Z",
       "endTime": "2026-06-17T02:15:10.559Z",
@@ -218,14 +218,14 @@
           }
         ]
       },
-      "userSees": "branding 规则过滤 packages/main/src 该改项为 0；npm run build 退出 0、相关 smoke 通过",
+      "userSees": "branding rule over packages/main/src leaves 0 must-change; npm run build exits 0 and related smokes pass",
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
           "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "canonical 可复现 gate(提交于 scripts/)扫 active 范围 PASS exit 0；main/src 品牌残留 0(替代不可复现的临时脚本)",
+          "note": "canonical reproducible gate (committed under scripts/) scans active scope PASS exit 0; main/src brand residue 0 (replaces the non-reproducible temp script)",
           "headHash": "4fabf38406be8238eafa655af2d556be4dc66ed7",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:25.013Z"
@@ -235,7 +235,7 @@
           "kind": "integration_test",
           "command": "npm run build && node packages/main/dist/tasks/cli-engine-branding-smoke.js",
           "result": "pass",
-          "note": "build 退出 0 且编译产物经 cli-engine-branding-smoke 断言 PASS(unclassified=0),证明 main 源码改名无编译错误且分类正确",
+          "note": "build exits 0 and the compiled artifact passes cli-engine-branding-smoke assertion (unclassified=0), proving main source rename has no compile errors and classification is correct",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -245,7 +245,7 @@
           "kind": "manual_transcript",
           "command": "git grep -n .koala packages/main/src",
           "result": "pass",
-          "note": ".koala 运行时路径引用完整保留(documented-exception)",
+          "note": ".koala runtime path references fully preserved (documented-exception)",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -255,7 +255,7 @@
           "kind": "manual_transcript",
           "command": "git grep -nE 'LEGACY_KOALA|integrity-v1' packages/main/src",
           "result": "pass",
-          "note": "LEGACY_KOALA 常量与签名盐值保留",
+          "note": "LEGACY_KOALA constants and signature salts preserved",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -265,7 +265,7 @@
           "kind": "manual_transcript",
           "command": "git grep -n koala-codex packages/main/src",
           "result": "pass",
-          "note": "process-lane 名 koala-codex 等保留完整",
+          "note": "process-lane names koala-codex etc. fully preserved",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -274,8 +274,8 @@
     },
     {
       "id": "CHK-004",
-      "title": "清理 scripts/verify-*.mjs 等脚本里的 koala 品牌/注释",
-      "context": "scripts 下 39 候选，区分 koala 品牌注释（改）与 .koala 路径引用（留）。",
+      "title": "Clean koala branding/comments in scripts/verify-*.mjs etc.",
+      "context": "39 candidates under scripts; distinguish koala branding comments (change) from .koala path references (keep).",
       "status": "done",
       "startTime": "2026-06-16T22:27:47.380Z",
       "endTime": "2026-06-16T22:43:56.522Z",
@@ -307,14 +307,14 @@
           }
         ]
       },
-      "userSees": "branding 规则过滤 scripts 该改项为 0；相关 verify-*.mjs 仍打印 PASS",
+      "userSees": "branding rule over scripts leaves 0 must-change; the verify-*.mjs still pass",
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
           "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "canonical gate PASS exit 0；scripts 品牌残留 0",
+          "note": "canonical gate PASS exit 0; scripts brand residue 0",
           "headHash": "793eb144db70087f56ff1ccfc838f8961059784f",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:25.879Z"
@@ -324,7 +324,7 @@
           "kind": "manual_transcript",
           "command": "git grep -n .koala scripts",
           "result": "pass",
-          "note": ".koala 运行时路径引用保留",
+          "note": ".koala runtime path references preserved",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -333,8 +333,8 @@
     },
     {
       "id": "CHK-005",
-      "title": "处理测试 smoke/fixtures 的 koala：改非意图夹具、保留测试断言意图",
-      "context": "37 个 koala.config.json fixture + smoke 测试：lattice-only-absence-smoke、cli-engine-branding-smoke 等故意断言 koala 被忽略/识别的保留；纯历史/无意图夹具按需改。逐个判定。",
+      "title": "Handle koala in test smoke/fixtures: change non-intent fixtures, keep test-assertion intent",
+      "context": "37 koala.config.json fixtures plus smoke tests: keep ones deliberately asserting koala is ignored/recognized (lattice-only-absence-smoke, cli-engine-branding-smoke); change pure-history/no-intent fixtures as needed. Judge each.",
       "status": "done",
       "startTime": null,
       "endTime": "2026-06-17T02:15:11.547Z",
@@ -376,14 +376,14 @@
           }
         ]
       },
-      "userSees": "npm run test:e2e 全 PASS；branding 规则过滤测试该改项为 0",
+      "userSees": "npm run test:e2e all pass; branding rule over tests leaves 0 must-change",
       "verificationEvidence": [
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "manual_transcript",
           "command": "npm run test:e2e",
           "result": "pass",
-          "note": "e2e 全 PASS,含 cli-engine-branding 与 lattice-only-absence smoke",
+          "note": "e2e all PASS, including cli-engine-branding and lattice-only-absence smoke",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -393,7 +393,7 @@
           "kind": "manual_transcript",
           "command": "git grep -ci koala packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "result": "pass",
-          "note": "branding smoke 的 koala 全为分类规则(NEUTRAL_TOKEN_PATTERNS),保留;unclassified=0",
+          "note": "branding smoke's koala are all classification rules (NEUTRAL_TOKEN_PATTERNS), preserved; unclassified=0",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -403,7 +403,7 @@
           "kind": "manual_transcript",
           "command": "git grep -ci koala packages/main/src/tasks/lattice-only-absence-smoke.ts",
           "result": "pass",
-          "note": "absence smoke 的 koala 全为 koala-absence 断言目标,保留",
+          "note": "absence smoke's koala are all koala-absence assertion targets, preserved",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -413,7 +413,7 @@
           "kind": "logic_test",
           "command": "remove managed-assets from allowlist && node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "实跑 mutation:从 allowlist 删 managed-assets.ts→gate exit 1 点名 16 处→恢复→exit 0;证明守护非 vacuous",
+          "note": "empirical mutation: removing managed-assets.ts from the allowlist -> gate exit 1 naming 16 hits -> restore -> exit 0; proves the guard is non-vacuous",
           "headHash": "9422acb71b504a982efcb5f1556cd6f176df83cc",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:28.455Z"
@@ -422,8 +422,8 @@
     },
     {
       "id": "CHK-006",
-      "title": "清理根文档 2 处 prose（CLAUDE.md 与 docs/guide.md）",
-      "context": "CLAUDE.md:924 的 docs/koala/reviewer-redesign.md 路径引用、docs/guide.md:60 的 Koala/Lattice prose。",
+      "title": "Clean root-doc prose (CLAUDE.md and docs/guide.md)",
+      "context": "CLAUDE.md docs/koala/reviewer-redesign.md path ref, docs/guide.md Koala/Lattice prose.",
       "status": "done",
       "startTime": "2026-06-16T22:18:51.512Z",
       "endTime": "2026-06-16T22:22:56.681Z",
@@ -460,14 +460,14 @@
           }
         ]
       },
-      "userSees": "根文档 + utils 的 branding 规则过滤该改项为 0",
+      "userSees": "root docs plus utils branding rule leaves 0 must-change",
       "verificationEvidence": [
         {
           "intentRef": "CHK-006:happy:0",
           "kind": "manual_transcript",
           "command": "git grep -ni koala CLAUDE.md | perl /tmp/bf2.pl",
           "result": "pass",
-          "note": "CLAUDE.md 品牌 prose 已清,剩 .koala 运行时路径(documented-exception)",
+          "note": "CLAUDE.md brand prose cleaned, leaving .koala runtime paths (documented-exception)",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -497,7 +497,7 @@
           "kind": "manual_transcript",
           "command": "git grep -ni koala docs/guide.md",
           "result": "pass",
-          "note": "guide.md Koala/Lattice 措辞已改 Lattice",
+          "note": "guide.md Koala/Lattice wording changed to Lattice",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -507,7 +507,7 @@
           "kind": "logic_test",
           "command": "git grep -i koala CLAUDE.md docs/guide.md | perl /tmp/bf2.pl",
           "result": "pass",
-          "note": "编辑后两文件经 branding 过滤无未分类残留,无新增悬挂引用",
+          "note": "after editing the two files, branding filter shows no unclassified residue and no new dangling references",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -517,7 +517,7 @@
           "kind": "logic_test",
           "command": "git grep -ni koala CLAUDE.md",
           "result": "pass",
-          "note": "全文件扫描(非仅 L924),残留全为 .koala 路径/盐值 documented-exception",
+          "note": "full-file scan (not just L924); residue all .koala paths/salts documented-exception",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -526,8 +526,8 @@
     },
     {
       "id": "CHK-007",
-      "title": "验收 gate：git grep -i koala 在 active 范围只剩 documented-exceptions 白名单",
-      "context": "跑 git grep -i koala 排除白名单，断言为空；lattice validate 全绿；build + e2e 通过。",
+      "title": "Acceptance gate: git grep -i koala in active scope leaves only documented-exceptions whitelist",
+      "context": "Run git grep -i koala excluding whitelist, assert empty; lattice validate all-green; build plus e2e pass.",
       "status": "done",
       "startTime": null,
       "endTime": "2026-06-17T02:15:12.463Z",
@@ -579,14 +579,14 @@
           }
         ]
       },
-      "userSees": "git grep -i koala 经 B-3cca 规则过滤后 0 行 unclassified；lattice validate 全绿、build 退出 0、e2e 全 PASS",
+      "userSees": "git grep -i koala after B-3cca rule leaves 0 unclassified; lattice validate all-green, build exits 0, e2e all pass",
       "verificationEvidence": [
         {
           "intentRef": "CHK-007:happy:0",
           "kind": "manual_transcript",
           "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "canonical gate 全 active 范围 PASS exit 0,0 unclassified(branding 规则+path 豁免+文件白名单)",
+          "note": "canonical gate over full active scope PASS exit 0, 0 unclassified (branding rules + path exemptions + file allowlist)",
           "headHash": "9055800d3ed99ae14181f16386c433b1393aef45",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:26.797Z"
@@ -596,7 +596,7 @@
           "kind": "manual_transcript",
           "command": "lattice validate",
           "result": "pass",
-          "note": "validate ALL PASS,story metadata 一致",
+          "note": "validate ALL PASS, story metadata consistent",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -606,7 +606,7 @@
           "kind": "integration_test",
           "command": "npm run build && npm run test:e2e",
           "result": "pass",
-          "note": "build 退出 0 且 e2e 全 PASS,证明全 brand 改动无编译错误且无测试回归",
+          "note": "build exits 0 and e2e all PASS, proving all brand changes have no compile errors and no test regression",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -616,7 +616,7 @@
           "kind": "manual_transcript",
           "command": "npm run test:e2e",
           "result": "pass",
-          "note": "e2e 全 PASS,含 branding smokes,无回归",
+          "note": "e2e all PASS, including branding smokes, no regression",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -626,7 +626,7 @@
           "kind": "manual_transcript",
           "command": "git grep -i koala CHANGELOG.md docs/requirements/decisions",
           "result": "pass",
-          "note": "CHANGELOG/decisions 的 koala 全为历史记录,documented-exception,本 story 未改",
+          "note": "CHANGELOG/decisions koala are all historical records, documented-exception, not changed by this story",
           "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:45:58.242Z"
@@ -636,7 +636,7 @@
           "kind": "logic_test",
           "command": "git add probe-with-koala-brand && node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "实跑:staged 含 koala 品牌的探针文件→gate exit 1 点名 packages/main/src/__residue_probe__.ts→git rm 恢复→exit 0;证明 gate 抓将提交的新残留",
+          "note": "empirical: staged probe file with koala brand -> gate exit 1 naming packages/main/src/__residue_probe__.ts -> git rm restore -> exit 0; proves the gate catches new residue to be committed",
           "headHash": "25999d6c9ec8dc125439d16bdc48a9bf1d4cd89b",
           "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
           "timestamp": "2026-06-17T02:41:27.636Z"
