@@ -71,7 +71,30 @@
       "userSees": "`lattice validate` runs the strengthened guard green now and would go red if any review-preflight git-invoking gate were wired to deps.projectRoot instead of the resolved gitCwd, so this defect class cannot silently recur.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Strengthened guard runs green on the fixed tree and mechanically verifies the review-preflight git-invoking gates receive the resolved gitCwd (not deps.projectRoot)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Guard documents what it does and does not cover (review-preflight-specific assertion vs general lexical rewrite); no false positives on legitimate non-git deps.projectRoot uses",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a review-preflight git-gate were wired to deps.projectRoot instead of gitCwd the guard goes RED (proven by temporarily reverting and observing failure)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
