@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T11:55:47.885Z",
       "reviewRunId": "B-000c:RR-006",
       "_hash": "9fb7218b3d4920691aa9a7ca9d247960400a6df37fe34472c18b9d34758ad012"
+    },
+    {
+      "id": "B-000c:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-001 resolved: CHK-001:adversarial:1 (concurrent writeFindingSignals never truncates) now has a real assertion — 20 concurrent writers targeting the same project root with interleaved reads; every observation asserted complete-or-absent (atomic temp+rename) and final file validated as one of the 20 distinct written caches (last-writer-wins, never blended/torn). Smoke exits 0: TOTAL 21 | PASS 21 | FAIL 0. Verifier exits 0: TOTAL 30 | PASS 30 | FAIL 0. All 30 intents across 4 checklist items have verificationEvidence bound to the literal command npm --prefix packages/main run test:experience-layer-finding-signals with result=pass. No must-gaps, no waivers, no blockers.",
+      "createdAt": "2026-06-17T11:57:58.770Z",
+      "reviewRound": "2026-06-17T11:55:47.885Z",
+      "reviewRunId": "B-000c:RR-008",
+      "_hash": "d237d6954cdcd100b4de9a3c0ace33217334b0f6ce311a4a824df7a4311480ca"
     }
   ]
 }
