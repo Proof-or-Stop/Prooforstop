@@ -24,7 +24,7 @@
       "desc": "doc-count-mismatch: CHANGELOG B-2d6c entry says \"7 slow smokes\" but the parenthetical list names 8 (lattice-baseline, field-regression-cli, dispatch-run, experience-layer-playbook, planner-unattended, worktree-authority, cli-json-stdout-contract, autopilot-run) and the manifest diff shows exactly 8 timeoutMs additions. Prose undercounts by 1.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-17T21:09:21.203Z",
@@ -34,7 +34,9 @@
       "files": [
         "CHANGELOG.md",
         "packages/main/smoke-manifest.json"
-      ]
+      ],
+      "resolvedReason": "Fixed CHANGELOG count 7→8 in commit ac85acd8a.",
+      "resolvedAt": "2026-06-17T21:10:28.547Z"
     }
   ]
 }
