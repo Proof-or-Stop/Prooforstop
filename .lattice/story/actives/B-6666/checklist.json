@@ -191,13 +191,13 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/done-oracle.ts",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
-          "note": "BACKTICK rule pinned: KNOWN-BAD backtick execSync(`git status`,{cwd:projectRoot}) -> exactly 1 bare violation (old backtick blind spot closed); KNOWN-GOOD backtick with cwd:resolvedGitCwd -> 0. LIVE RED->GREEN witness: reintroduced the exact d93b69b8f shape (const witnessGitCwd=projectRoot used as cwd of a backtick `git status`) into done-oracle.ts -> contract exited 1 flagging done-oracle.ts:74 alias violation; reverted -> exited 0. Both gaming shapes turn it RED.",
-          "headHash": "5cab10e55e740ee1c716346acc764545a363b644",
-          "materialHash": "e204ef0f636d4787412c4a14325c63bd1684ba321b739cee3f0e14dc3d87cb97",
-          "timestamp": "2026-06-17T17:09:21.309Z"
+          "note": "BACKTICK KNOWN-BAD (execSync(`git`,{cwd:projectRoot})) flagged; KNOWN-GOOD (cwd:resolvedGitCwd) = 0. LIVE red->green witness: injected const witnessGitCwd=projectRoot;execSync(`git status`,{cwd:witnessGitCwd}) into done-oracle.ts -> contract exit 1 flagging the d93b69b8f shape -> revert -> exit 0.",
+          "headHash": "ce1382bbbca5a2be16632bb8e1d0121a83127c29",
+          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
+          "timestamp": "2026-06-17T17:13:04.841Z"
         }
       ]
     }
