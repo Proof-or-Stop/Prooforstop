@@ -24,7 +24,14 @@
       "userSees": "`grep -c 'test:.*-smoke' package.json` drops sharply; `npm test` exit 0 with no `npm error Missing script` failures.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
