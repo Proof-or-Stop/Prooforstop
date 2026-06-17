@@ -66,9 +66,9 @@
       "id": "CHK-002",
       "title": "Add runCodexRealLeafDispatch + runGeminiRealLeafDispatch + dispatch switch upgrade",
       "context": "In packages/main/src/core/lattice-dispatch.ts: add runCodexRealLeafDispatch + runGeminiRealLeafDispatch (mirror runClaudeCodeRealLeafDispatch shape at line 1938). In the dispatch_run switch at line ~2400: when normalized===\"codex\" AND codexCliAvailable() → branch to runCodexRealLeafDispatch (REAL); when normalized===\"gemini\" AND geminiCliAvailable() → runGeminiRealLeafDispatch (REAL); when normalized in {codex,gemini} but BOTH CLIs unavailable → fall back to runClaudeCodeRealLeafDispatch with a logged degradation reason. Update the scaffolded-only warning at line 757 to fire only when the REAL path is not taken (i.e. CLI unavailable AND no fallback).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T22:09:00.911Z",
-      "endTime": null,
+      "endTime": "2026-06-17T22:11:41.043Z",
       "userSees": "`grep runCodexRealLeafDispatch packages/main/src/core/lattice-dispatch.ts` and `grep runGeminiRealLeafDispatch` each return matches. `grep -E 'codexCliAvailable|geminiCliAvailable' ...` shows the routing conditions. `grep -E 'falling back.*claude-code' ...` shows the fallback message.",
       "files": {
         "modify": [
