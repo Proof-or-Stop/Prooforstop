@@ -15,6 +15,22 @@
       "files": [
         "packages/main/package.json"
       ]
+    },
+    {
+      "id": "B-d7c3:F-002",
+      "desc": "CHK-001:edge:2 intent command fails at runtime on the current manifest structure and the evidence substitutes a different command that does not verify the intent. Intent literal: node -e using Object.values(m) to iterate entries and check backing files, expected output ALL_MAPPED. Actual execution throws ORPHAN_MANIFEST because Object.values({$schema-doc, smokes}) returns the schema string + the smokes array, treating the schema string as an entry. The evidence instead runs python3 counting smokes array length (returns 139), which proves manifest count but not that every entry has a backing task file. The ALL_MAPPED check — that every manifest name has a corresponding .ts/.js task file — is unverified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:31:13.079Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-002",
+      "_hash": "78de0b01748ef64f0b5ff0e17de05dbc0d4a37d85fe31fb53839c43a1a645c7e",
+      "files": [
+        "packages/main/smoke-manifest.json"
+      ]
     }
   ]
 }
