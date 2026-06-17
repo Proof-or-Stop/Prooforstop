@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T20:45:31.789Z",
       "reviewRunId": "B-ed12:RR-004",
       "_hash": "6337c407e3e83d7cc801bf664bb9ff68aa7589404cb51398517d7789a5e23236"
+    },
+    {
+      "id": "B-ed12:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 delta is a single comment-line rephrase at lattice-cli-migration-smoke.ts:240 (koala-residue brand gate wording fix). Verified: (a) git diff 2a5b27f...16917b031 shows only one comment line changed — the assertion assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, false) and all logic are unchanged; (b) whole-story invariant holds — git diff main...HEAD --name-only (excl .lattice/) shows only 15 *-smoke.ts files, zero production code. No dead code, no type safety issues, no I/O shell isolation violations introduced by this change. Clean pass.",
+      "createdAt": "2026-06-17T20:46:57.041Z",
+      "reviewRound": "2026-06-17T20:45:31.789Z",
+      "reviewRunId": "B-ed12:RR-005",
+      "_hash": "4e997e8c5c99960f5455dd05cd7a72753c3831c32da4c5506abdd741d8398dd2"
     }
   ]
 }
