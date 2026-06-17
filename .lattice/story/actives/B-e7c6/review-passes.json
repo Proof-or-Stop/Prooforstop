@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-e7c6:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-channel story (no verificationIntent required). All 3 rename targets verified in active source: config.ts:71 emits lattice-lab/experiment.v1, lab-foundation.json fixture mkdtemp prefix and $schema string both updated to lattice-lab, and the dead koala-lab exemption regex in verify-koala-residue.mjs was removed. lattice validate ALL PASS: test:koala-residue exits 0 unclassified (confirms no koala-lab residue in active scope), e2e test passes consuming lab-foundation.json with lattice-lab/experiment.v1 $schema, build exit 0. Since lab does not validate incoming $schema, no migration test is needed. Coverage adequate; no blocker.",
+      "createdAt": "2026-06-17T17:52:19.478Z",
+      "reviewRound": "2026-06-17T17:51:12.351Z",
+      "reviewRunId": "B-e7c6:RR-002",
+      "_hash": "49ad8a3171a3cc8522e2994605c5a19a46a9a669a3a8f25c1a55b76211c96ee3"
+    }
+  ]
+}
