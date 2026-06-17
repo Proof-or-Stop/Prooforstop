@@ -94,6 +94,17 @@
           "headHash": "724256b18d8358ca44152799f5fe5db4dca6dafa",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:07:53.550Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"const c=require('./.c8rc.json'); if(c['reports-dir']!=='packages/main/coverage') throw new Error('BAD_DIR:'+c['reports-dir']); console.log('DIR_OK')\"",
+          "result": "pass",
+          "note": "Prints DIR_OK — reports-dir is exactly 'packages/main/coverage' per A0 spec.",
+          "headHash": "3b37d9a538978d56235a189ac9cbd6297e7eb735",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:07:56.508Z"
         }
       ]
     },
