@@ -129,12 +129,12 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "command": "git grep -niI koala-lab packages/lab/src",
+          "command": "git grep -ci koala-lab packages/lab/src",
           "result": "pass",
-          "note": "Zero koala-lab brand hits remain in lab/src after rename to lattice-lab across core/handlers/tool-defs/profiles.",
-          "headHash": "1f94c9871bf4a1a601a30e2f15a768a79284bb11",
-          "materialHash": "d3d738b4034eebbe3bebe3a25c67e16d1afc57c94c4514c561222b5d473c0858",
-          "timestamp": "2026-06-16T22:18:42.688Z"
+          "note": "lab 源码 koala-lab 品牌已全部改 lattice-lab,零品牌残留",
+          "headHash": "320b2c0b72f0114414f3c8b3c08cbed59f0bc5a2",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:08.318Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
