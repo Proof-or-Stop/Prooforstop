@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7561",
+  "changes": "Phase 3 (final): Story Recall. core/story-recall.ts (pure leaf) — buildStoryProfile + scoreSimilarity (multi-field Jaccard over keywords/fileKinds/touchpoints + type/phase boosts, symmetric/deterministic, no-NaN) + recallSimilarStories (most-similar-first, top-N, zero-score dropped, self excluded, stable tiebreak). handlers/recall.ts read-only CLI: recall --story <id> / --query \"...\" / --top, reusing the existing story_list (StoryStore) scan. NO FTS, NO derived index, NO embedding. recall command registered readOnly (registry/cli-engine/command-policy/config); --story and --storyId both accepted. Writes nothing, touches no gate.",
+  "usage": "lattice recall --story <id> --top 5 (ranked similar prior stories + match reasons + notable findings/decisions/outcome); lattice recall --query \"worker schedule\". Proof: npm --prefix packages/main run test:experience-layer-recall (=> 'smoke passed').",
+  "expectedOutcome": "recall --story prints a ranked top-N list with reasons; --query returns keyword-matched stories; recall writes nothing and creates no derived index. Smoke 'smoke passed' (24/24); verifier TOTAL 38 | PASS 38 | FAIL 0; existing experience-layer smokes still green.",
+  "actualTranscript": "recall smoke TOTAL 24 | PASS 24 | FAIL 0 'smoke passed'. verifier TOTAL 38 | PASS 38 | FAIL 0 (buildOk recallSmoke noRegression readOnly recallIso noFts cmdRegistered pkgScript all true; regression sig/pb/hint ok). validate 38/38 covered. node bin/lattice.js recall --story B-1480 --top 3 returns ranked matches (B-9b8f/B-de86/B-8448). Reviews round 1: quality/concept PASS; behavior F-001 (--story CLI flag bug); test-coverage F-002 (100+ candidate ranking) + F-003 (malformed-profile no-crash). After fix 605d5123 round 2: all 4 PASS. Escalation required (3/2) -> degraded 3x1 fallback recorded.",
+  "outcomeDiff": "No difference — structured recall delivered read-only over the story_list scan; three findings (the --story CLI flag bug + two coverage gaps) fixed and re-reviewed clean.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Structured-overlap (Jaccard) ranking, not semantic — a derived index/embedding is a future optimization only when scan size justifies it (the plan's cut-FTS decision). Playbook-sourced and finding-signal hints in reviewer prompts are surfaced by Phase 1.5; this recall is a separate read-only query surface. Phase 4 cross-project aggregation remains future/out of scope — this completes the local Experience Layer build (Phases 1a/1b/1.5/2/3).",
+  "pitfalls": "A CLI alias (recall --story) must be in the zod schema or parseFlags strips it (was F-001) — verify aliases at the real CLI, not only via direct handler calls. Recall must stay read-only (no writes, no derived index) — snapshot .lattice before/after to prove it. High-finding round -> escalation quorum required; degraded 3x1 must bind to the DONE materialHash; DONE evidence-freshness needs re-validate (not just refresh_stale).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 237099
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10504
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 377701
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 825728
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 706209
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 23396
+    }
+  },
+  "totalDurationMs": 2180638,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T16:09:25.227Z",
+  "updatedAt": "2026-06-17T16:09:25.227Z"
+}
