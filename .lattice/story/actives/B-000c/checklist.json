@@ -7,7 +7,43 @@
       "userSees": "Build is clean; the new modules exist and the smoke asserts the learning-store round-trips finding-signals.json and that the module set has zero cross-module imports.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "learning-store round-trip: write a FindingSignalCache via writeFindingSignals then readFindingSignals returns identical data -> deepEqual match; WHY: proves atomic write + read path works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "ensureLearningDir on fresh temp dir -> .lattice/learning/ directory is created; WHY: proves idempotent directory creation on first-run worktree",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "readFindingSignals when finding-signals.json does not exist -> returns null or empty default, never throws; WHY: graceful degradation on fresh project with no prior cache",
+            "type": "cli"
+          },
+          {
+            "desc": "static import scan of core/experience-layer-types.ts and core/learning-store.ts -> zero imports matching ../../ pattern; WHY: enforces usage-ledger isolation bar (zero outward imports)",
+            "type": "cli"
+          },
+          {
+            "desc": "writeFindingSignals to path where .lattice/learning/ does not yet exist -> auto-creates directory hierarchy and writes valid JSON; WHY: covers first-run scenario end-to-end",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "readFindingSignals when finding-signals.json contains malformed JSON -> returns null or throws a clear parse error, never corrupts state or crashes process; WHY: resilience to hand-edited or truncated cache files",
+            "type": "cli"
+          },
+          {
+            "desc": "concurrent writeFindingSignals calls from two async contexts -> file is never left truncated or empty, last writer wins with valid JSON; WHY: atomic write prevents data loss under race conditions",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
