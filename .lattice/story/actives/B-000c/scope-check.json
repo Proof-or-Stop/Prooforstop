@@ -1,0 +1,150 @@
+{
+  "storyId": "B-000c",
+  "checkedAt": "2026-06-17T11:31:26.906Z",
+  "features": [
+    {
+      "feature": "core/experience-layer-types.ts — FindingSignal type, derived-cache envelope type definitions",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "core/learning-store.ts — LEARNING_DIR constant, ensureLearningDir, atomic read/write of finding-signals.json in .lattice/learning/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Zero outward imports from the module set (no ../../ references; only node:, ./, ../ within the module)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "core/finding-signals.ts — deriveFindingSignals reads findings through store.readFindings port, NEVER direct JSON.parse of findings.json",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "localSignature aggregation: category + signatureTag? + fileKind + lifecyclePhase; degrades to category+fileKind when signatureTag absent",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "signalScore formula: positive/(positive+negative+1), where partially_mitigated contributes 0.5 to positive count",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "support field = positive+negative; must always be displayed alongside any signalScore",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "runtime-artifact-registry.ts entry for .lattice/learning/finding-signals.json as materialHash:exclude, volatile:true",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "runtime-artifact-registry.ts entry for .lattice/learning/learning-log.jsonl as materialHash:exclude, volatile:true",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Gate-safety smoke: currentMaterialHash() is unchanged before and after writing the derived cache",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Committed smoke test (tasks/experience-layer-finding-signals-smoke.ts) + npm script test:experience-layer-finding-signals; hermetic temp dir + env restore; TOTAL N | PASS N | FAIL 0",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Build clean: no new TypeScript errors (no regression from added modules)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "User-facing CLI subcommands (learning_scan, learning_hints, learning_signals_*) — handlers/learning.ts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of scope: User-facing subcommands; CHK-004 scope is smoke only",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Reviewer-prompt hint injection: experience-hint-loader.ts + story-review.ts hintSection (Phase 1.5)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of scope: reviewer-prompt hint injection (Phase 1.5)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Playbook lifecycle commands: handlers/playbook.ts, playbook_propose/diff/approve/reject/recall (Phase 2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of scope: staged playbook proposal lifecycle (Phase 2)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Phase 1b audit-only finding fields: resolutionType, dismissReasonType, resolveEvidenceStrength, dismissEvidenceStrength, signatureTag on Finding type",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md explicitly deferred to Phase 1b (separate story)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Cross-project aggregation: publicSignature, org-local anonymized signals (Phase 4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of scope: cross-project aggregation",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "digest.ts extraction from decision-doc-promotion.ts (pre-Phase 2 refactor)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md deferred to before Phase 2 as separate step",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Story Recall (L2): structured field filtering reusing story_list scan (Phase 3)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of scope (Phase 3)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 12,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "017efebdf96c0cb73048780b96630310473bf6a3bdda6037ae6dfaf26c3ea373",
+  "openQuestions": []
+}
