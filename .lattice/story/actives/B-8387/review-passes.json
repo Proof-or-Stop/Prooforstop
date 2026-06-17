@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T15:22:26.306Z",
       "reviewRunId": "B-8387:RR-007",
       "_hash": "873b7ab93aa444d4263ae727d68a55b1505e862dce7294053750f77ddf9c8ca2"
+    },
+    {
+      "id": "B-8387:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-001 (path-traversal coverage) and F-002 (concurrency coverage) are both resolved at commit 8f94dfbd3. CHK-001:edge:1 now carries a specifically-bound evidence note naming the check and the hostile id set tested; the smoke emits the named check 'CHK-001:edge:1 path-traversal proposalId rejected' which passes. CHK-001:adversarial:1 now carries a specifically-bound evidence note naming the check and the 24-concurrent-write + interleaved-read scenario; the smoke emits the named async check 'CHK-001:adversarial:1 concurrent proposal writes' which passes. All 38 verificationIntent entries (must priority, normal channel) have valid manual_transcript evidence with result=pass and no failing result. The verifier confirms TOTAL 38 | PASS 38 | FAIL 0. No blocker found.",
+      "createdAt": "2026-06-17T15:25:17.703Z",
+      "reviewRound": "2026-06-17T15:22:26.306Z",
+      "reviewRunId": "B-8387:RR-008",
+      "_hash": "660e82d41889e80a588ec2e6be5353fe08193647472d43549f6de77f987b9fc1"
     }
   ]
 }
