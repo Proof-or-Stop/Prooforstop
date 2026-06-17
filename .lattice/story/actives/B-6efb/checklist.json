@@ -488,7 +488,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
+          "result": "pass",
+          "note": "Self-smoke verifies --jobs 1 and --jobs 4 produce same exit code (assertion in 9/9 checks).",
+          "headHash": "8ad69b0348789453e7ed59d97ea0b34189f64e39",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:14.677Z"
+        }
+      ]
     }
   ]
 }
