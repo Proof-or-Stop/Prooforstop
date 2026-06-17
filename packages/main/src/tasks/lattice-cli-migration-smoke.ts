@@ -237,7 +237,7 @@ const configDoctor = runJson<any>(['lattice', 'config', 'doctor', '--format=json
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
-// koala->lattice rename is complete: the legacy koala bin alias has been removed
+// the legacy koala bin alias was removed; legacyKoalaAliasPreserved is now a deliberate `false`
 // (config_doctor's package-bin-aliases check asserts the package exposes only the lattice bin),
 // so legacyKoalaAliasPreserved is now a deliberate `false` constant, not the pre-removal `true`.
 assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, false);
