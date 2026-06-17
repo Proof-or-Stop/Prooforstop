@@ -172,9 +172,9 @@
       "title": "Smoke + npm script + no regression",
       "context": "tasks/experience-layer-playbook-smoke.ts + package.json test:experience-layer-playbook. Hermetic. Assert: full propose->diff->approve->reject lifecycle; proposalDigest stability + stale-digest approve fails closed; lineage present on candidate; playbook never triggers finding_add/gate; learning modules zero outward coupling (except core/digest.js); build clean; existing experience-layer + decision-doc smokes still pass.",
       "userSees": "npm run test:experience-layer-playbook exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T14:57:58.694Z",
-      "endTime": null,
+      "endTime": "2026-06-17T15:04:09.620Z",
       "verificationIntent": {
         "happy": [
           {
