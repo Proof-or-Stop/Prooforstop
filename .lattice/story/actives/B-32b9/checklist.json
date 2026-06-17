@@ -216,6 +216,17 @@
           "headHash": "ee351a0209e0f158311f667189382e0f79af43bb",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:02:40.204Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "Code inspection: finding node meta.findingDesc rendered by findingDescHtml",
+          "result": "pass",
+          "note": "serve.js lines 363-365: findingDescById built from findings.json. Line 578: finding node meta.findingDesc = findingDescById[fid] || ''. lineage.js lines 489-491: findingDescHtml renders 'Finding' section with the desc text when meta.findingDesc is non-empty. Code path complete and correct.",
+          "headHash": "0ffae0559bf3fc15dda0137cf94efedca6a7f8e5",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:02:42.632Z"
         }
       ]
     },
