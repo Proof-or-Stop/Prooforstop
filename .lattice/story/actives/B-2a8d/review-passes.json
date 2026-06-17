@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-2a8d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Residual grep for Phase4/L4/publicSignature/two-layer/org-local/four-semantic returned zero positive hits; two cross-project occurrences are explicit negation text (per-project only, by design / not a future item). Deletion of L4/Phase4/publicSignature/two-layer framing is complete. Over-deletion check passed: deterministic local signature (L1) present at line 69, L2/L3/Phase1a/Phase1b/Phase1.5/Phase2/Phase3 all intact.",
+      "createdAt": "2026-06-17T18:16:02.424Z",
+      "reviewRound": "2026-06-17T18:14:53.140Z",
+      "reviewRunId": "B-2a8d:RR-003",
+      "_hash": "b1b303728216e3da93de1458988fdb5f3a2c2049d954b5dc8f2fa6654a4352f5"
+    },
+    {
+      "id": "B-2a8d:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Scope confirmed: only .lattice/story/actives/B-2a8d/* metadata files and docs/requirements/decisions/lattice-experience-layer-execution-plan.md changed; no source code touched. All four doc edits are clean: (1) 'cross-project footprint' phrase removed from context sentence leaving grammatically intact prose; (2) principle 5 reworded to 'Per-project only — no cross-project learning, by design' with no broken markdown; (3) 'four semantic levels unchanged from v1.0' correctly updated to 'three semantic levels are:'; (4) L4 bullet removed cleanly with a trailing blank line before the next heading; (5) Phase 4 roadmap bullet removed with a trailing blank line before the next paragraph; (6) constraints sentence updated to 'per-project only, by design — not a future item'. The L1 'deterministic local signature' sentence is fully intact (over-deletion guard passed). No dead code, no type-safety issues, no I/O shell isolation concerns (docs-only change). No findings raised.",
+      "createdAt": "2026-06-17T18:16:05.453Z",
+      "reviewRound": "2026-06-17T18:14:53.140Z",
+      "reviewRunId": "B-2a8d:RR-002",
+      "_hash": "ac4fca45fcbbac2a83dde5e4fafd1fd341aff4d8dcda245b021f90a287e17b08"
+    },
+    {
+      "id": "B-2a8d:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: pure-docs diff, no exported TS/Python symbols. Step 2/3 (Fallback 1): compared all 6 internal-consistency checkpoints. (a) Zero dangling refs to Phase 4, L4, 'four', cross-project, publicSignature, two-layer. (b) Architecture intro reads 'three semantic levels' with exactly L1/L2/L3 bullets. (c) Roadmap lists Phase 1a/1b/1.5/Digest/2/3, no Phase 4. (d) Principle 5 and the not-to-do line both state per-project-only by design. (e) L1 'aggregated by a deterministic local signature' sentence is byte-unchanged. (f) The two remaining 'cross-project' hits are both in the new correct negative form. No blockers.",
+      "createdAt": "2026-06-17T18:16:25.417Z",
+      "reviewRound": "2026-06-17T18:14:53.140Z",
+      "reviewRunId": "B-2a8d:RR-001",
+      "_hash": "0d6423bdcd591e77c1b9e64f37741bbd55c0261086bd160a85dd88771e4c8d9e"
+    },
+    {
+      "id": "B-2a8d:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 20 intent refs across CHK-001 (9 refs) and CHK-002 (11 refs). Verifier node .lattice/story/actives/B-2a8d/evidence/verify-b-2a8d.mjs is a specific committed script (not generic fallback) that reports TOTAL 20 | PASS 20 | FAIL 0 with explicit grep-based assertions covering all required absences (noPhase4/noL4/noPublicSig/noTwoLayer/noCrossLater/noFourLevels/noCrossFootprint/noCrossInV1) and presences (threeLevels/perProject/localSignature/l1/l2/l3/ph1a/ph1b/ph3). One low/missing finding (B-2a8d:F-001) recorded for CHK-002:happy:3 and adversarial:1 binding note imprecision; both intents are satisfied by correct doc state. No blocker found.",
+      "createdAt": "2026-06-17T18:18:19.940Z",
+      "reviewRound": "2026-06-17T18:14:53.140Z",
+      "reviewRunId": "B-2a8d:RR-004",
+      "_hash": "6547406db0fd6968fd10ff7546f8c4db877c33308afbde01a09bd934ff220b38"
+    }
+  ]
+}
