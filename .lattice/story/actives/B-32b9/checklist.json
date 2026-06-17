@@ -238,6 +238,17 @@
           "headHash": "eb53ae194cfcdc6e4299cb816e43038d99508eae",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:05:43.726Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "Code inspection: findingDescById with unknown findingId",
+          "result": "pass",
+          "note": "serve.js line 578: meta.findingDesc = findingDescById[fid] || ''. When fid not in findingDescById: findingDescById[fid] is undefined → fallback to ''. lineage.js line 489: findingDescHtml = meta.findingDesc ? ... : ''. Empty string falsy → renders empty Finding section instead of crashing with TypeError.",
+          "headHash": "11ca03cb14b59325cb58de50f85b2dd654ccb0db",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:06:03.844Z"
         }
       ]
     },
