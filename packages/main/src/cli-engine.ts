@@ -1692,6 +1692,9 @@ Behavior:
       sourceRefs: z.array(z.string()).optional().describe('Source/documentation locations referenced by the refutation.'),
       reproCommand: z.string().optional().describe('Reproduction/verification command used for refutation.'),
     }).optional().describe('Required when evidenceState=disproven: refutation summary plus command plus source references.'),
+    // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only signature tag. Additive/optional; never read by any gate, excluded from the finding signature.
+    signatureTag: z.string().optional()
+      .describe('Audit-only signature tag grouping this finding into a recurring pattern family (auto-proposed to the signature-registry if new). Never read by any gate.'),
   }},
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
@@ -1701,11 +1704,21 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID, for example B-xxx:F-001.'),
     resolution: z.string().optional().describe('Optional: record specific fix or verification evidence explanation.'),
+    // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only outcome enums. Additive/optional; never read by any gate, excluded from the finding signature.
+    resolutionType: z.enum(['fixed', 'duplicate', 'superseded', 'accepted_risk', 'partially_mitigated']).optional()
+      .describe('Audit-only: how this finding was resolved. Never read by any gate.'),
+    resolveEvidenceStrength: z.enum(['strong', 'medium', 'weak']).optional()
+      .describe('Audit-only: confidence strength of the resolve evidence. Never read by any gate.'),
   }},
   { name: 'finding_dismiss', description: 'Confirm a finding will not be fixed (reason required)', schema: {
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID, for example B-xxx:F-001.'),
     reason: z.string().describe('Reason for not fixing (at least 10 characters).'),
+    // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only outcome enums. Additive/optional (dismissReasonType is NEVER required); never read by any gate, excluded from the finding signature.
+    dismissReasonType: z.enum(['false_positive', 'out_of_scope', 'duplicate', 'wontfix', 'unclear', 'already_covered']).optional()
+      .describe('Audit-only (OPTIONAL): why this finding was dismissed. Never read by any gate.'),
+    dismissEvidenceStrength: z.enum(['strong', 'medium', 'weak']).optional()
+      .describe('Audit-only: confidence strength of the dismiss evidence. Never read by any gate.'),
   }},
 
   // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering plus manual merge/split).

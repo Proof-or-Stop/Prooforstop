@@ -15,6 +15,11 @@ import { assertCurrentReviewRunForEvidence, resolveReviewRunLane } from '../core
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
+import {
+  hasActiveOrProposedTag,
+  proposeSignatureTag,
+  suggestNearActiveTag,
+} from '../core/learning-store.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -161,6 +166,38 @@ function resolveEvidenceState(args: {
   return { evidenceState: 'verified' };
 }
 
+// ── B-4f46 CHK-002: audit-only outcome enums (Experience Layer Phase 1b) ──────
+//
+// These value sets are validated at the handler runtime (CLAUDE.md "Handler
+// Coding Conventions" — do not rely on Zod alone). The fields are AUDIT-ONLY:
+// they are persisted on the Finding but are NEVER read by any gate and are NOT
+// part of the finding signature (signFinding stays untouched in finding-verify.ts).
+const RESOLUTION_TYPES = ['fixed', 'duplicate', 'superseded', 'accepted_risk', 'partially_mitigated'] as const;
+const DISMISS_REASON_TYPES = ['false_positive', 'out_of_scope', 'duplicate', 'wontfix', 'unclear', 'already_covered'] as const;
+const EVIDENCE_STRENGTHS = ['strong', 'medium', 'weak'] as const;
+
+type ResolutionType = typeof RESOLUTION_TYPES[number];
+type DismissReasonType = typeof DISMISS_REASON_TYPES[number];
+type EvidenceStrength = typeof EVIDENCE_STRENGTHS[number];
+
+/**
+ * Validate an optional enum-valued audit field. Omitted (undefined/null/'')
+ * returns undefined unchanged (legacy behavior). An invalid value throws a clear
+ * error naming the allowed values; a valid value is returned narrowed.
+ */
+function validateOptionalEnum<T extends string>(
+  command: string,
+  field: string,
+  value: unknown,
+  allowed: readonly T[],
+): T | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || !(allowed as readonly string[]).includes(value)) {
+    throw new Error(`${command}: ${field} must be one of ${allowed.join('|')}`);
+  }
+  return value as T;
+}
+
 function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, note: string, reviewRunId: string): string {
   return withReviewPassLock(ctx, storyId, () => {
     const story = ctx.store.readStory(storyId);
@@ -225,6 +262,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       evidenceState?: string;
       uncertaintyReason?: string;
       disprovenEvidence?: DisprovenEvidence;
+      signatureTag?: string;
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
@@ -234,6 +272,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
+      // B-4f46 CHK-002: audit-only signature tag (omitted => unchanged legacy behavior).
+      const signatureTag = typeof args.signatureTag === 'string' ? args.signatureTag.trim() : '';
       const isReviewerAgent = agent.startsWith('lattice-review-');
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
 
@@ -272,11 +312,32 @@ export function createFindingHandlers(ctx: HandlerContext) {
           ...(args.reviewRunId ? { reviewRunId: args.reviewRunId } : {}),
           _hash: signFinding(args.storyId, fid, args.desc, args.severity, timestamp, reviewRound, args.reviewRunId || ''),
           ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
+          // B-4f46 CHK-002: audit-only signatureTag — persisted but NOT part of _hash (signFinding above unchanged).
+          ...(signatureTag ? { signatureTag } : {}),
         };
         data.findings.push(finding);
         store.writeFindings(args.storyId, data);
         return fid;
       });
+
+      // B-4f46 CHK-003: if a signatureTag was provided and is not yet an active/proposed
+      // tag, auto-record it as status=proposed in the signature-registry (audit-only;
+      // no gate reads it). Best-effort: a registry write failure must not fail finding_add.
+      let signatureTagHint = '';
+      if (signatureTag) {
+        try {
+          const alreadyKnown = hasActiveOrProposedTag(ctx.root, signatureTag);
+          if (!alreadyKnown) {
+            proposeSignatureTag(ctx.root, signatureTag, agent);
+            const near = suggestNearActiveTag(ctx.root, signatureTag);
+            signatureTagHint = near
+              ? `\n→ signatureTag "${signatureTag}" auto-proposed (audit-only); did you mean active tag "${near}"?`
+              : `\n→ signatureTag "${signatureTag}" auto-proposed to the signature-registry (audit-only; approve via signature_registry_set).`;
+          }
+        } catch (e) {
+          console.warn(`[signature-registry] auto-propose failed for ${signatureTag}:`, (e as Error).message);
+        }
+      }
 
       try {
         store.appendProcessEvent(args.storyId, {
@@ -314,7 +375,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         : evidence.evidenceState === 'disproven'
           ? '\n→ evidenceState=disproven: has been refuted by counter-evidence, does not block REVIEW→TEST.'
           : '';
-      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${commitHint}`;
+      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${signatureTagHint}${commitHint}`;
     },
 
     review_pass_set(args: { storyId: string; agent?: string; note: string; reviewRunId?: string }): string {
@@ -375,8 +436,11 @@ export function createFindingHandlers(ctx: HandlerContext) {
       };
     },
 
-    finding_resolve(args: { storyId: string; findingId: string; resolution?: string }): string {
+    finding_resolve(args: { storyId: string; findingId: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string }): string {
       assertCwdInWorktree(store, args.storyId);
+      // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
+      const resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
+      const resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);
       // B-f60c CHK-003: a B-META finding mutation is serialized under the main
       // write lock; a normal story runs unchanged (pass-through).
       withMetaFindingLock(ctx, args.storyId, () => {
@@ -387,6 +451,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
         const resolution = args.resolution?.trim();
         if (resolution) f.resolvedReason = resolution;
         f.resolvedAt = new Date().toISOString();
+        // B-4f46 CHK-002: persist audit-only outcome enums (NOT part of the finding signature; no gate reads them).
+        if (resolutionType) f.resolutionType = resolutionType;
+        if (resolveEvidenceStrength) f.resolveEvidenceStrength = resolveEvidenceStrength;
         store.writeFindings(args.storyId, data);
       });
 
@@ -402,11 +469,15 @@ export function createFindingHandlers(ctx: HandlerContext) {
       return `Finding ${args.findingId} resolved${commitHint}`;
     },
 
-    finding_dismiss(args: { storyId: string; findingId: string; reason: string }): string {
+    finding_dismiss(args: { storyId: string; findingId: string; reason: string; dismissReasonType?: string; dismissEvidenceStrength?: string }): string {
       assertCwdInWorktree(store, args.storyId);
       if (!args.reason || args.reason.trim().length < 10) {
         throw new Error('finding_dismiss: reason must be >= 10 characters, explaining why it will not be fixed');
       }
+      // B-4f46 CHK-002: validate the optional audit-only enums up front. dismissReasonType is
+      // OPTIONAL (never required); omitting both fields => unchanged legacy behavior.
+      const dismissReasonType: DismissReasonType | undefined = validateOptionalEnum('finding_dismiss', 'dismissReasonType', args.dismissReasonType, DISMISS_REASON_TYPES);
+      const dismissEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_dismiss', 'dismissEvidenceStrength', args.dismissEvidenceStrength, EVIDENCE_STRENGTHS);
       // B-f60c CHK-003: a B-META finding mutation is serialized under the main
       // write lock; a normal story runs unchanged (pass-through). `alreadyResolved`
       // carries the "already resolved, no-op dismiss" branch out of the lock.
@@ -425,6 +496,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
         f.status = 'dismissed';
         f.dismissReason = args.reason.trim();
         f.dismissedAt = new Date().toISOString();
+        // B-4f46 CHK-002: persist audit-only outcome enums (NOT part of the finding signature; no gate reads them).
+        if (dismissReasonType) f.dismissReasonType = dismissReasonType;
+        if (dismissEvidenceStrength) f.dismissEvidenceStrength = dismissEvidenceStrength;
         store.writeFindings(args.storyId, data);
         return false;
       });
