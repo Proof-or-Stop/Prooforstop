@@ -66,6 +66,22 @@
         "packages/main/smoke-manifest.json",
         "packages/main/src/tasks/run-all-smokes.ts"
       ]
+    },
+    {
+      "id": "B-6efb:F-005",
+      "desc": "CHK-002:edge:2 evidence command does not match intent. Intent: `node -e require(smoke-manifest.json).smokes.filter(s=>s.tags).forEach(s=>{if(!Array.isArray(s.tags))throw 1}); console.log(SCHEMA_OK)`. Evidence command: `grep -n timeoutMs packages/main/dist/tasks/run-all-smokes.js` — this only confirms timeoutMs appears in the compiled runner source, not that manifest tag fields are typed correctly as arrays. Re-run of intent command returns SCHEMA_OK but this was not recorded.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:48.155Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "9c24e6da781f53b7fa9bbd18804b05ae3f734432a523f7d51568b65d95f18e10",
+      "files": [
+        "packages/main/smoke-manifest.json"
+      ]
     }
   ]
 }
