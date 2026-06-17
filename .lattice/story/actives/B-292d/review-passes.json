@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-292d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept check complete. This diff is purely additive — no concept deleted or replaced. Gate name koala-residue appears consistently across all 5 expected surfaces: review-preflight.ts (type union + two push() sites + helper function), cli-prompts.ts (item 7 in preflight list), CLAUDE.md (gate table row), CHANGELOG.md (unreleased entry), and scripts/verify-koala-residue.mjs (5 NEUTRAL_TOKEN_PATTERNS). No stale gate-count strings (5/6 gates) found. No conflicting gate name variant found. Promised-but-undelivered check: all CLAUDE.md/cli-prompts documented behaviors have corresponding implementation in review-preflight.ts. No concept residue blocker. Zero findings.",
+      "createdAt": "2026-06-17T17:47:19.841Z",
+      "reviewRound": "2026-06-17T17:46:03.529Z",
+      "reviewRunId": "B-292d:RR-001",
+      "_hash": "f71fa9dfed222b4fcddf7813e57c9aa005f8982c3fc7742467119cadf0887c27"
+    }
+  ]
+}
