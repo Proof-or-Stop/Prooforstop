@@ -81,6 +81,16 @@
           "headHash": "559764e1a68a19365d7b316a1e01f1179b64053c",
           "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
           "timestamp": "2026-06-17T22:43:17.012Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -n shadow.status|readinessWarnings|mode.*local in the smoke .ts files",
+          "result": "pass",
+          "note": "No assertion weakened: autopilot keeps shadow.status===warn (line 202), readinessWarnings.length>0 (205), localWorkflowUsable===true (203), authorityRequired===false (204); multi-host keeps E2 mode===local (345). Fix only isolates disk reads via existing cwd/fileReader production params.",
+          "headHash": "b770235e6c16d3292e9bfb3601c9a70852804ae3",
+          "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
+          "timestamp": "2026-06-17T22:43:17.826Z"
         }
       ]
     },
