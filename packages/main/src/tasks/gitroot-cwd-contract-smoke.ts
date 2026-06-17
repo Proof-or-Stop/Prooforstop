@@ -50,7 +50,7 @@
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { isAbsolute, resolve } from 'node:path';
+import { isAbsolute, join, resolve } from 'node:path';
 
 // ── Canonical regex (KEEP IN SYNC with the project-level contract) ──────────
 // Captures `(execFileSync|spawnSync|execSync)\(['"]git['"]` to identify a git
@@ -163,6 +163,165 @@ function scanText(text: string): Array<{ line: number; matchedIdent: string }> {
   return out;
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// B-f882 CHK-003: review-preflight docs-drift repoRoot must be the resolved gitCwd
+// ════════════════════════════════════════════════════════════════════════════
+//
+// DEFECT CLASS THIS ADDS (the gap the BARE_CWD_REGEX above could NOT catch):
+//   In packages/main/src/handlers/review-preflight.ts, runReviewCliGates resolves
+//   `const gitCwd = resolveGitCwd({...})` once and threads it into the
+//   channel / concept / english git-invoking gates. The docs-drift gate is invoked
+//   via `runDocsDriftGate(mdContents, registryNames, { repoRoot: <X>, ... })`, and
+//   `runDocsDriftGate` -> checkPathDrift -> scanPathDrift uses that `repoRoot` as a
+//   git child-process cwd (fs.existsSync + `git grep`). The B-f882 bug was
+//   `repoRoot: deps.projectRoot` (the metadataRoot) forwarded under the param name
+//   `repoRoot` — so on wrapper-root layouts (metadataRoot != gitRoot) docs-drift ran
+//   from the non-git metadataRoot, real files looked absent, and REVIEW→TEST was
+//   falsely blocked.
+//
+//   The lexical BARE_CWD_REGEX (`cwd: projectRoot|root|metadataRoot`) is BLIND to
+//   this: the bad root was passed as `repoRoot:` (a param-named forward), not a
+//   literal `cwd:`, and `runDocsDriftGate` is not a `(execFileSync|spawnSync|
+//   execSync)('git', ...)` call site. So a separate, focused assertion is needed.
+//
+// MECHANISM (tightest robust check):
+//   Parse review-preflight.ts, isolate the EXACT `runDocsDriftGate( ... )` call
+//   expression (balanced-paren walk so trailing comments/other code stay out of
+//   scope), then within that call body assert the `repoRoot:` value token is the
+//   resolved `gitCwd` identifier — and explicitly NOT `deps.projectRoot` / bare
+//   `projectRoot` / `metadataRoot` / `root`.
+//
+// COVERAGE — what this DOES catch:
+//   - The review-preflight docs-drift gate being wired `repoRoot: deps.projectRoot`
+//     (the exact B-f882 / B-0740 param-named-metadataRoot-forward defect for THIS
+//     gate), or any of `projectRoot` / `metadataRoot` / `root` as that repoRoot.
+//
+// COVERAGE — what this does NOT cover (intentional, per CHK-003):
+//   - It is review-preflight-specific (single file, single gate call). It is NOT a
+//     general repo-wide dataflow guard.
+//   - It does not catch param-named root forwards into OTHER gates or other files
+//     (e.g. a future new git-invoking gate added to runReviewCliGates with its own
+//     repoRoot-like param). A full lexical/AST rewrite that tracks every
+//     metadataRoot forward into every git-cwd-consuming callee was judged
+//     impractical and out of scope for this checklist; the legitimate
+//     `deps.projectRoot` uses in this same file (managedAssetDefs resolution,
+//     mdReader, codex summaries) must NOT be flagged, which a broad scan would.
+//   - It asserts only the identifier wiring; it does not prove resolveGitCwd's
+//     runtime correctness (covered by docs-drift-wrapper-root-smoke / B-2856).
+
+const REVIEW_PREFLIGHT_REL = 'packages/main/src/handlers/review-preflight.ts';
+const EXPECTED_DOCS_DRIFT_REPO_ROOT = 'gitCwd';
+const FORBIDDEN_REPO_ROOT_TOKENS = new Set<string>([
+  'deps.projectRoot',
+  'projectRoot',
+  'metadataRoot',
+  'root',
+]);
+
+/**
+ * Extract the FULL `runDocsDriftGate( ... )` call expression(s) from source text
+ * by walking balanced parens from each `runDocsDriftGate(` token. Returns each
+ * call's inner argument text (between the outer parens). Skips the import-list
+ * token (`runDocsDriftGate,`) and the JSDoc reference (`runDocsDriftGate `) because
+ * those are not immediately followed by `(`.
+ */
+function extractRunDocsDriftGateCalls(text: string): string[] {
+  const calls: string[] = [];
+  const CALL_TOKEN = 'runDocsDriftGate(';
+  let searchFrom = 0;
+  for (;;) {
+    const tokenIdx = text.indexOf(CALL_TOKEN, searchFrom);
+    if (tokenIdx === -1) break;
+    const openParen = tokenIdx + CALL_TOKEN.length - 1; // index of the '('
+    let depth = 0;
+    let i = openParen;
+    let closeIdx = -1;
+    for (; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '(') depth++;
+      else if (ch === ')') {
+        depth--;
+        if (depth === 0) {
+          closeIdx = i;
+          break;
+        }
+      }
+    }
+    if (closeIdx === -1) {
+      // Unbalanced — treat as a hard parse failure (do not silently pass).
+      calls.push(text.slice(openParen + 1)); // best-effort tail for diagnostics
+      break;
+    }
+    calls.push(text.slice(openParen + 1, closeIdx));
+    searchFrom = closeIdx + 1;
+  }
+  return calls;
+}
+
+/**
+ * Given a `runDocsDriftGate(...)` call's inner-argument text, return the verbatim
+ * `repoRoot:` value token (trimmed, up to the next ',' or '}'), or null if the
+ * call does not pass a `repoRoot:` option.
+ */
+function extractRepoRootValue(callArgs: string): string | null {
+  const m = /\brepoRoot\s*:\s*([^,}]+)/.exec(callArgs);
+  if (!m) return null;
+  return m[1].trim();
+}
+
+/**
+ * Verdict for one source text: returns a violation message, or null if the
+ * review-preflight docs-drift `repoRoot:` is wired to `gitCwd`.
+ */
+function checkDocsDriftRepoRoot(text: string, label: string): string | null {
+  const calls = extractRunDocsDriftGateCalls(text);
+  if (calls.length === 0) {
+    return `${label}: no runDocsDriftGate(...) call found — the review-preflight ` +
+      `docs-drift gate this guard protects has moved or been renamed; update ` +
+      `gitroot-cwd-contract-smoke.ts (B-f882 CHK-003).`;
+  }
+  for (const callArgs of calls) {
+    const repoRoot = extractRepoRootValue(callArgs);
+    if (repoRoot === null) {
+      // No repoRoot passed → gate degrades to command-only (no git cwd consumed),
+      // which is acceptable wiring (cannot trigger the wrapper-root false-block).
+      continue;
+    }
+    if (FORBIDDEN_REPO_ROOT_TOKENS.has(repoRoot)) {
+      return `${label}: runDocsDriftGate(...) repoRoot is '${repoRoot}' — must be ` +
+        `the resolved '${EXPECTED_DOCS_DRIFT_REPO_ROOT}' (the value threaded into ` +
+        `the channel/concept/english git gates), NOT a metadataRoot forward. ` +
+        `Forwarding deps.projectRoot/projectRoot/metadataRoot here makes ` +
+        `scanPathDrift run git from the non-git metadataRoot on wrapper-root ` +
+        `layouts → false missing-path drift → false REVIEW→TEST block (B-f882).`;
+    }
+    if (repoRoot !== EXPECTED_DOCS_DRIFT_REPO_ROOT) {
+      return `${label}: runDocsDriftGate(...) repoRoot is '${repoRoot}' — expected ` +
+        `'${EXPECTED_DOCS_DRIFT_REPO_ROOT}'. If this is an intentional new wiring, ` +
+        `update EXPECTED_DOCS_DRIFT_REPO_ROOT in gitroot-cwd-contract-smoke.ts ` +
+        `(B-f882 CHK-003) after confirming it is git-root-resolved.`;
+    }
+  }
+  return null;
+}
+
+// ── Self-test fixtures for the review-preflight docs-drift repoRoot assertion ──
+const DOCS_DRIFT_SELF_TEST_GOOD = [
+  `    docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {`,
+  `      repoRoot: gitCwd,`,
+  `      managedAssetDefs,`,
+  `    });`,
+].join('\n');
+
+// Negative fixture reproduces the exact B-f882 pre-fix defect: the metadataRoot
+// (deps.projectRoot) forwarded under the param name `repoRoot`.
+const DOCS_DRIFT_SELF_TEST_BAD = [
+  `    docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {`,
+  `      repoRoot: deps.projectRoot,`,
+  `      managedAssetDefs,`,
+  `    });`,
+].join('\n');
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 function listRepoTsFiles(repoRoot: string): string[] {
@@ -210,6 +369,25 @@ if (badHits.length !== 1 || badHits[0].matchedIdent !== 'projectRoot') {
 }
 pass('self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot');
 
+// ── Step 0b: self-test the review-preflight docs-drift repoRoot assertion ─────
+const docsDriftGoodViolation = checkDocsDriftRepoRoot(DOCS_DRIFT_SELF_TEST_GOOD, 'self-test GOOD');
+if (docsDriftGoodViolation !== null) {
+  fail(
+    `self-test docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) wrongly flagged: ` +
+    docsDriftGoodViolation,
+  );
+}
+pass('self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations');
+
+const docsDriftBadViolation = checkDocsDriftRepoRoot(DOCS_DRIFT_SELF_TEST_BAD, 'self-test BAD');
+if (docsDriftBadViolation === null) {
+  fail(
+    `self-test docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) was NOT ` +
+    `flagged — the review-preflight docs-drift assertion is broken.`,
+  );
+}
+pass('self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged');
+
 // ── Step 1: scan the live repo ──────────────────────────────────────────────
 const root = repoRoot();
 const files = listRepoTsFiles(root);
@@ -242,4 +420,25 @@ if (violations.length > 0) {
 }
 
 pass(`repo scan clean: ${files.length} .ts files inspected, 0 bare-cwd violations`);
+
+// ── Step 2: live review-preflight docs-drift repoRoot assertion (B-f882) ──────
+const reviewPreflightAbs = join(root, REVIEW_PREFLIGHT_REL);
+let reviewPreflightText: string;
+try {
+  reviewPreflightText = readFileSync(reviewPreflightAbs, 'utf-8');
+} catch (e) {
+  fail(
+    `cannot read ${REVIEW_PREFLIGHT_REL} for the docs-drift repoRoot assertion ` +
+    `(${e instanceof Error ? e.message : String(e)}) — the file this guard ` +
+    `protects has moved; update gitroot-cwd-contract-smoke.ts (B-f882 CHK-003).`,
+  );
+}
+const docsDriftViolation = checkDocsDriftRepoRoot(reviewPreflightText, reviewPreflightAbs);
+if (docsDriftViolation !== null) {
+  console.error('\n✗ gitroot-cwd-contract smoke FAILED (review-preflight docs-drift)');
+  console.error(`  ${docsDriftViolation}`);
+  process.exit(1);
+}
+pass(`review-preflight docs-drift gate wires repoRoot: ${EXPECTED_DOCS_DRIFT_REPO_ROOT} (not metadataRoot)`);
+
 console.log('\n✓ gitroot-cwd-contract smoke passed');
