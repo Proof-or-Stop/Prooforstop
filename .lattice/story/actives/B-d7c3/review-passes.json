@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T12:34:04.110Z",
       "reviewRunId": "B-d7c3:RR-004",
       "_hash": "c5ef04341620063893cfa37d1fc2e0ae92d81ea5d20d5ca6ed02a4663cb525fe"
+    },
+    {
+      "id": "B-d7c3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-review: all three round-2 findings confirmed resolved. F-008: review-preflight.ts line 79 ENGLISH_ARTIFACTS_GATE_LABEL now carries `npm run test:legacy -- english-only-guards`; dist/handlers/review-preflight.js rebuilt to match. F-009: lattice-hosts.ts line 390 editor-host commands array now carries `npm run test:legacy -- lattice-cli-migration`; dist/core/lattice-hosts.js rebuilt to match. F-010: provider-codex-smoke.ts line 19 and reviewer-quorum-smoke.ts line 3 both now carry `Run: npm run test:legacy -- <smoke-name>` header comments. Broad concept-residue grep on all Run: header comments in src/: only two remain, both correct test:legacy form. The one `commandsRun: [npm test]` in review-loop-smoke.ts is fixture data inside a test evaluation object (not an operator Run: comment) — confirmed same classification as round 2. No stale per-smoke npm-script binding pattern residue found in active code paths. Zero new findings.",
+      "createdAt": "2026-06-17T12:55:40.328Z",
+      "reviewRound": "2026-06-17T12:53:08.201Z",
+      "reviewRunId": "B-d7c3:RR-006",
+      "_hash": "78cf5f6a3a7d14d8dda3a7fb0ddcea90270e3c7c76a973d09d8178b4bb42f183"
     }
   ]
 }
