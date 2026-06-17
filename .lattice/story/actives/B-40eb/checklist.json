@@ -223,12 +223,12 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
-          "command": "git grep -i koala packages/main/src | perl /tmp/bf2.pl",
+          "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "main src 经 B-3cca branding 规则过滤后品牌残留为 0(剩 legacy 检测逻辑/路径)",
-          "headHash": "09eafa35a83969d6b716bb73aa146641e7c28524",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:11.741Z"
+          "note": "canonical 可复现 gate(提交于 scripts/)扫 active 范围 PASS exit 0；main/src 品牌残留 0(替代不可复现的临时脚本)",
+          "headHash": "4fabf38406be8238eafa655af2d556be4dc66ed7",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:25.013Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
