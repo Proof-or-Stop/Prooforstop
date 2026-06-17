@@ -1,0 +1,37 @@
+{
+  "task": "The REVIEW->TEST docs-drift preflight gate passes deps.projectRoot (metadataRoot) as repoRoot to runDocsDriftGate, so on wrapper-root layouts (metadataRoot != gitRoot) its fs.existsSync + git grep run from a non-git directory and falsely report existing CLAUDE.md path references as missing, false-blocking REVIEW->TEST.",
+  "outcome": "On a wrapper-root project the REVIEW->TEST preflight prints the docs-drift gate as: `[docs-drift] pass` (no false missing-path drift) and REVIEW->TEST proceeds; on a plain repo (projectRoot==gitCwd) output is byte-identical to before. A new wrapper-root regression runs green under `lattice validate` / root `npm test`, and is provably red if review-preflight reverts to passing metadataRoot as repoRoot.",
+  "facts": [
+    "review-preflight.ts ~:287 resolves gitCwd once via resolveGitCwd({store,storyId,metadataRoot:deps.projectRoot,projectRoot:deps.projectRoot}); channel(~:298), concept(~:313), english(~:464) gates already receive gitCwd.",
+    "review-preflight.ts ~:423-426 calls runDocsDriftGate(mdContents, deps.registryNames, {repoRoot: deps.projectRoot, managedAssetDefs}) — repoRoot wrongly bound to metadataRoot.",
+    "runDocsDriftGate (validate-docs-drift.ts:441) only runs path-drift when opts.repoRoot is set, delegating to checkPathDrift -> scanPathDrift (core/audit-scan.ts:214) which does pathExists(join(repoRoot,p)) and defaultGrepLiteral with execSync git grep {cwd: repoRoot}.",
+    "Both fs-exists and git grep are scoped by repoRoot; on metadataRoot!=gitRoot a real existing path is reported missing -> docs-drift FAIL.",
+    "Existing smokes docs-drift-path-drift-smoke.ts and gitroot-cwd-contract-smoke.ts never build a metadataRoot!=gitRoot layout, so this class is untested.",
+    "gitroot-cwd-contract-smoke.ts uses BARE_CWD_REGEX /\\bcwd:\\s*(projectRoot|root|metadataRoot)\\s*[,}]/ that only flags bare-identifier git cwd; it cannot catch metadataRoot forwarded under a param name like repoRoot.",
+    "Smokes auto-discover via run-all-smokes.ts discoverSmokes (*-smoke.js) and selectSmokes(smoke-manifest.json); root npm test runs an explicit subset; a new smoke must be wired into the battery the user runs (root npm test / lattice validate).",
+    "This is the exact B-0740 defect class (resolved gitCwd not threaded into one git-invoking gate)."
+  ],
+  "constraints": [
+    "STRICT SCOPE: only the repoRoot wiring fix (CHK-001), a wrapper-root regression (CHK-002), and a strengthened gitCwd guard (CHK-003).",
+    "Do NOT change managedAssetDefs/listManagedAssetDefinitions resolution (~:404) unless an implementer independently proves it needs gitCwd.",
+    "OUT OF SCOPE (user-deferred): english-artifacts gate storyDir metadata-root mismatch (~:463) — finding #3, separate story. Do NOT touch the english gate storyDir wiring.",
+    "OUT OF SCOPE: express-channel docstring drift (#2) — separate story.",
+    "Plain-repo behavior (projectRoot==gitCwd) must be byte-identical.",
+    "Normal channel: main agent does not write business code; dispatch lattice-implementer per item.",
+    "Handler Encoding Convention: re-validate Zod-constrained fields at runtime in handler + every consumer (only if a handler/schema is touched).",
+    "No remote push; DONE merges to local main only."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/validate-docs-drift.ts",
+    "packages/main/src/core/audit-scan.ts",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+    "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/smoke-manifest.json",
+    "packages/main/package.json",
+    "package.json"
+  ],
+  "timestamp": "2026-06-17T11:50:06.458Z"
+}

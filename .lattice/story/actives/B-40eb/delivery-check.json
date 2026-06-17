@@ -1,0 +1,94 @@
+{
+  "storyId": "B-40eb",
+  "checkedAt": "2026-06-17T12:14:54.451Z",
+  "reviewRound": "2026-06-17T12:06:45.973Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-40eb/plan.md#CHK-001",
+      "promise": "Precise classification of 272 files / 1655 lines into in-scope vs documented-exception; whitelist written to plan.md and understanding",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "plan.md enumerates 272 files / 1655 lines and full documented-exception whitelist. verify-koala-residue.mjs LEGACY_LOGIC_FILES set encodes the whitelist. understanding.json updated in branch."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-40eb/plan.md#CHK-002",
+      "promise": "packages/lab koala-lab branding swept to lattice-lab in core/*.ts, handlers/lab.ts, tool-defs.ts, profiles/*.ts",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows 26 koala->lattice brand changes in packages/lab/src/ including lab.ts error strings and CLI prose. All 11 targeted files present in diff."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-40eb/plan.md#CHK-003",
+      "promise": "packages/main/src brand function names, comments, CLI prose swept; branding rule leaves 0 must-change; npm run build exits 0",
+      "status": "verified",
+      "verifiedBy": "diff/grep + build",
+      "evidence": "git diff shows 607 koala lines changed in packages/main/src/ including repairGlobalKoalaLinkBeforeWorktreeDelete->repairGlobalLatticeLinkBeforeWorktreeDelete, mergeLatticeRuntimeIgnores, interface renames. npm run build: exit 0. verify-koala-residue.mjs: PASS 0 unclassified."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-40eb/plan.md#CHK-004",
+      "promise": "scripts/*.mjs (39 files) koala branding/comments -> Lattice; .koala path references kept; branding rule over scripts leaves 0 must-change",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows 373 koala line changes in scripts/ including convert-fixtures.cjs, run-*-experiment.mjs, verify-*.mjs. New scripts/verify-koala-residue.mjs added as canonical gate. Scan: PASS 0 unclassified."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-40eb/plan.md#CHK-005",
+      "promise": "packages/main/tests + src/tasks/*-smoke.ts fixtures swept: non-assertion brand changed, assertion intent preserved; npm run test:e2e all pass",
+      "status": "verified",
+      "verifiedBy": "diff/grep + test run",
+      "evidence": "3 fixture files updated (koala session brief->lattice session brief in assertions). worktree-repair-smoke.ts import renamed. runKoala/runKoalaExpectFail local helpers retained as documented exception. npm run test:e2e: ALL PASS. cli-engine-branding-smoke: PASS src unclassified=0 dist unclassified=0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-40eb/plan.md#CHK-006",
+      "promise": "CLAUDE.md docs/koala/reviewer-redesign.md path ref removed; docs/guide.md Koala/Lattice prose updated; packages/utils/* branding updated; root docs branding rule leaves 0 must-change",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "CLAUDE.md: removed reviewer-redesign.md reference line. docs/guide.md: Koala/Lattice->Lattice in rollout table. packages/utils/src/: 8 brand changes (tool_status header, truth_extract comments, aux-doc comments). Scan: PASS 0 unclassified."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-40eb/plan.md#CHK-007",
+      "promise": "Acceptance gate: koala grep over active scope leaves 0 unclassified; lattice validate all-green; build exit 0; test:e2e all pass; scripts/verify-koala-residue.mjs committed as story-4 basis",
+      "status": "verified",
+      "verifiedBy": "live execution",
+      "evidence": "node scripts/verify-koala-residue.mjs: PASS 0 unclassified. --self-test: PASS 5/5. lattice validate: ALL PASS. npm run build: exit 0. npm run test:e2e: ALL PASS. node bin/lattice.js verify_codex: 8/8. scripts/verify-koala-residue.mjs is new file in diff (mode 100644)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "verify-koala-residue.mjs scan PASS 0 unclassified; self-test 5/5 classify() unit tests covering both UNCLASSIFIED (novel identifiers, bare prose) and EXEMPT (runtime paths, process-lane names, legacy aliases) cases"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "cli-engine-branding-smoke PASS src unclassified=0 dist unclassified=0; npm run build exit 0"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "verify-koala-residue.mjs PASS 0 unclassified; build exit 0; cli-engine-branding-smoke PASS"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "verify-koala-residue.mjs PASS 0 unclassified (scripts/ in SCAN_ROOTS); lattice validate ALL PASS"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm run test:e2e ALL PASS (story-lifecycle 5/5, gap-convergence 4/4); cli-engine-branding-smoke PASS; worktree-repair-smoke import rename verified in diff"
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "verify-koala-residue.mjs PASS 0 unclassified (CLAUDE.md, docs/guide.md in SCAN_ROOTS); lattice validate ALL PASS"
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Full gate: verify-koala-residue.mjs PASS 0 unclassified; --self-test 5/5; lattice validate ALL PASS; npm run build exit 0; npm run test:e2e ALL PASS; verify_codex 8/8"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises (CHK-001 through CHK-007) independently verified from git diff and live execution. The canonical gate scripts/verify-koala-residue.mjs is committed as a new file and passes with 0 unclassified hits and 5/5 self-test assertions. All machine-verifiable acceptance criteria confirmed by direct execution: lattice validate ALL PASS, npm run build exit 0, npm run test:e2e ALL PASS, verify_codex 8/8. Edge cases covered in classify() tests. No unresolved TODOs found in non-test code changes."
+  },
+  "_hash": "af5a129c6d06167e30d601c41fa439bd3d5be59af6f5cc76347ef62f00d958d6"
+}

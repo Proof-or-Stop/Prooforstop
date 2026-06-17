@@ -20,8 +20,8 @@ function write(root: string, path: string, content: string): void {
 }
 
 function initStore(phase: StoryInfo['phase'] = 'PLAN'): { root: string; store: StoryStore; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-grill-smoke-'));
-  write(root, 'koala.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-grill-smoke-'));
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

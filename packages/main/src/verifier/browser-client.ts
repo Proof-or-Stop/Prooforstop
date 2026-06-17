@@ -47,7 +47,7 @@ function connect() {
           response = handleType(msg);
           break;
         case 'close':
-          (window as any).__koala_kicked = true;
+          (window as any).__lattice_kicked = true;
           if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
           ws?.close();
           ws = null;
@@ -64,7 +64,7 @@ function connect() {
   };
 
   ws.onclose = () => {
-    if ((window as any).__koala_kicked) return;
+    if ((window as any).__lattice_kicked) return;
     console.log('[lattice-verifier] disconnected, reconnecting...');
     ws = null;
     if (!reconnectTimer) {
@@ -161,6 +161,6 @@ window.addEventListener('unhandledrejection', (e) => {
   console.error('[lattice-verifier]', msg);
 });
 
-(window as any).__koala_errors = _errors;
+(window as any).__lattice_errors = _errors;
 
 connect();

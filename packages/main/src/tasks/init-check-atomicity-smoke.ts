@@ -26,7 +26,7 @@
  *       tests above never exercise.
  *
  * Pattern mirrors worktree-repair-smoke.ts (self-contained node script, mkdtemp
- * git repo, execFileSync/spawn of dist/cli.js, koala.config.json + .gitignore,
+ * git repo, execFileSync/spawn of dist/cli.js, lattice.config.json + .gitignore,
  * StoryStore seeding) and the frozen-story seeding from scope-anti-expansion-smoke.ts.
  */
 
@@ -63,7 +63,7 @@ function initRepo(prefix: string): string {
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -172,7 +172,7 @@ function commitStories(root: string): void {
   git(root, ['commit', '-m', 'add smoke story metadata']);
 }
 
-function runKoala(root: string, command: string, args: Record<string, unknown>): { code: number; stdout: string; stderr: string } {
+function runLattice(root: string, command: string, args: Record<string, unknown>): { code: number; stdout: string; stderr: string } {
   try {
     const stdout = execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
@@ -192,7 +192,7 @@ function runKoala(root: string, command: string, args: Record<string, unknown>):
 
 // ── (a) + (c-unfrozen): an UNFROZEN INIT story aborts bootstrap and stays at INIT ──
 function assertFailedBootstrapLeavesPhaseAtInit(): void {
-  const root = initRepo('koala-initcheck-atomic-partial-');
+  const root = initRepo('lattice-initcheck-atomic-partial-');
   try {
     const storyId = 'B-atomic';
     const store = new StoryStore(root);
@@ -202,7 +202,7 @@ function assertFailedBootstrapLeavesPhaseAtInit(): void {
     // freeze gate, a deterministic injected bootstrap failure (no flaky git op).
     commitStories(root);
 
-    const res = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const res = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     // The atomic flow runs dev_start FIRST; the freeze-gate failure aborts the
     // advance, so the command reports failure (not "advanced to INIT_CHECK").
     assert.notEqual(res.code, 0, 'story_advance INIT_CHECK with a failing bootstrap must exit non-zero');
@@ -212,7 +212,7 @@ function assertFailedBootstrapLeavesPhaseAtInit(): void {
 
     // The load-bearing assertion: phase is STILL INIT (no partial advance). If
     // someone reverts to advancing-before-bootstrap, this fails loudly.
-    const after = JSON.parse(runKoala(root, 'story_get', { storyId, detail: true }).stdout);
+    const after = JSON.parse(runLattice(root, 'story_get', { storyId, detail: true }).stdout);
     assert.equal(after.index.phase, 'INIT', 'failed bootstrap must NOT leave the story partially advanced at INIT_CHECK');
 
     // And no worktree was created on disk.
@@ -224,7 +224,7 @@ function assertFailedBootstrapLeavesPhaseAtInit(): void {
 
 // ── (b): recovery — a frozen story stuck at INIT_CHECK with no worktree re-bootstraps ──
 function assertDevStartRecoversStuckInitCheckStory(): void {
-  const root = initRepo('koala-initcheck-atomic-recover-');
+  const root = initRepo('lattice-initcheck-atomic-recover-');
   try {
     const storyId = 'B-stuck';
     const store = new StoryStore(root);
@@ -235,13 +235,13 @@ function assertDevStartRecoversStuckInitCheckStory(): void {
     freezeStory(store, storyId);
     commitStories(root);
 
-    const res = runKoala(root, 'dev_start', { storyId });
+    const res = runLattice(root, 'dev_start', { storyId });
     assert.equal(res.code, 0, `dev_start recovery should succeed: ${res.stderr}`);
     assert.match(res.stdout, /Path:/, 'dev_start must print a Path: line');
     assert.equal(existsSync(join(root, '.worktrees', storyId)), true, 'recovery must recreate the worktree on disk');
 
     // Idempotent: a second run returns the existing path without error.
-    const again = runKoala(root, 'dev_start', { storyId });
+    const again = runLattice(root, 'dev_start', { storyId });
     assert.equal(again.code, 0, `idempotent dev_start should succeed: ${again.stderr}`);
     assert.match(again.stdout, /already exists|Path:/i, 'second dev_start should report the existing worktree');
     assert.equal(existsSync(join(root, '.worktrees', storyId)), true);
@@ -252,7 +252,7 @@ function assertDevStartRecoversStuckInitCheckStory(): void {
 
 // ── (c): guard refusals — terminal/REVIEW phases and unfrozen INIT are refused ──
 function assertDevStartRefusedInWrongPhases(): void {
-  const root = initRepo('koala-initcheck-atomic-refuse-');
+  const root = initRepo('lattice-initcheck-atomic-refuse-');
   try {
     const store = new StoryStore(root);
     // DONE (terminal) story — handler allowedPhases gate rejects.
@@ -266,15 +266,15 @@ function assertDevStartRefusedInWrongPhases(): void {
     seedChecklist(store, 'B-unfrozen');
     commitStories(root);
 
-    const done = runKoala(root, 'dev_start', { storyId: 'B-done' });
+    const done = runLattice(root, 'dev_start', { storyId: 'B-done' });
     assert.notEqual(done.code, 0, 'dev_start must be refused for a DONE story');
     assert.match(`${done.stdout}\n${done.stderr}`, /INIT \/ INIT_CHECK \/ PLAN \/ DEV|phase DONE/i);
 
-    const review = runKoala(root, 'dev_start', { storyId: 'B-review' });
+    const review = runLattice(root, 'dev_start', { storyId: 'B-review' });
     assert.notEqual(review.code, 0, 'dev_start must be refused for a REVIEW story');
     assert.match(`${review.stdout}\n${review.stderr}`, /INIT \/ INIT_CHECK \/ PLAN \/ DEV|phase REVIEW/i);
 
-    const unfrozen = runKoala(root, 'dev_start', { storyId: 'B-unfrozen' });
+    const unfrozen = runLattice(root, 'dev_start', { storyId: 'B-unfrozen' });
     assert.notEqual(unfrozen.code, 0, 'dev_start must be refused for an unfrozen INIT story');
     assert.match(`${unfrozen.stdout}\n${unfrozen.stderr}`, /scope|freeze|anti-expansion/i, 'unfrozen INIT refusal must cite the freeze gate');
     assert.equal(existsSync(join(root, '.worktrees', 'B-unfrozen')), false, 'an unfrozen INIT story must not bootstrap a worktree');
@@ -286,7 +286,7 @@ function assertDevStartRefusedInWrongPhases(): void {
 // ── (d): clean-INIT success path — a fully-gated INIT story advances via the REAL
 //        story_advance INIT_CHECK happy path (phase advanced once + worktree recorded) ──
 function assertCleanInitCheckAdvanceSucceeds(): void {
-  const root = initRepo('koala-initcheck-atomic-success-');
+  const root = initRepo('lattice-initcheck-atomic-success-');
   try {
     // Use the real story_create CLI so the story has a genuine signed envelope
     // (background.md + index.json + checklist.json). init_check_repair signs over
@@ -304,7 +304,7 @@ function assertCleanInitCheckAdvanceSucceeds(): void {
       '## Conversation Texture',
       'A maintainer sees the story advance to INIT_CHECK exactly once with a worktree created on disk and recorded in the index.',
     ].join('\n\n');
-    const created = runKoala(root, 'story_create', {
+    const created = runLattice(root, 'story_create', {
       name: 'clean-init-success',
       title: 'Clean INIT success path',
       description: 'Verify a fully-gated INIT story advances through the real story_advance INIT_CHECK happy path.',
@@ -324,7 +324,7 @@ function assertCleanInitCheckAdvanceSucceeds(): void {
 
     // Satisfy the INIT_CHECK transition gate's init-check.json requirement via the
     // controlled, signed fallback (covers both required reviewers as <required>@fallback).
-    const repaired = runKoala(root, 'init_check_repair', {
+    const repaired = runLattice(root, 'init_check_repair', {
       storyId,
       acknowledge: true,
       fallbackReason: 'No init reviewer subagent can be spawned in this smoke; manually attested background + checklist + product value for the clean-INIT success path.',
@@ -340,11 +340,11 @@ function assertCleanInitCheckAdvanceSucceeds(): void {
     commitStories(root);
 
     // THE happy path: the real story_advance INIT_CHECK must SUCCEED.
-    const advanced = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const advanced = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.equal(advanced.code, 0, `clean-INIT story_advance INIT_CHECK should succeed: ${advanced.stderr}`);
 
     // Phase advanced exactly once: story_get detail reports INIT_CHECK.
-    const detail = JSON.parse(runKoala(root, 'story_get', { storyId, detail: true }).stdout);
+    const detail = JSON.parse(runLattice(root, 'story_get', { storyId, detail: true }).stdout);
     assert.equal(detail.index.phase, 'INIT_CHECK', 'clean-INIT success path must leave the story at INIT_CHECK');
 
     // The worktree directory exists on disk.

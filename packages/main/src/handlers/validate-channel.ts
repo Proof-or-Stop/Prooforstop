@@ -17,7 +17,7 @@
  *     offenders?: Array<{ sha, author, subject }>,
  *   }
  *
- * See docs/koala/reviewer-redesign.md §III S1 item 1.
+ * See docs/reviewer-redesign.md §III S1 item 1.
  */
 
 import { execSync } from 'node:child_process';

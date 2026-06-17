@@ -32,11 +32,11 @@ function parseCliJson(text) {
 }
 
 function createTempProject(baselineText) {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-session-brief-exp-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-session-brief-exp-'));
   ensureDir(join(dir, 'docs', 'story', 'actives'));
   ensureDir(join(dir, 'docs', 'requirements'));
   ensureDir(join(dir, 'samples'));
-  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -50,8 +50,8 @@ function createTempProject(baselineText) {
   writeFileSync(join(dir, 'README.md'), '# session brief experiment\n');
   writeFileSync(join(dir, 'samples', 'session-brief.txt'), baselineText);
   run('git', ['init', '-b', 'main'], dir);
-  run('git', ['config', 'user.name', 'Koala Lab'], dir);
-  run('git', ['config', 'user.email', 'koala-lab@example.com'], dir);
+  run('git', ['config', 'user.name', 'Lattice Lab'], dir);
+  run('git', ['config', 'user.email', 'lattice-lab@example.com'], dir);
   run('git', ['add', '.'], dir);
   run('git', ['commit', '-m', 'baseline'], dir);
   run('node', [cli, '--root', dir, 'lab', 'create', JSON.stringify({
@@ -76,7 +76,7 @@ function buildCandidates(baseline) {
 DEV 阶段。下一项：checklist_update --storyId=B-ff27 --itemId=CHK-001 --status=in_progress（准备 session_brief baseline 与 12 个候选样本）
 
 ## Current Story
-**Story**: B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+**Story**: B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 **Phase**: DEV
 **Checklist**: 0/3 done
 
@@ -93,7 +93,7 @@ DEV 阶段。下一项：checklist_update --storyId=B-ff27 --itemId=CHK-001 --st
 Next step: start CHK-001 and generate baseline/candidate files.
 
 ## Story / Phase
-- Story: B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+- Story: B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 - Phase: DEV
 - Checklist: 0/3 done; next pending CHK-001
 
@@ -110,7 +110,7 @@ Next step: start CHK-001 and generate baseline/candidate files.
 
 ## Git
 - working tree: dirty story metadata
-- recent commit: koala story B-ff27 init
+- recent commit: lattice story B-ff27 init
 
 ## Runtime health
 - worktree registered
@@ -139,7 +139,7 @@ worktree registered
 `],
     ['c05-reviewer-artifact-combined', 'Reviewer And Artifact Combined', `
 ## Story
-B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 Phase: DEV
 Checklist: 0/3 done
 
@@ -158,7 +158,7 @@ Start CHK-001 and create baseline/candidate samples.
 `],
     ['c06-exception-only-health', 'Exception-only Health', `
 ## Story
-B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 Phase: DEV
 Checklist: 0/3 done
 
@@ -176,7 +176,7 @@ Start CHK-001 and create candidates.
 `],
     ['c07-next-pending-only', 'Checklist Next Pending Only', `
 ## Story
-B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 Phase: DEV
 
 ## Checklist
@@ -199,7 +199,7 @@ Mark CHK-001 in_progress and generate samples.
 `],
     ['c08-active-story-card', 'Active Story Card', `
 ## Active story
-**B-ff27** — 用 koala-lab 跑 session_brief 结构化候选实验
+**B-ff27** — 用 lattice-lab 跑 session_brief 结构化候选实验
 Phase: **DEV**
 Progress: checklist 0/3
 
@@ -249,7 +249,7 @@ The story is in DEV and all planning artifacts are ready. The next user-visible 
 开始 CHK-001：生成当前 session_brief baseline 和 12 个候选样本。
 
 ## 当前 Story
-- Story: B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+- Story: B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 - Phase: DEV
 - Checklist: 0/3 done
 

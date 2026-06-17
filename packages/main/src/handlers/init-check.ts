@@ -96,7 +96,7 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
  * agentId is passed through purely as a reviewer-self-reported audit field. Anti-self-exemption relies on three layers: (1) the signature mechanism +
  * (2) the reviewer template fence + (3) CLAUDE.md behavioral conventions (same architecture as the landed B-ed3e scope-check).
  *
- * Three-layer validation (packages/koala/CLAUDE.md "Handler coding conventions"):
+ * Three-layer validation (CLAUDE.md "Handler coding conventions"):
  * - Zod schema: the cli-engine.ts registration side defines the issues array structure + severity enum + desc min(1)
  * - runtime (this handler's entry): re-validates desc.trim().length >= 1 to prevent paths that bypass Zod
  * - gate decision point (CHK-005 implementation): when consuming init-check.json.issues, applies trim validation by the same standard

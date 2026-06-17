@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'koala.js');
+const cli = join(root, 'bin', 'lattice.js');
 const candidateDir = join(root, 'experiments', 'candidates', 'test-intent');
 const reportDir = join(root, 'experiments', 'reports');
 const resultPath = join(reportDir, 'test-intent-structured-v1.json');
@@ -17,17 +17,17 @@ function run(command, args, cwd = root) {
   return execFileSync(command, args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
 }
 function createProject(baseline) {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-test-intent-exp-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-test-intent-exp-'));
   ensureDir(join(dir, 'docs', 'story', 'actives'));
   ensureDir(join(dir, 'docs', 'requirements'));
   ensureDir(join(dir, 'samples'));
-  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# testIntent experiment\n');
   writeFileSync(join(dir, 'samples', 'test-intent.json'), baseline);
   run('git', ['init', '-b', 'main'], dir);
-  run('git', ['config', 'user.name', 'Koala Lab'], dir);
-  run('git', ['config', 'user.email', 'koala-lab@example.com'], dir);
+  run('git', ['config', 'user.name', 'Lattice Lab'], dir);
+  run('git', ['config', 'user.email', 'lattice-lab@example.com'], dir);
   run('git', ['add', '.'], dir);
   run('git', ['commit', '-m', 'baseline'], dir);
   run('node', [cli, '--root', dir, 'lab', 'create', JSON.stringify({ id:'lab-test-intent-structured-v1', target:'test-intent-sample', profile:'test-intent-quality-v1', editableFiles:['samples/test-intent.json'] })]);
@@ -51,7 +51,7 @@ const baseline = JSON.stringify({
 }, null, 2);
 const candidates = [
   ['t01-current','Current Baseline', baseline, true],
-  ['t02-operation-result','Operation Result', JSON.stringify({ happy:[{desc:'运行 koala lab create --target=test-case-reviewer --profile=reviewer-quality-v1 → 写入 config 并返回 Next step', type:'cli_blackbox'}], edge:[{desc:'缺少 profile 参数 → 抛出参数校验错误并不写 config', type:'cli_blackbox'}], adversarial:[{desc:'传入未知 target → 抛出 unknown target 错误并保留现有 experiments 目录', type:'cli_blackbox'}] }, null, 2)],
+  ['t02-operation-result','Operation Result', JSON.stringify({ happy:[{desc:'运行 lattice lab create --target=test-case-reviewer --profile=reviewer-quality-v1 → 写入 config 并返回 Next step', type:'cli_blackbox'}], edge:[{desc:'缺少 profile 参数 → 抛出参数校验错误并不写 config', type:'cli_blackbox'}], adversarial:[{desc:'传入未知 target → 抛出 unknown target 错误并保留现有 experiments 目录', type:'cli_blackbox'}] }, null, 2)],
   ['t03-fixture-mappable','Fixture Mappable', JSON.stringify({ happy:[{desc:'input={target:\"test-case-reviewer\",profile:\"reviewer-quality-v1\"} → expect.configPath 存在且 result includes Created experiment', type:'cli_blackbox', input:{target:'test-case-reviewer',profile:'reviewer-quality-v1'}, expect:{created:true, configExists:true}}], edge:[{desc:'input={target:\"test-case-reviewer\"} → expect throws profile required', type:'cli_blackbox', input:{target:'test-case-reviewer'}, expect:{throws:'profile'}}], adversarial:[{desc:'input={target:\"../docs/story\"} → expect throws unknown target / path rejected', type:'cli_blackbox', input:{target:'../docs/story'}, expect:{throws:'unknown target'}}] }, null, 2)],
   ['t04-trigger-condition-result','Trigger Condition Result', JSON.stringify({ happy:[{trigger:'用户运行 lab create', condition:'target/profile 合法', result:'config 写入 experiments/configs 并输出 Next step', type:'cli_blackbox'}], edge:[{trigger:'用户运行 lab create', condition:'profile 缺失', result:'参数校验失败且不写文件', type:'cli_blackbox'}], adversarial:[{trigger:'用户运行 lab create', condition:'target 越权或未知', result:'拒绝并提示 unknown target', type:'cli_blackbox'}] }, null, 2)],
   ['t05-adversarial-first','Adversarial First', JSON.stringify({ adversarial:[{desc:'并发重复运行 lab create 同一个 id → 不破坏已存在 config，输出明确覆盖/已存在行为', type:'cli_blackbox', input:{id:'same'}, expect:{noCorruption:true}}], happy:[{desc:'正常运行 lab create → config 写入且输出 Created experiment', type:'cli_blackbox', input:{target:'test-case-reviewer',profile:'reviewer-quality-v1'}, expect:{created:true}}], edge:[{desc:'profile 为空字符串 → 参数校验失败', type:'cli_blackbox', input:{profile:''}, expect:{throws:'profile'}}] }, null, 2)],

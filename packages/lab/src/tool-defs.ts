@@ -16,7 +16,7 @@ export function createLabToolDefs(z: any): RuntimeToolDef[] {
   return [
   {
     name: 'lab_create',
-    description: '创建 koala-lab 实验配置骨架',
+    description: '创建 lattice-lab 实验配置骨架',
     schema: {
       target: z.string().describe('优化目标，如 test-case-reviewer'),
       profile: z.string().describe('评估 profile，如 reviewer-quality-v1'),
@@ -27,7 +27,7 @@ export function createLabToolDefs(z: any): RuntimeToolDef[] {
   },
   {
     name: 'lab_run',
-    description: '运行 koala-lab 实验（dry-run 预览或 confirm 创建 sandbox）',
+    description: '运行 lattice-lab 实验（dry-run 预览或 confirm 创建 sandbox）',
     guardrails: {
       supportsDryRun: true,
       requiresConfirm: true,

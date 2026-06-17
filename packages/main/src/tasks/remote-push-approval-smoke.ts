@@ -35,7 +35,7 @@ function setupRepo(prefix = 'lattice-push-approval-'): string {
   git(root, ['config', 'user.name', 'Push Approval Test']);
   write(root, '.gitignore', '.lattice/tmp/\n.lattice/\n');
   write(root, 'README.md', '# temp\n');
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',

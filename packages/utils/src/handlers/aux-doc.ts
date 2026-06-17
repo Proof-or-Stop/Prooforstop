@@ -33,7 +33,7 @@ function scanMdDir(dir: string, root: string, out: DocEntry[], skipPaths: Set<st
     const full = join(dir, e.name);
     if (e.isDirectory()) {
       if (SKIP_DIRS.has(e.name)) continue;
-      // Skip koala-managed runtime data subtrees (storyDir / fixturesDir)
+      // Skip Lattice-managed runtime data subtrees (storyDir / fixturesDir)
       const rel = relative(root, full).split('\\').join('/');
       if (skipPaths.has(rel)) continue;
       scanMdDir(full, root, out, skipPaths);
@@ -68,7 +68,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
   return {
     /**
      * List project docs (for picking relatedDocs in the PLAN phase).
-     * Scans the docDirs from koala.config.json (defaults to docs/, requirements/),
+     * Scans the docDirs from the resolved project config (legacy koala.config.json) (defaults to docs/, requirements/),
      * plus CLAUDE.md / README.md / AGENTS.md at the project root.
      * Extracts the H1 title of each markdown file and groups the output by directory.
      */
@@ -76,7 +76,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
       const config = loadConfig(root);
       const docDirs = config.docDirs ?? DEFAULT_DOC_DIRS;
       const all: DocEntry[] = [];
-      // koala-managed runtime data subtrees (story/fixtures); skipped while scanning
+      // Lattice-managed runtime data subtrees (story/fixtures); skipped while scanning
       const skipPaths = new Set<string>();
       if (config.storyDir) skipPaths.add(config.storyDir.split('\\').join('/'));
       if (config.fixturesDir) skipPaths.add(config.fixturesDir.split('\\').join('/'));

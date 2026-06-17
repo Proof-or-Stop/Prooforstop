@@ -1,0 +1,129 @@
+{
+  "storyId": "B-f882",
+  "checkedAt": "2026-06-17T11:55:42.273Z",
+  "features": [
+    {
+      "feature": "Change runDocsDriftGate call in review-preflight.ts ~:424 from repoRoot: deps.projectRoot to repoRoot: gitCwd",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "On wrapper-root layout (metadataRoot != gitRoot) the docs-drift gate no longer falsely reports CLAUDE.md path references as missing and no longer false-blocks REVIEW->TEST",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "On plain repos (projectRoot == gitCwd) docs-drift behavior is byte-identical to before the fix",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT change managedAssetDefs resolution (~:404) as part of this fix",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT touch the english-artifacts gate storyDir wiring (~:463) — deferred finding #3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred by user: scope-boundary.json confirmationNote states english-gate storyDir metadata-root mismatch (#3) is a separate story; execution-boundary.json confirmationNote repeats Do NOT modify the english-artifacts gate storyDir wiring",
+      "source": "description"
+    },
+    {
+      "feature": "Add a wrapper-root (metadataRoot != gitRoot) regression that drives the docs-drift preflight path-drift check through a fixture where the git repo is a subdir",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wrapper-root regression asserts that a CLAUDE.md path that exists under gitRoot is NOT reported as missing (fs/git scoped to gitRoot)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wrapper-root regression is proven RED against pre-fix wiring (repoRoot=metadataRoot) and GREEN post-fix",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wrapper-root regression is wired into the validate battery (root npm test) and runs under lattice validate --story=B-f882",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression uses DI/fixtures and does not depend on host-machine layout",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Strengthen the gitCwd guard (gitroot-cwd-contract-smoke.ts or focused new check) so an un-threaded review-preflight git-gate is caught mechanically",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Strengthened guard goes RED if a review-preflight git-gate is wired to deps.projectRoot instead of the resolved gitCwd",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Strengthened guard documents what it covers and does not cover (review-preflight-specific vs general lexical rewrite)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Express-channel docstring drift fix (separate story #2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred by user: description states express-channel docstring drift is out of scope as a separate story",
+      "source": "description"
+    },
+    {
+      "feature": "gitRoot-aware worktree bootstrap (metadata root vs git material root separation) — decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md §gitRoot-Aware Worktree Bootstrap",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This was delivered by B-4e06 (marked Delivered in the decisions doc); it is prior completed work that B-f882 depends on but does not re-implement. Background context only.",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "REVIEW->TEST fail-closed policy: review-preflight import/runtime exceptions block entry into TEST — decisions/testing-infra.md §The REVIEW->TEST validation entry must be fail-closed",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Existing framework requirement already implemented; B-f882 does not change this behavior and no new commitment is required here. The fix is narrowly scoped to threading gitCwd, which preserves fail-closed semantics.",
+      "source": "decisions:decisions/testing-infra.md"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 12,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4e03ddcf9005fd463e505ae683a79ad6356c8bf213520fad7b2588a3b6be4ac8",
+  "openQuestions": []
+}

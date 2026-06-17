@@ -12,13 +12,13 @@ function defaultHostBinary() {
   const platform = process.platform === 'darwin' ? 'macos' : process.platform;
   const arch = process.arch;
   if (platform === 'macos' && (arch === 'x64' || arch === 'arm64')) {
-    return join(repoRoot, 'dist', 'desktop', `koala-macos-${arch}`);
+    return join(repoRoot, 'dist', 'desktop', `lattice-macos-${arch}`);
   }
   if (platform === 'linux' && (arch === 'x64' || arch === 'arm64')) {
-    return join(repoRoot, 'dist', 'desktop', `koala-linux-${arch}`);
+    return join(repoRoot, 'dist', 'desktop', `lattice-linux-${arch}`);
   }
   if (platform === 'win32' && arch === 'x64') {
-    return join(repoRoot, 'dist', 'desktop', 'koala-win-x64.exe');
+    return join(repoRoot, 'dist', 'desktop', 'lattice-win-x64.exe');
   }
   throw new Error(`Unsupported host binary for ${process.platform}/${process.arch}`);
 }
@@ -69,7 +69,7 @@ function runBinary(args, label) {
 }
 
 if (!existsSync(binary)) {
-  throw new Error(`Desktop Koala binary is missing: ${binary}\nRun npm run package:desktop:host first, or pass LATTICE_DESKTOP_BINARY=/path/to/koala.`);
+  throw new Error(`Desktop Lattice binary is missing: ${binary}\nRun npm run package:desktop:host first, or pass LATTICE_DESKTOP_BINARY=/path/to/lattice.`);
 }
 
 const help = runBinary(['help'], 'core help');

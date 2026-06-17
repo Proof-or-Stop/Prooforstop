@@ -1,0 +1,47 @@
+{
+  "storyId": "B-0dab",
+  "checkedAt": "2026-06-17T13:12:31.931Z",
+  "reviewRound": "2026-06-17T13:03:14.291Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-0dab/plan.md#CHK-001",
+      "promise": "7 koala-* mkdtemp prefixes renamed to lattice-* in english-only-guards-smoke.ts (5) and review-incremental-context-smoke.ts (2); node scripts/verify-koala-residue.mjs prints PASS 0 unclassified",
+      "verifiedBy": "diff/grep + live gate run",
+      "evidence": "git show d719e7ff3 confirms exactly 5 replacements in english-only-guards-smoke.ts and 2 in review-incremental-context-smoke.ts; grep -n koala in both files returns 0 hits; node scripts/verify-koala-residue.mjs returns PASS koala-residue: 0 unclassified (exit 0)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0dab/plan.md#CHK-002",
+      "promise": "test:koala-residue npm script defined as node scripts/verify-koala-residue.mjs and wired into the package.json test chain so lattice validate (fallback battery) runs it",
+      "verifiedBy": "diff + package.json read",
+      "evidence": "git show f2aa16092 adds test:koala-residue entry and inserts it into test chain between test:main-write-lock-coverage and test:review-convergence-smoke; package.json line 17 confirms script definition; line 15 confirms chain wiring"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0dab/plan.md#CHK-003",
+      "promise": "Acceptance: gate PASS 0 unclassified; --self-test 5/5; npm test includes test:koala-residue passing; npm run build exits 0; gate is non-vacuous (adversarial demo confirmed)",
+      "verifiedBy": "live runs + checklist evidence",
+      "evidence": "node scripts/verify-koala-residue.mjs -> PASS 0 unclassified (exit 0, verified live in this reviewer session); --self-test -> PASS 5/5 (verified live in this reviewer session); checklist verificationEvidence records npm test passing, npm run build exit 0, adversarial re-introduce-koala demo exit 1 with filename then revert exit 0"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent verification in this reviewer session: grep -n koala in english-only-guards-smoke.ts and review-incremental-context-smoke.ts -> 0 hits each; grep lattice-english- -> 5 matches; grep lattice-incremental- -> 2 matches; node scripts/verify-koala-residue.mjs -> PASS 0 unclassified exit 0; checklist records both smokes passing after rename; adversarial: reintroduce one prefix -> gate exits 1 naming file, revert -> exit 0"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "package.json line 17 defines test:koala-residue as node scripts/verify-koala-residue.mjs; line 15 has test:koala-residue in the test chain after test:main-write-lock-coverage; checklist verificationEvidence records npm test running the step with PASS output; lattice validate edge evidence records all-green run"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Acceptance verified live: node scripts/verify-koala-residue.mjs -> PASS 0 unclassified (exit 0); node scripts/verify-koala-residue.mjs --self-test -> PASS 5/5 classify() unit tests (exit 0); checklist records npm run build exit 0, npm run test:e2e all pass, lattice validate all-green, adversarial non-vacuousness demo confirmed"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 docsPromises verified directly from code diff and live gate runs. CHK-001: 7 mkdtemp renames confirmed in commit diff (5+2), 0 koala hits in both files, gate PASS 0 unclassified verified live. CHK-002: test:koala-residue defined and wired into test chain confirmed in commit diff and live package.json read. CHK-003: two live runs in this reviewer session (scan PASS, self-test 5/5); adversarial non-vacuousness in checklist; no unresolved TODOs in either story commit. Delivery is complete and fully verified."
+  },
+  "_hash": "3faa614190c12160199cf7f082a7c4190a703e6b4859238aed42e926ec48908a"
+}

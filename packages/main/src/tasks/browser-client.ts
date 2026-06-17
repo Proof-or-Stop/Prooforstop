@@ -48,7 +48,7 @@ function connect() {
           break;
         case 'close':
           // Kicked out by a new client: mark + stop reconnecting + close tab
-          (window as any).__koala_kicked = true;
+          (window as any).__lattice_kicked = true;
           if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
           ws?.close();
           ws = null;
@@ -65,7 +65,7 @@ function connect() {
   };
 
   ws.onclose = () => {
-    if ((window as any).__koala_kicked) return; // Kicked-out tab does not reconnect
+    if ((window as any).__lattice_kicked) return; // Kicked-out tab does not reconnect
     console.log('[web-test] disconnected, reconnecting...');
     ws = null;
     if (!reconnectTimer) {

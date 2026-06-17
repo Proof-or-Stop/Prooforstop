@@ -1,7 +1,7 @@
 /**
  * @task B-6bfd
  * @checklist CHK-004
- * @title Koala-managed guarded session projection
+ * @title Lattice-managed guarded session projection
  * @type feature
  * @priority high
  * @description

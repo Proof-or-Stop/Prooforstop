@@ -22,7 +22,7 @@ import { join } from 'node:path';
 
 import { detectMissingNodeModulesWarning } from '../handlers/worktree.js';
 
-const base = mkdtempSync(join(tmpdir(), 'koala-nm-smoke-'));
+const base = mkdtempSync(join(tmpdir(), 'lattice-nm-smoke-'));
 
 function freshWorktree(name: string): string {
   const wt = join(base, name);

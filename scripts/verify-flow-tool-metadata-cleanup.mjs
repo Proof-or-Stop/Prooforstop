@@ -28,14 +28,14 @@ function extractJson(text) {
   return JSON.parse(text.slice(start));
 }
 
-const temp = mkdtempSync(join(tmpdir(), 'koala-flow-tool-meta-'));
+const temp = mkdtempSync(join(tmpdir(), 'lattice-flow-tool-meta-'));
 
 try {
   mkdirSync(join(temp, 'packages', 'main', 'src'), { recursive: true });
   mkdirSync(join(temp, 'docs', 'metadata'), { recursive: true });
   mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true });
 
-  writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(temp, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',

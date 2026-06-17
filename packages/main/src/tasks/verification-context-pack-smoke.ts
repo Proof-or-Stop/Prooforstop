@@ -30,9 +30,9 @@ function schemaFor(name: string) {
   return z.object(tool.schema);
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-vcp-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-vcp-'));
 git(root, ['init']);
-git(root, ['config', 'user.email', 'koala@example.test']);
+git(root, ['config', 'user.email', 'lattice@example.test']);
 git(root, ['config', 'user.name', 'Lattice Smoke']);
 writeFileSync(join(root, 'alpha.ts'), [
   'export function alpha() {',
@@ -91,9 +91,9 @@ const parsed = parseGitDiffHunks(result.diffText);
 assert.deepEqual(parsed.map(h => h.hunkRef), (result.pack.changedHunks ?? []).map(h => h.hunkRef));
 assert.ok((result.pack.changedHunks ?? []).every(hunk => Boolean(hunk.patchHash && hunk.patchHash.length > 0)));
 
-const multiTrackedRoot = mkdtempSync(join(tmpdir(), 'koala-vcp-multi-'));
+const multiTrackedRoot = mkdtempSync(join(tmpdir(), 'lattice-vcp-multi-'));
 git(multiTrackedRoot, ['init']);
-git(multiTrackedRoot, ['config', 'user.email', 'koala@example.test']);
+git(multiTrackedRoot, ['config', 'user.email', 'lattice@example.test']);
 git(multiTrackedRoot, ['config', 'user.name', 'Lattice Smoke']);
 writeFileSync(join(multiTrackedRoot, 'alpha.ts'), 'export const alpha = 1;\n');
 writeFileSync(join(multiTrackedRoot, 'beta.ts'), 'export const beta = 1;\n');
@@ -258,9 +258,9 @@ assert.ok(evidence.coveredRefs.includes(buildCommandRef));
 assert.ok(evidence.inspectedPackRefs.includes(buildCommandRef));
 assert.deepEqual(evidence.inspectedPackRefs, allContextPackRequiredRefs(handlerResult.pack));
 
-const deletionRoot = mkdtempSync(join(tmpdir(), 'koala-vcp-delete-'));
+const deletionRoot = mkdtempSync(join(tmpdir(), 'lattice-vcp-delete-'));
 git(deletionRoot, ['init']);
-git(deletionRoot, ['config', 'user.email', 'koala@example.test']);
+git(deletionRoot, ['config', 'user.email', 'lattice@example.test']);
 git(deletionRoot, ['config', 'user.name', 'Lattice Smoke']);
 writeFileSync(join(deletionRoot, 'gamma.ts'), 'export const gamma = 1;\n');
 git(deletionRoot, ['add', 'gamma.ts']);

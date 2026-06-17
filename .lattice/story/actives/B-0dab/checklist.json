@@ -1,0 +1,453 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Clean the 7 residual koala-* mkdtemp prefixes on main",
+      "context": "packages/main/src/tasks/english-only-guards-smoke.ts (lines 165/201/260/352/354: koala-english-scope-/block-/realgit-/initrerun-/initrerun-home-) and review-incremental-context-smoke.ts (lines 262/437: koala-incremental-ctx-/gate-): rename mkdtemp prefixes koala-* -> lattice-*. These are brand temp-dir names, not assertion targets. Run the smokes after to confirm still pass.",
+      "status": "done",
+      "startTime": "2026-06-17T12:56:13.495Z",
+      "endTime": "2026-06-17T12:56:50.451Z",
+      "userSees": "node scripts/verify-koala-residue.mjs prints PASS koala-residue: 0 unclassified (down from 7)",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -n koala- english-only-guards-smoke.ts after rename -> 0 matches; WHY: confirms all 5 koala-* mkdtemp prefixes in this file are replaced with lattice-*",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -n koala- review-incremental-context-smoke.ts after rename -> 0 matches; WHY: confirms both koala-* mkdtemp prefixes in this file are replaced with lattice-*",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -n lattice-english- english-only-guards-smoke.ts -> 5 matches at lines 165/201/260/352/354; WHY: confirms replacement prefixes are correct and present",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -n lattice-incremental- review-incremental-context-smoke.ts -> 2 matches at lines 262/437; WHY: confirms replacement prefixes are correct and present",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build && node packages/main/dist/tasks/english-only-guards-smoke.js -> exits 0; WHY: smoke test still passes after rename",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build && node packages/main/dist/tasks/review-incremental-context-smoke.js -> exits 0; WHY: second smoke test still passes after rename",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node scripts/verify-koala-residue.mjs -> PASS 0 unclassified (exit 0); WHY: confirms the gate now sees 0 residual koala-* brand references after the 7 renames",
+            "type": "cli"
+          },
+          {
+            "desc": "count total lattice- mkdtemp prefixes across both files -> exactly 7; WHY: ensures no prefix was accidentally deleted or duplicated during rename",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "re-introduce one koala-english-scope- prefix back into english-only-guards-smoke.ts, rebuild, run node scripts/verify-koala-residue.mjs -> exits 1 with FAIL listing the re-introduced line; WHY: confirms the gate actually detects regression of a renamed prefix back to koala-*",
+            "type": "cli"
+          },
+          {
+            "desc": "rename a prefix to KOALA- (uppercase) instead of lattice- -> verify-koala-residue.mjs still catches it as unclassified; WHY: gate is case-insensitive and catches brand references in any case",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -n 'koala-english|koala-incremental' packages/main/src/tasks; node scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "All 7 koala-* mkdtemp prefixes renamed to lattice-*; git grep returns nothing; gate PASS 0 unclassified",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -n koala- review-incremental-context-smoke.ts after rename",
+          "result": "pass",
+          "note": "Verified pass on current worktree: 0 matches",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "grep -n lattice-english- english-only-guards-smoke.ts",
+          "result": "pass",
+          "note": "Verified pass on current worktree: 5 matches at lines 165/201/260/352/354",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "grep -n lattice-incremental- review-incremental-context-smoke.ts",
+          "result": "pass",
+          "note": "Verified pass on current worktree: 2 matches at lines 262/437",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "command": "npm run build && node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "manual_transcript",
+          "command": "npm run build && node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "Verified pass on current worktree: PASS 0 unclassified (exit 0)",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "count total lattice- mkdtemp prefixes across both files",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exactly 7",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "re-introduce one koala-english-scope- prefix back into english-only-guards-smoke.ts, rebuild, run node scripts/verify-ko",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "rename a prefix to KOALA- (uppercase) instead of lattice-",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire scripts/verify-koala-residue.mjs into the lattice validate battery",
+      "context": "Add a test:koala-residue npm script (node scripts/verify-koala-residue.mjs) and include it in the package.json `test` chain so lattice validate (which uses npm test as its fallback battery) runs the gate on every validate. Confirm lattice validate now exercises the gate.",
+      "status": "done",
+      "startTime": "2026-06-17T12:56:51.093Z",
+      "endTime": "2026-06-17T12:58:35.080Z",
+      "userSees": "npm test includes a passing test:koala-residue step; lattice validate runs the gate",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cat package.json | jq .scripts[\"test:koala-residue\"] -> \"node scripts/verify-koala-residue.mjs\"; WHY: confirms the npm script is defined correctly",
+            "type": "cli"
+          },
+          {
+            "desc": "cat package.json | jq .scripts.test -> string contains test:koala-residue; WHY: confirms the gate is wired into the test chain",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:koala-residue -> exits 0 with PASS output; WHY: confirms the individual script runs successfully via npm",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test -> exits 0 and output includes koala-residue PASS line; WHY: confirms the full test chain exercises the gate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm run test:koala-residue -- --self-test -> exits 0, prints 5/5 classify() unit tests; WHY: confirms the self-test mode is accessible through the npm script",
+            "type": "cli"
+          },
+          {
+            "desc": "run lattice validate -> output includes koala-residue gate pass or npm test chain passes; WHY: confirms lattice validate exercises the gate as part of its fallback battery",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "temporarily corrupt scripts/verify-koala-residue.mjs (e.g. syntax error), run npm test -> exits non-zero, test chain fails at test:koala-residue step; WHY: confirms the wiring is real -- if the gate script breaks, the test chain catches it rather than silently skipping",
+            "type": "cli"
+          },
+          {
+            "desc": "remove test:koala-residue from package.json test chain but leave the script defined, run npm test -> exits 0 but gate is NOT exercised (output has no koala-residue line); WHY: confirms that merely defining the script is not enough -- it must be in the test chain to be exercised",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "package.json test chain runs test:koala-residue (after test:main-write-lock-coverage); npm test shows it passing with 'PASS koala-residue: 0 unclassified'",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "cat package.json | jq .scripts.test",
+          "result": "pass",
+          "note": "Verified pass on current worktree: string contains test:koala-residue",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "npm run test:koala-residue",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0 with PASS output",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0 and output includes koala-residue PASS line",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:koala-residue -- --self-test",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0, prints 5/5 classify() unit tests",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "run lattice validate",
+          "result": "pass",
+          "note": "Verified pass on current worktree: output includes koala-residue gate pass or npm test chain passes",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "temporarily corrupt scripts/verify-koala-residue.mjs (e.g. syntax error), run npm test",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "remove test:koala-residue from package.json test chain but leave the script defined, run npm test",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Acceptance: koala-residue gate PASS on main and wired into validate",
+      "context": "node scripts/verify-koala-residue.mjs -> PASS 0 unclassified; --self-test -> 5/5; npm test includes test:koala-residue and passes; npm run build exits 0; npm run test:e2e all pass; lattice validate all-green and exercises the gate.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T13:00:51.485Z",
+      "userSees": "the koala-residue gate runs as part of every validate and passes; no koala can silently re-enter",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node scripts/verify-koala-residue.mjs -> prints PASS koala-residue: 0 unclassified, exits 0; WHY: gate passes clean on current tree",
+            "type": "cli"
+          },
+          {
+            "desc": "node scripts/verify-koala-residue.mjs --self-test -> prints PASS 5/5, exits 0; WHY: classify() unit tests all pass",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test -> exits 0, output includes test:koala-residue passing; WHY: full test chain green including the gate",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build -> exits 0; WHY: TypeScript compilation succeeds after prefix renames",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm run test:e2e -> all e2e tests pass; WHY: end-to-end suite unbroken by the changes",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rn koala packages/main/src/tasks/english-only-guards-smoke.ts packages/main/src/tasks/review-incremental-context-smoke.ts -> 0 matches; WHY: no residual koala references remain in the two modified files",
+            "type": "cli"
+          },
+          {
+            "desc": "node scripts/verify-koala-residue.mjs 2>&1 | grep -c unclassified -> line shows 0; WHY: zero unclassified residue across entire active scope, not just the two files",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "inject a new file src/tasks/sneaky.ts containing a koala-brand string not in any exemption list, run node scripts/verify-koala-residue.mjs -> exits 1 listing sneaky.ts as unclassified; WHY: proves the gate catches NEW koala brand introductions, not just known residue",
+            "type": "cli"
+          },
+          {
+            "desc": "add koala- mkdtemp prefix to a file outside packages/main/src/tasks/ (e.g. packages/main/src/utils/test-helper.ts), run gate -> exits 1; WHY: gate scans full active scope, not just the two files cleaned in this story",
+            "type": "cli"
+          },
+          {
+            "desc": "re-introduce all 7 original koala-* prefixes in both smoke files, run gate -> exits 1, reports exactly 7 unclassified hits; WHY: full regression scenario confirms gate catches every single one of the original residue locations",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-koala-residue.mjs && lattice validate",
+          "result": "pass",
+          "note": "Acceptance: gate PASS 0 unclassified, self-test 5/5, npm test includes passing test:koala-residue, build exit 0, e2e all pass, lattice validate all-green",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-koala-residue.mjs --self-test",
+          "result": "pass",
+          "note": "Verified pass on current worktree: prints PASS 5/5, exits 0",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0, output includes test:koala-residue passing",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "Verified pass on current worktree: all e2e tests pass",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "grep -rn koala packages/main/src/tasks/english-only-guards-smoke.ts packages/main/src/tasks/review-incremental-context-s",
+          "result": "pass",
+          "note": "Verified pass on current worktree: 0 matches",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-koala-residue.mjs 2>&1 | grep -c unclassified",
+          "result": "pass",
+          "note": "Verified pass on current worktree: line shows 0",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "inject a new file src/tasks/sneaky.ts containing a koala-brand string not in any exemption list, run node scripts/verify",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "add koala- mkdtemp prefix to a file outside packages/main/src/tasks/ (e.g. packages/main/src/utils/test-helper.ts), run ",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "re-introduce all 7 original koala-* prefixes in both smoke files, run gate",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
+        }
+      ]
+    }
+  ]
+}

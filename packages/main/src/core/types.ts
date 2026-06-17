@@ -89,7 +89,7 @@ export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceV
 }
 
 export interface VerificationIntentItem {
-  /** Optional stable id. If absent, Koala derives CHK-001:happy:0 from lane/index. */
+  /** Optional stable id. If absent, Lattice derives CHK-001:happy:0 from lane/index. */
   id?: string;
   desc: string;
   type: VerificationIntentType;
@@ -423,7 +423,7 @@ export interface StorySummaryData {
   acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
   /** Terminal outcome classification for DONE stories; omitted legacy data defaults to success. */
   outcomeKind?: StoryOutcomeKind;
-  /** Real-machine verification coverage: auto-scaffolded by koala, agent fills skipReasons only */
+  /** Real-machine verification coverage: auto-scaffolded by lattice, agent fills skipReasons only */
   realMachineCoverage: {
     /** Cases that were actually run (auto-populated from test-evidence.json + evidence per fixture) */
     ran: Array<{ name: string; where: string }>;
@@ -577,6 +577,32 @@ export interface Finding {
   /** leave an evidence chain on auto-resolve, distinct from regular finding_resolve */
   resolvedReason?: string;
   resolvedAt?: string;
+  /**
+   * B-4f46 CHK-001 (Experience Layer Phase 1b): coarse signature tag grouping a
+   * finding into a recurring pattern family.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  signatureTag?: string;
+  /**
+   * B-4f46 CHK-001: how this finding was resolved.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  resolutionType?: 'fixed' | 'duplicate' | 'superseded' | 'accepted_risk' | 'partially_mitigated';
+  /**
+   * B-4f46 CHK-001: why this finding was dismissed.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  dismissReasonType?: 'false_positive' | 'out_of_scope' | 'duplicate' | 'wontfix' | 'unclear' | 'already_covered';
+  /**
+   * B-4f46 CHK-001: confidence strength of the resolve evidence.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  resolveEvidenceStrength?: 'strong' | 'medium' | 'weak';
+  /**
+   * B-4f46 CHK-001: confidence strength of the dismiss evidence.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  dismissEvidenceStrength?: 'strong' | 'medium' | 'weak';
 }
 
 export interface FindingData {
@@ -663,7 +689,7 @@ export interface TestEvidenceData {
   traceCoverage?: string[];
   /** git HEAD hash at test time (used by DONE gate evidence freshness check) */
   headHash?: string;
-  /** non-Koala metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
+  /** non-Lattice metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
   materialHash?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
@@ -956,7 +982,7 @@ export type ProcessEventType =
   | 'decision_doc_proposal'
   | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'
-  // B-6bfd CHK-004: Koala-managed guard session projection lifecycle events.
+  // B-6bfd CHK-004: Lattice-managed guard session projection lifecycle events.
   | 'guard_session_start'
   | 'guard_session_check';
 
@@ -1544,9 +1570,9 @@ export interface SemanticScopeGateResult {
   summary: string;
 }
 
-// ── Guard Session (B-6bfd CHK-004: Koala-managed guarded session projection) ──
+// ── Guard Session (B-6bfd CHK-004: Lattice-managed guarded session projection) ──
 //
-// A guard session is a *projection* of scope protection for a Koala-dispatched
+// A guard session is a *projection* of scope protection for a Lattice-dispatched
 // agent. It is NOT a competing session truth source and NOT a write-ownership
 // authority — the story owner lease (core/story-owner-lease.ts) remains
 // authoritative for writes. The guard session only records which provider runs
@@ -1559,7 +1585,7 @@ export interface SemanticScopeGateResult {
  *                      writes are intercepted before they land.
  * - wrapped-preapply — Codex or Gemini invoked via Lattice dispatch/pre-apply flow;
  *                      the flow's pre-apply step checks scope before writing.
- * - watcher-fallback — provider has no pre-write interception; Koala can only detect
+ * - watcher-fallback — provider has no pre-write interception; Lattice can only detect
  *                      forbidden writes after the fact, never pretend blocking exists.
  * - active           — legacy alias for native-pretool (kept for backwards compat).
  * - inactive         — no guard session is running (used by renderers only).

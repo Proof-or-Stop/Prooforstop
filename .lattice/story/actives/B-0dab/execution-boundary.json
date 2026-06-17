@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0dab",
+  "allowedCommands": [
+    "git grep",
+    "lattice validate",
+    "node scripts/verify-koala-residue.mjs",
+    "npm run build",
+    "npm run test:e2e",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/src/tasks",
+    "scripts/verify-koala-residue.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".koala",
+    "CHANGELOG.md",
+    "docs/requirements/decisions",
+    "docs/story",
+    "jek.md"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "story 4: wire koala-residue gate into validate battery + clean 7 mkdtemp residuals; no re-sweep",
+  "createdAt": "2026-06-17T12:42:33.803Z",
+  "updatedAt": "2026-06-17T12:42:33.803Z",
+  "_hash": "e8dbba228398bf2f92431a458e59f835f459a082c40f87d567684ac9ceed7628"
+}

@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "The in-scope/exception boundary is authoritative per the existing guard test B-3cca branding rule; do not invent a new standard.",
+    "Minimal disruption: keep process-lane names / legacy alias / .koala runtime paths / salts / test-assertion intent, so build+e2e+validate stay green.",
+    "Gate-driven acceptance: story 4 extends the branding audit scope from 4 files to full active scope as a verify gate; story 3 cleans until the gate is green.",
+    "Batched and verifiable: by lab -> utils -> scripts -> main src -> main tests -> docs, each batch passes tests before moving on."
+  ],
+  "drivers": [
+    "Remove user-readable koala branding before OSS (ship-clean program story 3).",
+    "Do not break established decisions (B-3cca process-lane keep) or the existing e2e test suite.",
+    "No collision/rework with the concurrent B-ed70 (lab/.Codex) and the 7-story environment."
+  ],
+  "options": [
+    {
+      "name": "A: semantic-full + extend branding gate",
+      "pros": [
+        "Reuses the B-3cca established rule as the decision boundary; risk-controlled, does not break existing tests.",
+        "Cleans all user-readable branding (comments/@title/CLI prose/errors/prose/function names/temp prefixes).",
+        "Story 4 naturally lands as the 'extend branding audit scope' verify gate; both stories have real substance."
+      ],
+      "cons": [
+        "Still 272 files / 1655 lines of line-by-line judgment; large effort, needs batching.",
+        "Kept items like process-lane names mean git grep -i koala is not fully 0 (but explained by the whitelist)."
+      ]
+    },
+    {
+      "name": "B: literal-full",
+      "pros": [
+        "Most thorough; git grep -i koala theoretically 0."
+      ],
+      "cons": [
+        "Overturns the B-3cca established process-lane keep decision.",
+        "Requires rewriting many e2e tests and changing dispatch/agent type registration; highest collision and rework risk."
+      ]
+    },
+    {
+      "name": "C: narrow prose+comments only",
+      "pros": [
+        "Fastest and safest; does not touch tests/scripts."
+      ],
+      "cons": [
+        "koala branding remains in scripts and tests; the verify gate cannot be fully green."
+      ]
+    }
+  ],
+  "chosen": "A: semantic-full + extend branding gate",
+  "rationale": "After the precise inventory the user explicitly chose option A. Reusing the existing guard test B-3cca's classification rules as the in-scope/exception boundary is risk-controlled and does not break existing tests or established decisions; story 4 naturally lands as the verify gate extending the branding audit scope to full active scope. Option B overturns an established decision and requires rewriting many tests; option C leaves script/test branding and the gate cannot be fully green; both rejected.",
+  "preMortem": [
+    {
+      "scenario": "Changing branding in test fixtures (runKoala* function names, mkdtemp prefix koala-*, koala.config.json fixtures) breaks e2e tests",
+      "trigger": "Renamed a function but missed a reference, or changed an assertion-intent fixture's koala literal",
+      "consequence": "npm run test:e2e fails, story stuck in TEST",
+      "mitigation": "Judge line-by-line with the B-3cca rule: assertNotContains(...,'koala...') keeps the literal; when renaming function names/temp prefixes, update all references; run lattice validate + e2e after each batch"
+    },
+    {
+      "scenario": "Accidentally renaming process-lane names (koala-codex / koala-review* etc.) breaks dispatch / agent type registration",
+      "trigger": "Did not follow the branding NEUTRAL_TOKEN_PATTERNS and changed process-lane names too",
+      "consequence": "dispatch cannot find the agent type; e2e / real-machine dispatch fails",
+      "mitigation": "Strictly follow the B-3cca rule and leave process-lane names; the extended branding gate + e2e double-check; before DEV, use a perl replica of the rule to generate the must-change list, which excludes process-lane names"
+    },
+    {
+      "scenario": "Collision with the concurrent B-ed70 in packages/lab/src/core/config.ts and lab/package.json",
+      "trigger": "This story changed the same spot B-ed70 is changing",
+      "consequence": "DONE merge conflict requiring manual rebase",
+      "mitigation": "Leave lab/package.json description and the config.ts .Codex line to B-ed70; this story only changes lab's other files; rebase main before DONE to check conflicts"
+    },
+    {
+      "scenario": "After extending the branding gate to full active scope, kept koala (.koala paths in tests, koala.config.json fixtures) is misclassified as unclassified, making the gate permanently red",
+      "trigger": "Extended the audit scope but did not extend the NEUTRAL_TOKEN_PATTERNS contextual exemptions",
+      "consequence": "story 4 verify gate cannot go green, blocking DONE",
+      "mitigation": "When story 4 extends the gate, also extend the exemptions (.koala paths in test context, koala.config.json assertion fixtures); first make the gate green against the post-cleanup state"
+    },
+    {
+      "scenario": "1655 lines is large; a single session cannot finish, leaving a half-changed state",
+      "trigger": "Session ends / tool interrupts mid-change",
+      "consequence": "worktree in a partially-renamed, tests-red intermediate state",
+      "mitigation": "Batch by directory/category, run tests and commit after each batch (Lattice checklist tracks progress); worktree + Lattice story are recoverable, session_brief resumes"
+    }
+  ],
+  "timestamp": "2026-06-17T11:31:38.637Z"
+}

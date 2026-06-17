@@ -87,7 +87,7 @@ import {
 } from '../cli-engine.js';
 import { execFileSync } from 'node:child_process';
 
-const root = join(tmpdir(), `koala-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `lattice-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {

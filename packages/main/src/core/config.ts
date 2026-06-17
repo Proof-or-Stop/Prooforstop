@@ -10,7 +10,7 @@ import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths
  * audit-config 扩展点（B-9bd9 CHK-004）：
  *   - profile 默认值由 `resolveAuditConfig` 接管（light=10, balanced=5, strict=3）
  *   - 项目级覆盖文件为 `<projectRoot>/.koala/audit-config.json`
- *   - 详见 packages/koala/CLAUDE.md「框架自省 audit 配置」
+ *   - 详见 CLAUDE.md「框架自省 audit 配置」
  *
  * 这里以 re-export 的形式挂到 config 入口，**不**改动现有 `loadConfig` /
  * `isCommandAllowed` 等 profile 消费者的行为；没有用到 audit 的调用方无感知。
@@ -18,7 +18,7 @@ import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths
 export { _resolveAuditConfig as resolveAuditConfig };
 export type { AuditConfig };
 
-export interface KoalaFlowConfig {
+export interface LatticeFlowConfig {
   defaults: Record<string, Record<string, unknown>>;
   patterns: Array<{ field: string; regex: string }>;
 }
@@ -34,7 +34,7 @@ export interface LatticeConfig {
   storyDir: string;
   requirementsDir: string;
   storyPrefix: string;
-  flows: KoalaFlowConfig;
+  flows: LatticeFlowConfig;
   wrappersDir?: string;
   /** 项目语言：js（默认）或 python */
   language?: 'js' | 'python';
@@ -83,7 +83,7 @@ export interface LatticeConfig {
     phaseStale?: number;
     /** checklist item 卡 in_progress 多久算遗忘（默认 30） */
     itemStale?: number;
-    /** 距离上次任意 koala 命令多久算 idle（默认 60） */
+    /** 距离上次任意 lattice 命令多久算 idle（默认 60） */
     idleKoala?: number;
     /** open bug 多久没修算超期（默认 1440=24h） */
     bugStale?: number;
@@ -93,7 +93,7 @@ export interface LatticeConfig {
    * 每个事件下用 commandName 或 "*" 通配匹配，value 是 shell 命令数组。
    * onPhaseChange 的 key 用 "FROM->TO" 格式（或 "*"）。
    *
-   * 失败/超时不阻塞主命令，详见 core/hooks.ts 和 packages/koala/docs/guide-hooks.md。
+   * 失败/超时不阻塞主命令，详见 core/hooks.ts 和 docs/guide-hooks.md。
    */
   hooks?: {
     preCommand?: Record<string, string[]>;
@@ -117,7 +117,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
-    'check',         // 全局：Koala 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
+    'check',         // 全局：Lattice 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
     'test_list',     // 全局：读取测试证据快照，TEST/DEV 排障都需要
     'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
     'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
@@ -128,7 +128,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
-    'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
+    'summary_set',   // 全局：DONE 前强制落总结，lattice short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets for authority-backed runs
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
@@ -186,6 +186,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
     'review_loop_status', 'review_loop_policy_show', // B-7a34: read-only review loop projections; REVIEW-only mutators are phase-scoped below
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
+    'signature_registry_*',  // B-4f46 CHK-003: audit-only finding signatureTag registry (Experience Layer Phase 1b); list/set declared allowedPhases:all in command-policy; no gate reads it
   ],
   INIT: [
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set

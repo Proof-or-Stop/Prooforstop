@@ -18,7 +18,7 @@
       "name": "activity log dirty is volatile baseline noise",
       "run_type": "cli",
       "file": "core/baseline-risk",
-      "execute": "const { appendFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nappendFileSync($root + \"/docs/story/activity.jsonl\", JSON.stringify({ tool: \"fixture-noise\", status: \"ok\" }) + \"\\n\");\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\nreturn { hidesActivityPath: !out.includes(\"docs/story/activity.jsonl\"), hasBrief: out.includes(\"# koala session brief\") };",
+      "execute": "const { appendFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nappendFileSync($root + \"/docs/story/activity.jsonl\", JSON.stringify({ tool: \"fixture-noise\", status: \"ok\" }) + \"\\n\");\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\nreturn { hidesActivityPath: !out.includes(\"docs/story/activity.jsonl\"), hasBrief: out.includes(\"# lattice session brief\") };",
       "expect": {
         "hidesActivityPath": true,
         "hasBrief": true

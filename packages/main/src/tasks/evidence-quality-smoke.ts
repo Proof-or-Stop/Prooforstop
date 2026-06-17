@@ -104,7 +104,7 @@ assert.equal(
   assert.equal(r.weaknessReason, 'version_help_only');
 }
 {
-  const r = classifyEvidenceQuality(makeEvidence({ command: 'koala --help' }));
+  const r = classifyEvidenceQuality(makeEvidence({ command: 'lattice --help' }));
   assert.equal(r.quality, 'weak', '--help command should be weak');
   assert.equal(r.weaknessReason, 'version_help_only');
 }

@@ -344,7 +344,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-default-fallback-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-default-fallback-'));
   try {
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
     assertIncludes(initOut, 'Selected init profile: core', 'lattice init default fallback profile selection');
@@ -356,7 +356,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-'));
   try {
     mkdirSync(join(tempDir, '.lattice-codex', 'agents'), { recursive: true });
     writeFileSync(join(tempDir, '.lattice-codex', 'agents', 'implementer.md'), 'old codex-only prompt\n');
@@ -478,7 +478,7 @@ checks.push(() => {
     assertPathExists(tempDir, '.lattice/managed-assets.json', 'lattice check --apply manifest');
 
     run('git', ['init'], { cwd: tempDir });
-    writeFileSync(join(tempDir, 'koala-user-note.txt'), 'uncommitted local work\n');
+    writeFileSync(join(tempDir, 'lattice-user-note.txt'), 'uncommitted local work\n');
     writeFileSync(join(tempDir, '.lattice-codex', 'lattice.json'), '{}\n');
     const checkUpgrade = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--upgrade', '--json'], { cwd: tempDir }));
     assert(checkUpgrade.ok === true, 'lattice check --upgrade should repair safe managed drift');
@@ -535,7 +535,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-case-mismatch-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-case-mismatch-'));
   try {
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
     rmSync(join(tempDir, 'LATTICE.md'), { force: true });
@@ -581,7 +581,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-existing-src-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-existing-src-'));
   try {
     mkdirSync(join(tempDir, 'src'), { recursive: true });
     writeFileSync(join(tempDir, 'src', 'index.ts'), 'export const alreadyHere = true;\n');
@@ -601,7 +601,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-gitignore-merge-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-gitignore-merge-'));
   try {
     const existingGitignoreLines = [
       'node_modules/',
@@ -623,7 +623,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-gitignore-no-churn-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-gitignore-no-churn-'));
   try {
     const gitignoreBefore = `${REQUIRED_RUNTIME_IGNORE_LINES.join('\n')}\n`;
     writeFileSync(join(tempDir, '.gitignore'), gitignoreBefore);
@@ -640,7 +640,7 @@ checks.push(() => {
 
 checks.push(() => {
   for (const flag of ['--starter', '--with-template']) {
-    const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-starter-'));
+    const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-starter-'));
     try {
       const initOut = run('node', [INIT_ENTRYPOINT, flag, tempDir]);
       assertIncludes(initOut, 'src/core/app.ts', `lattice init ${flag} output`);
@@ -662,7 +662,7 @@ checks.push(() => {
 
 checks.push(() => {
   for (const profile of ['codex', 'claude', 'core']) {
-    const tempDir = mkdtempSync(join(tmpdir(), `koala-entrypoints-profile-${profile}-`));
+    const tempDir = mkdtempSync(join(tmpdir(), `lattice-entrypoints-profile-${profile}-`));
     try {
       const initOut = run('node', [INIT_ENTRYPOINT, `--profile=${profile}`, '--asset-mode=full', tempDir]);
       assertIncludes(initOut, `Selected init profile: ${profile}`, `${profile} init profile selection`);
@@ -688,7 +688,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-explicit-override-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-explicit-override-'));
   try {
     writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nexisting codex marker\n');
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile', 'claude', '--asset-mode=full', '--verify-codex', tempDir]);
@@ -704,7 +704,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-transition-all-codex-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-transition-all-codex-'));
   try {
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=codex', '--asset-mode=full', tempDir]);
@@ -722,7 +722,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-transition-codex-claude-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-transition-codex-claude-'));
   try {
     run('node', [INIT_ENTRYPOINT, '--profile=codex', '--asset-mode=full', tempDir]);
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=claude', '--asset-mode=full', tempDir]);
@@ -738,7 +738,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-transition-all-core-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-transition-all-core-'));
   try {
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=core', '--asset-mode=full', tempDir]);
@@ -759,7 +759,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-cleanup-preserve-unmarked-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-cleanup-preserve-unmarked-'));
   try {
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
     const agentsOriginal = '# AGENTS.md\n\nuser-owned agents doc\n';
@@ -783,7 +783,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-managed-sync-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-managed-sync-'));
   try {
     writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nbefore-agents\n<!-- lattice:start -->\nold agents section\n<!-- lattice:end -->\nafter-agents\n');
     writeFileSync(join(tempDir, 'CLAUDE.md'), '# CLAUDE.md\n\nbefore-claude\n<!-- lattice:start -->\nold claude section\n<!-- lattice:end -->\nafter-claude\n');
@@ -811,7 +811,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-unmanaged-docs-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-unmanaged-docs-'));
   try {
     const agentsOriginal = '# AGENTS.md\n\nuser-owned agents doc\n';
     const claudeOriginal = '# CLAUDE.md\n\nuser-owned claude doc\n';
@@ -833,9 +833,9 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-python-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-python-'));
   try {
-    writeFileSync(join(tempDir, 'pyproject.toml'), '[project]\nname = "koala-smoke"\nversion = "0.0.0"\n');
+    writeFileSync(join(tempDir, 'pyproject.toml'), '[project]\nname = "lattice-smoke"\nversion = "0.0.0"\n');
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
     assertIncludes(initOut, '检测到 Python 项目', 'python no-src lattice init output');
     assertGlobalThinAssets(tempDir, 'core');
@@ -852,7 +852,7 @@ checks.push(() => {
 
 checks.push(() => {
   for (const profile of ['claude', 'core']) {
-    const tempDir = mkdtempSync(join(tmpdir(), `koala-entrypoints-verify-skip-${profile}-`));
+    const tempDir = mkdtempSync(join(tmpdir(), `lattice-entrypoints-verify-skip-${profile}-`));
     try {
       const out = run(process.execPath, [INIT_ENTRYPOINT, `--profile=${profile}`, '--asset-mode=full', '--verify-codex', tempDir]);
       assertIncludes(out, `Codex verification skipped: init profile ${profile} does not generate Codex adapter assets`, `${profile} verify-codex skip`);
@@ -863,7 +863,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-minpath-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-minpath-'));
   const staleBin = join(tempDir, 'stale-bin');
   try {
     mkdirSync(staleBin);

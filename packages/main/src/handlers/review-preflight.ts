@@ -16,10 +16,13 @@
  *   - lint:       status === 'pass' or 'skipped' → ok; 'fail' → block
  *   - docs-drift: status === 'pass' or 'skipped' → ok; 'fail' → block
  *
- * Express channel (checklist ≤ 2 and riskSignals empty) skips entirely — all CLI gates treated as pass,
- * symmetric with the existing "express channel REVIEW reviewer not checked".
+ * Express channel (checklist ≤ 2 and riskSignals empty) force-skips the channel/concept/lint/
+ * docs-drift/english-artifacts gates (treated as pass), symmetric with the existing "express channel
+ * REVIEW reviewer not checked". The codex-adapter gate is the one exception: it is still
+ * conditionally evaluated (when the story touches Codex adapter assets) and can block even on the
+ * express channel — so "express" skips five of the six gates, not all of them.
  *
- * See docs/koala/reviewer-redesign.md §3 S1 item 7.
+ * See docs/reviewer-redesign.md §3 S1 item 7.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -119,7 +122,7 @@ export interface PreflightGateEntry {
 
 export interface PreflightResult {
   ok: boolean;
-  /** true if fast-channel story — all 4 gates forced-pass */
+  /** true if fast-channel story — channel/concept/lint/docs-drift/english-artifacts force-skipped (codex-adapter still conditionally evaluated, can block) */
   fastChannel: boolean;
   channel?: ChannelCheckResult;
   concept?: ConceptCheckResult;
@@ -203,10 +206,11 @@ function conceptReviewerHandledResiduals(
   }
 }
 
-/** Default CLAUDE.md reader: reads root CLAUDE.md + packages/koala/CLAUDE.md */
+/** Default CLAUDE.md reader: reads root CLAUDE.md + legacy packages/koala/CLAUDE.md if present */
 function defaultMdFileReader(projectRoot: string): string[] {
   const candidates = [
     join(projectRoot, 'CLAUDE.md'),
+    // legacy self-hosting layout path the reader still honors if present
     join(projectRoot, 'packages', 'koala', 'CLAUDE.md'),
   ];
   const contents: string[] = [];
@@ -220,7 +224,8 @@ function defaultMdFileReader(projectRoot: string): string[] {
 
 /**
  * Run CLI gates and aggregate into one structured result.
- * Express channel → all four gates forced-pass (channel/concept/lint/docs-drift not actually run).
+ * Express channel → channel/concept/lint/docs-drift/english-artifacts force-skipped (not actually
+ * run); the codex-adapter gate is still conditionally evaluated and can block even on express.
  */
 export function runReviewCliGates(
   storyId: string,
@@ -418,10 +423,16 @@ export function runReviewCliGates(
       process.stderr.write(`⚠ docs-drift: ${managedAssetDegrade}\n`);
     }
     // B-a7b0 CHK-001: pass repoRoot so the gate also runs path-reference drift
-    // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When projectRoot is absent the
+    // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When repoRoot is absent the
     // gate degrades to the command-only check (backward compatible).
+    // B-f882 CHK-001: repoRoot must be the resolved gitCwd (same value threaded
+    // into the channel/concept/english git-invoking gates), NOT deps.projectRoot.
+    // On wrapper-root layouts (metadataRoot != gitRoot) scanPathDrift runs
+    // fs.existsSync + `git grep` from repoRoot; using projectRoot (metadataRoot)
+    // there made existing paths look absent → false missing-path drift → false
+    // REVIEW→TEST block. Plain repos (projectRoot == gitCwd) are byte-identical.
     docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {
-      repoRoot: deps.projectRoot,
+      repoRoot: gitCwd,
       managedAssetDefs,
     });
     const docsDriftOk = docsDrift.status === 'pass' || docsDrift.status === 'skipped';

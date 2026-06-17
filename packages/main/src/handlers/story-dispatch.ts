@@ -43,7 +43,7 @@ const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@nore
 
 function normalizeAgentType(agentType: string | undefined): string | undefined {
   if (agentType?.startsWith('koala-')) {
-    throw new Error('dispatch no longer accepts legacy Koala role IDs; use the canonical lattice-* role ID');
+    throw new Error('dispatch no longer accepts legacy koala-* role IDs; use the canonical lattice-* role ID');
   }
   return agentType;
 }
