@@ -15,6 +15,62 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "packages/main test:*-smoke count drops to 1 (only test:run-all-smokes-smoke retained) -> `node -e \"const p=require('./packages/main/package.json'); const s=Object.keys(p.scripts).filter(k=>k.match(/^test:.*-smoke$/)); console.log(s.length,s)\"` prints 1 and the sole entry is test:run-all-smokes-smoke; WHY: confirms 143 per-smoke scripts removed, only B-6efb self-smoke kept",
+            "type": "cli"
+          },
+          {
+            "desc": "packages/main total test:* script count is <= 10 -> `node -e \"const p=require('./packages/main/package.json'); const t=Object.keys(p.scripts).filter(k=>k.startsWith('test:')); console.log(t.length,t)\"` prints count in range 5-10; WHY: confirms only keep-list entries remain (6 keep + cli-e2e variants)",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke-manifest.json contains >= 140 entries -> `node -e \"const m=require('./packages/main/smoke-manifest.json'); console.log(Array.isArray(m)?m.length:Object.keys(m).length)\"` prints >= 140; WHY: confirms collapsed scripts migrated to manifest",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:all exits 0 -> `npm run test:all` exits 0; WHY: confirms runner discovers all smokes via directory scan + manifest after script removal",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "6 keep-list scripts still present in packages/main/package.json -> `node -e \"const p=require('./packages/main/package.json'); ['test:e2e','test:run-all-smokes-smoke','test:main-write-lock-coverage','test:review-convergence-smoke','test:review-incremental-context-smoke','test:docs-drift-smoke'].forEach(k=>{if(!p.scripts[k]) throw new Error('MISSING:'+k)}); console.log('ALL_PRESENT')\"` prints ALL_PRESENT; WHY: confirms keep-list not accidentally removed",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke-manifest.json is valid JSON and has no duplicate entries -> `node -e \"const m=require('./packages/main/smoke-manifest.json'); const a=Array.isArray(m)?m:Object.values(m); const n=a.map(e=>e.name||e); const d=n.filter((v,i)=>n.indexOf(v)!==i); if(d.length) throw new Error('DUPES:'+d); console.log('NO_DUPES count='+n.length)\"` prints NO_DUPES; WHY: migration script could create duplicates if run twice or if naming collides",
+            "type": "cli"
+          },
+          {
+            "desc": "every smoke-manifest.json entry name corresponds to a real .ts/.js task file -> `node -e \"const m=require('./packages/main/smoke-manifest.json'); const fs=require('fs'); const a=Array.isArray(m)?m:Object.values(m); const missing=a.filter(e=>{const n=e.name||e; return !fs.existsSync('packages/main/src/tasks/'+n+'-smoke.ts') && !fs.existsSync('packages/main/dist/tasks/'+n+'-smoke.js')}); if(missing.length) throw new Error('ORPHAN_MANIFEST:'+missing.map(e=>e.name||e)); console.log('ALL_MAPPED')\"` prints ALL_MAPPED; WHY: manifest entries with no backing task file would silently fail at runtime",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: all *-smoke.ts task source files byte-identical to main -> `git diff main -- 'packages/main/src/tasks/*-smoke.ts' | wc -l` outputs 0; WHY: B2 only edits package.json + manifest, must not modify task source files",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: run-all-smokes.ts + run-all-smokes-smoke.ts byte-identical to main -> `git diff main -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l` outputs 0; WHY: runner source must not be modified in B2",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: cli-e2e.ts byte-identical to main -> `git diff main -- packages/main/src/tasks/cli-e2e.ts | wc -l` outputs 0; WHY: e2e runner must not be modified in B2",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: 49 verify-*.mjs scripts byte-identical to main -> `git diff main -- 'scripts/verify-*.mjs' | wc -l` outputs 0; WHY: verify scripts are out of scope for B2",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: no decision-doc edits -> `git diff main -- docs/requirements/decisions | wc -l` outputs 0; WHY: decision docs are out of scope for B2",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
