@@ -220,6 +220,17 @@
           "headHash": "014b542ed4102ff47a83c44d5516b3c2f07bf4a3",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:09.950Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'function runGeminiRealLeafDispatch' packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 1 — runGeminiRealLeafDispatch defined.",
+          "headHash": "b994fb9a482b0a3230550a9816b6f46198ed2db4",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:10.563Z"
         }
       ]
     },
