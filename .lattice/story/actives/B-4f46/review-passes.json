@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T12:30:25.284Z",
       "reviewRunId": "B-4f46:RR-001",
       "_hash": "0a65c0bef9ad534fdac61c4e2d40360a4e89b432159081461ee3618ebc48b2be"
+    },
+    {
+      "id": "B-4f46:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none — all three new learning-store imports (hasActiveOrProposedTag, proposeSignatureTag, suggestNearActiveTag) are called in finding.ts finding_add path; writeSignatureRegistry/SIGNATURE_REGISTRY_FILENAME/resolveSignatureRegistryPath are internal to learning-store.ts (not a dead-code concern for exported library functions). Type safety: validateOptionalEnum uses a correct include-check plus a narrowing cast that is safe (guarded by the includes check); no unsafe any casts. I/O isolation: signature-registry.ts imports only from learning-store.ts and context.ts — no fn.ts or direct store writes; finding.ts uses the learning-store API (not direct file I/O). advisory.ts audit-field isolation confirmed by grep: zero matches for signatureTag, resolutionType, dismissReasonType, resolveEvidenceStrength, dismissEvidenceStrength. finding-verify.ts unchanged confirmed by git diff: empty output. dismissReasonType is z.optional() in cli-engine.ts schema and .optional() in all handler code paths. Signature-registry writes only under .lattice/learning/ (confirmed by path construction in learning-store.ts). No gate reads audit fields. Smoke task covers back-compat, validation rejection, advisory guardrail, and registry file location.",
+      "createdAt": "2026-06-17T12:31:58.867Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-002",
+      "_hash": "2df49fd7d8e0b7c6064be577ad515e132cbfd2854da6b06af8a3a69bfb6668fa"
     }
   ]
 }
