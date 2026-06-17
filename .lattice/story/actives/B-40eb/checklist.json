@@ -40,7 +40,19 @@
           }
         ]
       },
-      "userSees": "该改清单文件数 272、行数 1655，分目录可见（main-src 81 / main-tests 128 / scripts 39 / lab 11 / docs-utils-root 13）"
+      "userSees": "该改清单文件数 272、行数 1655，分目录可见（main-src 81 / main-tests 128 / scripts 39 / lab 11 / docs-utils-root 13）",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "result": "pass",
+          "note": "边界行含 koala-codex(neutral)+真 Koala 品牌：isClassified strip neutral 后仍含 brand→判 in-scope；branding smoke 守护并 PASS",
+          "headHash": "de807043aee7b29fefb3ee10331625cf59016a81",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:04.909Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
