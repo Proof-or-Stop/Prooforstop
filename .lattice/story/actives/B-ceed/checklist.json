@@ -94,6 +94,17 @@
           "headHash": "7661382bb7c1b199eb95be711ac90f6a8d79eeab",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:06.782Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/provider-gemini-smoke.js > /tmp/b-ceed-gem.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — 4-case smoke contract passes.",
+          "headHash": "ff7e67844762142634387b9865b57515386ccccd",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:07.461Z"
         }
       ]
     },
