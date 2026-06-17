@@ -530,14 +530,14 @@
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;print(json.load(open('package.json')).get('scripts',{}).get('test:legacy','MISSING'))\"",
+          "command": "git diff main...HEAD -- AGENTS.md | wc -l",
           "result": "pass",
-          "note": "Prints 'node packages/main/dist/tasks/run-all-smokes.js --select' — shim wired in root package.json.",
-          "headHash": "2b5a15b11e5342d59e8c470292c70f6f5bf66a3e",
+          "note": "Returns 0 — AGENTS.md byte-identical (only README.md changed in active root docs).",
+          "headHash": "037f417840034a30cd44c7ee7955b26fa2cbf0d2",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:21.004Z"
+          "timestamp": "2026-06-17T12:34:01.909Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
