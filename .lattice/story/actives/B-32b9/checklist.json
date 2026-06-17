@@ -295,6 +295,17 @@
           "headHash": "274060741962f91ea826629ee8f4a56e0b12ddd4",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:26:38.465Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Navigate Overview→Lineage→Overview→Lineage, check scale",
+          "result": "pass",
+          "note": "Navigated: Lineage (loaded demo) → Overview → Lineage. Graph re-rendered at 27% scale. Not stuck at 10% (the old bug with zero-dimension container) nor 100%. requestAnimationFrame+onVisible() correctly defers fitView when container has positive dimensions.",
+          "headHash": "5544e924042d955119b70e1adc1d83197605607d",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:26:57.058Z"
         }
       ]
     }
