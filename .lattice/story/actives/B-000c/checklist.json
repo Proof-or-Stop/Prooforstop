@@ -99,9 +99,9 @@
       "title": "Register the derived cache and learning log as materialHash-excluded runtime artifacts (gate-safety)",
       "context": "runtime-artifact-registry.ts: add entries for .lattice/learning/finding-signals.json and .lattice/learning/learning-log.jsonl as materialHash:exclude, volatile:true, repairable. This is the load-bearing gate-safety lever.",
       "userSees": "The smoke asserts that writing finding-signals.json leaves currentMaterialHash() unchanged (the derived cache is excluded from gate material hashing).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T11:37:41.079Z",
-      "endTime": null,
+      "endTime": "2026-06-17T11:38:17.166Z",
       "verificationIntent": {
         "happy": [
           {
