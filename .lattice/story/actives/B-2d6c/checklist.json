@@ -125,9 +125,9 @@
       "id": "CHK-003",
       "title": "CHANGELOG Unreleased entry + retire B-c6cf waiver note",
       "context": "CHANGELOG Unreleased entry naming this story (B-2d6c). Note that B-c6cf CHK-002:happy:2 waiver is now retired and `npm run test:coverage` exits 0. Final verification: `npm run test:all` (parallel) AND `npm run test:coverage` (serial) both exit 0.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T21:03:50.001Z",
-      "endTime": null,
+      "endTime": "2026-06-17T21:05:04.423Z",
       "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows B-2d6c bullet naming waiver retirement. `npm run test:all` and `npm run test:coverage` both exit 0.",
       "files": {
         "modify": [
