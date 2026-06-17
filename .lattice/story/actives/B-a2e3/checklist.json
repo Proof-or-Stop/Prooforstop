@@ -11,7 +11,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveFindingSignals with findings that have non-empty files[] -> resulting FindingSignal has anchorFiles populated as sorted union of all finding.files; WHY: confirms the core data flow from finding.files to anchorFiles",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveFindingSignals with findings that have empty/missing files[] -> resulting FindingSignal has no anchorFiles field (omitted, not empty array); WHY: confirms clean output for legacy signals",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "deriveFindingSignals with more distinct files across findings than MAX_ANCHOR_FILES -> anchorFiles is capped at MAX_ANCHOR_FILES length, sorted, no duplicates; WHY: boundary guard against unbounded growth",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveFindingSignals with a single finding whose files contains duplicates -> anchorFiles is deduplicated; WHY: ensures Set-based dedup works",
+            "type": "cli"
+          },
+          {
+            "desc": "localSignature key computation unchanged after anchorFiles addition -> signals with identical category/signatureTag/fileKind/lifecyclePhase still aggregate together; WHY: guards excludes constraint",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "deriveFindingSignals with finding.files containing non-string values (numbers, null, objects) -> anchorFiles only includes valid strings; WHY: real findings can have malformed data",
+            "type": "cli"
+          },
+          {
+            "desc": "signalScore and support values are identical before and after anchorFiles addition for same input -> no regression to scoring math; WHY: guards the excludes constraint that scoring is unchanged",
+            "type": "cli"
+          },
+          {
+            "desc": "anchorFiles contains only string-filtered entries from finding.files (same filter as toSourceFinding) -> no path traversal sequences or empty strings leak through; WHY: adversarial input sanitation",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
