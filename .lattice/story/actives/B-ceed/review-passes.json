@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T22:20:51.395Z",
       "reviewRunId": "B-ceed:RR-004",
       "_hash": "60adea6be85184ac87a4c4b22f91222782b465fe3201d51e66fc12d0ec3b8cff"
+    },
+    {
+      "id": "B-ceed:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review of 3 round-1 findings. F-003: isProviderName now includes gemini (planned-steps-executor.ts:325). F-004: isRealProvider now includes gemini (planned-steps-executor.ts:328). F-005: runBoundedRealLeafDispatch signature has no worktreeAbs param; runCodexRealLeafDispatch and runGeminiRealLeafDispatch wrappers also param-clean; dispatch call sites for codex/gemini do not pass worktreeAbs. Broader quality scan (dead code, type safety, I/O shell isolation) found no new issues: all imports in gemini-cli.ts, planned-steps-executor.ts, and provider-gemini-smoke.ts are used; empty catch blocks are intentional fail-closed patterns with inline comments; no as-any casts in new code; no shell-layer direct fn.ts imports. All 3 prior findings verified fixed; 0 new findings.",
+      "createdAt": "2026-06-17T22:22:45.104Z",
+      "reviewRound": "2026-06-17T22:20:51.395Z",
+      "reviewRunId": "B-ceed:RR-005",
+      "_hash": "e2d6fa0d19c2b7dac1d1e17ceb500f2e3fa47ed3c15fdbe53075e3f56cde122b"
     }
   ]
 }
