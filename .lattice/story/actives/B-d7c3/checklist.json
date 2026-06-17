@@ -165,12 +165,12 @@
           "intentRef": "CHK-001:adversarial:1",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git diff main -- 'packages/main/src/tasks/*-smoke.ts' | wc -l",
+          "command": "git diff main...HEAD -- 'packages/main/src/tasks/*-smoke.ts' | wc -l",
           "result": "pass",
-          "note": "Returns 0 — no existing *-smoke.ts file modified.",
-          "headHash": "9fa198367d2bd17909867de2d704f114f4b656d2",
+          "note": "Returns 0 (three-dot diff = changes introduced by THIS branch vs common ancestor; correct over-reach guard). Two-dot `git diff main` would show 4621 lines, but that is B-40eb's koala-residue sweep that landed on main AFTER this worktree was created (commit 8ea7a37ea) — three-dot isolates B-d7c3's actual changes.",
+          "headHash": "318e4e579cfec4b5dbd9c2351b3e264ba9dd310f",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:05.621Z"
+          "timestamp": "2026-06-17T12:51:39.931Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
