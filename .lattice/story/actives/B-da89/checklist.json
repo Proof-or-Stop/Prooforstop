@@ -39,7 +39,30 @@
       "userSees": "npm run test:process-fact-contract exits 0; re-introducing the INIT/DEV mismatch (locally) turns it red again, proving the divergence is mechanically caught.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:process-fact-contract exits 0 (no dev_start INIT/DEV drift) after the alignment",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The existing assertCommandPolicyPhaseAlignment in verify-process-fact-contract.mjs is confirmed as the guard; no redundant test added",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Re-introducing the INIT/DEV mismatch locally turns the contract red again (exit 1), proving the divergence is mechanically caught",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
