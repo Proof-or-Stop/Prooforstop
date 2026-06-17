@@ -174,17 +174,17 @@ export const DOCS_DRIFT_PATH_ALLOWLIST = new Set<string>([
  * casing variants against a single canonical key.
  */
 export const DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST = new Set<string>([
-  // The real CLAUDE.md (line ~77) says "不要创建 .Codex/hooks 或 .Codex/settings.json",
-  // but the framework's managed-asset registry generates the Codex hooks under
-  // .codex/hooks/ (codex-hooks kind). That makes the prohibition a contradiction.
-  // B-94ae will fix this CLAUDE.md wording; allowlisted so the docs-drift gate
-  // that this story adds does not self-block until then.
-  '.codex/hooks',
-  // .codex/settings.json maps to an excluded-path (NON-generated) kind today so it
-  // would not trigger a contradiction, but the same CLAUDE.md sentence forbids it;
-  // allowlisted defensively alongside the hooks claim so a future kind change can't
-  // self-block this story. B-94ae will fix this CLAUDE.md wording.
-  '.codex/settings.json',
+  // (seeded empty — add a path-normalized forbidden token WITH an inline reason
+  //  only when a CLAUDE.md "do not create <X>" claim about a framework-generated
+  //  asset is intentionally tolerated for now, e.g. bridging a pending doc-wording
+  //  fix in a sibling story.)
+  //
+  // B-d633: the original two bridge entries ('.codex/hooks', '.codex/settings.json')
+  // were B-a7b0's temporary bridge while B-94ae fixed the CLAUDE.md wording. B-94ae
+  // merged, so they were removed — keeping them would permanently mask the exact
+  // '.codex/hooks' contradiction class this check exists to catch. Verified safe:
+  // checkManagedAssetContradiction(real CLAUDE.md, registry, EMPTY allowlist) → 0
+  // contradictions.
 ]);
 
 /**

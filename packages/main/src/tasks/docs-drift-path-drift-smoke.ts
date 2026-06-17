@@ -242,20 +242,42 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
 
 // ── adversarial: allowlisted forbidden generated asset → NOT flagged ──
 {
-  // Mirrors the real CLAUDE.md pending claim: forbids `.Codex/hooks`, asset is
-  // generated, BUT the forbidden token is in the allowlist (B-94ae pending).
+  // Proves the allowlist SEAM still suppresses a forbidden generated asset, using an
+  // EXPLICITLY-INJECTED allowlist rather than the default. B-d633 emptied the default
+  // (DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST) so it can no longer permanently mask the real
+  // '.codex/hooks' class; the seam itself is still exercised here via injection.
   const md = '# Doc\n\n不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。\n';
   const result = runDocsDriftGate([md], REGISTRY, {
     managedAssetDefs: [
       { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
-    // Uses the DEFAULT allowlist (DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST) → suppressed.
+    // Explicit allowlist (NOT the default) → suppressed via the seam.
+    managedAssetAllowlist: new Set<string>(['.codex/hooks']),
   });
-  assert.equal(result.status, 'pass', 'adversarial: allowlisted pending claim must NOT block the gate');
+  assert.equal(result.status, 'pass', 'adversarial: allowlisted (injected) pending claim must NOT block the gate');
   assert.deepEqual(
     result.managedAssetContradictions,
     [],
     'adversarial: allowlisted forbidden generated asset must not be flagged',
+  );
+}
+
+// ── B-d633 regression: with the DEFAULT allowlist now empty, the same forbidden
+//    generated asset IS flagged (proves the bridge no longer masks the .codex/hooks
+//    class). No managedAssetAllowlist override → uses the empty default. ──
+{
+  const md = '# Doc\n\n不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。\n';
+  const result = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+    ],
+    // No managedAssetAllowlist → DEFAULT (now empty) → contradiction must surface.
+  });
+  assert.equal(result.status, 'fail', 'B-d633: empty default allowlist must no longer suppress the .codex/hooks contradiction');
+  assert.deepEqual(
+    result.managedAssetContradictions,
+    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    'B-d633: the .codex/hooks prohibition must now be flagged via the empty default allowlist',
   );
 }
 
