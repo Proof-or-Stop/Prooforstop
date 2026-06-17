@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T15:22:26.306Z",
       "reviewRunId": "B-8387:RR-006",
       "_hash": "f7837703fa7bcf301170a1867cf2d14d9f73f8dffb1513807936ea84043ab2fa"
+    },
+    {
+      "id": "B-8387:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "F-003 resolved: nextProposalId (playbook.ts:65-70) now folds both proposals/ and playbooks.json into a global max via idSuffix(), so a second propose->approve cycle correctly mints PBP-002 not a duplicate PBP-001. Smoke check CHK-001:edge:2 (unique ids across cycles) passes. F-004 resolved: learning-store.ts module header (line 12) now explicitly lists ./digest.js. Full smoke suite 23/23 PASS. Lifecycle verified: propose writes lineage+digest; diff is read-only; approve fails-closed on stale/missing digest, writes status=candidate, lineage carried; reject clears proposal. No finding_add or gate call in handlers/playbook.ts confirmed by static scan (guardrail check passed). findings.json byte-identical after full lifecycle confirmed by smoke.",
+      "createdAt": "2026-06-17T15:23:58.461Z",
+      "reviewRound": "2026-06-17T15:22:26.306Z",
+      "reviewRunId": "B-8387:RR-007",
+      "_hash": "873b7ab93aa444d4263ae727d68a55b1505e862dce7294053750f77ddf9c8ca2"
     }
   ]
 }
