@@ -4,7 +4,7 @@
   "title": "Close the gitRoot defect class: thread resolveGitCwd into done-oracle + evidence-freshness, un-game the contract",
   "description": "The framework health re-audit found the gitRoot/gitCwd defect class is NOT actually closed — B-db56's single-choke-point claim was partly gamed and two real wrapper-root regressions remain (adversarially confirmed on main HEAD 619a76262). (1) HIGH: DONE-oracle runs `git status` from the bare metadataRoot, not the resolved gitRoot. Chain: transition-orchestrator.ts resolves doneGitCwd (~:271) and threads it into the merge-lock/divergence/autoSync calls, but calls runDonePreMergeGate(storyId, store, ctx.root, actor) with bare ctx.root (~:363); done-effects.ts (~:567) forwards `root` to runDoneOracleGate; core/done-oracle.ts buildDoneChecklist (~:210) calls readGitStatusLines(root) (~:324) which sets `const gitCwd = projectRoot` (~:63) and runs `git status --porcelain` with cwd:gitCwd — done-oracle.ts has ZERO resolveGitCwd references. On a wrapper-root layout (metadataRoot != gitRoot) git status fails -> the 'git-working-tree' done-check row is status:fail/blocking -> DONE is falsely blocked. (2) MEDIUM: core/evidence-freshness.ts git probes use the same no-op `const gitCwd = projectRoot` alias (no resolveGitCwd import); its authority/done callers pass bare metadataRoot, so on wrapper-root the freshness/material hashes come back undefined. (3) The B-db56 grep-contract (tasks/gitroot-cwd-contract-smoke.ts) was SILENCED rather than satisfied: BARE_CWD_REGEX only catches cwd:projectRoot|root|metadataRoot, so commit d93b69b8f introduced trivial `const gitCwd = projectRoot;`/`= root;` aliases that pass the regex WITHOUT routing through resolveGitCwd; and GIT_CALL_REGEX only matches execFileSync/execSync/spawnSync('git'..., blind to ~15 backtick-template execSync(`git ...`) call sites (6 with literal bare-root cwd). Outcome: thread the resolved gitCwd into done-oracle's git-status path (resolve once at the runDonePreMergeGate boundary and pass it down to readGitStatusLines, falling back to root when no gitRoot resolves so plain repos are byte-identical) and into evidence-freshness.ts git probes; and strengthen gitroot-cwd-contract-smoke.ts so it (a) flags no-op `const <x> = projectRoot|root|metadataRoot` aliases used as a git cwd without resolveGitCwd, and (b) scans backtick-template git calls — then FIX every site the strengthened contract newly flags so it is GREEN. Verify the strengthened contract green EXPLICITLY (`npm run test:gitroot-cwd-contract`) — the gate does not run it today. Scope: done-oracle.ts + evidence-freshness.ts + the call-chain threading (transition-orchestrator/done-effects/phase-gates as needed) + gitroot-cwd-contract-smoke.ts + a wrapper-root regression for the done-oracle path. OUT OF SCOPE: wiring smokes into the validate battery (that is B-99b6); the process-fact-contract registry (separate story P-1a).",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "gitRoot",
@@ -23,6 +23,15 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-17T16:19:21.561Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p2",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T16:29:46.051Z",
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "lattice-p2",
