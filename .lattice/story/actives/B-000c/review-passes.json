@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T11:55:47.885Z",
       "reviewRunId": "B-000c:RR-007",
       "_hash": "d7245fe8a7d4c13da48536714f1d3f4ad54f729e9abf4df6ac6d47351bcc9736"
+    },
+    {
+      "id": "B-000c:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round code-quality review covering the single changed file (experience-layer-finding-signals-smoke.ts, commit 993390ba). Confirmed: (1) production modules experience-layer-types.ts, learning-store.ts, finding-signals.ts, runtime-artifact-registry.ts are byte-identical to the prior REVIEW round (git diff 851b6fa..993390ba over those paths is empty). (2) Dead-code check: FindingSignalsCache import added in this commit is actively used at lines 470, 480, 541. No unused imports. (3) Type-safety: the two empty catch blocks are both intentional — isSomeWrittenCache at line 482 converts assert.deepEqual failure to boolean (error is consumed as false), and line 558 is best-effort cleanup of temp dirs (pre-existing pattern). No problematic error-swallowing. (4) deriveFindingSignals calls in the concurrent section use PINNED_NOW, not Date.now — deterministic, non-flaky. (5) Concurrent test is hermetic: uses mkTempRoot() cleaned up in finally, no global state mutations, no network. (6) The observations counter is safe: Node.js is single-threaded, all Promise.resolve().then() microtasks execute cooperatively on one thread — no actual data race. Final assertion observations >= WRITERS (40 >= 20) is trivially satisfied. (7) No bridge.ts pattern in this project — direct core imports in the smoke task file are correct. Zero quality defects found.",
+      "createdAt": "2026-06-17T11:58:15.382Z",
+      "reviewRound": "2026-06-17T11:55:47.885Z",
+      "reviewRunId": "B-000c:RR-005",
+      "_hash": "55f1233c98b5733a69ff169f3490b9b6e95b61a42e1ff28f7a48d677694fee14"
     }
   ]
 }
