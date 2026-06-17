@@ -132,9 +132,9 @@
           "command": "git grep -ci koala-lab packages/lab/src",
           "result": "pass",
           "note": "lab 源码 koala-lab 品牌已全部改 lattice-lab,零品牌残留",
-          "headHash": "320b2c0b72f0114414f3c8b3c08cbed59f0bc5a2",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:08.318Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -142,9 +142,9 @@
           "command": "npm --prefix packages/lab run build",
           "result": "pass",
           "note": "lab 改名后 build 成功,无断裂引用",
-          "headHash": "43386746b544cb48a7634bbf267a8e69dd352686",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:09.209Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,9 +152,9 @@
           "command": "git grep -ni koala packages/lab/src/core/config.ts",
           "result": "pass",
           "note": "config.ts 仅剩 koala-lab/experiment.v1 schema id(wire)与 B-ed70 负责区,品牌已清",
-          "headHash": "0365abe26b09a7bb7bd89833ef44079ef5ae82c4",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:10.050Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -162,9 +162,9 @@
           "command": "git grep -ni koala packages/lab/package.json",
           "result": "pass",
           "note": "package.json description 留给并行 B-ed70(协调约束)",
-          "headHash": "91bada37254ba481ca69091d7dbad94c7e239580",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:10.886Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         }
       ]
     },
@@ -236,9 +236,9 @@
           "command": "npm run build && node packages/main/dist/tasks/cli-engine-branding-smoke.js",
           "result": "pass",
           "note": "build 退出 0 且编译产物经 cli-engine-branding-smoke 断言 PASS(unclassified=0),证明 main 源码改名无编译错误且分类正确",
-          "headHash": "7eb2c3f37ce73a745776d2a44d427930907a2c52",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:16:06.067Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -246,9 +246,9 @@
           "command": "git grep -n .koala packages/main/src",
           "result": "pass",
           "note": ".koala 运行时路径引用完整保留(documented-exception)",
-          "headHash": "c9e8af51c9ed0bb7d76bdb0879a756869736d2ff",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:13.434Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -256,9 +256,9 @@
           "command": "git grep -nE 'LEGACY_KOALA|integrity-v1' packages/main/src",
           "result": "pass",
           "note": "LEGACY_KOALA 常量与签名盐值保留",
-          "headHash": "6e64974e3c53a51fbdce38f9b98031542b0ed483",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:14.349Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -266,9 +266,9 @@
           "command": "git grep -n koala-codex packages/main/src",
           "result": "pass",
           "note": "process-lane 名 koala-codex 等保留完整",
-          "headHash": "f8318f2a8f3c155f41c3b1f60e8904207032f5ad",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:15.201Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         }
       ]
     },
@@ -325,9 +325,9 @@
           "command": "git grep -n .koala scripts",
           "result": "pass",
           "note": ".koala 运行时路径引用保留",
-          "headHash": "faf4a6473db42de4740041ecb61f08123fc84821",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:16.958Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         }
       ]
     },
@@ -384,9 +384,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "e2e 全 PASS,含 cli-engine-branding 与 lattice-only-absence smoke",
-          "headHash": "d0460baca4de0118adb15907c8abb731ac0a9d7f",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:57.069Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -394,9 +394,9 @@
           "command": "git grep -ci koala packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "result": "pass",
           "note": "branding smoke 的 koala 全为分类规则(NEUTRAL_TOKEN_PATTERNS),保留;unclassified=0",
-          "headHash": "728a3e02927301623dba23a69c75e850aa01e3eb",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:57.985Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -404,9 +404,9 @@
           "command": "git grep -ci koala packages/main/src/tasks/lattice-only-absence-smoke.ts",
           "result": "pass",
           "note": "absence smoke 的 koala 全为 koala-absence 断言目标,保留",
-          "headHash": "0f51ad902cb516ab16d6731685b87f103e330c1f",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:58.880Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -468,9 +468,9 @@
           "command": "git grep -ni koala CLAUDE.md | perl /tmp/bf2.pl",
           "result": "pass",
           "note": "CLAUDE.md 品牌 prose 已清,剩 .koala 运行时路径(documented-exception)",
-          "headHash": "b627c4961f1c14c80944f9dd70a73579cc859ce6",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:00.750Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-006:build",
@@ -498,9 +498,9 @@
           "command": "git grep -ni koala docs/guide.md",
           "result": "pass",
           "note": "guide.md Koala/Lattice 措辞已改 Lattice",
-          "headHash": "06cab3042d37b9df504bc00955972c4eaac4e8e5",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:01.582Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -508,9 +508,9 @@
           "command": "git grep -i koala CLAUDE.md docs/guide.md | perl /tmp/bf2.pl",
           "result": "pass",
           "note": "编辑后两文件经 branding 过滤无未分类残留,无新增悬挂引用",
-          "headHash": "0986b9ef7900c71e891abc09791ea33ec819f6af",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:02.402Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-006:adversarial:1",
@@ -518,9 +518,9 @@
           "command": "git grep -ni koala CLAUDE.md",
           "result": "pass",
           "note": "全文件扫描(非仅 L924),残留全为 .koala 路径/盐值 documented-exception",
-          "headHash": "cdfa30eeee1dc9ff1af10948805fa296852711f1",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:03.180Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         }
       ]
     },
@@ -597,9 +597,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "validate ALL PASS,story metadata 一致",
-          "headHash": "6aca5dce33be7af640ba371c19919a5d5d94c84f",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:05.074Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-007:happy:2",
@@ -607,9 +607,9 @@
           "command": "npm run build && npm run test:e2e",
           "result": "pass",
           "note": "build 退出 0 且 e2e 全 PASS,证明全 brand 改动无编译错误且无测试回归",
-          "headHash": "a534e7bfe474f59b1483b99009c7fe795e8d531c",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:16:06.855Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-007:happy:3",
@@ -617,9 +617,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "e2e 全 PASS,含 branding smokes,无回归",
-          "headHash": "376ad8dd3409cf9d976d37e7e41f8c2d106ebb01",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:06.942Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -627,9 +627,9 @@
           "command": "git grep -i koala CHANGELOG.md docs/requirements/decisions",
           "result": "pass",
           "note": "CHANGELOG/decisions 的 koala 全为历史记录,documented-exception,本 story 未改",
-          "headHash": "5fb281f705996f1a1610a8f6bfac40129a09d58e",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:07.808Z"
+          "headHash": "6dc7f027a42b358666fdebaf80cbbb1f584cfa5c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:45:58.242Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
