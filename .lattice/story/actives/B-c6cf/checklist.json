@@ -377,6 +377,17 @@
           "headHash": "cc026ded9348313acf405936cf25dae1a7f077e9",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:13.771Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD --name-only -- docs/requirements/decisions/ | grep -v test-runner-consolidation-plan.md | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — only the test-runner-consolidation-plan.md decision doc modified in docs/requirements/decisions/.",
+          "headHash": "2798dcff92034d97267777a0133edf9aa4984eb2",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:16.104Z"
         }
       ]
     },
