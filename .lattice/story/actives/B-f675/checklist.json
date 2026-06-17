@@ -5,9 +5,9 @@
       "title": "Read-only incremental-context + scope-change helper (prior verdict + diff since reviewer's last-pass headHash)",
       "context": "For a given (storyId, reviewer role), resolve that reviewer's most recent prior verdict (review-passes.json / findings.json) and the headHash it was bound to (core/review-run.ts records headHash on each run). Compute the diff between that headHash and current HEAD, reusing the git-diff helpers in core/evidence-freshness.ts (changedFilesBetween) -- use --name-status -M so renames count. Derive a boolean scopeChanged (did any material file change since that pass). If the reviewer has no prior pass, fall back to the full diff main...HEAD with scopeChanged=true. Pure / read-only: no writes, no gate side effects, does not touch canPassReviewGuard.",
       "userSees": "A unit/smoke run prints, for reviewer X on a story: its prior verdict + bound headHash, scopeChanged=true/false, and the changed-file list since that pass (or 'no prior pass -> full diff' for a first-timer).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T01:08:17.475Z",
       "verificationIntent": {
         "happy": [
           {
