@@ -602,7 +602,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // degradation of each reader is preserved.
       const handlerGitCwd = args.story
         ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot })
-        : resolveProjectGitCwd(projectRoot, projectRoot);
+        : resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
         if (!args.noSync) {
