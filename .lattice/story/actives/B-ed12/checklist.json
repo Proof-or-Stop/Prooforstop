@@ -62,7 +62,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-repair-smoke.js",
+          "result": "pass",
+          "note": "standalone exit 0; also story-dedup-smoke.js + convergence-discarded-smoke.js standalone exit 0",
+          "headHash": "52e72f5e1952730e08b90d94fb0850ec6e674530",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T20:06:04.097Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
