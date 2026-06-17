@@ -116,7 +116,19 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "package.json test chain runs test:koala-residue (after test:main-write-lock-coverage); npm test shows it passing with 'PASS koala-residue: 0 unclassified'",
+          "headHash": "7324b638c8a62bd3c96fae53d8e5ca72460f3f74",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:00:50.329Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
