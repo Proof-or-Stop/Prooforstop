@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-867c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed. The diff is purely additive (+7 lines, 0 deletions) to process-fact-levels.ts plus story metadata files. No concept deletion/replacement occurred. Duplicate name check: 252 entries, all unique (uniq -d returns empty). The 7 new command names (playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set) already existed in requirements docs and prior-story delivery artifacts as legitimate documentation — not stale residuals. No forward declarations, dead symbol references, or orphaned concept words were introduced. No blocker.",
+      "createdAt": "2026-06-17T16:41:00.841Z",
+      "reviewRound": "2026-06-17T16:39:54.245Z",
+      "reviewRunId": "B-867c:RR-001",
+      "_hash": "d6c6a9045da5d6c72ebfac8ba0220706e64c8541a797a144cce86ce0d8a0ede1"
+    }
+  ]
+}
