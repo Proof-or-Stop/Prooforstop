@@ -30,7 +30,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "After adding 7 entries to PROCESS_FACT_LEVELS + npm --prefix packages/main run build (BUILD_EXIT=0), node scripts/verify-process-fact-contract.mjs exits 0; grep -E \"MAIN_TOOLS command|missing from registry\" /tmp/pfc-chk001.log returns rc=1 (no matches) — no missing-command line mentions playbook_*/signature_registry_*/recall.",
+          "headHash": "3ded509e9b420e5986117a967d6317ad6cc7d213",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:36:29.268Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
