@@ -97,7 +97,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "New wrapper-root smoke builds a real git repo in a subdir (gitRoot) with metadataRoot = non-git outer parent and a CLAUDE.md referencing a path existing only under gitRoot; asserts docs-drift preflight does NOT report it missing. Exit 0: docs-drift wrapper-root smoke passed.",
+          "headHash": "ff7ed60e8c0ce8661d0a59f49bd4da5032459f2d",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:43.308Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
