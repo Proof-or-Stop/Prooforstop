@@ -108,6 +108,17 @@
           "headHash": "2fd13a40d7630874e70ff17fe2f8c6e77d20b911",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:06.684Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/handlers packages/main/src/core packages/main/src/cli-engine.ts packages/main/src/cli-prompts.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — no production source under handlers/core/cli-*.ts touched.",
+          "headHash": "03358f1ad20865863d2930b1b40047f8b782de1e",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:07.438Z"
         }
       ]
     },
