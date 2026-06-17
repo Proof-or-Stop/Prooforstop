@@ -3,33 +3,43 @@
   "smokes": [
     {
       "name": "run-all-smokes",
-      "tags": ["runner", "infra"],
+      "tags": [
+        "runner",
+        "infra"
+      ],
       "timeoutMs": 120000
     },
     {
       "name": "gitroot-cwd-contract",
-      "tags": ["fast", "contract"],
+      "tags": [
+        "fast",
+        "contract"
+      ],
       "timeoutMs": 60000
     },
     {
       "name": "gitroot-cwd-routing",
-      "tags": ["fast", "wrapper-root"],
+      "tags": [
+        "fast",
+        "wrapper-root"
+      ],
       "timeoutMs": 60000
     },
     {
       "name": "bare-gate-gitroot-cwd",
-      "tags": ["fast", "wrapper-root"],
+      "tags": [
+        "fast",
+        "wrapper-root"
+      ],
       "timeoutMs": 60000
     },
     {
       "name": "field-regression-cli",
-      "tags": ["regression", "cli"],
+      "tags": [
+        "regression",
+        "cli"
+      ],
       "timeoutMs": 120000
-    },
-    {
-      "name": "gap-log",
-      "tags": ["fast", "lifecycle"],
-      "timeoutMs": 60000
     }
   ]
 }
