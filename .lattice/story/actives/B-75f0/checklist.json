@@ -107,7 +107,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/project-gitroot-cwd-smoke.ts",
+          "command": "npm run test:project-gitroot-cwd",
+          "result": "pass",
+          "note": "resolveProjectGitRoot exported + resolveProjectGitCwd wrapper added; gap-analyze/story-query/dashboard project-level scans survey the real gitRoot on wrapper-root and fall back to projectRoot byte-identically on plain repos; contract-smoke green with all 3 files removed from DEFERRED_ALLOWLIST_EXACT",
+          "headHash": "d9f102f406a18f1c249ea5fe981d87816123483d",
+          "materialHash": "c1beacce0385f244cb847f086ff7686974138dea8cb64dcbc902873d995f9424",
+          "timestamp": "2026-06-17T22:54:47.779Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
