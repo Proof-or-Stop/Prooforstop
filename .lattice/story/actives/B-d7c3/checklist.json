@@ -212,9 +212,9 @@
       "title": "Remove the redundant root-level test:X-smoke proxy scripts and update the root `test` main script if needed",
       "context": "For each entry in root package.json scripts named `test:X-smoke` whose body is `npm --prefix packages/main run test:X-smoke` (44 such entries), delete it. KEEP: `test` main script (sequence of 5 named test:* + test:e2e), `test:e2e`, `test:all`, plus the 4 named scripts the `test` main script invokes — keep their root-level proxies because the main script depends on them. After: root test:* count drops from 114 to ~70 (114 - 44 collapsed smoke proxies; remaining = ~50 verify-*.mjs entries + the keep-list proxies + ~15 other one-shot scripts like b6246-bug-cleanup); `npm test` continues to work (root `test` main script still resolves all dependencies via the kept proxies).",
       "userSees": "`grep -c 'test:.*-smoke' package.json` drops sharply; `npm test` exit 0 with no `npm error Missing script` failures.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T12:20:28.930Z",
-      "endTime": null,
+      "endTime": "2026-06-17T12:26:24.461Z",
       "files": {
         "modify": [
           "package.json"
