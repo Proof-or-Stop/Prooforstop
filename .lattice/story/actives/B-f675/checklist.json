@@ -97,7 +97,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/review-incremental-context.ts",
+          "command": "lattice review_incremental_context --storyId=B-f675 --role=quality",
+          "result": "pass",
+          "note": "lattice review_incremental_context --role=quality prints role/isFirstPass/scopeChanged/priorHeadHash/changedFiles without error; round>=2 advisory wired in transition-effects listing scope-changed reviewers + the >=1-receipt note",
+          "headHash": "8a4e50faaca566952cc3c889fdc926d762b06297",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:21:58.795Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
