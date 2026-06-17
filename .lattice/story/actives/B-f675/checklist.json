@@ -176,6 +176,17 @@
           "headHash": "e04e63d1c928314b775b6d7ec0cc0329213aa8b6",
           "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
           "timestamp": "2026-06-17T01:22:01.279Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "grep CLAUDE.md",
+          "result": "pass",
+          "note": "CLAUDE.md REVIEW section updated with accurate gate behavior (invalid-binding blocks all rounds; Round 1 all opt-in + quorum; Round 2+ >=1 receipt) + review_incremental_context CLI + targeted re-review guidance",
+          "headHash": "6d136fa063ebf2ea9738765ba65ec5f2b6d61047",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:22:02.091Z"
         }
       ]
     }
