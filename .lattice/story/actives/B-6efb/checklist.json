@@ -93,10 +93,10 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/run-all-smokes.js --tag fast",
           "result": "pass",
-          "note": "Self-smoke verifies --tag missing-tag returns 0 smokes; live run with --tag fast returns 5 fast smokes from manifest.",
-          "headHash": "dfa643264c968ed6235f638c3b21040a4d91b754",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:16.475Z"
+          "note": "Exit 0; 3/3 passed in <duration>s (after F-003 manifest fix removed gap-log; the 3 remaining fast-tagged smokes are gitroot-cwd-contract, gitroot-cwd-routing, bare-gate-gitroot-cwd).",
+          "headHash": "8283cdb7c69506f0acaed37e15957e6578a7ec22",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:26:27.895Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
