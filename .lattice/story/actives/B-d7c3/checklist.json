@@ -7,7 +7,15 @@
       "userSees": "`grep -c 'test:.*-smoke' packages/main/package.json` drops from ~143 to ~1 (only test:run-all-smokes-smoke retained); `npm run test:all` exits with aggregate summary including all 153 smokes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
