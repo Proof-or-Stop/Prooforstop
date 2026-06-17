@@ -419,10 +419,16 @@ export function runReviewCliGates(
       process.stderr.write(`⚠ docs-drift: ${managedAssetDegrade}\n`);
     }
     // B-a7b0 CHK-001: pass repoRoot so the gate also runs path-reference drift
-    // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When projectRoot is absent the
+    // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When repoRoot is absent the
     // gate degrades to the command-only check (backward compatible).
+    // B-f882 CHK-001: repoRoot must be the resolved gitCwd (same value threaded
+    // into the channel/concept/english git-invoking gates), NOT deps.projectRoot.
+    // On wrapper-root layouts (metadataRoot != gitRoot) scanPathDrift runs
+    // fs.existsSync + `git grep` from repoRoot; using projectRoot (metadataRoot)
+    // there made existing paths look absent → false missing-path drift → false
+    // REVIEW→TEST block. Plain repos (projectRoot == gitCwd) are byte-identical.
     docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {
-      repoRoot: deps.projectRoot,
+      repoRoot: gitCwd,
       managedAssetDefs,
     });
     const docsDriftOk = docsDrift.status === 'pass' || docsDrift.status === 'skipped';

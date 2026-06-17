@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-f882:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-intents across CHK-001/002/003 have valid non-fail verificationEvidence. CHK-001 happy/edge/adversarial: logic_test evidence on docs-drift-wrapper-root-smoke.ts and docs-drift-path-drift-smoke.ts, both result=pass; adversarial RED proof is genuine (secondary proof block calls runDocsDriftGate with repoRoot=metadataRoot and asserts status=fail at lines 303-328). CHK-002 happy/adversarial share the same wrapper-root smoke (result=pass); edge manual_transcript on package.json wiring verified on disk (test:docs-drift-wrapper-root present in root npm test chain). CHK-003 happy/edge/adversarial all covered by gitroot-cwd-contract-smoke.ts logic_test (result=pass): live balanced-paren extraction of runDocsDriftGate call asserts repoRoot=gitCwd; self-test BAD fixture proves flag fires on deps.projectRoot forward; coverage doc block at lines 192-210 explicitly documents scope boundaries. No gaps.",
+      "createdAt": "2026-06-17T12:17:42.277Z",
+      "reviewRound": "2026-06-17T12:16:03.058Z",
+      "reviewRunId": "B-f882:RR-004",
+      "_hash": "33098485224decce64fa4541691546cdd03db640e8f02ec5cd0124d6a1224050"
+    },
+    {
+      "id": "B-f882:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or symbol rename in this diff. The change is a single one-arg fix (repoRoot: deps.projectRoot -> repoRoot: gitCwd in review-preflight.ts line 430), plus two additive smoke files (docs-drift-wrapper-root-smoke.ts new, gitroot-cwd-contract-smoke.ts additions) and package.json wiring. All new symbols (ONLY_UNDER_GITROOT, WRAPPER_CLAUDE_MD, extractRunDocsDriftGateCalls, EXPECTED_DOCS_DRIFT_REPO_ROOT, FORBIDDEN_REPO_ROOT_TOKENS, REVIEW_PREFLIGHT_REL) are self-contained within their respective smoke files with zero external dangling references. No residue check triggered; no orphaned identifiers found.",
+      "createdAt": "2026-06-17T12:17:59.164Z",
+      "reviewRound": "2026-06-17T12:16:03.058Z",
+      "reviewRunId": "B-f882:RR-001",
+      "_hash": "67eb5acb98215f6f131dcf7b26cdb69bfb37bfe6064ecb2514cbaa0b1ed724e6"
+    },
+    {
+      "id": "B-f882:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality audit complete. One low/dead-code finding registered (void gitRoot no-op at line 325 of docs-drift-wrapper-root-smoke.ts). All other quality dimensions clean: fixture cleanup correct (try/finally rmSync in both proofs), no unreachable code beyond F-001, no unnecessary as any, no empty catch blocks that swallow errors, no I/O isolation violations (smoke tasks may import handlers; review-preflight.ts does not import fn.ts), regex/extraction logic sound with self-tests covering the actual production case, guard change is minimal one-line fix with accurate comment.",
+      "createdAt": "2026-06-17T12:19:34.394Z",
+      "reviewRound": "2026-06-17T12:16:03.058Z",
+      "reviewRunId": "B-f882:RR-002",
+      "_hash": "89cd222f148b2af0448a7b0a1f07682acfd822d77ad7f8f881b602cfb2a1826a"
+    },
+    {
+      "id": "B-f882:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001: resolveGitCwd always returns string (fallback to projectRoot on unresolved/throw), so repoRoot is never undefined; on wrapper-root layouts it resolves to the real gitRoot via configured-git-root branch; on plain repos it equals projectRoot (byte-identical). The one-arg change `deps.projectRoot`->gitCwd in runDocsDriftGate is correct and sufficient. CHK-002: wrapper-root smoke builds a real disk fixture with metadataRoot!=gitRoot, drives runReviewCliGates end-to-end, and asserts docs-drift PASSes; secondary proof contrasts root selection directly with real fs+git grep; RED proof captured; wired into npm test chain. CHK-003: the gitroot-cwd-contract smoke self-tests and asserts review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot) via balanced-paren extraction; but the smoke is NOT in the npm test chain (finding F-002). english-artifacts gate storyDir wiring unchanged (correct deferral). managedAssetDefs resolution still uses deps.projectRoot (correct). One medium finding registered (F-002) for CHK-003 gitroot-cwd-contract not in npm test chain.",
+      "createdAt": "2026-06-17T12:20:32.963Z",
+      "reviewRound": "2026-06-17T12:16:03.058Z",
+      "reviewRunId": "B-f882:RR-003",
+      "_hash": "cccbb5279f0e5b596930a04339806f8873eb8ef4563e73d2cb2ce53abc5fac29"
+    },
+    {
+      "id": "B-f882:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 source change (1d460ecbc) is purely additive/cleanup: (1) root package.json test chain gains npm run test:gitroot-cwd-contract — no concept deleted; (2) dead void gitRoot; statement removed from docs-drift-wrapper-root-smoke.ts — the gitRoot variable itself remains heavily used throughout the file, no concept deletion. No concept deletions or replacements detected. No doc-promise-undelivered items. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-17T12:28:30.650Z",
+      "reviewRound": "2026-06-17T12:27:01.562Z",
+      "reviewRunId": "B-f882:RR-005",
+      "_hash": "f1daf652ad8162af0c36fdbe4eefcd2414fa3bfd57aef95d543004c37c7b565f"
+    },
+    {
+      "id": "B-f882:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 9 must-intents covered. CHK-001 happy/edge/adversarial: wrapper-root smoke passes on gitCwd-fix, plain-repo smoke unchanged, RED proof (revert->FAIL) confirmed. CHK-002 happy/edge/adversarial: new wrapper-root smoke exits 0, both test:docs-drift-wrapper-root AND test:gitroot-cwd-contract present in root npm test chain (fix commit 1d460ecbc), RED proven against pre-fix wiring. CHK-003 happy/edge/adversarial: strengthened guard exits 0, self-tests show 0 false-positives on legitimate deps.projectRoot uses, RED proven by revert (GUARD_EXIT=1). All evidence headHashes bind to fix commit 1d460ecbc. 0 must-gaps, 0 waivers.",
+      "createdAt": "2026-06-17T12:28:31.940Z",
+      "reviewRound": "2026-06-17T12:27:01.562Z",
+      "reviewRunId": "B-f882:RR-007",
+      "_hash": "14db78351ea821636e00f9b7f8d704f13773d4dce3a21faccb53cb85659df8c2"
+    },
+    {
+      "id": "B-f882:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality pass. All 4 changed source files clean. (1) package.json: both new test entries correctly wired — test:docs-drift-wrapper-root delegates to packages/main npm script, test:gitroot-cwd-contract invokes dist directly, consistent with sibling entries. (2) review-preflight.ts one-arg fix: repoRoot: gitCwd is the only change; no dead code, no type issues. (3) docs-drift-wrapper-root-smoke.ts: all 9 imports used; void gitRoot at line 269 is intentional (gitRoot unused in proof-1 assertion body, noUnusedLocals would fire without it); no as-any, no empty catches; no I/O isolation violation. (4) gitroot-cwd-contract-smoke.ts: newly added join import from node:path is used at line 425; fail() return-type is never so reviewPreflightText definite-assignment is safe; no dead code. F-001 (dead void gitRoot at line 325 of old file) confirmed removed — old blob had two occurrences (269+325), current has only the intentional one at 269.",
+      "createdAt": "2026-06-17T12:29:22.832Z",
+      "reviewRound": "2026-06-17T12:27:01.562Z",
+      "reviewRunId": "B-f882:RR-006",
+      "_hash": "71044fa7996caa2084eefea2fa0a31370f0bac76127c1530e1062e3bb5330560"
+    }
+  ]
+}

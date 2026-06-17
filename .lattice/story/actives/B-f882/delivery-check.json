@@ -1,0 +1,53 @@
+{
+  "storyId": "B-f882",
+  "checkedAt": "2026-06-17T12:34:28.238Z",
+  "reviewRound": "2026-06-17T12:27:01.562Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/handlers/review-preflight.ts#runReviewCliGates-docs-drift",
+      "promise": "docs-drift gate repoRoot is the resolved gitCwd (not deps.projectRoot/metadataRoot), so wrapper-root layouts (metadataRoot != gitRoot) no longer false-block REVIEW->TEST",
+      "verifiedBy": "diff",
+      "evidence": "git diff main...HEAD review-preflight.ts line 430: repoRoot: deps.projectRoot -> repoRoot: gitCwd; grep confirms current file has repoRoot: gitCwd at line 430"
+    },
+    {
+      "docPath": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts (NEW)",
+      "promise": "New wrapper-root regression smoke exists, builds a metadataRoot!=gitRoot fixture with real git, asserts docs-drift preflight finds existing-under-gitRoot path (PASS), proves RED against pre-fix wiring (repoRoot: deps.projectRoot exits non-zero with AssertionError missing path: dev-notes/wrapper-doc.md), uses DI/fixtures not host layout",
+      "verifiedBy": "diff",
+      "evidence": "New file in diff (329 lines); PRIMARY proof drives runReviewCliGates with stub StoryStore; SECONDARY proof calls runDocsDriftGate directly at repoRoot=gitRoot (PASS) vs repoRoot=metadataRoot (FAIL); file ends with console.log docs-drift wrapper-root smoke passed; RED proof assertions documented in source and transcript-diff.md STEP 2"
+    },
+    {
+      "docPath": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts (EXTENDED)",
+      "promise": "gitroot-cwd-contract-smoke extended with B-f882 CHK-003 section: parses review-preflight.ts with balanced-paren walk to extract runDocsDriftGate(...) call, asserts repoRoot value is gitCwd (not deps.projectRoot/projectRoot/metadataRoot/root); self-tests GOOD and BAD fixtures; live assertion on real file; goes RED if repoRoot is reverted",
+      "verifiedBy": "diff",
+      "evidence": "diff adds 165 lines to gitroot-cwd-contract-smoke.ts: extractRunDocsDriftGateCalls/extractRepoRootValue/checkDocsDriftRepoRoot functions, DOCS_DRIFT_SELF_TEST_GOOD/BAD self-tests, Step 0b assertions, and Step 2 live review-preflight assertion; transcript-diff.md STEP 1 shows green output including review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot); STEP 2 shows RED failure when reverted"
+    },
+    {
+      "docPath": "package.json#test-chain",
+      "promise": "Root npm test chain includes test:docs-drift-wrapper-root and test:gitroot-cwd-contract so both new smokes run under lattice validate",
+      "verifiedBy": "diff",
+      "evidence": "diff: root package.json test script extended with && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract; packages/main/package.json adds test:docs-drift-wrapper-root: node dist/tasks/docs-drift-wrapper-root-smoke.js; built artifacts confirmed at dist/tasks/"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transcript-diff.md STEP 1: docs-drift-wrapper-root-smoke.js -> exit 0 (docs-drift wrapper-root smoke passed); gitroot-cwd-contract-smoke.js -> exit 0 (504 .ts files inspected; review-preflight docs-drift gate wires repoRoot: gitCwd). STEP 2 RED: reverting repoRoot -> deps.projectRoot: both smokes exit non-zero (AssertionError missing path: dev-notes/wrapper-doc.md; guard flags deps.projectRoot must be gitCwd). STEP 3 RESTORE: both green. REVIEW->TEST preflight passed against real repo. lattice validate --story=B-f882: 9/9 covered, ALL PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "transcript-diff.md STEP 1: docs-drift-wrapper-root-smoke.js -> docs-drift wrapper-root smoke passed (exit 0). STEP 2 RED: AssertionError PRIMARY: docs-drift gate must PASS on wrapper-root, got status=fail, missing path: dev-notes/wrapper-doc.md; SECONDARY: atGitRoot.status=pass, atMetadataRoot.status=fail. Wired in root package.json test chain. lattice validate --story=B-f882: 9/9 covered, ALL PASS."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "transcript-diff.md STEP 1: gitroot-cwd-contract-smoke.js -> 504 .ts files inspected, 0 bare-cwd violations; review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot); gitroot-cwd-contract smoke passed (exit 0). Self-tests: GOOD (repoRoot: gitCwd) 0 violations, BAD (repoRoot: deps.projectRoot) flagged. STEP 2 RED: reverting repoRoot -> guard exits non-zero. No false positives on legitimate deps.projectRoot uses. lattice validate --story=B-f882: 9/9 covered, ALL PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 code-level promises verified from diff: CHK-001 one-argument fix at review-preflight.ts:430 (repoRoot: gitCwd), CHK-002 new wrapper-root smoke with PRIMARY end-to-end + SECONDARY root-contrast proofs, CHK-003 review-preflight guard extension with balanced-paren parser and self-tests, both wired into npm test chain. Real-machine transcript shows GREEN/RED/GREEN cycle for both smokes and REVIEW->TEST preflight passed. 9/9 verification intents covered. No unresolved TODOs. Deferrals (english-gate storyDir, express docstring) explicitly out of scope and untouched."
+  },
+  "_hash": "f3b5999d81722de78b94f974a89f7add19228a841c2afea00007c45ffa91ba4b"
+}

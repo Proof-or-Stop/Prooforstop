@@ -5,27 +5,201 @@
       "title": "Pass the resolved gitCwd as docs-drift repoRoot in review-preflight.ts (not deps.projectRoot)",
       "context": "In packages/main/src/handlers/review-preflight.ts, the runDocsDriftGate call (~line 424) passes `repoRoot: deps.projectRoot`. Change it to `repoRoot: gitCwd` — the resolved cwd already computed at ~line 287 (const gitCwd = resolveGitCwd({...})) and already passed to the channel/concept/lint/english gates. This makes checkPathDrift -> scanPathDrift run fs.existsSync + git grep from the gitRoot on wrapper-root layouts. Do NOT change the managedAssetDefs resolution (listManagedAssetDefinitions on deps.projectRoot, ~:404) unless you verify it independently needs gitCwd — the confirmed defect is the repoRoot for path scanning. Do NOT touch the english-artifacts gate's storyDir wiring (~:463) — that is finding #3, deferred. Plain-repo behavior (projectRoot==gitCwd) must be byte-identical.",
       "userSees": "On a wrapper-root project (metadataRoot != gitRoot), `lattice validate` / the REVIEW->TEST preflight docs-drift gate no longer falsely reports CLAUDE.md path-references as missing and no longer false-blocks REVIEW->TEST; on a plain repo behavior is unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T11:57:57.011Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root layout (metadataRoot != gitRoot) the docs-drift preflight gate scopes fs/git to gitCwd and reports pass for an existing CLAUDE.md path reference",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo (projectRoot == gitCwd) docs-drift behavior is byte-identical to before; existing docs-drift-path-drift-smoke still passes unchanged",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If repoRoot is reverted to deps.projectRoot the wrapper-root regression goes RED, proving the fix is load-bearing; no managedAssetDefs/english-gate storyDir change in the diff",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Wrapper-root smoke drives runReviewCliGates over a metadataRoot!=gitRoot fixture; with repoRoot: gitCwd the docs-drift gate PASSes (existing-under-gitRoot CLAUDE.md path not reported missing). Output: docs-drift wrapper-root smoke passed.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Existing plain-repo/DI docs-drift smoke still passes unchanged after the one-arg fix (projectRoot==gitCwd no-op). Output: docs-drift path+asset smoke passed.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js (with repoRoot reverted to deps.projectRoot)",
+          "result": "pass",
+          "note": "RED proof captured: reverting repoRoot: gitCwd -> deps.projectRoot makes the wrapper-root smoke FAIL with AssertionError missing path: dev-notes/wrapper-doc.md (exit 1). git show bc5865be confirms the diff is only the repoRoot arg + comment; no managedAssetDefs or english-gate storyDir change.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add a wrapper-root (metadataRoot != gitRoot) regression for the docs-drift preflight gate",
       "context": "Neither existing smoke (english-only-guards-smoke, docs-drift-path-drift-smoke) constructs a metadataRoot != gitRoot layout, so this class is untested. Add a regression (a new smoke task wired into the validate battery, or an extension of an existing preflight smoke) that builds a wrapper-root fixture where the git repo is a subdir and metadataRoot is the non-git parent, runs the docs-drift preflight path-drift check, and asserts it resolves file existence/grep from the gitRoot (so a CLAUDE.md path that EXISTS under the gitRoot is NOT reported as missing). Prove the test FAILS against the pre-fix wiring (repoRoot=metadataRoot) and PASSES after. Use DI/fixtures, do not depend on the host machine layout.",
       "userSees": "`lattice validate` runs the new wrapper-root regression green, demonstrating the docs-drift preflight gate scopes its fs/git checks to the resolved gitRoot; the test is red if review-preflight reverts to passing metadataRoot as repoRoot.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T12:10:08.311Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New wrapper-root smoke builds a metadataRoot != gitRoot fixture, runs the docs-drift preflight path-drift check, and asserts an existing-under-gitRoot CLAUDE.md path is NOT reported missing; smoke exits 0 (green)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke is wired into the validate battery (root npm test) and actually runs under lattice validate --story=B-f882 (its name appears in the run output)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke is proven RED against pre-fix wiring (repoRoot=metadataRoot): with the fix reverted the smoke exits non-zero; uses DI/fixtures, no host-machine layout dependence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "New wrapper-root smoke builds a real git repo in a subdir (gitRoot) with metadataRoot = non-git outer parent and a CLAUDE.md referencing a path existing only under gitRoot; asserts docs-drift preflight does NOT report it missing. Exit 0: docs-drift wrapper-root smoke passed.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "package.json",
+          "command": "node -e require(./package.json).scripts.test",
+          "result": "pass",
+          "note": "Wired into root npm test chain: ...test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:e2e. Root alias test:docs-drift-wrapper-root -> npm --prefix packages/main run test:docs-drift-wrapper-root. Confirmed present in root package.json test script.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js (pre-fix wiring)",
+          "result": "pass",
+          "note": "RED proven: with repoRoot reverted to deps.projectRoot the smoke exits non-zero (AssertionError: docs-drift gate must PASS on wrapper-root, got status=fail, missing path: dev-notes/wrapper-doc.md). DI/fixtures use os.tmpdir + git init subdir; no host-layout dependence. Secondary assertion contrasts repoRoot=gitRoot (pass) vs repoRoot=metadataRoot (fail) with real fs+git grep.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Strengthen the gitCwd guard so an un-threaded review-preflight git-gate is caught",
       "context": "The B-db56 grep-contract test (packages/main/src/tasks/gitroot-cwd-contract-smoke.ts) only flags git child-process calls whose cwd is bound to the bare identifiers projectRoot/root/metadataRoot; it cannot catch a gate that forwards metadataRoot under a parameter name (e.g. repoRoot) — which is how this defect slipped in. Strengthen the guard so that the review-preflight git-invoking gates are mechanically verified to receive the resolved gitCwd (e.g. assert in a smoke that all gate calls in runReviewCliGates that take a repo cwd are passed the same resolved gitCwd, or add a targeted lint/contract check that review-preflight does not pass deps.projectRoot as a repo cwd to a git-invoking gate). Keep it tight and mechanical; if a full lexical rewrite is impractical, a focused review-preflight-specific assertion is acceptable. Document what it does and does not cover.",
       "userSees": "`lattice validate` runs the strengthened guard green now and would go red if any review-preflight git-invoking gate were wired to deps.projectRoot instead of the resolved gitCwd, so this defect class cannot silently recur.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T12:14:28.192Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Strengthened guard runs green on the fixed tree and mechanically verifies the review-preflight git-invoking gates receive the resolved gitCwd (not deps.projectRoot)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Guard documents what it does and does not cover (review-preflight-specific assertion vs general lexical rewrite); no false positives on legitimate non-git deps.projectRoot uses",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a review-preflight git-gate were wired to deps.projectRoot instead of gitCwd the guard goes RED (proven by temporarily reverting and observing failure)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "Strengthened guard runs green and prints: ✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot). Balanced-paren-extracts the runDocsDriftGate(...) call and asserts repoRoot value is gitCwd.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "Self-test: GOOD fixture (repoRoot: gitCwd) -> 0 violations; BAD fixture (repoRoot: deps.projectRoot) -> flagged. Tightly scoped to the single docs-drift gate call; legitimate deps.projectRoot uses (managedAssetDefs/mdReader/codex) are NOT flagged (no false positives). Coverage doc block documents what it covers and does not (review-preflight-specific, not general dataflow).",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js (with review-preflight repoRoot reverted)",
+          "result": "pass",
+          "note": "RED proven: reverting review-preflight repoRoot: gitCwd -> deps.projectRoot makes the guard exit non-zero (GUARD_EXIT=1) flagging: runDocsDriftGate(...) repoRoot is deps.projectRoot — must be the resolved gitCwd. Restored to gitCwd -> green.",
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
+        }
+      ]
     }
   ]
 }
