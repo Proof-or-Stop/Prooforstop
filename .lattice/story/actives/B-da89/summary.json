@@ -1,0 +1,55 @@
+{
+  "storyId": "B-da89",
+  "changes": "Reconciled the dev_start phase-policy drift: added the literal 'dev_start' to the INIT and DEV arrays of DEFAULT_PHASE_TOOLS in packages/main/src/core/config.ts (2 lines, with B-804c/B-da89 comments), aligning config with the authoritative 4-phase set ['INIT','INIT_CHECK','PLAN','DEV'] already declared by command-policy.ts:130 and the dev_start handler guard (handlers/worktree.ts:823). No dev_start behavior change, no other command/phase touched.",
+  "usage": "npm run test:process-fact-contract now exits 0 (previously failed on dev_start INIT + DEV). A manual `lattice dev_start` recovery is now permitted by the phase-tools gate in INIT and DEV (matching the handler, which already accepted those phases); it remains refused in REVIEW/TEST/DONE via the command-policy ceiling. A future command<->phase divergence is caught by the existing assertCommandPolicyPhaseAlignment guard.",
+  "expectedOutcome": "Process-fact contract green (no dev_start INIT/DEV drift); dev_start permitted in INIT/DEV by the phase-tools gate, still refused in REVIEW/TEST/DONE.",
+  "actualTranscript": "npm run test:process-fact-contract -> 'Process fact contract verified', exit 0. git diff --stat main...HEAD -- packages/main/src -> packages/main/src/core/config.ts | 2 ++. git diff -- command-policy.ts handlers/worktree.ts -> empty (unchanged). Guard round-trip: remove dev_start from DEV array -> contract exit 1 (dev_start DEV policy/default phase drift); restore -> exit 0. lattice validate ALL PASS, 6/6 verification coverage.",
+  "outcomeDiff": "Match. The drift is resolved by widening config to the authoritative set; command-policy.ts and the handler are unchanged (config was the outlier). The behavior reviewer confirmed command-policy is the enforcement ceiling so REVIEW/TEST/DONE refusal is preserved and the literal additions cannot over-widen other commands.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Pure phase-policy reconciliation (2 config lines). Does NOT change dev_start behavior, the worktree bootstrap flow, or any other command's policy. The regression guard is the pre-existing assertCommandPolicyPhaseAlignment (no redundant test added).",
+  "pitfalls": "The drift had THREE sources to reconcile against: the dev_start handler's own allowedPhases guard (worktree.ts:823, which REQUIRES INIT because the atomic story_advance INIT_CHECK flow calls dev_start while the story is still at INIT), command-policy.ts:130, and config.ts DEFAULT_PHASE_TOOLS — the first two agreed on the 4-phase set, config was the outlier, so the correct direction was to widen config (narrowing command-policy would have contradicted the handler and removed the documented DEV recovery path). isCommandAllowed (consuming DEFAULT_PHASE_TOOLS) is a real runtime gate but sits UNDER the command-policy ceiling, so widening config could not over-widen beyond REVIEW/TEST/DONE refusal.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 200544
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 101861
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 354346
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 349859
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 193862
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 196163
+    }
+  },
+  "totalDurationMs": 1396638,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T02:27:38.250Z",
+  "updatedAt": "2026-06-17T02:27:38.250Z"
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d633",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "lattice *",
+    "node *",
+    "npm *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/handlers/validate-docs-drift.ts",
+    "packages/main/src/tasks/docs-drift-path-drift-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Data + one test assertion only; gate logic untouched.",
+  "createdAt": "2026-06-17T02:07:07.943Z",
+  "updatedAt": "2026-06-17T02:07:07.943Z",
+  "_hash": "d4b4fd5208c0238f079c313db0f07ca72ec1e02659b3eb2be6b1c8d2d33990f4"
+}

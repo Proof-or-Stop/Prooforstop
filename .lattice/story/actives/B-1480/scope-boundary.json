@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1480",
+  "mode": "custom",
+  "allowed": [
+    "Author a verifier evidence script under the story evidence directory",
+    "Create the English execution-plan document at docs/requirements/decisions/lattice-experience-layer-execution-plan.md"
+  ],
+  "excluded": [
+    "Building a retrieval index or text-matching engine",
+    "Changing any existing repository file other than adding the new decision document",
+    "Editing review-gate enforcement code paths",
+    "Writing TypeScript source files, request handlers, or runnable subcommands"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Plan-only documentation story; user confirmed English doc into decisions/ via full Lattice 3-round audit on 2026-06-17.",
+  "createdAt": "2026-06-17T01:51:11.329Z",
+  "updatedAt": "2026-06-17T01:51:11.329Z",
+  "_hash": "e2a4c84ec742ac4b6ba1bed4cbfd1725a417d244b571432663327d553f86f07d"
+}
