@@ -187,6 +187,17 @@
           "headHash": "91d17edb479df7d18025de2bd7e43bd8b1df4571",
           "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
           "timestamp": "2026-06-17T12:15:57.493Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js (with review-preflight repoRoot reverted)",
+          "result": "pass",
+          "note": "RED proven: reverting review-preflight repoRoot: gitCwd -> deps.projectRoot makes the guard exit non-zero (GUARD_EXIT=1) flagging: runDocsDriftGate(...) repoRoot is deps.projectRoot — must be the resolved gitCwd. Restored to gitCwd -> green.",
+          "headHash": "5164d2a4783b29bdf330f704056ff0b3e8cc0650",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:58.069Z"
         }
       ]
     }
