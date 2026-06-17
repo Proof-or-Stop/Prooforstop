@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Wrapper-root smoke drives runReviewCliGates over a metadataRoot!=gitRoot fixture; with repoRoot: gitCwd the docs-drift gate PASSes (existing-under-gitRoot CLAUDE.md path not reported missing). Output: docs-drift wrapper-root smoke passed.",
+          "headHash": "599d45cef1e35dcba34021fe5e26649369a196b2",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:29.945Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
