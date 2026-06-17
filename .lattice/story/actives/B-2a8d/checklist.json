@@ -320,10 +320,10 @@
           "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
           "command": "node .lattice/story/actives/B-2a8d/evidence/verify-b-2a8d.mjs",
           "result": "pass",
-          "note": "Verifier asserts per-project-only + \"three semantic levels\" + L1 deterministic-local-signature sentence intact + no cross-project framing (no cross-project later/footprint/in-v1).",
-          "headHash": "39fffc12e985e383e5c334ccda591ac2a639097d",
+          "note": "Verifier asserts noUnchangedV1: the stale 'unchanged from v1.0' claim is gone from the Architecture header (now 'three semantic levels are:').",
+          "headHash": "02ccd75029d2921608b81c1c28f75cd090e4586c",
           "materialHash": "2155fe60bcc3698070e455680d95240a368b6f6757a0acc70ea754119abafc28",
-          "timestamp": "2026-06-17T18:14:49.503Z"
+          "timestamp": "2026-06-17T18:20:02.962Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
