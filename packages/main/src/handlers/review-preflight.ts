@@ -76,7 +76,7 @@ import {
 // accurate label so a failing gate does not print a non-existent command. The
 // closest standalone re-run is the smoke task that exercises the same guard.
 const ENGLISH_ARTIFACTS_GATE_LABEL =
-  'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:english-only-guards-smoke)';
+  'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:legacy -- english-only-guards)';
 
 /** Reads CLAUDE.md file contents for docs-drift gate */
 export type MdFileReader = (projectRoot: string) => string[];
