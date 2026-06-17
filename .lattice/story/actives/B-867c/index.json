@@ -4,7 +4,7 @@
   "title": "Green the RED process-fact-contract: register playbook_*/signature_registry_*/recall + reconcile DEFAULT_PHASE_TOOLS",
   "description": "A framework health re-audit found that `npm run test:process-fact-contract` is currently RED on main (verified by running it). The Experience Layer + related stories (B-8387 playbook_*, B-4f46 signature_registry_*, and a `recall` command) added commands to the MAIN_TOOLS registry in cli-engine.ts but never registered them in PROCESS_FACT_REGISTRY (packages/main/src/core/process-fact-registry.ts, the inventory that proves each flow-fact command has a hardcoded fallback owner), and the DEFAULT_PHASE_TOOLS phase allowlists drifted. The guard reports: MAIN_TOOLS commands missing from PROCESS_FACT_REGISTRY = playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set; plus DEFAULT_PHASE_TOOLS phase allowlist drift for patterns recall / signature_registry_* / playbook_* across PLAN/REVIEW/TEST. This is a live broken process-fact invariant. It went undetected because the contract guard (scripts/verify-runtime-fact-contract.mjs via test:process-fact-contract / verify-*.mjs family) is NOT wired into the gate-consumed battery (that decoupling is a separate story, B-99b6). Outcome: register every missing command in PROCESS_FACT_REGISTRY with an accurate level/category/owner/rationale (mirror the existing entries in process-fact-registry.ts ~line 871+ and the format in process-fact-levels.ts; classify each per what it actually does — e.g. signature_registry_list/playbook_diff are read-only L0/L1, playbook_approve/reject and signature_registry_set are mutating), and reconcile DEFAULT_PHASE_TOOLS (config.ts) so the recall/signature_registry_*/playbook_* phase allowlists no longer drift from the registry/command-policy. After the fix, `npm run test:process-fact-contract` MUST exit 0 (green) — the gate does not run it today, so verify it EXPLICITLY by running the script, do not rely on `lattice validate`. Scope: process-fact-registry.ts registrations + config.ts DEFAULT_PHASE_TOOLS reconciliation only; do NOT change the commands' behavior, do NOT wire the guard into the battery (that is B-99b6), do NOT touch the gitRoot work (separate story).",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "process-fact-contract",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-17T16:19:03.846Z",
   "startedAt": "2026-06-17T16:19:03.846Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T16:46:17.919Z",
   "events": [
     {
       "phase": "INIT",
@@ -76,12 +76,16 @@
       "user": "Harmonygo",
       "sessionId": "lattice-p1a",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T16:46:17.919Z",
+      "branch": "story/B-867c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p1a",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-867c",
-    "branch": "story/B-867c",
-    "createdAt": "2026-06-17T16:28:24.465Z"
-  },
   "currentReviewRound": "2026-06-17T16:39:54.245Z"
 }
