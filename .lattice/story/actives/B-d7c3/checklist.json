@@ -83,6 +83,17 @@
           "headHash": "3aa26b0e2e95467059efd783bd2ecabe1f53a627",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:25:59.878Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "python3 -c \"import json;print(sum(1 for k in json.load(open('packages/main/package.json')).get('scripts',{}) if k.startswith('test:')))\"",
+          "result": "pass",
+          "note": "Returns 12 (was 151; the 6 keep-list + 6 non-smoke contract/suite entries remain).",
+          "headHash": "0483283bd7687cb0206fdeadae13351ba1575c7c",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:00.782Z"
         }
       ]
     },
