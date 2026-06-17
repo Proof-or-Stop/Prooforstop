@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
           "result": "pass",
           "note": "Wrapper-root smoke: with resolved gitCwd (real gitRoot) the git-working-tree done-check row reads clean/pass; red baseline (bare metadataRoot) was fail/blocking in the same run. Witness: neutering the fix flipped GREEN assertion to status=fail detail=fatal: not a git repository.",
-          "headHash": "7b83bf6182e1373fb2e91d628928ba68d84bf7e1",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:11:56.423Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
           "result": "pass",
           "note": "Plain-repo byte-identity: smoke proof drives buildDoneChecklist on a plain repo (metadataRoot==gitRoot) with gitCwd absent vs {gitCwd:root} and assert.deepEqual on the full row set + git-working-tree row — identical (root fallback preserves behavior).",
-          "headHash": "b4793ace677cb7dfe194871986872cbed3d37754",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:11:57.013Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "git show 48f01df4a -- packages/main/src/handlers/transition-orchestrator.ts",
           "result": "pass",
           "note": "doneGitCwd resolved ONCE at transition-orchestrator (the SAME value used by autoSyncMain:298 + checkMainDivergence:295) and threaded into runDonePreMergeGate(...,doneGitCwd) at :371 — no re-resolution inside the gate chain (preMortem #4). lattice validate --story=B-6666 PASS.",
-          "headHash": "c78af85f244c65ada996a5241b99b267b99b65e7",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:11:57.588Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
           "result": "pass",
           "note": "Wrapper-root smoke: evidence-freshness probes (currentGitHead/currentMaterialHash via checkEvidenceFreshnessForGit) return DEFINED hashes against the resolved inner gitRoot; bare metadataRoot returned undefined (red baseline in same run).",
-          "headHash": "f50763e97fc7edee1a961b295262cc05b53883ff",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:12:38.535Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
           "result": "pass",
           "note": "Plain-repo probe byte-identity: currentGitHead/currentMaterialHash outputs identical bare-root vs resolved gitCwd (root fallback).",
-          "headHash": "8c2e472d03cf70d930cb5d8b848f60ed73c5c3d1",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:12:42.140Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "git show defb288a1 -- packages/main/src/core/done-oracle.ts",
           "result": "pass",
           "note": "done-oracle.ts:280 checkEvidenceFreshness receives the SAME buildDoneChecklist-threaded resolved gitCwd as the git-status row — no split-brain. Confessional comment + no-op aliases removed from evidence-freshness.ts (grep returns 0). validate PASS.",
-          "headHash": "498a21514f0b6fad4bbe720814c7daeae795f872",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:12:44.496Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
           "note": "Contract exits 0 (GREEN): repo scan 520 .ts files 0 bare-cwd violations; done-oracle + evidence-freshness now route through resolveGitCwd; deferred sites documented in DEFERRED_ALLOWLIST_EXACT with B-99b6 burndown follow-up, original B-db56 literal-git coverage preserved for them via isOldRegexVisible.",
-          "headHash": "f5d904a21a541166202e9e450b251ba96900b5af",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:13:03.596Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
           "note": "Self-tests pin alias rule both ways: ALIAS KNOWN-BAD (const gitCwd=projectRoot used as git cwd) = exactly 1 violation; ALIAS KNOWN-GOOD (const x=projectRoot NOT a git cwd) = 0; ALIAS KNOWN-GOOD (const gitCwd=resolveGitCwd(...)) = 0. Proximity-scoped to git-call window (preMortem #3).",
-          "headHash": "982ffc630c5f230d2c309830337ca2f27b30e265",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:13:04.235Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
           "note": "BACKTICK KNOWN-BAD (execSync(`git`,{cwd:projectRoot})) flagged; KNOWN-GOOD (cwd:resolvedGitCwd) = 0. LIVE red->green witness: injected const witnessGitCwd=projectRoot;execSync(`git status`,{cwd:witnessGitCwd}) into done-oracle.ts -> contract exit 1 flagging the d93b69b8f shape -> revert -> exit 0.",
-          "headHash": "ce1382bbbca5a2be16632bb8e1d0121a83127c29",
-          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
-          "timestamp": "2026-06-17T17:13:04.841Z"
+          "headHash": "630dd88b6c9ac6a94dd9847937bfb00008be6c6c",
+          "materialHash": "9e5250cb953189807ae893c15a944d0e881507c49913cb32bc2ce0ae7916bc8f",
+          "timestamp": "2026-06-17T17:30:30.327Z"
         }
       ]
     }
