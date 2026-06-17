@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Realign stale assertions across all failing smokes",
       "context": "For each smoke that fails on a fresh main checkout under both `npm run test:all` (parallel) and `node packages/main/dist/tasks/<name>-smoke.js` (single), update the offending assertion to match current production behavior. Preserve assertion INTENT (what the test is checking) but match TEXT/REGEX/ENUM to current output. DO NOT modify production source. If a failure is rooted in production-side regression (test was correct, prod drifted in a way that should be reverted), file finding_add with severity=high and leave the smoke as-is for the follow-up story.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T18:22:36.872Z",
       "endTime": null,
       "userSees": "`npm run test:all` exits 0 with 162/162 passed in <N>s. `grep -cE '^FAIL |^TIMEOUT ' /tmp/<log>` outputs 0.",
       "files": {
