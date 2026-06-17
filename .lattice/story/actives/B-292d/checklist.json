@@ -75,7 +75,59 @@
       "context": "Update lattice validate --help text in packages/main/src/handlers/cli-help.ts (or wherever the REVIEW->TEST PREFLIGHT block lives — it currently lists 5 gates, but reality is already 6 incl english-artifacts; this story makes it 7). Add entries for both the missing english-artifacts AND the new koala-residue. Update CLAUDE.md if it enumerates the gates. Do NOT modify the script or its allowlists.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`lattice validate --help | grep -A10 'REVIEW→TEST PREFLIGHT'` shows 7 numbered gates; `grep koala-residue CLAUDE.md` shows the gate referenced.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-prompts.ts",
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cli-prompts.ts REVIEW->TEST PREFLIGHT block lists 7 gates -> `awk \"/REVIEW.*TEST PREFLIGHT/,/EXAMPLES/\" packages/main/src/cli-prompts.ts | grep -cE \"^  [0-9]\\.\"` outputs 7; WHY: must list all 7 gates (was missing english-artifacts even before this story)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "cli-prompts.ts lists koala-residue -> `grep -c koala-residue packages/main/src/cli-prompts.ts` outputs at least 1; WHY: new gate must appear in help",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "cli-prompts.ts lists english-artifacts -> `grep -c english-artifacts packages/main/src/cli-prompts.ts` outputs at least 1; WHY: B-5f42 left english-artifacts out of help; this story fixes that as part of 7-gate correction",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CLAUDE.md line 35 gate list updated -> `grep -cE \"koala-residue\" CLAUDE.md` outputs at least 1; WHY: CLAUDE.md is authoritative spec for agents",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rebuilt dist cli-prompts.js shows 7 gates -> `awk \"/REVIEW.*TEST PREFLIGHT/,/EXAMPLES/\" packages/main/dist/cli-prompts.js | grep -cE \"[0-9]\\.\"` outputs 7; WHY: --help must show updated list at runtime",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no other handlers touched -> `git diff main...HEAD --name-only -- packages/main/src/handlers/ | grep -v review-preflight.ts | wc -l` outputs 0; WHY: only review-preflight handler edited",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: lattice validate default-battery handlers untouched -> `git diff main...HEAD --name-only -- packages/main/src/handlers/validate-*.ts | wc -l` outputs 0; WHY: option (a) chose preflight only, not validate handler",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
