@@ -60,7 +60,7 @@
       "desc": "CHK-001:adversarial:3, CHK-002:adversarial:1, CHK-003:adversarial:2: all three evidence entries claim git diff main -- scripts/verify-*.mjs | wc -l returns 0, but executing that command against the current branch returns 2167 (the branch has verify-*.mjs diffs relative to main). The evidence result=pass and note=Returns 0 are factually incorrect. The over-reach guard — that verify-*.mjs files are unmodified — cannot be confirmed; the branch has introduced changes in scripts/verify-*.mjs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T12:31:27.136Z",
@@ -69,7 +69,9 @@
       "_hash": "f68e8c42b8ceaa8ebc42f77dde9dcfbd22cfab95bffa63e13498b944f7f0a50a",
       "files": [
         "scripts/verify-*.mjs"
-      ]
+      ],
+      "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
+      "resolvedAt": "2026-06-17T12:37:03.390Z"
     },
     {
       "id": "B-d7c3:F-005",
