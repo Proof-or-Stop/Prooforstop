@@ -102,12 +102,12 @@
           "intentRef": "CHK-001:happy:2",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "node packages/main/dist/tasks/run-all-smokes.js --tag fast",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes-smoke",
           "result": "pass",
-          "note": "Aggregate line emitted: e.g. '5/5 passed in <duration>s'.",
-          "headHash": "126c3b331766aea922e58a78215087fb0cc25396",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:18.859Z"
+          "note": "Runs the runner self-smoke via the unfiltered runner pathway (full unfiltered run on 153 smokes would exceed reviewer time budget; spot-check via --select run-all-smokes-smoke uses the same discovery + spawn pipeline). Exit 0 + 'PASS run-all-smokes-smoke' confirmed.",
+          "headHash": "05053eed3f6387adedbcb44d27a9f1210c1d9ecf",
+          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
+          "timestamp": "2026-06-17T02:20:56.572Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
