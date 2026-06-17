@@ -79,7 +79,7 @@
       "desc": "The init-rerun merge fix (cli-init.ts cb19e86e8) has no automated regression test. The fix corrects a bug where only hooks[0] was inspected, silently dropping every hook entry after the first on init-rerun. The existing smoke test (english-only-guards-smoke.ts) covers the fresh-init path only. No test exercises: run lattice init on a settings.json that already contains the scope PreToolUse guard -> verify (a) english-only guard is added without duplicating the scope guard, and (b) both entries are present in the merged result. This rerun-merge path is the specific scenario the fix addresses and it currently has only manual before/after attestation in the commit message. A permanent regression test is warranted to prevent silent regression.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T00:27:18.321Z",
@@ -89,7 +89,9 @@
       "files": [
         "packages/main/src/cli-init.ts",
         "packages/main/src/tasks/english-only-guards-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Added Test 7 to english-only-guards-smoke.ts (commit ea8b568c9): seeds a temp project with a scope-only PreToolUse settings.json, runs lattice init, and asserts BOTH the scope-pretool and english-only-guard hooks are present (scope not duplicated). This is durable regression coverage for the init-rerun merge path that the escalation review exposed; all 7 smoke tests green.",
+      "resolvedAt": "2026-06-17T00:32:11.373Z"
     }
   ]
 }
