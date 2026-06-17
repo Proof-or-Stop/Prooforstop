@@ -152,6 +152,17 @@
           "headHash": "a5cc85f05f6c7ac4aede46ffc601552067df428d",
           "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
           "timestamp": "2026-06-17T18:08:45.523Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "break test:anti-stall alias -> lattice validate --json -> git restore -> lattice validate --json",
+          "result": "pass",
+          "note": "REGRESSION-BLOCKS PROOF: reversibly broke the wired test:anti-stall alias (appended && exit 1, no guard-logic change). lattice validate --json then reported status=fail, allPass=false, summary=Project validation commands failed; ✗ package.json test script: npm test (the failing guard is named in the RED output, no silent skip — npm && short-circuits). git restore package.json reverted; validate --json (no --story) then reported status=pass allPass=true commands[].code=0. Break was NOT committed; worktree package.json is the clean original. Transcripts: /tmp/b99b6-validate-red.json (fail) and /tmp/b99b6-validate-nostory.json (pass).",
+          "headHash": "95a67376312f0c627168eb28378ac0f23738ca12",
+          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
+          "timestamp": "2026-06-17T18:08:46.086Z"
         }
       ]
     }
