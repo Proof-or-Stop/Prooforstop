@@ -69,9 +69,9 @@
       "title": "Strengthen the gitCwd guard so an un-threaded review-preflight git-gate is caught",
       "context": "The B-db56 grep-contract test (packages/main/src/tasks/gitroot-cwd-contract-smoke.ts) only flags git child-process calls whose cwd is bound to the bare identifiers projectRoot/root/metadataRoot; it cannot catch a gate that forwards metadataRoot under a parameter name (e.g. repoRoot) — which is how this defect slipped in. Strengthen the guard so that the review-preflight git-invoking gates are mechanically verified to receive the resolved gitCwd (e.g. assert in a smoke that all gate calls in runReviewCliGates that take a repo cwd are passed the same resolved gitCwd, or add a targeted lint/contract check that review-preflight does not pass deps.projectRoot as a repo cwd to a git-invoking gate). Keep it tight and mechanical; if a full lexical rewrite is impractical, a focused review-preflight-specific assertion is acceptable. Document what it does and does not cover.",
       "userSees": "`lattice validate` runs the strengthened guard green now and would go red if any review-preflight git-invoking gate were wired to deps.projectRoot instead of the resolved gitCwd, so this defect class cannot silently recur.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T12:14:28.192Z",
       "verificationIntent": {
         "happy": [
           {
