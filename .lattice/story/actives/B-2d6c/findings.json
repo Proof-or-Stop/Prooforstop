@@ -1,0 +1,42 @@
+{
+  "findings": [
+    {
+      "id": "B-2d6c:F-001",
+      "desc": "CHK-002:adversarial:0 evidence command is `echo SCOPE_ACKED` instead of the literal intent CLI. The intent prescribes `git diff main...HEAD -- packages/main/smoke-manifest.json | grep -E \"^[-+]\" | grep -v lattice-baseline | ...| wc -l` expecting output 0, but that command currently returns 20 (non-zero) because 5+ additional entries beyond lattice-baseline were modified. The scope expansion is acknowledged in scope-contract.json, but the evidence must either (a) use a `waiver` kind with an explicit note citing the scope_contract_acknowledge, or (b) the intent command must be updated to exclude the acknowledged entries and verify the expansion is bounded. Using `echo SCOPE_ACKED` as the evidence command violates the evidence-must-bind-literal-intent-command rule — it does not execute the check, so the assertion is unverified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T21:07:17.640Z",
+      "reviewRound": "2026-06-17T21:05:23.729Z",
+      "reviewRunId": "B-2d6c:RR-003",
+      "_hash": "48ac1e208e038a993efedf6ff736e0b890b3bfdd629009d2ba8ca497333d35ea",
+      "files": [
+        "packages/main/smoke-manifest.json",
+        ".lattice/story/actives/B-2d6c/scope-contract.json"
+      ],
+      "resolvedReason": "Rebound CHK-002:adversarial:0 evidence to verdict=waived. PLAN over-reach guard expected only lattice-baseline manifest changes; DEV revealed 7 more parallel-timeout smokes. scope_contract_acknowledge documented (2 acks).",
+      "resolvedAt": "2026-06-17T21:10:27.671Z"
+    },
+    {
+      "id": "B-2d6c:F-002",
+      "desc": "doc-count-mismatch: CHANGELOG B-2d6c entry says \"7 slow smokes\" but the parenthetical list names 8 (lattice-baseline, field-regression-cli, dispatch-run, experience-layer-playbook, planner-unattended, worktree-authority, cli-json-stdout-contract, autopilot-run) and the manifest diff shows exactly 8 timeoutMs additions. Prose undercounts by 1.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-17T21:09:21.203Z",
+      "reviewRound": "2026-06-17T21:05:23.729Z",
+      "reviewRunId": "B-2d6c:RR-001",
+      "_hash": "500435b0112c4bdfd3f56949ea930a1c5a80fcd5fc08b2707ab6fb1c23848c0c",
+      "files": [
+        "CHANGELOG.md",
+        "packages/main/smoke-manifest.json"
+      ],
+      "resolvedReason": "Fixed CHANGELOG count 7→8 in commit ac85acd8a.",
+      "resolvedAt": "2026-06-17T21:10:28.547Z"
+    }
+  ]
+}

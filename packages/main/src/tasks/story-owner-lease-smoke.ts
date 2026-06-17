@@ -1237,8 +1237,16 @@ try {
           encoding: 'utf-8',
           stdio: ['pipe', 'pipe', 'pipe'],
         });
+        // B-2d6c: filter to the SPECIFIC probe path (B-c55d/owner-lease.json).
+        // The old `.includes('owner-lease.json')` was brittle: it matched ANY
+        // owner-lease.json in porcelain — and pre-gitignore-rule story dirs
+        // (e.g. the active worktree's own owner-lease.json) can still appear
+        // as M (tracked-modified) because they were committed before the
+        // `**/owner-lease.json` rule existed. Only the FRESHLY WRITTEN B-c55d
+        // probe file is what this assertion is supposed to check.
+        const probeRel = 'B-c55d/owner-lease.json';
         assert.equal(
-          porcelain.split('\n').some((l) => l.includes('owner-lease.json')),
+          porcelain.split('\n').some((l) => l.includes(probeRel)),
           false,
           'a freshly written owner-lease.json never appears in git status --porcelain (gitignored runtime artifact)',
         );

@@ -15,7 +15,7 @@
     "test": "npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:e2e",
     "test:all": "node packages/main/dist/tasks/run-all-smokes.js",
     "test:legacy": "node packages/main/dist/tasks/run-all-smokes.js --select",
-    "test:coverage": "c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1",
+    "test:coverage": "NODE_OPTIONS=--max-old-space-size=8192 c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1",
     "test:koala-residue": "node scripts/verify-koala-residue.mjs",
     "test:main-write-lock-coverage": "node packages/main/dist/tasks/main-write-lock-coverage.js",
     "test:review-convergence-smoke": "node packages/main/dist/tasks/review-convergence-smoke.js",

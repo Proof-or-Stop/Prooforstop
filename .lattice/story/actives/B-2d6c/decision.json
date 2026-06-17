@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "Tests-only — production code stays frozen",
+    "Preserve assertion INTENT, only realign TEXT/REGEX/ENUM to current production output",
+    "Production regressions get filed + split (do NOT silently work around)"
+  ],
+  "drivers": [
+    "B-c6cf CHK-002:happy:2 waiver needs retiring for CI viability",
+    "Test signal is unreliable — every failure looks like noise",
+    "One batch beats 24 stories (Lattice overhead would dominate)"
+  ],
+  "options": [
+    {
+      "name": "(a) one big batch story (chosen)",
+      "pros": [
+        "1 PLAN + 1 DEV + 1-2 REVIEW round",
+        "Pattern repeats — one diff is easier to audit collectively",
+        "Closes waiver in one shot"
+      ],
+      "cons": [
+        "Large diff surface in test code"
+      ]
+    },
+    {
+      "name": "(b) cluster: assertion vs timeout vs race",
+      "pros": [
+        "Granular",
+        "Smaller PR per story"
+      ],
+      "cons": [
+        "3x Lattice overhead",
+        "Most fixes are same kind (assertion)"
+      ]
+    }
+  ],
+  "chosen": "(a) one big batch story (chosen)",
+  "rationale": "User picked (a) on 2026-06-17. Pattern is uniform (stale assertions); batch is efficient. Production-regression escape hatch documented in scope-boundary so we do not silently mask real bugs.",
+  "preMortem": [
+    {
+      "scenario": "A failing smoke is actually catching a real production regression",
+      "trigger": "DEV finds the assertion was right; production behavior is the wrong one",
+      "consequence": "Fixing the assertion would silently hide a real bug",
+      "mitigation": "Implementer MUST file finding_add severity=high describing the regression, leave the smoke broken, split the prod fix to a follow-up story. scope-boundary documents this escape hatch."
+    },
+    {
+      "scenario": "Fixing assertions in one smoke breaks another (shared fixture/global state)",
+      "trigger": "After fixing N smokes, smoke N+1 starts failing for new reasons",
+      "consequence": "Spiral of fixes",
+      "mitigation": "Run npm run test:all at the END of every commit during DEV, not just at the end of the story. Catch shared-state coupling early."
+    },
+    {
+      "scenario": "lattice-baseline TIMEOUT is a real deadlock",
+      "trigger": "Raising timeoutMs makes test:all run for hours but still TIMEOUT",
+      "consequence": "CHK-002 stalls",
+      "mitigation": "If after 2 attempts the TIMEOUT persists, file finding severity=high, set skip:true on the manifest entry with a comment pointing to the finding, defer real fix to follow-up."
+    },
+    {
+      "scenario": "Parallel-only race failures are not deterministically reproducible",
+      "trigger": "A smoke fails in test:all (parallel) but passes in test:coverage (--jobs 1)",
+      "consequence": "Cannot validate the fix",
+      "mitigation": "Run npm run test:all 3 times consecutively after a fix; require all 3 to pass. If still flaky, treat as production-rooted and file finding."
+    }
+  ],
+  "timestamp": "2026-06-17T18:18:54.159Z"
+}
