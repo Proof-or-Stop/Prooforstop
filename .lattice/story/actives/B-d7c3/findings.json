@@ -226,6 +226,22 @@
       "files": [
         "packages/main/smoke-manifest.json"
       ]
+    },
+    {
+      "id": "B-d7c3:F-014",
+      "desc": "CHK-001:adversarial:1 evidence command uses two-dot diff (git diff main -- packages/main/src/tasks/*-smoke.ts | wc -l) and its note claims Returns 0. But two-dot output is actually 4621 lines (B-40eb koala-residue sweep changed these files on main after this worktree was created). The note is factually incorrect for a two-dot diff. This intent should have been rebound to three-dot (git diff main...HEAD) like the other adversarial intents. Three-dot is 0 (correct), but the evidence on record uses two-dot and falsely claims 0.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:41:25.509Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-005",
+      "_hash": "41ab1f5a1d3f36e4c476b5d95d63901a47158351e3cdd91f0cc4a815f59ef758",
+      "files": [
+        "packages/main/src/tasks"
+      ]
     }
   ]
 }
