@@ -5,9 +5,9 @@
       "title": "Pass the resolved gitCwd as docs-drift repoRoot in review-preflight.ts (not deps.projectRoot)",
       "context": "In packages/main/src/handlers/review-preflight.ts, the runDocsDriftGate call (~line 424) passes `repoRoot: deps.projectRoot`. Change it to `repoRoot: gitCwd` — the resolved cwd already computed at ~line 287 (const gitCwd = resolveGitCwd({...})) and already passed to the channel/concept/lint/english gates. This makes checkPathDrift -> scanPathDrift run fs.existsSync + git grep from the gitRoot on wrapper-root layouts. Do NOT change the managedAssetDefs resolution (listManagedAssetDefinitions on deps.projectRoot, ~:404) unless you verify it independently needs gitCwd — the confirmed defect is the repoRoot for path scanning. Do NOT touch the english-artifacts gate's storyDir wiring (~:463) — that is finding #3, deferred. Plain-repo behavior (projectRoot==gitCwd) must be byte-identical.",
       "userSees": "On a wrapper-root project (metadataRoot != gitRoot), `lattice validate` / the REVIEW->TEST preflight docs-drift gate no longer falsely reports CLAUDE.md path-references as missing and no longer false-blocks REVIEW->TEST; on a plain repo behavior is unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T11:57:57.011Z",
       "verificationIntent": {
         "happy": [
           {
