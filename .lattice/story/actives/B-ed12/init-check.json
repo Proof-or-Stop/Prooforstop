@@ -1,0 +1,32 @@
+{
+  "storyId": "B-ed12",
+  "checkedAt": "2026-06-17T19:49:14.194Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "index.json riskSignals contains category:Data Migration/Destructive (matched:migration) and category:Production/Emergency (matched:production) auto-elevated from keyword scan. The background explicitly confirms these are known false-positives for a test-maintenance story with no data migration and no production code change. The main agent should call story_review_dismiss to remove these signals and restore priority to medium so REVIEW stage does not trigger unwarranted high-risk gates. No action required to unblock INIT_CHECK — flagged as advisory only."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T19:48:18.779Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T19:49:14.194Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "index.json riskSignals contains category:Data Migration/Destructive (matched:migration) and category:Production/Emergency (matched:production) auto-elevated from keyword scan. The background explicitly confirms these are known false-positives for a test-maintenance story with no data migration and no production code change. The main agent should call story_review_dismiss to remove these signals and restore priority to medium so REVIEW stage does not trigger unwarranted high-risk gates. No action required to unblock INIT_CHECK — flagged as advisory only."
+        }
+      ]
+    }
+  ],
+  "_hash": "bf39152398a394f7c64ea5c08aec64cad2ea3d402479d67540e5fcb75cf8d531"
+}

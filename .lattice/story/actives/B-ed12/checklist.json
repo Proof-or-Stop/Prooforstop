@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix gate-semantics-drift smokes: init-check-fallback, init-check-required-agents, done-preflight",
+      "context": "These fail because production gained gates the tests don't set up / assert. init-check-fallback + init-check-required-agents fail with [missing_scope_boundary] — update them to set up scope-boundary.json (and execution-boundary / scope-freeze as the current INIT_CHECK flow requires) before advancing INIT_CHECK, mirroring the real flow. done-preflight assertDoneRejectsWhenMainIsDirty must be updated to B-72df semantics: a dirty main with files OUTSIDE the merge-affected paths is now TOLERATED, while a real merge-affecting conflict still blocks; confirm the story is NOT advanced to DONE in the dirty case (no bypass) and assert the current message. Read each production gate + the story that introduced it (scope-boundary gate, B-72df) to confirm correct behavior FIRST. Do not weaken any safety assertion. Each smoke must pass standalone after.",
+      "userSees": "Running init-check-fallback, init-check-required-agents, and done-preflight standalone all PASS, asserting the CURRENT gate semantics (scope-boundary required at INIT_CHECK; B-72df scoped dirty-main DONE check that still blocks a real conflict and never bypasses to DONE).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fix behavior/model-drift smokes: worktree-repair (B-097f), story-dedup (slug casing), convergence-discarded (message)",
+      "context": "worktree-repair: assertMixedCanonicalLegacyGlobalLinksAreRepaired gets 'skipped' because B-097f made agent prompts host-neutral single-source (project-local link repair is now a no-op). Confirm 'skipped' is the correct post-B-097f behavior, then update the assertion to expect it. story-dedup: expects 'Japanese-task' but gets 'japanese-task' — confirm the current slug normalization is intended, update the expectation. convergence-discarded: the 'All stories complete' convergence message drifted — find the current message/behavior and update. Confirm production correctness per smoke FIRST; if any reveals a real bug, escalate instead of weakening. Each passes standalone after.",
+      "userSees": "worktree-repair, story-dedup, convergence-discarded each PASS standalone, asserting the current correct behavior (post-B-097f skip; normalized slug; current convergence message), with no production change.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fix message/CLI/rename-drift smokes: cli-argument-ergonomics, lattice-only-absence, lattice-cli-migration, review-loop",
+      "context": "These fail on drifted error-message regexes / assertions / rename-completion expectations. cli-argument-ergonomics: the 'Parameter validation failed' (or similar) message changed — update the regex to the current text. lattice-only-absence: assertion drift — confirm current behavior + update. lattice-cli-migration: drift from the koala->lattice rename completion — update to the current migrated state. review-loop: 3 of 38 sub-assertions drifted — fix the 3, keep the other 35. Confirm correctness per assertion FIRST; never weaken. Each passes standalone after.",
+      "userSees": "cli-argument-ergonomics, lattice-only-absence, lattice-cli-migration, and review-loop each PASS standalone with assertions updated to the current correct messages/behavior.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Content fix: remove the CJK that english-open-source-surface flags in usage-ledger-estimate-smoke.ts",
+      "context": "english-open-source-surface is NOT an assertion drift — it correctly flags CJK content in packages/main/src/tasks/usage-ledger-estimate-smoke.ts (the English-only OSS surface check working as intended). Fix the CONTENT: translate/remove the flagged CJK in that test file (comments/strings) so it is English-only, per the OSS English-only policy. Do not change the english-open-source-surface check itself. Verify english-open-source-surface passes standalone after, and that usage-ledger-estimate-smoke still passes (you only touched its non-functional text).",
+      "userSees": "english-open-source-surface PASSES standalone (no CJK flagged); usage-ledger-estimate-smoke.ts is English-only and still passes its own assertions.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Triage + fix (or escalate) the remaining lifecycle smokes: gap-log, story-create-concurrency, review-pass-discard",
+      "context": "These three failed standalone but were not individually root-caused in triage. For EACH: run standalone, read the assertion failure + the production code, and classify — STALE (update the test to current correct behavior) or REAL-REGRESSION (STOP, report as a real finding, do NOT weaken). Most likely stale given the pattern, but confirm — do not assume. Apply the same guardrail (confirm production correctness first; never weaken to pass). Each must pass standalone after a stale-fix, or be escalated with evidence if real.",
+      "userSees": "gap-log, story-create-concurrency, review-pass-discard each either PASS standalone (stale-fixed to current behavior) or are escalated as a confirmed real production bug with repro evidence — none silently weakened.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
