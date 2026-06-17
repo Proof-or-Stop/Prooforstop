@@ -620,6 +620,16 @@
           "headHash": "376ad8dd3409cf9d976d37e7e41f8c2d106ebb01",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
           "timestamp": "2026-06-17T02:15:06.942Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala CHANGELOG.md docs/requirements/decisions",
+          "result": "pass",
+          "note": "CHANGELOG/decisions 的 koala 全为历史记录,documented-exception,本 story 未改",
+          "headHash": "5fb281f705996f1a1610a8f6bfac40129a09d58e",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:15:07.808Z"
         }
       ]
     }
