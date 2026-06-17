@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ]
+    },
+    {
+      "id": "B-40eb:F-002",
+      "desc": "CHK-007:adversarial:0 (must) — intent requires: add a new file with unclassified koala brand text in packages/main/src/, re-run acceptance gate grep, and confirm the gate reports it as unclassified. The evidence note explicitly states: `新增未分类 koala 品牌会被 branding gate 标 unclassified 而 fail (story 4 扩展到全 active 范围)`, admitting the acceptance gate grep in CHK-007:happy:0 covers only the cli-engine-branding-smoke fixed file list, NOT the full active scope (packages/ scripts/ docs/ CLAUDE.md). The branding smoke scans 5 fixed files; CHK-007:happy:0 uses `perl /tmp/bf2.pl` which filters the broader grep but is an ephemeral script whose content is not in evidence. The adversarial must-intent tests whether a *new* bad file in packages/main/src/ is caught by re-running the acceptance gate — this was not demonstrated. Running the smoke and noting story 4 will extend scope is not valid evidence for this must-priority intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:20.198Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "aec4e72ac3968b9a447f55ea4d194453b5eab2741caf8f97c4af4293045992f1",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
     }
   ]
 }
