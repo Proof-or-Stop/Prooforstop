@@ -97,6 +97,17 @@
           "headHash": "dfa643264c968ed6235f638c3b21040a4d91b754",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:09:16.475Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --tag fast",
+          "result": "pass",
+          "note": "Aggregate line emitted: e.g. '5/5 passed in <duration>s'.",
+          "headHash": "126c3b331766aea922e58a78215087fb0cc25396",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:09:18.859Z"
         }
       ]
     },
