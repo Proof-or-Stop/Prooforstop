@@ -1,0 +1,44 @@
+{
+  "storyId": "B-d7c3",
+  "checkedAt": "2026-06-17T12:15:27.003Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-002 userSees says grep count drops sharply but does not give a specific expected number. Current root test:.*-smoke count is 48; after removing 44 proxies it should drop to ~4. Recommend specifying the target number for unambiguous acceptance, as CHK-001 does."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-001 userSees references 153 smokes in the test:all aggregate summary but neither background.md nor checklist context explains the derivation of 153. Recommend adding a brief note (e.g. 143 collapsed + 6 keep-list + 4 non-smoke tasks = 153) so the implementer knows what count to expect."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T12:15:07.788Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "checklist.json CHK-002 context breakdown says remaining includes ~50 verify-*.mjs entries, but only 35 root test:* scripts reference verify-*.mjs files (the 49 figure is file count in scripts/, not npm entry count). The actionable claim — 114 minus 44 = ~70 total remaining — is arithmetically correct. The ~50 sub-breakdown is an approximation mixing file count with npm entry count; advisory only, no implementer action misdirected."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T12:15:27.003Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-002 userSees says grep count drops sharply but does not give a specific expected number. Current root test:.*-smoke count is 48; after removing 44 proxies it should drop to ~4. Recommend specifying the target number for unambiguous acceptance, as CHK-001 does."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-001 userSees references 153 smokes in the test:all aggregate summary but neither background.md nor checklist context explains the derivation of 153. Recommend adding a brief note (e.g. 143 collapsed + 6 keep-list + 4 non-smoke tasks = 153) so the implementer knows what count to expect."
+        }
+      ]
+    }
+  ],
+  "_hash": "2457207bff1d9ed67bf4d3756837fb9ce4c91556273f5bf6b37049ce02a9d327"
+}
