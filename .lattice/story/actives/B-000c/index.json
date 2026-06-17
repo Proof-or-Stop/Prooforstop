@@ -4,7 +4,7 @@
   "title": "Experience Layer Phase 1a: finding-signals derived-cache vertical slice with gate-safe runtime-artifact registration (zero cross-module imports; cache write leaves materialHash unchanged)",
   "description": "Implement the first Experience Layer slice from docs/requirements/decisions/lattice-experience-layer-execution-plan.md: a self-contained module set (core/experience-layer-types.ts, core/learning-store.ts, core/finding-signals.ts) that derives a finding-signals cache from existing findings (read through store.readFindings, never raw findings.json), writes .lattice/learning/finding-signals.json, and registers that cache plus .lattice/learning/learning-log.jsonl in runtime-artifact-registry as materialHash:exclude/volatile so they never pollute gate freshness. Advisory-only and inert: no CLI commands, no reviewer-prompt injection, no gate logic changes. The module set keeps zero outward imports into existing core (usage-ledger isolation bar). Proven by a committed smoke that the cache write leaves currentMaterialHash unchanged.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "createdAt": "2026-06-17T11:23:02.819Z",
   "startedAt": "2026-06-17T11:23:02.819Z",
@@ -62,6 +62,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T11:55:47.885Z",
+      "branch": "story/B-000c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T11:58:58.295Z",
       "branch": "story/B-000c",
       "user": "Harmonygo",
       "agent": "main"
