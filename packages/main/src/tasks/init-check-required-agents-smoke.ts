@@ -33,6 +33,35 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
   }
 }
 
+/**
+ * Drive the scope-anti-expansion freeze gate to PASS via the public CLI surface.
+ *
+ * INIT_CHECK now evaluates the scope-anti-expansion gate (scope-boundary →
+ * execution-boundary → scope-freeze-check) BEFORE the init-check required-agent
+ * gate (machine.ts canEnterInitCheckGuard / evaluateScopeAntiExpansionGate). A
+ * virgin story aborts with [missing_scope_boundary] before it can reach the
+ * [missing_init_check_agent] behavior this smoke verifies. Mirroring the real
+ * flow, set + freeze the scope boundary so each story passes the freeze gate.
+ */
+function freezeScope(root: string, storyId: string): void {
+  run(root, 'scope_boundary_set', {
+    storyId,
+    mode: 'correctness_fix',
+    allowedScope: ['INIT_CHECK required reviewer records'],
+    excludedScope: ['unrelated expansion'],
+    userConfirmed: true,
+    confirmation: 'Synthetic user-confirmed boundary for the init required-agents smoke.',
+  });
+  run(root, 'execution_boundary_set', {
+    storyId,
+    allowedCommands: ['npm --prefix packages/main run build'],
+    allowedTools: ['shell'],
+    excludedCommands: ['rm -rf'],
+  });
+  const frozen = run(root, 'scope_freeze_check', { storyId });
+  assert.match(frozen, /PASS/, 'scope_freeze_check must pass so INIT_CHECK reaches the init-check gate');
+}
+
 const root = mkdtempSync(join(tmpdir(), 'lattice-init-required-agents-'));
 try {
   git(root, ['init', '-b', 'main']);
@@ -69,6 +98,7 @@ try {
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
+  freezeScope(root, storyId!);
 
   run(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
@@ -104,10 +134,17 @@ try {
   });
   const tamperStoryId = tamperCreated.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(tamperStoryId, 'story_create should return tamper story id');
+  freezeScope(root, tamperStoryId!);
 
   run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'lattice-review-story-init' });
   run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'product-reviewer' });
   run(root, 'story_update', { storyId: tamperStoryId, title: 'Init tamper gate changed after review' });
+  // story_update mutates the title — a freeze-gate input AND an init-check
+  // signature input. The freeze gate runs first, so it would report
+  // [scope_freeze_check_stale] and mask the init-check tamper. Re-freeze so
+  // INIT_CHECK reaches the init-check signature check, which still detects the
+  // stale reviewer pass recorded against the older story snapshot.
+  run(root, 'scope_freeze_check', { storyId: tamperStoryId });
   const tampered = run(root, 'story_advance', { storyId: tamperStoryId, phase: 'INIT_CHECK' }, true);
   assert.match(tampered, /init_check_tampered/);
 } finally {
