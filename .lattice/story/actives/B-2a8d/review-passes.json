@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T18:14:53.140Z",
       "reviewRunId": "B-2a8d:RR-001",
       "_hash": "0d6423bdcd591e77c1b9e64f37741bbd55c0261086bd160a85dd88771e4c8d9e"
+    },
+    {
+      "id": "B-2a8d:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 20 intent refs across CHK-001 (9 refs) and CHK-002 (11 refs). Verifier node .lattice/story/actives/B-2a8d/evidence/verify-b-2a8d.mjs is a specific committed script (not generic fallback) that reports TOTAL 20 | PASS 20 | FAIL 0 with explicit grep-based assertions covering all required absences (noPhase4/noL4/noPublicSig/noTwoLayer/noCrossLater/noFourLevels/noCrossFootprint/noCrossInV1) and presences (threeLevels/perProject/localSignature/l1/l2/l3/ph1a/ph1b/ph3). One low/missing finding (B-2a8d:F-001) recorded for CHK-002:happy:3 and adversarial:1 binding note imprecision; both intents are satisfied by correct doc state. No blocker found.",
+      "createdAt": "2026-06-17T18:18:19.940Z",
+      "reviewRound": "2026-06-17T18:14:53.140Z",
+      "reviewRunId": "B-2a8d:RR-004",
+      "_hash": "6547406db0fd6968fd10ff7546f8c4db877c33308afbde01a09bd934ff220b38"
     }
   ]
 }
