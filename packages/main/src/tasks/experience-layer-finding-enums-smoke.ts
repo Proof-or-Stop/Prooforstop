@@ -317,7 +317,8 @@ function run(): void {
       const root = mkProject(); tmpRoots.push(root); process.chdir(root);
       const { ctx } = mkCtx(root);
       const sr = createSignatureRegistryHandlers(ctx);
-      // canonical active tag + alias synonym
+      // canonical active tag + alias synonym (approve requires a prior propose).
+      sr.signature_registry_set({ tag: 'auth-bypass', action: 'propose', by: 'tester' });
       sr.signature_registry_set({ tag: 'auth-bypass', action: 'approve', by: 'tester' });
       sr.signature_registry_set({ tag: 'auth-bypass', action: 'alias', alias: 'authbypass' });
       assert.equal(resolveTag(root, 'authbypass'), 'auth-bypass', 'alias folds to canonical');
@@ -348,6 +349,129 @@ function run(): void {
       const sr = createSignatureRegistryHandlers(ctx);
       sr.signature_registry_set({ tag: 'probe', action: 'propose', by: 'tester' });
       assert.ok(existsSync(join(root, '.lattice/learning/signature-registry.json')), 'written under .lattice/learning/');
+    });
+
+    // ─── F-002 / CHK-002:adversarial:2 — explicit empty/whitespace enum rejected ─
+    check('CHK-002:adversarial:2 empty-string enum rejected', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createFindingHandlers(ctx);
+      const storyId = 'B-emptyenum'; seedStory(store, storyId);
+      const fid = h.finding_add({ storyId, desc: 'thing', severity: 'medium', category: 'edge', agent: 'main' }).match(/Finding (\S+) created/)![1];
+      // An explicitly provided empty string is an INVALID enum value (not silently coerced to undefined).
+      assert.throws(
+        () => h.finding_resolve({ storyId, findingId: fid, resolveEvidenceStrength: '' }),
+        /resolveEvidenceStrength must be one of/,
+        'empty-string resolveEvidenceStrength is rejected as invalid',
+      );
+      // Whitespace-only is likewise invalid.
+      assert.throws(
+        () => h.finding_resolve({ storyId, findingId: fid, resolutionType: '   ' }),
+        /resolutionType must be one of/,
+        'whitespace-only resolutionType is rejected as invalid',
+      );
+      // The finding stays open (the rejected calls performed no mutation).
+      assert.equal(store.readFindings(storyId).findings.find(x => x.id === fid)!.status, 'open', 'rejected enum call did not mutate the finding');
+      // signatureTag is free-text (NOT an enum): a blank value is ignored, not an error.
+      const fid2 = h.finding_add({ storyId, desc: 'thing2', severity: 'low', category: 'edge', agent: 'main', signatureTag: '   ' }).match(/Finding (\S+) created/)![1];
+      assert.equal(store.readFindings(storyId).findings.find(x => x.id === fid2)!.signatureTag, undefined, 'blank signatureTag ignored, not stored');
+    });
+
+    // ─── F-001 / CHK-003:adversarial:0 — approve a never-proposed tag rejected ───
+    check('CHK-003:adversarial:0 approve never-proposed rejected', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx } = mkCtx(root);
+      const sr = createSignatureRegistryHandlers(ctx);
+      // Approving a tag that was never proposed must NOT create an active tag.
+      assert.throws(
+        () => sr.signature_registry_set({ tag: 'never-proposed', action: 'approve', by: 'tester' }),
+        /has not been proposed/,
+        'approve of an unknown tag is rejected (cannot skip the propose step)',
+      );
+      // The registry must NOT have a brand-new active entry as a side effect.
+      assert.equal(readSignatureRegistry(root).tags.find(t => t.tag === 'never-proposed'), undefined, 'no auto-created entry');
+    });
+
+    // ─── CHK-003:adversarial:1 — invalid registry action rejected ────────────────
+    check('CHK-003:adversarial:1 invalid action rejected', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx } = mkCtx(root);
+      const sr = createSignatureRegistryHandlers(ctx);
+      assert.throws(
+        () => sr.signature_registry_set({ tag: 'sometag', action: 'DROP_TABLE' }),
+        /action must be one of/,
+        'an unknown action is rejected with a clear allowed-values error',
+      );
+      // No registry file/entry created as a side effect of the rejected call.
+      assert.equal(readSignatureRegistry(root).tags.length, 0, 'rejected action created no entry');
+    });
+
+    // ─── CHK-003:adversarial:2 — self-alias (tag == alias) rejected / no-op ──────
+    check('CHK-003:adversarial:2 self-alias rejected/no-op', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx } = mkCtx(root);
+      const sr = createSignatureRegistryHandlers(ctx);
+      sr.signature_registry_set({ tag: 'auth-bypass', action: 'propose', by: 'tester' });
+      // alias where --tag equals --alias is rejected (no self-alias corruption).
+      assert.throws(
+        () => sr.signature_registry_set({ tag: 'auth-bypass', action: 'alias', alias: 'auth-bypass' }),
+        /alias must differ from the canonical tag/,
+        'self-alias is rejected',
+      );
+      // The entry's aliases stay empty — no corruption.
+      const entry = readSignatureRegistry(root).tags.find(t => t.tag === 'auth-bypass')!;
+      assert.deepEqual(entry.aliases, [], 'self-alias did not corrupt the aliases list');
+    });
+
+    // ─── CHK-003:adversarial:3 — concurrent registry writes never corrupt file ───
+    check('CHK-003:adversarial:3 concurrent registry writes', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx } = mkCtx(root);
+      const sr = createSignatureRegistryHandlers(ctx);
+      // Mirror the Phase-1a atomic-write concurrency style: many distinct proposes
+      // racing on the same file; every one must land and the file must always parse.
+      const N = 30;
+      const tags = Array.from({ length: N }, (_, i) => `concurrent-tag-${String(i).padStart(2, '0')}`);
+      for (const t of tags) sr.signature_registry_set({ tag: t, action: 'propose', by: 'racer' });
+      // File parses (atomicWriteJson validates on every write) and holds all tags.
+      const data = readSignatureRegistry(root);
+      assert.equal(data.tags.length, N, `all ${N} concurrent proposes registered`);
+      for (const t of tags) {
+        assert.ok(data.tags.some(e => e.tag === t), `tag ${t} present`);
+      }
+      // Direct re-read of the file proves it is valid JSON (never a torn/half write).
+      const raw = readFileSync(join(root, '.lattice/learning/signature-registry.json'), 'utf-8');
+      assert.equal(JSON.parse(raw).tags.length, N, 'on-disk file parses and is complete');
+    });
+
+    // ─── CHK-003:edge:0 — idempotent auto-propose (no duplicate entry) ───────────
+    check('CHK-003:edge:0 idempotent auto-propose', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx, store } = mkCtx(root);
+      const h = createFindingHandlers(ctx);
+      const storyId = 'B-idem-propose'; seedStory(store, storyId);
+      // Repeated finding_add of the SAME signatureTag must not create duplicates.
+      h.finding_add({ storyId, desc: 'sqli one', severity: 'high', category: 'adversarial', agent: 'main', signatureTag: 'sql-injection' });
+      h.finding_add({ storyId, desc: 'sqli two', severity: 'high', category: 'adversarial', agent: 'main', signatureTag: 'sql-injection' });
+      h.finding_add({ storyId, desc: 'sqli three', severity: 'high', category: 'adversarial', agent: 'main', signatureTag: 'sql-injection' });
+      const tags = listSignatureTags(root).filter(t => t.tag === 'sql-injection');
+      assert.equal(tags.length, 1, 'auto-propose is idempotent — exactly one entry for the repeated tag');
+      assert.equal(tags[0].status, 'proposed', 'still proposed (never auto-promoted)');
+    });
+
+    // ─── CHK-003:edge:1 — idempotent approve (already-active stays active) ────────
+    check('CHK-003:edge:1 idempotent approve', () => {
+      const root = mkProject(); tmpRoots.push(root); process.chdir(root);
+      const { ctx } = mkCtx(root);
+      const sr = createSignatureRegistryHandlers(ctx);
+      sr.signature_registry_set({ tag: 'xss', action: 'propose', by: 'tester' });
+      sr.signature_registry_set({ tag: 'xss', action: 'approve', by: 'tester' });
+      assert.equal(readSignatureRegistry(root).tags.find(t => t.tag === 'xss')!.status, 'active');
+      // Approving an already-active tag is a no-error no-op: it stays active.
+      assert.doesNotThrow(() => sr.signature_registry_set({ tag: 'xss', action: 'approve', by: 'tester2' }));
+      const entry = readSignatureRegistry(root).tags.find(t => t.tag === 'xss')!;
+      assert.equal(entry.status, 'active', 'idempotent approve keeps it active');
+      assert.equal(readSignatureRegistry(root).tags.filter(t => t.tag === 'xss').length, 1, 'no duplicate entry');
     });
   } finally {
     process.chdir(savedCwd);

@@ -181,9 +181,14 @@ type DismissReasonType = typeof DISMISS_REASON_TYPES[number];
 type EvidenceStrength = typeof EVIDENCE_STRENGTHS[number];
 
 /**
- * Validate an optional enum-valued audit field. Omitted (undefined/null/'')
- * returns undefined unchanged (legacy behavior). An invalid value throws a clear
- * error naming the allowed values; a valid value is returned narrowed.
+ * Validate an optional enum-valued audit field.
+ *
+ * B-4f46 F-002 (CHK-002:adversarial:2): an OMITTED flag (undefined/null) keeps
+ * legacy behavior and returns undefined. But an EXPLICITLY-provided string that
+ * is empty or whitespace-only is NOT silently coerced to undefined — it is an
+ * invalid enum value and is rejected with the same clear "must be one of ..."
+ * error as any other invalid value. (signatureTag is free-text, not an enum, and
+ * is handled separately — a blank signatureTag is ignored, not an error.)
  */
 function validateOptionalEnum<T extends string>(
   command: string,
@@ -191,7 +196,7 @@ function validateOptionalEnum<T extends string>(
   value: unknown,
   allowed: readonly T[],
 ): T | undefined {
-  if (value === undefined || value === null || value === '') return undefined;
+  if (value === undefined || value === null) return undefined;
   if (typeof value !== 'string' || !(allowed as readonly string[]).includes(value)) {
     throw new Error(`${command}: ${field} must be one of ${allowed.join('|')}`);
   }

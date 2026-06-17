@@ -216,29 +216,28 @@ export function proposeSignatureTag(projectRoot: string, tag: string, by: string
 }
 
 /**
- * Approve a tag: flips `proposed` (or any non-active) to `active`. Auto-creates
- * the tag as active if it does not yet exist. Returns the resulting entry.
+ * Approve a tag: flips an existing `proposed` (or any non-active) entry to
+ * `active`. Returns the resulting entry.
+ *
+ * B-4f46 F-001 (CHK-003:adversarial:0): approve must NOT auto-create a never-
+ * proposed tag — the propose step cannot be skipped. Approving a tag that does
+ * not already exist in the registry is REJECTED with a clear error. Approving an
+ * already-active tag is idempotent (no error; it stays active — CHK-003:edge:1).
  */
 export function approveSignatureTag(projectRoot: string, tag: string, by: string): SignatureTagEntry {
   const canonical = normalizeTag(tag);
   if (!canonical) throw new Error('approveSignatureTag: tag must be a non-empty string');
   const data = readSignatureRegistry(projectRoot);
-  let entry = findTag(data, canonical);
+  const entry = findTag(data, canonical);
   if (!entry) {
-    entry = {
-      tag: canonical,
-      status: 'active',
-      aliases: [],
-      mergedInto: null,
-      createdBy: by || 'unknown',
-      approvedBy: by || 'unknown',
-    };
-    data.tags.push(entry);
-  } else {
-    entry.status = 'active';
-    entry.mergedInto = null;
-    entry.approvedBy = by || entry.approvedBy || 'unknown';
+    throw new Error(
+      `approveSignatureTag: tag "${canonical}" has not been proposed; ` +
+      'propose it first (signature_registry_set action=propose) before approving',
+    );
   }
+  entry.status = 'active';
+  entry.mergedInto = null;
+  entry.approvedBy = by || entry.approvedBy || 'unknown';
   writeSignatureRegistry(projectRoot, data);
   return entry;
 }
