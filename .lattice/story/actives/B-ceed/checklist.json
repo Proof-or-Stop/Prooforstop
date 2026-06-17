@@ -135,7 +135,53 @@
       "context": "CHANGELOG Unreleased entry under Test infrastructure or Runtime subsection documenting the new dispatcher paths + fallback policy. Update auto-memory llm-usage-ledger-status.md to mark codex/gemini live-dispatch as UNBLOCKED (the blocker described in the memory is now resolved) and clarify that the usage parsing story remains separate.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows the B-ceed bullet naming codex/gemini live-dispatch + fallback.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased mentions codex live-dispatch -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"codex.*live.*dispatch|live-dispatch.*codex\"` outputs at least 1; WHY: change must be documented",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG mentions gemini -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c gemini` outputs at least 1; WHY: gemini support is half the value",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG names B-ceed -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c B-ceed` outputs at least 1; WHY: traceability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG mentions fallback to claude-code -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"fallback.*claude-code|claude-code.*fallback\"` outputs at least 1; WHY: per user (a) decision",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG entry under Test infrastructure OR Runtime subsection -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -cE \"^### (Test infrastructure|Runtime)\"` outputs at least 1; WHY: pattern consistency",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: CHANGELOG only Unreleased touched -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased should change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
