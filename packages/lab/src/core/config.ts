@@ -33,8 +33,8 @@ function defaultTarget(targetId: string, editableFiles?: string[]): LabTargetCon
   }
 
   const defaults: Record<string, string[]> = {
-    'test-case-reviewer': ['.lattice-codex/agents/test-case-reviewer.md'],
-    'test-intent': ['.lattice-codex/agents/test-intent.md'],
+    'test-case-reviewer': ['.Codex/agents/test-case-reviewer.md'],
+    'test-intent': ['.Codex/agents/test-intent.md'],
     'session-brief': ['packages/main/src/handlers/session.ts'],
   };
   const resolved = defaults[targetId];
