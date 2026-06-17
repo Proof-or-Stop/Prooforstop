@@ -243,6 +243,17 @@
           "headHash": "3ec14390aee76105d399902088be6906397f92a6",
           "materialHash": "84f697420a2848bb134e9b2bfca08780bf8907f10e06926285de21d3b506d0e8",
           "timestamp": "2026-06-17T20:33:49.771Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-ledger-estimate-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-estimate-smoke.js",
+          "result": "pass",
+          "note": "usage-ledger-estimate exit 0, all 55 checks pass. CJK input at line 229 replaced: bytesCharsEstimator(MODEL, \"日本語のテキスト\") -> bytesCharsEstimator(MODEL, \"naive cafe\" w/ accents) (jsLen=10, utf8Bytes=12, ceil(12/4)=3). Assertion strengthened from >0 to exact ==3, proving byte-based (not char-based) estimate. Out-of-scope CJK handled via documented allowlist; no production CJK touched.",
+          "headHash": "b1c8a988ba278b9611ad337b42772090b67ca82d",
+          "materialHash": "84f697420a2848bb134e9b2bfca08780bf8907f10e06926285de21d3b506d0e8",
+          "timestamp": "2026-06-17T20:33:59.135Z"
         }
       ]
     },
