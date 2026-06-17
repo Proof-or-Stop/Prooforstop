@@ -400,6 +400,17 @@
           "headHash": "41878b868c9e70ce8c786f154f4f009eb9dbb61e",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:11.576Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run test:run-all-smokes-smoke && node packages/main/dist/tasks/run-all-smokes.js --tag fast",
+          "result": "pass",
+          "note": "Covered by self-smoke 9/9 + live runner test on 5 fast smokes.",
+          "headHash": "118915fecba2a554270683e176c6df081d0b9631",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:12.956Z"
         }
       ]
     },
