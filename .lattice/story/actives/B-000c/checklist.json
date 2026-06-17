@@ -50,9 +50,9 @@
       "title": "Implement finding-signals derivation reading findings through store.readFindings (port), not raw findings.json",
       "context": "core/finding-signals.ts: aggregate findings by localSignature = category + signatureTag? + fileKind + lifecyclePhase; compute counts, signalScore = positive/(positive+negative+1), support; write the derived cache. Read findings via the finding subsystem accessor store.readFindings, never JSON.parse of findings.json.",
       "userSees": "The smoke seeds findings via the store and asserts finding-signals.json contains the aggregated signals with correct signalScore/support and that derivation used the store accessor.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T11:36:07.183Z",
-      "endTime": null,
+      "endTime": "2026-06-17T11:37:39.612Z",
       "verificationIntent": {
         "happy": [
           {
