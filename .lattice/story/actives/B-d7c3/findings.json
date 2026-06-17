@@ -371,7 +371,7 @@
       "desc": "CHK-001:adversarial:0 evidence command does not match the intent literal. Intent specifies `git diff main -- 'packages/main/src/tasks/*-smoke.ts' | wc -l` outputs 0 (glob check covering all smoke task files). The bound evidence runs `git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l` — the two-file command from adv:1 — which does not cover the glob. The actual three-dot glob returns 25 (provider-codex-smoke.ts + reviewer-quorum-smoke.ts, both scope-ack'd). Evidence must either: (a) bind a command that matches the intent literally using the same exclusion pattern that CHK-002:adv:0 uses (`...\\:(exclude)...'`), or (b) include a waiver explaining why the glob cannot return 0 and citing the scope_contract_acknowledge that permits the two changed files.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T13:05:10.611Z",
@@ -381,7 +381,9 @@
       "files": [
         "packages/main/src/tasks/provider-codex-smoke.ts",
         "packages/main/src/tasks/reviewer-quorum-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Bound CHK-001:adversarial:0 to literal glob command with explicit exclude of the 2 scope-ack'd files (same pattern as CHK-002:adv:0). Returns 0. The adv:0 intent and adv:1 intent are distinct: adv:0 is the wide *-smoke.ts glob; adv:1 is the run-all-smokes-specific pair. F-017 fixed adv:1; this fixes adv:0.",
+      "resolvedAt": "2026-06-17T13:05:56.837Z"
     }
   ]
 }
