@@ -117,7 +117,7 @@
       "desc": "CHK-003:adversarial:3 evidence command does not bind the intent. Intent literal: node -e checking packages/main/package.json for absence of test:legacy entry, expected output CORRECT. Evidence command: python3 -c checking root package.json for presence of test:legacy (same python3 command as CHK-003:edge:2 and CHK-003:adversarial:1). The intent guards that test:legacy shim is NOT accidentally placed in packages/main; the evidence only proves it IS in root package.json, which is a different property. The CHK-003:adversarial:3 check (test:legacy absent from packages/main) was actually verified in the live re-run (prints CORRECT), but the recorded evidence command does not match the intent literal.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T12:32:16.656Z",
@@ -126,7 +126,9 @@
       "_hash": "483f259fc197e6da326a5c34f950a42f6b03f4a7ee1adb300b7765d1a9719e13",
       "files": [
         "packages/main/package.json"
-      ]
+      ],
+      "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
+      "resolvedAt": "2026-06-17T12:37:05.616Z"
     }
   ]
 }
