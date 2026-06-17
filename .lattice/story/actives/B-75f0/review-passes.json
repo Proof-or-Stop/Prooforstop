@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T23:23:07.953Z",
       "reviewRunId": "B-75f0:RR-003",
       "_hash": "eae307935260a8eb12e4c62546899af428597a18859267db9ef094efc1b86f83"
+    },
+    {
+      "id": "B-75f0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness check complete. (1) DEFERRED_ALLOWLIST_EXACT is genuinely empty (new Set<string>([])) in gitroot-cwd-contract-smoke.ts — no code file contains a non-empty burndown set; story metadata files reference the old name only as historical audit trail, not code residue. (2) The 3 CHK-004-renamed params: autoSyncMain(gitCwd) in done-effects.ts, resolveGitTopLevel(gitCwd) in handlers/review-run.ts, isGitRepository(gitCwd) in core/review-run.ts — all renamed; remaining projectRoot usages in those files are for OTHER unrelated params, not stale renames. (3) resolveProjectGitRoot is now exported from story-signed-workspace-resolution.ts; it was previously private and is now correctly importable by all 3 CHK-003 call sites (gap-analyze, story-query, dashboard). (4) No comments in fixed files (checklist.ts, verifier.ts, lattice-dispatch.ts, lattice-handoff.ts, codex-adapter-checks.ts, touchpoints-fallback.ts, validation-executor.ts, recover-evidence.ts, init-check.ts, doctor.ts, story-query.ts, dashboard.ts, gap-analyze.ts) describe those sites as deferred. (5) Closing self-check: all doc-promised exports (resolveProjectGitCwd, resolveProjectGitRoot, BENIGN_BOOTSTRAP_ALLOWLIST) are present in source. No blocker.",
+      "createdAt": "2026-06-17T23:26:09.456Z",
+      "reviewRound": "2026-06-17T23:23:07.953Z",
+      "reviewRunId": "B-75f0:RR-001",
+      "_hash": "1f355940f78153bcb76189f4978d3abf1de23a7ec8577105ca575497c2d5fc2c"
     }
   ]
 }
