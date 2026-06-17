@@ -73,9 +73,9 @@
       "id": "CHK-002",
       "title": "Update CLI help text + docs to list 7 preflight gates",
       "context": "Update lattice validate --help text in packages/main/src/handlers/cli-help.ts (or wherever the REVIEW->TEST PREFLIGHT block lives — it currently lists 5 gates, but reality is already 6 incl english-artifacts; this story makes it 7). Add entries for both the missing english-artifacts AND the new koala-residue. Update CLAUDE.md if it enumerates the gates. Do NOT modify the script or its allowlists.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T17:43:24.774Z",
       "userSees": "`lattice validate --help | grep -A10 'REVIEW→TEST PREFLIGHT'` shows 7 numbered gates; `grep koala-residue CLAUDE.md` shows the gate referenced.",
       "files": {
         "modify": [
