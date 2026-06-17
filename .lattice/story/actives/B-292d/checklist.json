@@ -289,6 +289,17 @@
           "headHash": "0c57b269e48cc011f46c09b93b1e538b1e9f5dee",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:56.611Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/handlers/ | grep -v review-preflight.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — only review-preflight.ts in handlers/ modified.",
+          "headHash": "5269c918b11a399183a52a5e1e626cb9431f91bf",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:57.312Z"
         }
       ]
     },
