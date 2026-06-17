@@ -23,6 +23,11 @@ import {
   runBoundedCodexProvider,
   CODEX_CLI_BINARY,
 } from '../providers/codex-cli.js';
+import {
+  geminiCliAvailable,
+  runBoundedGeminiProvider,
+  GEMINI_CLI_BINARY,
+} from '../providers/gemini-cli.js';
 import type {
   BoundedProviderExecutor,
   BoundedProviderName,
@@ -57,7 +62,7 @@ import {
 export type PlannedStepExecutionStatus = 'passed' | 'failed' | 'blocked' | 'skipped';
 export type PlannedStepsExecutionStatus = 'done' | 'blocked' | 'failed';
 
-export type ProviderName = 'fake' | 'codex' | 'claude';
+export type ProviderName = 'fake' | 'codex' | 'claude' | 'gemini';
 
 /**
  * Provider policy consumed by the executor. It is read defensively from the
@@ -72,7 +77,7 @@ export interface ProviderPolicy {
   /** Real providers (codex/claude) only run when explicitly listed here. */
   allowedProviders: ProviderName[];
   fallbackProviders: ProviderName[];
-  productionDoneProviders: Array<'codex' | 'claude'>;
+  productionDoneProviders: BoundedProviderName[];
   allowFakeProviderForProductionDone: boolean;
   /** Env var names allowed to carry provider credentials. */
   credentialsEnvAllowlist: string[];
@@ -329,7 +334,7 @@ function resolveProviderPolicy(jobPlan: JobPlan): ProviderPolicy {
   const raw = (jobPlan as { providerPolicy?: Partial<ProviderPolicy> }).providerPolicy;
   if (!raw || typeof raw !== 'object') return DEFAULT_FAIL_CLOSED_PROVIDER_POLICY;
   const names = (v: unknown): ProviderName[] => (Array.isArray(v) ? v.filter(isProviderName) : []);
-  const reals = (v: unknown): Array<'codex' | 'claude'> => (Array.isArray(v) ? v.filter(isRealProvider) : []);
+  const reals = (v: unknown): BoundedProviderName[] => (Array.isArray(v) ? v.filter(isRealProvider) : []);
   return {
     primaryProvider: isProviderName(raw.primaryProvider) ? raw.primaryProvider : 'fake',
     allowedProviders: names(raw.allowedProviders),
@@ -349,6 +354,7 @@ function resolveProviderPolicy(jobPlan: JobPlan): ProviderPolicy {
 const PROVIDER_BINARY: Record<BoundedProviderName, string> = {
   codex: CODEX_CLI_BINARY,
   claude: CLAUDE_CLI_BINARY,
+  gemini: GEMINI_CLI_BINARY,
 };
 
 /**
@@ -381,23 +387,27 @@ function redactedProviderEnv(baseEnv: NodeJS.ProcessEnv, allowlist: string[]): N
 }
 
 function defaultProviderAvailable(provider: BoundedProviderName, env: NodeJS.ProcessEnv): boolean {
-  // Both real providers resolve availability through their own preflight seam
-  // (claude-cli.ts / codex-cli.ts), so the probe stays symmetric and centralized.
-  return provider === 'claude' ? claudeCliAvailable(env) : codexCliAvailable(env);
+  // Each real provider resolves availability through its own preflight seam
+  // (claude-cli.ts / codex-cli.ts / gemini-cli.ts), so the probe stays symmetric
+  // and centralized.
+  if (provider === 'claude') return claudeCliAvailable(env);
+  if (provider === 'gemini') return geminiCliAvailable(env);
+  return codexCliAvailable(env);
 }
 
 /**
  * Default bounded executor: each real provider has a dedicated bounded runner
- * (claude-cli.ts / codex-cli.ts) that performs a stdin-closed argv spawn and
- * captures stdout/stderr as digests + byte counts only — raw output is never
- * surfaced, so a transcript can neither leak credentials nor become gate evidence.
+ * (claude-cli.ts / codex-cli.ts / gemini-cli.ts) that performs a stdin-closed
+ * argv spawn and captures stdout/stderr as digests + byte counts only — raw
+ * output is never surfaced, so a transcript can neither leak credentials nor
+ * become gate evidence.
  */
 const defaultBoundedProviderExecutor: BoundedProviderExecutor = {
   available: defaultProviderAvailable,
   run(request) {
-    return request.provider === 'claude'
-      ? runBoundedClaudeProvider(request)
-      : runBoundedCodexProvider(request);
+    if (request.provider === 'claude') return runBoundedClaudeProvider(request);
+    if (request.provider === 'gemini') return runBoundedGeminiProvider(request);
+    return runBoundedCodexProvider(request);
   },
 };
 
