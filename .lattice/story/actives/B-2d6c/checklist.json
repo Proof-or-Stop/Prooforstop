@@ -321,6 +321,17 @@
           "headHash": "c879b8505132c12d784d112a03909095eb382082",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:14.326Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:coverage > /dev/null 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — directly retires the B-c6cf waiver. Required NODE_OPTIONS=--max-old-space-size=8192 to fix c8 v11 OOM during 162-smoke merge.",
+          "headHash": "b58d5b9f1d00d2c6d4060d825eeb0e501f1e340a",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:15.083Z"
         }
       ]
     }
