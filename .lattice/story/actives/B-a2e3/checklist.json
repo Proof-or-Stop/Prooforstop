@@ -64,7 +64,59 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "revalidateSignals with 3 signals (1 has all anchors present, 1 has all anchors gone, 1 has no anchorFiles) -> returns validity array with states valid/stale/unanchored respectively; WHY: covers all three classification branches",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate on [2 valid, 1 stale, 1 unanchored] -> total=4, anchored=3, valid=2, stale=1, unanchored=1, validRate=2/3, driftRate=1/3; WHY: confirms the ANCHORED-ONLY denominator formula and all counter fields",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals with a signal where anchorFiles has 5 files, 1 present and 4 missing -> state is valid (not stale); WHY: confirms >=1 anchor present threshold",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "computeValidRate with zero anchored signals (all unanchored) -> validRate=0, driftRate=0, never NaN; WHY: guards the zero-denominator edge case that would produce NaN without the ternary guard",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate with empty validity array -> total=0, anchored=0, validRate=0, driftRate=0; WHY: empty-input boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals with signal whose anchorFiles is empty array [] -> classified as unanchored (same as absent); WHY: empty array is a degenerate form of no-anchor",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate with all valid signals (zero stale) -> driftRate=0, validRate=1.0; WHY: confirms perfect health scenario",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no node:fs, no child_process, no node:path) -> static import analysis confirms leaf purity; WHY: the leaf must never do I/O itself, fileExists is injected",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals called with fileExists that throws on certain paths -> exception propagates (not silently swallowed); WHY: callers must handle fs errors at the handler layer, not inside the pure leaf",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate with a single stale signal among 100 unanchored -> anchored=1, stale=1, driftRate=1.0, not diluted by unanchored count; WHY: adversarial scenario where unanchored signals could dilute the denominator if the formula is wrong",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals with duplicate file paths in anchorFiles -> present/missing partition still correct (no double-counting); WHY: if anchorFiles somehow has duplicates, classification must be consistent",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
