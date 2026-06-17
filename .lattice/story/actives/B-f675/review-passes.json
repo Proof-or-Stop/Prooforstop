@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T01:22:15.761Z",
       "reviewRunId": "B-f675:RR-001",
       "_hash": "859d407377d9076957d8ce8971f214bf1f10f80b1180e7e6cdafc9d5a6df4ed1"
+    },
+    {
+      "id": "B-f675:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted symbols: canPassReviewGuard, reviewIncrementalContext, createReviewIncrementalContextHandlers, renderIncrementalContextText, changedFilesBetweenRenameAware, isFindingBlocking. Step 2 found the new CLAUDE.md section (REVIEW->TEST gate behavior + incremental review context, B-f675). Step 3 verified all 8 claims against code: (1) invalid-binding blocks ALL rounds confirmed (machine.ts:348 before round split at 355); (2) round-1 all opt-in + quorum confirmed (machine.ts:355-376); (3) round-2+ >=1 receipt confirmed (machine.ts:379); (4) verified-open-blocking-finding semantics confirmed (advisory.ts:isFindingBlocking + isEvidenceStateBlocking); (5) CLI flag --storyId=B-xxx --role=<reviewer> confirmed (registry.ts, cli-engine.ts parseFlags/normalizeFlagKey); (6) read-only confirmed (no write calls in review-incremental-context.ts; command-policy ownershipClass readOnly); (7) test:review-incremental-context-smoke confirmed in packages/main/package.json; (8) round-2+ advisory listing in story_advance output confirmed (transition-effects.ts:249-285). No doc-code drift found.",
+      "createdAt": "2026-06-17T01:26:26.037Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-004",
+      "_hash": "f5220fbf4b8035579507484d01aeeb30a4116d961d662aefa5e672eea4203cfc"
     }
   ]
 }
