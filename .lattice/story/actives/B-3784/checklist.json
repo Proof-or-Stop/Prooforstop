@@ -95,6 +95,14 @@
           "headHash": "97bad5334d985beafd6ce2e3b3fc2705ab4b459a",
           "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
           "timestamp": "2026-06-17T23:20:00.536Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "note": "shadow mode returns status=warn after fix: buildAutopilotRun with cwd pointing to empty temp dir has no authority_trust.env, so mode=local and shadow=warn safety property preserved",
+          "headHash": "25b399f54a5e1426729129901b12cc9e276ad46e",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:20:01.285Z"
         }
       ]
     },
