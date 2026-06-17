@@ -24,6 +24,7 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test:e2e": "node dist/tasks/cli-e2e.js",
+    "test:run-all-smokes-smoke": "node dist/tasks/run-all-smokes-smoke.js",
     "test:convergence-false-blockers": "node dist/tasks/convergence-discarded-smoke.js",
     "test:gap-coverage-smoke": "node dist/tasks/gap-coverage-smoke.js",
     "test:gap-analyze-input-hygiene-smoke": "node dist/tasks/gap-analyze-input-hygiene-smoke.js",
