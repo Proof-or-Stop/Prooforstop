@@ -264,6 +264,17 @@
           "headHash": "0d6338c665c9854e2a96cdd94c0350cc224db25d",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:12.492Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c runCodexRealLeafDispatch packages/main/dist/core/lattice-dispatch.js",
+          "result": "pass",
+          "note": "Returns 1+ — compiled dist includes the new route.",
+          "headHash": "b606a4f9b0838a81451b6df0fd40b337f9f90e95",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:13.139Z"
         }
       ]
     },
