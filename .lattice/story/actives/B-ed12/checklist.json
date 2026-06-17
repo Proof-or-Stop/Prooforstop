@@ -7,7 +7,30 @@
       "userSees": "Running init-check-fallback, init-check-required-agents, and done-preflight standalone all PASS, asserting the CURRENT gate semantics (scope-boundary required at INIT_CHECK; B-72df scoped dirty-main DONE check that still blocks a real conflict and never bypasses to DONE).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "init-check-fallback, init-check-required-agents, done-preflight each pass standalone (node ...-smoke.js exit 0)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "init-check smokes now set up scope-boundary (and exec-boundary/freeze) so they exercise the post-scope-boundary tags; done-preflight still asserts the story is NOT advanced to DONE on dirty/conflicting main (B-72df scoped check)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No safety assertion weakened/deleted; zero production code change (git diff shows only the 3 smoke test files); a real merge-affecting conflict still blocks DONE",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
