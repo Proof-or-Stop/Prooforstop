@@ -44,7 +44,7 @@ import { createObservabilitySnapshotHandlers } from '../handlers/observability-s
 const NOW = '2026-06-03T00:00:00.000Z';
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -198,7 +198,7 @@ function assertSectionsShape(snapshot: LatticeObservabilitySnapshot): void {
   assert.equal(sections.parallel.length, sections.storyBoard.length, 'parallel aligns with storyBoard count');
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-observability-snapshot-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-observability-snapshot-'));
 try {
   writeConfig(root);
   resetConfigCache();
