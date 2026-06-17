@@ -5,9 +5,9 @@
       "title": "Empty the two bridge entries from DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST (keep the seam + comment)",
       "context": "In packages/main/src/handlers/validate-docs-drift.ts, remove the '.codex/hooks' and '.codex/settings.json' entries from DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST (lines ~176-188), seeding it empty exactly like DOCS_DRIFT_PATH_ALLOWLIST (keep the exported Set, the doc comment, and the 'each entry MUST carry an inline reason' seam guidance — only the two concrete bridge strings go). Do NOT touch checkManagedAssetContradiction, GENERATED_MANAGED_ASSET_KINDS, normalizeAssetPath, or any gate logic. Verify: building packages/main + running checkManagedAssetContradiction against the real CLAUDE.md with the (now-empty) default allowlist returns 0 contradictions (the real doc is already fixed by B-94ae).",
       "userSees": "DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST is empty (only the seam/comment remain); the docs-drift gate run against the real current CLAUDE.md still passes (0 managed-asset contradictions), but a re-introduced '不要创建 .codex/hooks' prohibition would now be caught instead of silently allowed.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T02:10:26.430Z"
     },
     {
       "id": "CHK-002",
