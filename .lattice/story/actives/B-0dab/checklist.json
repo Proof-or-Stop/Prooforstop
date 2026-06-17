@@ -7,7 +7,55 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "node scripts/verify-koala-residue.mjs prints PASS koala-residue: 0 unclassified (down from 7)"
+      "userSees": "node scripts/verify-koala-residue.mjs prints PASS koala-residue: 0 unclassified (down from 7)",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -n koala- english-only-guards-smoke.ts after rename -> 0 matches; WHY: confirms all 5 koala-* mkdtemp prefixes in this file are replaced with lattice-*",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -n koala- review-incremental-context-smoke.ts after rename -> 0 matches; WHY: confirms both koala-* mkdtemp prefixes in this file are replaced with lattice-*",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -n lattice-english- english-only-guards-smoke.ts -> 5 matches at lines 165/201/260/352/354; WHY: confirms replacement prefixes are correct and present",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -n lattice-incremental- review-incremental-context-smoke.ts -> 2 matches at lines 262/437; WHY: confirms replacement prefixes are correct and present",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build && node packages/main/dist/tasks/english-only-guards-smoke.js -> exits 0; WHY: smoke test still passes after rename",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build && node packages/main/dist/tasks/review-incremental-context-smoke.js -> exits 0; WHY: second smoke test still passes after rename",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node scripts/verify-koala-residue.mjs -> PASS 0 unclassified (exit 0); WHY: confirms the gate now sees 0 residual koala-* brand references after the 7 renames",
+            "type": "cli"
+          },
+          {
+            "desc": "count total lattice- mkdtemp prefixes across both files -> exactly 7; WHY: ensures no prefix was accidentally deleted or duplicated during rename",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "re-introduce one koala-english-scope- prefix back into english-only-guards-smoke.ts, rebuild, run node scripts/verify-koala-residue.mjs -> exits 1 with FAIL listing the re-introduced line; WHY: confirms the gate actually detects regression of a renamed prefix back to koala-*",
+            "type": "cli"
+          },
+          {
+            "desc": "rename a prefix to KOALA- (uppercase) instead of lattice- -> verify-koala-residue.mjs still catches it as unclassified; WHY: gate is case-insensitive and catches brand references in any case",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
