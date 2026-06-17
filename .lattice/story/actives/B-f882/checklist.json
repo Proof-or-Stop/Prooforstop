@@ -176,6 +176,17 @@
           "headHash": "28f9aa52a16a20d9e465dd64106363292834eddc",
           "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
           "timestamp": "2026-06-17T12:15:56.978Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "Self-test: GOOD fixture (repoRoot: gitCwd) -> 0 violations; BAD fixture (repoRoot: deps.projectRoot) -> flagged. Tightly scoped to the single docs-drift gate call; legitimate deps.projectRoot uses (managedAssetDefs/mdReader/codex) are NOT flagged (no false positives). Coverage doc block documents what it covers and does not (review-preflight-specific, not general dataflow).",
+          "headHash": "91d17edb479df7d18025de2bd7e43bd8b1df4571",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:57.493Z"
         }
       ]
     }
