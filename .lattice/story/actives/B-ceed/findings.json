@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-ceed:F-001",
+      "desc": "doc-promise-undelivered: CHK-002 plan required refining the scaffolded-only warning at line 757 to fire only when no real path is taken, but probeHostRuntime still emits `runtime is scaffolded only: Lattice records invocation metadata and waits for a local receipt; it does not auto-drive the external host.` for codex and gemini when available in PATH, even though runDispatch now has real dispatch paths for both. Line 798 limitations array also still says Real-host execution is scaffolded only in this milestone and line 801 says No external host is auto-driven by Lattice dispatch_run — both factually false for codex/gemini when allowRealHostSubprocess=true. The plan checklist CHK-002 explicitly required this fix.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-17T22:16:37.911Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-001",
+      "_hash": "b4e7be72b32e1d7a25683dd2e0294faaed1e052faced72dc5aaeb680041abb3a",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ]
+    }
+  ]
+}
