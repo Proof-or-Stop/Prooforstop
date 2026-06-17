@@ -42,6 +42,17 @@
           "headHash": "f81275f3a1f21f813b97dca8e55ddcf65e03c04c",
           "materialHash": "2d0a58448e587eb43f42b1539beeec2b553521b62a15fb00992d698704450cf9",
           "timestamp": "2026-06-17T20:11:59.834Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+          "result": "pass",
+          "note": "standalone EXIT=0; edge case = scope-boundary precedence at INIT_CHECK. Smoke now seeds scope-boundary then re-freezes after story_update so the required-agents (missing_init_check_agent / product-reviewer) and init_check_tampered assertions are reached past the freeze gate; safety intent intact",
+          "headHash": "3c6aa1bc354e95022540a6320ed40e8ecb3b7df6",
+          "materialHash": "2d0a58448e587eb43f42b1539beeec2b553521b62a15fb00992d698704450cf9",
+          "timestamp": "2026-06-17T20:12:05.647Z"
         }
       ]
     },
