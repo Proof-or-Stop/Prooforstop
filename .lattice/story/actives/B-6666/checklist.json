@@ -112,14 +112,14 @@
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/done-oracle-wrapper-root-smoke.ts",
-          "command": "npm --prefix packages/main run test:done-oracle-wrapper-root",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
           "result": "pass",
-          "note": "Smoke plain-repo block asserts currentGitHead/currentMaterialHash are byte-identical called with bare root vs resolved gitCwd (which points at the same repo); changedFilesBetween shares the same renamed gitCwd param so it stays byte-identical via root fallback.",
-          "headHash": "e66ea6d390878462d4c3691886278ae84b58ea61",
-          "materialHash": "17daae82d6429564ff9f4cd63778ccd24c613115987e1a28666872053cf0e9f4",
-          "timestamp": "2026-06-17T16:57:21.266Z"
+          "note": "Plain-repo probe byte-identity: currentGitHead/currentMaterialHash outputs identical bare-root vs resolved gitCwd (root fallback).",
+          "headHash": "8c2e472d03cf70d930cb5d8b848f60ed73c5c3d1",
+          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
+          "timestamp": "2026-06-17T17:12:42.140Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
