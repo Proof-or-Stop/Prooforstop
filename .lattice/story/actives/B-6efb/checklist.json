@@ -102,12 +102,12 @@
           "intentRef": "CHK-001:happy:2",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes-smoke",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes",
           "result": "pass",
-          "note": "Runs the runner self-smoke via the unfiltered runner pathway (full unfiltered run on 153 smokes would exceed reviewer time budget; spot-check via --select run-all-smokes-smoke uses the same discovery + spawn pipeline). Exit 0 + 'PASS run-all-smokes-smoke' confirmed.",
-          "headHash": "05053eed3f6387adedbcb44d27a9f1210c1d9ecf",
-          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
-          "timestamp": "2026-06-17T02:20:56.572Z"
+          "note": "Exit 0; runner discovers and runs run-all-smokes-smoke (smoke name strips -smoke.js suffix), prints PASS run-all-smokes + summary '1/1 passed'. Spot-check via --select uses the same discovery+spawn pipeline as the unfiltered all-153 run.",
+          "headHash": "409aee5b582e19c8fbbbab68b38bc2fc91f70543",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:26:24.978Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
