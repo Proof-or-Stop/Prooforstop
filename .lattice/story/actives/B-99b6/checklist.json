@@ -74,6 +74,17 @@
           "headHash": "810b5cada8e885258bdb751c9989c3c834d43bb2",
           "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
           "timestamp": "2026-06-17T18:08:26.862Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:evidence-quality",
+          "result": "pass",
+          "note": "New root alias test:evidence-quality => node scripts/verify-evidence-quality.mjs; ran green standalone (0.1s) and within npm test chain (evidence quality contract passed in chain output).",
+          "headHash": "f0ad8d7369990fde9181f1f8fc38f5519edcc188",
+          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
+          "timestamp": "2026-06-17T18:08:27.411Z"
         }
       ]
     },
