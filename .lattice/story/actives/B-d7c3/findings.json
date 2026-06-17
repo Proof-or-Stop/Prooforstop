@@ -242,6 +242,22 @@
       "files": [
         "packages/main/src/tasks"
       ]
+    },
+    {
+      "id": "B-d7c3:F-015",
+      "desc": "CHK-002:happy:1 evidence does not bind to intent and intent assertion fails. Intent: root total test:* script count in range 60-80 (using node -e counting test:* keys). Actual count via literal intent command: 43 (outside range 60-80). Evidence uses npm test (integration_test), which tests that npm test exits 0 — this is the correct evidence for CHK-002:happy:2 (npm test exits 0) but not for happy:1 (count range). The script count of 43 does not fall in the 60-80 range stated by the intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:41:32.567Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-005",
+      "_hash": "b2760bf59eaea32be53301d803b5eb5e7150ea106a8128a4381173d3ab79e9fe",
+      "files": [
+        "package.json"
+      ]
     }
   ]
 }
