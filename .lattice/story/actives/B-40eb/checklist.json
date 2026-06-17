@@ -239,6 +239,16 @@
           "headHash": "fe9620a0dbe889970d0bbf05132000476dc86569",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
           "timestamp": "2026-06-17T02:14:12.605Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "git grep -n .koala packages/main/src",
+          "result": "pass",
+          "note": ".koala 运行时路径引用完整保留(documented-exception)",
+          "headHash": "c9e8af51c9ed0bb7d76bdb0879a756869736d2ff",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:13.434Z"
         }
       ]
     },
