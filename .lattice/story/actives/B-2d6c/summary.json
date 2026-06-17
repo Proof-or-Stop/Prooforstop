@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2d6c",
+  "changes": "17 *-smoke.ts files realigned (16 batch + story-owner-lease porcelain assertion narrowed to probe path B-c55d/owner-lease.json); smoke-manifest.json bumped timeoutMs for 8 slow smokes (lattice-baseline 60->240s, field-regression-cli 120->240s, dispatch-run/experience-layer-playbook/planner-unattended/worktree-authority/cli-json-stdout-contract/autopilot-run default->180s); package.json test:coverage prepended NODE_OPTIONS=--max-old-space-size=8192 to fix c8 v11 OOM during 162-smoke V8 coverage merge; CHANGELOG Unreleased entry documents the migration + retires B-c6cf CHK-002:happy:2 waiver. Production code under packages/main/src/{handlers,core,cli-engine.ts,cli-prompts.ts} NOT touched.",
+  "usage": "Developer runs npm run test:all (parallel) — exits 0 with 162/162 passed in ~3-4 minutes. Developer runs npm run test:coverage (serial under c8) — exits 0 with 162/162 passed in ~15-20 minutes; HTML report at packages/main/coverage/index.html; LCOV at packages/main/coverage/lcov.info. Both can be re-run multiple times consecutively without flakes.",
+  "expectedOutcome": "3 consecutive npm run test:all runs all show '162/162 passed in <N>s' and exit code 0. npm run test:coverage shows '162/162 passed' final line, exit 0, generates packages/main/coverage/index.html (non-empty) and packages/main/coverage/lcov.info. CHANGELOG Unreleased section names B-2d6c and explicitly mentions B-c6cf waiver retirement.",
+  "actualTranscript": "3 consecutive parallel runs: 197s/219s/200s all 162/162 exit 0. test:coverage exit 0 with NODE_OPTIONS heap bump (without it crashed with c8 v11 OOM during JSON merge). 3 reviewer lanes PASS (concept R2 RP-002, quality R1 RP-001, test-coverage R2 RP-003). 2 findings F-001 (high — CHK-002 evidence rebind) + F-002 (low — CHANGELOG count) both resolved. countableProblems 1/2 — no escalation needed.",
+  "outcomeDiff": "No difference: A0 goal met (test:all + test:coverage both exit 0). The 24-smoke baseline became 162/162 PASS via 17 assertion realignments + 8 timeoutMs bumps + 1 heap bump. B-c6cf waiver formally retired.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope expanded twice via scope_contract_acknowledge: smoke-manifest.json broadened beyond lattice-baseline (7 more parallel-timeout smokes); package.json test:coverage NODE_OPTIONS adjusted (c8 v11 OOM workaround). Both expansions remain tests-only — no production source touched. Authority/production receipts NOT issued (escalation not required, countableProblems 1/2).",
+  "pitfalls": "(1) After fixing 16 stale assertions, 7 'parallel-only race' smokes emerged that pass in single-process but TIMEOUT under worker-pool load. Solution: per-smoke timeoutMs bumps. (2) c8 v11 crashes with 'JavaScript heap out of memory' during the JSON merge phase when 162 children's V8 coverage data is aggregated; fix is NODE_OPTIONS=--max-old-space-size=8192 prepended to test:coverage script. (3) story-owner-lease used  to scan git porcelain, which matched ANY owner-lease.json in the worktree (including tracked-but-modified ones from the worktree's own metadata); narrowed to the SPECIFIC probe path B-c55d/owner-lease.json. (4) CHK-002:adversarial:0 over-reach guard expected only lattice-baseline manifest changes; reality required 8 entries. Evidence is verdict=waived with scope-ack documentation. (5) Always run npm install to materialize devDependencies — c8 was in B-c6cf's devDeps but never installed on main's node_modules until this story ran npm install.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 346569
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10464
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 431365
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 9815020
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 378121
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 173997
+    }
+  },
+  "totalDurationMs": 11155538,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T21:15:05.832Z",
+  "updatedAt": "2026-06-17T21:15:05.832Z"
+}
