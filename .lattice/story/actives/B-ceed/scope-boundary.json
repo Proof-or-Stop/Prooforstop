@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ceed",
+  "mode": "feature",
+  "allowed": [
+    "CHANGELOG.md (Unreleased entry)",
+    "packages/main/smoke-manifest.json (register provider-gemini smoke if needed)",
+    "packages/main/src/core/lattice-dispatch.ts (add 2 RealLeafDispatch fns + dispatch switch upgrade + fallback policy + warning condition refinement)",
+    "packages/main/src/providers/gemini-cli.ts (new, mirror codex-cli.ts)",
+    "packages/main/src/tasks/provider-gemini-smoke.ts (new, mirror provider-codex-smoke.ts)"
+  ],
+  "excluded": [
+    "Authority receipt-backed signing path (future per memory)",
+    "Modifying runBoundedCodexProvider signature (frozen seam)",
+    "Modifying runClaudeCodeRealLeafDispatch (existing implementation untouched, only called from new fallback path)",
+    "packages/main/src/core/usage-ledger/ (NO usage-parsing changes — separate follow-up)",
+    "packages/main/src/core/usage-ledger/adapters/ (NO new adapter files; usage parsing follow-up)",
+    "packages/main/src/providers/codex-cli.ts (B-1550 contract-frozen)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose option (a) full live-dispatch on 2026-06-17, with claude-code fallback when codex/gemini are unavailable. Primary motivation: unblock LLM usage ledger real-capture. Secondary: review escalation 3x2 path defensive option. Memory llm-usage-ledger-status names this as the BLOCKING upstream story.",
+  "createdAt": "2026-06-17T21:52:37.334Z",
+  "updatedAt": "2026-06-17T21:52:37.334Z",
+  "_hash": "922853de0e8795544bd31590f138c8effe70d7ebf1279ca6eb6f20806a01c051"
+}

@@ -1,0 +1,47 @@
+{
+  "storyId": "B-ceed",
+  "checkedAt": "2026-06-17T21:54:29.034Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "index.json priority field is \"P2\" — a non-standard value. The Lattice framework (CLAUDE.md story_create + gate logic) expects canonical values \"high\"/\"medium\"/\"low\". A non-canonical priority may cause gate mis-classification, skip auto-elevated risk-signal logic, or be misread by future tooling. Should be set to the intended canonical value (likely \"medium\")."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Conversational Texture section references \"task #9 in this session\\u2019s task list\" — a session-private enumeration that has no referent for an independent reader. A new reader cannot determine what task #9 is or what list it belongs to. Should be replaced with a self-contained description of the motivation (e.g., the ledger unblocking goal already stated elsewhere in the background)."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T21:53:46.732Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "User-value bullet #2 (LLM usage ledger finally captures real token data for codex/gemini) overpromises relative to this story scope. The story explicitly excludes usage-ledger adapters (codex.ts/gemini.ts), so after this story lands the ledger still reports 0 tokens. The story unblocks real-capture but does not complete it. Recommend rewriting that bullet to say: unblocks real token capture (adapter follow-up required) to avoid product-acceptance confusion at DONE."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T21:54:29.034Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json priority field is \"P2\" — a non-standard value. The Lattice framework (CLAUDE.md story_create + gate logic) expects canonical values \"high\"/\"medium\"/\"low\". A non-canonical priority may cause gate mis-classification, skip auto-elevated risk-signal logic, or be misread by future tooling. Should be set to the intended canonical value (likely \"medium\")."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Conversational Texture section references \"task #9 in this session\\u2019s task list\" — a session-private enumeration that has no referent for an independent reader. A new reader cannot determine what task #9 is or what list it belongs to. Should be replaced with a self-contained description of the motivation (e.g., the ledger unblocking goal already stated elsewhere in the background)."
+        }
+      ]
+    }
+  ],
+  "_hash": "768a67cfc40b041d98b3a28ddd781937e34c88467076f3d47e9526c2351d7a72"
+}
