@@ -50,9 +50,9 @@
       "title": "Thread resolveGitCwd into the graceful-degradation real sites (verifier, handoff, codex-adapter-checks, touchpoints-fallback, validation-executor, recover-evidence, init-check)",
       "context": "Lower-severity (graceful degradation, but still wrong on wrapper-root): verifier.ts currentHead ~:327 (drops headSha from DONE evidence), lattice-handoff.ts resolveCommitSha ~:878, codex-adapter-checks.ts readGitHead ~:137, touchpoints-fallback.ts detectMdTouchpointsFromGit ~:17 (wrong reviewer routing — docs reviewer not mounted), validation-executor.ts readGitStatus ~:55, recover-evidence.ts readGitStatusLines ~:61, init-check.ts init_check_repair ~:289. Each has a storyId/story context available → thread resolveGitCwd, fall back to root. One site at a time; build + re-run the gitroot-cwd-contract green after each; remove from the allowlist as fixed. Keep plain-repo behavior byte-identical.",
       "userSees": "On a wrapper-root project, DONE-evidence headSha, handoff commit-proof, verify_codex headHash, .md touchpoint detection (docs reviewer routing), validate pollution gate, dirty classification, and init_check_repair all resolve from the gitRoot; the gitroot-cwd-contract stays green; plain repos unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T23:11:36.655Z",
       "verificationIntent": {
         "happy": [
           {
