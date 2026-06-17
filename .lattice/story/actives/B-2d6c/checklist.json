@@ -83,9 +83,9 @@
           "command": "npm run test:all > /tmp/b2d6c-after.log 2>&1; grep -cE '^FAIL |^TIMEOUT ' /tmp/b2d6c-after.log",
           "result": "pass",
           "note": "Returns 0 — across 3 consecutive parallel runs all 162 PASS, 0 FAIL, 0 TIMEOUT.",
-          "headHash": "a28ced782af85a147c5c70326c4cda24d9ffe92f",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:05.274Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -94,9 +94,9 @@
           "command": "npm run test:all > /dev/null 2>&1; echo $?",
           "result": "pass",
           "note": "Returns 0 — verified 3x consecutive runs all exit 0.",
-          "headHash": "82dd9e3cfa268a011bcb7552406fd311e50b5eb4",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:05.980Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -105,9 +105,9 @@
           "command": "for i in 1 2 3; do npm run test:all > /tmp/b2d6c-flake-$i.log 2>&1 || echo FAIL_$i; done",
           "result": "pass",
           "note": "No FAIL_N printed — 3 consecutive parallel runs all green, no flake (preMortem D4 mitigation).",
-          "headHash": "2fd13a40d7630874e70ff17fe2f8c6e77d20b911",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:06.684Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -116,9 +116,9 @@
           "command": "git diff main...HEAD --name-only -- packages/main/src/handlers packages/main/src/core packages/main/src/cli-engine.ts packages/main/src/cli-prompts.ts | wc -l",
           "result": "pass",
           "note": "Returns 0 — no production source under handlers/core/cli-*.ts touched.",
-          "headHash": "03358f1ad20865863d2930b1b40047f8b782de1e",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:07.438Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -127,9 +127,9 @@
           "command": "git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts packages/main/src/tasks/cli-e2e.ts | wc -l",
           "result": "pass",
           "note": "Returns 0 — B-6efb runner + B-d7c3 cli-e2e frozen.",
-          "headHash": "3b7342ba4b30720866b5c3ac65e47797afcf1f21",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:08.123Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -138,9 +138,9 @@
           "command": "git diff main...HEAD -- scripts/verify-koala-residue.mjs | wc -l",
           "result": "pass",
           "note": "Returns 0 — B-292d preflight gate script untouched.",
-          "headHash": "35b6ca3f6c7fecda5ee3f2548bf06020521b8321",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:08.853Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         }
       ]
     },
@@ -196,9 +196,9 @@
           "command": "node packages/main/dist/tasks/lattice-baseline-smoke.js > /tmp/b2d6c-baseline.log 2>&1; echo $?",
           "result": "pass",
           "note": "Returns 0 — lattice-baseline-smoke passes in ~95s serial within the new 240s timeoutMs.",
-          "headHash": "f13eaaa2e75c19eabaaeeab16aaadb686fbe0084",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:09.652Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -207,9 +207,9 @@
           "command": "npm run test:all 2>&1 | grep -cE '^PASS lattice-baseline'",
           "result": "pass",
           "note": "Returns 1 — appears as PASS in parallel runner output.",
-          "headHash": "daacef5cf7ff7e5d4fd8990de92e15545c3554d2",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:10.444Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -218,9 +218,9 @@
           "command": "node -e \"const m=require('./packages/main/smoke-manifest.json');const e=m.smokes.find(s=>s.name==='lattice-baseline');console.log('timeoutMs='+e.timeoutMs+' skip='+!!e.skip)\"",
           "result": "pass",
           "note": "Prints 'timeoutMs=240000 skip=false' — manifest entry documents the bumped timeout.",
-          "headHash": "a80a9e61352c1dc5e9fcf0e20ae06d1a097a86e9",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:11.224Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -296,9 +296,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c B-2d6c",
           "result": "pass",
           "note": "Returns >=1 — Unreleased entry names B-2d6c.",
-          "headHash": "6c4b8fbff6a8ede20d19f061fe5d42980ec3c66d",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:12.754Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -307,9 +307,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'B-c6cf.*waiver|waiver.*B-c6cf|CHK-002:happy:2'",
           "result": "pass",
           "note": "Returns >=1 — explicit waiver-retirement reference.",
-          "headHash": "685f882349b5d03ab24ac5bbb94324181d8332fd",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:13.536Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -318,9 +318,9 @@
           "command": "npm run test:all > /dev/null 2>&1; echo $?",
           "result": "pass",
           "note": "Returns 0 — duplicate of CHK-001:happy:1 as final acceptance gate.",
-          "headHash": "c879b8505132c12d784d112a03909095eb382082",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:14.326Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -329,9 +329,9 @@
           "command": "npm run test:coverage > /dev/null 2>&1; echo $?",
           "result": "pass",
           "note": "Returns 0 — directly retires the B-c6cf waiver. Required NODE_OPTIONS=--max-old-space-size=8192 to fix c8 v11 OOM during 162-smoke merge.",
-          "headHash": "b58d5b9f1d00d2c6d4060d825eeb0e501f1e340a",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:15.083Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -340,9 +340,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c 'Test infrastructure'",
           "result": "pass",
           "note": "Returns 1 — pattern-consistent with B-d7c3/B-c6cf/B-292d.",
-          "headHash": "94773f6ec19c2a5000c7d26de7f5ab764d0b77b9",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:15.883Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -351,9 +351,9 @@
           "command": "git diff main -- CHANGELOG.md | grep -E '^[-+]## ' | grep -vE 'Unreleased' | wc -l",
           "result": "pass",
           "note": "Returns 0 — only Unreleased section touched.",
-          "headHash": "a57c0975a41d37715964280ae65d05c52b17ffa8",
-          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
-          "timestamp": "2026-06-17T21:05:16.674Z"
+          "headHash": "0e459e8e5e063ceb970e1bc3970a9aa8fa6ce73d",
+          "materialHash": "a1b9f0830303942e375781fb842552444f46bcd13a8dbdbf4e2f5c34782cee7e",
+          "timestamp": "2026-06-17T21:10:26.317Z"
         }
       ]
     }
