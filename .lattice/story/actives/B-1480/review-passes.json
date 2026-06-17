@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-17T02:27:26.580Z",
       "reviewRunId": "B-1480:RR-008",
       "_hash": "832577c1b7fa8b7accb32a31a3421624d01d2e3e2ece0bb71aac3cd862ecead6"
+    },
+    {
+      "id": "B-1480:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency check: pure-docs diff (Fallback 1 path). All 9 code anchor paths verified to exist. Symbol checks: store.readFindings (store.ts:359) confirmed; advisory.ts isEvidenceStateBlocking (line 43) confirmed — blocks only on verified or null-legacy, not other states; runtime-artifact-registry.ts materialHash:exclude + volatile pattern confirmed in use across many entries (the new learning entry will follow the same pattern); signReviewRun (review-run.ts:297-331) confirmed — promptHash is the 9th positional input to the SHA-256 signature, so hintSection must not enter promptHash; grillSection at ~567-598 confirmed (line 567 declaration, line 598 use); appendActivityLog confirmed at activity-log.ts:40; dev-memory.ts content-sha7 id confirmed (line 46 comment + line 294 sha7 generation); decision-doc-promotion.ts digest pattern confirmed (proposalDigest, sourceDigest, assertTargetInScope, digestCanonicalJson all present); no FTS/SQLite/BM25 anywhere in core src. Lifecycle consistency: doc correctly states proposed state lives as a staged file in .lattice/learning/proposals/<id>.json, dev-memory status enum is post-approval subset candidate->active->stale->archived — the c90aa45c fix is coherent and the description is self-consistent. No doc-code drift found. Symbols extracted (Step 1 per Fallback 1): 0 real TS exported symbols (pure docs diff). Paragraphs compared: all major sections of the doc cross-checked against 9 real code files.",
+      "createdAt": "2026-06-17T02:30:33.906Z",
+      "reviewRound": "2026-06-17T02:27:26.580Z",
+      "reviewRunId": "B-1480:RR-009",
+      "_hash": "069658d2ac7f3a6e8fd8fd3d2dabec09171555a1c2248e2ab982d98749d2914c"
     }
   ]
 }
