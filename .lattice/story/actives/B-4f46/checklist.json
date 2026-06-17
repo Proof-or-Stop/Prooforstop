@@ -453,10 +453,10 @@
           "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
           "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
           "result": "pass",
-          "note": "signature-registry.json in learning-store + signature_registry_list/set CLI (propose/approve/alias/deprecate); auto-propose on finding_add; advisory.ts has zero audit-field refs (gate decision unaffected).",
-          "headHash": "f88bdfc16d6a69d36e62b98356b1bf6b05e1c3a4",
-          "materialHash": "bd502cd0513be97b281d621c8953f216933554e85ffa17ab809dd3bd2f713065",
-          "timestamp": "2026-06-17T12:29:55.509Z"
+          "note": "Smoke check 'CHK-003:edge:0 idempotent auto-propose': proposing an existing tag creates no duplicate entry.",
+          "headHash": "5d4e26a5fa65890c95fd0ad6803c7e3a5fb8dff1",
+          "materialHash": "fd53b616f44c86140fd6d813e11163d3c6e75d9ea7e178a9fcc8598369f228a2",
+          "timestamp": "2026-06-17T12:39:57.074Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
