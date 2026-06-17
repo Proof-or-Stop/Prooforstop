@@ -145,6 +145,16 @@
           "headHash": "54a11f06a07d439f2eb23a0442f5d21ef4333387",
           "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
           "timestamp": "2026-06-17T22:49:18.664Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm run test:all",
+          "result": "pass",
+          "note": "test:all = 163/163 passed in 168s; the 5 previously-timing-out P5 smokes now PASS within their bumped manifest timeouts: cli-json-stdout-contract 79.7s, dispatch-run 83.2s, lattice-baseline 127.8s, experience-layer-playbook 44.3s, planner-unattended 45.7s. Full suite green (was 140/162 at campaign start).",
+          "headHash": "e7370def8250d53fb9ff2803645a5ac6dddc7e28",
+          "materialHash": "d4f2678b52fd51f2b715b662e45f8a402a1ab1ad929def1c326041849a7c8432",
+          "timestamp": "2026-06-17T23:02:39.363Z"
         }
       ]
     }
