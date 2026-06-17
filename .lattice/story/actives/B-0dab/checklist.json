@@ -416,6 +416,16 @@
           "headHash": "ccca5ecde7f7a1afa7f4ad5cc24a65819831a28f",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:02:53.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "inject a new file src/tasks/sneaky.ts containing a koala-brand string not in any exemption list, run node scripts/verify",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "9fdf89968bf8a46590779fe0fa5534d5f6d7f3e0",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:54.403Z"
         }
       ]
     }
