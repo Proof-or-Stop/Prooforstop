@@ -1,0 +1,31 @@
+{
+  "task": "Make every story in the Lineage Graph show its complete lifecycle nodes plus per-node LLM interaction data (intent, evidence, codex calls, reviewer notes) across all phases and dispatch runtimes",
+  "outcome": "User opens the Lattice Console at http://localhost:8800, clicks any story in the Lineage Graph — a PLAN story, a DEV story, a REVIEW story, or a DONE story. The graph auto-fits immediately (20-40% scale) showing all lifecycle nodes appropriate for that phase. Clicking a dispatch node reveals verificationIntent cases (happy/edge/adversarial color-coded); for Codex stories also the LLM calls breakdown by role; for Claude Code stories just the intent cases without a LLM calls header. Clicking a review node shows the reviewer agent note text. Clicking a finding node shows the finding description and severity. No empty graphs, no scale stuck at 10%, no JS errors.",
+  "facts": [
+    "process-events.jsonl contains event timeline per story: dispatch, subagent_result, codex_cli, review_pass, reviewer_finding, host_verdict",
+    "checklist.json per CHK item has verificationIntent.{happy,edge,adversarial} and verificationEvidence[]",
+    "codex_cli events only exist for Codex-dispatched stories; Claude Code stories have none",
+    "review-passes.json has {reviewPassId, note} entries; findings.json has {findingId, desc, severity} entries",
+    "lattice-console-serve.js buildLineageGraph constructs node meta; lattice-lineage.js renderDetail renders detail panel",
+    "_fitPending + onVisible() mechanism added in previous session for auto-fit when panel is hidden"
+  ],
+  "constraints": [
+    "Dashboard is strictly read-only — no mutations via serve.js",
+    "Files are outside Orchestrate repo: /Users/jek/Documents/lattice-{console-serve,lineage,console-demo}.{js,html}",
+    "lattice-lineage.js is a self-contained IIFE browser module exposing window.LatticeLineage",
+    "Server runs at port 8800 (not 8801)",
+    "No changes to Orchestrate packages/ or src/"
+  ],
+  "unknowns": [
+    "Which specific stories in the current active set represent each phase (PLAN/DEV/REVIEW) for manual browser testing",
+    "Whether review-passes.json and findings.json are already read by serve.js and their field names",
+    "Whether buildLineageGraph currently generates plan-layer nodes at all for PLAN-phase stories"
+  ],
+  "touchpoints": [
+    "/Users/jek/Documents/lattice-console-serve.js: buildLineageGraph() — node construction and meta population",
+    "/Users/jek/Documents/lattice-lineage.js: renderDetail() — detail panel HTML generation",
+    "/Users/jek/Documents/lattice-lineage.js: fitView() + onVisible() — auto-fit logic",
+    "/Users/jek/Documents/lattice-console-demo.html: nav click handlers that trigger onVisible()"
+  ],
+  "timestamp": "2026-06-17T18:37:55.143Z"
+}

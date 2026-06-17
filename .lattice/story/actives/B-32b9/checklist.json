@@ -78,21 +78,26 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Click a review node on a REVIEW-phase story — right panel shows review agent note text from review-passes.json",
+            "desc": "Click a review node on a REVIEW-phase story — right panel shows \"Review Note\" section with the reviewer agent note text from review-passes.json",
             "type": "browser"
           },
           {
-            "desc": "Click a finding node — panel shows finding severity and description text from findings.json",
+            "desc": "Click a finding node — panel shows \"Finding\" section with severity label and description text from findings.json",
             "type": "browser"
           }
         ],
         "edge": [
           {
-            "desc": "Review node with missing review-passes.json entry shows graceful fallback with no note section and no crash",
+            "desc": "Review node whose reviewPassId has no matching entry in review-passes.json shows the review node without a Review Note section and without crashing",
             "type": "browser"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "desc": "A reviewer_finding event whose findingId has no matching entry in findings.json renders the finding node with an empty Finding section rather than undefined or a JS TypeError",
+            "type": "browser"
+          }
+        ]
       },
       "status": "pending",
       "startTime": null,
