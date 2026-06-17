@@ -5,7 +5,7 @@
       "desc": "CHK-002:happy:3 and CHK-002:adversarial:1 evidence notes do not explicitly name the behaviors they cover: happy:3 intent requires confirming 'structured first, embedding later' clause survives (verifier only asserts /per-project only/i on the same line, note omits this clause); adversarial:1 intent requires confirming 'unchanged from v1.0' does NOT appear in the Architecture header (verifier has no assertion for this; phrase does appear in the Problem Statement at line 37 but not in Architecture — correct doc state but unverified by verifier). Both intents pass because doc state is genuinely correct and verifier uses a specific committed script not a generic fallback; no blocker.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T18:18:10.076Z",
@@ -14,7 +14,9 @@
       "_hash": "11389a91653be799348d2fd40b0ebe84f6fec54d555b116faa1ed8e21f8d6bec",
       "files": [
         ".lattice/story/actives/B-2a8d/evidence/verify-b-2a8d.mjs"
-      ]
+      ],
+      "resolvedReason": "Tightened the committed verifier with two dedicated asserts (structuredFirst, noUnchangedV1) and rebound CHK-002:happy:3 + CHK-002:adversarial:1 evidence to name those exact checks. Verifier-only change under .lattice/ (materialHash-excluded); verifier still TOTAL 20 | PASS 20 | FAIL 0.",
+      "resolvedAt": "2026-06-17T18:20:03.712Z"
     }
   ]
 }
