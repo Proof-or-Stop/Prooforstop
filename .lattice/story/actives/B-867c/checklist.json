@@ -105,6 +105,16 @@
           "headHash": "11bfba1b7649f49ac3e07a31def00490fa8bcdd2",
           "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
           "timestamp": "2026-06-17T16:38:47.398Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "read packages/main/src/core/config.ts:189-191 + packages/main/src/core/command-policy.ts:205-216",
+          "result": "pass",
+          "note": "Subset invariant holds: DEFAULT_PHASE_TOOLS all-phases bucket at config.ts:189-191 lists signature_registry_(star) / playbook_(star) / recall; all 7 commands (signature_registry_list/set, playbook_propose/diff/approve/reject, recall) declare allowedPhases:all in command-policy.ts:205-216. DEFAULT_PHASE_TOOLS is therefore a subset of policy allowedPhases (the safe direction) — phaseTools never widen a phase beyond what command-policy permits. Contract drift check (verify-process-fact-contract.mjs:2672-2679) matches a registry command per pattern with the phase in allowedPhases, so the all-phases declarations satisfy it with no config widening.",
+          "headHash": "3a19903746673f1282902844c3bd05d69099c273",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:39:05.235Z"
         }
       ]
     }
