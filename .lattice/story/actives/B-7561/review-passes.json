@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T15:57:14.871Z",
       "reviewRunId": "B-7561:RR-003",
       "_hash": "610c9e5ada2e14abdedfb07d083115ab8a8fa53b269035f9fa67255071b69f11"
+    },
+    {
+      "id": "B-7561:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Checked all 4 checklist items against the code diff and ran the full smoke suite (22/22 PASS). scoreSimilarity is symmetric, deterministic, multi-field (Jaccard blend over keywords+fileKinds+touchpoints + small type/phase boosts), and never NaN (Jaccard(empty,empty)=0). recallSimilarStories respects top-N, excludes self (when storyId non-empty), drops zero-score, and applies stable storyId tiebreak. READ-ONLY contract is met: treeSnapshot before/after recall is byte-identical. Import fence verified by static scan + mutation check. CLI registered in command-policy (readOnly), config.ts, registry.ts, and cli-engine.ts. One high finding (B-7561:F-001) raised: the CLI schema exposes --storyId not --story, so `lattice recall --story <id>` silently falls through to the usage message, contradicting CHK-003 userSees. The remaining behavioral invariants (multi-field scoring, read-only, ranking, import fence, empty candidates, NaN guard, tiebreak) are all correct. No FTS, no derived index.",
+      "createdAt": "2026-06-17T16:01:12.419Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-002",
+      "_hash": "b3d143d3e7c8130101128b1fc246dc3f7fe602537c9b60f6ff4d317f18a86ddd"
     }
   ]
 }
