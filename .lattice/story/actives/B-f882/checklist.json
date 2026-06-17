@@ -7,7 +7,30 @@
       "userSees": "On a wrapper-root project (metadataRoot != gitRoot), `lattice validate` / the REVIEW->TEST preflight docs-drift gate no longer falsely reports CLAUDE.md path-references as missing and no longer false-blocks REVIEW->TEST; on a plain repo behavior is unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root layout (metadataRoot != gitRoot) the docs-drift preflight gate scopes fs/git to gitCwd and reports pass for an existing CLAUDE.md path reference",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo (projectRoot == gitCwd) docs-drift behavior is byte-identical to before; existing docs-drift-path-drift-smoke still passes unchanged",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If repoRoot is reverted to deps.projectRoot the wrapper-root regression goes RED, proving the fix is load-bearing; no managedAssetDefs/english-gate storyDir change in the diff",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "Minimal blast radius: fix the one mis-wired argument; do not refactor adjacent gates or the managed-asset path.",
+    "Symmetry with the established pattern: docs-drift should receive gitCwd exactly as channel/concept/english gates already do.",
+    "Prove the fix mechanically: a regression red against pre-fix wiring and green after, plus a guard that catches the defect class on recurrence.",
+    "Byte-identical plain-repo behavior: when projectRoot==gitCwd the change is a no-op.",
+    "Respect deferral: do not touch the english-gate storyDir mismatch (#3) or the express docstring (#2)."
+  ],
+  "drivers": [
+    "Wrapper-root layouts (metadataRoot != gitRoot) false-block REVIEW->TEST today.",
+    "The existing bare-identifier git-cwd contract guard cannot see metadataRoot forwarded under a param name (repoRoot), so the class can silently recur.",
+    "High priority + gate riskSignal demand a tight, well-tested, auditable diff."
+  ],
+  "options": [
+    {
+      "name": "A-rewire-plus-regression-plus-guard",
+      "pros": [
+        "Smallest correct diff for CHK-001 (one argument)",
+        "Regression exercises the real wiring (resolveGitCwd + runDocsDriftGate + scanPathDrift) under a true metadataRoot!=gitRoot fixture, so it actually catches the wiring bug",
+        "Guard is mechanical and targeted at the exact recurrence vector"
+      ],
+      "cons": [
+        "Wrapper-root fixture needs a real git subdir (or faithfully injected per-root fs/git) to be faithful",
+        "Guard is review-preflight-specific rather than a fully general lexical rule"
+      ]
+    },
+    {
+      "name": "B-general-lexical-guard-rewrite",
+      "pros": [
+        "Would catch the class repo-wide, not just review-preflight"
+      ],
+      "cons": [
+        "Param-name aliasing of metadataRoot is not lexically decidable without dataflow analysis -> high false-positive/false-negative risk",
+        "Much larger, riskier guard change; over-engineering vs the confirmed single defect site",
+        "Slower to land, against minimal-blast-radius principle"
+      ]
+    },
+    {
+      "name": "C-fix-only-no-tests",
+      "pros": [
+        "Fastest"
+      ],
+      "cons": [
+        "Violates the story scope (CHK-002/CHK-003 required)",
+        "No mechanical proof of fix and no recurrence guard -> defect class returns silently"
+      ]
+    }
+  ],
+  "chosen": "A-rewire-plus-regression-plus-guard",
+  "rationale": "Option A delivers the smallest correct fix (CHK-001), a regression that genuinely exercises metadataRoot!=gitRoot through the real wiring so it is red pre-fix and green post-fix (CHK-002), and a tight review-preflight-specific guard that catches the exact recurrence vector (param-named forward of metadataRoot to a git-invoking gate) without the undecidable general dataflow analysis Option B requires. B is over-engineering with high false-positive risk; C fails the story scope and leaves no mechanical proof or guard.",
+  "preMortem": [
+    {
+      "scenario": "Wrapper-root regression passes both pre- and post-fix (does not actually distinguish gitRoot vs metadataRoot)",
+      "trigger": "Fixture accidentally puts the referenced path under BOTH metadataRoot and gitRoot, or grep/exists is stubbed in a way that ignores the root",
+      "consequence": "False green: the regression provides no protection and the bug could ship unfixed",
+      "mitigation": "Require the implementer to demonstrate RED against pre-fix wiring (temporarily revert repoRoot to deps.projectRoot, run the smoke, capture FAIL) before claiming done; the referenced path must exist ONLY under gitRoot, and fs/git must be scoped by the actual repoRoot argument."
+    },
+    {
+      "scenario": "The one-line fix breaks plain-repo behavior",
+      "trigger": "On plain repos resolveGitCwd returns something other than projectRoot and the change alters the passed root",
+      "consequence": "Plain-repo docs-drift gate changes behavior / regresses existing docs-drift-path-drift-smoke",
+      "mitigation": "Confirm resolveGitCwd falls back to projectRoot on plain repos (projectRoot==gitCwd), run the existing docs-drift-path-drift-smoke unchanged, assert byte-identical plain-repo output; keep the diff to the single repoRoot argument."
+    },
+    {
+      "scenario": "Scope creep into the english-gate storyDir mismatch or managedAssetDefs root",
+      "trigger": "Implementer notices the english gate / managed-asset path also uses metadataRoot and decides to fix them too",
+      "consequence": "Touches deferred finding #3 / out-of-scope code, violating the user-confirmed boundary and inflating review surface",
+      "mitigation": "execution-boundary allowedPaths + explicit OUT-OF-SCOPE instruction in every implementer prompt; CHK-001 changes ONLY the docs-drift repoRoot argument; reviewer verifies the diff contains no english-gate storyDir or managedAssetDefs change."
+    },
+    {
+      "scenario": "New smoke not actually run by the battery the user runs",
+      "trigger": "Smoke added as a file but not wired into root npm test / lattice validate (only auto-discovered by test:all)",
+      "consequence": "Regression exists but never runs in the gate that matters; silent rot",
+      "mitigation": "Wire the new smoke explicitly into the root npm test script and verify lattice validate --story=B-f882 executes it (grep the run output for the smoke name)."
+    },
+    {
+      "scenario": "Strengthened guard is too broad and flags legitimate non-git uses of deps.projectRoot",
+      "trigger": "Guard matches any deps.projectRoot usage rather than only repo-cwd forwards to git-invoking gates",
+      "consequence": "False positives break unrelated code and annoy future authors -> guard gets disabled",
+      "mitigation": "Scope the guard to review-preflight git-invoking gate calls only (assert the repo-cwd-taking gate calls receive the resolved gitCwd), with a self-test and a documented coverage note of what it does and does not cover."
+    }
+  ],
+  "timestamp": "2026-06-17T11:51:29.533Z"
+}
