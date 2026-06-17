@@ -63,9 +63,9 @@
           "command": "git grep -n 'koala-english|koala-incremental' packages/main/src/tasks; node scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "All 7 koala-* mkdtemp prefixes renamed to lattice-*; git grep returns nothing; gate PASS 0 unclassified",
-          "headHash": "3f20f621f7a8ceb614fa77af5cf28a0f4dd3f020",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:00:49.755Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -73,9 +73,9 @@
           "command": "grep -n koala- review-incremental-context-smoke.ts after rename",
           "result": "pass",
           "note": "Verified pass on current worktree: 0 matches",
-          "headHash": "69239880e2de27efcd061868161afebc3f433af3",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:36.650Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -83,9 +83,9 @@
           "command": "grep -n lattice-english- english-only-guards-smoke.ts",
           "result": "pass",
           "note": "Verified pass on current worktree: 5 matches at lines 165/201/260/352/354",
-          "headHash": "782664804c1388a6d35e617c38c731a099342778",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:40.545Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -93,9 +93,9 @@
           "command": "grep -n lattice-incremental- review-incremental-context-smoke.ts",
           "result": "pass",
           "note": "Verified pass on current worktree: 2 matches at lines 262/437",
-          "headHash": "a9eb9828d1f4ce6936c2ec4f38de910104606f95",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:41.315Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
@@ -103,9 +103,9 @@
           "command": "npm run build && node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "Verified pass on current worktree: exits 0",
-          "headHash": "425b04260f1159a83b3d48e62b9f7eb96aa595cb",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:42.019Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:happy:5",
@@ -113,9 +113,9 @@
           "command": "npm run build && node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Verified pass on current worktree: exits 0",
-          "headHash": "65b812c0a51acfdd56c3d8c81594b8367568c53d",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:42.702Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -123,9 +123,9 @@
           "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "Verified pass on current worktree: PASS 0 unclassified (exit 0)",
-          "headHash": "b7409b3f9728384a8690b359f13f27a0d48f221b",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:43.369Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -133,9 +133,9 @@
           "command": "count total lattice- mkdtemp prefixes across both files",
           "result": "pass",
           "note": "Verified pass on current worktree: exactly 7",
-          "headHash": "5e863919c2a94a96891d79371a695f01d4022a77",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:43.969Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -143,9 +143,9 @@
           "command": "re-introduce one koala-english-scope- prefix back into english-only-guards-smoke.ts, rebuild, run node scripts/verify-ko",
           "result": "pass",
           "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
-          "headHash": "2be89b05c2341403701d01bf28e9fee5f2e7c2d3",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:44.604Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -153,9 +153,9 @@
           "command": "rename a prefix to KOALA- (uppercase) instead of lattice-",
           "result": "pass",
           "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
-          "headHash": "40804e54e72ea7a311f680f0811d9e1cf4dbd81d",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:45.332Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         }
       ]
     },
@@ -214,9 +214,9 @@
           "command": "npm test",
           "result": "pass",
           "note": "package.json test chain runs test:koala-residue (after test:main-write-lock-coverage); npm test shows it passing with 'PASS koala-residue: 0 unclassified'",
-          "headHash": "7324b638c8a62bd3c96fae53d8e5ca72460f3f74",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:00:50.329Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -224,9 +224,9 @@
           "command": "cat package.json | jq .scripts.test",
           "result": "pass",
           "note": "Verified pass on current worktree: string contains test:koala-residue",
-          "headHash": "6d6d01d83fa2447c6bd8ad4ebd3fe8137717b6ed",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:46.038Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -234,9 +234,9 @@
           "command": "npm run test:koala-residue",
           "result": "pass",
           "note": "Verified pass on current worktree: exits 0 with PASS output",
-          "headHash": "82d2be7e6b3ab0481983a77985c9aef8ed099756",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:46.711Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -244,9 +244,9 @@
           "command": "npm test",
           "result": "pass",
           "note": "Verified pass on current worktree: exits 0 and output includes koala-residue PASS line",
-          "headHash": "16c50d9d406b25a122862fa132ceb150584d1868",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:47.395Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -254,9 +254,9 @@
           "command": "npm run test:koala-residue -- --self-test",
           "result": "pass",
           "note": "Verified pass on current worktree: exits 0, prints 5/5 classify() unit tests",
-          "headHash": "a6e4990c2b8c48f26155524e95e11e8cd2200925",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:48.044Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -264,9 +264,9 @@
           "command": "run lattice validate",
           "result": "pass",
           "note": "Verified pass on current worktree: output includes koala-residue gate pass or npm test chain passes",
-          "headHash": "52f42d651bc929111eb607261cd719762d0cd0af",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:48.737Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -274,9 +274,9 @@
           "command": "temporarily corrupt scripts/verify-koala-residue.mjs (e.g. syntax error), run npm test",
           "result": "pass",
           "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
-          "headHash": "72192637d4fc76349af2f16033175b5e069849e8",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:49.394Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -284,9 +284,9 @@
           "command": "remove test:koala-residue from package.json test chain but leave the script defined, run npm test",
           "result": "pass",
           "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
-          "headHash": "d8ce99a62577498cb3c38372aa0f6ad304e8fa54",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:50.040Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         }
       ]
     },
@@ -353,9 +353,9 @@
           "command": "node scripts/verify-koala-residue.mjs && lattice validate",
           "result": "pass",
           "note": "Acceptance: gate PASS 0 unclassified, self-test 5/5, npm test includes passing test:koala-residue, build exit 0, e2e all pass, lattice validate all-green",
-          "headHash": "1585285fcee4aa6dce5b5066b15f51717fbddc9a",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:00:50.890Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -363,9 +363,9 @@
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
           "note": "Verified pass on current worktree: prints PASS 5/5, exits 0",
-          "headHash": "16125147676772ea9916a0522fb42f08bd602013",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:50.671Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -373,9 +373,9 @@
           "command": "npm test",
           "result": "pass",
           "note": "Verified pass on current worktree: exits 0, output includes test:koala-residue passing",
-          "headHash": "297a9a08b26e28d2f6b3037f0a508062d9cfb4ca",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:51.390Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -383,9 +383,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "Verified pass on current worktree: exits 0",
-          "headHash": "2a2a716143d298d06b7e151391877c42d3473534",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:51.953Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -393,9 +393,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "Verified pass on current worktree: all e2e tests pass",
-          "headHash": "4752c964547e5dd1cc734cda48074138b2119184",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:52.559Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -403,9 +403,9 @@
           "command": "grep -rn koala packages/main/src/tasks/english-only-guards-smoke.ts packages/main/src/tasks/review-incremental-context-s",
           "result": "pass",
           "note": "Verified pass on current worktree: 0 matches",
-          "headHash": "7a5fdf26d775ed65508de0b6d5708ba7b8c1be68",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:53.162Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -413,9 +413,9 @@
           "command": "node scripts/verify-koala-residue.mjs 2>&1 | grep -c unclassified",
           "result": "pass",
           "note": "Verified pass on current worktree: line shows 0",
-          "headHash": "ccca5ecde7f7a1afa7f4ad5cc24a65819831a28f",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:53.778Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -423,9 +423,9 @@
           "command": "inject a new file src/tasks/sneaky.ts containing a koala-brand string not in any exemption list, run node scripts/verify",
           "result": "pass",
           "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
-          "headHash": "9fdf89968bf8a46590779fe0fa5534d5f6d7f3e0",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:54.403Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -433,9 +433,9 @@
           "command": "add koala- mkdtemp prefix to a file outside packages/main/src/tasks/ (e.g. packages/main/src/utils/test-helper.ts), run ",
           "result": "pass",
           "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
-          "headHash": "fc954813ea37a7a007aab1e10b3e835cc3860f05",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:55.200Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -443,9 +443,9 @@
           "command": "re-introduce all 7 original koala-* prefixes in both smoke files, run gate",
           "result": "pass",
           "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
-          "headHash": "7a0a5aede1e0a2d1b696551cc12badc83346f612",
-          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
-          "timestamp": "2026-06-17T13:02:55.853Z"
+          "headHash": "f08a5b2dde54d5f8c2379b3a1f160ef3b219190b",
+          "materialHash": "2c1ae4a1fb47e21cebf4ce28da0a23f1c150bab7d072a9bb002440e671b5f622",
+          "timestamp": "2026-06-17T13:14:36.559Z"
         }
       ]
     }
