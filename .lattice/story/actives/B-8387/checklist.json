@@ -60,7 +60,55 @@
       "userSees": "playbook_propose --finding <id> prints a proposalId + digest; playbook_diff shows the rendered candidate; playbook_reject removes the proposal.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "playbook_propose --finding <existing-finding-id> -> prints proposalId + proposalDigest; proposals/<id>.json created with lineage.sourceStoryId, lineage.sourceFindingId, lineage.sourceSignature all populated from the source finding; WHY: proves the core propose path with lineage propagation",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_diff <proposalId> -> renders the candidate playbook that approve would write; calling diff twice returns identical output; WHY: proves diff is read-only and deterministic",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_reject <proposalId> -> proposal file removed; subsequent readProposal returns not-found; WHY: proves reject discards the proposal cleanly",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "playbook_propose --finding <non-existent-finding-id> -> clear error message mentioning the finding was not found; no proposal file created; WHY: boundary for missing source finding",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_diff on non-existent proposalId -> clear not-found error, no crash; WHY: boundary for missing proposal",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_reject on non-existent proposalId -> clear not-found error, no crash; WHY: idempotent/safe reject of missing proposal",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_diff does NOT mutate -> snapshot proposals/ directory before and after diff; file list and contents identical; WHY: proves diff is purely read-only",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "after playbook_propose, assert findings.json is byte-identical to before -> propose never calls finding_add; WHY: enforces the hard guardrail that playbook lifecycle never auto-files findings",
+            "type": "cli"
+          },
+          {
+            "desc": "after playbook_propose, assert no gate was invoked (gate log/advisory unchanged) -> propose never touches gates; WHY: enforces the hard guardrail that playbook lifecycle never touches gates",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_propose called twice for same finding -> second call either overwrites with new proposalId or returns clear already-proposed error; never leaves orphaned state; WHY: adversarial duplicate-propose scenario",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
