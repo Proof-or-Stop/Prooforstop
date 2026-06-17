@@ -80,9 +80,9 @@
       "id": "CHK-002",
       "title": "Diagnose + fix lattice-baseline TIMEOUT",
       "context": "lattice-baseline-smoke times out at the 60s default. Three real remedies (all use existing smoke-manifest.json schema fields {name, tags?, timeoutMs?, skip?}): (a) genuinely slow → raise the smoke's timeoutMs entry in packages/main/smoke-manifest.json (e.g. 120000); (b) deadlock/hang → file finding_add severity=high with diagnosis, then either (b1) set skip:true on the manifest entry until the deadlock is fixed in a follow-up production story or (b2) leave skip:false and accept the failure (deferred to follow-up); (c) parallel-race that disappears under --jobs 1 → keep timeoutMs default but document the smoke as requires-serial in a code comment; if the runner ever adds a 'serial' tag the smoke can opt into it then. Pick the remedy that matches the diagnosis; document choice in CHANGELOG.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T20:06:30.162Z",
-      "endTime": null,
+      "endTime": "2026-06-17T21:03:49.163Z",
       "userSees": "`node packages/main/dist/tasks/lattice-baseline-smoke.js` exits 0 (or is documented as skipped via manifest with finding pointer). Manifest only changed for the lattice-baseline entry.",
       "files": {
         "modify": [
