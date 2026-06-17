@@ -5,13 +5,15 @@
       "desc": "learning-store.ts:approveSignatureTag (line ~222) auto-creates a never-proposed tag directly as status=active, bypassing the propose step. CHK-003 adversarial:0 specifies 'rejected OR auto-creates as proposed then requires re-approve' — neither option is implemented. The verificationEvidence for CHK-003:adversarial:0 cites the smoke, but the smoke does not assert this adversarial path. Suggest: either add an assert.throws test for approve-on-unregistered in the smoke, or document the deliberate behavior deviation in the handler comment and checklist.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-17T12:33:23.858Z",
       "reviewRound": "2026-06-17T12:30:25.284Z",
       "reviewRunId": "B-4f46:RR-003",
-      "_hash": "116f871a51d15d429e32958cb1db7fd408183cd28a5dac02c2d14ec80f6811a6"
+      "_hash": "116f871a51d15d429e32958cb1db7fd408183cd28a5dac02c2d14ec80f6811a6",
+      "resolvedReason": "approveSignatureTag now rejects approving a never-proposed tag (throws 'has not been proposed'); idempotent on already-active. Smoke check 'CHK-003:adversarial:0 approve never-proposed rejected' + 'CHK-003:edge:1 idempotent approve' added. Commit fbfec03824.",
+      "resolvedAt": "2026-06-17T12:39:31.647Z"
     },
     {
       "id": "B-4f46:F-002",
