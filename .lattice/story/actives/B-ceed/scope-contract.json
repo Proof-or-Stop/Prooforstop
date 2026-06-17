@@ -1,0 +1,37 @@
+{
+  "storyId": "B-ceed",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-dispatch.ts",
+    "CHANGELOG.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/providers/gemini-cli.ts",
+    "packages/main/src/tasks/provider-gemini-smoke.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Extending BoundedProviderName type to include 'gemini' required updating providers/types.ts (the type definition) and planned-steps-executor.ts (the consumer's narrow types: ProviderName/productionDoneProviders/PROVIDER_BINARY/defaultBoundedProviderExecutor). These were not in original scope-boundary but are MECHANICAL CONSEQUENCES of adding a new bounded provider. Without these updates the type system blocks the gemini wiring at compile time. All edits are additive (added 'gemini' to unions, added gemini binary to map, added gemini branch to switch) — no existing codex/claude logic modified.",
+      "timestamp": "2026-06-17T22:13:31.859Z",
+      "paths": [
+        "packages/main/src/providers/types.ts",
+        "packages/main/src/core/planned-steps-executor.ts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Added provider-gemini smoke entry to manifest so it's discovered by run-all-smokes. Single-entry add, no other manifest entries touched.",
+      "timestamp": "2026-06-17T22:13:52.510Z",
+      "paths": [
+        "packages/main/smoke-manifest.json"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-17T22:01:07.885Z",
+  "updatedAt": "2026-06-17T22:13:52.510Z"
+}

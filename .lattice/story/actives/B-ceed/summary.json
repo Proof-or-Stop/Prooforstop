@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ceed",
+  "changes": "Story #3: unblocked codex+gemini live dispatch + claude-code fallback. Added providers/gemini-cli.ts (mirror codex-cli.ts contract: geminiCliAvailable + runBoundedGeminiProvider; PATH discovery + stdin-closed spawn + digests + no raw transcript leakage). Extended BoundedProviderName + planned-steps-executor.ts (PROVIDER_BINARY/defaultBoundedProviderExecutor/isProviderName/isRealProvider) to include 'gemini'. In lattice-dispatch.ts added runCodexRealLeafDispatch + runGeminiRealLeafDispatch (sharing runBoundedRealLeafDispatch); dispatch_run switch routes --host=codex/gemini to real path when CLI available, falls back to claude-code real leaf with logged transcript line otherwise; dispatch_auto now allows codex/gemini hosts; probeHostRuntime drops stale 'scaffolded only' warning + limitations for these hosts. Added provider-gemini-smoke.ts proving the 6-case bounded contract. CHANGELOG Unreleased + memory llm-usage-ledger-status.md updated to mark live-dispatch RESOLVED.",
+  "usage": "lattice dispatch_auto --host=codex --story=B-xxx with codex CLI in PATH invokes a real codex subprocess (status=accepted_local on clean exit); same for --host=gemini. Without CLI in PATH the dispatcher logs 'falling back to claude-code real dispatch' and runs the claude-code leaf instead. runtime warnings no longer include 'scaffolded only' for codex/gemini when CLI is available. Run: node packages/main/dist/tasks/provider-gemini-smoke.js for the 6-case contract verification.",
+  "expectedOutcome": "dispatch_auto + dispatch_run for codex/gemini hosts spawn real subprocesses when CLI is in PATH, return status=accepted_local on clean exit, write transcript with 'real subprocess started' + exit/duration lines. When CLI is missing, transcript shows 'falling back to claude-code real dispatch' and the dispatch proceeds via the claude-code leaf. probeHostRuntime warnings array is empty for live-dispatch hosts when available. provider-gemini-smoke exits 0 (6/6 cases). npm test exits 0 (root chain unchanged).",
+  "actualTranscript": "Build clean. provider-gemini-smoke.js: 6/6 PASS exit 0. npm test exit 0. 3 reviewer lanes PASS round 2 (concept RP-002, quality RP-003, test-coverage RP-001). 5 findings F-001..F-005 (2 critical + 2 high + 1 medium) all resolved in commit 449387731. verify_codex 8/8 PASS. Degraded 3x1 fallback eligibility=single-host-environment recorded; reviewEscalationOk: true. Delivery review PASS 5/5 docsPromises + 3/3 features.",
+  "outcomeDiff": "No difference: A0 goal met (codex/gemini real-host live dispatch unblocked + fallback to claude-code). Memory llm-usage-ledger-status.md confirms upstream block is RESOLVED — adapter follow-up can now proceed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Adapter follow-up still needed for real-token ledger numbers (codex.ts/gemini.ts under usage-ledger/adapters/ — explicit out of scope per scope-boundary). Authority receipt-backed signing path remains future work. Authority/production receipts NOT issued (degraded 3x1 fallback used per solo-operator standing approval); authorityDone/productionDone stay false.",
+  "pitfalls": "(1) Adding 'gemini' to BoundedProviderName cascaded to multiple narrow type unions in planned-steps-executor.ts (ProviderName, productionDoneProviders, isProviderName, isRealProvider, PROVIDER_BINARY, defaultBoundedProviderExecutor) — type system enforced thorough updates; reviewer caught isProviderName/isRealProvider misses in F-003/F-004. (2) Initial implementation forgot to update probeHostRuntime warnings + limitations + dispatch_auto throw — reviewer caught F-001/F-002 as critical. (3) Unused worktreeAbs parameter in helper function flagged as F-005 medium — kept the parameter through several wrappers; cleaner to design without it from the start. (4) scope_contract_acknowledge needed 3 times: providers/types.ts + core/planned-steps-executor.ts + smoke-manifest.json — all mechanical consequences of extending BoundedProviderName. Lesson: when adding a new bounded provider, plan for the cascade BEFORE writing scope-boundary.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 395154
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13749
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 270315
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 752702
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 437654
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 212587
+    }
+  },
+  "totalDurationMs": 2082162,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T22:27:01.201Z",
+  "updatedAt": "2026-06-17T22:27:01.201Z"
+}
