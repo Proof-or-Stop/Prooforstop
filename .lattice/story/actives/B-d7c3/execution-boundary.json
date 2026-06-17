@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d7c3",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git grep*",
+    "git status*",
+    "grep *",
+    "ls *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/*",
+    "npm --prefix * run *",
+    "npm run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "docs",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/smoke-manifest.json",
+    "README.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "bin",
+    "docs/requirements/decisions",
+    "packages/lab/src",
+    "packages/main/src",
+    "packages/utils/src",
+    "scripts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "B2 npm-script-level refactor + doc updates. No source code, no smoke files, no decision docs.",
+  "createdAt": "2026-06-17T12:16:04.238Z",
+  "updatedAt": "2026-06-17T12:16:04.238Z",
+  "_hash": "42f60d1b5be45cfddef39a4c73b87b0519df74989c8560048be2af15238a3d3a"
+}
