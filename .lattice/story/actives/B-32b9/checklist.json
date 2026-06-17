@@ -159,6 +159,17 @@
           "headHash": "e8df2e26533fa061f394d579ff0cfbd5c7ccb9b0",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:01:35.776Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Inspect CHK-001 pending node in B-32b9 detail panel",
+          "result": "pass",
+          "note": "B-32b9 pending nodes have codexCalls undefined (not in pending node meta). lineage.js line 432: codexCallsHtml checks (meta.codexCalls && meta.codexCalls.length). When codexCalls is undefined: both conditions false → empty string. Screenshot confirms no 'LLM 调用' section in pending node detail.",
+          "headHash": "383face05ba61c375956bbc697a3ee27709d19d7",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:01:38.431Z"
         }
       ]
     },
