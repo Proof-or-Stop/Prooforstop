@@ -65,12 +65,12 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
-          "note": "裸 koala 品牌散文无 neutral token→不被静默白名单,判 in-scope(无漏计)；branding smoke PASS",
-          "headHash": "cd02c9c6ecc718c69093bb509b601a02c9b94276",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:06.592Z"
+          "note": "self-test: 裸品牌 'the koala framework' 无 neutral→UNCLASSIFIED(不静默白名单); 5/5 PASS",
+          "headHash": "0b95f7ff83b5ceddc561f64defdf72361134ca5f",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:23.292Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
