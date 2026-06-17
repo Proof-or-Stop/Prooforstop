@@ -375,6 +375,17 @@
           "headHash": "c39b9e69a7821e7f83e0ab900c9d1ea482a3c3b3",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:15.603Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c gemini",
+          "result": "pass",
+          "note": "Returns >=1 — gemini mentioned.",
+          "headHash": "f22f139efb9e37eb7d4eae4def83f37698258163",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:16.314Z"
         }
       ]
     }
