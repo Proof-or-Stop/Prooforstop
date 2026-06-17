@@ -259,7 +259,7 @@ function reviewStory(storyId: string, rounds: number, currentReviewRound?: strin
  * the earlier (main) headHash.
  */
 function buildIncrementalRepo(): { root: string; baseSha: string; headSha: string } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-incremental-ctx-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-ctx-'));
   write(root, '.gitignore', '.lattice/activity.jsonl\n');
   write(root, 'src/feature.ts', 'export const feature = 1;\n');
   write(root, 'src/old-name.ts', 'export const renamed = true;\n');
@@ -434,7 +434,7 @@ function runIncrementalCases(): void {
  * throwing while we prove it writes nothing and never changes the gate outcome.
  */
 function buildBalancedProjectRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'koala-incremental-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-gate-'));
   writeFileSync(join(root, 'lattice.json'), JSON.stringify({ workflow: { profile: 'balanced' } }));
   write(root, '.gitignore', '.lattice/activity.jsonl\n');
   write(root, 'src/seed.ts', 'export const seed = 1;\n');

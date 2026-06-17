@@ -1,6 +1,6 @@
 /**
  * B-1fca CHK-002: Smoke tests for reviewer-quorum module.
- * Run: npm --prefix packages/main run test:reviewer-quorum-smoke
+ * Run: npm run test:legacy -- reviewer-quorum
  */
 
 import { evaluateReviewerQuorum } from '../core/reviewer-quorum.js';

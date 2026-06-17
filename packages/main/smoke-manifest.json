@@ -40,6 +40,408 @@
         "cli"
       ],
       "timeoutMs": 120000
+    },
+    {
+      "name": "gap-coverage"
+    },
+    {
+      "name": "gap-analyze-input-hygiene"
+    },
+    {
+      "name": "verification-intent-alias"
+    },
+    {
+      "name": "verification-freshness"
+    },
+    {
+      "name": "memory-benchmark"
+    },
+    {
+      "name": "memory-real-data-benchmark"
+    },
+    {
+      "name": "testintent-handoff"
+    },
+    {
+      "name": "review-loop"
+    },
+    {
+      "name": "review-pass-discard"
+    },
+    {
+      "name": "worktree-repair"
+    },
+    {
+      "name": "init-check-atomicity"
+    },
+    {
+      "name": "init-check-reconcile-conflict"
+    },
+    {
+      "name": "auxiliary-worktree-cleanup"
+    },
+    {
+      "name": "worktree-node-modules"
+    },
+    {
+      "name": "validate-lint-change-scope"
+    },
+    {
+      "name": "storydir-inside-gitroot"
+    },
+    {
+      "name": "story-metadata-protection"
+    },
+    {
+      "name": "worktree-authority"
+    },
+    {
+      "name": "verification-intent-repair"
+    },
+    {
+      "name": "handoff-phase-authority"
+    },
+    {
+      "name": "flow-stability"
+    },
+    {
+      "name": "outcome-semantics"
+    },
+    {
+      "name": "audit-esm"
+    },
+    {
+      "name": "grill-planning-artifact"
+    },
+    {
+      "name": "mkdir-lock"
+    },
+    {
+      "name": "main-write-lock"
+    },
+    {
+      "name": "main-write-lock-doctor"
+    },
+    {
+      "name": "story-owner-lease"
+    },
+    {
+      "name": "reviewer-readonly-command-policy"
+    },
+    {
+      "name": "story-dedup"
+    },
+    {
+      "name": "story-create-concurrency"
+    },
+    {
+      "name": "meta-story-next-hint"
+    },
+    {
+      "name": "evidence-state-gate"
+    },
+    {
+      "name": "gap-log"
+    },
+    {
+      "name": "authority-boundary"
+    },
+    {
+      "name": "init-check-fallback"
+    },
+    {
+      "name": "checklist-reload-hint"
+    },
+    {
+      "name": "story-capsule"
+    },
+    {
+      "name": "evidence-quality"
+    },
+    {
+      "name": "reviewer-quorum"
+    },
+    {
+      "name": "decision-doc-quorum"
+    },
+    {
+      "name": "decision-doc-promotion"
+    },
+    {
+      "name": "attestation"
+    },
+    {
+      "name": "actor-trust"
+    },
+    {
+      "name": "fact-provenance"
+    },
+    {
+      "name": "scope-contract"
+    },
+    {
+      "name": "scope-anti-expansion"
+    },
+    {
+      "name": "scope-contract-plan-scope"
+    },
+    {
+      "name": "semantic-scope-guard"
+    },
+    {
+      "name": "prewrite-guard"
+    },
+    {
+      "name": "capability-list"
+    },
+    {
+      "name": "host-guard-matrix"
+    },
+    {
+      "name": "prompt-registry"
+    },
+    {
+      "name": "codex-registry-mode"
+    },
+    {
+      "name": "thin-init-assets"
+    },
+    {
+      "name": "global-agents-unit"
+    },
+    {
+      "name": "global-agents-init"
+    },
+    {
+      "name": "lattice-only-absence"
+    },
+    {
+      "name": "lattice-cli-migration"
+    },
+    {
+      "name": "dispatch-run"
+    },
+    {
+      "name": "autopilot-run"
+    },
+    {
+      "name": "unattended-dispatch"
+    },
+    {
+      "name": "rollout-check"
+    },
+    {
+      "name": "canonical-story-export"
+    },
+    {
+      "name": "lattice-handoff"
+    },
+    {
+      "name": "host-overflow"
+    },
+    {
+      "name": "lattice-evidence"
+    },
+    {
+      "name": "lattice-baseline"
+    },
+    {
+      "name": "lattice-parallel-wave"
+    },
+    {
+      "name": "authority-status"
+    },
+    {
+      "name": "story-authority-resolve"
+    },
+    {
+      "name": "observability-snapshot"
+    },
+    {
+      "name": "observability-contract"
+    },
+    {
+      "name": "cli-json-stdout-contract"
+    },
+    {
+      "name": "pretool-scope-hook"
+    },
+    {
+      "name": "english-only-guards"
+    },
+    {
+      "name": "remote-push-approval"
+    },
+    {
+      "name": "worktree-policy"
+    },
+    {
+      "name": "language-compatibility"
+    },
+    {
+      "name": "baseline-suite-report"
+    },
+    {
+      "name": "autopilot-authority"
+    },
+    {
+      "name": "autopilot-execute"
+    },
+    {
+      "name": "authority-job-loop-live"
+    },
+    {
+      "name": "planner-unattended"
+    },
+    {
+      "name": "baseline-contracts"
+    },
+    {
+      "name": "baseline-local-certification"
+    },
+    {
+      "name": "baseline-suite"
+    },
+    {
+      "name": "budget-meter"
+    },
+    {
+      "name": "multi-host-authority"
+    },
+    {
+      "name": "provider-codex"
+    },
+    {
+      "name": "provider-claude"
+    },
+    {
+      "name": "natural-language-to-done"
+    },
+    {
+      "name": "repair-retry-loop"
+    },
+    {
+      "name": "repair-retry-integration"
+    },
+    {
+      "name": "evidence-retention-gc"
+    },
+    {
+      "name": "evidence-upload-loop"
+    },
+    {
+      "name": "evidence-live-wiring"
+    },
+    {
+      "name": "authority-live-receipt-ref-gate"
+    },
+    {
+      "name": "cli-engine-branding"
+    },
+    {
+      "name": "done-merge-scope"
+    },
+    {
+      "name": "experience-layer-finding-signals"
+    },
+    {
+      "name": "convergence-discarded"
+    },
+    {
+      "name": "doctor-gitroot-probe"
+    },
+    {
+      "name": "gitroot-init-guidance-quiet-nesting"
+    },
+    {
+      "name": "validation-protocol"
+    },
+    {
+      "name": "verification-context-pack"
+    },
+    {
+      "name": "authority-receipt-classification"
+    },
+    {
+      "name": "authority-receipt-proof"
+    },
+    {
+      "name": "authority-gate-consumption"
+    },
+    {
+      "name": "authority-gate-receipts"
+    },
+    {
+      "name": "authority-client"
+    },
+    {
+      "name": "authority-evidence-flow"
+    },
+    {
+      "name": "verification-evidence-authority-handler"
+    },
+    {
+      "name": "authority-enforce-policy"
+    },
+    {
+      "name": "authority-runner-contracts"
+    },
+    {
+      "name": "authority-runner-client"
+    },
+    {
+      "name": "authority-enforce-runner"
+    },
+    {
+      "name": "authority-runner-events"
+    },
+    {
+      "name": "authority-enforce-matrix"
+    },
+    {
+      "name": "authority-live-python"
+    },
+    {
+      "name": "authority-completion"
+    },
+    {
+      "name": "authority-runner-live-adapter"
+    },
+    {
+      "name": "authority-job-loop"
+    },
+    {
+      "name": "authority-live-python-e2e"
+    },
+    {
+      "name": "authority-live-python-full-e2e"
+    },
+    {
+      "name": "authority-live-python-stub"
+    },
+    {
+      "name": "usage-ledger"
+    },
+    {
+      "name": "usage-ledger-adapter"
+    },
+    {
+      "name": "usage-ledger-estimate"
+    },
+    {
+      "name": "usage-ledger-diagnostics"
+    },
+    {
+      "name": "usage-ledger-dispatch"
+    },
+    {
+      "name": "usage-ledger-budget"
+    },
+    {
+      "name": "usage-ledger-authority"
+    },
+    {
+      "name": "usage-ledger-default-on"
     }
   ]
 }

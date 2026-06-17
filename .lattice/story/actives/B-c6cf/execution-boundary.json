@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c6cf",
+  "allowedCommands": [
+    "c8 --reporter=html --reporter=lcov",
+    "cat",
+    "git diff",
+    "grep",
+    "node -e *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm install c8",
+    "npm run test:all",
+    "npm run test:coverage",
+    "npm test",
+    "python3 -c *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".c8rc.json",
+    ".gitignore",
+    "CHANGELOG.md",
+    "docs/requirements/decisions/test-runner-consolidation-plan.md",
+    "package.json",
+    "packages/main/coverage/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B3 is purely additive. Allowed: c8 install, root package.json edits (test:coverage + devDep), .c8rc.json, .gitignore, CHANGELOG, decision doc DONE marker. Blocked: the runner source (B-6efb is frozen) and the manifest (B-d7c3 is frozen).",
+  "createdAt": "2026-06-17T13:31:16.107Z",
+  "updatedAt": "2026-06-17T13:31:16.107Z",
+  "_hash": "69d703adffb693898b10d70e0497b4d8d3f57c2945f326a1515916dd3172e307"
+}

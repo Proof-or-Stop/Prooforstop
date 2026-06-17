@@ -1,0 +1,41 @@
+{
+  "storyId": "B-c6cf",
+  "name": "test-runner-c8-coverage-b3",
+  "title": "B3 test-runner consolidation: c8 coverage instrumentation + test:coverage script",
+  "description": "Add c8 as devDependency and wire test:coverage npm script to run the full smoke battery under coverage, emitting HTML + LCOV reports. Final step of A0 test-runner-consolidation plan after B-6efb (runner) and B-d7c3 (manifest collapse).",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "P2",
+  "keywords": [
+    "test-runner",
+    "coverage",
+    "c8",
+    "npm-scripts"
+  ],
+  "createdAt": "2026-06-17T13:30:31.128Z",
+  "startedAt": "2026-06-17T13:30:31.128Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T13:30:31.129Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:34:52.641Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c6cf",
+    "branch": "story/B-c6cf",
+    "createdAt": "2026-06-17T13:34:51.443Z"
+  }
+}

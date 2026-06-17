@@ -361,8 +361,8 @@ default and every repaired step is re-run before the executor continues.
 Regression coverage:
 
 ```bash
-npm --prefix packages/main run test:autopilot-authority-smoke
-npm --prefix packages/main run test:autopilot-execute-smoke
+npm run test:legacy -- autopilot-authority
+npm run test:legacy -- autopilot-execute
 ```
 
 ### Planner (natural language → Story + plan)
@@ -574,13 +574,13 @@ The canonical and only active project config file is `lattice.config.json`. `lat
 
 Lattice runtime artifacts are a separate table: `packages/main/src/core/runtime-artifact-registry.ts` defines the ignore, materialHash, and repair semantics for runtime files such as `.koala/activity.jsonl`, legacy `docs/story/activity.jsonl`, `.koala/runtime/`, `.koala/traces/`, `.koala-serve.json`, and debug/browser logs. `lattice init` merges missing runtime ignore rules into the existing `.gitignore`; `lattice doctor` reports runtime artifacts already tracked by git, and on `--repair` runs `git rm --cached` only for paths the registry marks as repairable. These files do not make materialHash-backed verification evidence stale; `.koala/story/` is still process evidence and is not treated as a runtime artifact.
 
-Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and `test:flow-stability-smoke` must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
+Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and the `flow-stability-smoke` (run via `npm run test:legacy -- flow-stability`) must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
 
 The Dashboard and `session_brief` display lifecycle progress and terminal outcome separately: `Lifecycle DONE: N/M (...)` only indicates that the story has entered DONE; `DONE-success/default`, `DONE-blocked`, and `DONE-audit-only` come from `summary_set.outcomeKind`, and an old summary missing that field falls into the success/default compatibility bucket. Run the related regression with:
 
 ```bash
 npm --prefix packages/main run build
-npm --prefix packages/main run test:outcome-semantics-smoke
+npm run test:legacy -- outcome-semantics
 ```
 
 A story worktree created via `lattice story_advance ... INIT_CHECK` does not need a manual copy of `.lattice-codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.lattice-codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
@@ -685,7 +685,7 @@ Before releasing `0.3.5`, it is recommended to run:
 ```bash
 npm --prefix packages/main run build
 npm --prefix packages/lab run build
-npm run test:lattice-cli-migration-smoke
+npm run test:legacy -- lattice-cli-migration
 npm run test:global-lab-entrypoint
 ```
 

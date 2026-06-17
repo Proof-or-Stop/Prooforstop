@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Reuse B-40eb's canonical gate as-is; only wire it into CI, do not change its rules.",
+    "Narrow scope: only the 7 mkdtemp prefixes plus the package.json wiring.",
+    "Continuous enforcement: the gate must run on every lattice validate so regressions are caught.",
+    "Order matters: clean residuals first, then wire, so npm test never goes red mid-story."
+  ],
+  "drivers": [
+    "Make koala-residue a permanent gate before OSS so branding cannot silently re-enter.",
+    "Keep the gate green on main by cleaning the 7 known residuals.",
+    "Do not disturb B-40eb's documented exceptions or the completed full sweep."
+  ],
+  "options": [
+    {
+      "name": "A: wire via the package.json test chain",
+      "pros": [
+        "Simplest wiring; lattice validate already uses npm test as its fallback battery",
+        "Minimal moving parts; one script entry",
+        "Runs on every validate automatically"
+      ],
+      "cons": [
+        "Runs as part of the whole test suite rather than a first-class standalone validate plugin"
+      ]
+    },
+    {
+      "name": "B: configured validate.command / dedicated validate plugin",
+      "pros": [
+        "First-class validate integration"
+      ],
+      "cons": [
+        "Heavier, more moving parts, not needed for a single gate script"
+      ]
+    },
+    {
+      "name": "C: leave the gate unwired (manual only)",
+      "pros": [
+        "No change"
+      ],
+      "cons": [
+        "No continuous enforcement; regressions slip in, defeating the purpose of story 4"
+      ]
+    }
+  ],
+  "chosen": "A: wire via the package.json test chain",
+  "rationale": "The package.json test chain is the simplest continuous-gate wiring; lattice validate already runs npm test as its fallback battery, so adding test:koala-residue makes the gate run on every validate with minimal moving parts. Option B is heavier than a single gate script needs; option C provides no continuous enforcement and defeats the story's purpose.",
+  "preMortem": [
+    {
+      "scenario": "Renaming a koala-* mkdtemp prefix breaks a test that asserts on the temp-dir name",
+      "trigger": "the prefix is referenced or asserted elsewhere in the smoke",
+      "consequence": "the smoke test fails",
+      "mitigation": "mkdtemp prefixes are local temp-dir names, not assertion targets; run both smokes after the rename to confirm they still pass"
+    },
+    {
+      "scenario": "Wiring test:koala-residue makes npm test fail because residuals are not yet cleaned",
+      "trigger": "CHK-002 (wire) done before CHK-001 (clean) removes all hits",
+      "consequence": "npm test / lattice validate goes red",
+      "mitigation": "clean the 7 residuals first (CHK-001), confirm the gate PASSes, then wire (CHK-002); verify gate green before wiring"
+    },
+    {
+      "scenario": "The gate finds MORE residue on main than the known 7 (other stories landed new koala since the inventory)",
+      "trigger": "main advanced since B-40eb",
+      "consequence": "gate red after wiring, blocking unrelated stories' validate",
+      "mitigation": "re-run the gate on the current worktree base; clean any additional koala-* brand prefixes found (or document as exception); ensure PASS before wiring"
+    },
+    {
+      "scenario": "The gate's git-tracked/staged scope misses untracked new files, giving a false green in CI",
+      "trigger": "known gate limitation",
+      "consequence": "a new untracked koala file could pass CI until committed",
+      "mitigation": "document the git-tracked/staged scope limitation in the summary; acceptable for CI since untracked files are not committed; note as a possible follow-up enhancement"
+    }
+  ],
+  "timestamp": "2026-06-17T12:51:36.133Z"
+}

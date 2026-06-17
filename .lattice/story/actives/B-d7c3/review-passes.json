@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-d7c3:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: symbol set empty (pure docs/config diff, Fallback 1 applied). Step 2/3: compared 5 README command paragraphs + 1 CHANGELOG section. All checks passed: (a) 5 README test:legacy commands verified — smoke names exist in manifest (139 entries) and dist/tasks; shim body matches package.json exactly. (b) CHANGELOG counts verified: packages/main 151->12, root 114->43, manifest 5->139 — all confirmed against git show main + HEAD counts. (c) suffix-dropping convention correct — discoverSmokes strips -smoke.js suffix, selectSmokes does substring match on bare names; no manifest entry ends in -smoke, so passing name-with-smoke would silently fail. README flow-stability-smoke paragraph correctly documents both the concept name (with -smoke) and command (without). (d) AGENTS.md, CLAUDE.md, docs/ show 0 diff lines — no silent edits. No doc-code drift found.",
+      "createdAt": "2026-06-17T12:29:19.924Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-001",
+      "_hash": "6f46b9a5678d2879f36f21f5fa0e9bc602f3adc9b4d207e2ba5df77b555243d1"
+    },
+    {
+      "id": "B-d7c3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked all 5 changed deliverable files. smoke-manifest.json: 139 entries, zero duplicates, all fields schema-valid (name/tags/timeoutMs/skip), no -smoke suffix in names (runner appends it). test:legacy shim: correct --select passthrough, no shell escaping issues. Keep-list in packages/main (12 entries) and root (43 entries) matches CHANGELOG claims exactly. All 5 README test:legacy command names resolve to existing *-smoke.js files on disk. english-open-source-surface smoke is auto-discovered by discoverSmokes filesystem scan even without a manifest entry — not orphaned. CHANGELOG documents suffix-stripping behavior correctly. No dead code, type safety, or I/O isolation issues (no .ts/.mjs runtime changes in scope).",
+      "createdAt": "2026-06-17T12:39:49.560Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-004",
+      "_hash": "c5ef04341620063893cfa37d1fc2e0ae92d81ea5d20d5ca6ed02a4663cb525fe"
+    },
+    {
+      "id": "B-d7c3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-review: all three round-2 findings confirmed resolved. F-008: review-preflight.ts line 79 ENGLISH_ARTIFACTS_GATE_LABEL now carries `npm run test:legacy -- english-only-guards`; dist/handlers/review-preflight.js rebuilt to match. F-009: lattice-hosts.ts line 390 editor-host commands array now carries `npm run test:legacy -- lattice-cli-migration`; dist/core/lattice-hosts.js rebuilt to match. F-010: provider-codex-smoke.ts line 19 and reviewer-quorum-smoke.ts line 3 both now carry `Run: npm run test:legacy -- <smoke-name>` header comments. Broad concept-residue grep on all Run: header comments in src/: only two remain, both correct test:legacy form. The one `commandsRun: [npm test]` in review-loop-smoke.ts is fixture data inside a test evaluation object (not an operator Run: comment) — confirmed same classification as round 2. No stale per-smoke npm-script binding pattern residue found in active code paths. Zero new findings.",
+      "createdAt": "2026-06-17T12:55:40.328Z",
+      "reviewRound": "2026-06-17T12:53:08.201Z",
+      "reviewRunId": "B-d7c3:RR-006",
+      "_hash": "78cf5f6a3a7d14d8dda3a7fb0ddcea90270e3c7c76a973d09d8178b4bb42f183"
+    },
+    {
+      "id": "B-d7c3:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across all 32 intents (CHK-001:12, CHK-002:10, CHK-003:10). All evidence commands bind to their respective intent literals or equivalent checks; all underlying assertions confirmed by live execution. All 22 prior findings (F-001..F-022) are resolved. No blockers, no gaps, no waivers required.",
+      "createdAt": "2026-06-17T13:12:58.823Z",
+      "reviewRound": "2026-06-17T13:09:44.045Z",
+      "reviewRunId": "B-d7c3:RR-010",
+      "_hash": "4017c749edc31b30ec7a7b5114577f9f98ef9a14a6be8860d482ca1e3b44dd26"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-c6cf",
+  "checkedAt": "2026-06-17T13:31:22.842Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "1d0371d1224d8e3fc2b8b3b123b8b4d35226e9c64588ab907a658521fc73559e",
+  "executionBoundaryHash": "69d703adffb693898b10d70e0497b4d8d3f57c2945f326a1515916dd3172e307",
+  "freshnessHash": "5eb14682e9a8a0f5432639784b8ff0d95030037420410b0fcf952fd864eae86e",
+  "effectiveExcludedKeywords": [
+    "authoritative receipts (degraded 3x1 standing approval)",
+    "B4 UX polish (deferred)",
+    "CI workflows (deferred per A0)",
+    "existing test:* scripts (additive only)",
+    "packages/main/smoke-manifest.json (manifest — do NOT modify)",
+    "packages/main/src/tasks/run-all-smokes.ts (runner source — do NOT modify)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "authoritative receipts (degraded 3x1 standing approval)",
+      "source": "scopeBoundary.excluded",
+      "text": "authoritative receipts (degraded 3x1 standing approval)",
+      "excluded": true
+    },
+    {
+      "keyword": "B4 UX polish (deferred)",
+      "source": "scopeBoundary.excluded",
+      "text": "B4 UX polish (deferred)",
+      "excluded": true
+    },
+    {
+      "keyword": "CI workflows (deferred per A0)",
+      "source": "scopeBoundary.excluded",
+      "text": "CI workflows (deferred per A0)",
+      "excluded": true
+    },
+    {
+      "keyword": "existing test:* scripts (additive only)",
+      "source": "scopeBoundary.excluded",
+      "text": "existing test:* scripts (additive only)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/smoke-manifest.json (manifest — do NOT modify)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/smoke-manifest.json (manifest — do NOT modify)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/tasks/run-all-smokes.ts (runner source — do NOT modify)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/tasks/run-all-smokes.ts (runner source — do NOT modify)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "b29c4d4ed6dad2334222f15c18f7a62f062b3dd1e418bc800583af699b51be22"
+}

@@ -1,0 +1,27 @@
+{
+  "task": "Collapse 143 packages/main + 44 root test:X-smoke proxy scripts into smoke-manifest entries; add test:legacy compatibility shim; update tracked docs + CHANGELOG.",
+  "outcome": "After: packages/main test:* count drops from 151 to ~8; root test:* count drops from 114 to ~70; `npm test` exits 0 (existing main test script chain unchanged); `npm run test:all` runs every smoke + reports aggregate; `npm run test:legacy -- <name>` runs an individual smoke equivalently; tracked docs no longer reference removed test:X-smoke names in active prose; CHANGELOG documents removal + migration command.",
+  "facts": [
+    "143 packages/main test:X-smoke scripts directly invoke `node dist/tasks/<name>-smoke.js`.",
+    "44 root test:X-smoke scripts proxy via `npm --prefix packages/main run test:<name>-smoke`.",
+    "Keep-list (6 entries): test:e2e, test:run-all-smokes-smoke, test:main-write-lock-coverage, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke (the last 4 are referenced by root `test` main script).",
+    "Root `test` main script: `npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:e2e` — must keep ALL 5 named scripts' root proxies for this to resolve.",
+    "B-6efb runner discovers smokes by directory scan: removing the npm scripts does NOT make them invisible — `npm run test:all` still runs them."
+  ],
+  "constraints": [
+    "Do NOT modify any *-smoke.ts file.",
+    "Do NOT modify run-all-smokes.ts or run-all-smokes-smoke.ts.",
+    "Do NOT modify verify-*.mjs scripts (out of B2 scope).",
+    "Do NOT modify test:e2e or cli-e2e.",
+    "Do NOT edit decision documents.",
+    "build + e2e + test:all + test:run-all-smokes-smoke must stay green."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/smoke-manifest.json",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-17T12:16:56.740Z"
+}

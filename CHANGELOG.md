@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Test infrastructure
+
+- **B-d7c3** (B2 of test-runner consolidation): collapsed 139 per-smoke `test:*` npm scripts into `packages/main/smoke-manifest.json` entries. `packages/main/package.json` now exposes 12 `test:*` entries (was 151); root `package.json` exposes 43 (was 114).
+  - To run a single smoke after this change, use either:
+    - `npm run test:all -- --select <name>` (the B-6efb runner, supports `--tag`, `--jobs`, etc.), or
+    - `npm run test:legacy -- <name>` (compatibility shim added in this release; `<name>` is the smoke name **without** the trailing `-smoke` suffix — e.g. `test:legacy -- autopilot-authority`, not `autopilot-authority-smoke`).
+  - The root `npm test` chain (test:main-write-lock-coverage → test:review-convergence-smoke → test:review-incremental-context-smoke → test:docs-drift-smoke → test:e2e) is unchanged and remains the CI default.
+
 ## Koala 0.3.4-1 - 2026-06-02
 
 > Local release note: this is the npm-compatible package version for the user-requested local release number `0.3.4.1`.

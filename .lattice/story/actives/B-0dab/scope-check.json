@@ -1,0 +1,73 @@
+{
+  "storyId": "B-0dab",
+  "checkedAt": "2026-06-17T12:54:54.928Z",
+  "features": [
+    {
+      "feature": "Clean the 7 residual koala-* mkdtemp prefixes on main (english-only-guards-smoke.ts x5, review-incremental-context-smoke.ts x2)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire scripts/verify-koala-residue.mjs into the lattice validate battery via a test:koala-residue npm script in the package.json test chain",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Acceptance verification: gate PASS (0 unclassified), --self-test 5/5, npm test/build/test:e2e all green, lattice validate exercises the gate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No re-sweep of branding beyond the 7 mkdtemp residuals (B-40eb already did the full brand sweep)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description: No re-sweep: B-40eb already did the full brand sweep; this story only wires the gate and clears the temp-prefix residue",
+      "source": "description"
+    },
+    {
+      "feature": "Do not weaken or modify the gate classify rules",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "prompt scope boundary: weakening the gate classify rules is explicitly OUT of scope",
+      "source": "description"
+    },
+    {
+      "feature": "Do not touch documented exceptions in the verify-koala-residue gate allowlist",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "prompt scope boundary: touching documented exceptions is explicitly OUT of scope",
+      "source": "description"
+    },
+    {
+      "feature": "koala-to-lattice role naming execution plan CHK-005 verification suite (rg role-ID searches, npm test, lattice validate for B-ffa2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "this execution plan targets story B-ffa2; B-0dab only runs validation as its own acceptance test, not as B-ffa2 CHK-005 evidence",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "CLI engine English translation (Phase 0-4 and no-new-Chinese gate) from cli-engine-english-open-source-execution-plan.md",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "this execution plan targets story B-8448; out of scope for B-0dab",
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 3,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b53e2937db6ead5a2cb1332b7619ed2973ff4bfe7a8c78610b465a697ddca205",
+  "openQuestions": []
+}
