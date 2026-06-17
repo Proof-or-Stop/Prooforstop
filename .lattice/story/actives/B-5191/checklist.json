@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rewrite the three express-channel docstrings to reflect codex-adapter conditional evaluation and the correct gate count",
+      "context": "In packages/main/src/handlers/review-preflight.ts, fix three comments: (a) ~line 19-20 ('Express channel ... all CLI gates treated as pass'), (b) ~line 122 ('true if fast-channel story — all 4 gates forced-pass'), (c) ~line 224 ('Express channel → all four gates forced-pass (channel/concept/lint/docs-drift not actually run)'). Make them state accurately: express channel force-skips channel/concept/lint/docs-drift/english-artifacts, while the codex-adapter gate is still conditionally evaluated (when storyRequiresCodexEvidence is true) and can block REVIEW→TEST; and use the correct gate set/count (six gates, not four). This is the express branch at runReviewCliGates ~lines 232-282 — read it to phrase the comment precisely. COMMENTS ONLY: do not change any gate logic, the express branch, the codex-adapter evaluation, or any other code. Do not touch the english-artifacts storyDir wiring (finding #3, deferred). Verify the diff is comments-only (e.g. `git diff` shows only comment lines) and `npm --prefix packages/main run build` stays tsc exit 0.",
+      "userSees": "Reading review-preflight.ts, the express-channel comments correctly say the channel/concept/lint/docs-drift/english-artifacts gates are force-skipped while the codex-adapter gate is still conditionally evaluated and can block — no longer the misleading 'all gates forced-pass / four gates' wording; build is unchanged (tsc exit 0) and no runtime behavior changed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
