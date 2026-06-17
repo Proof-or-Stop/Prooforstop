@@ -289,12 +289,12 @@
           "intentRef": "CHK-004:happy:0",
           "kind": "browser_test",
           "verdict": "success",
-          "command": "Navigate from Overview to Lineage Graph via nav link, demo data loaded",
+          "command": "Click ll-trace-btn[data-ll-open=B-2d6c] from Active Stories page",
           "result": "pass",
-          "note": "Test: Overview page active → click Lineage Graph nav link → lineage page renders at 27% scale showing demo graph with all nodes. _fitPending+onVisible() mechanism fires correctly. Scale 27% is in 20-40% range. Screenshot confirmed.",
-          "headHash": "274060741962f91ea826629ee8f4a56e0b12ddd4",
+          "note": "From Active Stories page (story_list.stories where phase != DONE/DISCARDED), clicked button.ll-trace-btn[data-ll-open=B-2d6c] with title Open Lineage Graph for B-2d6c. Dashboard navigated to Lineage page (sidebar updated to Lineage · B-2d6c). B-2d6c graph rendered at 30% scale (auto-fit: in 20-40% range). Story detail panel also opened on right side showing story metadata. The ll-trace-btn calls LatticeLineage.open(storyId) and navigates to the lineage view — the onVisible/requestAnimationFrame auto-fit mechanism fires when the lineage panel becomes visible. Scale 30% confirmed in bottom controls: Fit | 1:1 | 30%.",
+          "headHash": "d63ca96ac0db552611441d3f8072aca396c51ba4",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
-          "timestamp": "2026-06-17T19:26:38.465Z"
+          "timestamp": "2026-06-17T19:42:34.467Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
