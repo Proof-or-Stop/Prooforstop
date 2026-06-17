@@ -40,7 +40,18 @@
       "userSees": "`npm run test:legacy -- gitroot-cwd-contract` runs and produces PASS output equivalent to the removed `npm run test:gitroot-cwd-contract`; tracked docs no longer reference removed test:X-smoke names in active prose; CHANGELOG documents the change.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "CHANGELOG.md",
+          "README.md",
+          "CLAUDE.md",
+          "AGENTS.md"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
