@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0dab",
+  "mode": "feature",
+  "allowed": [
+    "package.json: add a test:koala-residue script and include it in the test chain to wire the gate into the validate battery",
+    "packages/main/src/tasks/{english-only-guards-smoke,review-incremental-context-smoke}.ts: rename koala-* mkdtemp prefixes to lattice-*",
+    "scripts/verify-koala-residue.mjs: minor allowlist/exemption tweaks only if strictly needed to keep the gate green on main (no classify-rule weakening)"
+  ],
+  "excluded": [
+    "Do not weaken scripts/verify-koala-residue.mjs classify rules / allowlist",
+    "docs/requirements/decisions, CHANGELOG.md, docs/story history",
+    "Documented exceptions (process-lane names, .koala paths, salts, assertion fixtures) stay exactly as B-40eb defined",
+    "No re-sweep of branding: B-40eb already did the full sweep"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose to do story 4 now with English artifacts (2026-06-17)",
+  "createdAt": "2026-06-17T12:42:33.468Z",
+  "updatedAt": "2026-06-17T12:42:33.468Z",
+  "_hash": "f0ab323002c08a29043d6e2e2afa9a2995598e26a5f40db991c13d219fe504ce"
+}
