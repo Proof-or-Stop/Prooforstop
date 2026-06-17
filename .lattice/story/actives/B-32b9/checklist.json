@@ -58,6 +58,17 @@
           "headHash": "649b77f410c92c8a3c787bc62eec4cde939d9708",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:00:58.439Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Open demo story in Lineage Graph (mirrors a DONE story with all layers)",
+          "result": "pass",
+          "note": "Demo data loaded via LatticeLineage.demo() shows: root, input, plan-review-r1/r2, dispatch CHK-001/CHK-002, result, loop-reflection, rev-beh/rev-doc/rev-qual review nodes, finding nodes, gate, done — all 7 layer types present (root/input/plan/agent/review/gate/authority). No JS errors in console.",
+          "headHash": "036f7f855d0ac9e7f41c7f1cd07f66a79f02065c",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:00:59.046Z"
         }
       ]
     },
