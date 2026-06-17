@@ -114,6 +114,22 @@
         "scripts/verify-lab-reviewer-mvp.mjs",
         "packages/lab/src/core/config.ts"
       ]
+    },
+    {
+      "id": "B-40eb:F-008",
+      "desc": "mechanical-rename-miss: scripts/verify-product-reviewer.mjs:59 reads join(root, \".Codex\", \"agents\", \"product-reviewer.md\") from the actual repo root, but this file was git-renamed to .lattice-codex/agents/product-reviewer.md — assert(existsSync(path)) will fail at runtime",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:56.033Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "92ea2821debd2ed04e0012471791c31a1f4cb76792a8e3801bbf215d03c00047",
+      "files": [
+        "scripts/verify-product-reviewer.mjs"
+      ]
     }
   ]
 }
