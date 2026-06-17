@@ -6,7 +6,53 @@
       "context": "For each smoke that fails on a fresh main checkout under both `npm run test:all` (parallel) and `node packages/main/dist/tasks/<name>-smoke.js` (single), update the offending assertion to match current production behavior. Preserve assertion INTENT (what the test is checking) but match TEXT/REGEX/ENUM to current output. DO NOT modify production source. If a failure is rooted in production-side regression (test was correct, prod drifted in a way that should be reverted), file finding_add with severity=high and leave the smoke as-is for the follow-up story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm run test:all` exits 0 with 162/162 passed in <N>s. `grep -cE '^FAIL |^TIMEOUT ' /tmp/<log>` outputs 0.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "failing smokes count drops to 0 after fixes -> `npm run test:all > /tmp/b2d6c-after.log 2>&1; grep -cE \"^FAIL |^TIMEOUT \" /tmp/b2d6c-after.log` outputs 0; WHY: the literal end-state metric of the story",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "test:all exits 0 -> `npm run test:all > /dev/null 2>&1; echo $?` outputs 0; WHY: top-level acceptance",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "3 consecutive parallel runs all green (no flake) -> `for i in 1 2 3; do npm run test:all > /tmp/b2d6c-flake-$i.log 2>&1 || echo FAIL_$i; done; grep -c FAIL_ /tmp/b2d6c-out.log 2>/dev/null || echo 0` outputs 0 (or no FAIL_N in any log); WHY: parallel-race mitigation per pre-mortem D4",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no production source under packages/main/src/{handlers,core,cli-engine.ts,cli-prompts.ts} touched -> `git diff main...HEAD --name-only -- packages/main/src/handlers packages/main/src/core packages/main/src/cli-engine.ts packages/main/src/cli-prompts.ts | wc -l` outputs 0; WHY: scope-boundary forbids production edits",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: runner + manifest core not touched (lattice-baseline timeoutMs is the only allowed manifest edit per CHK-002) -> `git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts packages/main/src/tasks/cli-e2e.ts | wc -l` outputs 0; WHY: B-6efb + B-d7c3 frozen",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: scripts/verify-koala-residue.mjs untouched (B-292d frozen) -> `git diff main...HEAD -- scripts/verify-koala-residue.mjs | wc -l` outputs 0; WHY: B-292d preflight gate script frozen",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

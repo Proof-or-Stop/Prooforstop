@@ -1,0 +1,51 @@
+{
+  "task": "Realign assertion text/regex/enum across the 24 currently-failing smokes on main so npm run test:all (parallel) and npm run test:coverage (serial) both exit 0. Production code is OFF LIMITS; production-rooted regressions are filed as findings + split to follow-up.",
+  "outcome": "Developer runs npm run test:all from project root; final line reads '162/162 passed in <N>s' and exit code 0. Developer runs npm run test:coverage; final line reads '162/162 passed' and exit code 0. CHANGELOG Unreleased entry documents the fix and explicitly notes that B-c6cf's CHK-002:happy:2 waiver is retired. No production code (handlers/, core/, cli-engine.ts, cli-prompts.ts) changed.",
+  "facts": [
+    "2026-06-17 baseline (this worktree): npm run test:all = 138 PASS / 18 FAIL / 6 TIMEOUT",
+    "24 distinct failing smoke names listed in test-evidence",
+    "4-smoke spot check (autopilot-authority/cli-argument-ergonomics/done-preflight/story-dedup) confirmed pattern is STALE TEST ASSERTIONS: expected literal/regex/enum mismatched current production output",
+    "lattice-baseline is a TIMEOUT (60s default exceeded), root cause unknown until DEV",
+    "Test files are at packages/main/src/tasks/*-smoke.ts and scripts/verify-*.mjs",
+    "Production source under packages/main/src/{handlers,core,cli-*} is OFF LIMITS"
+  ],
+  "constraints": [
+    "No production code changes — handlers/, core/, cli-engine.ts, cli-prompts.ts blocked",
+    "scripts/verify-koala-residue.mjs NEUTRAL_TOKEN_PATTERNS frozen (B-292d byte-frozen except gate self-identifiers)",
+    "run-all-smokes.ts + run-all-smokes-smoke.ts + cli-e2e.ts frozen",
+    "If smoke failure is production-rooted regression: file finding + leave smoke as-is + split to follow-up"
+  ],
+  "unknowns": [
+    "lattice-baseline TIMEOUT root cause: slow vs deadlock vs parallel-race (decided in DEV)",
+    "Of the 24 failures, how many are stale assertions vs how many are real production regressions (DEV will sort)"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/autopilot-authority-smoke.ts",
+    "packages/main/src/tasks/autopilot-run-smoke.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+    "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/tasks/convergence-discarded-smoke.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/init-check-fallback-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+    "packages/main/src/tasks/planner-unattended-smoke.ts",
+    "packages/main/src/tasks/review-loop-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+    "packages/main/src/tasks/story-dedup-smoke.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "packages/main/smoke-manifest.json (lattice-baseline timeoutMs only)",
+    "CHANGELOG.md (Unreleased entry)"
+  ],
+  "timestamp": "2026-06-17T18:18:36.791Z"
+}
