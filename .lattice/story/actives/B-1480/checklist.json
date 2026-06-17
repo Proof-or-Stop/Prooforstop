@@ -136,7 +136,70 @@
       "userSees": "The doc has a determinism-guardrails section enumerating all three guardrails and a back-compat note (optional dismissReasonType, flat underscore commands).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a determinism-guardrails section header -> grep -i finds determinism.guardrail heading; WHY: verifies the section exists",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Guardrail 1: doc states audit-only finding fields (signatureTag, resolutionType, dismissReasonType, evidenceStrength) are excluded from gate reads -> grep finds audit-only fields excluded from gates; WHY: first guardrail completeness",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Guardrail 2: doc states finding-signals read via store.readFindings not raw findings.json -> grep finds store.readFindings and findings.json exclusion; WHY: second guardrail completeness",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Guardrail 3: doc states hints excluded from promptHash domain -> grep finds promptHash and hints exclusion; WHY: third guardrail completeness",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains back-compat note stating dismissReasonType is optional -> grep finds dismissReasonType.*optional; WHY: back-compat requirement",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains back-compat note about flat underscore command names -> grep finds underscore command names or flat.*command; WHY: back-compat requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "store.readFindings actually exists as a method in the codebase -> grep -r readFindings packages/main/src/ finds at least one match; WHY: code-grounded claim must reference real API",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "promptHash is a real concept in the codebase -> grep -r promptHash packages/main/src/ finds at least one match; WHY: guardrail references must be grounded in real code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All three guardrails are enumerated (numbered or bulleted list of exactly three) -> reviewer confirms three distinct guardrail items; WHY: prevents missing or duplicate guardrails",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc does not state that audit-only fields ARE used in gates (no contradictory language) -> grep for audit.*field.*gate.*use or gate.*read.*signatureTag finds no affirmative gate-use claims; WHY: guardrail 1 must not be contradicted",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does not claim hints affect determinism or promptHash (no contradictory language) -> reviewer confirms no statement says hints are included in hash computation; WHY: guardrail 3 must not be undermined",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
