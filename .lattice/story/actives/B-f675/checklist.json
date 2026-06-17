@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-incremental-context.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (a): returning reviewer -> isFirstPass=false, scopeChanged=true, changedFiles since last-pass headHash, priorVerdict present",
+          "headHash": "8330f4ae9654013510261e9243fb6ff8a774d95d",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:21:56.322Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
