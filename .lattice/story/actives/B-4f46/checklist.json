@@ -290,10 +290,10 @@
           "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
           "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
           "result": "pass",
-          "note": "Smoke proves finding_add/resolve/dismiss capture+persist the optional fields, enum validation rejects invalid, and field-less calls behave unchanged (back-compat).",
-          "headHash": "f88bdfc16d6a69d36e62b98356b1bf6b05e1c3a4",
-          "materialHash": "bd502cd0513be97b281d621c8953f216933554e85ffa17ab809dd3bd2f713065",
-          "timestamp": "2026-06-17T12:29:55.509Z"
+          "note": "Smoke check 'CHK-002:adversarial:2 empty-string enum rejected': finding_resolve with resolveEvidenceStrength='' throws the enum validation error.",
+          "headHash": "52ff92c1ccd8ac4850b3281b356d413f42003685",
+          "materialHash": "fd53b616f44c86140fd6d813e11163d3c6e75d9ea7e178a9fcc8598369f228a2",
+          "timestamp": "2026-06-17T12:39:53.191Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
