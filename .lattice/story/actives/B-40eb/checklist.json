@@ -411,12 +411,12 @@
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "command": "remove managed-assets from allowlist && node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "守门测试 PASS;删 NEUTRAL_TOKEN_PATTERN 会使该 smoke fail,证明 gate 有效",
-          "headHash": "c42c3ef1c814f877acd8c7be1baf681d9f6c8f96",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:59.740Z"
+          "note": "实跑 mutation:从 allowlist 删 managed-assets.ts→gate exit 1 点名 16 处→恢复→exit 0;证明守护非 vacuous",
+          "headHash": "9422acb71b504a982efcb5f1556cd6f176df83cc",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:28.455Z"
         }
       ]
     },
