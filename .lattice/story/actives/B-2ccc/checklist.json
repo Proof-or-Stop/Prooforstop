@@ -117,7 +117,51 @@
       "userSees": "npm run test:experience-layer-digest-extract exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing decision-doc-related smokes still pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:experience-layer-digest-extract exits 0 and prints 'smoke passed'; WHY: the primary success gate for the smoke test",
+            "type": "cli"
+          },
+          {
+            "desc": "tasks/experience-layer-digest-extract-smoke.ts exists and is committed; WHY: the smoke must be a committed verifier, not ad hoc",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke verifier output shows TOTAL N | PASS N | FAIL 0 with N > 0; WHY: proves assertions actually ran (non-vacuous) and all passed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing decision-doc smoke (npm run test:decision-doc or equivalent) still passes after the refactor; WHY: regression guard -- the extraction must not break the original handler's test suite",
+            "type": "cli"
+          },
+          {
+            "desc": "tsc --noEmit (or npm run build) succeeds with zero errors; WHY: type-level regression guard -- the refactor must not introduce TS compilation errors",
+            "type": "cli"
+          },
+          {
+            "desc": "package.json contains the test:experience-layer-digest-extract script entry; WHY: the npm script wiring is part of the deliverable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke test is non-vacuous: it contains at least one assertion that would fail if digest output changed (e.g., pinned expected hash compared to actual); WHY: a smoke that always passes regardless of implementation is useless -- must bind to real digest output",
+            "type": "cli"
+          },
+          {
+            "desc": "If core/digest.ts digestCanonicalJson were mutated to return a constant, the smoke would FAIL; WHY: mutation-proven non-vacuousness -- the test must actually detect implementation breakage",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers all three public functions (canonicalJson, digestCanonicalJson, digestText) with at least one assertion each; WHY: partial coverage would miss breakage in untested functions",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
