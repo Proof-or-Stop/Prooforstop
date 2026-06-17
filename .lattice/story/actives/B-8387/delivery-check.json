@@ -1,0 +1,102 @@
+{
+  "storyId": "B-8387",
+  "checkedAt": "2026-06-17T15:29:58.768Z",
+  "reviewRound": "2026-06-17T15:22:26.306Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/cli-engine.ts#playbook commands",
+      "promise": "playbook_propose command registered with Zod schema (finding, optional storyId)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli-engine.ts diff adds playbook_propose with z.string() finding field and optional storyId; registry.ts registers createPlaybookHandlers(ctx); handler implemented in handlers/playbook.ts"
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts#playbook commands",
+      "promise": "playbook_diff command registered as read-only render (no mutation)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli-engine.ts diff adds playbook_diff with z.string() proposalId; handler reads proposal and renders candidate without writing; smoke test: diff renders the candidate and does NOT mutate proposals/ => PASS"
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts#playbook commands",
+      "promise": "playbook_approve fails closed on stale/missing expectedProposalDigest; writes candidate (never active)",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke test",
+      "evidence": "cli-engine.ts registers playbook_approve with expectedProposalDigest field; handler throws on missing or mismatched digest; candidateFromProposal sets status=candidate; smoke: fail-closed wrong digest PASS, fail-closed missing digest PASS, correct digest yields candidate PASS"
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts#playbook commands",
+      "promise": "playbook_reject command discards staged proposal",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke test",
+      "evidence": "cli-engine.ts registers playbook_reject; handler calls deleteProposal; smoke: reject removes a fresh proposal PASS; clear error on non-existent id PASS"
+    },
+    {
+      "docPath": "packages/main/src/handlers/playbook.ts#guardrail comment",
+      "promise": "playbook.ts never files a finding (no finding_add or advisory import or call)",
+      "status": "verified",
+      "verifiedBy": "grep + smoke test",
+      "evidence": "grep -niE finding_add|advisory packages/main/src/handlers/playbook.ts returned empty; smoke static-grep check passes"
+    },
+    {
+      "docPath": "packages/main/src/core/learning-store.ts#B-8387 section",
+      "promise": "Playbook store: readPlaybooks, writePlaybooks, appendPlaybook, readProposal, listProposals, writeProposal, deleteProposal with atomic temp+rename writes; computePlaybookProposalDigest added",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke test",
+      "evidence": "learning-store.ts diff adds all 7 store functions using atomicWriteJson (temp+rename) and computePlaybookProposalDigest; import-fence smoke check passes (only node: builtins, ./digest.js, ./experience-layer-types.js)"
+    },
+    {
+      "docPath": "packages/main/src/core/experience-layer-types.ts#B-8387 section",
+      "promise": "Playbook, PlaybookProposal, PlaybookLineage, PlaybookTrigger, PlaybookStatus, PlaybookUsage types added as leaf types (no outward imports)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "experience-layer-types.ts diff adds all 6 interfaces and types; file has no outward imports; smoke import-fence check passes"
+    },
+    {
+      "docPath": "packages/main/src/core/command-policy.ts#B-8387 entries",
+      "promise": "command-policy entries for all 4 playbook commands with correct ownershipClass and allowedPhases:all",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "command-policy.ts diff adds playbook_propose (mainSharedMutating), playbook_diff (readOnly), playbook_approve (mainSharedMutating), playbook_reject (mainSharedMutating); all allowedPhases:all"
+    },
+    {
+      "docPath": "packages/main/src/core/config.ts#DEFAULT_PHASE_TOOLS",
+      "promise": "playbook_* wildcard added to DEFAULT_PHASE_TOOLS so all phases permit the 4 commands",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "config.ts diff adds playbook_* to the all-phases tool set with comment noting allowedPhases:all in command-policy"
+    },
+    {
+      "docPath": "packages/main/src/handlers/playbook.ts#nextProposalId",
+      "promise": "Proposal IDs are globally unique: max taken across BOTH proposals/ directory AND existing playbooks.json entries (never resets after approve cycle empties proposals/)",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke test",
+      "evidence": "nextProposalId() folds both listProposals and readPlaybooks into max; smoke CHK-001:edge:2 unique ids across cycles PASS"
+    },
+    {
+      "docPath": "packages/main/src/core/learning-store.ts#safeProposalId",
+      "promise": "Path-traversal protection on proposalId (rejects /, backslash, .., NUL characters)",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke test",
+      "evidence": "safeProposalId() throws on /, backslash, NUL, ., .. and substring ..; smoke CHK-001:edge:1 path-traversal proposalId rejected PASS"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "experience-layer-playbook-smoke TOTAL 23 | PASS 23 | FAIL 0. Covers: propose stages proposal with lineage+digest (happy); diff read-only no mutation (happy); approve correct digest -> candidate lineage carried proposal deleted (happy); reject removes proposal (happy); approve wrong digest rejected (fail-closed); approve missing digest rejected (fail-closed); approve/diff/reject non-existent id clear error (edge); propose from non-existent finding clear error (edge); propose->diff->approve->reject leaves findings.json byte-identical (guardrail); static grep no finding_add/advisory (guardrail); digest stable across re-read excludes itself; import-fence learning-store (import); import-fence playbook.ts (import); static scan non-vacuous; persistence only under .lattice/learning/; unique ids across approve cycles (CHK-001:edge:2); path-traversal rejected (CHK-001:edge:1); concurrent atomic writes (CHK-001:adversarial:1); no-regression finding-signals/enums/hint/digest/dd all smoke passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "experience-layer-finding-signals-smoke TOTAL 21 | PASS 21 | FAIL 0 (no regression from playbook changes). experience-layer-digest-extract-smoke TOTAL 22 | PASS 22 | FAIL 0 (no regression). verifier verify-b-8387.mjs TOTAL 38 | PASS 38 | FAIL 0 (buildOk=true playbookSmoke=true noRegression=true guardrailNoFinding=true learningStoreIso=true cmdsRegistered=true pkgScript=true; regression sig=ok enum=ok hint=ok digest=ok dd=ok)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 11 documentation promises independently verified from diff and smoke output. Four commands (propose/diff/approve/reject) fully implemented with handler, registry, cli-engine schema, command-policy, and config entries. Guardrail confirmed: playbook.ts contains no finding_add or advisory reference (grep empty + static smoke check). Fail-closed approve verified via wrong-digest and missing-digest cases. Global-unique ID invariant verified via cross-cycle test. Path-traversal protection verified. 23/23 playbook smoke, 21/21 finding-signals, 22/22 digest-extract, and 38/38 verifier all pass. No unresolved TODOs in production code."
+  },
+  "_hash": "9bc9845c05d6eaeb55e64dd02640957c342277a11124a48ca4ec9b18a859139b"
+}
