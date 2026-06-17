@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ed12",
+  "allowedCommands": [
+    "lattice validate*",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run test:all"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+    "packages/main/src/tasks/convergence-discarded-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/init-check-fallback-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+    "packages/main/src/tasks/review-loop-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+    "packages/main/src/tasks/story-dedup-smoke.ts",
+    "packages/main/src/tasks/usage-ledger-estimate-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Only the 15 stale smoke test files are writable. Smokes import production modules (../core/*, ../handlers/*, ../cli-engine.js) READ-ONLY; editing any production (non-smoke) file means a real bug to ESCALATE, not a stale test to fix.",
+  "createdAt": "2026-06-17T19:50:40.232Z",
+  "updatedAt": "2026-06-17T19:50:40.232Z",
+  "_hash": "a9c31782d826954a2bab94682e2554f3c70633364a2f70808f54d57244e30a61"
+}
