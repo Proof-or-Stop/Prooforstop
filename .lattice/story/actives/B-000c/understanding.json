@@ -1,0 +1,30 @@
+{
+  "task": "Implement the Phase 1a finding-signals derived-cache slice: a zero-outward-import module set that derives signals from existing findings (via store.readFindings) and registers the cache as materialHash-excluded.",
+  "outcome": "Running 'npm --prefix packages/main run test:experience-layer-finding-signals' prints 'smoke passed'. The smoke: seeds findings through the store, calls the derivation, asserts finding-signals.json contains aggregated signals with correct signalScore/support, asserts currentMaterialHash() is identical before and after the cache write (derived cache is gate-excluded), and asserts the module set has zero imports outside core/ leaf+sibling paths. Build (tsc) is clean. The committed verifier prints TOTAL N | PASS N | FAIL 0.",
+  "facts": [
+    "store.readFindings (packages/main/src/core/store.ts:359) is the stable accessor for findings; finding-signals must use it, never JSON.parse of findings.json",
+    "runtime-artifact-registry.ts already supports materialHash:exclude/volatile entries; the derived cache + learning log follow that pattern",
+    "currentMaterialHash (packages/main/src/core/evidence-freshness.ts) hashes non-excluded tracked files; excluded paths do not affect it",
+    "usage-ledger/ is the zero-cross-module-import precedent to mirror"
+  ],
+  "constraints": [
+    "Zero outward imports from the module set into existing core (only node:, ./, ../ within the module)",
+    "No CLI commands, no reviewer-prompt injection, no gate logic, no playbooks in this slice",
+    "Findings read only through store.readFindings",
+    "No Co-Authored-By trailer"
+  ],
+  "unknowns": [
+    "None blocking; signalScore formula and localSignature shape are fixed by the execution plan doc"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+    "packages/main/package.json",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "timestamp": "2026-06-17T11:25:27.076Z"
+}

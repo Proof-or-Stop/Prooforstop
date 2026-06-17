@@ -1,0 +1,92 @@
+{
+  "storyId": "B-000c",
+  "checkedAt": "2026-06-17T12:02:38.424Z",
+  "reviewRound": "2026-06-17T11:55:47.885Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#changes",
+      "promise": "Adds core/experience-layer-types.ts as an import-free leaf module defining FindingSignalCounts, FindingSignal, FindingSignalsCache, SignalSourceFinding",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "File present in diff at packages/main/src/core/experience-layer-types.ts (94 lines). Zero import statements confirmed by grep. All four types exported."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#changes",
+      "promise": "Adds core/learning-store.ts (atomic read/write of .lattice/learning/finding-signals.json)",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "File present at packages/main/src/core/learning-store.ts (103 lines). Implements writeFindingSignals via temp-file + rename (atomic). readFindingSignals returns null on missing/malformed. Only imports node:fs, node:path, ./experience-layer-types.js."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#changes",
+      "promise": "Adds core/finding-signals.ts with pure deriveFindingSignals + deriveFindingSignalsFromStore adapter that reads via store.readFindings (never raw findings.json)",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "File at packages/main/src/core/finding-signals.ts (257 lines). deriveFindingSignals is pure (no Date.now, no fs). deriveFindingSignalsFromStore calls store.readFindings(id) only. Only extra outward import is ./store.js (the read port)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#changes",
+      "promise": "Registers .lattice/learning/* as materialHash:exclude/volatile in runtime-artifact-registry",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Entry id=experience-layer-learning-cache at lines 130-149 of runtime-artifact-registry.ts: materialHash:exclude, volatile:true, repairableTrackedArtifact:true, with exact matchers for finding-signals.json and learning-log.jsonl plus prefix matcher for .lattice/learning/."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#usage",
+      "promise": "npm --prefix packages/main run test:experience-layer-finding-signals script added to package.json pointing to the smoke task",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Script test:experience-layer-finding-signals at line 27 of packages/main/package.json: node dist/tasks/experience-layer-finding-signals-smoke.js."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#expectedOutcome",
+      "promise": "npm --prefix packages/main run test:experience-layer-finding-signals prints smoke passed (TOTAL 21 | PASS 21 | FAIL 0)",
+      "status": "verified",
+      "verifiedBy": "real machine run",
+      "evidence": "Ran live in this session: output was TOTAL 21 | PASS 21 | FAIL 0 / smoke passed. All 21 checks individually named and PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#expectedOutcome",
+      "promise": "Committed verifier verify-b-000c.mjs prints TOTAL 30 | PASS 30 | FAIL 0 with all booleans true",
+      "status": "verified",
+      "verifiedBy": "real machine run",
+      "evidence": "Ran node .lattice/story/actives/B-000c/evidence/verify-b-000c.mjs: TOTAL 30 | PASS 30 | FAIL 0 (buildOk=true smokePass=true filesExist=true registryEntry=true pkgScript=true importIso=true leafClean=true)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#expectedOutcome",
+      "promise": "Writing finding-signals.json leaves currentMaterialHash unchanged (gate-safety)",
+      "status": "verified",
+      "verifiedBy": "smoke test assertion",
+      "evidence": "Smoke checks 15 and 16 (gate-safety: currentMaterialHash identical before/after cache write/overwrite) both PASS. Verifier registryEntry=true confirms exclude registration."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-000c/summary.json#limitations",
+      "promise": "Limitations honestly disclosed: signalScore conservatively 0 without Phase 1b enums; deriveFindingSignalsFromStore takes explicit projectRoot",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "finding-signals.ts: Phase-1b fields absent => positive=0, negative=0, signalScore=0. deriveFindingSignalsFromStore takes opts.projectRoot explicitly. Summary limitations section matches code behavior precisely."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Smoke 21/21 PASS + verifier 30/30 PASS. Covers: pure deriveFindingSignals (same-sig fixed+false_positive signalScore 1/3; partially_mitigated 0.5; zero findings empty; single fixed 0.5; signatureTag absent coarse grouping; malformed no NaN; fileKind extension/dir/unknown), learning-store (ensureLearningDir, write+read round-trip, byte-identical re-write, null on missing/malformed), adapter (reads via store port + persists; empty store no throw), gate-safety (materialHash unchanged on create/overwrite/delete/log-append), registry entries exclude/volatile/repairable, static import isolation (no ../), concurrent write no truncation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "finding-signals.ts pure/adapter split verified by static import check and smoke adapter tests. deriveFindingSignals pure (smoke checks 1-7, 20-21), deriveFindingSignalsFromStore adapter (smoke checks 13-14). Verifier importIso=true. All 30 verifier checks pass."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Registry entry experience-layer-learning-cache confirmed in diff with materialHash:exclude, volatile:true, repairableTrackedArtifact:true. Smoke check 18 (registry: exclude/volatile/repairable) PASS. Verifier registryEntry=true."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 documented promises independently verified from diff and live runs. Smoke TOTAL 21 | PASS 21; verifier TOTAL 30 | PASS 30. No outward imports, no TODOs, no gate/CLI changes. Limitations (inert signalScore=0 until Phase 1b; explicit projectRoot) accurately disclosed in summary and reflected in code. Zero delivery gaps found."
+  },
+  "_hash": "5102b57a3f2508a48cf5ed115bac5600c3333ece6512d0743c6794bd0b534b6a"
+}
