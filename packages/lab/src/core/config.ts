@@ -68,7 +68,7 @@ export function buildExperimentConfig(args: {
   const name = args.name || `Optimize ${target.id}`;
 
   return {
-    $schema: 'koala-lab/experiment.v1',
+    $schema: 'lattice-lab/experiment.v1',
     id,
     name,
     status: 'draft',

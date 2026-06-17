@@ -102,7 +102,6 @@ const NEUTRAL_TOKEN_PATTERNS = [
   /\.koala[\w./*-]*/gi, // any .koala runtime path incl .koala-tmp-*, .koala-serve.json
   /koala\.[a-z_]+\.v\d+/gi, // wire schemaVersion koala.X.vN
   /@koala-agent\/[\w-]+/g, // legacy npm scope
-  /koala-lab\/experiment[\w.]*/g, // lab schema id
   /packages\/koala\//g,
   /docs\/koala\//g,
   /\/work\/koala\//g,
