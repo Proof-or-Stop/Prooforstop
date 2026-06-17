@@ -1,0 +1,80 @@
+{
+  "storyId": "B-c6cf",
+  "checkedAt": "2026-06-17T13:41:59.965Z",
+  "features": [
+    {
+      "feature": "Add c8 as devDependency at root package.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Create .c8rc.json configuring reporters (HTML + LCOV), reports-dir packages/main/coverage, include/exclude settings",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Update .gitignore for packages/main/coverage/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Add test:coverage npm script wrapping run-all-smokes.js with c8 (single-process --jobs 1)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "npm run test:coverage runs every smoke under c8 and exits 0; HTML report at packages/main/coverage/index.html; LCOV at packages/main/coverage/lcov.info",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Document the coverage report in docs/ (separate docs/ artifact, not CHANGELOG)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry for c8 and test:coverage",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Mark B3 DONE (with story ID B-c6cf) in test-runner-consolidation-plan.md",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "CI integration (optional, deferred to separate story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "spec line 185-186: CI integration is optional (deferred to a separate story if/when CI is wired)",
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 6,
+    "excluded": 1,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a8abd2a44e4046c5a3d3a8901c27675bcffa888d199405e64d185df8a327fb72",
+  "openQuestions": []
+}
