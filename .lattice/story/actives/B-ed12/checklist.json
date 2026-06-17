@@ -72,9 +72,9 @@
       "title": "Fix behavior/model-drift smokes: worktree-repair (B-097f), story-dedup (slug casing), convergence-discarded (message)",
       "context": "worktree-repair: assertMixedCanonicalLegacyGlobalLinksAreRepaired gets 'skipped' because B-097f made agent prompts host-neutral single-source (project-local link repair is now a no-op). Confirm 'skipped' is the correct post-B-097f behavior, then update the assertion to expect it. story-dedup: expects 'Japanese-task' but gets 'japanese-task' — confirm the current slug normalization is intended, update the expectation. convergence-discarded: the 'All stories complete' convergence message drifted — find the current message/behavior and update. Confirm production correctness per smoke FIRST; if any reveals a real bug, escalate instead of weakening. Each passes standalone after.",
       "userSees": "worktree-repair, story-dedup, convergence-discarded each PASS standalone, asserting the current correct behavior (post-B-097f skip; normalized slug; current convergence message), with no production change.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T20:37:38.409Z",
       "verificationIntent": {
         "happy": [
           {
