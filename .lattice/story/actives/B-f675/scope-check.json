@@ -1,0 +1,143 @@
+{
+  "storyId": "B-f675",
+  "checkedAt": "2026-06-17T00:57:44.887Z",
+  "features": [
+    {
+      "feature": "Read-only incremental-context helper: for (storyId, reviewer role) returns prior verdict + bound headHash + diff since last-pass headHash + scopeChanged boolean",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "First-pass fallback: no prior pass -> full diff main...HEAD, isFirstPass=true, scopeChanged=true",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename-aware diff: uses --name-status -M via changedFilesBetween (reuses evidence-freshness helper)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Helper is strictly read-only: no writes, no gate or store side effects",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "lattice review_incremental_context CLI: --storyId + --role flags, English-only output (prior verdict, scopeChanged, incremental diff)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Round>=2 REVIEW-entry advisory: lists which active reviewers scope changed + states round-2+ gate needs >=1 valid receipt + operator MAY re-run only scope-changed reviewers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Round 1 REVIEW entry shows NO targeted re-review advisory (only round>=2)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Advisory is append-only inside try/catch: never throws, never alters transition result, worded as operator choice (framework skips nobody)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "canPassReviewGuard semantics UNCHANGED: gate behavior identical with and without the helper",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke/tests: returning reviewer gets since-last-pass incremental context; first-timer gets full diff; rename case counts as changed",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke asserts gate-unchanged: Round 1 blocks unless all opt-in have valid current-round verdicts + quorum; Round 2+ passes on >=1 valid receipt; invalid binding blocks all rounds; blocking finding blocks",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CLAUDE.md REVIEW section updated with accurate gate behavior (invalid-binding blocks all rounds; Round 1 all opt-in + quorum; Round 2+ >=1 receipt + no blocking) plus the incremental-context CLI and round-2+ targeted re-review guidance",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "All artifacts and emitted strings are English-only",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "story-lifecycle.md Round 2+ gate rule (>=1 valid current-round receipt; stale prior-round verdicts excluded) is surfaced as advisory, not changed",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "story-lifecycle.md gate rule: REVIEW evidence bound to reviewer run via review_run_start (headHash/materialHash); finding_add/review_pass_set must carry reviewRunId",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Scope boundary: this story only reads reviewer run headHash for incremental diff computation; it does not modify review_run_start, finding_add, review_pass_set, or the review run binding protocol",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "three-round-two-host escalation: first REVIEW round >=2 countable problems triggers 3x2 requirement",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Scope boundary explicitly excludes any gate/binding change; the 3x2 escalation path and its DONE gate are unrelated to this story which only adds an informational CLI and advisory",
+      "source": "decisions:decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "lifecycle-gate-receipt-consumption.md: degraded single-host fallback and review_escalation_fallback_set",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Scope boundary excludes all gate/binding changes; the escalation fallback path is not touched",
+      "source": "decisions:decisions/lifecycle-gate-receipt-consumption.md"
+    },
+    {
+      "feature": "B-cfdd convergence-stall advisory",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out-of-scope in description: the convergence-stall advisory (B-cfdd, done) is excluded",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 13,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0e2bd2704ee513ecf5f26937edf930bbd6382c3ec4d8c8a631dd6305575e8c22",
+  "openQuestions": []
+}

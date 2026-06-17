@@ -318,6 +318,7 @@ export const COMMAND_POLICIES = {
   plan_set: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: ['PLAN'], destructiveRisk: 'metadata-write', reason: 'Implementation plan is set during PLAN.' },
   plan_get: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only implementation plan inspection.' },
   reviewer_list: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only active reviewer calculation.' },
+  review_incremental_context: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only incremental review context (prior verdict + since-last-pass diff + scopeChanged); no writes, gate untouched.' },
   workflow_set: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Workflow profile configuration is shared project metadata, not single-story authoring state.' },
   workflow_show: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only workflow profile inspection.' },
   workflow_explain: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only effective workflow explanation.' },

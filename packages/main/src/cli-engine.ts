@@ -1878,6 +1878,13 @@ Behavior:
     forceReviewer: z.string().optional().describe('Comma-separated built-in REVIEW reviewer lane or short name to force-add; writes story.events audit (reviewer_forced).'),
   }},
 
+  // B-f675 CHK-002: read-only incremental review context (prior verdict + since-last-pass diff + scopeChanged).
+  { name: 'review_incremental_context', description: 'Read-only: a reviewer role\'s prior verdict, bound headHash, scopeChanged, and the material files changed since its last pass', schema: {
+    storyId: z.string().describe('Story ID'),
+    role: z.string().describe('Reviewer short name (concept / quality / test-coverage / behavior / docs).'),
+    json: z.boolean().optional().describe('Output structured JSON (role, isFirstPass, scopeChanged, priorHeadHash, priorVerdict, changedFiles).'),
+  }},
+
   // Workflow profile
   { name: 'workflow_set', description: 'Set project workflow profile (light/balanced/strict)', schema: {
     profile: z.string().describe('Target profile: light / balanced / strict.'),
@@ -2871,6 +2878,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'parallel_report',
   'grill_get',
   'reviewer_list',
+  'review_incremental_context',
   'workflow_explain',
   'help',
   'authority_enforce_policy',

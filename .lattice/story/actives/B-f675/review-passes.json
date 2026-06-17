@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-f675:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 9/9 must-intents covered. CHK-001 all three intents backed by logic_test smoke (cases a/b/c/d). CHK-002 happy+edge use manual_transcript (CLI run + round-1 no-advisory); both are honest: the CLI command was actually run against B-f675 at round 1, and the round-1 no-advisory claim is structurally verified by the code branch (roundCount>=2 guard in transition-effects.ts). CHK-002 adversarial and CHK-003 adversarial are backed by logic_test smoke case (d), which independently re-runs to exit 0 and proves canPassReviewGuard is byte-identical with and without the helper across all gate branches. CHK-003 edge docs_check is supported by CLAUDE.md now containing the correct gate section (B-f675 added the canPassReviewGuard+incremental review context section). No rubber-stamping detected; no must-gap.",
+      "createdAt": "2026-06-17T01:23:43.464Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-005",
+      "_hash": "98fec9df7e791272820140f5683ded07e3def879f098f4e9f5d95cdf3c57d179"
+    },
+    {
+      "id": "B-f675:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. Change is purely additive: new changedFilesBetweenRenameAware added to evidence-freshness.ts alongside intact changedFilesBetween (no callers broken); new core/review-incremental-context.ts + handlers/review-incremental-context.ts wired via registry; all imports (findingAgentMatchesReviewer, Finding/ReviewPass/ReviewRun, isMaterialExcludedPath, resolveReviewRoundCount, computeActiveReviewers) resolve to real exports; no exported symbol deleted or renamed; no dangling references; no unused imports introduced.",
+      "createdAt": "2026-06-17T01:24:25.894Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-001",
+      "_hash": "859d407377d9076957d8ce8971f214bf1f10f80b1180e7e6cdafc9d5a6df4ed1"
+    },
+    {
+      "id": "B-f675:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted symbols: canPassReviewGuard, reviewIncrementalContext, createReviewIncrementalContextHandlers, renderIncrementalContextText, changedFilesBetweenRenameAware, isFindingBlocking. Step 2 found the new CLAUDE.md section (REVIEW->TEST gate behavior + incremental review context, B-f675). Step 3 verified all 8 claims against code: (1) invalid-binding blocks ALL rounds confirmed (machine.ts:348 before round split at 355); (2) round-1 all opt-in + quorum confirmed (machine.ts:355-376); (3) round-2+ >=1 receipt confirmed (machine.ts:379); (4) verified-open-blocking-finding semantics confirmed (advisory.ts:isFindingBlocking + isEvidenceStateBlocking); (5) CLI flag --storyId=B-xxx --role=<reviewer> confirmed (registry.ts, cli-engine.ts parseFlags/normalizeFlagKey); (6) read-only confirmed (no write calls in review-incremental-context.ts; command-policy ownershipClass readOnly); (7) test:review-incremental-context-smoke confirmed in packages/main/package.json; (8) round-2+ advisory listing in story_advance output confirmed (transition-effects.ts:249-285). No doc-code drift found.",
+      "createdAt": "2026-06-17T01:26:26.037Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-004",
+      "_hash": "f5220fbf4b8035579507484d01aeeb30a4116d961d662aefa5e672eea4203cfc"
+    },
+    {
+      "id": "B-f675:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All new code passes quality checks. core/review-incremental-context.ts: clean read-only design, correct headHash resolution via run lookup, proper fallback to full diff for unresolvable priorHeadHash, conservative isFirstPass=true on unresolvable run, sort order correct (ascending then take last). evidence-freshness.ts: changedFilesBetweenRenameAware is additive — existing changedFilesBetween untouched, no logic duplication, both old+new paths for R/C records correctly emitted. handlers/review-incremental-context.ts: append-only CLI handler, runtime storyId/role validation, mirrors reviewer-list.ts registration pattern exactly. transition-effects.ts: advisory block is strictly append-only inside try/catch, never throws, never alters transition result, operator-choice framing is accurate. CLI registration across cli-engine/command-policy/config/process-fact-levels/registry: all consistent, readOnly/L0 throughout, phase=all correct. No Chinese in any new code or comments. No dead code, unused imports, or empty catch swallowing errors in the new files. headHash || null on line 59 is safe because ReviewRun.headHash is typed as non-optional string. CLAUDE.md promise for lattice review_incremental_context matches implemented schema. void headSha in smoke is intentional to suppress unused-variable lint. isFirstPass=true when prior.headHash unresolvable is correct conservative behavior documented in code comments.",
+      "createdAt": "2026-06-17T01:26:28.283Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-002",
+      "_hash": "e79fa987e161ae2a89beb98ef210d73ced795814ea907317ac68b3dd44168266"
+    },
+    {
+      "id": "B-f675:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior review complete. Gate files (core/machine.ts, core/review-run.ts, core/review-scope-binding.ts) are zero-diff vs main. Smoke test exits 0 and case (d) exercises the real canPassReviewGuard imported from core/machine.ts, proving identical gate outcomes and byte-identical gate inputs with/without the helper. reviewIncrementalContext is strictly read-only: only store.readFindings/readReviewPasses/readReviewRuns calls, no write methods. changedFilesBetweenRenameAware correctly uses --name-status -M surfacing both sides of renames. Advisory in transition-effects.ts is append-only inside try/catch (lines 247-286), cannot throw out of the transition, and is worded explicitly as operator judgement with the framework-skips-nobody note. Round 1 shows no advisory (roundCount >= 2 guard, verified by CHK-002:edge:0 transcript evidence). No gate relaxation, no accidental reviewer skip, no write side effects found. One low/edge finding registered: isFirstPass=true + non-null priorVerdict edge case undocumented in CLAUDE.md.",
+      "createdAt": "2026-06-17T01:26:40.468Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-003",
+      "_hash": "a397d3ab42afbcf6783c0790b40fbeb8dc083653cccc5cd01f474a44dd8cf450"
+    },
+    {
+      "id": "B-f675:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: Round 2 re-review of B-f675. Confirmed 9/9 must-intents covered (0 missing, 0 waivers). lattice validate allPass=true, verificationCoverage 9/9. Smoke node packages/main/dist/tasks/review-incremental-context-smoke.js exits 0: cases (a) returning reviewer, (b) first-timer, (c) rename-aware, (d.1-d.5) gate-unchanged assertion across all branches, and new case (e) prior-verdict-with-unresolvable-headHash all pass. Evidence kinds are all valid (logic_test, manual_transcript, docs_check), all results are pass, none are fail. No gaps found between verificationIntent and verificationEvidence.",
+      "createdAt": "2026-06-17T01:32:42.282Z",
+      "reviewRound": "2026-06-17T01:30:54.337Z",
+      "reviewRunId": "B-f675:RR-009",
+      "_hash": "5adb57f19f350306ed724c3e0766c8895bf8af59db956f937b141c1af0f09dbd"
+    },
+    {
+      "id": "B-f675:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 2 exported symbols extracted (ReviewIncrementalContext, reviewIncrementalContext). Step 2: 1 paragraph in CLAUDE.md references them (the new B-f675 section). Step 3: 6 claims compared — all consistent. (1) isFirstPass=true covering sub-cases (a)+(b) matches code guard !prior||!prior.headHash; (2) priorVerdict non-null in sub-case (b) matches priorVerdict:prior?prior.summary:null; (3) scopeChanged forced true when isFirstPass=true matches unconditional scopeChanged:true in first-pass branch; (4) scopeChanged===(changedFiles.length>0) when isFirstPass=false matches changedFiles.length>0 in else branch; (5) invalid-binding blocks ALL rounds matches evidenceState.invalid.length>0 check before roundCount split; (6) Round1 all-opt-in+quorum / Round2+ >=1 receipt matches roundCount<=1 vs else branches. No blockers.",
+      "createdAt": "2026-06-17T01:33:04.721Z",
+      "reviewRound": "2026-06-17T01:30:54.337Z",
+      "reviewRunId": "B-f675:RR-008",
+      "_hash": "9a961835e863df4a94438da558bb04707ce85575769d8d249a9448de0ce5de0d"
+    },
+    {
+      "id": "B-f675:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "F-001 fix reviewed clean: interface JSDoc for isFirstPass/priorVerdict/scopeChanged/priorHeadHash all match the code; CLAUDE.md clarification that scopeChanged===(changedFiles.length>0) only when isFirstPass=false is accurate; smoke case (e) genuinely asserts sub-case-b (prior verdict non-null, headHash empty-string forces null via falsy guard, isFirstPass=true). No dead code, no as-any, no empty-catch, no shell isolation violations.",
+      "createdAt": "2026-06-17T01:33:06.810Z",
+      "reviewRound": "2026-06-17T01:30:54.337Z",
+      "reviewRunId": "B-f675:RR-007",
+      "_hash": "f7c72d832dbabbc60b037c73ceba930c3bd77a02f81d586c21a0a14f348708c0"
+    },
+    {
+      "id": "B-f675:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review complete. The F-001 fix (commit c2c1890) is purely additive: 91 lines inserted, 0 lines deleted across review-incremental-context.ts (doc comments on all 5 interface fields), review-incremental-context-smoke.ts (new smoke case e for unresolvable-headHash sub-case), and CLAUDE.md (2-line extension documenting the isFirstPass=true dual sub-case and the isFirstPass-vs-priorVerdict consumer contract). No concept was deleted or renamed in this round. All new concept symbols (reviewIncrementalContext / ReviewIncrementalContext / review_incremental_context / changedFilesBetweenRenameAware) are consistently wired across core, handler, cli-engine, registry, command-policy, config, process-fact-levels, and transition-effects with zero residue of stale names. All CLAUDE.md promises cross-verified against code: the command is registered, all declared interface fields exist, rename-awareness is implemented, read-only invariant is enforced, both isFirstPass sub-cases are documented and pinned by smoke case (e), and test:review-incremental-context-smoke is wired in both package.json files. No blocker.",
+      "createdAt": "2026-06-17T01:33:38.175Z",
+      "reviewRound": "2026-06-17T01:30:54.337Z",
+      "reviewRunId": "B-f675:RR-006",
+      "_hash": "7bc21ca8cc22ac630128a53dc466945b0a0ae76f31f7d0d158cc32b489aec7e7"
+    }
+  ]
+}

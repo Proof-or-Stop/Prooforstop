@@ -36,6 +36,8 @@ import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { assessReviewConvergenceAtEntry } from '../core/review-convergence.js';
+import { resolveReviewRoundCount } from '../core/advisory.js';
+import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -233,6 +235,53 @@ ${agentLines}
         const convergence = assessReviewConvergenceAtEntry(store, storyId);
         if (convergence.stalled && convergence.message) {
           base += `\n\n${convergence.message}`;
+        }
+      } catch { /* advisory-only: never block the transition */ }
+      // B-f675 CHK-002: round>=2 informed targeted re-review advisory. The
+      // REVIEW→TEST gate at round 2+ already accepts >=1 valid current-round
+      // receipt, so an operator MAY legally re-run only the reviewers whose scope
+      // changed since their last pass. This block surfaces that set; it is
+      // STRICTLY append-only inside try/catch — it never throws, never alters the
+      // transition result, and never touches canPassReviewGuard. The framework
+      // still skips nobody; this is an operator judgement.
+      try {
+        const roundCount = resolveReviewRoundCount(store, storyId);
+        if (roundCount >= 2) {
+          const story = store.readStory(storyId);
+          let checklistForAdvisory: { items: unknown[] } = { items: [] };
+          try { checklistForAdvisory = store.readChecklist(storyId); } catch { /* none */ }
+          let decisionForAdvisory = null;
+          try { decisionForAdvisory = store.readDecision(storyId); } catch { /* none */ }
+          const understandingForAdvisory = store.readUnderstanding(storyId);
+          const touchpointsForAdvisory = understandingForAdvisory?.touchpoints
+            ?? detectMdTouchpointsFromGit(root);
+          const activeReviewers = computeActiveReviewers(
+            story,
+            checklistForAdvisory,
+            decisionForAdvisory,
+            touchpointsForAdvisory,
+          );
+          const scopeChanged = activeReviewers
+            .map((reviewer) => reviewIncrementalContext(store, root, storyId, reviewer.name))
+            .filter((context) => context.scopeChanged);
+          const advisoryLines = [
+            '',
+            `→ Round ${roundCount} informed targeted re-review (advisory):`,
+          ];
+          if (scopeChanged.length === 0) {
+            advisoryLines.push('  No active reviewer has a scope change since its last pass (all up to date).');
+          } else {
+            for (const context of scopeChanged) {
+              const label = context.isFirstPass
+                ? 'no prior pass — full diff'
+                : `${context.changedFiles.length} changed file(s) since last pass`;
+              advisoryLines.push(`  - ${context.role}: ${label}`);
+            }
+          }
+          advisoryLines.push(
+            '→ Round 2+ gate needs >=1 valid current-round receipt; you MAY re-run only the scope-changed reviewers via lattice review_incremental_context --role=<name>. The framework skips nobody; this is your call.',
+          );
+          base += `\n${advisoryLines.join('\n')}`;
         }
       } catch { /* advisory-only: never block the transition */ }
       return base;
