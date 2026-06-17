@@ -1,0 +1,122 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:edge:2": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:edge:3": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:edge:4": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:adversarial:2": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-001:adversarial:3": {
+  "pass": true,
+  "note": "experience-hint-loader imports only learning-store(read)+types(+node:); smoke asserts priority ranking (log(1+support) damping), score threshold, false-positive bucket, top-N, support shown"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "story-review _reviewPrompt has a 'Project experience hints (advisory only)' section (present when signals exist, omitted when none); smoke asserts both"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "story-review _reviewPrompt has a 'Project experience hints (advisory only)' section (present when signals exist, omitted when none); smoke asserts both"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "story-review _reviewPrompt has a 'Project experience hints (advisory only)' section (present when signals exist, omitted when none); smoke asserts both"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "story-review _reviewPrompt has a 'Project experience hints (advisory only)' section (present when signals exist, omitted when none); smoke asserts both"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "story-review _reviewPrompt has a 'Project experience hints (advisory only)' section (present when signals exist, omitted when none); smoke asserts both"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "story-review _reviewPrompt has a 'Project experience hints (advisory only)' section (present when signals exist, omitted when none); smoke asserts both"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "review-run.ts untouched -> resolveReviewPromptHash independent of hints; smoke asserts promptHash byte-identical with/without hints + exactly-one experience_hint_surfaced event"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "review-run.ts untouched -> resolveReviewPromptHash independent of hints; smoke asserts promptHash byte-identical with/without hints + exactly-one experience_hint_surfaced event"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "review-run.ts untouched -> resolveReviewPromptHash independent of hints; smoke asserts promptHash byte-identical with/without hints + exactly-one experience_hint_surfaced event"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "review-run.ts untouched -> resolveReviewPromptHash independent of hints; smoke asserts promptHash byte-identical with/without hints + exactly-one experience_hint_surfaced event"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "review-run.ts untouched -> resolveReviewPromptHash independent of hints; smoke asserts promptHash byte-identical with/without hints + exactly-one experience_hint_surfaced event"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "review-run.ts untouched -> resolveReviewPromptHash independent of hints; smoke asserts promptHash byte-identical with/without hints + exactly-one experience_hint_surfaced event"
+ },
+ "CHK-004:happy:0": {
+  "pass": true,
+  "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired"
+ },
+ "CHK-004:happy:1": {
+  "pass": true,
+  "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired"
+ },
+ "CHK-004:happy:2": {
+  "pass": true,
+  "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired"
+ },
+ "CHK-004:edge:0": {
+  "pass": true,
+  "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired"
+ },
+ "CHK-004:edge:1": {
+  "pass": true,
+  "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired"
+ },
+ "CHK-004:adversarial:0": {
+  "pass": true,
+  "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired"
+ }
+}
