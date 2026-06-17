@@ -1,0 +1,25 @@
+{
+  "storyId": "B-000c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+    ".lattice/story/actives/B-000c/evidence/verify-b-000c.mjs",
+    ".lattice/story/actives/B-000c/evidence/verify-result.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Phase 1a module set + registry/pkg edits + committed verifier evidence.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-17T11:47:58.617Z",
+  "updatedAt": "2026-06-17T11:48:12.020Z"
+}
