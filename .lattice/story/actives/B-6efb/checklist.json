@@ -23,7 +23,16 @@
       "userSees": "`npm run test:all` runs every smoke + reports aggregate; existing `npm run test:gitroot-cwd-contract` (etc.) still works byte-identical.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
