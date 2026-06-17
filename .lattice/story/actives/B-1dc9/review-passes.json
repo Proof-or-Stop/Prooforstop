@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T13:45:33.991Z",
       "reviewRunId": "B-1dc9:RR-005",
       "_hash": "89e9e5ccb15cf97f239f06febb3df81554f7b0259003b69cbe0de0b40a42361d"
+    },
+    {
+      "id": "B-1dc9:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, type-safety issues, or I/O shell isolation violations found. experience-hint-loader.ts imports only learning-store + leaf types (no activity-log). The dedup logic in story-review.ts reads readActivityLogTail at call time and skips appendActivityLog when an experience_hint_surfaced event for (storyId, hintRoundKey) already exists — exactly-once per round, sound and non-flaky (hintRoundKey = story.currentReviewRound for REVIEW phase, plan:<phase> for PLAN phase; both are stable across repeated calls in the same round). The experienceHintsSection is injected only into story_review._reviewPrompt (PLAN-phase advisory channel) and never touches resolveReviewPromptHash, which is fed exclusively via handlers/review-run.ts from the caller-supplied prompt argument. review-run.ts diff is empty (confirmed). JSDoc on ExperienceHint.priority accurately documents that false_positive hints use falsePositiveCount as the base, not signalScore, matching toFalsePositiveHint. F-001 (JSDoc) and F-002 (dedup) fixes are both sound.",
+      "createdAt": "2026-06-17T13:47:30.555Z",
+      "reviewRound": "2026-06-17T13:45:33.991Z",
+      "reviewRunId": "B-1dc9:RR-007",
+      "_hash": "fabcca5daf15d53e53ef6a9ec8f27bd735bb6892daa60d7020b6df58f93cbe2f"
     }
   ]
 }
