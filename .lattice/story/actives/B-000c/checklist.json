@@ -117,10 +117,10 @@
           "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
           "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
           "result": "pass",
-          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
-          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
-          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
-          "timestamp": "2026-06-17T11:47:43.753Z"
+          "note": "Covered by the 'concurrent writeFindingSignals never truncates' smoke check: ~20 concurrent writes + interleaved reads assert complete-or-absent reads and a valid last-writer-wins final file (atomic temp+rename).",
+          "headHash": "afe251c646ff460de57dd57231c68406d20b20f0",
+          "materialHash": "342bb866a3affafc5626261315860795bd898461339f6e7d869e379545b55276",
+          "timestamp": "2026-06-17T11:55:40.859Z"
         }
       ]
     },
