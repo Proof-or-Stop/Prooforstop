@@ -486,6 +486,17 @@
           "headHash": "37ce928d9f7734e0cb0c92fba4f5981c8e71d349",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:22.065Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "head -1 docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "First line is '# Test coverage (c8)' — markdown heading.",
+          "headHash": "eec8ab7ec7384232b3bb69a4c3a9e3a502ba1f02",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:24.127Z"
         }
       ]
     }
