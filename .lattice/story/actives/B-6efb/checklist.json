@@ -538,12 +538,12 @@
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "node packages/main/dist/tasks/run-all-smokes.js --select gitroot",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes",
           "result": "pass",
-          "note": "Self-smoke verifies --select substring filtering on 4 fixture smokes; live --select gitroot matches gitroot-* smokes.",
-          "headHash": "82f63c657430ea7dbc6688c24dbdd9ea73cb9c80",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:19.820Z"
+          "note": "Exit 0; output contains 'PASS run-all-smokes' + summary. The self-smoke runs through its own runner (dogfooding) and the runner correctly reports it.",
+          "headHash": "676c9d8eda8c8ed7406de1e7ebdeaf649169a724",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:26:26.434Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
