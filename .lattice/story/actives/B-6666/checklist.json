@@ -42,6 +42,17 @@
           "headHash": "7b83bf6182e1373fb2e91d628928ba68d84bf7e1",
           "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
           "timestamp": "2026-06-17T17:11:56.423Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-oracle-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Plain-repo byte-identity: smoke proof drives buildDoneChecklist on a plain repo (metadataRoot==gitRoot) with gitCwd absent vs {gitCwd:root} and assert.deepEqual on the full row set + git-working-tree row — identical (root fallback preserves behavior).",
+          "headHash": "b4793ace677cb7dfe194871986872cbed3d37754",
+          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
+          "timestamp": "2026-06-17T17:11:57.013Z"
         }
       ]
     },
