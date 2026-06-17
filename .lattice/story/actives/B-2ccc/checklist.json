@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create leaf core/digest.ts with the canonical-JSON-digest primitives",
+      "context": "New packages/main/src/core/digest.ts exporting Digestable, canonicalJson, digestCanonicalJson, digestText (and normalizeJson as needed), extracted verbatim from decision-doc-promotion.ts lines 64-88. Leaf module: imports only node:crypto. Digest values must be byte-identical to the originals.",
+      "userSees": "Build clean; core/digest.ts exists; the smoke asserts digestCanonicalJson/canonicalJson/digestText produce the exact same output as a pinned set of inputs (byte-identical to pre-refactor).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Refactor decision-doc-promotion.ts to import the digest primitives from core/digest.ts",
+      "context": "Replace the inline normalizeJson/canonicalJson/digestCanonicalJson/digestText definitions in handlers/decision-doc-promotion.ts with imports from ../core/digest.js. No behaviour change: computeDecisionDocProposalDigest / digestDecision produce identical values; existing decision-doc proposals stay valid.",
+      "userSees": "decision-doc-promotion.ts imports from ../core/digest.js; its existing smoke/behaviour is unchanged; no digest value changes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke + npm script + no regression (digest values identical, decision-doc behaviour unchanged)",
+      "context": "tasks/experience-layer-digest-extract-smoke.ts + package.json test:experience-layer-digest-extract. Assert: digest functions byte-identical on pinned inputs; computeDecisionDocProposalDigest stable; existing decision-doc + experience-layer smokes still pass; build clean.",
+      "userSees": "npm run test:experience-layer-digest-extract exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing decision-doc-related smokes still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
