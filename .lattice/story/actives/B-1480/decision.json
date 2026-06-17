@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Plan only — describe future work, implement no source code",
+    "Code-verified — every existing-system claim and anchor must match the real repo",
+    "Determinism-preserving — the layer is advisory-only and never touches gate logic",
+    "Reuse over rebuild — extend dev-memory / clone decision-doc digest / reuse activity-log",
+    "Match house convention — English freeform execution-plan format"
+  ],
+  "drivers": [
+    "The decisions/ corpus is uniformly English freeform execution-plan markdown",
+    "The doc must not mislead: anchors and existing-system claims must be accurate",
+    "No Co-Authored-By trailer; all changes via the Lattice workflow"
+  ],
+  "options": [
+    {
+      "name": "freeform-english-execution-plan",
+      "pros": [
+        "Matches every existing doc in docs/requirements/decisions/ (house convention)",
+        "Preserves the rich multi-section v1.1 content (module decomposition, reuse, guardrails, roadmap, anchors)",
+        "Easy for reviewers and future implementers to read and diff"
+      ],
+      "cons": [
+        "Accuracy is defended by review rather than by the compiler",
+        "Requires manual discipline to keep code anchors correct"
+      ]
+    },
+    {
+      "name": "structured-decision-doc-proposal-save",
+      "pros": [
+        "Built-in proposalDigest integrity and freshness binding",
+        "Canonical generated layout"
+      ],
+      "cons": [
+        "Regenerates the doc from fixed structured fields, losing the multi-section roadmap prose",
+        "Designed for a single durable decision statement, not a multi-section execution plan"
+      ]
+    }
+  ],
+  "chosen": "freeform-english-execution-plan",
+  "rationale": "Every existing doc in decisions/ is freeform English execution-plan markdown, and this is a multi-section roadmap rather than a single durable decision; the structured proposal path would flatten the content and break house consistency.",
+  "preMortem": [
+    {
+      "scenario": "Code anchors in the doc drift from the real code",
+      "trigger": "Copying file paths or line numbers that no longer match",
+      "consequence": "The doc misleads future implementers about where to hook",
+      "mitigation": "Verifier asserts each anchored file exists; docs reviewer spot-checks paths against the repo"
+    },
+    {
+      "scenario": "The doc reads as if it implements code rather than planning it",
+      "trigger": "Imperative phrasing without a plan-only scope note",
+      "consequence": "Scope confusion; scope-contract or reviewers flag it",
+      "mitigation": "Explicit plan-only scope note in the header and a scope contract limited to the single doc"
+    },
+    {
+      "scenario": "Determinism framing is weakened during English authoring",
+      "trigger": "Dropping the advisory-only / never-touch-gate wording",
+      "consequence": "A future implementer could let learning influence a gate",
+      "mitigation": "Dedicated determinism-guardrails section enumerating all three guardrails; reviewer verifies presence"
+    },
+    {
+      "scenario": "A Co-Authored-By trailer slips into a commit or the doc",
+      "trigger": "Default commit behavior",
+      "consequence": "Violates the standing no-trailer rule",
+      "mitigation": "Explicit no-trailer rule; verifier greps the doc and the commit messages are authored without trailers"
+    }
+  ],
+  "timestamp": "2026-06-17T01:57:27.304Z"
+}

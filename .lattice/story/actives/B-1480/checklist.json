@@ -7,7 +7,60 @@
       "userSees": "File docs/requirements/decisions/lattice-experience-layer-execution-plan.md exists; opens with a Story: B-xxxx header and a scope note stating it is a future-execution plan only.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "File exists at docs/requirements/decisions/lattice-experience-layer-execution-plan.md -> fs.existsSync returns true; WHY: canonical path is the only deliverable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "First line of the doc is a markdown H1 title containing Experience Layer -> grep finds # ...Experience Layer...; WHY: house format requires title heading",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a Story: B-1480 header line (blockquote or heading) -> grep finds Story: B-1480; WHY: house format requires Story reference",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a scope note stating plan-only / no source code -> grep finds plan-only or future-execution-plan-only language; WHY: prevents misreading as implemented feature",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains Problem Statement, Principles, Architecture, and Roadmap section headers -> grep finds all four H2/H3 headers; WHY: house format section coverage",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Doc uses correct markdown heading levels (H1 for title, H2 for major sections) and no broken heading syntax -> regex scan for orphaned # or missing space after # finds none; WHY: rendering correctness",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Doc is non-trivial length (at least 100 lines) -> wc -l returns >= 100; WHY: an execution plan this complex cannot be shorter than 100 lines without being incomplete",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc path is exactly docs/requirements/decisions/lattice-experience-layer-execution-plan.md with no typo or variant path -> only one file matching *experience-layer*execution-plan* exists in the repo; WHY: prevents near-miss file placement",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No duplicate or stale copy of the doc exists elsewhere in the repo -> find . -name *experience-layer*execution-plan*.md returns exactly one result; WHY: prevents orphaned drafts",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
