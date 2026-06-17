@@ -40,7 +40,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate --story=B-99b6",
+          "result": "pass",
+          "note": "Captured /tmp/b99b6-validate-green.log: validate output literally lists all 8 newly-gated guard steps (process-fact-contract, runtime-fact-contract, evidence-quality, anti-stall, storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root); FOUND for all 8 via grep. validate --json (no --story) reports status=pass allPass=true commands[].code=0.",
+          "headHash": "198dd568986ecc4059e0d210004962617093766e",
+          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
+          "timestamp": "2026-06-17T18:08:25.840Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
