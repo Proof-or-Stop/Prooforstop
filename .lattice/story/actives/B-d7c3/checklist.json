@@ -149,6 +149,17 @@
           "headHash": "9bf009a9beaea04edbbc8b5d7ee878f8f7a8c826",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:04.215Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "python3 -c \"import json;json.load(open('packages/main/smoke-manifest.json'))\"",
+          "result": "pass",
+          "note": "Parses cleanly; no exception.",
+          "headHash": "d73eea34558014f038d710b37551e27a891074b1",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:04.921Z"
         }
       ]
     },
