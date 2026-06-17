@@ -37,9 +37,9 @@
       "title": "Regression guard: npm run test:process-fact-contract passes and a future dev_start phase divergence is caught",
       "context": "Confirm npm run test:process-fact-contract exits 0 after the alignment. Ensure the contract check (or an added focused assertion) would fail again if command-policy.allowedPhases and DEFAULT_PHASE_TOOLS diverge for dev_start in the future, so the fix is mechanically protected rather than by convention. If the existing verify-process-fact-contract.mjs already covers this once aligned, record that it is the guard; do not add a redundant test.",
       "userSees": "npm run test:process-fact-contract exits 0; re-introducing the INIT/DEV mismatch (locally) turns it red again, proving the divergence is mechanically caught.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T02:19:38.612Z",
       "verificationIntent": {
         "happy": [
           {
