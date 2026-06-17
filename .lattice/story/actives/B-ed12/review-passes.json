@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T20:37:55.417Z",
       "reviewRunId": "B-ed12:RR-003",
       "_hash": "5b45a3b22c7eb6889d030526a5ecd73a8205c2d23b568e078043854b81c7db9a"
+    },
+    {
+      "id": "B-ed12:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 15 changed smoke test files (zero production files changed). Checked every assertion change for weakening, deletion, or broadening. All regex/text updates track exact new message text - none were broadened to match-anything. Safety assertions preserved across all smokes: done-preflight NO-BYPASS (main store stays TEST, HEAD unchanged, stays on main branch) is intact; story-create-concurrency hard-block still asserted; review-pass-discard residue-cleaned assertions still present with specific patterns; english-open-source-surface CJK detector / scan logic / isFileAllowlisted unchanged - only allowlist DATA arrays grew additively; usage-ledger-estimate estimator assertion tightened from assert.ok(>0) to assert.equal(===3); worktree-repair legacy symlink NOT-rewritten safety assertion added. The done-preflight scenario changed from any-dirty-main to out-of-scope-dirty-main reflecting B-72df production behavior change; in-scope dirty is covered by done-merge-scope-smoke.ts (not in this diff). review-loop store mock interface updated with storyDirPath method addition only; all 35+ test assertions unchanged. No findings.",
+      "createdAt": "2026-06-17T20:40:33.733Z",
+      "reviewRound": "2026-06-17T20:37:55.417Z",
+      "reviewRunId": "B-ed12:RR-002",
+      "_hash": "90424bedc818adda4e3158203997719f473e08b890281beefb232b7a2cbbcfc9"
     }
   ]
 }
