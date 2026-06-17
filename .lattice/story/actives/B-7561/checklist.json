@@ -68,7 +68,55 @@
       "userSees": "The smoke seeds several stories, builds profiles via the store enumeration, and asserts recall returns the most-similar story first, respects top-N, and writes nothing.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "recallSimilarStories(targetProfile, [similarCandidate, disjointCandidate], topN=5) returns similarCandidate ranked first; WHY: proves the recall function correctly ranks by similarity score",
+            "type": "cli"
+          },
+          {
+            "desc": "recallSimilarStories returns match reasons for each result explaining why it ranked; WHY: match reasons are a required output field for user-facing recall",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "recallSimilarStories with empty candidates array returns empty result, no crash; WHY: empty candidate set must not throw",
+            "type": "cli"
+          },
+          {
+            "desc": "recallSimilarStories with topN=1 returns exactly one result even when multiple candidates score > 0; WHY: top-N truncation must drop lowest-ranked",
+            "type": "cli"
+          },
+          {
+            "desc": "recallSimilarStories excludes the target story itself from results (self-exclusion); WHY: a story should not recall itself as its own most-similar match",
+            "type": "cli"
+          },
+          {
+            "desc": "recallSimilarStories with topN=0 returns empty array; WHY: boundary — requesting zero results should work without crash",
+            "type": "cli"
+          },
+          {
+            "desc": "recallSimilarStories where all candidates score 0 (completely disjoint) returns empty array; WHY: zero-score candidates should be filtered out, not returned with score 0",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recallSimilarStories with a large candidate set (100+ profiles) returns results within reasonable time and correct ranking; WHY: performance guard — real stores may have hundreds of stories",
+            "type": "cli"
+          },
+          {
+            "desc": "recallSimilarStories is read-only: calling it does not create any files or modify the store; WHY: recall must be side-effect-free, no derived-index file created",
+            "type": "cli"
+          },
+          {
+            "desc": "recallSimilarStories with candidates containing malformed/partial profiles (missing keywords, missing fileKinds) does not crash; WHY: real store data may have legacy/sparse stories",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
