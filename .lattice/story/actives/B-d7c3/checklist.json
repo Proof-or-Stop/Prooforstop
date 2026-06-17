@@ -154,12 +154,12 @@
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l",
+          "command": "git diff main...HEAD -- 'packages/main/src/tasks/*-smoke.ts' ':(exclude)packages/main/src/tasks/provider-codex-smoke.ts' ':(exclude)packages/main/src/tasks/reviewer-quorum-smoke.ts' | wc -l",
           "result": "pass",
-          "note": "Returns 0 (using three-dot diff which is the correct over-reach check; two-dot would include changes from other stories merged to main after this worktree was created, e.g. B-40eb).",
-          "headHash": "3832d8e8121d36c0d538ad5d84ffd64707199832",
-          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:33:58.591Z"
+          "note": "Returns 0 — three-dot diff over the *-smoke.ts glob EXCLUDING the two scope_contract_acknowledge'd files (provider-codex-smoke.ts and reviewer-quorum-smoke.ts had stale  comments updated per concept review F-010). All other *-smoke.ts task source byte-identical. Identical command/expected to CHK-002:adv:0; CHK-001 originally tracked B-d7c3 scope before concept residue ack.",
+          "headHash": "5da1fcddeba20fb918cfce8f1740841a6311451e",
+          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
+          "timestamp": "2026-06-17T13:05:53.794Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
