@@ -104,9 +104,9 @@
       "title": "Verify the aggregated smokes run and pass under lattice validate; a regression blocks",
       "context": "Confirm lattice validate (and the CLI gate path) now executes the aggregated smokes green, and add a guard/test proving a smoke failure surfaces as a validate failure (no silent skip). Cross-check no double-run / excessive slowdown.",
       "userSees": "lattice validate GREEN with the smokes included; intentionally breaking one of them turns lattice validate red.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T18:08:52.888Z",
       "verificationIntent": {
         "happy": [
           {
