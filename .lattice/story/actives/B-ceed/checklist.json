@@ -253,6 +253,17 @@
           "headHash": "aecd20d5945fc2521f5c63d8db0ad661fd1367b8",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:11.855Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'falling back to claude-code|fallback.*claude.code' packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 2 — fallback message in both codex and gemini branches.",
+          "headHash": "0d6338c665c9854e2a96cdd94c0350cc224db25d",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:12.492Z"
         }
       ]
     },
