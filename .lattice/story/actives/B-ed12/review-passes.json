@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T20:37:55.417Z",
       "reviewRunId": "B-ed12:RR-001",
       "_hash": "8f4b543d8c47f681628c897daf532050b04e540a5a7347e82e296e5ac3ee5fc5"
+    },
+    {
+      "id": "B-ed12:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 incremental concept check: single changed file packages/main/src/tasks/lattice-cli-migration-smoke.ts (comment + assertion value fix only). No concept word deleted or renamed. (1) Regex changed from /Primary entrypoint/ to /Entrypoint/ — remaining references to \"Primary entrypoint\" are in story metadata docs only, zero production .ts residue. (2) legacyKoalaAliasPreserved assertion value changed true->false — symbol name preserved in both packages/main/src/handlers/lattice-cli.ts:510 and smoke:243, no dangling reference. No new concept deletions introduced. No blocker found.",
+      "createdAt": "2026-06-17T20:46:28.751Z",
+      "reviewRound": "2026-06-17T20:45:31.789Z",
+      "reviewRunId": "B-ed12:RR-004",
+      "_hash": "6337c407e3e83d7cc801bf664bb9ff68aa7589404cb51398517d7789a5e23236"
     }
   ]
 }
