@@ -182,6 +182,17 @@
           "headHash": "f1426025e8e9aaabcff7e79fa7a66c89e331e5b3",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:06.292Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- scripts/verify-*.mjs | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — verify-*.mjs scripts untouched.",
+          "headHash": "c84784a016392e75b6ad0f34e7770595ccd79cb3",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:07.039Z"
         }
       ]
     },
