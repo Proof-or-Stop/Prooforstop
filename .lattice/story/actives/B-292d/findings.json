@@ -31,6 +31,19 @@
       "files": [
         "packages/main/src/handlers/review-preflight.ts"
       ]
+    },
+    {
+      "id": "B-292d:F-003",
+      "desc": "quality-cleanup: scripts/verify-koala-residue.mjs:161 newly added pattern /KOALA_RESIDUE[A-Z0-9_]*/g is fully subsumed by the pre-existing /KOALA_[A-Z0-9_]*/g at line 77; the new pattern can never match anything the existing one does not already cover — redundant (dead) regex addition",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T17:48:59.702Z",
+      "reviewRound": "2026-06-17T17:46:03.529Z",
+      "reviewRunId": "B-292d:RR-002",
+      "_hash": "dd07a511432f32e5f0920e410bcfc97cd966e3db7c38b98461a6f0491113f25d"
     }
   ]
 }
