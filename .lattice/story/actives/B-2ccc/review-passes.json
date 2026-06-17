@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T14:29:15.897Z",
       "reviewRunId": "B-2ccc:RR-006",
       "_hash": "fcf3119f76409953e727419c675ad0401e89486a8b5b62523c74d912072171d1"
+    },
+    {
+      "id": "B-2ccc:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-001..F-004 are fully resolved. CHK-001:edge:2 (undefined-key omission), CHK-001:edge:3 (empty-object digest), CHK-001:edge:4 (digestText empty string), CHK-001:adversarial:1 (100-level nesting no crash), CHK-002:edge:0 (decision-doc re-exports 3 digest fns), CHK-002:edge:1 (no local Digestable definition) — all six previously-uncovered intents now have named checks with concrete assertions; evidence notes are bound to the specific named check, not generic fallback text. Smoke 22/22 PASS; verifier TOTAL 28 | PASS 28 | FAIL 0. No blocker found.",
+      "createdAt": "2026-06-17T14:31:24.221Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-008",
+      "_hash": "36f2f4b219cb18573f37cf48549811e8d1487c75a8b7ba44520df214997cc871"
     }
   ]
 }
