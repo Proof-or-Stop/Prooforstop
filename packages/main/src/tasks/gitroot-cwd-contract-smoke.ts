@@ -152,11 +152,9 @@ const DEFERRED_ALLOWLIST_EXACT = new Set<string>([
   'packages/main/src/handlers/init-check.ts',
   'packages/main/src/handlers/review-run.ts',
   'packages/main/src/handlers/session.ts',
-  'packages/main/src/handlers/story-query.ts',
   'packages/main/src/handlers/test-auto.ts',
   'packages/main/src/handlers/verifier.ts',
   'packages/main/src/handlers/worktree.ts',
-  'packages/main/src/tasks/gap-analyze.ts',
   'packages/main/src/tasks/trace-store.ts',
   // ── Bare-root backtick git calls (BLIND SPOT B) outside this story's safely-
   //    fixable bounded scope:
@@ -187,7 +185,6 @@ const DEFERRED_ALLOWLIST_EXACT = new Set<string>([
   'packages/main/src/core/stale-detector.ts',          // detectActiveStoryId branch probe
   'packages/main/src/core/touchpoints-fallback.ts',    // detectMdTouchpointsFromGit diff
   'packages/main/src/core/validation-executor.ts',     // readGitStatus porcelain
-  'packages/main/src/dashboard.ts',                    // worktree list + dirty status (x2)
   'packages/main/src/handlers/codex-adapter.ts',       // detectStoryIdFromBranch
   'packages/main/src/handlers/fixture.ts',             // inferStoryIdFromGit
   'packages/main/src/handlers/recover-evidence.ts',    // readGitStatusLines porcelain
