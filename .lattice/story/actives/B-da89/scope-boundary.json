@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-da89",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Decide dev_start's authoritative phase set from its real recovery semantics and align command-policy.ts allowedPhases with config.ts DEFAULT_PHASE_TOOLS so they agree (no dev_start behavior change)",
+    "Ensure npm run test:process-fact-contract passes and a future command-policy-vs-DEFAULT_PHASE_TOOLS divergence for dev_start is caught mechanically"
+  ],
+  "excluded": [
+    "Anything not explicitly enumerated in the allowed scope above is out of scope for this story (detailed out-of-scope rationale lives in the description and background)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to fix the dev_start process-fact-contract phase-policy drift (discovered during B-f675) as a separate story via the full Lattice flow. Scope bounded to reconciling command-policy.ts allowedPhases and config.ts DEFAULT_PHASE_TOOLS for dev_start, plus a regression guard.",
+  "createdAt": "2026-06-17T02:07:38.564Z",
+  "updatedAt": "2026-06-17T02:07:38.564Z",
+  "_hash": "05c7fe7e4d27e4c6cc7caf824fcce02fbcb298193dfb6d57bd8f0ef61d1c8ba9"
+}
