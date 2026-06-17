@@ -63,6 +63,17 @@
           "headHash": "ad51b02b74203970cdb3887b54fc191062417a47",
           "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
           "timestamp": "2026-06-17T18:08:26.362Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e print scripts.test and scripts[test:smokes-full]",
+          "result": "pass",
+          "note": "Root test chain does NOT contain test:storydir-inside-gitroot-suite or test:all (grep-verified absent). New test:smokes-full alias = npm run test:storydir-inside-gitroot-suite && npm run test:all (the documented full/CI path) — resolved and ran (~207s) confirming reachability; deliberately kept out of fast gate.",
+          "headHash": "810b5cada8e885258bdb751c9989c3c834d43bb2",
+          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
+          "timestamp": "2026-06-17T18:08:26.862Z"
         }
       ]
     },
