@@ -242,6 +242,17 @@
           "headHash": "9f37067c54f3a8cf93c65169db8b62b1bfc5f18e",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:11.188Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c geminiCliAvailable packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 2 — same pattern for gemini.",
+          "headHash": "aecd20d5945fc2521f5c63d8db0ad661fd1367b8",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:11.855Z"
         }
       ]
     },
