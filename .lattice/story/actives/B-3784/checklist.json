@@ -84,7 +84,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/autopilot-authority-smoke.js",
+          "result": "pass",
+          "note": "Smoke passes from repo root with authority_trust.env present; fix (cwd:root temp dir) already delivered by B-6745 merge",
+          "headHash": "97bad5334d985beafd6ce2e3b3fc2705ab4b459a",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:20:00.536Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
