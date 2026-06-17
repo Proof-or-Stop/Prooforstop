@@ -71,7 +71,30 @@
       "userSees": "lattice validate stays green with the new smoke; the smoke shows incremental context for a returning reviewer, full diff for a first-timer, and that canPassReviewGuard behaves identically with and without the helper (Round 1 all-opt-in+quorum; Round 2+ >=1 receipt). CLAUDE.md now states the real gate behavior and the targeted re-review guidance.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke shows incremental context for a returning reviewer and full diff for a first-timer",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLAUDE.md updated with the ACCURATE gate behavior (invalid-binding blocks all rounds; Round 1 all opt-in + quorum; Round 2+ >=1 receipt) + the targeted re-review guidance",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "canPassReviewGuard behaves identically with and without the helper: Round 1 blocks unless all opt-in have valid current-round verdicts + quorum; Round 2+ passes on >=1 valid receipt; a current-round invalid binding or a blocking finding still blocks",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
