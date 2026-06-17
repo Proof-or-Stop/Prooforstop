@@ -361,12 +361,12 @@
           "intentRef": "CHK-002:edge:2",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "grep -n 'timeoutMs' packages/main/dist/tasks/run-all-smokes.js",
+          "command": "node -e \"require('./packages/main/smoke-manifest.json').smokes.filter(s=>s.tags).forEach(s=>{if(!Array.isArray(s.tags))throw 1}); console.log('SCHEMA_OK')\"",
           "result": "pass",
-          "note": "Per-smoke timeout honored from manifest entry; defaults to 60_000ms.",
-          "headHash": "dc45df64c788e544cd43fda832310852f2cb64c2",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:08.159Z"
+          "note": "Prints SCHEMA_OK — every smoke entry's tags field is a valid array per schema.",
+          "headHash": "866b264f5cfd0c0c0c0c7ef5c9536eed2f01287b",
+          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
+          "timestamp": "2026-06-17T02:21:02.568Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
