@@ -171,7 +171,7 @@
       "desc": "concept-cleanup: stale `npm --prefix packages/main run test:X-smoke` comments in 2 source files reference deleted per-smoke scripts: provider-codex-smoke.ts:19 (Run: npm --prefix packages/main run test:provider-codex-smoke) and reviewer-quorum-smoke.ts:3 (Run: npm --prefix packages/main run test:reviewer-quorum-smoke); mislead developers trying to run these tests",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-17T12:41:01.202Z",
@@ -181,7 +181,9 @@
       "files": [
         "packages/main/src/tasks/provider-codex-smoke.ts",
         "packages/main/src/tasks/reviewer-quorum-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit 7188141fa: stale Run: comments in provider-codex-smoke.ts:19 and reviewer-quorum-smoke.ts:3 updated to test:legacy form.",
+      "resolvedAt": "2026-06-17T12:53:54.878Z"
     },
     {
       "id": "B-d7c3:F-011",
