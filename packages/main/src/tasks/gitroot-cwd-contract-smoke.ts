@@ -53,14 +53,50 @@ import { readFileSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 
 // ── Canonical regex (KEEP IN SYNC with the project-level contract) ──────────
-// Captures `(execFileSync|spawnSync|execSync)\(['"]git['"]` to identify a git
-// child-process call. The cwd lookahead is a separate parse step (callee may
-// span multiple lines) — we scan a sliding window per match.
-const GIT_CALL_REGEX = /(execFileSync|spawnSync|execSync)\(['"]git['"]/g;
+// Captures `(execFileSync|spawnSync|execSync)\(<q>git` to identify a git
+// child-process call, where <q> is a string-literal quote (' or ") OR a
+// backtick template opener (`). The cwd lookahead is a separate parse step
+// (callee may span multiple lines) — we scan a sliding window per match.
+//
+// B-6666 BLIND SPOT B (backtick): the old regex matched ONLY ['"]git['"] so
+// backtick-template forms like execSync(`git status`, { cwd: projectRoot })
+// were entirely invisible to the contract (~14 non-smoke backtick git sites
+// existed, 4 with a confirmed bare-root cwd). The quote class is now [`'"] and
+// the trailing quote requirement is dropped (a backtick template's literal does
+// not close before the args), so both literal and template git calls are seen.
+const GIT_CALL_REGEX = /(execFileSync|spawnSync|execSync)\([`'"]git/g;
 
 // Bare-cwd antipattern: `cwd:` followed by one of the project-root identifiers
 // (no qualifier / call expression). Matches both single-line and multi-line.
 const BARE_CWD_REGEX = /\bcwd:\s*(projectRoot|root|metadataRoot)\s*[,}]/;
+
+// ── B-6666 BLIND SPOT A (alias) ─────────────────────────────────────────────
+// The d93b69b8f silencing renamed bad roots to a fresh local so the literal
+// BARE_CWD_REGEX (which only matches the three bare identifiers AT the cwd:
+// site) no longer fired:
+//   const gitCwd = projectRoot;            // no resolveGitCwd — still the bad root
+//   execSync('git ...', { cwd: gitCwd });  // PASSES the old regex
+// This is a no-op alias: it launders a bare projectRoot/root/metadataRoot into a
+// new name that is then used as a git cwd, defeating the contract WITHOUT routing
+// through resolveGitCwd.
+//
+// Detection (proximity-scoped — see preMortem #3): we first collect every
+// `const <name> = projectRoot|root|metadataRoot;` declaration whose RHS is a
+// BARE project-root identifier (no resolveGitCwd / no member access / no call).
+// Such a name is a "tainted alias". A tainted alias is a VIOLATION *only* when it
+// is subsequently used as the `cwd:` of a git call window — so a legitimate
+// `const x = projectRoot` that is never a git cwd is NOT flagged.
+
+// `const <name> = projectRoot|root|metadataRoot ;`  (RHS must be EXACTLY a bare
+// project-root identifier; `const x = resolveGitCwd(...)` / `const x = root.foo`
+// / `const x = gitCwd ?? root` do NOT match because of the `;` terminator and
+// the single-identifier RHS).
+const TAINTED_ALIAS_DECL_REGEX = /\bconst\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(projectRoot|root|metadataRoot)\s*;/g;
+
+// `cwd: <identifier>` — captures the identifier used as a git cwd so it can be
+// cross-checked against the tainted-alias set. Bare project-root identifiers are
+// already caught by BARE_CWD_REGEX; this catches the laundered-alias case.
+const CWD_IDENT_REGEX = /\bcwd:\s*([A-Za-z_$][A-Za-z0-9_$]*)\s*[,}]/;
 
 // ── Allowlist ────────────────────────────────────────────────────────────────
 // Paths are repository-relative (POSIX separators). A file is exempt if its
@@ -78,7 +114,91 @@ const ALLOWLIST_EXACT = new Set<string>([
   'packages/main/src/tasks/main-write-lock-coverage.ts',
 ]);
 
-/** Returns true if the repo-relative path should be skipped by the contract. */
+// ── B-6666 DEFERRED-SITE ALLOWLIST (scoped follow-up) ────────────────────────
+// When B-6666 strengthened this contract to close the alias (BLIND SPOT A) and
+// backtick (BLIND SPOT B) blind spots, the strengthened rules surfaced the FULL
+// d93b69b8f silencing batch — ~two dozen `const <name> = projectRoot|root|
+// metadataRoot;` no-op aliases (mass-introduced across core/done-oracle, dispatch,
+// handoff, doctor, checklist, etc.) plus a handful of bare-root backtick git calls.
+// CHK-001/CHK-002 fixed the CONFIRMED high-severity wrapper-root sites
+// (done-oracle.ts + evidence-freshness.ts), and CHK-003 fixed validate-channel.ts /
+// validate-concept.ts (their git readers already received the resolved gitCwd via
+// deps.gitCwd; the closure param was renamed projectRoot→gitCwd so the wiring is
+// lexically honest and no allowlist entry is needed for them).
+//
+// The remaining batch is LARGER than this story can safely re-thread (preMortem #2):
+// each fix needs a resolved gitCwd threaded through its own caller chain, and most
+// are NOT in the confirmed wrapper-root DONE/authority blast radius. Per the
+// charter's bounded-blast-radius escape valve, they are DEFERRED here — explicitly,
+// auditably, and WITHOUT widening the detection regex to ignore them. The contract
+// stays GREEN; these files are skipped ONLY for the alias + bare-backtick rules
+// (the original literal-string bare-cwd rule still applies to non-allowlisted files).
+//
+// FOLLOW-UP (TODO B-6666 → tracked alongside B-99b6): burn this list down by
+// threading resolveGitCwd into each site (or proving it is a self-bootstrapping
+// toplevel-discovery cwd, like test-runner-core.ts:43). Removing an entry below and
+// re-running `npm run test:gitroot-cwd-contract` shows exactly which sites remain.
+// Each entry: <repo-rel path> — <why deferred>.
+const DEFERRED_ALLOWLIST_EXACT = new Set<string>([
+  // ── B-db56 silencing batch: `const <name> = root|projectRoot;` aliases used as
+  //    a git cwd without resolveGitCwd (the exact d93b69b8f shape). Not in this
+  //    story's allowed paths; each needs its own caller to thread a resolved gitCwd.
+  'packages/lab/src/core/sandbox.ts',
+  'packages/main/src/core/codex-adapter-checks.ts',
+  'packages/main/src/core/lattice-dispatch.ts',
+  'packages/main/src/core/lattice-handoff.ts',
+  'packages/main/src/core/review-run.ts',
+  'packages/main/src/core/rollout-check.ts',
+  'packages/main/src/handlers/checklist.ts',
+  'packages/main/src/handlers/doctor.ts',
+  'packages/main/src/handlers/done-effects.ts',
+  'packages/main/src/handlers/init-check.ts',
+  'packages/main/src/handlers/review-run.ts',
+  'packages/main/src/handlers/session.ts',
+  'packages/main/src/handlers/story-query.ts',
+  'packages/main/src/handlers/test-auto.ts',
+  'packages/main/src/handlers/verifier.ts',
+  'packages/main/src/handlers/worktree.ts',
+  'packages/main/src/tasks/gap-analyze.ts',
+  'packages/main/src/tasks/trace-store.ts',
+  // ── Bare-root backtick git calls (BLIND SPOT B) outside this story's safely-
+  //    fixable bounded scope:
+  //    test-runner-core.ts: `const gitCwd = root` at :43 is a SELF-BOOTSTRAPPING
+  //      `git rev-parse --show-toplevel` discovery (root is the search origin, not
+  //      an assumed toplevel — threading resolveGitCwd would be circular); the
+  //      :377/:378 `git restore/clean` fixture cleanup uses bare `root` and would
+  //      need a gitCwd threaded through cleanupFixtureDir's 4 callers (test-auto/
+  //      test-fixture/test-story) — out of bounded scope.
+  'packages/main/src/handlers/test-runner-core.ts',
+  //    test-runner.ts: `git diff --name-only` from bare projectRoot; standalone
+  //      task with no store/storyId at the call site.
+  'packages/main/src/tasks/test-runner.ts',
+  //    aux-diagnose.ts (packages/utils): `git diff` from bare root; outside the
+  //      main package and this story's allowed paths.
+  'packages/utils/src/handlers/aux-diagnose.ts',
+  // ── BLIND SPOT C (inline-arg string literal) sites surfaced by B-6666 ──────
+  //    The OLD GIT_CALL_REGEX required `git` to be IMMEDIATELY followed by a
+  //    closing quote (`'git'`), so single-string invocations like
+  //    execSync('git rev-parse --abbrev-ref HEAD', { cwd: root }) — where the
+  //    args live INSIDE the same string literal — were entirely invisible. Drop-
+  //    ping the trailing-quote requirement (to also see backtick templates)
+  //    additionally closes this inline-arg literal gap. These are genuine bare-
+  //    root git calls (mostly branch / status / worktree probes that infer the
+  //    active story or render the dashboard) outside this story's allowed paths
+  //    and outside the confirmed wrapper-root DONE/authority blast radius.
+  //    FOLLOW-UP (TODO B-6666 → B-99b6 burndown): thread resolveGitCwd into each.
+  'packages/main/src/core/stale-detector.ts',          // detectActiveStoryId branch probe
+  'packages/main/src/core/touchpoints-fallback.ts',    // detectMdTouchpointsFromGit diff
+  'packages/main/src/core/validation-executor.ts',     // readGitStatus porcelain
+  'packages/main/src/dashboard.ts',                    // worktree list + dirty status (x2)
+  'packages/main/src/handlers/codex-adapter.ts',       // detectStoryIdFromBranch
+  'packages/main/src/handlers/fixture.ts',             // inferStoryIdFromGit
+  'packages/main/src/handlers/recover-evidence.ts',    // readGitStatusLines porcelain
+  // session.ts is ALSO in the alias batch above; its :265 listActiveWorktrees is
+  // an inline-arg literal bare-root probe (same deferral) — single entry covers both.
+]);
+
+/** Returns true if the repo-relative path is exempt from ALL contract rules. */
 function isAllowlisted(repoRelPath: string): boolean {
   if (ALLOWLIST_EXACT.has(repoRelPath)) return true;
   // Smoke tasks (packages/<pkg>/src/tasks/*-smoke.ts) build their own fixtures
@@ -87,33 +207,107 @@ function isAllowlisted(repoRelPath: string): boolean {
   return false;
 }
 
-// ── Detection: given a file's text + a byte offset of a git-call match,
-//    look ahead for the call's cwd: argument. Returns the violation column +
-//    line number, or null when the call's cwd source is acceptable.
-//
+/**
+ * B-6666: returns true if the file is a DEFERRED site exempt ONLY from the new
+ * alias + backtick-bare-root rules (the original literal-string bare-cwd rule
+ * still applies). See DEFERRED_ALLOWLIST_EXACT for the scoped follow-up rationale.
+ */
+function isDeferredFromNewRules(repoRelPath: string): boolean {
+  return DEFERRED_ALLOWLIST_EXACT.has(repoRelPath);
+}
+
+// ── Detection ────────────────────────────────────────────────────────────────
+// Rule kinds the contract enforces, per git-call window (string-literal OR
+// backtick template, since B-6666 widened GIT_CALL_REGEX):
+//   'bare'  — `cwd:` is one of the three BARE project-root identifiers
+//             (projectRoot|root|metadataRoot) directly (BARE_CWD_REGEX).
+//   'alias' — `cwd:` is an identifier that was declared earlier in the file as
+//             `const <name> = projectRoot|root|metadataRoot;` with no
+//             resolveGitCwd (the d93b69b8f laundering). Proximity-scoped: a
+//             tainted alias is only a violation when used as a git cwd window's
+//             cwd: (a `const x = projectRoot` never used as a git cwd is NOT
+//             flagged).
+export type ViolationKind = 'bare' | 'alias';
+
+export interface Violation {
+  line: number;
+  matchedIdent: string;
+  kind: ViolationKind;
+}
+
+export interface DetectOptions {
+  /**
+   * When true, only the original literal-string bare-cwd rule is applied (the
+   * file is on the B-6666 deferred allowlist for the NEW alias + backtick rules).
+   * We still report a 'bare' violation ONLY if it occurs in a STRING-LITERAL git
+   * call window — the original B-db56 coverage — never in a backtick window.
+   */
+  deferredFromNewRules?: boolean;
+}
+
+/** Collect the set of tainted no-op alias names declared in the file text. */
+function collectTaintedAliases(text: string): Set<string> {
+  const names = new Set<string>();
+  TAINTED_ALIAS_DECL_REGEX.lastIndex = 0;
+  let d: RegExpExecArray | null;
+  while ((d = TAINTED_ALIAS_DECL_REGEX.exec(text)) !== null) {
+    names.add(d[1]);
+  }
+  return names;
+}
+
+// The ORIGINAL (pre-B-6666) GIT_CALL_REGEX only matched `(...)(['"]git['"]` —
+// i.e. `git` immediately followed by the CLOSING quote (`'git'` / `"git"`), the
+// execFileSync('git', ['rev-parse', ...]) form. It was BLIND to both backtick
+// templates AND inline-arg string literals (execSync('git rev-parse ...', ...)).
+// For DEFERRED files we keep the original coverage only — a bare violation in a
+// deferred file is reported ONLY if the OLD regex would also have seen it.
+const OLD_GIT_CALL_REGEX = /(execFileSync|spawnSync|execSync)\(['"]git['"]/;
+function isOldRegexVisible(window: string): boolean {
+  return OLD_GIT_CALL_REGEX.test(window);
+}
+
 // We scan up to 1500 chars after the match (enough to span a typical multi-
 // line options literal). The first `cwd:` we find in that window is treated
 // as the call's cwd binding (no nested-call handling — production code does
 // not nest git calls inside the options literal).
-function scanFileForViolations(absPath: string, repoRelPath: string): Array<{ line: number; matchedIdent: string }> {
-  const text = readFileSync(absPath, 'utf-8');
-  const violations: Array<{ line: number; matchedIdent: string }> = [];
+function detectViolations(text: string, opts: DetectOptions = {}): Violation[] {
+  const violations: Violation[] = [];
+  const taintedAliases = collectTaintedAliases(text);
 
   GIT_CALL_REGEX.lastIndex = 0;
   let m: RegExpExecArray | null;
   while ((m = GIT_CALL_REGEX.exec(text)) !== null) {
     const callStart = m.index;
     const window = text.slice(callStart, Math.min(text.length, callStart + 1500));
+
+    // Rule 1: BARE cwd (BARE_CWD_REGEX). For DEFERRED files, only windows the OLD
+    // regex would also have seen count (preserves the original B-db56 coverage;
+    // the NEW backtick + inline-arg-literal catches are deferred for those files).
     const bare = BARE_CWD_REGEX.exec(window);
-    if (!bare) continue;
-    // Compute the absolute line number of the BARE-CWD position (not the git
-    // call): the error must point at the offending `cwd:` line so the user can
-    // jump straight to the bug.
-    const offsetOfBare = callStart + bare.index;
-    const line = countLines(text, offsetOfBare);
-    violations.push({ line, matchedIdent: bare[1] });
+    if (bare && !(opts.deferredFromNewRules && !isOldRegexVisible(window))) {
+      const offsetOfBare = callStart + bare.index;
+      violations.push({ line: countLines(text, offsetOfBare), matchedIdent: bare[1], kind: 'bare' });
+      continue; // one violation per window is enough to fail the gate
+    }
+
+    // Rules 2/3 are NEW (alias + backtick) — fully skipped for deferred files.
+    if (opts.deferredFromNewRules) continue;
+
+    // Rule 2: ALIAS cwd — the cwd: identifier is a tainted no-op alias.
+    const cwdIdent = CWD_IDENT_REGEX.exec(window);
+    if (cwdIdent && taintedAliases.has(cwdIdent[1])) {
+      const offsetOfCwd = callStart + cwdIdent.index;
+      violations.push({ line: countLines(text, offsetOfCwd), matchedIdent: cwdIdent[1], kind: 'alias' });
+    }
   }
   return violations;
+}
+
+// ── Detection: per-file repo scan (reads the file, applies the deferred policy).
+function scanFileForViolations(absPath: string, repoRelPath: string): Violation[] {
+  const text = readFileSync(absPath, 'utf-8');
+  return detectViolations(text, { deferredFromNewRules: isDeferredFromNewRules(repoRelPath) });
 }
 
 /** 1-indexed line number of byte `offset` within `text`. */
@@ -147,20 +341,58 @@ const SELF_TEST_BAD = [
   `}`,
 ].join('\n');
 
+// ── B-6666 self-test fixtures: ALIAS rule (BLIND SPOT A) ─────────────────────
+// KNOWN-BAD: the exact d93b69b8f silencing — a no-op `const gitCwd = projectRoot`
+// laundered into a git cwd without resolveGitCwd. Must yield EXACTLY 1 violation.
+const SELF_TEST_ALIAS_BAD = [
+  `import { execSync } from 'child_process';`,
+  `export function bad(projectRoot: string) {`,
+  `  const gitCwd = projectRoot;`,
+  `  return execSync('git', ['status'], { cwd: gitCwd, encoding: 'utf8' });`,
+  `}`,
+].join('\n');
+
+// KNOWN-GOOD #1: a `const x = projectRoot` that is NEVER used as a git cwd —
+// proximity scoping means it must NOT be flagged (preMortem #3).
+const SELF_TEST_ALIAS_GOOD_UNUSED = [
+  `export function ok(projectRoot: string) {`,
+  `  const x = projectRoot;`,
+  `  return x.length; // not a git cwd`,
+  `}`,
+].join('\n');
+
+// KNOWN-GOOD #2: an alias whose value CAME FROM resolveGitCwd, used as a git cwd
+// — must NOT be flagged (the RHS is a call, not a bare project-root identifier).
+const SELF_TEST_ALIAS_GOOD_RESOLVED = [
+  `import { execSync } from 'child_process';`,
+  `import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';`,
+  `export function good(store: any, storyId: string, projectRoot: string) {`,
+  `  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });`,
+  `  return execSync('git', ['status'], { cwd: gitCwd, encoding: 'utf8' });`,
+  `}`,
+].join('\n');
+
+// ── B-6666 self-test fixtures: BACKTICK rule (BLIND SPOT B) ──────────────────
+// KNOWN-BAD: a backtick-template git call with a BARE project-root cwd — invisible
+// to the OLD ['"]git['"] regex. Must be flagged ('bare' kind).
+const SELF_TEST_BACKTICK_BAD = [
+  `import { execSync } from 'child_process';`,
+  `export function bad(projectRoot: string) {`,
+  '  return execSync(`git status`, { cwd: projectRoot, encoding: \'utf8\' });',
+  `}`,
+].join('\n');
+
+// KNOWN-GOOD: a backtick-template git call with a resolved cwd — NOT flagged.
+const SELF_TEST_BACKTICK_GOOD = [
+  `import { execSync } from 'child_process';`,
+  `export function good(resolvedGitCwd: string) {`,
+  '  return execSync(`git status`, { cwd: resolvedGitCwd, encoding: \'utf8\' });',
+  `}`,
+].join('\n');
+
 /** Run the same per-file scan logic against an inline string. */
-function scanText(text: string): Array<{ line: number; matchedIdent: string }> {
-  const out: Array<{ line: number; matchedIdent: string }> = [];
-  GIT_CALL_REGEX.lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while ((m = GIT_CALL_REGEX.exec(text)) !== null) {
-    const callStart = m.index;
-    const window = text.slice(callStart, Math.min(text.length, callStart + 1500));
-    const bare = BARE_CWD_REGEX.exec(window);
-    if (!bare) continue;
-    const offsetOfBare = callStart + bare.index;
-    out.push({ line: countLines(text, offsetOfBare), matchedIdent: bare[1] });
-  }
-  return out;
+function scanText(text: string): Violation[] {
+  return detectViolations(text);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -369,6 +601,58 @@ if (badHits.length !== 1 || badHits[0].matchedIdent !== 'projectRoot') {
 }
 pass('self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot');
 
+// ── Step 0a: B-6666 ALIAS rule self-tests (BLIND SPOT A) ─────────────────────
+const aliasBadHits = scanText(SELF_TEST_ALIAS_BAD);
+if (aliasBadHits.length !== 1 || aliasBadHits[0].kind !== 'alias' || aliasBadHits[0].matchedIdent !== 'gitCwd') {
+  fail(
+    `self-test ALIAS KNOWN-BAD fixture (const gitCwd = projectRoot used as git cwd) ` +
+    `must produce EXACTLY one 'alias' violation on 'gitCwd' — got ` +
+    JSON.stringify(aliasBadHits),
+  );
+}
+pass('self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation');
+
+const aliasGoodUnusedHits = scanText(SELF_TEST_ALIAS_GOOD_UNUSED);
+if (aliasGoodUnusedHits.length !== 0) {
+  fail(
+    `self-test ALIAS KNOWN-GOOD (const x = projectRoot NOT used as git cwd) was ` +
+    `flagged — alias rule is not proximity-scoped (preMortem #3). Hit(s): ` +
+    JSON.stringify(aliasGoodUnusedHits),
+  );
+}
+pass('self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations');
+
+const aliasGoodResolvedHits = scanText(SELF_TEST_ALIAS_GOOD_RESOLVED);
+if (aliasGoodResolvedHits.length !== 0) {
+  fail(
+    `self-test ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) used as git cwd) ` +
+    `was flagged — a resolved alias must NOT count as tainted. Hit(s): ` +
+    JSON.stringify(aliasGoodResolvedHits),
+  );
+}
+pass('self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations');
+
+// ── Step 0c: B-6666 BACKTICK rule self-tests (BLIND SPOT B) ──────────────────
+const backtickBadHits = scanText(SELF_TEST_BACKTICK_BAD);
+if (backtickBadHits.length !== 1 || backtickBadHits[0].kind !== 'bare' || backtickBadHits[0].matchedIdent !== 'projectRoot') {
+  fail(
+    `self-test BACKTICK KNOWN-BAD fixture (execSync(\`git ...\`, { cwd: projectRoot })) ` +
+    `must produce EXACTLY one 'bare' violation on 'projectRoot' — got ` +
+    JSON.stringify(backtickBadHits),
+  );
+}
+pass('self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation');
+
+const backtickGoodHits = scanText(SELF_TEST_BACKTICK_GOOD);
+if (backtickGoodHits.length !== 0) {
+  fail(
+    `self-test BACKTICK KNOWN-GOOD (execSync(\`git ...\`, { cwd: resolvedGitCwd })) was ` +
+    `flagged — backtick rule must not false-positive on a resolved cwd. Hit(s): ` +
+    JSON.stringify(backtickGoodHits),
+  );
+}
+pass('self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations');
+
 // ── Step 0b: self-test the review-preflight docs-drift repoRoot assertion ─────
 const docsDriftGoodViolation = checkDocsDriftRepoRoot(DOCS_DRIFT_SELF_TEST_GOOD, 'self-test GOOD');
 if (docsDriftGoodViolation !== null) {
@@ -398,9 +682,13 @@ for (const rel of files) {
   const abs = isAbsolute(rel) ? rel : resolve(root, rel);
   const hits = scanFileForViolations(abs, rel);
   for (const hit of hits) {
+    const detail = hit.kind === 'alias'
+      ? `no-op alias '${hit.matchedIdent}' (= bare projectRoot/root/metadataRoot) used as git ` +
+        `cwd — this launders a bare root past the contract (the d93b69b8f shape); ` +
+        `assign it from resolveGitCwd(...) instead`
+      : `bare projectRoot/root/metadataRoot used as git cwd — route through resolveGitCwd`;
     violations.push(
-      `${abs}:${hit.line}: bare projectRoot/root/metadataRoot used as git ` +
-      `cwd — route through resolveGitCwd ` +
+      `${abs}:${hit.line}: ${detail} ` +
       `(packages/main/src/core/story-signed-workspace-resolution.ts)`,
     );
   }
