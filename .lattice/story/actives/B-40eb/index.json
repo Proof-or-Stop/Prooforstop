@@ -4,7 +4,7 @@
   "title": "koala 残留全量清扫：清理活跃源码/脚本/文档的 koala 品牌，保留运行时路径/盐值/历史决策/测试意图等 documented exceptions",
   "description": "ship-clean 计划 story 3（residual sweep）。OSS 开源前清掉 active 代码层残留的 koala 品牌。盘点 321 候选文件（真品牌 255 / koala.config.json fixture 37 / 仅 .koala 运行时路径 29），judgment-laden：必须区分该清（lab/main/scripts/docs 的品牌与散文）与该留（decisions 历史决策、测试断言意图、.koala 运行时路径、签名盐值）。验收：git grep -i koala 在 active 代码/脚本/文档里只剩 documented-exceptions 白名单。",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "koala",
@@ -60,6 +60,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T02:16:07.737Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:29:36.252Z",
       "branch": "story/B-40eb",
       "user": "Harmonygo",
       "agent": "main"
