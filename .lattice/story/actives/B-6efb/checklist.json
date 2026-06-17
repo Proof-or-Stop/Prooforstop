@@ -41,7 +41,18 @@
       "userSees": "`npm run test:run-all-smokes-smoke` exits 0 on HEAD; injecting a runner bug makes it fail with a specific assertion message.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts"
+        ]
+      }
     }
   ]
 }
