@@ -101,7 +101,43 @@
       "userSees": "The smoke asserts that writing finding-signals.json leaves currentMaterialHash() unchanged (the derived cache is excluded from gate material hashing).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runtime-artifact-registry contains entry for .lattice/learning/finding-signals.json with materialHash:exclude and volatile:true -> registry lookup confirms the entry exists with correct properties; WHY: proves the cache is excluded from gate material hashing",
+            "type": "cli"
+          },
+          {
+            "desc": "runtime-artifact-registry contains entry for .lattice/learning/learning-log.jsonl with materialHash:exclude and volatile:true -> registry lookup confirms; WHY: proves the learning log is also gate-excluded",
+            "type": "cli"
+          },
+          {
+            "desc": "currentMaterialHash() before writing finding-signals.json equals currentMaterialHash() after writing -> hash unchanged; WHY: the load-bearing gate-safety property proving cache writes do not pollute gate freshness",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "writing finding-signals.json when file did not previously exist -> currentMaterialHash still unchanged; WHY: creation (not just overwrite) must also be excluded",
+            "type": "cli"
+          },
+          {
+            "desc": "writing learning-log.jsonl (append) -> currentMaterialHash unchanged; WHY: log appends must also be excluded from gate hashing",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "write finding-signals.json then delete it then check currentMaterialHash -> hash remains same as before write; WHY: create-then-delete cycle must not leave ghost hash pollution",
+            "type": "cli"
+          },
+          {
+            "desc": "overwrite finding-signals.json with different content multiple times -> currentMaterialHash unchanged throughout; WHY: repeated writes with varying content must all be excluded, not just the first",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
