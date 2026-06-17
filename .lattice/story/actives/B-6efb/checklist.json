@@ -151,8 +151,8 @@
       "title": "Add the runner's self-smoke at packages/main/src/tasks/run-all-smokes-smoke.ts",
       "context": "Create packages/main/src/tasks/run-all-smokes-smoke.ts that verifies the runner: (a) correctly detects a known-PASSING fixture smoke as PASS; (b) correctly detects a deliberate-FAIL fixture smoke as FAIL; (c) honors --tag filtering (running with --tag missing-tag returns 0 smokes); (d) honors --select filtering; (e) honors --jobs N parallelism (run with --jobs 1 vs --jobs 4, both pass). The fixtures can be inline JS strings the smoke writes to a tmpdir + invokes the runner with a config pointing at them. Standalone-runnable: `node packages/main/dist/tasks/run-all-smokes-smoke.js`. Add `\"test:run-all-smokes-smoke\": \"node packages/main/dist/tasks/run-all-smokes-smoke.js\"` to packages/main/package.json. Acceptance: the self-smoke exits 0 when the runner behaves correctly; if you deliberately break the runner (e.g. swallow a child's non-zero exit), the self-smoke fails with a clear pointer.",
       "userSees": "`npm run test:run-all-smokes-smoke` exits 0 on HEAD; injecting a runner bug makes it fail with a specific assertion message.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T01:57:34.949Z",
       "endTime": null,
       "files": {
         "modify": [
