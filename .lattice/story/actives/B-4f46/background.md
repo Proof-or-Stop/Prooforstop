@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-17, story B-000c landed Experience Layer Phase 1a (finding-signals derivation) on main. The derivation already reads optional finding fields (signatureTag, resolutionType, dismissReasonType) forward-compatibly, but real findings do not carry them yet, so signalScore stays conservatively 0. Phase 1b, per docs/requirements/decisions/lattice-experience-layer-execution-plan.md, captures those structured outcome fields at finding time so the signals become meaningful.
+
+## Key Insight
+The fields must be ADDITIVE and AUDIT-ONLY: finding_add gains optional signatureTag; finding_resolve gains optional resolutionType (fixed|duplicate|superseded|accepted_risk|partially_mitigated) + resolveEvidenceStrength; finding_dismiss gains optional dismissReasonType (false_positive|out_of_scope|duplicate|wontfix|unclear|already_covered) + dismissEvidenceStrength. dismissReasonType MUST be optional (a required new param would break every existing finding_dismiss caller). These fields MUST NOT be read by advisory.ts or any gate logic (the determinism guardrail) and MUST stay out of the finding signature domain. A signature-registry (.lattice/learning/signature-registry.json) prevents synonym-tag drift: finding_add auto-records a new signatureTag as status=proposed; active requires explicit human approval; aliases and mergedInto fold synonyms.
+
+## Tradeoff
+We enrich the finding subsystem in place (types.ts, cli-engine.ts schemas, finding.ts handlers) plus add the signature-registry to learning-store and a minimal signature CLI, rather than building a parallel store. Cost: touching the existing finding handlers carries back-compat risk. We mitigate with optional-only fields, the existing evidenceState validation pattern, and a no-regression smoke proving legacy findings/calls are unchanged and that gates never read the new fields.
+
+## Conversation Texture
+The user asked to implement the whole execution plan phase by phase via the Lattice workflow until the document is fully realized. This is the second slice. It follows B-000c (Phase 1a) and precedes Phase 1.5 (advisory hint injection). All work goes through the Lattice story lifecycle; no Co-Authored-By trailer.
