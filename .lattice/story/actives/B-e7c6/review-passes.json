@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T17:51:12.351Z",
       "reviewRunId": "B-e7c6:RR-002",
       "_hash": "49ad8a3171a3cc8522e2994605c5a19a46a9a669a3a8f25c1a55b76211c96ee3"
+    },
+    {
+      "id": "B-e7c6:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "3-file koala-lab rename is complete and correct. (1) config.ts L71: $schema literal changed to lattice-lab/experiment.v1; validateExperimentConfig does not check $schema so rename is safe. (2) lab-foundation.json: all 10 fixture mkdtemp prefixes + the embedded adversarial $schema literal updated consistently with no omissions. (3) verify-koala-residue.mjs: the koala-lab/experiment exemption regex was the only remaining shield for a token that no longer exists in active scope; removing it is correct dead-code cleanup. No unused imports, no as-any, no empty catch, no shell-isolation violation found.",
+      "createdAt": "2026-06-17T17:52:27.422Z",
+      "reviewRound": "2026-06-17T17:51:12.351Z",
+      "reviewRunId": "B-e7c6:RR-003",
+      "_hash": "ba0008f58a622c51bb0e10bf3d8b922b0de8d645bbbf23baf5e2073e7410c980"
     }
   ]
 }
