@@ -232,6 +232,30 @@
         }
       ],
       "_hash": "1919d59e399aec51902e59068d27c17181ffdd450d8499968f4d2dbe9331287f"
+    },
+    {
+      "timestamp": "2026-06-17T13:46:01.316Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"Add docs/dev/test-coverage.md describing test:coverage usage\") was added in PLAN phase: PLAN scope-plan reviewer GAP-001: A0 B3 spec line 180-181 says 'Document the report in docs/' — a separate commitment from CHANGELOG/decision-doc DONE marker. Adding CHK-004 to close the gap."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Add c8 devDependency + .c8rc.json config + Wire test:coverage npm script are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: c8 latest stable major version (probably 10.x); Whether single-process serial run completes in acceptable time (~30x slower than parallel; expected <10 min for 139 smokes); Whether all 139 manifest smokes pass in serial mode (some may have parallelism assumptions)"
+        }
+      ],
+      "_hash": "82f8d35f61714f9501c6648553e60591602cfd4a9a70fa9629be5b3771279814"
     }
   ]
 }
