@@ -31,6 +31,22 @@
       "files": [
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ]
+    },
+    {
+      "id": "B-40eb:F-003",
+      "desc": "CHK-003:happy:0 and CHK-004:happy:0 — both must intents require filtering git grep output through the branding classifier to confirm zero unclassified lines. Both evidence entries use `perl /tmp/bf2.pl` as the filter (a temporary file path). /tmp/bf2.pl is an ephemeral artifact with no content recorded in evidence, no hash, and no guarantee it encodes the same B-3cca branding rules as cli-engine-branding-smoke.ts. This violates evidence binding: the filter script whose output is cited as pass-proof is not durably reproducible from the evidence record. If /tmp/bf2.pl used weaker or different exclusion rules than the canonical NEUTRAL_TOKEN_PATTERNS in cli-engine-branding-smoke.ts, the zero-residual claim could be false. The evidence should reference a versioned, committed filter script or use `node packages/main/dist/tasks/cli-engine-branding-smoke.js` (which scans committed files) rather than an ephemeral /tmp script.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:31.734Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "3577244e48c182a157cf68fe926ac201a58aaa909a806a349a4a25966b8d3845",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
     }
   ]
 }
