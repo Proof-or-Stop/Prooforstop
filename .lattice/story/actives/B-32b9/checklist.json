@@ -148,6 +148,17 @@
           "headHash": "717c654a4603f5ea2877c38876f770500baccbbb",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:01:21.820Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "Code inspection: intentHtml guards against empty array",
+          "result": "pass",
+          "note": "lineage.js line 455: intentHtml checks (meta.verificationIntent && meta.verificationIntent.length). Empty array: length=0 → falsy → empty string returned. No section header rendered. B-0414 pending CHK nodes have verificationIntent items; demo node without intent would render nothing without error.",
+          "headHash": "e8df2e26533fa061f394d579ff0cfbd5c7ccb9b0",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:01:35.776Z"
         }
       ]
     },
