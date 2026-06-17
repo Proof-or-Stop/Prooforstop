@@ -5,7 +5,7 @@
       "desc": "CHK-001:adversarial:1 lacks concrete verificationEvidence; intent requires asserting that concurrent writeFindingSignals calls from two async contexts leave the file never truncated or empty (last-writer-wins with valid JSON), but the smoke (test:experience-layer-finding-signals) contains no concurrent or Promise.all write path — all 20 checks are sequential. The evidence note is a generic round-trip description that does not bind this behavior. This is a must-coverage gap under normal channel.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T11:50:47.956Z",
@@ -15,7 +15,9 @@
       "files": [
         "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
         "packages/main/src/core/learning-store.ts"
-      ]
+      ],
+      "resolvedReason": "Added smoke check 'concurrent writeFindingSignals never truncates (CHK-001:adversarial:1)': fires ~20 concurrent writes + interleaved reads, asserts every read is complete-or-absent (never truncated) and the final file is valid JSON equal to one written cache (last-writer-wins via atomic temp+rename). Smoke now 21/21; no production change needed. Commit 993390ba.",
+      "resolvedAt": "2026-06-17T11:55:37.092Z"
     }
   ]
 }
