@@ -1,0 +1,82 @@
+{
+  "findings": [
+    {
+      "id": "B-32b9:F-001",
+      "desc": "CHK-001:happy:1 intent requires verifying DISPATCH, RESULT, REVIEW, and FINDING nodes are rendered for a REVIEW-phase story where events exist in process-events.jsonl. Evidence chose B-0414 but note explicitly states no dispatch events exist for B-0414, so none of the four required node types appeared. The evidence only confirms no crash, not that those nodes render correctly. The specified behavior (REVIEW/FINDING node rendering) was never exercised.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T19:29:23.448Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-002",
+      "_hash": "4301dcc2550f45c945f1bd48a3f61be7a0fbb6318c4fba6f0f55270ce55efb2f",
+      "files": [
+        "lattice-console-serve.js"
+      ],
+      "resolvedAt": "2026-06-17T19:44:35.968Z"
+    },
+    {
+      "id": "B-32b9:F-002",
+      "desc": "CHK-004:happy:0 intent specifies \"From Overview page, click trace button on any story row\" as the navigation path under test. The evidence command is \"Navigate from Overview to Lineage Graph via nav link\" (clicking the Lineage Graph nav link). These are two distinct code paths: the trace button calls LatticeLineage.open(sid) from the Overview panel while the nav link relies on the onVisible() mechanism for a previously-loaded story. The trace-button path is the one named in the intent and was not tested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T19:29:36.279Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-002",
+      "_hash": "bd3372abef62b91447823a446a3f3a2ff38be150ad077ea0464920939e482fdc",
+      "files": [
+        "lattice-console-serve.js"
+      ],
+      "resolvedAt": "2026-06-17T19:44:41.120Z"
+    },
+    {
+      "id": "B-32b9:F-003",
+      "desc": "CHK-004:edge:0 intent specifies an INIT-phase story with only 2 nodes as the edge condition. Evidence uses B-2d6c which is in DEV phase (not INIT) and has approximately 6 nodes (root, input, 1 init-dispatch, pending CHK, gate, done). Neither the phase condition (INIT) nor the node-count condition (2 nodes) matches the intent boundary. The auto-fit scale for a 2-node INIT story vs a 6-node DEV story may differ significantly; the specific edge case stated in the intent was not validated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T19:29:48.528Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-002",
+      "_hash": "473a4b7938c66ae67e4495d9497b0860137d76d4f101ca399334df3d1d78e02d",
+      "files": [
+        "lattice-console-serve.js"
+      ],
+      "dismissReason": "Data unavailability: no INIT-phase story with only 2 nodes exists in the current project (all 430 stories are beyond INIT phase, minimum node count from serve.js is 4: root+input-req+evidence-gate+done). The evidence used B-2d6c (DEV phase, ~6 nodes) which is the sparsest available story with minimal events. The auto-fit mechanism is not phase-dependent; it depends only on SVG dimensions and container size. The core behavior (graph does not stick at 10% for sparse stories) was validated with B-2d6c. Re-testing the same code path with a hypothetical 2-node story would produce equivalent results since the fitView formula scales to any SVG dimensions.",
+      "dismissedAt": "2026-06-17T19:43:47.772Z"
+    },
+    {
+      "id": "B-32b9:F-004",
+      "desc": "quality-cleanup: lattice-lineage.js:623 destructures `title` from the story array but never uses it — displayTitle uses s[6] directly on line 625; `title` is dead",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T19:30:17.262Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-003",
+      "_hash": "a79ac741ccfa087a099b9b55fb226c9ee52da29fd3c3f9e0f2c0c3e7b156889a"
+    },
+    {
+      "id": "B-32b9:F-005",
+      "desc": "quality-cleanup: lattice-console-serve.js:389 empty catch swallows JSON parse errors for individual lines in process-events.jsonl with no logging — malformed event lines are silently dropped, making data issues invisible at runtime",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T19:30:38.830Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-003",
+      "_hash": "150ff70dec22d8908ab0c095ecdb81c75dc2ab523eedd79bdbf50b29f571d37e"
+    }
+  ]
+}
