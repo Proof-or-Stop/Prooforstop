@@ -38,6 +38,14 @@
           "headHash": "ad81000fa488a03a751e5953a33d051532938d10",
           "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
           "timestamp": "2026-06-17T23:19:42.687Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "note": "E2 assertion enforced: resolveAuthorityVerdictBacking({env:{LATTICE_AUTHORITY_MODE:enforce}, fileReader:NO_DISK}) returns mode=local because fileReader blocks authority_trust.env read; no URL + enforce-only = production-inert = local",
+          "headHash": "66318238a900738c9d0d9b27f8a6fbafdb66638e",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:19:52.146Z"
         }
       ]
     },
