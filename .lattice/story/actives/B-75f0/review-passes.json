@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T23:31:35.856Z",
       "reviewRunId": "B-75f0:RR-008",
       "_hash": "6a3122f910d090513d06f592e6e2aa8b1f008b70144878e41c5f42550a0c3f4d"
+    },
+    {
+      "id": "B-75f0:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "round 2: F-001 fix verified (verifier.ts:605 now passes loadConfig(projectRoot) as third arg to resolveProjectGitCwd, matching all 6 other call sites); loadConfig already imported at line 33, no new import needed; plain-repo byte-identity preserved (resolveProjectGitCwd returns resolveProjectGitRoot ?? projectRoot, undefined gitRoot yields verbatim fallback); DEFERRED_ALLOWLIST_EXACT confirmed empty (new Set([])); none of the 16 changed source files added to any allowlist; 9 contract self-tests intact and unmodified; no dead imports, no as-any, no empty catch in changed files",
+      "createdAt": "2026-06-17T23:33:47.166Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-006",
+      "_hash": "0770c46bd297207b6425c5bbc2cfcbe0ed12ee845d1efc5dfeebbddea2920534"
     }
   ]
 }
