@@ -164,6 +164,62 @@
         "test": [
           "packages/main/src/tasks/run-all-smokes-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes-smoke.js` -> exits 0; WHY: self-smoke passes when runner behaves correctly, confirming all 5 sub-checks (pass detection, fail detection, --tag filter, --select filter, --jobs parallelism)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `npm run test:run-all-smokes-smoke` -> exits 0; WHY: confirms the npm script in packages/main/package.json correctly invokes the self-smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify test:run-all-smokes-smoke script in packages/main/package.json: `node -e \"const p=require('./packages/main/package.json'); console.log(p.scripts['test:run-all-smokes-smoke'])\"` -> prints the runner invocation; WHY: confirms npm script wiring exists",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `npx tsc --noEmit -p packages/main/tsconfig.json` -> exits 0; WHY: confirms run-all-smokes-smoke.ts compiles without type errors",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Self-smoke runs via the consolidated runner: `node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes-smoke` -> exits 0 with exactly 1 PASS line for run-all-smokes-smoke; WHY: self-smoke must be discoverable and runnable through its own runner (dogfooding)",
+            "type": "cli"
+          },
+          {
+            "desc": "Self-smoke with --jobs 1: `node packages/main/dist/tasks/run-all-smokes-smoke.js` internally tests --jobs 1 vs --jobs 4 equivalence -> both sub-runs produce same exit code; WHY: parallelism edge case is part of the self-smoke contract per context item (e)",
+            "type": "cli"
+          },
+          {
+            "desc": "Self-smoke with --tag missing-tag-xyz sub-check: self-smoke internally invokes runner with nonexistent tag -> runner returns 0 smokes with exit 0; WHY: empty tag match is part of self-smoke contract per context item (c)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Self-smoke detects deliberate-FAIL fixture as FAIL: the self-smoke creates a tmpdir fixture that exits 1, runs the runner against it, asserts runner reports FAIL and exits non-zero; WHY: the fail-loudly guarantee - runner must not swallow non-zero child exits",
+            "type": "cli"
+          },
+          {
+            "desc": "Self-smoke file is new, not a modification of an existing smoke: `git diff main --name-status -- packages/main/src/tasks/run-all-smokes-smoke.ts` -> shows A (added); WHY: must be a new file, not a renamed/modified existing smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify intent-coverage.ts still exists after CHK-003: `test -f packages/main/src/core/intent-coverage.ts && echo EXISTS` -> EXISTS; WHY: always-on guard - self-smoke story must not delete cross-cutting infrastructure",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify dev-cli.ts still exists after CHK-003: `test -f packages/main/src/verifier/dev-cli.ts && echo EXISTS` -> EXISTS; WHY: always-on guard - self-smoke story must not delete cross-cutting infrastructure",
+            "type": "cli"
+          },
+          {
+            "desc": "Self-smoke is standalone-runnable without env vars or external state: `env -i HOME=$HOME PATH=$PATH node packages/main/dist/tasks/run-all-smokes-smoke.js` -> exits 0; WHY: smoke tests must not depend on ambient environment beyond basic PATH/HOME",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
