@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-75f0:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 12 must-intents (4 CHKs x 3 lanes) have valid non-stale verificationEvidence. CHK-001 dispatch-checklist-doctor-wrapper-root-smoke.ts proves red->green for all 3 hard-failure sites (gitCwd resolver resolves to inner gitRoot, git commands throw from bare metadataRoot and succeed from resolved gitCwd, plain-repo byte-identical). CHK-002 graceful-sites smoke directly drives verifier/init-check/touchpoints; remaining 4 graceful sites delegated to contract smoke (explicitly noted and contract ran 0 violations). CHK-003 project-gitroot-cwd smoke directly tests resolveProjectGitRoot/resolveProjectGitCwd on wrapper/plain/null fixtures. CHK-004 build+contract evidence proves rename correctness and allowlist split. Adversarial intents all rely on gitroot-cwd-contract-smoke with 9 working self-tests (ALIAS/BACKTICK KNOWN-BAD each fire exactly 1 violation, DEFERRED_ALLOWLIST_EXACT is empty, 523 ts files scanned clean). No stale, token-only, or mismatched evidence found.",
+      "createdAt": "2026-06-17T23:25:54.227Z",
+      "reviewRound": "2026-06-17T23:23:07.953Z",
+      "reviewRunId": "B-75f0:RR-003",
+      "_hash": "eae307935260a8eb12e4c62546899af428597a18859267db9ef094efc1b86f83"
+    }
+  ]
+}
