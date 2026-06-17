@@ -39,7 +39,30 @@
       "userSees": "On a round>=2 REVIEW entry the output shows e.g. 'Scope changed since last pass: behavior (src/foo.ts). Round 2+ gate needs >=1 valid receipt; you MAY re-run just the scope-changed reviewers via lattice review_incremental_context --role=<name>. Framework skips nobody; this is your call.'; running the CLI prints that reviewer's prior verdict + incremental diff.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice review_incremental_context --role=<r> prints prior verdict + scopeChanged + incremental diff; round>=2 REVIEW entry lists which reviewers' scope changed + the round-2+ >=1-receipt note",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Round 1 REVIEW entry shows NO targeted-re-review advisory (only round>=2 surfaces it)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Advisory is append-only inside try/catch: never throws, never alters the transition result, and is worded as an operator choice (framework skips nobody)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
