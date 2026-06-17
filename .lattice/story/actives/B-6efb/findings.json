@@ -31,6 +31,24 @@
       "files": [
         "packages/main/src/tasks/run-all-smokes.ts"
       ]
+    },
+    {
+      "id": "B-6efb:F-003",
+      "desc": "CHK-001:happy:1 / CHK-001:edge:3 / CHK-002 fast-tag evidence tainted: smoke-manifest.json assigns tag `fast` to `gap-log`, but gap-log-smoke exits 1 on HEAD (assertion mismatch: handler emits `Same gap already exists`, smoke asserts `/identical gap already exists/`). All evidence entries that ran `--tag fast` and claimed `pass` are invalidated for their fast-tag coverage. The gap-log preexisting failure is not introduced by this story, but recording `--tag fast` runs as passing evidence is incorrect. Re-run of `node ... --tag fast` confirms 3/4 passed, exit 1.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:29.418Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "bdf10b0b489ebca18877f24c00c0a80b938e58b3ac281491b3a3735e28e1b326",
+      "files": [
+        "packages/main/smoke-manifest.json",
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts"
+      ]
     }
   ]
 }
