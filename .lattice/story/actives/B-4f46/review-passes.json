@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T12:30:25.284Z",
       "reviewRunId": "B-4f46:RR-002",
       "_hash": "2df49fd7d8e0b7c6064be577ad515e132cbfd2854da6b06af8a3a69bfb6668fa"
+    },
+    {
+      "id": "B-4f46:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 5 load-bearing guardrails verified: (1) BACK-COMPAT confirmed — field-less calls behave identically to pre-1b (smoke checks 'back-compat' PASS); (2) DETERMINISM GUARDRAIL confirmed — isFindingBlocking decisions are identical with/without audit fields (smoke 'guardrail' PASS) and static grep proves advisory.ts contains zero references to signatureTag/resolutionType/dismissReasonType/evidenceStrength; (3) ENUM VALIDATION confirmed — invalid resolutionType, dismissReasonType, and evidenceStrength values each throw clear errors with allowed values listed (smoke 'validation' PASS); (4) SIGNATURE-REGISTRY confirmed — finding_add auto-proposes new tags, signature_registry_set approve flips to active, alias+mergedInto fold through resolveTag (smoke PASS); (5) ENRICHMENT confirmed — resolutionType=fixed yields signalScore=0.5 vs 0 without (smoke 'enrichment' PASS). Acceptance verifier: TOTAL 42 | PASS 42 | FAIL 0. Smoke: TOTAL 14 | PASS 14 | FAIL 0. One medium/edge finding filed: approveSignatureTag on a never-proposed tag auto-creates as active (bypasses propose step), diverging from CHK-003 adversarial:0 spec language and not asserted in the smoke. Not a blocker; no gate reads the registry; behavior is audit-only.",
+      "createdAt": "2026-06-17T12:33:36.694Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-003",
+      "_hash": "80c68df0e492bd983a4842f7b63a3a96713484c289601fa8053206dc3b5cf251"
     }
   ]
 }
