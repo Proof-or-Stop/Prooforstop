@@ -162,9 +162,9 @@
       "title": "Rename the 3 lexical false-positives + split DEFERRED_ALLOWLIST into BENIGN_BOOTSTRAP (permanent) vs empty pending; contract green",
       "context": "3 'sites' are lexical false-positives — `const gitCwd = projectRoot` aliasing a param that ALREADY receives a resolved value: done-effects.ts ~:74 (gets doneGitCwd), handlers/review-run.ts ~:63 + core/review-run.ts ~:228 (get signedWorkspaceRoot/authoritativeCwd). Rename the misleading param projectRoot->gitCwd (zero behavior change, the CHK-003 pattern). Then in gitroot-cwd-contract-smoke.ts split DEFERRED_ALLOWLIST_EXACT into BENIGN_BOOTSTRAP_ALLOWLIST (the ~14 truly-benign self-bootstrap/lab/rollout/test_auto/aux-diagnose entries, each keeping its rationale, PERMANENT) and ensure the pending/burndown set is now EMPTY (all real sites fixed in CHK-001..003). The contract must be GREEN with the fixed sites no longer allowlisted. If any graceful site was deferred as a documented sub-follow-up, it stays in a clearly-named pending set with its B-id, NOT silently in the benign set. Run `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` and confirm exit 0.",
       "userSees": "gitroot-cwd-contract-smoke exits 0 with the deferred allowlist split into a permanent BENIGN_BOOTSTRAP set (self-bootstrap/no-story-context, with rationale) and an empty (or explicitly-tracked-follow-up) pending set; the 3 renamed sites read lexically honest (gitCwd not projectRoot); a re-introduced bare-root alias still fails the contract.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T23:17:32.089Z",
       "verificationIntent": {
         "happy": [
           {
