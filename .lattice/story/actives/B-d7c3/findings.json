@@ -5,7 +5,7 @@
       "desc": "CHK-001:happy:0 evidence command does not bind the intent literal: intent requires node -e filter matching /^test:.*-smoke$/ printing count=1 (only test:run-all-smokes-smoke); evidence runs python3 counting all test:* entries (returns 12). The evidence covers happy:1 (total test:* count), not happy:0 (smoke-specific count=1). The CHK-001:happy:0 intent — confirming exactly 1 test:*-smoke remains — has no valid evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T12:31:05.151Z",
@@ -14,7 +14,9 @@
       "_hash": "40547d9489ee2f322546a99a82abb20ce776342dfc061c55cd96e366b028805a",
       "files": [
         "packages/main/package.json"
-      ]
+      ],
+      "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
+      "resolvedAt": "2026-06-17T12:37:01.154Z"
     },
     {
       "id": "B-d7c3:F-002",
