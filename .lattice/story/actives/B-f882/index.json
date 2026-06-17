@@ -4,7 +4,7 @@
   "title": "Thread resolved gitCwd into the docs-drift REVIEW preflight gate (wrapper-root false-block)",
   "description": "A read-only combination review of the recently merged gate/policy/cwd cluster (B-db56 resolveGitCwd choke-point, B-da89 phase policy, B-5f42 english-only gate, B-a7b0/B-d633 docs-drift gate, B-cfdd convergence-stall, B-f675 incremental-context) found one real stacking gap. In packages/main/src/handlers/review-preflight.ts, the REVIEW→TEST CLI gate preflight resolves the git cwd once (const gitCwd = resolveGitCwd({...}) at ~line 287) and threads it into FOUR of the five git-invoking gates: channel (~:298), concept (~:313), lint changed-files (~:361), and english-artifacts (~:464). But the docs-drift gate is invoked with `repoRoot: deps.projectRoot` (the metadataRoot) at ~line 424 — NOT the resolved gitCwd. That repoRoot flows into validate-docs-drift.ts checkPathDrift -> core/audit-scan.ts scanPathDrift, which does fs.existsSync(join(repoRoot, p)) and `git grep -F -l ... { cwd: repoRoot }`. On a wrapper-root layout (metadataRoot != gitRoot, e.g. ClawCreek where the wrapper root is not a git repo and the real repo is a subdir), the fs check runs against the wrong root so real CLAUDE.md-referenced files appear absent, and the git grep fallback throws (non-git dir) and is swallowed as skipped — so the path-drift sub-check reports false missing-path drift and docs-drift returns status:fail, FALSE-BLOCKING REVIEW→TEST. This is the exact B-0740 defect class (a git/fs-over-repo call running from metadataRoot instead of the resolved gitRoot), recurring because a parallel-added gate (docs-drift) was not threaded through the B-db56 choke-point. The B-db56 grep-contract test cannot catch it because the bad value is forwarded under the parameter name `repoRoot`, outside the contract's bare-identifier (projectRoot/root/metadataRoot) lexical scope; and neither new smoke (english-only-guards-smoke, docs-drift-path-drift-smoke) exercises a wrapper-root metadataRoot!=gitRoot split. Outcome: change review-preflight.ts ~:424 to pass `repoRoot: gitCwd` (the already-in-scope resolved cwd, matching the other four gates); add a wrapper-root regression that drives the docs-drift gate through a metadataRoot!=gitRoot layout and proves path-drift/managed-asset checks run from the gitRoot (would have caught this); and strengthen the gitroot-cwd guard so a review-preflight git-gate not threaded the resolved gitCwd is caught mechanically, preventing recurrence. EXPLICITLY OUT OF SCOPE (deferred by the user): the LOW-severity english-artifacts metadata-scan root mismatch (review-preflight.ts ~:463 storyDir from metadataRoot) — that is a separate finding (#3) intentionally left for later; do NOT touch the english gate's storyDir wiring in this story. Also out of scope: the express-channel docstring drift (separate story).",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "gitRoot",
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-06-17T11:40:30.099Z",
   "startedAt": "2026-06-17T11:40:30.099Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T12:37:09.108Z",
   "events": [
     {
       "phase": "INIT",
@@ -98,12 +98,16 @@
       "user": "Harmonygo",
       "sessionId": "lattice-fix1",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:37:09.108Z",
+      "branch": "story/B-f882",
+      "user": "Harmonygo",
+      "sessionId": "lattice-fix1",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f882",
-    "branch": "story/B-f882",
-    "createdAt": "2026-06-17T11:44:35.014Z"
-  },
   "currentReviewRound": "2026-06-17T12:27:01.562Z"
 }
