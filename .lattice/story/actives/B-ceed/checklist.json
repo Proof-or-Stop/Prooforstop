@@ -297,6 +297,17 @@
           "headHash": "f24681871c2fe22d57af0dd24baa8dd0285ed0d3",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:14.346Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/handlers | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — handlers/ untouched.",
+          "headHash": "009bf405948313aade0cd766c862bba39358d131",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:14.974Z"
         }
       ]
     },
