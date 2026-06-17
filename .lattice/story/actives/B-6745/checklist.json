@@ -99,9 +99,9 @@
       "title": "Timeout bumps for the 5 genuinely-slow P5 smokes in smoke-manifest.json",
       "context": "VERIFIED current manifest state: packages/main/smoke-manifest.json ALREADY has raised timeouts for all 5 — dispatch-run=180000, lattice-baseline=240000, cli-json-stdout-contract=180000, planner-unattended=180000, experience-layer-playbook=180000 (all real, finite ceilings, not infinite). So this item is primarily RE-VERIFY, not re-bump. Task: (a) confirm each value is >= measured-standalone-time + margin (re-measure each standalone wall time; bump only if a value is still too tight under parallel suite load — keep a REAL finite ceiling, never infinity); (b) run npm run test:all and confirm none of the 5 TIMEOUT under suite load and the full suite reaches its green target (~162/162 modulo genuine env skips). Do NOT change smoke logic. If a value already gives ample headroom and test:all shows no timeout, leave it (no gratuitous bumping).",
       "userSees": "Running `npm run test:all`, the 5 previously-timing-out P5 smokes complete within their raised timeouts and PASS; the full suite reaches ~162/162 (modulo any genuinely-environmental skips), with no smoke logic changed and a real (non-infinite) timeout ceiling preserved.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T22:58:55.764Z",
       "verificationIntent": {
         "happy": [
           {
