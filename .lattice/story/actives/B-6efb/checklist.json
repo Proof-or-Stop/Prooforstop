@@ -226,9 +226,9 @@
       "title": "Create packages/main/smoke-manifest.json (initial manifest with default entries) and add `test:all` npm script at root",
       "context": "Create packages/main/smoke-manifest.json. Schema: a JSON object with a `smokes` array; each entry has `name` (file basename without -smoke.ts), optional `tags` (string array), optional `timeoutMs` (number), optional `skip` (boolean). For B1, populate it with a small initial set covering the runner's self-smoke and 2-3 well-known fast smokes (e.g. gitroot-cwd-contract-smoke, the lab description smoke); leave the rest discoverable by directory scan (default behavior when no manifest entry exists). Add to root package.json: `\"test:all\": \"node packages/main/dist/tasks/run-all-smokes.js\"`. The 262 existing test:* entries stay untouched. Acceptance: `npm run test:all --select run-all-smokes-smoke` runs the new runner's self-smoke; `cat packages/main/smoke-manifest.json | python3 -m json.tool` parses; root package.json has the new entry.",
       "userSees": "`npm run test:all` runs every smoke + reports aggregate; existing `npm run test:gitroot-cwd-contract` (etc.) still works byte-identical.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T01:57:32.077Z",
-      "endTime": null,
+      "endTime": "2026-06-17T02:10:35.963Z",
       "files": {
         "modify": [
           "package.json"
