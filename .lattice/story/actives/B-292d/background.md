@@ -11,11 +11,11 @@ User directive (2026-06-17): close out the koala-removal ship-clean program ahea
 
 ## Solution Tradeoffs
 
-- (a) preflight only (chosen): minimal scope, exactly 1 entry point. Story-advance is blocked when residue appears. Doesn't fire on standalone lattice validate calls outside the story flow — acceptable because (a1) standalone validate is for developer self-check, and (a2) npm test still catches it. There is also a sub-decision (a3) within (a): keep test:koala-residue in the root npm test chain (two-place coverage), confirmed by user on 2026-06-17 as '保留两处都跑'.
+- (a) preflight only (chosen): minimal scope, exactly 1 entry point. Story-advance is blocked when residue appears. Doesn't fire on standalone lattice validate calls outside the story flow — acceptable because (a1) standalone validate is for developer self-check, and (a2) npm test still catches it. There is also a sub-decision (a3) within (a): keep test:koala-residue in the root npm test chain (two-place coverage), confirmed by user on 2026-06-17.
 - (b) preflight + lattice validate default battery: belt-and-suspenders. Requires adding a validate-koala-residue.ts handler + dispatch wiring. Considered and rejected — scope creep for marginal coverage gain.
 - (c) lattice validate only: misses the story-advance boundary which is the actual policy enforcement point.
 - (d) keep current (npm test only): no story-level enforcement; relies on developer discipline to run npm test before pushing. Insufficient for OSS launch.
 
 ## Conversational Texture
 
-User picked option (a) on 2026-06-17 ('仅 REVIEW->TEST preflight'), plus sub-decision (a3) 'keep test:koala-residue in npm test chain' ('保留两处都跑'). This story finalizes the ship-clean program (stories 1, 2, 3a, 3, 4 all DONE after this lands), unblocking the OSS launch path. Out of scope: deferred .koala/ runtime-dir rename, LEGACY_KOALA_* path constants in core/lattice-paths.ts (storage migration), docs/koala/framework-audit/ (active B-META path), CHANGELOG/history rewrite — all explicitly OUT per [[koala-removal-ship-clean-program]] memory.
+User picked option (a) on 2026-06-17 (preflight only), plus sub-decision (a3) keep test:koala-residue in npm test chain (two-place coverage). This story finalizes the ship-clean program (stories 1, 2, 3a, 3, 4 all DONE after this lands), unblocking the OSS launch path. Out of scope: deferred .koala/ runtime-dir rename, LEGACY_KOALA_* path constants in core/lattice-paths.ts (storage migration), docs/koala/framework-audit/ (active B-META path), CHANGELOG/history rewrite — all explicitly OUT per [[koala-removal-ship-clean-program]] memory.
