@@ -264,6 +264,7 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'plan_set', level: 'L1', category: 'plan', owner: 'handlers/plan', rationale: 'Writes implementation plan prose used for coordination, not direct gate evidence.' },
   { name: 'plan_get', level: 'L0', category: 'plan-read', owner: 'handlers/plan', rationale: 'Reads plan prose without mutation.' },
   { name: 'reviewer_list', level: 'L0', category: 'reviewer-read', owner: 'handlers/reviewer-list', rationale: 'Computes active reviewers from current facts without mutation.' },
+  { name: 'review_incremental_context', level: 'L0', category: 'reviewer-read', owner: 'handlers/review-incremental-context', rationale: 'Computes a reviewer role prior verdict plus since-last-pass material diff and scopeChanged from current facts without mutation; informational only, never gate evidence.' },
   { name: 'workflow_set', level: 'L1', category: 'workflow-config', owner: 'core/config', rationale: 'Changes workflow profile configuration that influences later gates.' },
   { name: 'workflow_show', level: 'L0', category: 'workflow-config-read', owner: 'core/config', rationale: 'Reads workflow profile configuration without mutation.' },
   { name: 'workflow_explain', level: 'L0', category: 'workflow-config-read', owner: 'core/config', rationale: 'Explains effective workflow profile without mutation.' },

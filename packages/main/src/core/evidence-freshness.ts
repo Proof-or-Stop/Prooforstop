@@ -74,6 +74,45 @@ export function changedFilesBetween(projectRoot: string, fromHead: string, toHea
   return raw.split('\n').map(line => line.trim()).filter(Boolean);
 }
 
+/**
+ * Rename-aware variant of changedFilesBetween. Uses `git diff --name-status -M`
+ * so a rename (R100 old new) surfaces BOTH the old and the new path rather than
+ * being collapsed into a single name-only line that may hide one side. This is a
+ * strictly stronger signal than the name-only variant (it never reports fewer
+ * paths), which is why the incremental-context helper relies on it: a reviewer
+ * whose file was renamed since its last pass must still see scopeChanged=true.
+ *
+ * Output is a de-duplicated, sorted list of paths. Status prefixes (M/A/D/R###/
+ * C###) are parsed out; for rename (R) and copy (C) records both the source and
+ * destination columns are emitted.
+ */
+export function changedFilesBetweenRenameAware(projectRoot: string, fromHead: string, toHead = 'HEAD'): string[] {
+  const gitCwd = projectRoot;
+  const raw = execFileSync('git', ['diff', '--name-status', '-M', `${fromHead}..${toHead}`], {
+    cwd: gitCwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  const paths = new Set<string>();
+  for (const line of raw.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    // Columns are tab-separated: <status>\t<path> or <Rxxx>\t<old>\t<new>.
+    const cols = trimmed.split('\t').map(c => c.trim()).filter(Boolean);
+    if (cols.length < 2) continue;
+    const status = cols[0];
+    if ((status.startsWith('R') || status.startsWith('C')) && cols.length >= 3) {
+      // rename/copy: old path = cols[1], new path = cols[2]; both are material changes.
+      paths.add(cols[1]);
+      paths.add(cols[2]);
+    } else {
+      // M/A/D/T/U: the changed path is the last column.
+      paths.add(cols[cols.length - 1]);
+    }
+  }
+  return [...paths].sort();
+}
+
 export function currentMaterialHash(projectRoot: string, ref = 'HEAD'): string | undefined {
   const gitCwd = projectRoot;
   try {
