@@ -50,6 +50,24 @@
  *       same value whether called with the bare root or the resolved gitCwd
  *       (which equals root) — proving the root fallback is byte-identical.
  *
+ * B-6666 F-001 (REVIEW fix) extends this with a wrapper-root + CUSTOM storyDir
+ * fixture. CHK-002 passed gitCwd into isMaterialExcludedPath -> isStoryMetadataPath
+ * -> loadConfig at two sites in evidence-freshness.ts. But the lattice.config.json
+ * that declares a CUSTOM storyDir lives at the metadataRoot, NOT the gitCwd. On a
+ * wrapper-root layout with a non-default storyDir, loadConfig(gitCwd) silently
+ * misses the custom storyDir, falls back to default prefixes, and the custom
+ * story-metadata paths are WRONGLY included in the material hash. The F-001 fix
+ * threads metadataRoot (not gitCwd) into isMaterialExcludedPath's config load:
+ *   (7) RED (buggy): currentMaterialHash(gitCwd, 'HEAD', gitCwd) — passing
+ *       gitCwd-as-metadataRoot — loads config from the inner gitRoot (no custom
+ *       storyDir) so the custom-storyDir file is INCLUDED in the hash.
+ *   (8) GREEN (fixed): currentMaterialHash(gitCwd, 'HEAD', metadataRoot) — passing
+ *       the real metadataRoot — loads the custom storyDir from the config there so
+ *       the custom-storyDir file is EXCLUDED from the hash.
+ *   The RED and GREEN hashes MUST DIFFER (the buggy one includes the file the
+ *   fixed one excludes). A control hash that excludes only the runtime artifacts
+ *   (no story metadata at all) proves the GREEN hash truly dropped the file.
+ *
  * On success prints `done-oracle wrapper-root smoke passed`; any assert failure
  * throws -> exit 1.
  */
@@ -61,7 +79,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -334,6 +352,123 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
     assert.equal(resolvedMaterial, bareMaterial, 'PLAIN: currentMaterialHash must be byte-identical with bare root vs resolved gitCwd');
   } finally {
     rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// B-6666 F-001: wrapper-root + CUSTOM storyDir. Proves currentMaterialHash's
+// metadata exclusion loads lattice.config.json from the metadataRoot (where the
+// custom storyDir is declared), NOT from the gitCwd.
+//
+// Layout:
+//   metadataRoot/                <- NON-git wrapper metadata root.
+//     lattice.config.json        <- { gitRoot: "repo", storyDir: "custom/story" }
+//   metadataRoot/repo/           <- the REAL inner git repo (gitRoot), branch main.
+//     src/keep.ts                <- a MATERIAL (non-metadata) file: always hashed.
+//     custom/story/B-6666/index.json  <- a CUSTOM-storyDir metadata file. Only the
+//                                  metadataRoot config knows "custom/story" is the
+//                                  storyDir; from the gitCwd it looks like ordinary
+//                                  source and is wrongly hashed.
+// ════════════════════════════════════════════════════════════════════════════
+{
+  resetConfigCache();
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-customstory-'));
+  try {
+    const CUSTOM_STORY_DIR = 'custom/story';
+    const customConfig = JSON.stringify(
+      {
+        scanRoot: 'packages/main',
+        rootDir: 'src',
+        storyDir: CUSTOM_STORY_DIR,
+        requirementsDir: 'docs/requirements',
+        worktreeDir: '.worktrees',
+        gitRoot: 'repo',
+        workflow: { profile: 'light' },
+      },
+      null,
+      2,
+    );
+    // metadataRoot is deliberately NOT a git repo; the config (with the custom
+    // storyDir) lives here, at the metadataRoot.
+    writeFileSync(join(metadataRoot, 'lattice.config.json'), customConfig, 'utf-8');
+
+    // Inner gitRoot subdir: a real git repo with one material file + one
+    // custom-storyDir metadata file, all committed (clean working tree).
+    const gitRoot = join(metadataRoot, 'repo');
+    mkdirSync(join(gitRoot, 'src'), { recursive: true });
+    mkdirSync(join(gitRoot, CUSTOM_STORY_DIR, STORY_ID), { recursive: true });
+    git(gitRoot, ['init']);
+    git(gitRoot, ['checkout', '-b', 'main']);
+    writeFileSync(join(gitRoot, 'src', 'keep.ts'), 'export const keep = 1;\n', 'utf-8');
+    writeFileSync(
+      join(gitRoot, CUSTOM_STORY_DIR, STORY_ID, 'index.json'),
+      JSON.stringify({ storyId: STORY_ID, note: 'custom-storyDir metadata' }, null, 2),
+      'utf-8',
+    );
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, ['commit', '-m', 'base with custom-storyDir metadata']);
+
+    // gitCwd is the real inner repo (where git ls-tree must run).
+    const gitCwd = gitRoot;
+
+    // (7) RED (the OLD buggy behavior): pass gitCwd as the metadataRoot. The
+    // config load runs from the inner gitRoot, which has NO lattice.config.json,
+    // so loadConfig falls back to the default storyDir prefixes — none of which
+    // match "custom/story/" — and the custom-storyDir file is INCLUDED.
+    const redHash = currentMaterialHash(gitCwd, 'HEAD', gitCwd);
+
+    // (8) GREEN (the F-001 fix): pass the real metadataRoot. loadConfig finds the
+    // custom storyDir "custom/story" declared there, so the custom-storyDir file
+    // is EXCLUDED from the material hash.
+    const greenHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
+
+    assert.ok(
+      typeof redHash === 'string' && redHash.length > 0,
+      `F-001 RED: currentMaterialHash(gitCwd-as-metadataRoot) must be a defined hash (got ${JSON.stringify(redHash)})`,
+    );
+    assert.ok(
+      typeof greenHash === 'string' && greenHash.length > 0,
+      `F-001 GREEN: currentMaterialHash(metadataRoot) must be a defined hash (got ${JSON.stringify(greenHash)})`,
+    );
+
+    // The whole point: the custom-storyDir file is hashed in RED but excluded in
+    // GREEN, so the two hashes MUST DIFFER. Identical hashes would mean the
+    // metadataRoot threading made no difference (the F-001 bug never red).
+    assert.notEqual(
+      redHash,
+      greenHash,
+      'F-001: the gitCwd-as-metadataRoot hash (custom-storyDir file INCLUDED) must DIFFER ' +
+        'from the metadataRoot-threaded hash (custom-storyDir file EXCLUDED). ' +
+        'Equal hashes mean isMaterialExcludedPath is not loading the custom storyDir from the metadataRoot.',
+    );
+
+    // Cross-check the direct exclusion predicate: with metadataRoot the custom
+    // path is excluded; with gitCwd-as-metadataRoot it is NOT excluded. This is
+    // the exact call-shape currentMaterialHash uses internally.
+    const customMetadataPath = `${CUSTOM_STORY_DIR}/${STORY_ID}/index.json`;
+    assert.equal(
+      isMaterialExcludedPath(customMetadataPath, metadataRoot),
+      true,
+      `F-001: isMaterialExcludedPath('${customMetadataPath}', metadataRoot) must be true ` +
+        '(loadConfig finds the custom storyDir from the metadataRoot)',
+    );
+    assert.equal(
+      isMaterialExcludedPath(customMetadataPath, gitCwd),
+      false,
+      `F-001: isMaterialExcludedPath('${customMetadataPath}', gitCwd-as-metadataRoot) must be false ` +
+        '(loadConfig from the inner gitRoot misses the custom storyDir — the original bug)',
+    );
+
+    // And the material file is ALWAYS hashed regardless of which root is used —
+    // it is never excluded, so it is not what makes the hashes differ.
+    assert.equal(
+      isMaterialExcludedPath('src/keep.ts', metadataRoot),
+      false,
+      "F-001: the material file 'src/keep.ts' must never be excluded",
+    );
+  } finally {
+    rmSync(metadataRoot, { recursive: true, force: true });
     resetConfigCache();
   }
 }

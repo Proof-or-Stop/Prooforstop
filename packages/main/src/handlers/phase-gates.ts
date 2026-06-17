@@ -354,7 +354,11 @@ export function runAuthorityReceiptTransitionGate(
   // throws.
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   const headHash = currentGitHead(gitCwd);
-  const materialHash = currentMaterialHash(gitCwd);
+  // B-6666 F-001 (REVIEW fix): pass ctx.root as metadataRoot so the
+  // storyDir-aware metadata exclusion loads lattice.config.json from the
+  // metadataRoot (custom storyDir), not the resolved gitCwd. Wrapper-root layouts
+  // differ; plain repos pass root==gitCwd so behavior is byte-identical.
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   if (!headHash || !materialHash) {
     const reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
     const line = renderAuthorityReceiptGateLine({
@@ -470,7 +474,11 @@ export async function runValidateGate(
     try {
       evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: evidenceGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     } catch { /* 无法获取 HEAD，跳过 */ }
-    const evidenceMaterialHash = currentMaterialHash(evidenceGitCwd);
+    // B-6666 F-001 (REVIEW fix): pass ctx.root as metadataRoot so the recorded
+    // materialHash uses the metadataRoot's custom-storyDir exclusion — matching
+    // what the DONE-path freshness recompute does — instead of resolving config
+    // from the gitCwd. Plain repos pass root==gitCwd (byte-identical).
+    const evidenceMaterialHash = currentMaterialHash(evidenceGitCwd, 'HEAD', ctx.root);
     store.writeTestEvidence(storyId, {
       command: `lattice validate --story=${storyId} --json`,
       output: String(jsonResult),

@@ -151,9 +151,16 @@ function gitRefContainsMain(gitCwd: string, ref: string): boolean {
 // B-6666 CHK-002: gitCwd is the resolved git invocation cwd forwarded from
 // checkEvidenceFreshness (which threads buildDoneChecklist's resolved gitCwd).
 // Plain repos pass projectRoot==gitCwd so behavior is byte-identical.
+//
+// B-6666 F-001 (REVIEW fix): metadataRoot is forwarded into currentMaterialHash
+// so its storyDir-aware metadata exclusion loads lattice.config.json from the
+// metadataRoot (where a custom storyDir is declared), NOT the gitCwd. On a
+// wrapper-root layout with a non-default storyDir, loading config from gitCwd
+// would miss the custom storyDir and wrongly include those paths in the hash.
 function checkCompletedEvidenceSnapshotFreshness(
   gitCwd: string,
   evidence: TestEvidenceData,
+  metadataRoot: string,
 ): { fresh: boolean; message: string } {
   if (!evidence.headHash) {
     return { fresh: false, message: 'DONE test-evidence is missing headHash; cannot inspect recorded evidence snapshot' };
@@ -162,7 +169,7 @@ function checkCompletedEvidenceSnapshotFreshness(
     return { fresh: false, message: 'DONE test-evidence is missing materialHash; cannot validate recorded evidence snapshot' };
   }
 
-  const recordedMaterialHash = currentMaterialHash(gitCwd, evidence.headHash);
+  const recordedMaterialHash = currentMaterialHash(gitCwd, evidence.headHash, metadataRoot);
   if (!recordedMaterialHash) {
     return {
       fresh: false,
@@ -187,13 +194,18 @@ function checkCompletedEvidenceSnapshotFreshness(
 // buildDoneChecklist (the SAME resolved value the git-status row uses — no
 // split-brain between the two done-oracle git reads). Forwarded verbatim into
 // every git probe below; plain repos pass projectRoot==gitCwd (byte-identical).
-function checkEvidenceFreshness(store: StoryStore, storyId: string, gitCwd: string, phase?: StoryPhase): { fresh: boolean; message: string } {
+// B-6666 F-001 (REVIEW fix): metadataRoot (buildDoneChecklist's `root`) is
+// threaded into both freshness paths so their storyDir-aware metadata exclusion
+// loads lattice.config.json from the metadataRoot — where a custom storyDir is
+// declared — instead of the gitCwd. Defaults differ from gitCwd only on
+// wrapper-root layouts; plain repos pass metadataRoot==gitCwd (byte-identical).
+function checkEvidenceFreshness(store: StoryStore, storyId: string, gitCwd: string, metadataRoot: string, phase?: StoryPhase): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json does not exist' };
   if (phase === 'DONE') {
-    return checkCompletedEvidenceSnapshotFreshness(gitCwd, evidence);
+    return checkCompletedEvidenceSnapshotFreshness(gitCwd, evidence, metadataRoot);
   }
-  const freshness = checkEvidenceFreshnessForGit(gitCwd, evidence.headHash, evidence.materialHash);
+  const freshness = checkEvidenceFreshnessForGit(gitCwd, evidence.headHash, evidence.materialHash, metadataRoot);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
 
@@ -308,7 +320,11 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // freshness git probe shares the same gitRoot as the git-status row (no
   // split-brain). The evidence-freshness.ts internals (its own no-op gitCwd
   // alias) are CHK-002; this only routes the resolved cwd to the call boundary.
-  const freshness = checkEvidenceFreshness(store, storyId, gitCwd, storyForPolicy.phase);
+  // B-6666 F-001 (REVIEW fix): also pass `root` as metadataRoot so the
+  // storyDir-aware metadata exclusion loads config from the metadataRoot (custom
+  // storyDir), not gitCwd. On a wrapper-root layout these differ; plain repos
+  // pass root==gitCwd so behavior is byte-identical.
+  const freshness = checkEvidenceFreshness(store, storyId, gitCwd, root, storyForPolicy.phase);
   if (!freshness.fresh) {
     rows.push(doneCheckRow({
       id: 'evidence-freshness',
