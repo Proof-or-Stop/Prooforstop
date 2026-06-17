@@ -64,6 +64,25 @@
       "files": [
         "scripts/verify-*.mjs"
       ]
+    },
+    {
+      "id": "B-d7c3:F-005",
+      "desc": "CHK-003:happy:1 evidence command covers only README.md but the intent literal covers docs/ README.md CLAUDE.md AGENTS.md. Evidence command: git grep -nE test:[a-z0-9-]+-smoke -- README.md. Intent command: git grep -nE test:[a-z0-9-]+-smoke -- docs/ README.md CLAUDE.md AGENTS.md (with keep-list filters). Executing the full intent command produces 47 lines of output from docs/requirements/decisions/*.md files containing removed test:X-smoke references. CLAUDE.md and AGENTS.md were not checked by the evidence command. The intent — confirming no removed smoke refs in active tracked doc prose — is not covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:31:40.860Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-002",
+      "_hash": "d82aec3f61c4792465cb36b052609c97e6876b9f859357540d8687bac7196658",
+      "files": [
+        "docs/requirements/decisions",
+        "CLAUDE.md",
+        "AGENTS.md",
+        "README.md"
+      ]
     }
   ]
 }
