@@ -199,6 +199,17 @@
           "headHash": "f13eaaa2e75c19eabaaeeab16aaadb686fbe0084",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:09.652Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:all 2>&1 | grep -cE '^PASS lattice-baseline'",
+          "result": "pass",
+          "note": "Returns 1 — appears as PASS in parallel runner output.",
+          "headHash": "daacef5cf7ff7e5d4fd8990de92e15545c3554d2",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:10.444Z"
         }
       ]
     },
