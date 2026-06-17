@@ -5,9 +5,9 @@
       "title": "Register the 7 missing Experience-Layer/recall commands in PROCESS_FACT_REGISTRY",
       "context": "In packages/main/src/core/process-fact-registry.ts (PROCESS_FACT_REGISTRY array ~line 871), add entries for playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set. Mirror the existing entry shape (name/level/category/owner/rationale, plus gateConsumer where a gate reads the fact) seen in process-fact-levels.ts (~lines 47-49) and the existing registry entries. Read each command's handler to classify accurately: read-only queries (signature_registry_list, playbook_diff, recall if read-only) get low levels (L0/L1, category reflecting their domain); mutating commands (playbook_approve/reject/propose, signature_registry_set) get the level/category matching how they mutate + any gateConsumer. Do NOT change command behavior. Verify: `npm run test:process-fact-contract` no longer reports 'MAIN_TOOLS command missing from PROCESS_FACT_REGISTRY' for these 7.",
       "userSees": "`npm run test:process-fact-contract` no longer lists playbook_*/signature_registry_*/recall as missing from PROCESS_FACT_REGISTRY; each appears with an accurate level/category/owner.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T16:36:46.707Z",
       "verificationIntent": {
         "happy": [
           {
