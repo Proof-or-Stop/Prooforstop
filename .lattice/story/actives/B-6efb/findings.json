@@ -187,6 +187,22 @@
         "packages/main/src/tasks/run-all-smokes.ts",
         "packages/main/src/tasks/run-all-smokes-smoke.ts"
       ]
+    },
+    {
+      "id": "B-6efb:F-012",
+      "desc": "CHK-001:happy:1 and CHK-001:edge:3 evidence notes are factually stale. Both reference `5 fast smokes from manifest` but after the F-003 fix removing gap-log from the manifest, `--tag fast` now returns 3/3. The evidence materialHash (9b262b08...) predates the manifest change. The commands exit 0 on current HEAD (3/3 confirmed by reviewer re-run), so the behavior is correct, but the recorded note count is wrong. Evidence should be re-recorded against the current materialHash with accurate counts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:23:59.460Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-002",
+      "_hash": "3db61426478a91a856319eae689f401397bf3af26606ecad0106b56abcd4b52c",
+      "files": [
+        "packages/main/smoke-manifest.json"
+      ]
     }
   ]
 }
