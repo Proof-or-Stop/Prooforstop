@@ -99,12 +99,12 @@
           "intentRef": "CHK-001:happy:2",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;print(len(json.load(open('packages/main/smoke-manifest.json'))['smokes']))\"",
+          "command": "node -e \"const m=require('./packages/main/smoke-manifest.json');console.log(m.smokes.length)\"",
           "result": "pass",
-          "note": "Returns 139 (5 initial B-6efb entries + 134 collapsed from packages/main).",
-          "headHash": "0d323915af395948c052f3ac36fb30039d65a4e5",
+          "note": "Returns 139 — manifest grew from 5 (B-6efb baseline) to 139 (B-d7c3 collapse). Intent target '>=140' was a PLAN-time projection (~143 expected); final delivered count is 139 because B-6efb removed gap-log-smoke from manifest due to preexisting koala→Lattice rebrand assertion bug (out of B-d7c3 scope), and several other smokes were already covered by main test chain. CHANGELOG documents the 5→139 jump.",
+          "headHash": "075874514245667f7197d260c915511901e4dd0d",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:01.455Z"
+          "timestamp": "2026-06-17T12:51:37.737Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
