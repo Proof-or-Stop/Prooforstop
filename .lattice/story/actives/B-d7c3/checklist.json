@@ -87,6 +87,54 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "root test:*-smoke proxy count drops to ~4 -> `node -e \"const p=require('./package.json'); const s=Object.keys(p.scripts).filter(k=>k.match(/^test:.*-smoke$/)); console.log(s.length,s)\"` prints <= 6; WHY: confirms 44 redundant root smoke proxies removed, only keep-list proxies remain",
+            "type": "cli"
+          },
+          {
+            "desc": "root total test:* script count drops to ~70 -> `node -e \"const p=require('./package.json'); const t=Object.keys(p.scripts).filter(k=>k.startsWith('test:')); console.log(t.length)\"` prints count in range 60-80; WHY: 114 - 44 = ~70",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test exits 0 -> `npm test` exits 0 with no 'npm error Missing script' in stderr; WHY: root test main script depends on kept proxies, must still resolve all",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "root keep-list proxies still present -> `node -e \"const p=require('./package.json'); ['test:main-write-lock-coverage','test:review-convergence-smoke','test:review-incremental-context-smoke','test:docs-drift-smoke','test:e2e','test:all'].forEach(k=>{if(!p.scripts[k]) throw new Error('MISSING:'+k)}); console.log('ROOT_KEEP_OK')\"` prints ROOT_KEEP_OK; WHY: these are referenced by root 'test' main script and must survive the cleanup",
+            "type": "cli"
+          },
+          {
+            "desc": "root 'test' main script body unchanged -> `node -e \"const p=require('./package.json'); const t=p.scripts.test; if(!t) throw new Error('NO_TEST'); console.log('test_script_present body_length='+t.length)\"` does not throw and body matches expected pattern; WHY: the main test orchestrator script must not be accidentally removed or truncated",
+            "type": "cli"
+          },
+          {
+            "desc": "no root scripts reference a now-removed packages/main script -> `node -e \"const r=require('./package.json').scripts; const m=require('./packages/main/package.json').scripts; const broken=Object.entries(r).filter(([k,v])=>{const match=v.match(/npm --prefix packages\\/main run (test:\\S+)/); return match && !m[match[1]]}); if(broken.length) throw new Error('BROKEN_PROXIES:'+broken.map(b=>b[0])); console.log('NO_BROKEN_PROXIES')\"` prints NO_BROKEN_PROXIES; WHY: if root still proxies a deleted packages/main script, npm test would fail with Missing script",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: all *-smoke.ts task source files byte-identical to main -> `git diff main -- 'packages/main/src/tasks/*-smoke.ts' | wc -l` outputs 0; WHY: CHK-002 only edits root package.json, must not touch task source files",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: verify-*.mjs scripts byte-identical to main -> `git diff main -- 'scripts/verify-*.mjs' | wc -l` outputs 0; WHY: verify scripts are out of scope",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: no non-test:* root scripts accidentally removed -> `node -e \"const fs=require('fs'); const curr=require('./package.json'); const orig=JSON.parse(require('child_process').execSync('git show main:package.json','utf8')); const nonTest=Object.keys(orig.scripts).filter(k=>!k.startsWith('test:')); const missing=nonTest.filter(k=>!curr.scripts[k]); if(missing.length) throw new Error('NON_TEST_REMOVED:'+missing); console.log('NON_TEST_INTACT count='+nonTest.length)\"` prints NON_TEST_INTACT; WHY: a bulk-delete script could accidentally remove non-test entries from root package.json",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: root verify:* scripts not removed -> `node -e \"const fs=require('fs'); const curr=require('./package.json'); const orig=JSON.parse(require('child_process').execSync('git show main:package.json','utf8')); const verify=Object.keys(orig.scripts).filter(k=>k.startsWith('verify:')); const missing=verify.filter(k=>!curr.scripts[k]); if(missing.length) throw new Error('VERIFY_REMOVED:'+missing); console.log('VERIFY_INTACT count='+verify.length)\"` prints VERIFY_INTACT; WHY: verify:* scripts are not test:* and must not be caught in the removal sweep",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
