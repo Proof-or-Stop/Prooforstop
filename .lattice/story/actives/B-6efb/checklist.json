@@ -74,7 +74,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --select gitroot",
+          "result": "pass",
+          "note": "Self-smoke verifies --select substring filtering on 4 fixture smokes; live --select gitroot matches gitroot-* smokes.",
+          "headHash": "f2d1dff7f0d76b2acb2a48efb1a6fb7d11cf8dfe",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:09:13.172Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
