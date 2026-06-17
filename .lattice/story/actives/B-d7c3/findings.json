@@ -353,7 +353,7 @@
       "desc": "CHK-002:adversarial:0 evidence does not bind to intent. Intent: OVER-REACH guard — all *-smoke.ts task source files byte-identical to main (git diff main -- packages/main/src/tasks/*-smoke.ts | wc -l outputs 0). Evidence command: npm test (integration_test, result pass, note: Covered by npm test ALL PASS). npm test passing has no logical connection to byte-identity of task source files; it tests test-chain execution success, not source file immutability. This guard is also unpassable without acknowledgement since the scope-ack files (provider-codex-smoke.ts, reviewer-quorum-smoke.ts) introduce 25 diff lines on three-dot and 4646 lines on two-dot.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T13:00:54.203Z",
@@ -362,7 +362,9 @@
       "_hash": "1164d4422bb1a17708ead15f5691eee6115e1ca8de2827bfe1e284e9038ee7dc",
       "files": [
         "packages/main/src/tasks"
-      ]
+      ],
+      "resolvedReason": "Rebound to three-dot diff over *-smoke.ts EXCLUDING the 2 scope-ack'd files (provider-codex-smoke.ts + reviewer-quorum-smoke.ts had stale Run: comments updated per concept F-010). Returns 0 — all other task source byte-identical.",
+      "resolvedAt": "2026-06-17T13:03:17.335Z"
     }
   ]
 }
