@@ -9,9 +9,9 @@
  *   playbook_reject <proposalId>               -> discard the proposal
  *
  * HARD GUARDRAILS (load-bearing — enforced by smoke + static grep):
- *   • This handler NEVER files a finding. It does NOT import finding_add, the
- *     advisory gate, or any gate. It only READS findings through the store read
- *     port (`ctx.store.readFindings`).
+ *   • This handler NEVER files a finding. It imports no finding-writing handler,
+ *     no review gate, and no blocking-decision surface. It only READS findings
+ *     through the store read port (`ctx.store.readFindings`).
  *   • `playbook_approve` fails CLOSED on a stale/missing `--expectedProposalDigest`
  *     (cloning the decision_doc_save pattern), and writes the candidate at
  *     status `candidate` — NEVER `active`. Promotion to active is an explicit
