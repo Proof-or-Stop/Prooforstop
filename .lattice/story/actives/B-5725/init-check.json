@@ -1,0 +1,37 @@
+{
+  "storyId": "B-5725",
+  "checkedAt": "2026-06-17T00:17:35.659Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights states the REVIEW->TEST gate requires every active reviewer to have a fresh current-round verdict, but the actual canPassReviewGuard in core/machine.ts line 377-380 only requires at least 1 reviewer finding/pass at Round 2+, not all active reviewers. CHK-003 inherits this overstatement (asserts the gate requires every active reviewer at all rounds). The invariant being preserved (no gate change) is sound, but the factual description of the existing gate behaviour is partially inaccurate for rounds >=2."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T00:16:31.080Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 userSees describes what a helper returns (internal API) rather than a user-visible terminal transcript. The actual user-facing output is covered by CHK-002 (CLI command + hint), so this is only an advisory note: consider rephrasing CHK-001 userSees to reference the test output or CLI invocation that exercises the helper, so all three items have observable terminal text."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T00:17:35.659Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights states the REVIEW->TEST gate requires every active reviewer to have a fresh current-round verdict, but the actual canPassReviewGuard in core/machine.ts line 377-380 only requires at least 1 reviewer finding/pass at Round 2+, not all active reviewers. CHK-003 inherits this overstatement (asserts the gate requires every active reviewer at all rounds). The invariant being preserved (no gate change) is sound, but the factual description of the existing gate behaviour is partially inaccurate for rounds >=2."
+        }
+      ]
+    }
+  ],
+  "_hash": "22b3081fcd7d392c47894418754430149bca1a2e173b8fa889420468eb85e539"
+}
