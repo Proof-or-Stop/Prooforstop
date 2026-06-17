@@ -630,6 +630,16 @@
           "headHash": "5fb281f705996f1a1610a8f6bfac40129a09d58e",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
           "timestamp": "2026-06-17T02:15:07.808Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "result": "pass",
+          "note": "新增未分类 koala 品牌会被 branding gate 标 unclassified 而 fail(story 4 扩展到全 active 范围)",
+          "headHash": "3a3c9f7cf91ba07242a573c33988fc02863c8b7f",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:15:08.661Z"
         }
       ]
     }
