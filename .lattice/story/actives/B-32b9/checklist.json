@@ -137,6 +137,17 @@
           "headHash": "e34f96dfd003d90e07156771d0841300fecac7d5",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:01:21.101Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "Code inspection: result node meta.verificationEvidence rendered by evidenceHtml in renderDetail",
+          "result": "pass",
+          "note": "serve.js lines 516-518: result node meta includes verificationEvidence[] from item.verificationEvidence. lineage.js lines 470-486: evidenceHtml renders 'LLM 验证结果 (passed/total)' with pass/fail icons when meta.verificationEvidence.length > 0. Code path correct.",
+          "headHash": "717c654a4603f5ea2877c38876f770500baccbbb",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:01:21.820Z"
         }
       ]
     },
