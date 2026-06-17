@@ -37,9 +37,9 @@
       "title": "Thread resolved gitCwd into evidence-freshness git probes",
       "context": "core/evidence-freshness.ts uses a no-op `const gitCwd = projectRoot` alias with no resolveGitCwd import; its authority/done callers pass bare metadataRoot, so on wrapper-root the freshness/material hashes come back undefined. Thread the resolved gitCwd into the evidence-freshness git probes (resolve at the caller boundary or accept a gitCwd param), falling back to root. Keep plain-repo behavior byte-identical.",
       "userSees": "On a wrapper-root project, evidence-freshness / authority-receipt material hashes resolve correctly (not undefined) because the git probes run from the gitRoot; plain repos unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T16:57:42.604Z",
       "verificationIntent": {
         "happy": [
           {
