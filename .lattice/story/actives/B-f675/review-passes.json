@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T01:22:15.761Z",
       "reviewRunId": "B-f675:RR-002",
       "_hash": "e79fa987e161ae2a89beb98ef210d73ced795814ea907317ac68b3dd44168266"
+    },
+    {
+      "id": "B-f675:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior review complete. Gate files (core/machine.ts, core/review-run.ts, core/review-scope-binding.ts) are zero-diff vs main. Smoke test exits 0 and case (d) exercises the real canPassReviewGuard imported from core/machine.ts, proving identical gate outcomes and byte-identical gate inputs with/without the helper. reviewIncrementalContext is strictly read-only: only store.readFindings/readReviewPasses/readReviewRuns calls, no write methods. changedFilesBetweenRenameAware correctly uses --name-status -M surfacing both sides of renames. Advisory in transition-effects.ts is append-only inside try/catch (lines 247-286), cannot throw out of the transition, and is worded explicitly as operator judgement with the framework-skips-nobody note. Round 1 shows no advisory (roundCount >= 2 guard, verified by CHK-002:edge:0 transcript evidence). No gate relaxation, no accidental reviewer skip, no write side effects found. One low/edge finding registered: isFirstPass=true + non-null priorVerdict edge case undocumented in CLAUDE.md.",
+      "createdAt": "2026-06-17T01:26:40.468Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-003",
+      "_hash": "a397d3ab42afbcf6783c0790b40fbeb8dc083653cccc5cd01f474a44dd8cf450"
     }
   ]
 }
