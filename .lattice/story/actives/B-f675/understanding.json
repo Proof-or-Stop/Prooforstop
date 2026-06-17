@@ -1,0 +1,32 @@
+{
+  "task": "Make REVIEW re-review cheaper without touching the gate: a read-only helper + CLI that gives each reviewer its prior verdict and the diff since its last-pass headHash, plus a round>=2 advisory that shows which reviewers' scope changed and reminds the operator the round-2+ gate only needs >=1 valid receipt (so they can do informed targeted re-review).",
+  "outcome": "On a round>=2 REVIEW entry the operator sees which reviewers' scope changed and can re-run just those:\n$ lattice story_advance '{\"storyId\":\"B-xxxx\",\"phase\":\"REVIEW\"}'\n  -> Active reviewers: concept, quality, test-coverage\n  Re-review round 2: scope changed since last pass -> quality (packages/main/src/foo.ts). Round 2+ gate needs >=1 valid current-round receipt; you MAY re-run only the scope-changed reviewers via 'lattice review_incremental_context --role=<name>'. The framework skips nobody; this is your call.\n$ lattice review_incremental_context --storyId=B-xxxx --role=quality\n  quality last passed at <sha7>; scopeChanged=true; since then: packages/main/src/foo.ts\n  prior verdict: PASS (RP-00x)\nand `lattice validate` stays green with a smoke proving canPassReviewGuard behaves identically with and without the helper.",
+  "facts": [
+    "REVIEW->TEST gate canPassReviewGuard (core/machine.ts): line ~348 blocks when collectReviewerEvidenceState returns any INVALID (stale-binding) current-round evidence -- this applies to ALL rounds, before the round split. Then Round 1 (roundCount<=1) additionally requires every opt-in reviewer to have valid current-round evidence + a reviewer quorum; Round 2+ requires only >=1 valid current-round reviewer receipt. Finally any verified open blocking finding (after round decay) blocks.",
+    "collectReviewerEvidenceState (core/review-run.ts ~812) filters findings/passes to story.currentReviewRound, so stale prior-round verdicts are excluded -- they neither count toward nor block the current round.",
+    "Each review-run records the headHash it was bound to (core/review-run.ts captureReviewRunSnapshot ~286-292); git exposes per-file blob ids and core/evidence-freshness.ts changedFilesBetween(from,to) returns changed material files between two commits.",
+    "Because Round 2+ only needs >=1 valid receipt, an operator can today legally re-run just the reviewer(s) whose scope changed -- this is already gate-permitted; the missing pieces are awareness and a scope-changed signal.",
+    "transition-effects.ts emits the REVIEW-entry output (Active reviewers / launch guidance) -- the advisory injection point."
+  ],
+  "constraints": [
+    "HARD INVARIANT: do NOT change canPassReviewGuard, review-run bindings, materialHash, or staleness logic; the framework must NEVER skip or carry-forward a reviewer. This story only adds a read-only helper/CLI and an advisory, and surfaces an already-existing round-2+ leniency.",
+    "Targeted re-review remains an OPERATOR judgement (the gate permits it in round 2+); under-review responsibility stays with the operator exactly as today.",
+    "The helper is read-only: no writes, no side effects on the gate or store.",
+    "Reuse review-run headHash + evidence-freshness.changedFilesBetween; do not duplicate diff/round logic. Use --name-status -M so renames count.",
+    "All artifacts and emitted strings are English-only (user directive)."
+  ],
+  "unknowns": [
+    "Exact home of the helper (new core/review-incremental-context.ts vs extending review-run.ts) and how a reviewer's prior verdict + bound headHash is resolved from review-runs/passes/findings -- settled in CHK-001; either placement is fine as long as existing helpers are reused."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/machine.ts (READ-ONLY; CHK-003 asserts unchanged)",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/cli-engine.ts (register review_incremental_context)",
+    "packages/main/src/core/review-incremental-context.ts (new, or extend review-run.ts)",
+    "packages/main/src/tasks (new smoke)",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-06-17T00:46:04.868Z"
+}

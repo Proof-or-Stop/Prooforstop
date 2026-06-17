@@ -7,7 +7,30 @@
       "userSees": "A unit/smoke run prints, for reviewer X on a story: its prior verdict + bound headHash, scopeChanged=true/false, and the changed-file list since that pass (or 'no prior pass -> full diff' for a first-timer).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Helper returns a reviewer's prior verdict + bound headHash + the diff since that headHash + scopeChanged for a reviewer that has a prior pass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "First-time reviewer (no prior pass) -> full diff main...HEAD with scopeChanged=true",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Rename-aware (--name-status -M) and reuses changedFilesBetween (no duplicated diff/round logic); strictly read-only (no writes, no gate effect)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
