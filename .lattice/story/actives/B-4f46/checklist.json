@@ -113,7 +113,71 @@
       "userSees": "signature_registry_list shows tags; signature_registry_set --action=approve flips a proposed tag to active; a finding_add with an unregistered signatureTag leaves it status=proposed; advisory gate behavior is unchanged by any audit field.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call finding_add with signatureTag=\"new-tag\" (unregistered) -> signature-registry.json gains an entry {tag:\"new-tag\",status:\"proposed\"}; WHY: confirms auto-propose on capture",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=approve tag=\"new-tag\" -> status flips to active; WHY: confirms approve lifecycle",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_list -> returns all registered tags with status/aliases; WHY: confirms list operation",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=alias tag=\"auth-bypass\" aliasOf=\"new-tag\" -> new-tag gains alias \"auth-bypass\"; WHY: confirms alias/synonym folding",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=deprecate tag=\"old-tag\" -> status becomes deprecated; WHY: confirms deprecation lifecycle",
+            "type": "cli"
+          },
+          {
+            "desc": "Compute advisory gate decision on a finding WITH audit fields vs identical finding WITHOUT audit fields -> decisions are byte-identical; WHY: THE LOAD-BEARING GUARDRAIL proving gate logic ignores audit fields",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call finding_add with signatureTag=\"existing-tag\" (already in registry) -> no duplicate entry created, existing entry unchanged; WHY: idempotency of auto-propose",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=approve on an already-active tag -> no error, remains active; WHY: idempotent approve",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_list when registry file does not exist -> returns empty list, no crash; WHY: cold-start tolerance",
+            "type": "cli"
+          },
+          {
+            "desc": "Alias tag \"A\" to \"B\" where B has mergedInto set -> verify alias chain resolution is handled; WHY: transitive alias edge case",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call signature_registry_set action=approve on a tag that was never proposed -> rejected or auto-creates as proposed then requires re-approve; WHY: cannot skip the propose step",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set with action=\"DROP_TABLE\" (invalid action) -> rejected with clear error; WHY: adversarial action enum",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=alias with tag=aliasOf (self-alias) -> rejected or no-op; WHY: adversarial circular reference",
+            "type": "cli"
+          },
+          {
+            "desc": "Concurrent finding_add calls with different signatureTags -> all tags registered without data corruption; WHY: concurrency safety of registry writes",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
