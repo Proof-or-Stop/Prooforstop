@@ -69,7 +69,65 @@
       "userSees": "The doc contains a module-decomposition section listing the new core/ and handlers/ modules, a reuse section naming dev-memory.ts / decision-doc-promotion.ts / activity-log.ts, and an explicit cut-FTS statement.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a module-decomposition section header (H2 or H3) -> grep -i finds module.decomposition or module.structure heading; WHY: verifies the section exists",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Module-decomposition section lists the four core modules (experience-layer-types, learning-store, finding-signals, experience-hint-loader) -> grep finds all four module names; WHY: completeness of decomposition",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Module-decomposition section lists the two handler modules (learning, playbook) -> grep finds both handler module names; WHY: completeness of decomposition",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc describes one-way inward coupling (handler -> core -> types direction) -> grep finds one-way or inward coupling language; WHY: architectural constraint is a key decision",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a reuse section naming dev-memory.ts, decision-doc-promotion.ts, and activity-log.ts -> grep finds all three filenames; WHY: reuse-not-rebuild is a core decision",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains explicit cut-FTS statement (cutting full-text search for v1) -> grep -i finds cut.*FTS or cut.*full.text.search; WHY: explicit scope cut is a key decision",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The three reuse files (dev-memory.ts, decision-doc-promotion.ts, activity-log.ts) actually exist in the codebase -> find . -name dev-memory.ts etc. each returns at least one result; WHY: reuse claims must reference real code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc mentions packages/main as the location for new modules -> grep finds packages/main; WHY: module location claim must be grounded",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc does not claim FTS is included or planned for v1 (no contradictory language) -> grep for phrases like full-text search.*v1.*include or FTS.*enabled finds no contradictions; WHY: cut-FTS must be unambiguous",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "No module is listed in both core/ and handlers/ (no category confusion) -> reviewer confirms each module appears in exactly one category; WHY: decomposition must be clean",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
