@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-32b9:F-001",
+      "desc": "CHK-001:happy:1 intent requires verifying DISPATCH, RESULT, REVIEW, and FINDING nodes are rendered for a REVIEW-phase story where events exist in process-events.jsonl. Evidence chose B-0414 but note explicitly states no dispatch events exist for B-0414, so none of the four required node types appeared. The evidence only confirms no crash, not that those nodes render correctly. The specified behavior (REVIEW/FINDING node rendering) was never exercised.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T19:29:23.448Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-002",
+      "_hash": "4301dcc2550f45c945f1bd48a3f61be7a0fbb6318c4fba6f0f55270ce55efb2f",
+      "files": [
+        "lattice-console-serve.js"
+      ]
+    }
+  ]
+}
