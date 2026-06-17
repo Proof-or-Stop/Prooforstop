@@ -167,6 +167,48 @@
         "bindingHash": "6815c279f48ee4760030b233da40f61e8e50dd424b0434b572b10a4c7c8211db"
       },
       "_hash": "9ea553855d4b5ade351313d37ede661ffb73a48cf7c9a9579026ab2f9be8da74"
+    },
+    {
+      "reviewRunId": "B-2ccc:RR-005",
+      "storyId": "B-2ccc",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "startedAt": "2026-06-17T14:29:54.959Z",
+      "headHash": "b52159ab7ba96125fabe95a95db304317534f01f",
+      "materialHash": "796a6008ab57280d3945a9db0c8662e0434a4e6c57c4acac7e6910bb1313177f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "facf72f8fe2e456773e9626b17c256f4aa76569d435fc07051ae75ae9c094092",
+        "diffPackHash": "e428ca1c06533f3bd2439fe32c15ad0c29c395b1b90ac7550fef12e8ab5363bc",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/handlers/decision-doc-promotion.ts",
+          "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "27d3bc90499c12027e011111a56976f21180e6d194d493abceaf401c643ed6f6",
+          "4cffe1f0cb692ac445b72fe0048eee2e16cf452423179b5cc32041757145671b",
+          "cf0335dd210efc75b5ba977a2aaf41309bded477a083dd2d06dd735a74c4a89f",
+          "cfa315578b9b84d05895b227432d8f6bbb07c747a22a0c7000b663f871bf1c6d",
+          "f39b7cdae5a27e71e12f7a9cbfec230f31cea5ace3b8db61360be27e687713f6"
+        ],
+        "bindingHash": "c59926423adb8a1a66897843d7181b7c69feec0b1b07abcd3ed4fd6e928638cc"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-2ccc",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-2ccc",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-2ccc",
+        "workspaceMode": "story-worktree",
+        "headHash": "b52159ab7ba96125fabe95a95db304317534f01f",
+        "materialHash": "796a6008ab57280d3945a9db0c8662e0434a4e6c57c4acac7e6910bb1313177f",
+        "bindingHash": "9d90530f2fdd462f6fe977bccefe9446a189359fa54079bbd31f71f2b5b274ef"
+      },
+      "_hash": "db44c883eb2825a81fe43d847c0c223442fb0e2d409b94664f7bd14b864a04a3"
     }
   ]
 }

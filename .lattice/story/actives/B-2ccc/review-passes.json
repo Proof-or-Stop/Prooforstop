@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T14:17:18.545Z",
       "reviewRunId": "B-2ccc:RR-004",
       "_hash": "a9891c2be43b1a6a9c40c672a54cd9a79751b9b60ac2a4c9956ef2a6acfb8b4e"
+    },
+    {
+      "id": "B-2ccc:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed decision-doc-promotion.ts (re-exports block + import cleanup), core/digest.ts (new leaf), and experience-layer-digest-extract-smoke.ts. digest.ts is a strict leaf: imports only node:crypto, no dead code, no unsafe casts. decision-doc-promotion.ts correctly removes all local definitions (Digestable type, normalizeJson, canonicalJson, digestCanonicalJson, digestText) and the createHash import; the backward-compat re-export block is present and correctly typed. The smoke file uses all imported names; the dynamic CHK-002 check correctly validates re-exports from compiled dist. No dead code, no empty catch blocks, no as-any misuse found in any of the three changed source files.",
+      "createdAt": "2026-06-17T14:30:16.719Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-005",
+      "_hash": "852ada22718aa97512f07ddf71a9cfa4a5528be879bec715ac78b422a075a682"
     }
   ]
 }
