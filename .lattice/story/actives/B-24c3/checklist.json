@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bump 8 timeoutMs entries from default 60s to 180s",
+      "context": "In packages/main/smoke-manifest.json, set timeoutMs=180000 for these 8 entries (or add the entry if missing): experience-layer-digest-extract, gap-log, init-check-fallback, scope-contract, story-capsule, story-create-concurrency, story-metadata-protection, unattended-dispatch. Each PASSES standalone in 9-21s — the 60s default is enough for serial but not for parallel worker-pool load. Bump margin: ~3x measured standalone.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bump lattice-baseline timeoutMs from 240000 to 360000",
+      "context": "lattice-baseline currently has timeoutMs=240000 (set by B-2d6c). Serial standalone wall-time is 129s. Under heavy parallel load it now times out at 240s. Bump to 360000 (~3x serial standalone) to give consistent headroom. Do NOT change smoke logic.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "CHANGELOG Unreleased entry + 3x parallel verify",
+      "context": "CHANGELOG Unreleased entry under Test infrastructure subsection naming this story (B-xxxx) and listing the 9 timeoutMs bumps. Final verification: 3 consecutive `npm run test:all` runs all exit 0 with 162/162 PASS (no flake). If a run still fails for review-pass-discard (parallel-only FAIL, not a timeout), that is OUT OF SCOPE — file finding_add as a separate concern, leave the smoke as-is.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
