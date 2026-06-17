@@ -42,6 +42,17 @@
           "headHash": "599d45cef1e35dcba34021fe5e26649369a196b2",
           "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
           "timestamp": "2026-06-17T12:15:29.945Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Existing plain-repo/DI docs-drift smoke still passes unchanged after the one-arg fix (projectRoot==gitCwd no-op). Output: docs-drift path+asset smoke passed.",
+          "headHash": "06649785d509cf6608315264ea47d9b1398808cd",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:30.512Z"
         }
       ]
     },
