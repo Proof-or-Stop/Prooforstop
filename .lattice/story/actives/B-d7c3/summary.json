@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d7c3",
+  "changes": "packages/main/smoke-manifest.json 5->139 entries (collapsed per-smoke scripts); packages/main/package.json test:* 151->12 (keep-list: e2e/run-all-smokes-smoke/main-write-lock-coverage/review-convergence-smoke/review-incremental-context-smoke/docs-drift-smoke + 6 non-smoke contract/suite); root package.json test:* 114->43, added test:legacy shim; README.md updated 5 references to test:legacy form; CHANGELOG Unreleased entry documents the migration; 4 .ts edits via scope-ack (review-preflight gate label, lattice-hosts editor commands, 2 stale Run: comments) to remove dangling refs to deleted per-smoke scripts.",
+  "usage": "Run all smokes: npm run test:all. Run a single legacy smoke by name: npm run test:legacy -- <smoke-name>  (the runner strips the -smoke suffix; e.g. test:legacy -- gitroot-cwd-contract for gitroot-cwd-contract-smoke). Run with tag filter: npm run test:all -- --tag fast. Run with concurrency: npm run test:all -- --jobs 4. Self-smoke of the runner: npm --prefix packages/main run test:run-all-smokes-smoke.",
+  "expectedOutcome": "npm test root chain (main-write-lock-coverage + koala-residue + review-convergence-smoke + review-incremental-context-smoke + docs-drift-smoke + docs-drift-wrapper-root + gitroot-cwd-contract + e2e) all PASS; test:all runs full 139-entry manifest; test:legacy invokes per-name; CHANGELOG Unreleased section documents the migration commands; README test:legacy refs work literally.",
+  "actualTranscript": "npm test PASS; npm --prefix packages/main run test:run-all-smokes-smoke 9/9 PASS; npm run test:legacy -- gitroot-cwd-contract 1/1 PASS; npm run test:all -- --tag fast 3/3 PASS; rebuilt dist confirms 4 .ts edits land (grep returns 0 hits for old test:X-smoke tokens, 4 hits for new test:legacy form).",
+  "outcomeDiff": "No difference: every documented promise verified by delivery review (6/6 docsPromises confirmed; 3/3 checklist items tested across happy/edge/adversarial).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Approximately 9 test-fixture refs to old test:X-smoke names remain inside *-smoke.ts files (story-capsule-smoke, flow-stability-smoke, lattice-evidence-smoke, lattice-handoff-smoke, lattice-parallel-wave-smoke, canonical-story-export-smoke, evidence-state-gate-smoke). These are fixture data inside test assertions about command-propagation logic, not real operator-facing commands; left out of scope by deliberate boundary call per concept reviewer round 3. Authority/production receipts NOT issued (degraded 3x1 fallback used per solo-operator standing approval); authorityDone/productionDone stay false.",
+  "pitfalls": "22 findings across 6 REVIEW rounds — the evidence-binding helper kept defaulting to generic fallbacks instead of literal intent commands, recurring the pattern from B-d7ef/B-ed70/B-35aa (memory: evidence-must-bind-literal-intent-command). Lessons: (1) every verificationIntent's desc embeds a literal CLI command — bind evidence.command verbatim; (2) for over-reach guards use three-dot diff (git diff main...HEAD) not two-dot, because parallel stories merging to main between worktree create and DONE inject false positives (here B-40eb landed mid-story with 2167 lines of verify-*.mjs and 4621 lines of *-smoke.ts changes); (3) scope_contract_acknowledge requires --paths as JSON array, not repeated --path. Next person: write the binding helper as a strict mapper from intent.desc to command, and add a smoke check that fails if any two evidences share the same command string.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 489090
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 48703
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 211289
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 658348
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 2790587
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 377132
+    }
+  },
+  "totalDurationMs": 4575192,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T13:24:13.581Z",
+  "updatedAt": "2026-06-17T13:24:13.581Z"
+}

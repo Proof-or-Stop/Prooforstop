@@ -8,4 +8,4 @@ Numbers re-verified on main at story creation time (2026-06-17 post-B-6efb merge
 B1 was an additive story (runner alongside existing scripts). B2 is the breaking-style cleanup, but the legacy shim keeps invocation backward-compatible. The two scripts external CI references (`npm run test:gitroot-cwd-contract` etc.) become `npm run test:legacy -- gitroot-cwd-contract` or `npm run test:all -- --select gitroot-cwd-contract`. Risk: PR docs, CONTRIBUTING.md, decision docs may name specific test:* scripts; those references need updating (or the legacy shim catches them). Mitigation: scan tracked docs (`grep -r 'test:' docs/ README.md CLAUDE.md AGENTS.md`) and fix all hits in this story.
 
 ## Conversational Texture
-User directed: 'B2 → B3 各开独立 Lattice story,跑完为止' — sequence B2 then B3. B2's scope is verbatim from A0; this story is mechanical execution with the document-update side-quest.
+User directed: open B2 then B3 as independent Lattice stories and run them through to completion. B2's scope is verbatim from A0; this story is mechanical execution with the document-update side-quest.

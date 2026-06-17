@@ -1,0 +1,27 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-17T12:20:26.962Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Collapse the 143 packages/main per-smoke test:X-smoke scripts into smoke-manifest.json entries and remove them + Remove the redundant root-level test:X-smoke proxy scripts and update the root `test` main script if needed are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Data Migration/Destructive"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        }
+      ],
+      "_hash": "e2b5e6ce1aa8da14dacb0dee2cc0321f0a56abd1af6206716bf958aa64b6eb50"
+    }
+  ]
+}

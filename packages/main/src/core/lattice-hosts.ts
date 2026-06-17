@@ -387,7 +387,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Run project build and smoke commands from the local runner when the editing host delegates verification.',
         'Submit or verify authority receipts only through an explicitly configured authority-capable path.',
       ],
-      commands: ['npm --prefix packages/main run build', 'npm --prefix packages/main run test:lattice-cli-migration-smoke'],
+      commands: ['npm --prefix packages/main run build', 'npm run test:legacy -- lattice-cli-migration'],
       warnings: commonWarnings,
     };
   }
