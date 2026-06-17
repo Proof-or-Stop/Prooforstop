@@ -10,10 +10,11 @@
  * `./experience-layer-types.js`. NO outward imports (no `../`, no `../../`).
  */
 
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-import type { FindingSignalsCache } from './experience-layer-types.js';
+import { digestCanonicalJson } from './digest.js';
+import type { FindingSignalsCache, Playbook, PlaybookProposal } from './experience-layer-types.js';
 
 /** Relative learning directory from the project root. */
 export const LEARNING_DIR = join('.lattice', 'learning');
@@ -31,9 +32,28 @@ export const LEARNING_LOG_FILENAME = 'learning-log.jsonl';
  */
 export const SIGNATURE_REGISTRY_FILENAME = 'signature-registry.json';
 
+/**
+ * B-8387 (Experience Layer Phase 2): approved-playbooks store filename. Lives
+ * under `.lattice/learning/` (materialHash-EXCLUDED prefix — see the
+ * SIGNATURE_REGISTRY_FILENAME note), so writing it never makes evidence stale.
+ */
+export const PLAYBOOKS_FILENAME = 'playbooks.json';
+/** B-8387: directory holding one staged proposal file per `<id>.json`. */
+export const PROPOSALS_DIRNAME = 'proposals';
+
 /** Absolute learning directory under a project root. */
 export function resolveLearningDir(projectRoot: string): string {
   return join(projectRoot, LEARNING_DIR);
+}
+
+/** Absolute path of the approved-playbooks store under a project root. */
+export function resolvePlaybooksPath(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), PLAYBOOKS_FILENAME);
+}
+
+/** Absolute proposals directory (`.lattice/learning/proposals/`) under a root. */
+export function resolveProposalsDir(projectRoot: string): string {
+  return join(resolveLearningDir(projectRoot), PROPOSALS_DIRNAME);
 }
 
 /** Absolute path of the finding-signals cache under a project root. */
@@ -361,4 +381,119 @@ export function suggestNearActiveTag(projectRoot: string, tag: string): string |
     if (lower.includes(canonical) || canonical.includes(lower)) return t.tag;
   }
   return undefined;
+}
+
+// ── B-8387 (Experience Layer Phase 2): playbooks + staged proposals ───────────
+//
+// Two file shapes under `.lattice/learning/`:
+//   • playbooks.json — a flat array of approved Playbooks (status candidate+).
+//   • proposals/<id>.json — one staged PlaybookProposal per file.
+// Both use the same atomic writer (temp + post-write parse + rename) and
+// canonical key order so re-writing identical data is byte-identical on disk.
+// This module imports ONLY `node:` builtins, `./digest.js`, and the leaf
+// `./experience-layer-types.js` — no outward coupling into handlers/gates.
+
+/**
+ * Validate a proposal id is a safe single path segment (no traversal / no
+ * separators / no NUL). Returns the trimmed id. Throws a clear error otherwise,
+ * so a hostile or malformed id can never escape the proposals/ directory.
+ */
+function safeProposalId(id: unknown): string {
+  const value = typeof id === 'string' ? id.trim() : '';
+  if (!value) throw new Error('proposal id must be a non-empty string');
+  if (value.includes('/') || value.includes('\\') || value.includes('\0') || value === '.' || value === '..' || value.includes('..')) {
+    throw new Error(`proposal id contains illegal path characters: ${value}`);
+  }
+  return value;
+}
+
+/** Absolute path of a single proposal file under a project root. */
+export function resolveProposalPath(projectRoot: string, id: string): string {
+  return join(resolveProposalsDir(projectRoot), `${safeProposalId(id)}.json`);
+}
+
+/**
+ * The digest domain of a proposal: the proposal MINUS its own `proposalDigest`
+ * field (cloning the decision-doc digest-domain exclusion — a digest can never
+ * cover itself). digestCanonicalJson handles recursive key sorting.
+ */
+function proposalDigestDomain(proposal: PlaybookProposal): Omit<PlaybookProposal, 'proposalDigest'> {
+  const { proposalDigest: _proposalDigest, ...domain } = proposal;
+  return domain;
+}
+
+/** Stable sha256 over the canonical proposal domain (excluding proposalDigest). */
+export function computePlaybookProposalDigest(proposal: PlaybookProposal): string {
+  return digestCanonicalJson(proposalDigestDomain(proposal));
+}
+
+/**
+ * Read all approved playbooks. Returns `[]` when the file is absent (cold start)
+ * or malformed (graceful degradation — never throws / never corrupts state).
+ */
+export function readPlaybooks(projectRoot: string): Playbook[] {
+  const filePath = resolvePlaybooksPath(projectRoot);
+  if (!existsSync(filePath)) return [];
+  try {
+    const parsed = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+    return Array.isArray(parsed) ? (parsed as Playbook[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Atomically write the full playbooks array (canonical key order; idempotent). */
+export function writePlaybooks(projectRoot: string, playbooks: Playbook[]): string {
+  return atomicWriteJson(resolvePlaybooksPath(projectRoot), playbooks);
+}
+
+/** Append one playbook to playbooks.json (read-modify-write). Returns the path. */
+export function appendPlaybook(projectRoot: string, playbook: Playbook): string {
+  const playbooks = readPlaybooks(projectRoot);
+  playbooks.push(playbook);
+  return writePlaybooks(projectRoot, playbooks);
+}
+
+/**
+ * Read one staged proposal. Returns `null` when absent or malformed (graceful
+ * degradation — callers surface a clear not-found error of their own).
+ */
+export function readProposal(projectRoot: string, id: string): PlaybookProposal | null {
+  const filePath = resolveProposalPath(projectRoot, id);
+  if (!existsSync(filePath)) return null;
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf8')) as PlaybookProposal;
+  } catch {
+    return null;
+  }
+}
+
+/** List all staged proposals (sorted by id). Tolerates missing dir / bad files. */
+export function listProposals(projectRoot: string): PlaybookProposal[] {
+  const dir = resolveProposalsDir(projectRoot);
+  if (!existsSync(dir)) return [];
+  const out: PlaybookProposal[] = [];
+  for (const name of readdirSync(dir)) {
+    if (!name.endsWith('.json')) continue;
+    const proposal = readProposal(projectRoot, name.slice(0, -'.json'.length));
+    if (proposal) out.push(proposal);
+  }
+  return out.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/** Atomically write one staged proposal to proposals/<id>.json. Returns path. */
+export function writeProposal(projectRoot: string, proposal: PlaybookProposal): string {
+  const id = safeProposalId(proposal.id);
+  return atomicWriteJson(resolveProposalPath(projectRoot, id), proposal);
+}
+
+/**
+ * Delete one staged proposal. Returns `true` if a file was removed, `false` if
+ * it was already absent (idempotent — never throws on a missing file).
+ */
+export function deleteProposal(projectRoot: string, id: string): boolean {
+  const filePath = resolveProposalPath(projectRoot, id);
+  if (!existsSync(filePath)) return false;
+  rmSync(filePath, { force: true });
+  return true;
 }
