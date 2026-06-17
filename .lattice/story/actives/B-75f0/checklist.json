@@ -98,6 +98,17 @@
           "headHash": "1b1ea675d1a2d032f77f5694d05ea58f64bed332",
           "materialHash": "69b772cd66d2207436a10e4f59558593a73227d259360faa477279117f82d639",
           "timestamp": "2026-06-17T23:11:02.029Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "gitroot-cwd-contract-smoke exits 0 after all 7 graceful sites (verifier, lattice-handoff, codex-adapter-checks, touchpoints-fallback, validation-executor, recover-evidence, init-check) are threaded AND removed from DEFERRED_ALLOWLIST_EXACT; self-tests still prove a re-introduced bare-root alias/backtick fails the contract (detection intact)",
+          "headHash": "c1461deefe2d0524524deadb5af82bf62b9746af",
+          "materialHash": "69b772cd66d2207436a10e4f59558593a73227d259360faa477279117f82d639",
+          "timestamp": "2026-06-17T23:11:10.554Z"
         }
       ]
     },
