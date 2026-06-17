@@ -83,9 +83,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes.js --select gitroot",
           "result": "pass",
           "note": "Self-smoke verifies --select substring filtering on 4 fixture smokes; live --select gitroot matches gitroot-* smokes.",
-          "headHash": "f2d1dff7f0d76b2acb2a48efb1a6fb7d11cf8dfe",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:13.172Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -116,9 +116,9 @@
           "command": "npm --prefix packages/main run test:run-all-smokes-smoke && node packages/main/dist/tasks/run-all-smokes.js --tag fast",
           "result": "pass",
           "note": "Covered by self-smoke 9/9 + live runner test on 5 fast smokes.",
-          "headHash": "1bc45673ce9ee12c1ba9f87196f4ffb644dc835e",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:40.689Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -127,9 +127,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes.js --select ZZZZZ_NONEXISTENT",
           "result": "pass",
           "note": "Exit 0; stdout: 'run-all-smokes: 0 smokes matched filters (tag=* select=ZZZZZ_NONEXISTENT)' — empty result set does not crash.",
-          "headHash": "9fc7b634fbf2ca72fd272b1e064ccdc2a8e02e52",
-          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
-          "timestamp": "2026-06-17T02:21:00.495Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -138,9 +138,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Self-smoke verifies --jobs 1 and --jobs 4 produce same exit code (assertion in 9/9 checks).",
-          "headHash": "516e42a02e9a6eb28f8d47865ff5c2078940aff9",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:45.338Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -149,9 +149,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Self-smoke verifies --jobs 1 and --jobs 4 produce same exit code (assertion in 9/9 checks).",
-          "headHash": "2ff265b8e0c9dbc1a0d00ba0079167476305c377",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:47.574Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -171,9 +171,9 @@
           "command": "git diff main -- 'packages/main/src/tasks/*-smoke.ts' | grep -vE 'run-all-smokes-smoke' | wc -l",
           "result": "pass",
           "note": "Returns 0: no existing smoke file modified (only new run-all-smokes-smoke.ts created).",
-          "headHash": "661cbf17024ff4ec6f06dacc375c4f114f273b5b",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:50.212Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -182,9 +182,9 @@
           "command": "test -f packages/main/src/core/intent-coverage.ts && echo SAFE",
           "result": "pass",
           "note": "intent-coverage.ts present (over-reach guard).",
-          "headHash": "4c0379f12b9448362f3eb56cc105314c0383331b",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:53.480Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -193,9 +193,9 @@
           "command": "test -f packages/main/src/verifier/dev-cli.ts && echo SAFE",
           "result": "pass",
           "note": "dev-cli.ts present (over-reach guard).",
-          "headHash": "5bcd62dd4dbb774417b4fee7a0e2a8ede38f0c2e",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:54.777Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -204,9 +204,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Self-smoke checks 3-4: fixture-fail exits non-zero AND output contains 'FAIL fixture-fail'.",
-          "headHash": "0298646a177d4cea2c8b4ebf16988961baf5ebfa",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:56.071Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -215,9 +215,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Self-smoke verifies --jobs 1 and --jobs 4 produce same exit code (assertion in 9/9 checks).",
-          "headHash": "98408f32c4dfc4af15882e398b30f60a63d239ff",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:57.752Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         }
       ]
     },
@@ -298,9 +298,9 @@
           "command": "node -e \"console.log(JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json')).smokes.length)\"",
           "result": "pass",
           "note": "Manifest parses; reports 6 entries.",
-          "headHash": "53f5d5a45ca1e81ab211fa7b874067f1b64579df",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:59.152Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -309,9 +309,9 @@
           "command": "grep '\"test:all\"' package.json",
           "result": "pass",
           "note": "Root package.json contains test:all entry.",
-          "headHash": "b59e76d53b952107c1ded412f1cada5d808a26f3",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:01.049Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -320,9 +320,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes.js --select gitroot",
           "result": "pass",
           "note": "Self-smoke verifies --select substring filtering on 4 fixture smokes; live --select gitroot matches gitroot-* smokes.",
-          "headHash": "a6a38717489579de74eb84ccf13b84c847788404",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:02.597Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -331,9 +331,9 @@
           "command": "test -f packages/main/smoke-manifest.json && node -e \"JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json'))\"",
           "result": "pass",
           "note": "Manifest file exists and is valid JSON.",
-          "headHash": "2f90ef88379247b6f7772b736a8475014f2d078e",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:03.966Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -342,9 +342,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes.js --manifest /tmp/test-manifest.json --select skip-me",
           "result": "pass",
           "note": "With a temp manifest containing {name:'skip-me',skip:true}, --select skip-me returns '0 smokes matched filters' — skip:true honored on live runner.",
-          "headHash": "ba67749102550f5bee358fb271776afb8db7d119",
-          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
-          "timestamp": "2026-06-17T02:21:01.545Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -353,9 +353,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes.js --select gitroot",
           "result": "pass",
           "note": "Self-smoke verifies --select substring filtering on 4 fixture smokes; live --select gitroot matches gitroot-* smokes.",
-          "headHash": "136e1b725cada020ba3f5afbd79a6986fcdbf7ea",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:07.020Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -364,9 +364,9 @@
           "command": "node -e \"require('./packages/main/smoke-manifest.json').smokes.filter(s=>s.tags).forEach(s=>{if(!Array.isArray(s.tags))throw 1}); console.log('SCHEMA_OK')\"",
           "result": "pass",
           "note": "Prints SCHEMA_OK — every smoke entry's tags field is a valid array per schema.",
-          "headHash": "866b264f5cfd0c0c0c0c7ef5c9536eed2f01287b",
-          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
-          "timestamp": "2026-06-17T02:21:02.568Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -375,9 +375,9 @@
           "command": "git diff main -- package.json packages/main/package.json | grep -E '^-.*test:' | wc -l",
           "result": "pass",
           "note": "Returns 0: no existing test:* script removed or modified.",
-          "headHash": "9efb2422ba0226051d760d0e8cd1246b985a8686",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:09.260Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -386,9 +386,9 @@
           "command": "git diff main -- package.json packages/main/package.json | grep -E '^-.*test:' | wc -l",
           "result": "pass",
           "note": "Returns 0: no existing test:* script removed or modified.",
-          "headHash": "9312f64c659e0e0ed6537d6a22d530e78d0583b9",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:10.458Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -397,9 +397,9 @@
           "command": "test -f packages/main/smoke-manifest.json && node -e \"JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json'))\"",
           "result": "pass",
           "note": "Manifest file exists and is valid JSON.",
-          "headHash": "41878b868c9e70ce8c786f154f4f009eb9dbb61e",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:11.576Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -408,9 +408,9 @@
           "command": "npm --prefix packages/main run test:run-all-smokes-smoke && node packages/main/dist/tasks/run-all-smokes.js --tag fast",
           "result": "pass",
           "note": "Covered by self-smoke 9/9 + live runner test on 5 fast smokes.",
-          "headHash": "118915fecba2a554270683e176c6df081d0b9631",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:12.956Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         }
       ]
     },
@@ -497,9 +497,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Self-smoke verifies --jobs 1 and --jobs 4 produce same exit code (assertion in 9/9 checks).",
-          "headHash": "8ad69b0348789453e7ed59d97ea0b34189f64e39",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:14.677Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -508,9 +508,9 @@
           "command": "grep test:run-all-smokes-smoke packages/main/package.json",
           "result": "pass",
           "note": "npm script wired in packages/main/package.json.",
-          "headHash": "d472f14a18ca00629687b4d54147ab4091d61795",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:16.165Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -519,9 +519,9 @@
           "command": "node -e \"const p=require('./packages/main/package.json'); console.log(p.scripts['test:run-all-smokes-smoke'])\"",
           "result": "pass",
           "note": "Prints 'node dist/tasks/run-all-smokes-smoke.js' — confirms npm script wiring exact value.",
-          "headHash": "ecb350b154eb6bd98d717699b5cc00c64c7bd41f",
-          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
-          "timestamp": "2026-06-17T02:21:03.638Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -530,9 +530,9 @@
           "command": "npm --prefix packages/main run test:run-all-smokes-smoke && node packages/main/dist/tasks/run-all-smokes.js --tag fast",
           "result": "pass",
           "note": "Covered by self-smoke 9/9 + live runner test on 5 fast smokes.",
-          "headHash": "7ab9e5eacc377feb541bfe0ff6951a826769437a",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:18.499Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -552,9 +552,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Self-smoke verifies --jobs 1 and --jobs 4 produce same exit code (assertion in 9/9 checks).",
-          "headHash": "7bf25568e465fa939d57be2a281d723882d00a4a",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:24.747Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -563,9 +563,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes.js --tag fast",
           "result": "pass",
           "note": "Self-smoke verifies --tag missing-tag returns 0 smokes; live run with --tag fast returns 5 fast smokes from manifest.",
-          "headHash": "6d84c778b965990951e5204455e485d0e2db2e92",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:26.369Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -574,9 +574,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Self-smoke checks 3-4: fixture-fail exits non-zero AND output contains 'FAIL fixture-fail'.",
-          "headHash": "f87a3ed492f89dad9ef9a996910c4dedc1da6b3c",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:28.744Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -585,9 +585,9 @@
           "command": "npm --prefix packages/main run test:run-all-smokes-smoke",
           "result": "pass",
           "note": "Self-smoke 9/9 checks pass on HEAD.",
-          "headHash": "b3064a393e1682550ad2eba7557b8190694b4df8",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:29.864Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -596,9 +596,9 @@
           "command": "test -f packages/main/src/core/intent-coverage.ts && echo SAFE",
           "result": "pass",
           "note": "intent-coverage.ts present (over-reach guard).",
-          "headHash": "7893ff5ab617ca6dee8d4d9da593225df7e7bd51",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:30.910Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -607,9 +607,9 @@
           "command": "test -f packages/main/src/verifier/dev-cli.ts && echo SAFE",
           "result": "pass",
           "note": "dev-cli.ts present (over-reach guard).",
-          "headHash": "69dff567c44478c0d75645619a93ac60859145fd",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:32.056Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
@@ -618,9 +618,9 @@
           "command": "env -i HOME=$HOME PATH=$PATH node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
           "note": "Runs under stripped env (only HOME+PATH); exit 0 with '9/9 checks passed' — smoke does not depend on ambient environment.",
-          "headHash": "2425a04bde64b445aad69473eda8f17b7c555f23",
-          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
-          "timestamp": "2026-06-17T02:21:04.732Z"
+          "headHash": "f24321f9991e2c7e804a8f43adcf8dee580748f9",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:29:22.096Z"
         }
       ]
     }
