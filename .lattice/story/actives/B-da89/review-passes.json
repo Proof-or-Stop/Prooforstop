@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-da89:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement. The only source code change is +2 additive lines in packages/main/src/core/config.ts adding literal dev_start entries to the INIT and DEV arrays of DEFAULT_PHASE_TOOLS. No existing entries were removed or renamed. Zero deleted lines in config.ts diff. No concept residue check needed.",
+      "createdAt": "2026-06-17T02:21:52.638Z",
+      "reviewRound": "2026-06-17T02:21:08.224Z",
+      "reviewRunId": "B-da89:RR-001",
+      "_hash": "1fdfb3a0f80519bc0ea5a8feeaf7c052934df916438321ebc0ea91a7bf48dfc1"
+    }
+  ]
+}
