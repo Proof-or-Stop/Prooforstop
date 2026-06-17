@@ -130,7 +130,67 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice learning_validate in a repo with finding history -> prints human-readable report containing valid-rate and drift-rate lines; WHY: confirms the core user-facing output",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate --json -> outputs valid JSON with total/anchored/valid/stale/unanchored/validRate/driftRate fields; WHY: confirms machine-readable output path",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate --story B-xxxx -> restricts derivation to that story only; WHY: confirms the optional story filter works",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate registered in cli-engine.ts with schema {json?: boolean, story?: string} -> command is discoverable and schema matches; WHY: confirms CLI wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate registered in registry.ts via createLearningValidateHandlers -> handler is callable; WHY: confirms handler registration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice learning_validate in a repo with no finding history (empty store) -> prints valid-rate 0 / drift-rate 0, does not crash; WHY: empty-store boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate when git ls-tree HEAD fails (not a git repo or empty repo) -> treats file set as empty (all anchored signals become stale), does not crash; WHY: confirms the try/catch fallback in fileExists construction",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate appears in core/config.ts DEFAULT_PHASE_TOOLS wildcard list -> command is allowed in all phases; WHY: confirms phase-access registration",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate has command-policy entry with status=supported, ownershipClass=readOnly, allowedPhases=all, destructiveRisk=none -> policy metadata correct; WHY: confirms read-only classification",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "after running lattice learning_validate, no files in .lattice/ are modified (finding-signals.json not written, no gate touched, no findings added) -> verify via git diff or file stat; WHY: the handler must NOT persist anything -- deriveFindingSignalsFromStore called WITHOUT projectRoot",
+            "type": "cli"
+          },
+          {
+            "desc": "handler does NOT call finding_add, advisory_add, or any gate registration function -> static analysis of handlers/learning-validate.ts confirms no write/finding/gate imports; WHY: adversarial check that read-only contract is honored",
+            "type": "cli"
+          },
+          {
+            "desc": "handler builds its own execFileSync for git ls-tree (does NOT import or modify evidence-freshness.ts) -> static import analysis; WHY: the plan explicitly forbids modifying evidence-freshness.ts",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate with --story pointing to a nonexistent story ID -> graceful handling (empty derivation, not a crash); WHY: adversarial invalid input",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
