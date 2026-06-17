@@ -4,7 +4,7 @@
   "title": "Cheaper REVIEW re-review: per-reviewer incremental context + round-2+ informed targeted re-review (gate unchanged)",
   "description": "Re-review rounds are expensive because operators re-run every reviewer each round and each reviewer re-analyzes the whole git diff main...HEAD from scratch. Two facts make this avoidable WITHOUT changing the gate: (1) reviewer verdicts already record the headHash they were bound to, so 'what changed since reviewer X last passed' is computable; (2) the REVIEW->TEST gate is already lenient in round 2+. Confirmed in core/machine.ts canPassReviewGuard + core/review-run.ts collectReviewerEvidenceState: Round 1 (roundCount<=1) requires ALL opt-in reviewers to have a valid current-round verdict plus a quorum; Round 2+ requires only >=1 valid current-round reviewer receipt, no current-round INVALID (stale) binding, and no blocking findings (stale prior-round verdicts are scoped out by currentReviewRound, so they neither count nor force re-runs). Scope (merged option 2): (A) a read-only helper + CLI lattice review_incremental_context --role=<reviewer> that returns the reviewer's prior verdict plus the diff since its last-pass headHash (full diff main...HEAD fallback when it has no prior pass), and whether its scope changed; (B) in the round>=2 story_advance REVIEW output, surface which reviewers' scope changed since their last pass and note that the gate in round 2+ only requires >=1 valid receipt, so the operator MAY re-run just the scope-changed reviewers (informed targeted re-review) feeding each its incremental context. CRITICAL: the framework does NOT skip or carry-forward any reviewer and the gate / binding / staleness logic is UNCHANGED; this only (i) makes each reviewer's work cheaper and (ii) surfaces information about an already-existing round-2+ leniency so the operator decides. Under-review responsibility stays with the operator exactly as today. EXPLICITLY OUT OF SCOPE: framework-side skipping or carry-forward of reviewers (the rejected B-skip variant); any change to canPassReviewGuard / bindings / materialHash / staleness; changing what each reviewer reviews; the convergence-stall advisory (B-cfdd, done). All artifacts and emitted strings are English-only.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "riskSignals": [
     {
@@ -84,6 +84,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T01:30:54.337Z",
+      "branch": "story/B-f675",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T01:37:31.630Z",
       "branch": "story/B-f675",
       "user": "Harmonygo",
       "agent": "main"
