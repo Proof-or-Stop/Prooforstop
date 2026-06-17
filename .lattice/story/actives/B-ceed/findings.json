@@ -60,7 +60,7 @@
       "desc": "quality-cleanup: planned-steps-executor.ts:328 isRealProvider guard does not include gemini — BoundedProviderName widened to include gemini but the runtime guard still returns false for gemini, causing productionDoneProviders containing gemini to be silently filtered to empty (reals() call at line 337), making gemini ineligible as a real provider in resolveProviderPolicy at runtime despite the type allowing it",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-17T22:17:48.682Z",
@@ -69,7 +69,9 @@
       "_hash": "1697a3caa8add64e188fc255826bff9e88f59e47ae646d1aa45d4a3de8135895",
       "files": [
         "packages/main/src/core/planned-steps-executor.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit 449387731: F-001 probeHostRuntime now skips scaffolded-only warning + limitations for codex/gemini (supportsLiveDispatch branch); F-002 dispatch_auto now allows codex/gemini hosts; F-003 isProviderName includes 'gemini'; F-004 isRealProvider includes 'gemini'; F-005 unused worktreeAbs param removed.",
+      "resolvedAt": "2026-06-17T22:20:54.390Z"
     },
     {
       "id": "B-ceed:F-005",
