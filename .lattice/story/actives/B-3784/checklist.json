@@ -1,0 +1,91 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix multi-host-authority-smoke E2 assertion: add fileReader isolation to resolveAuthorityVerdictBacking call",
+      "context": "resolveAuthorityVerdictBacking({env:{LATTICE_AUTHORITY_MODE:enforce}}) at line 336 reads authority_trust.env from process.cwd(). Add fileReader: () => empty string to this call so it does not pick up machine-local config.",
+      "userSees": "node packages/main/dist/tasks/multi-host-authority-smoke.js exits 0 from the repo root directory",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "multi-host-authority-smoke passes when run from repo root with authority_trust.env present",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "E2 assertion still verifies: enforce-only env with no URL = production-inert = local mode",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No other assertions in multi-host-authority-smoke.ts are changed or weakened",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fix autopilot-authority-smoke shadow mode: trace and isolate the authority_trust.env read path",
+      "context": "buildAutopilotRun(store, {mode:shadow}, EMPTY_AUTHORITY_ENV) returns status=pass instead of warn. Trace through buildAutopilotRun to find which call site reads authority_trust.env without fileReader isolation, and add the stub there.",
+      "userSees": "node packages/main/dist/tasks/autopilot-authority-smoke.js exits 0 from the repo root directory",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "autopilot-authority-smoke passes when run from repo root with authority_trust.env present",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "shadow mode still returns status=warn after fix - the safety property is preserved",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "EMPTY_AUTHORITY_ENV is not broadened unnecessarily; minimal change only",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "npm run test:all exits with 160+/162 from repo root",
+      "context": "After fixing CHK-001 and CHK-002, run npm run test:all from the repo root and confirm autopilot-authority and multi-host-authority are no longer in the FAIL list. rollout-check flake is out of scope.",
+      "userSees": "npm run test:all shows PASS autopilot-authority and PASS multi-host-authority; total 160+/162 passed",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:all from repo root: 160+/162 passed, no FAIL for the two fixed smokes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All 159 previously-passing smokes still pass (no regressions)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rollout-check concurrency flake not counted as a regression",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
