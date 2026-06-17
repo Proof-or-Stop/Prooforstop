@@ -157,12 +157,12 @@
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "break test:anti-stall alias -> lattice validate --json -> git restore -> lattice validate --json",
+          "command": "break test:anti-stall -> validate --json -> git restore -> validate --json",
           "result": "pass",
-          "note": "REGRESSION-BLOCKS PROOF: reversibly broke the wired test:anti-stall alias (appended && exit 1, no guard-logic change). lattice validate --json then reported status=fail, allPass=false, summary=Project validation commands failed; ✗ package.json test script: npm test (the failing guard is named in the RED output, no silent skip — npm && short-circuits). git restore package.json reverted; validate --json (no --story) then reported status=pass allPass=true commands[].code=0. Break was NOT committed; worktree package.json is the clean original. Transcripts: /tmp/b99b6-validate-red.json (fail) and /tmp/b99b6-validate-nostory.json (pass).",
-          "headHash": "95a67376312f0c627168eb28378ac0f23738ca12",
-          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
-          "timestamp": "2026-06-17T18:08:46.086Z"
+          "note": "Post-merge refresh: REGRESSION-BLOCKS PROOF re-confirmed. Reversibly broke test:anti-stall alias (&& exit 1) -> validate --json status=fail allPass=false summary names ✗ package.json test script: npm test (no silent skip, && short-circuits). git restore -> status=pass allPass=true. Break NOT committed; package.json clean. Transcript: evidence/transcript-diff.md.",
+          "headHash": "6030717bbe4c7c8c6bb7e1798ddefdcc4feb755c",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:20.397Z"
         }
       ]
     }
