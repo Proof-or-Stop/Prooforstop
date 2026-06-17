@@ -1,0 +1,32 @@
+{
+  "task": "Implement Story Recall (Level 2): structured-field similarity over the existing story_list scan, read-only, no FTS/derived-index.",
+  "outcome": "Running 'npm --prefix packages/main run test:experience-layer-recall' prints 'smoke passed'. The smoke seeds several stories, builds profiles via the StoryStore enumeration, asserts recallSimilarStories returns the most-similar story first with match reasons, respects top-N, is deterministic, writes nothing (read-only) and creates no derived-index file. Build clean; existing experience-layer smokes still pass; verifier prints TOTAL N | PASS N | FAIL 0.",
+  "facts": [
+    "No FTS/BM25/SQLite engine exists in packages/main/src (the cut-FTS decision); recall must use structured filtering",
+    "StoryStore.listStoryIds (core/store.ts) is the existing story_list scan to reuse; story metadata (index.json/understanding/decision/findings) is the profile source",
+    "experience-layer-types.ts holds the layer types; signature_registry/playbook CLI show the command-policy(readOnly)/config/registry/cli-engine registration pattern",
+    "recall is read-only — it must write nothing and never touch a gate"
+  ],
+  "constraints": [
+    "No FTS / BM25 / embedding / derived story-index",
+    "Read-only: recall writes nothing, touches no gate",
+    "story-recall module zero outward imports except experience-layer-types (+ the store read port in the handler)",
+    "No Co-Authored-By trailer"
+  ],
+  "unknowns": [
+    "None blocking; the profile fields + structured-overlap scoring are fixed by the execution plan Level 2 section"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/story-recall.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/handlers/recall.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-17T15:37:44.587Z"
+}
