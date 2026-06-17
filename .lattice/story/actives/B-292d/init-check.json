@@ -1,0 +1,52 @@
+{
+  "storyId": "B-292d",
+  "checkedAt": "2026-06-17T17:25:09.860Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "high",
+      "desc": "background.md ## Solution Tradeoffs lists options (a)-(d) but ## Conversational Texture references option (e) (decision (e) keep test:koala-residue in npm test chain) which is never defined anywhere in the text. A reader cannot determine what (e) is without external context."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "high",
+      "desc": "background.md claims Existing 5 REVIEW->TEST preflight gates (channel/concept/lint/docs-drift/codex-adapter) and states adding koala-residue is a sixth slot. In reality, english-artifacts is already a 6th gate in review-preflight.ts (imported at line 75, dispatched at line 475-485, listed in the gate name union type at line 114). The proposed koala-residue gate would be the 7th, not the 6th. index.json description and CHK-002 title also say 6 gates, which would be incorrect. An implementer following the wrong count may mis-position the gate or write incorrect help text."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md ## Conversational Texture references stories 1+2+3a+3+4 while ## Trigger Event says Stories 1-3 are DONE. The numbering 3a vs 3 is never explained; a new reader cannot determine whether 3a and 3 are distinct stories or a typo."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T17:23:47.982Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T17:25:09.860Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "high",
+          "desc": "background.md ## Solution Tradeoffs lists options (a)-(d) but ## Conversational Texture references option (e) (decision (e) keep test:koala-residue in npm test chain) which is never defined anywhere in the text. A reader cannot determine what (e) is without external context."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "high",
+          "desc": "background.md claims Existing 5 REVIEW->TEST preflight gates (channel/concept/lint/docs-drift/codex-adapter) and states adding koala-residue is a sixth slot. In reality, english-artifacts is already a 6th gate in review-preflight.ts (imported at line 75, dispatched at line 475-485, listed in the gate name union type at line 114). The proposed koala-residue gate would be the 7th, not the 6th. index.json description and CHK-002 title also say 6 gates, which would be incorrect. An implementer following the wrong count may mis-position the gate or write incorrect help text."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md ## Conversational Texture references stories 1+2+3a+3+4 while ## Trigger Event says Stories 1-3 are DONE. The numbering 3a vs 3 is never explained; a new reader cannot determine whether 3a and 3 are distinct stories or a typo."
+        }
+      ]
+    }
+  ],
+  "_hash": "5ed8885b4a9202f36e640130b09b29fc88cef4bc7b17196740d8595bcfefa634"
+}

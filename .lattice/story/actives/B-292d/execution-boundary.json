@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-292d",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node scripts/verify-koala-residue.mjs *",
+    "npm --prefix packages/main run build",
+    "npm run test:koala-residue",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "packages/main/src/handlers/cli-help.ts",
+    "packages/main/src/handlers/review-preflight.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "package.json",
+    "packages/main/smoke-manifest.json",
+    "scripts/verify-koala-residue.mjs"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 4 of koala-removal ship-clean program. Mirrors english-artifacts gate pattern in review-preflight.ts. Script is B-40eb canonical — byte-frozen.",
+  "createdAt": "2026-06-17T17:21:55.375Z",
+  "updatedAt": "2026-06-17T17:21:55.375Z",
+  "_hash": "06fb42d6e5b2aae2d3352b82e5e30ad705f4d40569e506d3f731d8b6afffc27d"
+}
