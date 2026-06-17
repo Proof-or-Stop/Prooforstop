@@ -83,11 +83,11 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(invalidVerificationIntent.status, 0, 'invalid verificationIntent enum should fail');
-  assert.match(invalidVerificationIntent.stderr, /Parameter validation failed/);
+  assert.match(invalidVerificationIntent.stderr, /Argument validation failed/);
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
-  assert.match(invalidVerificationIntent.stderr, /Parameter validation failed \(summary\)/);
+  assert.match(invalidVerificationIntent.stderr, /Argument validation failed \(summary\)/);
   assert.doesNotMatch(invalidVerificationIntent.stderr, /Command "checklist_update" is not available in .* phase/);
   assert.doesNotMatch(invalidVerificationIntent.stdout, /Don't know what to do now|lattice status/);
 } finally {
