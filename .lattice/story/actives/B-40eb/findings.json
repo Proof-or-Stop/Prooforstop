@@ -97,6 +97,23 @@
         "scripts/verify-lab-normalized-score.mjs",
         "packages/lab/src/core/config.ts"
       ]
+    },
+    {
+      "id": "B-40eb:F-007",
+      "desc": "mechanical-rename-miss: scripts/verify-lab-reviewer-mvp.mjs:34,51,73 creates temp project at .Codex/agents/ and writes prompt there, but packages/lab/src/core/config.ts now resolves .lattice-codex/agents/test-case-reviewer.md — lab create --target=test-case-reviewer will fail to find the prompt file",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:42.864Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "35aecb3ac55b88e0121e327f36aebca2d60ac9fb5b68fdc4bef1b9f4c74b9703",
+      "files": [
+        "scripts/verify-lab-reviewer-mvp.mjs",
+        "packages/lab/src/core/config.ts"
+      ]
     }
   ]
 }
