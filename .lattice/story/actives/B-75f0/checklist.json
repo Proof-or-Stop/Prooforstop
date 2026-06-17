@@ -71,7 +71,30 @@
       "userSees": "On a wrapper-root project, gap-analyze worktree-id scan, story-query terminal-residue scan, and the dashboard project collection survey the real gitRoot (not the empty metadataRoot) and no longer under-report; the contract stays green; plain repos unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture, gap-analyze readLinkedStoryWorktreeIds, story-query scanTerminalStoryResidues, and dashboard collectProject survey the real gitRoot via the id-independent resolveProjectGitRoot and no longer under-report worktrees/residues/status",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo the 3 project-level scans return the same result as before; resolveProjectGitRoot null -> caller falls back to root (byte-identical)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveProjectGitRoot is exported and importable; gitroot-cwd-contract-smoke stays green after the 3 project-level scans are threaded and removed from the allowlist",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
