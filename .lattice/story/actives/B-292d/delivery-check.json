@@ -1,0 +1,59 @@
+{
+  "storyId": "B-292d",
+  "checkedAt": "2026-06-17T17:58:13.390Z",
+  "reviewRound": "2026-06-17T17:50:13.419Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#CLI-gate-table",
+      "promise": "koala-residue listed as 7th REVIEW-TEST preflight gate in the CLAUDE.md gate table, referencing B-292d",
+      "verifiedBy": "grep/read",
+      "evidence": "CLAUDE.md line 821 shows gate row: koala-residue preflight (B-292d, no standalone flag; standalone npm run test:koala-residue). grep -c koala-residue CLAUDE.md = 1."
+    },
+    {
+      "docPath": "packages/main/src/cli-prompts.ts#REVIEW-TEST-PREFLIGHT",
+      "promise": "lattice validate --help lists 7 preflight gates including english-artifacts at item 6 and koala-residue at item 7",
+      "verifiedBy": "grep/read",
+      "evidence": "cli-prompts.ts lines 267-275 show 7 numbered items in REVIEW-TEST PREFLIGHT block. Dist also shows 7 gates via awk count."
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "CHANGELOG Unreleased section contains B-292d entry describing koala-residue as 7th preflight gate",
+      "verifiedBy": "grep/read",
+      "evidence": "CHANGELOG.md Unreleased Test infrastructure bullet contains B-292d and koala-residue references. awk/grep counts confirmed."
+    },
+    {
+      "docPath": "packages/main/src/handlers/review-preflight.ts",
+      "promise": "runKoalaResidueGate implemented with constant, type, 30s timeout, ETIMEDOUT handler, union type member, fast-channel skip, normal-channel dispatch",
+      "verifiedBy": "read/grep",
+      "evidence": "review-preflight.ts: constant at line 89, timeout 30000 at line 92, interface at line 94, function at line 113, union type at line 183, fast-channel lines 343-350, normal-channel lines 567-578. Dist grep count = 19."
+    },
+    {
+      "docPath": "scripts/verify-koala-residue.mjs#NEUTRAL_TOKEN_PATTERNS",
+      "promise": "Script extended with 4 narrow gate self-identifier exemptions so the gate implementation does not trigger its own residue check",
+      "verifiedBy": "diff/node-run",
+      "evidence": "git diff shows +19 lines adding /koala-residue/g, /KoalaResidueGate[A-Za-z0-9_]*/g, /runKoalaResidueGate/g, /koalaResidue/g patterns under NEUTRAL_TOKEN_PATTERNS. Independent run: node scripts/verify-koala-residue.mjs exits 0 with PASS koala-residue: 0 unclassified."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "CHK-001 gate in review-preflight.ts: KOALA_RESIDUE_GATE_LABEL grep count=3 (declaration+2 usages); koala-residue count 5+; runKoalaResidueGate present; dist grep count>=5; node scripts/verify-koala-residue.mjs exits 0 on clean state (verified independently); KOALA_RESIDUE_TIMEOUT_MS=30000 and ETIMEDOUT handler present; no validate-koala-residue.ts handler created; no removals to other 6 gate dispatch bodies."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "CHK-002 cli-prompts.ts + CLAUDE.md: REVIEW-TEST PREFLIGHT block has 7 numbered items (confirmed by reading source lines 267-275); item 6=english-artifacts, item 7=koala-residue; CLAUDE.md gate table row at line 821; dist awk count=7; no other handlers/ files modified; test:koala-residue npm script still returns node scripts/verify-koala-residue.mjs (verified independently)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHK-003 CHANGELOG entry: Unreleased section contains koala-residue and B-292d references; Test infrastructure subsection present; no CHANGELOG sections outside Unreleased modified; scripts/ change limited to exemption additions only. Memory file is informational and outside gate scope."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from source files independently. Gate implementation complete: constant, type, function, timeout, ETIMEDOUT handler, fast-channel skip, normal-channel dispatch all confirmed in review-preflight.ts. Script runs exit 0 on clean state. CLI help text is 7 gates in both source and dist. CHANGELOG entry present with B-292d traceability. Option-a compliance confirmed: no validate-koala-residue.ts created. No TODO/FIXME in gate code."
+  },
+  "_hash": "a1b8c02e37d91fa899d79320d51691a34928bd9bafc3e85dd7d034ac01f904c5"
+}

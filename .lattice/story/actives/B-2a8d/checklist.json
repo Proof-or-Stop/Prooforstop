@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove the L4 Cross-project aggregation Architecture bullet and the Phase 4 Roadmap bullet from the execution plan",
+      "context": "Delete the '- L4 Cross-project aggregation (future). Two-layer signatures (localSignature ... publicSignature ...)' Architecture bullet and the '- Phase 4 - cross-project. org-local / anonymized cross-project aggregation (local/public two-layer signatures)' Roadmap bullet in docs/requirements/decisions/lattice-experience-layer-execution-plan.md. Keep the L1/L2/L3 bullets and Phase 1a/1b/1.5/2/3 roadmap items.",
+      "userSees": "The doc no longer contains 'L4 Cross-project aggregation', 'Phase 4', 'publicSignature', or a two-layer cross-project signature description.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reword remaining cross-project references to per-project-only by design; keep the Phase 1 local-signature concept intact",
+      "context": "Reword: principle 5 'Local first, cross-project later; ...' -> per-project-only / no cross-project learning by design (keep the structured-first/embedding-later clause); the problem-statement 'and cross-project footprint' mention; and the not-to-do line 'no cross-project aggregation in v1' -> per-project only, not a future item. Do NOT touch the L1 'aggregated by a deterministic local signature' sentence (that is the Phase 1 aggregation key, not the cross-project framing).",
+      "userSees": "The doc states per-project-only learning by design; the L1 'deterministic local signature' aggregation sentence is unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

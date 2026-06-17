@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2d6c",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run test:all",
+    "npm run test:coverage",
+    "npm run test:legacy *",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/",
+    "scripts/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".c8rc.json",
+    "package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Tests-only story. Production source under packages/main/src/{handlers,core,cli-*} is OFF LIMITS. Edit only *-smoke.ts and verify-*.mjs assertion code.",
+  "createdAt": "2026-06-17T18:09:27.373Z",
+  "updatedAt": "2026-06-17T18:09:27.373Z",
+  "_hash": "95569b729fe207b28f2eb6869f7dd63e462b7dccc8d64d026e8408ade963c3ec"
+}

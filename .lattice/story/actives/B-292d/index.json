@@ -4,7 +4,7 @@
   "title": "Story 4: wire verify-koala-residue.mjs into REVIEW->TEST preflight gate",
   "description": "Add koala-residue as the 7th CLI gate in review-preflight.ts so story_advance to TEST blocks when scripts/verify-koala-residue.mjs returns non-zero. The existing 6 gates are channel/concept/lint/docs-drift/codex-adapter (conditional)/english-artifacts. Completes the koala-removal ship-clean program for OSS launch. Purely additive; script and existing npm test wiring untouched.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "koala",
@@ -26,7 +26,7 @@
   "priorityElevatedFrom": "P2",
   "createdAt": "2026-06-17T17:21:39.963Z",
   "startedAt": "2026-06-17T17:21:39.963Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T18:00:23.986Z",
   "events": [
     {
       "phase": "INIT",
@@ -43,11 +43,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:30:09.650Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:36:47.053Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:46:03.529Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:49:27.079Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:50:13.419Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:54:51.881Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:00:23.986Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-292d",
-    "branch": "story/B-292d",
-    "createdAt": "2026-06-17T17:29:26.079Z"
-  }
+  "currentReviewRound": "2026-06-17T17:50:13.419Z"
 }

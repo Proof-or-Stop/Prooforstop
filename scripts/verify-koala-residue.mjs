@@ -102,7 +102,6 @@ const NEUTRAL_TOKEN_PATTERNS = [
   /\.koala[\w./*-]*/gi, // any .koala runtime path incl .koala-tmp-*, .koala-serve.json
   /koala\.[a-z_]+\.v\d+/gi, // wire schemaVersion koala.X.vN
   /@koala-agent\/[\w-]+/g, // legacy npm scope
-  /koala-lab\/experiment[\w.]*/g, // lab schema id
   /packages\/koala\//g,
   /docs\/koala\//g,
   /\/work\/koala\//g,
@@ -149,6 +148,19 @@ const NEUTRAL_TOKEN_PATTERNS = [
   /koala`/g, // backtick-quoted brand in doc-assertion regex literals
   /Legacy alias:\\s\+koala/g,
   /(?:legacy alias|Compatible):\s*koala\b/gi,
+
+  // --- B-292d Story 4 preflight gate self-identifiers ----------------------
+  // The koala-residue preflight gate (review-preflight.ts) names itself in
+  // source: gate name 'koala-residue', runKoalaResidueGate helper,
+  // KoalaResidueGateResult type, koalaResidue local variable, and the script
+  // path literal 'scripts/verify-koala-residue.mjs'. These are not brand
+  // prose — they name the gate machinery. Without these the gate's own
+  // source would fail its own check. (The SCREAMING_CASE constant
+  // KOALA_RESIDUE_GATE_LABEL is already covered by KOALA_[A-Z0-9_]* above.)
+  /koala-residue/g,
+  /KoalaResidueGate[A-Za-z0-9_]*/g,
+  /runKoalaResidueGate/g,
+  /koalaResidue/g,
 ];
 
 /**
