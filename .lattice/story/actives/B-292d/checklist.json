@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add koala-residue preflight gate to review-preflight.ts",
+      "context": "Add KOALA_RESIDUE_GATE_LABEL constant (string mirroring ENGLISH_ARTIFACTS_GATE_LABEL at review-preflight.ts:81: gate name + standalone repro). Add runKoalaResidueGate() helper that execFileSyncs node scripts/verify-koala-residue.mjs, captures exit code + stdout; returns pass/fail + first non-empty stdout line. Add to the PreflightGateName union type (review-preflight.ts:114) as the 7th name. Insert dispatch entry into the preflight gate list AFTER docs-drift, BEFORE codex-adapter conditional. Failed gate prints stdout (the hit lines) via the same path as english-artifacts BLOCK output.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update CLI help text + docs to list 7 preflight gates",
+      "context": "Update lattice validate --help text in packages/main/src/handlers/cli-help.ts (or wherever the REVIEW->TEST PREFLIGHT block lives — it currently lists 5 gates, but reality is already 6 incl english-artifacts; this story makes it 7). Add entries for both the missing english-artifacts AND the new koala-residue. Update CLAUDE.md if it enumerates the gates. Do NOT modify the script or its allowlists.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "CHANGELOG entry + update koala-removal-ship-clean-program memory",
+      "context": "CHANGELOG Unreleased entry naming the new gate + linking to scripts/verify-koala-residue.mjs. Update auto-memory file ~/.claude/projects/-Users-jek-Documents-CDR3/memory/koala-removal-ship-clean-program.md to mark story 4 DONE and correct the stale 7-hit claim (current = 0 unclassified). Memory edit is informational, not gated by the story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
