@@ -61,9 +61,9 @@
       "id": "CHK-002",
       "title": "Wire scripts/verify-koala-residue.mjs into the lattice validate battery",
       "context": "Add a test:koala-residue npm script (node scripts/verify-koala-residue.mjs) and include it in the package.json `test` chain so lattice validate (which uses npm test as its fallback battery) runs the gate on every validate. Confirm lattice validate now exercises the gate.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T12:56:51.093Z",
-      "endTime": null,
+      "endTime": "2026-06-17T12:58:35.080Z",
       "userSees": "npm test includes a passing test:koala-residue step; lattice validate runs the gate",
       "verificationIntent": {
         "happy": [
