@@ -59,7 +59,130 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: scoreSimilarity ranks overlapping>disjoint, symmetric+deterministic, multi-field (no single-keyword domination), Jaccard(empty)=0; story-recall.ts imports only experience-layer-types.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -116,7 +239,119 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -173,7 +408,119 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "Smoke: recall --story/--query/--top CLI registered (readOnly); recall.ts + story-recall.ts have NO write/finding refs; recall creates no file.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -218,7 +565,86 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-recall",
+          "result": "pass",
+          "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired.",
+          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
+          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
+          "timestamp": "2026-06-17T15:57:10.513Z"
+        }
+      ]
     }
   ]
 }
