@@ -172,7 +172,7 @@ small orchestration set (≤10: `test:all`, `test:tag`, `test:select`,
 `npm run test:all` exits 0 byte-identical to the prior batch behavior;
 CHANGELOG entry committed.
 
-### B3 — c8 coverage instrumentation + `test:coverage` entry
+### B3 — c8 coverage instrumentation + `test:coverage` entry — DONE (B-c6cf, 2026-06-17)
 
 **Scope:** add `c8` as a devDependency at root. Wrap the runner with
 `c8 node packages/main/dist/tasks/run-all-smokes.js`. Add `npm run
@@ -184,6 +184,16 @@ report in `docs/`.
 coverage report opens at `packages/main/coverage/index.html`; LCOV file
 generated at `packages/main/coverage/lcov.info`. CI integration is optional
 (deferred to a separate story if/when CI is wired).
+
+**Delivered (B-c6cf):** c8 v11 added to root devDependencies. `.c8rc.json` at
+root configures `reporter: [text, html, lcov]`, `reports-dir:
+packages/main/coverage`, include `packages/main/src/**/*.ts`, exclude
+`dist`, `node_modules`, `*-smoke.ts` fixtures, and the runner itself.
+`test:coverage` script: `c8 node packages/main/dist/tasks/run-all-smokes.js
+--jobs 1` (single-process mode for v1 — child workers inherit
+`NODE_V8_COVERAGE` from c8 and write per-process data that c8 merges).
+`packages/main/coverage/` `.gitignore`'d. Usage doc at
+`docs/dev/test-coverage.md`. CI integration remains deferred.
 
 ### B4 (optional) — Tag/select UX improvements
 

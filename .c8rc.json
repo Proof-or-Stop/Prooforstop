@@ -1,0 +1,15 @@
+{
+  "reporter": ["text", "html", "lcov"],
+  "reports-dir": "packages/main/coverage",
+  "include": ["packages/main/src/**/*.ts"],
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "packages/main/src/tasks/*-smoke.ts",
+    "packages/main/src/tasks/cli-e2e.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts"
+  ],
+  "all": true,
+  "clean": true
+}
