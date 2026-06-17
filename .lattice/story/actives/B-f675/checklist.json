@@ -37,9 +37,9 @@
       "title": "lattice review_incremental_context CLI + round-2+ targeted re-review guidance in the REVIEW-entry output",
       "context": "Expose the helper as a read-only CLI lattice review_incremental_context --storyId --role=<reviewer> (English-only output: prior verdict, scopeChanged, incremental diff). In handlers/transition-effects.ts, when entering REVIEW for round >= 2, append an advisory block listing which active reviewers' scope changed since their last pass and stating that the gate in round 2+ only requires >=1 valid current-round receipt, so the operator may re-run just the scope-changed reviewers (running review_incremental_context per reviewer) -- making explicit that this is an operator judgement and the framework does not skip anyone. Advisory only; must not change the transition result; must not touch canPassReviewGuard / bindings.",
       "userSees": "On a round>=2 REVIEW entry the output shows e.g. 'Scope changed since last pass: behavior (src/foo.ts). Round 2+ gate needs >=1 valid receipt; you MAY re-run just the scope-changed reviewers via lattice review_incremental_context --role=<name>. Framework skips nobody; this is your call.'; running the CLI prints that reviewer's prior verdict + incremental diff.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T01:08:19.062Z",
       "verificationIntent": {
         "happy": [
           {
