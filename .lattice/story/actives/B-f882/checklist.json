@@ -120,6 +120,17 @@
           "headHash": "32d20191413527da0723b721a4ac7bca6c6b4283",
           "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
           "timestamp": "2026-06-17T12:15:43.804Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js (pre-fix wiring)",
+          "result": "pass",
+          "note": "RED proven: with repoRoot reverted to deps.projectRoot the smoke exits non-zero (AssertionError: docs-drift gate must PASS on wrapper-root, got status=fail, missing path: dev-notes/wrapper-doc.md). DI/fixtures use os.tmpdir + git init subdir; no host-layout dependence. Secondary assertion contrasts repoRoot=gitRoot (pass) vs repoRoot=metadataRoot (fail) with real fs+git grep.",
+          "headHash": "bf3f8da957e20e5c03e37fba38e84a8d3e24451c",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:44.274Z"
         }
       ]
     },
