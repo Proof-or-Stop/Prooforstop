@@ -63,7 +63,141 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.238Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: loader ranks by priority (log(1+support) damping so many-hit outranks one-hit), score>=0.65 recurring filter, common_false_positive bucket, top-N cap, support shown; loader imports only learning-store+types.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -104,7 +238,75 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: story-review _reviewPrompt includes the 'Project experience hints (advisory only)' section when signals exist, omitted when none.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: story-review _reviewPrompt includes the 'Project experience hints (advisory only)' section when signals exist, omitted when none.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: story-review _reviewPrompt includes the 'Project experience hints (advisory only)' section when signals exist, omitted when none.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "node .lattice/story/actives/B-1dc9/evidence/verify-b-1dc9.mjs",
+          "result": "pass",
+          "note": "Smoke: story-review _reviewPrompt includes the 'Project experience hints (advisory only)' section when signals exist, omitted when none.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: story-review _reviewPrompt includes the 'Project experience hints (advisory only)' section when signals exist, omitted when none.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "node .lattice/story/actives/B-1dc9/evidence/verify-b-1dc9.mjs",
+          "result": "pass",
+          "note": "Smoke: story-review _reviewPrompt includes the 'Project experience hints (advisory only)' section when signals exist, omitted when none.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -145,7 +347,75 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: exactly-one experience_hint_surfaced event via appendActivityLog on surface; resolveReviewPromptHash byte-identical with/without hints (review-run.ts untouched).",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: exactly-one experience_hint_surfaced event via appendActivityLog on surface; resolveReviewPromptHash byte-identical with/without hints (review-run.ts untouched).",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: exactly-one experience_hint_surfaced event via appendActivityLog on surface; resolveReviewPromptHash byte-identical with/without hints (review-run.ts untouched).",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: exactly-one experience_hint_surfaced event via appendActivityLog on surface; resolveReviewPromptHash byte-identical with/without hints (review-run.ts untouched).",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: exactly-one experience_hint_surfaced event via appendActivityLog on surface; resolveReviewPromptHash byte-identical with/without hints (review-run.ts untouched).",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "Smoke: exactly-one experience_hint_surfaced event via appendActivityLog on surface; resolveReviewPromptHash byte-identical with/without hints (review-run.ts untouched).",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -186,7 +456,75 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
+          "result": "pass",
+          "note": "hint-injection smoke + no-regression (finding-signals + finding-enums) + build clean; npm script wired.",
+          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
+          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+          "timestamp": "2026-06-17T13:34:10.239Z"
+        }
+      ]
     }
   ]
 }
