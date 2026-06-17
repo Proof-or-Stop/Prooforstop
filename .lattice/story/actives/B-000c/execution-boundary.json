@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-000c",
+  "allowedCommands": [
+    "git *",
+    "node .lattice/story/actives/B-000c/evidence/*.mjs",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-000c/",
+    "packages/main/package.json",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 1a: new core module set + registry entry + smoke; build required.",
+  "createdAt": "2026-06-17T11:23:19.278Z",
+  "updatedAt": "2026-06-17T11:23:19.278Z",
+  "_hash": "66231a20a64287d7607999adf40c06f4123421b2d79b4b0e2ad249a8592140e0"
+}

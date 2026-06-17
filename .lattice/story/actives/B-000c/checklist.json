@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define Experience Layer leaf types and a minimal learning-store that reads/writes .lattice/learning/ with zero outward imports",
+      "context": "core/experience-layer-types.ts (FindingSignal/LearningSignal/derived-cache types) + core/learning-store.ts (ensure .lattice/learning dir; read/write finding-signals.json). Only node:, ./, ../ imports within the module; never ../../ out of the module.",
+      "userSees": "Build is clean; the new modules exist and the smoke asserts the learning-store round-trips finding-signals.json and that the module set has zero cross-module imports.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement finding-signals derivation reading findings through store.readFindings (port), not raw findings.json",
+      "context": "core/finding-signals.ts: aggregate findings by localSignature = category + signatureTag? + fileKind + lifecyclePhase; compute counts, signalScore = positive/(positive+negative+1), support; write the derived cache. Read findings via the finding subsystem accessor store.readFindings, never JSON.parse of findings.json.",
+      "userSees": "The smoke seeds findings via the store and asserts finding-signals.json contains the aggregated signals with correct signalScore/support and that derivation used the store accessor.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register the derived cache and learning log as materialHash-excluded runtime artifacts (gate-safety)",
+      "context": "runtime-artifact-registry.ts: add entries for .lattice/learning/finding-signals.json and .lattice/learning/learning-log.jsonl as materialHash:exclude, volatile:true, repairable. This is the load-bearing gate-safety lever.",
+      "userSees": "The smoke asserts that writing finding-signals.json leaves currentMaterialHash() unchanged (the derived cache is excluded from gate material hashing).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a committed smoke test + npm script proving derivation, the unchanged-materialHash property, and zero outward imports; no regression",
+      "context": "tasks/experience-layer-finding-signals-smoke.ts + package.json test:experience-layer-finding-signals script. Hermetic temp dir + env restore. Assert: derivation correctness, currentMaterialHash unchanged after cache write, zero cross-module imports out of the module, build clean.",
+      "userSees": "npm run test:experience-layer-finding-signals exits 0 with 'smoke passed'; the committed verifier prints TOTAL N | PASS N | FAIL 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
