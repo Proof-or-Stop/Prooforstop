@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T12:27:01.562Z",
       "reviewRunId": "B-f882:RR-005",
       "_hash": "f1daf652ad8162af0c36fdbe4eefcd2414fa3bfd57aef95d543004c37c7b565f"
+    },
+    {
+      "id": "B-f882:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 9 must-intents covered. CHK-001 happy/edge/adversarial: wrapper-root smoke passes on gitCwd-fix, plain-repo smoke unchanged, RED proof (revert->FAIL) confirmed. CHK-002 happy/edge/adversarial: new wrapper-root smoke exits 0, both test:docs-drift-wrapper-root AND test:gitroot-cwd-contract present in root npm test chain (fix commit 1d460ecbc), RED proven against pre-fix wiring. CHK-003 happy/edge/adversarial: strengthened guard exits 0, self-tests show 0 false-positives on legitimate deps.projectRoot uses, RED proven by revert (GUARD_EXIT=1). All evidence headHashes bind to fix commit 1d460ecbc. 0 must-gaps, 0 waivers.",
+      "createdAt": "2026-06-17T12:28:31.940Z",
+      "reviewRound": "2026-06-17T12:27:01.562Z",
+      "reviewRunId": "B-f882:RR-007",
+      "_hash": "14db78351ea821636e00f9b7f8d704f13773d4dce3a21faccb53cb85659df8c2"
     }
   ]
 }
