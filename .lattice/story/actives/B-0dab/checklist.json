@@ -64,7 +64,47 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "npm test includes a passing test:koala-residue step; lattice validate runs the gate"
+      "userSees": "npm test includes a passing test:koala-residue step; lattice validate runs the gate",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cat package.json | jq .scripts[\"test:koala-residue\"] -> \"node scripts/verify-koala-residue.mjs\"; WHY: confirms the npm script is defined correctly",
+            "type": "cli"
+          },
+          {
+            "desc": "cat package.json | jq .scripts.test -> string contains test:koala-residue; WHY: confirms the gate is wired into the test chain",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:koala-residue -> exits 0 with PASS output; WHY: confirms the individual script runs successfully via npm",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test -> exits 0 and output includes koala-residue PASS line; WHY: confirms the full test chain exercises the gate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm run test:koala-residue -- --self-test -> exits 0, prints 5/5 classify() unit tests; WHY: confirms the self-test mode is accessible through the npm script",
+            "type": "cli"
+          },
+          {
+            "desc": "run lattice validate -> output includes koala-residue gate pass or npm test chain passes; WHY: confirms lattice validate exercises the gate as part of its fallback battery",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "temporarily corrupt scripts/verify-koala-residue.mjs (e.g. syntax error), run npm test -> exits non-zero, test chain fails at test:koala-residue step; WHY: confirms the wiring is real -- if the gate script breaks, the test chain catches it rather than silently skipping",
+            "type": "cli"
+          },
+          {
+            "desc": "remove test:koala-residue from package.json test chain but leave the script defined, run npm test -> exits 0 but gate is NOT exercised (output has no koala-residue line); WHY: confirms that merely defining the script is not enough -- it must be in the test chain to be exercised",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
