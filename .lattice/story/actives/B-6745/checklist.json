@@ -7,7 +7,40 @@
       "userSees": "authority-job-loop-live, autopilot-authority, and multi-host-authority each PASS standalone (node ...-smoke.js exit 0), including multi-host-authority run from the repo-root cwd (no longer leaking the dev's authority_trust.env), with assertions tracking current correct production behavior and none weakened.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All 3 authority smokes exit 0 standalone from a clean cwd (/tmp) on a fresh build",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git diff main...HEAD --stat shows only the smoke .ts files changed for CHK-001 (no production source, no manifest)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "autopilot-authority and multi-host-authority exit 0 even from a cwd containing a planted authority_trust.env with a real URL (true hermeticity, not cwd luck)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "authority-job-loop-live requires NO source edit — it passes on rebuild alone",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No assertion weakened: shadow.status===warn, readinessWarnings.length>0, localWorkflowUsable===true, authorityRequired===false, multi-host E2 mode===local all KEPT (grep the diff)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
