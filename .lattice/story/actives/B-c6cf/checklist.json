@@ -131,6 +131,17 @@
           "headHash": "83e8a5428f6d11dd2df937b0e1fea04998fc5d7c",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:06:44.235Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"const s=require('./package.json').scripts['test:coverage']; if(!s.includes('run-all-smokes')||!s.includes('--jobs 1')) throw new Error('BAD:'+s); console.log('INVOCATION_OK')\"",
+          "result": "pass",
+          "note": "Prints INVOCATION_OK — script invokes run-all-smokes.js with --jobs 1 (single-process mode per D1).",
+          "headHash": "15b2f9a5980a72faae2c8e33bc3f3e383695b6d6",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:06:45.100Z"
         }
       ]
     },
