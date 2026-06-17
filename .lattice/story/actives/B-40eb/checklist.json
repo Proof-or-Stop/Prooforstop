@@ -397,6 +397,16 @@
           "headHash": "728a3e02927301623dba23a69c75e850aa01e3eb",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
           "timestamp": "2026-06-17T02:14:57.985Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "git grep -ci koala packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "result": "pass",
+          "note": "absence smoke 的 koala 全为 koala-absence 断言目标,保留",
+          "headHash": "0f51ad902cb516ab16d6731685b87f103e330c1f",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:58.880Z"
         }
       ]
     },
