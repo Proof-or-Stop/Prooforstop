@@ -461,6 +461,17 @@
           "headHash": "e38926b1d99308f202c2aaac8031d0fa75a23b6d",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:15.224Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'test:[a-z0-9-]+-smoke' -- README.md",
+          "result": "pass",
+          "note": "Returns no hits in active prose; references converted to test:legacy form. CLAUDE.md mentions test:review-incremental-context-smoke and test:process-fact-contract which are still in root keep-list.",
+          "headHash": "ae298c07b5a9c0ff9446be0597a6c3cfd0f6076a",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:15.916Z"
         }
       ]
     }
