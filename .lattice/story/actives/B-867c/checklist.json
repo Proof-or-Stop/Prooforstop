@@ -7,7 +7,30 @@
       "userSees": "`npm run test:process-fact-contract` no longer lists playbook_*/signature_registry_*/recall as missing from PROCESS_FACT_REGISTRY; each appears with an accurate level/category/owner.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After registering the 7 commands in PROCESS_FACT_LEVELS and rebuilding, npm run test:process-fact-contract reports NO `MAIN_TOOLS command ... missing from PROCESS_FACT_REGISTRY` lines and NO `MAIN_TOOLS command(s) missing from registry` line for the 7 commands",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each of the 7 commands appears in the registry dump with an accurate level/category/owner matching its handler behavior (3 read-only L0, 4 mutating L2, none gate-consumed) — verified by inspecting the contract registry dump output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command behavior change: git diff touches only process-fact-levels.ts (and not handlers/cli-engine.ts); a mutating command is not falsely registered as read-only and vice versa",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
