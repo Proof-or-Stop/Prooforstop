@@ -154,7 +154,39 @@
       "userSees": "npm run test:experience-layer-hint-injection exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:experience-layer-hint-injection exits 0 and outputs smoke passed; WHY: the primary behavioral proof gate",
+            "type": "cli"
+          },
+          {
+            "desc": "Committed verifier prints TOTAL N | PASS N | FAIL 0 with N > 0; WHY: ensures non-vacuous test coverage",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing experience-layer smokes (test:experience-layer-finding-signals, test:experience-layer-finding-enums) still pass; WHY: no regression on prior experience-layer work",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Build clean (tsc --noEmit) passes with the new smoke file included; WHY: type-safety boundary check for the smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing story-review smoke still passes (no regression from the advisory section addition); WHY: integration regression boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Zero outward imports check: smoke itself verifies experience-hint-loader has no forbidden imports; the check is non-vacuous (a mutation injecting a forbidden import causes the smoke to fail); WHY: the import-fence is only trustworthy if proven non-vacuous",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
