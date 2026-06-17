@@ -406,6 +406,16 @@
           "headHash": "7a5fdf26d775ed65508de0b6d5708ba7b8c1be68",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:02:53.162Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-koala-residue.mjs 2>&1 | grep -c unclassified",
+          "result": "pass",
+          "note": "Verified pass on current worktree: line shows 0",
+          "headHash": "ccca5ecde7f7a1afa7f4ad5cc24a65819831a28f",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:53.778Z"
         }
       ]
     }
