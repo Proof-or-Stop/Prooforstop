@@ -4,7 +4,7 @@
   "title": "B3 test-runner consolidation: c8 coverage instrumentation + test:coverage script",
   "description": "Add c8 as devDependency and wire test:coverage npm script to run the full smoke battery under coverage, emitting HTML + LCOV reports. Final step of A0 test-runner-consolidation plan after B-6efb (runner) and B-d7c3 (manifest collapse).",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "P2",
   "keywords": [
     "test-runner",
@@ -52,6 +52,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T14:09:10.877Z",
+      "branch": "story/B-c6cf",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:17:46.809Z",
       "branch": "story/B-c6cf",
       "user": "Harmonygo",
       "agent": "main"
