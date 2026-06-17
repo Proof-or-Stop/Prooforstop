@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement packages/main/src/tasks/run-all-smokes.ts with parallelism, manifest reading, and --tag/--select filters",
+      "context": "Create packages/main/src/tasks/run-all-smokes.ts (TS source) + ensure its dist artifact builds. Behavior: scan `packages/main/src/tasks/*-smoke.ts` (or a manifest-configured list); spawn each smoke as `node packages/main/dist/tasks/<name>-smoke.js` in a worker pool (default size = os.cpus().length, overridable via --jobs N); per-smoke timeout from the manifest (default 60s); aggregate exit codes (fail if ANY smoke fails); print per-smoke `PASS`/`FAIL` lines + `<n>/<m> passed in <duration>s` summary; support `--tag <tag>` to run only smokes whose manifest entry contains <tag>; support `--select <substring>` to run only smokes whose name contains <substring>; do NOT touch any existing test:* script; do NOT modify any existing smoke file. Acceptance: `node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes` runs only its own self-smoke; `node packages/main/dist/tasks/run-all-smokes.js --tag fast` filters by tag. Build (tsc) passes.",
+      "userSees": "`node packages/main/dist/tasks/run-all-smokes.js --select <something>` prints PASS/FAIL per smoke + aggregate summary; running it without filters runs all 153 smokes in parallel and aggregates.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Create packages/main/smoke-manifest.json (initial manifest with default entries) and add `test:all` npm script at root",
+      "context": "Create packages/main/smoke-manifest.json. Schema: a JSON object with a `smokes` array; each entry has `name` (file basename without -smoke.ts), optional `tags` (string array), optional `timeoutMs` (number), optional `skip` (boolean). For B1, populate it with a small initial set covering the runner's self-smoke and 2-3 well-known fast smokes (e.g. gitroot-cwd-contract-smoke, the lab description smoke); leave the rest discoverable by directory scan (default behavior when no manifest entry exists). Add to root package.json: `\"test:all\": \"node packages/main/dist/tasks/run-all-smokes.js\"`. The 262 existing test:* entries stay untouched. Acceptance: `npm run test:all --select run-all-smokes-smoke` runs the new runner's self-smoke; `cat packages/main/smoke-manifest.json | python3 -m json.tool` parses; root package.json has the new entry.",
+      "userSees": "`npm run test:all` runs every smoke + reports aggregate; existing `npm run test:gitroot-cwd-contract` (etc.) still works byte-identical.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add the runner's self-smoke at packages/main/src/tasks/run-all-smokes-smoke.ts",
+      "context": "Create packages/main/src/tasks/run-all-smokes-smoke.ts that verifies the runner: (a) correctly detects a known-PASSING fixture smoke as PASS; (b) correctly detects a deliberate-FAIL fixture smoke as FAIL; (c) honors --tag filtering (running with --tag missing-tag returns 0 smokes); (d) honors --select filtering; (e) honors --jobs N parallelism (run with --jobs 1 vs --jobs 4, both pass). The fixtures can be inline JS strings the smoke writes to a tmpdir + invokes the runner with a config pointing at them. Standalone-runnable: `node packages/main/dist/tasks/run-all-smokes-smoke.js`. Add `\"test:run-all-smokes-smoke\": \"node packages/main/dist/tasks/run-all-smokes-smoke.js\"` to packages/main/package.json. Acceptance: the self-smoke exits 0 when the runner behaves correctly; if you deliberately break the runner (e.g. swallow a child's non-zero exit), the self-smoke fails with a clear pointer.",
+      "userSees": "`npm run test:run-all-smokes-smoke` exits 0 on HEAD; injecting a runner bug makes it fail with a specific assertion message.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
