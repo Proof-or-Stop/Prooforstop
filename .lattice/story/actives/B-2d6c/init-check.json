@@ -1,0 +1,62 @@
+{
+  "storyId": "B-2d6c",
+  "checkedAt": "2026-06-17T18:11:51.085Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Trigger Event and Conversational Texture reference B-c6cf multiple times without a one-sentence explanation of what B-c6cf is. A new reader cannot understand the relationship or the waiver being referenced."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Trigger Event uses the notation CHK-002:happy:2 waiver without defining the CHK-id:category:index format. A new reader unfamiliar with Lattice verificationIntent notation cannot understand this reference on first appearance."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "high",
+      "desc": "checklist.json CHK-002 context offers mark with skipUnderParallel as a remedy option for the lattice-baseline TIMEOUT, but this field does not exist in smoke-manifest.json schema (schema shows only name/tags/timeoutMs/skip) and is absent from the entire source tree. The implementer would be directed toward a non-existent system capability."
+    },
+    {
+      "id": "INIT-004",
+      "severity": "low",
+      "desc": "checklist.json CHK-003 context contains the generic placeholder B-xxxx in CHANGELOG Unreleased entry naming this story (B-xxxx) instead of the actual story ID B-2d6c, which may cause confusion for the implementer."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T18:10:26.350Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T18:11:51.085Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Trigger Event and Conversational Texture reference B-c6cf multiple times without a one-sentence explanation of what B-c6cf is. A new reader cannot understand the relationship or the waiver being referenced."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Trigger Event uses the notation CHK-002:happy:2 waiver without defining the CHK-id:category:index format. A new reader unfamiliar with Lattice verificationIntent notation cannot understand this reference on first appearance."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "high",
+          "desc": "checklist.json CHK-002 context offers mark with skipUnderParallel as a remedy option for the lattice-baseline TIMEOUT, but this field does not exist in smoke-manifest.json schema (schema shows only name/tags/timeoutMs/skip) and is absent from the entire source tree. The implementer would be directed toward a non-existent system capability."
+        },
+        {
+          "id": "INIT-004",
+          "severity": "low",
+          "desc": "checklist.json CHK-003 context contains the generic placeholder B-xxxx in CHANGELOG Unreleased entry naming this story (B-xxxx) instead of the actual story ID B-2d6c, which may cause confusion for the implementer."
+        }
+      ]
+    }
+  ],
+  "_hash": "c0c31419ec678cc2a0db550f2ef3eb34f188effa7f8e18782be1e7e223665b86"
+}

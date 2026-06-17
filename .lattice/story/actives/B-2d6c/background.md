@@ -1,6 +1,6 @@
 ## Trigger Event
 
-User directive (2026-06-17): close the gap exposed by B-c6cf — npm run test:all exits non-zero on main because ~25 of 162 smokes preexisting-fail (per the 2026-06-17 baseline test:all run: 137/162 passed in 195s parallel mode; B-c6cf serial run showed 140/157, ~17-18 deterministic fails). The CHK-002:happy:2 waiver in B-c6cf for 'test:coverage exits 0' explicitly defers to this story. Goal: fix the smokes so test:all (and therefore test:coverage) exit 0 cleanly.
+User directive (2026-06-17): close the gap exposed by B-c6cf — npm run test:all exits non-zero on main because ~25 of 162 smokes preexisting-fail (per the 2026-06-17 baseline test:all run: 137/162 passed in 195s parallel mode; B-c6cf serial run showed 140/157, ~17-18 deterministic fails). B-c6cf was the story that introduced `npm run test:coverage` (c8 + the runner under --jobs 1). When that story tried to assert `npm run test:coverage` exits 0, it could not — the preexisting smoke failures made the assertion impossible without scope creep. B-c6cf therefore filed an explicit waiver on its CHK-002:happy:2 verificationIntent (notation: checklist-item-id "CHK-002" + intent-category "happy" + intent-index "2", referring to the third happy-path verificationIntent of CHK-002 — see CLAUDE.md "verificationIntent" section), and deferred the smoke fix to a follow-up: this story. Goal: fix the smokes so test:all (and therefore test:coverage) exit 0 cleanly.
 
 ## Key Insights
 
