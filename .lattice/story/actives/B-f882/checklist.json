@@ -109,6 +109,17 @@
           "headHash": "ff7ed60e8c0ce8661d0a59f49bd4da5032459f2d",
           "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
           "timestamp": "2026-06-17T12:15:43.308Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "package.json",
+          "command": "node -e require(./package.json).scripts.test",
+          "result": "pass",
+          "note": "Wired into root npm test chain: ...test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:e2e. Root alias test:docs-drift-wrapper-root -> npm --prefix packages/main run test:docs-drift-wrapper-root. Confirmed present in root package.json test script.",
+          "headHash": "32d20191413527da0723b721a4ac7bca6c6b4283",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:43.804Z"
         }
       ]
     },
