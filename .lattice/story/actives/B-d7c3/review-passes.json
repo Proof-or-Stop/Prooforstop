@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T12:26:26.645Z",
       "reviewRunId": "B-d7c3:RR-001",
       "_hash": "6f46b9a5678d2879f36f21f5fa0e9bc602f3adc9b4d207e2ba5df77b555243d1"
+    },
+    {
+      "id": "B-d7c3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked all 5 changed deliverable files. smoke-manifest.json: 139 entries, zero duplicates, all fields schema-valid (name/tags/timeoutMs/skip), no -smoke suffix in names (runner appends it). test:legacy shim: correct --select passthrough, no shell escaping issues. Keep-list in packages/main (12 entries) and root (43 entries) matches CHANGELOG claims exactly. All 5 README test:legacy command names resolve to existing *-smoke.js files on disk. english-open-source-surface smoke is auto-discovered by discoverSmokes filesystem scan even without a manifest entry — not orphaned. CHANGELOG documents suffix-stripping behavior correctly. No dead code, type safety, or I/O isolation issues (no .ts/.mjs runtime changes in scope).",
+      "createdAt": "2026-06-17T12:39:49.560Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-004",
+      "_hash": "c5ef04341620063893cfa37d1fc2e0ae92d81ea5d20d5ca6ed02a4663cb525fe"
     }
   ]
 }
