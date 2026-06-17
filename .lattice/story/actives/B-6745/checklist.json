@@ -124,7 +124,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "timed standalone runs: node packages/main/dist/tasks/<name>-smoke.js",
+          "result": "pass",
+          "note": "Measured standalone wall times all well under their finite timeoutMs ceilings: cli-json-stdout-contract 51.9s/180000ms, dispatch-run 69.2s/180000ms, experience-layer-playbook 39.9s/180000ms, lattice-baseline 112.9s/240000ms, planner-unattended 19.4s/180000ms. Ample headroom (110-160s) even under parallel-load slowdown. No bump needed.",
+          "headHash": "ccdda4ad61d318369993c8ea792aa76c8ed4cbbd",
+          "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
+          "timestamp": "2026-06-17T22:49:16.605Z"
+        }
+      ]
     }
   ]
 }
