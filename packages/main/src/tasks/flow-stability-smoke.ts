@@ -81,7 +81,7 @@ import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
-import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -2278,7 +2278,7 @@ function assertGlobalLinkRepair(): void {
     mkdirSync(dirname(globalPackage), { recursive: true });
     symlinkSync(worktreePackage, globalPackage, process.platform === 'win32' ? 'junction' : 'dir');
 
-    const repaired = repairGlobalKoalaLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: globalPackage });
+    const repaired = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: globalPackage });
     assert.equal(repaired.action, 'relinked');
     assert.equal(lstatSync(globalPackage).isSymbolicLink(), true);
     assert.equal(resolve(dirname(globalPackage), readlinkSync(globalPackage)), resolve(mainPackage));
@@ -2288,13 +2288,13 @@ function assertGlobalLinkRepair(): void {
     mkdirSync(otherPackage, { recursive: true });
     mkdirSync(dirname(otherGlobalPackage), { recursive: true });
     symlinkSync(otherPackage, otherGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
-    const skipped = repairGlobalKoalaLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: otherGlobalPackage });
+    const skipped = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: otherGlobalPackage });
     assert.equal(skipped.action, 'skipped');
     assert.equal(resolve(dirname(otherGlobalPackage), readlinkSync(otherGlobalPackage)), resolve(otherPackage));
 
     const normalInstall = join(root, 'normal-global', 'node_modules', '@koala-agent', 'core');
     mkdirSync(normalInstall, { recursive: true });
-    const normalSkipped = repairGlobalKoalaLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: normalInstall });
+    const normalSkipped = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: normalInstall });
     assert.equal(normalSkipped.action, 'skipped');
     assert.equal(existsSync(normalInstall), true);
     assert.equal(lstatSync(normalInstall).isDirectory(), true);
@@ -2304,7 +2304,7 @@ function assertGlobalLinkRepair(): void {
     symlinkSync(worktreePackage, failingGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
 
     assert.throws(
-      () => repairGlobalKoalaLinkBeforeWorktreeDelete(worktree, mainRepo, {
+      () => repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, {
         globalPackagePath: failingGlobalPackage,
         unlinkImpl: () => {
           throw new Error('mock unlink failure');

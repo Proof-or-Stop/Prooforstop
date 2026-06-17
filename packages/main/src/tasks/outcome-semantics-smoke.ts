@@ -27,7 +27,7 @@ function git(root: string, args: string[]): void {
 }
 
 function configureRoot(root: string): void {
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -82,7 +82,7 @@ function schemaFor(name: string) {
 }
 
 function assertOutcomeDashboard(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-outcome-dashboard-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-outcome-dashboard-'));
   try {
     configureRoot(root);
     const store = new StoryStore(root);
@@ -109,7 +109,7 @@ function assertOutcomeDashboard(): void {
 }
 
 function assertSessionDashboardAndAuthorityWording(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-outcome-session-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-outcome-session-'));
   try {
     configureRoot(root);
     const store = new StoryStore(root);
@@ -119,7 +119,7 @@ function assertSessionDashboardAndAuthorityWording(): void {
     store.writeSummary('B-corrupt', makePersistedCorruptSummary('B-corrupt'));
     write(root, 'packages/main/src/index.ts', 'export {};\n');
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
     git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -149,7 +149,7 @@ function assertSessionDashboardAndAuthorityWording(): void {
 }
 
 function assertSummaryOutcomeKind(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-outcome-summary-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-outcome-summary-'));
   try {
     configureRoot(root);
     const store = new StoryStore(root);

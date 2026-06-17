@@ -11,9 +11,8 @@ import {
 } from '../core/runtime-environment-checks.js';
 
 function renderLatticeManagedAssetCheck(result: ReturnType<typeof runManagedAssetCheck>): string {
-  return renderManagedAssetCheck(result)
-    .replace(/^Koala managed asset check:/m, 'Lattice managed asset check:')
-    .replace(/\bkoala check\b/g, 'lattice check');
+  // core renderManagedAssetCheck already emits Lattice-branded output; no legacy rewrite needed.
+  return renderManagedAssetCheck(result);
 }
 
 export function createCheckHandlers(ctx: HandlerContext) {
@@ -24,7 +23,7 @@ export function createCheckHandlers(ctx: HandlerContext) {
       const result = runManagedAssetCheck(ctx.root, args);
       if (args.json) return { runtimeMode, ...result };
       const rendered = [
-        renderRuntimeFootprintSummary(runtimeMode, managedAssetNextAction(result).replace(/\bkoala check\b/g, 'lattice check')),
+        renderRuntimeFootprintSummary(runtimeMode, managedAssetNextAction(result)),
         renderLatticeManagedAssetCheck(result),
       ].join('\n\n');
       if (!result.ok) throw new Error(rendered);

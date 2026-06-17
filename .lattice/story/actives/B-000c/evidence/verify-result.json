@@ -1,0 +1,122 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "types(leaf)+learning-store created; leaf modules do not import the store port; smoke round-trips finding-signals.json"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "types(leaf)+learning-store created; leaf modules do not import the store port; smoke round-trips finding-signals.json"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "types(leaf)+learning-store created; leaf modules do not import the store port; smoke round-trips finding-signals.json"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "types(leaf)+learning-store created; leaf modules do not import the store port; smoke round-trips finding-signals.json"
+ },
+ "CHK-001:edge:2": {
+  "pass": true,
+  "note": "types(leaf)+learning-store created; leaf modules do not import the store port; smoke round-trips finding-signals.json"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "types(leaf)+learning-store created; leaf modules do not import the store port; smoke round-trips finding-signals.json"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "types(leaf)+learning-store created; leaf modules do not import the store port; smoke round-trips finding-signals.json"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-002:edge:2": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-002:edge:3": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "finding-signals derivation imports the ./store.js port; signalScore present; smoke asserts aggregation + signalScore/support + store path"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "runtime-artifact-registry entry experience-layer-learning-cache materialHash:'exclude'; smoke asserts currentMaterialHash unchanged after cache write"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "runtime-artifact-registry entry experience-layer-learning-cache materialHash:'exclude'; smoke asserts currentMaterialHash unchanged after cache write"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "runtime-artifact-registry entry experience-layer-learning-cache materialHash:'exclude'; smoke asserts currentMaterialHash unchanged after cache write"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "runtime-artifact-registry entry experience-layer-learning-cache materialHash:'exclude'; smoke asserts currentMaterialHash unchanged after cache write"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "runtime-artifact-registry entry experience-layer-learning-cache materialHash:'exclude'; smoke asserts currentMaterialHash unchanged after cache write"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "runtime-artifact-registry entry experience-layer-learning-cache materialHash:'exclude'; smoke asserts currentMaterialHash unchanged after cache write"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "runtime-artifact-registry entry experience-layer-learning-cache materialHash:'exclude'; smoke asserts currentMaterialHash unchanged after cache write"
+ },
+ "CHK-004:happy:0": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ },
+ "CHK-004:happy:1": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ },
+ "CHK-004:happy:2": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ },
+ "CHK-004:edge:0": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ },
+ "CHK-004:edge:1": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ },
+ "CHK-004:edge:2": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ },
+ "CHK-004:adversarial:0": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ },
+ "CHK-004:adversarial:1": {
+  "pass": true,
+  "note": "smoke wired (test:experience-layer-finding-signals) + build clean + import isolation (only ./store.js outward); violations=0"
+ }
+}

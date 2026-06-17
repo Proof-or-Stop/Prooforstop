@@ -2,7 +2,7 @@
  * Health issue tracking — receiver for silent catch classification
  *
  * Design purpose:
- *   koala previously had dozens of silent catches (try ... catch ignore). Following CC's fail-fast
+ *   lattice previously had dozens of silent catches (try ... catch ignore). Following CC's fail-fast
  *   principle, classify into four categories:
  *     - DEBUG  (logging/progress)         → keep silent
  *     - PROBE  (probes, e.g. file not found) → keep silent
@@ -84,7 +84,7 @@ export function reportHealthIssue(
     // Last line of defense: health itself crashed; write to stderr but do not throw
     try {
       const msg = e instanceof Error ? e.message : String(e);
-      process.stderr.write(`[koala-health] failed to record health issue: ${msg}\n`);
+      process.stderr.write(`[lattice-health] failed to record health issue: ${msg}\n`);
     } catch { /* Truly nothing else to do */ }
   }
 }

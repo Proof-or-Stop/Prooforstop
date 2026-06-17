@@ -5,8 +5,8 @@
  * @type feature
  * @priority high
  * @description
- *   Koala status needs a stable phase number for humans and agents, but
- *   health checks cannot rely on simple +1 ordering because Koala allows
+ *   Lattice status needs a stable phase number for humans and agents, but
+ *   health checks cannot rely on simple +1 ordering because Lattice allows
  *   explicit rollback transitions. This module is a read-only projection of
  *   phase ordering and allowed transitions for display/diagnostics.
  *   Therefore, "the current number must equal the previous number + 1" cannot be used to detect errors; the health check must use legal

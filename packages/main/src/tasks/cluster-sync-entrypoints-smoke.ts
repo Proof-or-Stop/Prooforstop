@@ -31,8 +31,8 @@ function commit(root: string, message: string): string {
 }
 
 function initRoot(): { root: string; store: StoryStore; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-cluster-sync-'));
-  write(root, 'koala.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-cluster-sync-'));
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

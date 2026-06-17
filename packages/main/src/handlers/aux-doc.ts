@@ -6,13 +6,13 @@
  * @priority high
  * @description
  *   AGENTS requires aux_doc_list before related work, but the core-only
- *   global koala binary previously did not include that command. Keep the
+ *   global lattice binary previously did not include that command. Keep the
  *   document-listing behavior in core so default installs can satisfy the
  *   workflow, while utils bootstrap remains compatible through duplicate
  *   registration guards.
  * @changes
  *   - [CHK-003] Add a core aux_doc_list handler that scans root docs and configured doc dirs
- *   - [CHK-003] Skip Koala-managed story/fixture runtime directories from relatedDocs candidates
+ *   - [CHK-003] Skip Lattice-managed story/fixture runtime directories from relatedDocs candidates
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { dirname, join, relative } from 'path';

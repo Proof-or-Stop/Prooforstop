@@ -256,7 +256,7 @@ function refreshGuidance(storyId: string, refs: LatticeEvidenceRef[]): LatticeEv
     authorityChanged: false,
     recommendedCommands,
     guidance: staleRefs.length > 0
-      ? `Rerun stale evidence for ${storyId}${recommendedCommands.length > 0 ? `: ${recommendedCommands.join(' && ')}` : ''}. Then record fresh verification evidence through the normal Koala evidence commands. This manifest/inspection does not refresh hashes, submit evidence, verify receipts, or grant production authority.`
+      ? `Rerun stale evidence for ${storyId}${recommendedCommands.length > 0 ? `: ${recommendedCommands.join(' && ')}` : ''}. Then record fresh verification evidence through the normal Lattice evidence commands. This manifest/inspection does not refresh hashes, submit evidence, verify receipts, or grant production authority.`
       : `No evidence refresh is suggested for ${storyId}. This manifest/inspection remains advisory and does not grant production authority.`,
   };
 }

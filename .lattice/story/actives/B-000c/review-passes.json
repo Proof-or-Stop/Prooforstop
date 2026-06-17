@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-000c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Additive new module set; no concept deletion/rename; residual scan N/A. All 14 deletions are confined to Lattice story metadata files (checklist.json, index.json); zero source concept words removed or replaced.",
+      "createdAt": "2026-06-17T11:49:10.144Z",
+      "reviewRound": "2026-06-17T11:48:13.696Z",
+      "reviewRunId": "B-000c:RR-002",
+      "_hash": "42914971cfedca54c6718ed3c952264b5a309461c47123beebdb91c170bf39e1"
+    },
+    {
+      "id": "B-000c:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "All four checklist items verified correct against the code. deriveFindingSignals: localSignature = category|signatureTag??|fileKind|lifecyclePhase (line 120); positive = #fixed + 0.5*#partially_mitigated (lines 150-155); negative = #false_positive (lines 157-159); signalScore = positive/(positive+negative+1) with denominator always >=1 (line 183) — NaN impossible; support = positive+negative (line 191); zero-sample produces signalScore=0. Single-hit (one fixed): positive=1, negative=0, denom=2, signalScore=0.5, support=1 — confirmed. When Phase-1b enums absent, resolutionType/dismissReasonType are undefined so both branches are skipped, leaving positive=0 negative=0, signalScore=0 — conservative degradation confirmed. deriveFindingSignalsFromStore calls store.readFindings(id) (line 246, comment confirms never JSON.parse) and writes via writeFindingSignals from learning-store (line 255). writeFindingSignals uses tmp+rename atomic write; the registry excludes .lattice/learning/* from materialHash so currentMaterialHash is unchanged after cache write. Test suite TOTAL 20 | PASS 20 | FAIL 0. No boundary gaps found.",
+      "createdAt": "2026-06-17T11:49:36.576Z",
+      "reviewRound": "2026-06-17T11:48:13.696Z",
+      "reviewRunId": "B-000c:RR-003",
+      "_hash": "aa407c4b1aa25daebda702102de834a2d641aeb46a00fcabf722f3a47e9add10"
+    },
+    {
+      "id": "B-000c:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "All 3 quality checks pass across all 5 changed files. Dead code: no unused imports, variables, or commented-out blocks — the LEARNING_DIR/FINDING_SIGNALS_FILENAME/LEARNING_LOG_FILENAME exports are live API surface reserved for downstream callers. Type safety: zero 'as any' casts in core modules; the 'as unknown' casts in the smoke test are test-adversarial coercions (intentional); both empty catch blocks in learning-store.ts are legitimate swallows with rationale (graceful null return on malformed JSON read; best-effort temp cleanup on write error, re-throw preserved). I/O isolation: no bridge.ts project, isolation enforced by import quarantine — experience-layer-types.ts has zero outward imports, learning-store.ts imports only the leaf sibling, finding-signals.ts adds only ./store.js and ./learning-store.js — no ../ or ../../ in any of the 3 modules, confirmed by static grep and corroborated by the in-smoke adversarial scan. Registry entry has materialHash=exclude, volatile=true, repairableTrackedArtifact=true. The Date.now()/Math.random() usage is in writeFindingSignals's temp filename only (not in pure deriveFindingSignals). signalScore is never NaN (denominator = positive+negative+1 >= 1 always). No findings raised.",
+      "createdAt": "2026-06-17T11:50:45.934Z",
+      "reviewRound": "2026-06-17T11:48:13.696Z",
+      "reviewRunId": "B-000c:RR-001",
+      "_hash": "ea69dfef9319c0f9cab971e32948c02b6309ad6d43bf4e87b6ae956c23cca773"
+    },
+    {
+      "id": "B-000c:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Additive only (3586 insertions, no source-file deletions or renames across 23 files). No concept deleted or replaced; residual scan N/A.",
+      "createdAt": "2026-06-17T11:56:40.360Z",
+      "reviewRound": "2026-06-17T11:55:47.885Z",
+      "reviewRunId": "B-000c:RR-006",
+      "_hash": "9fb7218b3d4920691aa9a7ca9d247960400a6df37fe34472c18b9d34758ad012"
+    },
+    {
+      "id": "B-000c:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-001 resolved: CHK-001:adversarial:1 (concurrent writeFindingSignals never truncates) now has a real assertion — 20 concurrent writers targeting the same project root with interleaved reads; every observation asserted complete-or-absent (atomic temp+rename) and final file validated as one of the 20 distinct written caches (last-writer-wins, never blended/torn). Smoke exits 0: TOTAL 21 | PASS 21 | FAIL 0. Verifier exits 0: TOTAL 30 | PASS 30 | FAIL 0. All 30 intents across 4 checklist items have verificationEvidence bound to the literal command npm --prefix packages/main run test:experience-layer-finding-signals with result=pass. No must-gaps, no waivers, no blockers.",
+      "createdAt": "2026-06-17T11:57:58.770Z",
+      "reviewRound": "2026-06-17T11:55:47.885Z",
+      "reviewRunId": "B-000c:RR-008",
+      "_hash": "d237d6954cdcd100b4de9a3c0ace33217334b0f6ce311a4a824df7a4311480ca"
+    },
+    {
+      "id": "B-000c:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Production code unchanged since last round — 993390ba added only 115 lines to the smoke test (test-only change). All 21/21 smoke checks pass live. Verified: deriveFindingSignals grouping (localSignature = category|signatureTag??\"\"  |fileKind|lifecyclePhase), signalScore = positive/(positive+negative+1) never NaN (denom always >=1), single-fixed=0.5/support-1, conservative 0 when enums absent, deriveFindingSignalsFromStore reads exclusively via store.readFindings port (static scan confirms ./store.js sole non-leaf import, no ../ anywhere), gate-safety confirmed (3 materialHash-unchanged checks pass, registry entries materialHash:exclude + volatile:true + repairable). New concurrency check correctly demonstrates atomic write guarantee: 20 writers + 20 interleaved readers into one temp project, assertCompleteOrAbsent validates parse-or-absent (not string-equality), deepEqual membership check avoids false-fail on key order, observations counter proves reads ran mid-race, final state is a complete last-writer-wins value. All spec-declared Phase 1a boundaries from lattice-experience-layer-execution-plan.md are covered by checklist userSees. No findings.",
+      "createdAt": "2026-06-17T11:58:11.228Z",
+      "reviewRound": "2026-06-17T11:55:47.885Z",
+      "reviewRunId": "B-000c:RR-007",
+      "_hash": "d7245fe8a7d4c13da48536714f1d3f4ad54f729e9abf4df6ac6d47351bcc9736"
+    },
+    {
+      "id": "B-000c:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round code-quality review covering the single changed file (experience-layer-finding-signals-smoke.ts, commit 993390ba). Confirmed: (1) production modules experience-layer-types.ts, learning-store.ts, finding-signals.ts, runtime-artifact-registry.ts are byte-identical to the prior REVIEW round (git diff 851b6fa..993390ba over those paths is empty). (2) Dead-code check: FindingSignalsCache import added in this commit is actively used at lines 470, 480, 541. No unused imports. (3) Type-safety: the two empty catch blocks are both intentional — isSomeWrittenCache at line 482 converts assert.deepEqual failure to boolean (error is consumed as false), and line 558 is best-effort cleanup of temp dirs (pre-existing pattern). No problematic error-swallowing. (4) deriveFindingSignals calls in the concurrent section use PINNED_NOW, not Date.now — deterministic, non-flaky. (5) Concurrent test is hermetic: uses mkTempRoot() cleaned up in finally, no global state mutations, no network. (6) The observations counter is safe: Node.js is single-threaded, all Promise.resolve().then() microtasks execute cooperatively on one thread — no actual data race. Final assertion observations >= WRITERS (40 >= 20) is trivially satisfied. (7) No bridge.ts pattern in this project — direct core imports in the smoke task file are correct. Zero quality defects found.",
+      "createdAt": "2026-06-17T11:58:15.382Z",
+      "reviewRound": "2026-06-17T11:55:47.885Z",
+      "reviewRunId": "B-000c:RR-005",
+      "_hash": "55f1233c98b5733a69ff169f3490b9b6e95b61a42e1ff28f7a48d677694fee14"
+    }
+  ]
+}

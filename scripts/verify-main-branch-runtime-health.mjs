@@ -173,12 +173,12 @@ function assertNoHardcodedWorktreeCliPaths() {
 
 assertNoHardcodedWorktreeCliPaths();
 
-const temp = mkdtempSync(join(tmpdir(), 'koala-main-runtime-'));
+const temp = mkdtempSync(join(tmpdir(), 'lattice-main-runtime-'));
 
 try {
   mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true });
-  writeJson(join(temp, 'koala.config.json'), {
+  writeJson(join(temp, 'lattice.config.json'), {
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -190,8 +190,8 @@ try {
   });
 
   git(temp, ['init']);
-  git(temp, ['config', 'user.name', 'Koala Test']);
-  git(temp, ['config', 'user.email', 'koala@example.com']);
+  git(temp, ['config', 'user.name', 'Lattice Test']);
+  git(temp, ['config', 'user.email', 'lattice@example.com']);
   writeFileSync(join(temp, '.gitignore'), 'node_modules\n');
   git(temp, ['add', '.']);
   git(temp, ['commit', '-m', 'init']);

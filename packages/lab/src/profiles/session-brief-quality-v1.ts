@@ -1,7 +1,7 @@
 /**
  * @task B-780e
  * @checklist CHK-001
- * @title session-brief-quality-v1 quantifies Koala session entrypoint output
+ * @title session-brief-quality-v1 quantifies Lattice session entrypoint output
  * @type feature
  * @priority high
  * @description

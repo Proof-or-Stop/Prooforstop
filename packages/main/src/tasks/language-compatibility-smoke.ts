@@ -60,7 +60,7 @@ assert.ok(parsed.sections.get('Key Insights')?.includes('\u8bed\u4e49'), 'Unicod
 
 const root = mkdtempSync(join(tmpdir(), 'lattice-language-compat-'));
 try {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
@@ -159,7 +159,7 @@ try {
     '--json',
   ];
   try {
-    writeFileSync(join(redevRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(redevRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',

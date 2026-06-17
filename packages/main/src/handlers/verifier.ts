@@ -7,7 +7,7 @@
  * @description
  *   Back-link docs/requirements/decisions/testing-infra.md:38 to the verifier
  *   implementation: when no validate.ts/js/mts exists, no configured
- *   validate.command(s) exist, and no fallback command can be discovered, Koala
+ *   validate.command(s) exist, and no fallback command can be discovered, Lattice
  *   returns warn/skip instead of failure. Projects needing strong validation
  *   gates must configure validate.command(s).
  * @changes
@@ -933,7 +933,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         tsArgs.push(serveFile);
       } else {
         // Use the verifier's built-in serve module
-        // Find it relative to the koala package
+        // Find it relative to the core package
         const verifierServe = join(__dirname, '..', 'verifier', 'serve.js');
         if (!existsSync(verifierServe)) {
           return `✗ 找不到 serve.ts（项目根目录）或内建 verifier serve 模块\n  当前目录: ${projectRoot}`;

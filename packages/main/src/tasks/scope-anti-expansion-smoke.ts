@@ -41,8 +41,8 @@ function write(root: string, rel: string, content: string): void {
 }
 
 function createTempStore(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scope-anti-expansion-'));
-  write(root, 'koala.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scope-anti-expansion-'));
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

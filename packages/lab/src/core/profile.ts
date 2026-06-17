@@ -1,7 +1,7 @@
 /**
  * @task B-a591
  * @checklist CHK-002
- * @title koala-lab profiles normalize target-specific heuristics into one interface
+ * @title lattice-lab profiles normalize target-specific heuristics into one interface
  * @type feature
  * @priority high
  * @description
@@ -33,7 +33,7 @@ export function resolveProfile(profileName: string): LabProfileEvaluator {
   const profile = PROFILES[profileName];
   if (!profile) {
     const available = Object.keys(PROFILES).sort().join(', ');
-    throw new Error(`未知 koala-lab profile: ${profileName}. 可用 profile: ${available}`);
+    throw new Error(`未知 lattice-lab profile: ${profileName}. 可用 profile: ${available}`);
   }
   return profile;
 }

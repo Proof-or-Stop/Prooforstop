@@ -379,7 +379,7 @@ function multiEditInput(filePaths: string[]): PrewriteToolInput {
 
 function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
   writeFileSync(
-    join(root, 'koala.config.json'),
+    join(root, 'lattice.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -428,7 +428,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: out-of-scope file in diff → runScopeGate returns fail
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-prewrite-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-gate-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -447,7 +447,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: protected file in diff → runScopeGate returns fail
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-prewrite-protected-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-protected-gate-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -466,7 +466,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 // Gate test: REVIEW/TEST/DONE gates all fail for the same out-of-scope diff
 // Verifies the gate result can block all three lifecycle phases
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-prewrite-all-phases-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-all-phases-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -485,7 +485,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: allowed diff only → runScopeGate returns pass
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-prewrite-pass-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-pass-gate-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -498,10 +498,10 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: no contract → gate returns null (backward-compatible skip)
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-prewrite-no-contract-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-no-contract-'));
   try {
     writeFileSync(
-      join(root, 'koala.config.json'),
+      join(root, 'lattice.config.json'),
       JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
@@ -541,7 +541,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 // returns deny:true without touching the filesystem, proving the file is unchanged.
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-prewrite-immutable-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-immutable-'));
   try {
     const protectedPath = join(root, 'src/protected.ts');
     mkdirSync(dirname(protectedPath), { recursive: true });

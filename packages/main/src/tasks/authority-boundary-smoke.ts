@@ -301,8 +301,8 @@ function caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission(): void 
   const workflowEnvelope = cliShapedEnvelope({
     // Simulate a workflow submission that happens to mention "authority enforce"
     // in its evidence ID — this must not change classification.
-    evidenceId: 'koala-authority-enforce:M1:CHK-001:happy:0',
-    producerActorId: 'koala-authority-enforce-runner',
+    evidenceId: 'lattice-authority-enforce:M1:CHK-001:happy:0',
+    producerActorId: 'lattice-authority-enforce-runner',
     role: 'verifier',
   });
   const c = classifyAuthorityEvidence({

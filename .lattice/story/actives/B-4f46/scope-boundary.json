@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4f46",
+  "mode": "custom",
+  "allowed": [
+    "Add a signature-registry to learning-store plus a minimal signature CLI handler",
+    "Add a smoke task and its npm script",
+    "Add optional audit-only outcome fields to the Finding type and finding command schemas/handlers"
+  ],
+  "excluded": [
+    "Building a second findings storage outside the existing subsystem",
+    "Including the new fields in the finding integrity signature",
+    "Letting any review-gate enforcement path consume the new outcome fields",
+    "Wiring hints into reviewer prompt assembly"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 1b finding enums + signature-registry; user authorized full roadmap on 2026-06-17.",
+  "createdAt": "2026-06-17T12:05:29.240Z",
+  "updatedAt": "2026-06-17T12:05:29.240Z",
+  "_hash": "af3406e24f6d1e41a821db5673966eea34cf1022303442d1bf67336d7f6b2dba"
+}

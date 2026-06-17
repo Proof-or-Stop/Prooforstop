@@ -2,7 +2,7 @@
 /**
  * B-a370 CHK-002: META container next/session_brief hint smoke.
  *
- * Verifies F-003 fix: `koala next` / `session_brief` must not hand META
+ * Verifies F-003 fix: `lattice next` / `session_brief` must not hand META
  * containers (B-META-* / phase=META) an actionable lifecycle hint like
  * `story_advance --storyId=<meta> --phase=INIT_CHECK`; they must get
  * audit/finding-flow guidance and stay out of the lifecycle/worktree
@@ -45,7 +45,7 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function runKoala(root: string, command: string): string {
+function runLattice(root: string, command: string): string {
   return execFileSync(process.execPath, [cliPath, command, '{}'], {
     cwd: root,
     env: { ...process.env, LATTICE_PROJECT_ROOT: root },
@@ -54,11 +54,11 @@ function runKoala(root: string, command: string): string {
   });
 }
 
-/** Minimal koala project: git repo + config. resetConfigCache so the run
+/** Minimal lattice project: git repo + config. resetConfigCache so the run
  *  picks up this temp root's storyDir instead of a cached prior project. */
 function setupProject(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -104,11 +104,11 @@ function assertAuditGuidance(output: string, label: string): void {
  *  Covers CHK-001:happy:1, CHK-001:happy:2, CHK-002:happy:0, CHK-002:happy:1,
  *  CHK-002:adversarial:0. */
 function assertMetaContainerAloneGetsAuditHint(): void {
-  const root = setupProject('koala-meta-hint-alone-');
+  const root = setupProject('lattice-meta-hint-alone-');
   try {
     ensureMetaStory(new StoryStore(root));
 
-    const brief = runKoala(root, 'session_brief');
+    const brief = runLattice(root, 'session_brief');
     assert.ok(!brief.includes(advanceHintFor(META_STORY_ID)), `session_brief must not advance the META container:\n${brief}`);
     assert.ok(!brief.includes(INIT_CHECK_HINT), `META-only repo must not surface any INIT_CHECK hint:\n${brief}`);
     assert.ok(!brief.includes('## Active stories'), `META container must not appear as an active story:\n${brief}`);
@@ -116,7 +116,7 @@ function assertMetaContainerAloneGetsAuditHint(): void {
     assert.ok(brief.includes(META_STORY_ID), `META containers section must name ${META_STORY_ID}`);
     assertAuditGuidance(brief, 'session_brief');
 
-    const next = runKoala(root, 'next');
+    const next = runLattice(root, 'next');
     assert.ok(!next.includes(advanceHintFor(META_STORY_ID)), `next must not advance the META container:\n${next}`);
     assert.ok(!next.includes(INIT_CHECK_HINT), `next must not surface an INIT_CHECK hint for a META container:\n${next}`);
     assertAuditGuidance(next, 'next');
@@ -131,7 +131,7 @@ function assertMetaContainerAloneGetsAuditHint(): void {
  *  ordering. `next` (concise render path) focuses the normal story.
  *  Covers CHK-001:edge:2, CHK-001:adversarial:2 (concise), CHK-002:happy:2. */
 function assertMetaCoexistsWithNormalStories(): void {
-  const root = setupProject('koala-meta-hint-coexist-');
+  const root = setupProject('lattice-meta-hint-coexist-');
   try {
     const store = new StoryStore(root);
     ensureMetaStory(store);
@@ -141,7 +141,7 @@ function assertMetaCoexistsWithNormalStories(): void {
     writeStory(store, 'B-normal1', 'INIT');
     writeStory(store, 'B-normal2', 'INIT');
 
-    const brief = runKoala(root, 'session_brief');
+    const brief = runLattice(root, 'session_brief');
     assert.ok(brief.includes('## Active stories (2)'), `only the 2 normal stories should be active, META excluded:\n${brief}`);
     assert.ok(brief.includes('B-normal1') && brief.includes('B-normal2'), `both normal stories must appear in Active stories:\n${brief}`);
     assert.ok(brief.includes('## META containers'), `META containers section must still render:\n${brief}`);
@@ -154,7 +154,7 @@ function assertMetaCoexistsWithNormalStories(): void {
     assert.ok(!brief.includes(advanceHintFor(META_STORY_ID)), `META container must never get a story_advance hint:\n${brief}`);
 
     // `next` runs session_brief in concise mode — META must stay excluded there too.
-    const next = runKoala(root, 'next');
+    const next = runLattice(root, 'next');
     assert.ok(next.includes('B-normal1'), `next (concise) must focus on a normal active story:\n${next}`);
     assert.ok(!next.includes(META_STORY_ID), `next (concise) must not point at the META container while real work exists:\n${next}`);
   } finally {
@@ -167,10 +167,10 @@ function assertMetaCoexistsWithNormalStories(): void {
  *  Covers CHK-001:edge:0, CHK-001:edge:1, CHK-002:edge:0, CHK-002:edge:1. */
 function assertBothMetaCriteriaDetectedIndependently(): void {
   // 3a: B-META- prefix, but phase is a normal lifecycle phase.
-  const rootA = setupProject('koala-meta-hint-prefix-');
+  const rootA = setupProject('lattice-meta-hint-prefix-');
   try {
     writeStory(new StoryStore(rootA), 'B-META-prefix-only', 'INIT');
-    const brief = runKoala(rootA, 'session_brief');
+    const brief = runLattice(rootA, 'session_brief');
     assert.ok(!brief.includes('## Active stories'), `B-META- prefix story must be excluded from Active stories:\n${brief}`);
     assert.ok(brief.includes('## META containers'), `B-META- prefix story must render in META containers:\n${brief}`);
     assert.ok(!brief.includes(INIT_CHECK_HINT), `B-META- prefix story must not surface an INIT_CHECK hint:\n${brief}`);
@@ -180,10 +180,10 @@ function assertBothMetaCriteriaDetectedIndependently(): void {
   }
 
   // 3b: phase=META, but the id is not B-META- prefixed (forged-phase guard).
-  const rootB = setupProject('koala-meta-hint-phase-');
+  const rootB = setupProject('lattice-meta-hint-phase-');
   try {
     writeStory(new StoryStore(rootB), 'B-phasemeta', 'META');
-    const brief = runKoala(rootB, 'session_brief');
+    const brief = runLattice(rootB, 'session_brief');
     assert.ok(!brief.includes('## Active stories'), `phase=META story must be excluded from Active stories:\n${brief}`);
     assert.ok(brief.includes('## META containers'), `phase=META story must render in META containers:\n${brief}`);
     assert.ok(!brief.includes(INIT_CHECK_HINT), `phase=META story must not surface an INIT_CHECK hint:\n${brief}`);
@@ -201,11 +201,11 @@ function assertBothMetaCriteriaDetectedIndependently(): void {
  *  Covers CHK-001:happy:0, CHK-001:adversarial:1. */
 function assertComputeNextStepHandlesMetaOnBranch(): void {
   // 4a: real meta-story checked out on its own story branch.
-  const rootA = setupProject('koala-meta-hint-branch-');
+  const rootA = setupProject('lattice-meta-hint-branch-');
   try {
     ensureMetaStory(new StoryStore(rootA));
     git(rootA, ['checkout', '-b', `story/${META_STORY_ID}`]);
-    const brief = runKoala(rootA, 'session_brief');
+    const brief = runLattice(rootA, 'session_brief');
     assert.ok(!brief.includes(advanceHintFor(META_STORY_ID)), `computeNextStep must not advance a META container:\n${brief}`);
     assert.ok(!brief.includes(INIT_CHECK_HINT), `computeNextStep must not surface INIT_CHECK for a META container:\n${brief}`);
     assert.ok(!brief.includes('unknown phase'), `computeNextStep must not fall through to the unknown-phase branch:\n${brief}`);
@@ -215,11 +215,11 @@ function assertComputeNextStepHandlesMetaOnBranch(): void {
   }
 
   // 4b: forged phase=META on a normal (non-B-META-) story branch.
-  const rootB = setupProject('koala-meta-hint-branch-forged-');
+  const rootB = setupProject('lattice-meta-hint-branch-forged-');
   try {
     writeStory(new StoryStore(rootB), 'B-1234', 'META');
     git(rootB, ['checkout', '-b', 'story/B-1234']);
-    const brief = runKoala(rootB, 'session_brief');
+    const brief = runLattice(rootB, 'session_brief');
     assert.ok(!brief.includes(advanceHintFor('B-1234')), `forged phase=META story must not get a story_advance hint:\n${brief}`);
     assert.ok(!brief.includes(INIT_CHECK_HINT), `forged phase=META story must not surface INIT_CHECK:\n${brief}`);
     assertAuditGuidance(brief, 'computeNextStep (forged phase=META)');

@@ -18,7 +18,7 @@
  *     recommendation: "skip concept LLM reviewer" | "dispatch lattice-review-concept"
  *   }
  *
- * See docs/koala/reviewer-redesign.md §III S1 item 2.
+ * See docs/reviewer-redesign.md §III S1 item 2.
  */
 
 import { execSync } from 'node:child_process';

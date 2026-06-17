@@ -45,7 +45,7 @@ import { getGuardFailureReason } from '../core/machine.js';
 
 function makeRoot(): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-loop-smoke-'));
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     storyDir: '.lattice/story/actives',
     storyPrefix: 'B',
   }));

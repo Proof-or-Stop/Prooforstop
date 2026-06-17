@@ -936,8 +936,6 @@ lattice dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implemente
 - **medium 第 1 轮必须修**（strict profile），第 2 轮可以 dismiss + 理由
 - **low 第 1 轮必须修**，第 2 轮可以 dismiss + 理由
 
-> REVIEW 机械化路线图（S1 已落地 / S2 / S3 规划）详见 `docs/koala/reviewer-redesign.md`。
-
 ## 合并态组合审查（流程框架并行 story）
 
 单 story REVIEW 只看单个 story 的 diff，看不到「两个各自局部正确的 story 叠加成全局漏洞」的跨 story 交互。**当多个流程框架类 story（触及 dirty/状态 classifier、gate policy、命令入口门禁、auto-commit、DONE merge 语义任一）并行合并到 main 时**，合并后应对 main 的合并态做一次只读 combination review，逐项过分类优先级顺序 / gate policy 表 / 命令入口门禁 / auto-commit-dirty 交互 / DONE merge 语义。普通业务 story 不触发。这是 advisory 流程纪律，不是 CLI gate。规则来自 B-8db9 incident（B-cf60 + B-4b22 各自单 story review 通过、合并 main 后叠加成 CRITICAL gate 绕过）。

@@ -87,7 +87,7 @@ function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   ].join('\n');
 }
 
-function mergeKoalaRuntimeIgnores(existingContent: string): { content: string; changed: boolean } {
+function mergeLatticeRuntimeIgnores(existingContent: string): { content: string; changed: boolean } {
   const required = listRuntimeArtifactIgnorePatterns();
   const blockMatch = existingContent.match(GITIGNORE_RUNTIME_BLOCK_RE);
   const blockText = blockMatch?.[0] ?? null;
@@ -565,7 +565,7 @@ if (!existsSync(giPath)) {
     // ignorePattern added after the template was last synced). Re-merge from the
     // registry so the copy path is registry-synced just like the existing-file
     // branch below — keeps the registry the single source of truth (B-4fd3).
-    const merged = mergeKoalaRuntimeIgnores(readFileSync(giPath, 'utf8'));
+    const merged = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
     if (merged.changed) {
       writeFileSync(giPath, merged.content);
       console.log('  ✓ .gitignore (copied from Lattice template, runtime ignores synced)');
@@ -590,7 +590,7 @@ if (!existsSync(giPath)) {
     console.log('  ✓ .gitignore (created minimal)');
   }
 } else {
-  const mergeResult = mergeKoalaRuntimeIgnores(readFileSync(giPath, 'utf8'));
+  const mergeResult = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
   if (mergeResult.changed) {
     writeFileSync(giPath, mergeResult.content);
     console.log('  ✓ .gitignore (merged Lattice runtime ignores)');

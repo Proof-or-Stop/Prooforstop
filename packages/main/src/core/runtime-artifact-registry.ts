@@ -127,6 +127,27 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // B-000c CHK-003: the Experience Layer derived caches under
+    // .lattice/learning/ (finding-signals.json + learning-log.jsonl) are mutable
+    // runtime diagnostics derived from existing findings — NOT story evidence,
+    // validation evidence, or gate-consumed proof. They MUST be materialHash-
+    // excluded so deriving/refreshing the cache never perturbs currentMaterialHash
+    // and thus never invalidates a gate's evidence freshness. Mirrors the
+    // llm-usage-ledger entry above; the prefix matcher also covers future
+    // adjacent learning-runtime files under .lattice/learning/.
+    id: 'experience-layer-learning-cache',
+    description: 'Experience Layer derived finding-signals cache and learning log under .lattice/learning/.',
+    matchers: [
+      { kind: 'exact', value: '.lattice/learning/finding-signals.json' },
+      { kind: 'exact', value: '.lattice/learning/learning-log.jsonl' },
+      { kind: 'prefix', value: '.lattice/learning/' },
+    ],
+    ignorePatterns: ['.lattice/learning/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'serve-metadata',
     description: 'Transient dev-server handshake file.',
     matchers: [

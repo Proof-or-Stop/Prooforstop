@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo, StoryPhase } from '../core/types.js';
-import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -185,7 +185,7 @@ function assertMixedCanonicalLegacyGlobalLinksAreRepaired(): void {
     mkdirSync(mainPackagePath, { recursive: true });
     symlinkSync(worktreePath, legacyPath, 'dir');
 
-    const result = repairGlobalKoalaLinkBeforeWorktreeDelete(worktreePath, root, {
+    const result = repairGlobalLatticeLinkBeforeWorktreeDelete(worktreePath, root, {
       globalPackageRoot: globalRoot,
     });
 

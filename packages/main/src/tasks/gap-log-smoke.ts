@@ -42,7 +42,7 @@ function git(cwd: string, args: string[]): string {
 /** Build a fresh main project (a git repo, no story worktree). */
 function createMainProject(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -111,7 +111,7 @@ const VALID = {
 function assertMissingRequiredFieldsRejected(): void {
   // (a) CLI Zod layer — missing category / severity / evidence each fail before the handler
   {
-    const root = createMainProject('koala-gaplog-zod-cat-');
+    const root = createMainProject('lattice-gaplog-zod-cat-');
     try {
       const out = runGapLogExpectFail(root, { severity: 'medium', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.match(out, /category/, 'CLI Zod must reject missing category');
@@ -120,14 +120,14 @@ function assertMissingRequiredFieldsRejected(): void {
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
   {
-    const root = createMainProject('koala-gaplog-zod-sev-');
+    const root = createMainProject('lattice-gaplog-zod-sev-');
     try {
       const out = runGapLogExpectFail(root, { category: 'missing', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.match(out, /severity/, 'CLI Zod must reject missing severity');
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
   {
-    const root = createMainProject('koala-gaplog-zod-ev-');
+    const root = createMainProject('lattice-gaplog-zod-ev-');
     try {
       const out = runGapLogExpectFail(root, { category: 'missing', severity: 'medium', sourceRefs: VALID.sourceRefs });
       assert.match(out, /evidence/, 'CLI Zod must reject missing evidence');
@@ -136,7 +136,7 @@ function assertMissingRequiredFieldsRejected(): void {
   // `source` is not a single Zod-required field (it's "any of 4 optional fields"),
   // so missing-source is enforced ONLY by the handler runtime guard — assert via CLI too.
   {
-    const root = createMainProject('koala-gaplog-cli-src-');
+    const root = createMainProject('lattice-gaplog-cli-src-');
     try {
       const out = runGapLogExpectFail(root, { category: 'missing', severity: 'medium', evidence: VALID.evidence });
       assert.match(out, /source is required/, 'handler runtime must reject missing source');
@@ -146,7 +146,7 @@ function assertMissingRequiredFieldsRejected(): void {
 
   // (b) handler runtime layer — bypass Zod entirely (simulates old JSON / internal fn callers)
   {
-    const root = createMainProject('koala-gaplog-rt-');
+    const root = createMainProject('lattice-gaplog-rt-');
     try {
       const noCat = callGapLogRaw(root, { severity: 'medium', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.equal(noCat.ok, false);
@@ -181,7 +181,7 @@ function assertMissingRequiredFieldsRejected(): void {
 
 // ── 2: default write -> evidenceState=suspected ──
 function assertDefaultWriteIsSuspected(): void {
-  const root = createMainProject('koala-gaplog-default-');
+  const root = createMainProject('lattice-gaplog-default-');
   try {
     const out = runGapLog(root, VALID);
     assert.match(out, /evidenceState=suspected/, 'default gap_log must be suspected');
@@ -199,7 +199,7 @@ function assertDefaultWriteIsSuspected(): void {
 
 // ── 3: verified requested but no structured evidence -> never produces a verified finding ──
 function assertVerifiedWithoutEvidenceCannotBeVerified(): void {
-  const root = createMainProject('koala-gaplog-verified-bare-');
+  const root = createMainProject('lattice-gaplog-verified-bare-');
   try {
     // gap_log requires `source` (sourceRefs / reproCommand / observedOutput / analysisNote),
     // and that same set IS the "structured evidence" the verified guard checks. So a
@@ -231,7 +231,7 @@ function assertVerifiedWithoutEvidenceCannotBeVerified(): void {
 
 // ── 4: verified WITH structured evidence -> verified allowed ──
 function assertVerifiedWithEvidenceAllowed(): void {
-  const root = createMainProject('koala-gaplog-verified-ok-');
+  const root = createMainProject('lattice-gaplog-verified-ok-');
   try {
     const out = runGapLog(root, {
       category: 'edge',
@@ -256,7 +256,7 @@ function assertVerifiedWithEvidenceAllowed(): void {
 // ── 5: empty / whitespace-only evidence -> rejected ──
 function assertBlankEvidenceRejected(): void {
   for (const blank of ['', '   ', '\t\n  ']) {
-    const root = createMainProject('koala-gaplog-blank-ev-');
+    const root = createMainProject('lattice-gaplog-blank-ev-');
     try {
       const out = runGapLogExpectFail(root, {
         category: 'missing', severity: 'medium', evidence: blank, sourceRefs: VALID.sourceRefs,
@@ -270,7 +270,7 @@ function assertBlankEvidenceRejected(): void {
 
 // ── 6: B-META container missing -> gap_log auto ensureMetaStory bootstrap ──
 function assertContainerBootstrap(): void {
-  const root = createMainProject('koala-gaplog-bootstrap-');
+  const root = createMainProject('lattice-gaplog-bootstrap-');
   try {
     assert.equal(new StoryStore(root).storyExists(META_STORY_ID), false,
       'fixture must start without the B-META container');
@@ -295,7 +295,7 @@ function assertContainerBootstrap(): void {
 function assertNoWorktreeRequired(): void {
   // createMainProject() is a plain main repo with NO story worktree, NO active story.
   // If gap_log required a worktree (assertCwdInWorktree) it would throw here.
-  const root = createMainProject('koala-gaplog-no-worktree-');
+  const root = createMainProject('lattice-gaplog-no-worktree-');
   try {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), /story\//,
       'fixture must have no story worktree');
@@ -314,7 +314,7 @@ function assertNoWorktreeRequired(): void {
 // finding so concurrent agents archiving the same framework gap do not pollute
 // B-META with duplicates.
 function assertIdenticalGapDeduped(): void {
-  const root = createMainProject('koala-gaplog-dedup-');
+  const root = createMainProject('lattice-gaplog-dedup-');
   try {
     const out1 = runGapLog(root, VALID);
     assert.match(out1, /Gap logged: B-META-framework-audit:F-/, 'first gap_log writes a finding');
@@ -338,7 +338,7 @@ function assertIdenticalGapDeduped(): void {
 // asserts every distinguishing channel (desc / category / severity / sourceRefs
 // / reproCommand / observedOutput / analysisNote) keeps gaps separate.
 function assertDifferentGapsNotFalselyMerged(): void {
-  const root = createMainProject('koala-gaplog-no-false-merge-');
+  const root = createMainProject('lattice-gaplog-no-false-merge-');
   try {
     // base gap
     runGapLog(root, VALID);
@@ -372,7 +372,7 @@ function assertDifferentGapsNotFalselyMerged(): void {
 // again is a legitimately new occurrence — re-logging it after the original is
 // resolved must create a fresh finding, not silently no-op.
 function assertResolvedGapCanBeReLogged(): void {
-  const root = createMainProject('koala-gaplog-relog-');
+  const root = createMainProject('lattice-gaplog-relog-');
   try {
     runGapLog(root, VALID);
     // resolve the first finding directly in the store (simulates the gap being closed)
@@ -395,7 +395,7 @@ function assertResolvedGapCanBeReLogged(): void {
 // Two layers: (a) CLI Zod enum only allows suspected/verified; (b) handler runtime
 // rejects disproven (and any out-of-enum value) even when Zod is bypassed.
 function assertDisprovenRejected(): void {
-  const root = createMainProject('koala-gaplog-disproven-');
+  const root = createMainProject('lattice-gaplog-disproven-');
   try {
     // (a) CLI Zod layer rejects disproven before reaching the handler
     const cliOut = runGapLogExpectFail(root, { ...VALID, evidenceState: 'disproven' });
@@ -419,7 +419,7 @@ function assertDisprovenRejected(): void {
 
 // ── 10: rapid succession (5 calls) -> all 5 findings written, no findings.json race ──
 function assertRapidSuccessionAllWritten(): void {
-  const root = createMainProject('koala-gaplog-rapid-');
+  const root = createMainProject('lattice-gaplog-rapid-');
   try {
     for (let i = 0; i < 5; i++) {
       runGapLog(root, { ...VALID, evidence: `rapid framework gap #${i} observed in quick succession` });
@@ -434,7 +434,7 @@ function assertRapidSuccessionAllWritten(): void {
 
 // ── 12: F-003 — sourceRefs + files both passed -> finding.files keeps both (no silent loss) ──
 function assertSourceRefsAndFilesMerged(): void {
-  const root = createMainProject('koala-gaplog-merge-files-');
+  const root = createMainProject('lattice-gaplog-merge-files-');
   try {
     const out = runGapLog(root, {
       category: 'missing',
@@ -488,7 +488,7 @@ function spawnGapLog(root: string, args: Record<string, unknown>): Promise<{ cod
 // the in-lock idempotency dedup. The invariant: the same gap logged
 // concurrently produces EXACTLY ONE canonical B-META finding, all racers exit 0.
 async function assertConcurrentSameGapDeduped(): Promise<void> {
-  const root = createMainProject('koala-gaplog-concurrent-same-');
+  const root = createMainProject('lattice-gaplog-concurrent-same-');
   try {
     const racers = 6;
     const pending: Array<Promise<{ code: number; output: string }>> = [];
@@ -513,7 +513,7 @@ async function assertConcurrentSameGapDeduped(): Promise<void> {
 
     // concurrent DIFFERENT gaps -> each gets its own finding (lock serializes,
     // dedup does not falsely merge distinct gaps).
-    const root2 = createMainProject('koala-gaplog-concurrent-diff-');
+    const root2 = createMainProject('lattice-gaplog-concurrent-diff-');
     try {
       const diffPending: Array<Promise<{ code: number; output: string }>> = [];
       for (let i = 0; i < 4; i++) {
@@ -537,7 +537,7 @@ async function assertConcurrentSameGapDeduped(): Promise<void> {
 
 // ── 11: gap_log is discoverable -> lattice help / lattice gap_log --help shows it ──
 function assertCommandDiscoverable(): void {
-  const root = createMainProject('koala-gaplog-discover-');
+  const root = createMainProject('lattice-gaplog-discover-');
   try {
     const help = execFileSync(process.execPath, [cliPath, 'gap_log', '--help'], {
       cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',

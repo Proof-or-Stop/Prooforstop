@@ -917,7 +917,7 @@ export function buildLiveJobPlan(ctx: LiveContext): JobPlan {
 
 export function buildLocalStore(ctx: LiveContext): { root: string; store: StoryStore } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-authority-live-e2e-'));
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
     outDir: 'dist',

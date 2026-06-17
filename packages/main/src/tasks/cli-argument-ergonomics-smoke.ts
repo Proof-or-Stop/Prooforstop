@@ -41,7 +41,7 @@ const storyCreate = schemaFor('story_create').parse({
     '2026-05-03 User feedback: validation-type stories using type test are rejected, forcing users to guess the chore type when first creating a validation task.',
     '',
     '## Key Insight',
-    'Validation-type tasks are semantically closer to chore in Koala, but users naturally type test; the CLI should absorb this common expression difference.',
+    'Validation-type tasks are semantically closer to chore in Lattice, but users naturally type test; the CLI should absorb this common expression difference.',
     '',
     '## Trade-off Decision',
     'Keep the persisted StoryType set unchanged, and only normalize test to chore at the CLI schema layer to avoid breaking downstream type checks.',
@@ -63,7 +63,7 @@ assert.deepEqual(emptyVerificationIntent.verificationIntent, {
   adversarial: [],
 });
 
-const isolatedCwd = mkdtempSync(join(tmpdir(), 'koala-cli-arg-smoke-'));
+const isolatedCwd = mkdtempSync(join(tmpdir(), 'lattice-cli-arg-smoke-'));
 try {
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;

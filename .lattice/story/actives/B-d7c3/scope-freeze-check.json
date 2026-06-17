@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d7c3",
+  "checkedAt": "2026-06-17T12:16:04.740Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "b97600c456fc8f8c56b6feaccc5fe3b9f5a42fcc0b2ac9fcd5cca4233a3810ce",
+  "executionBoundaryHash": "42f60d1b5be45cfddef39a4c73b87b0519df74989c8560048be2af15238a3d3a",
+  "freshnessHash": "d0e8491eeae37ca87547d8d6ee57433bddd5409e4b31045d3bd50c14c7dee42b",
+  "effectiveExcludedKeywords": [
+    "Editing decision documents",
+    "Touching any *-smoke.ts file",
+    "Touching test:e2e or cli-e2e flow runner",
+    "Touching the runner run-all-smokes.ts",
+    "Touching verify-*.mjs scripts",
+    "Wiring c8 coverage (B3 follow-up)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Editing decision documents",
+      "source": "scopeBoundary.excluded",
+      "text": "Editing decision documents",
+      "excluded": true
+    },
+    {
+      "keyword": "Touching any *-smoke.ts file",
+      "source": "scopeBoundary.excluded",
+      "text": "Touching any *-smoke.ts file",
+      "excluded": true
+    },
+    {
+      "keyword": "Touching test:e2e or cli-e2e flow runner",
+      "source": "scopeBoundary.excluded",
+      "text": "Touching test:e2e or cli-e2e flow runner",
+      "excluded": true
+    },
+    {
+      "keyword": "Touching the runner run-all-smokes.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "Touching the runner run-all-smokes.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "Touching verify-*.mjs scripts",
+      "source": "scopeBoundary.excluded",
+      "text": "Touching verify-*.mjs scripts",
+      "excluded": true
+    },
+    {
+      "keyword": "Wiring c8 coverage (B3 follow-up)",
+      "source": "scopeBoundary.excluded",
+      "text": "Wiring c8 coverage (B3 follow-up)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "6cdb5cdcb60b8fe9dc9e611da1db099ea060fb620290304d03bbc0f924b1a37e"
+}
