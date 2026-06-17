@@ -7,7 +7,51 @@
       "userSees": "The doc no longer contains 'L4 Cross-project aggregation', 'Phase 4', 'publicSignature', or a two-layer cross-project signature description.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep doc for L4 bullet text L4 Cross-project aggregation -> no match found; WHY: confirms the Architecture L4 bullet was fully removed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep doc for Phase 4 -> no match found; WHY: confirms the Phase 4 Roadmap bullet was fully removed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep doc for publicSignature -> no match found; WHY: confirms the two-layer cross-project signature concept was removed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep doc for L1/L2/L3 bullets -> all three still present; WHY: confirms deletion was surgical and did not remove the kept levels",
+            "type": "cli"
+          },
+          {
+            "desc": "grep doc for Phase 1a/1b/1.5/2/3 roadmap items -> all still present; WHY: confirms only Phase 4 was removed not the other phases",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep for case-insensitive phase 4 and phase4 variants -> no match; WHY: guards against case-variant or no-space remnants surviving",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for localSignature (the L4 two-layer concept) -> no match; WHY: localSignature was part of the L4 bullet framing distinct from L1 local signature",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for L1 deterministic local signature sentence -> still present after L4 removal; WHY: guards against over-deletion stripping the conceptually-adjacent but distinct L1 aggregation key",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for two-layer or two layer anywhere in doc -> no match; WHY: ensures no fragment of the L4 two-layer signature concept survived in other sections",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

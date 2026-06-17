@@ -1,0 +1,38 @@
+{
+  "principles": [
+    "Per-project only is the documented design",
+    "Remove the cross-project framing, keep the Phase 1 local-signature concept",
+    "Documentation-only; built Phases 1a-3 untouched",
+    "Plan must reflect the user decision so no one builds cross-project by default"
+  ],
+  "drivers": [
+    "User decided cross-project must not be built",
+    "Cross-project would pollute single-project judgement + weaken local lineage",
+    "Avoid orphaning the L1 local-signature aggregation key"
+  ],
+  "options": [
+    {
+      "name": "surgical-remove-and-reword",
+      "pros": [
+        "Removes only the cross-project L4/Phase-4 text; keeps L1 local-signature + Phases 1a-3",
+        "Prevents a future implementer building cross-project as default",
+        "Documentation-only, no code risk"
+      ],
+      "cons": [
+        "Must be careful not to remove the Phase 1 local-signature sentence"
+      ]
+    },
+    {
+      "name": "leave-as-future",
+      "pros": [
+        "No edit"
+      ],
+      "cons": [
+        "Plan keeps a cross-project tier the user rejected; risks future default implementation; doc no longer reflects the decision"
+      ]
+    }
+  ],
+  "chosen": "surgical-remove-and-reword",
+  "rationale": "The user rejected cross-project aggregation; the committed plan must record that as per-project-only by design, while preserving the load-bearing Phase 1 local-signature concept. A surgical remove+reword does exactly that with no code risk.",
+  "timestamp": "2026-06-17T18:07:37.553Z"
+}
