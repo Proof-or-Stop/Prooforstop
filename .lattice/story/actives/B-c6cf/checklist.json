@@ -119,7 +119,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"const s=require('./package.json').scripts['test:coverage']||''; if(!s.startsWith('c8 ')&&!s.includes(' c8 ')) throw new Error('NO_C8:'+s); console.log('C8_WRAPPED')\"",
+          "result": "pass",
+          "note": "Prints C8_WRAPPED — test:coverage script value is 'c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1' which starts with 'c8 '.",
+          "headHash": "83e8a5428f6d11dd2df937b0e1fea04998fc5d7c",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:06:44.235Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
