@@ -83,6 +83,22 @@
         "AGENTS.md",
         "README.md"
       ]
+    },
+    {
+      "id": "B-d7c3:F-006",
+      "desc": "CHK-003:adversarial:1 evidence command does not bind the intent. Intent literal: git diff main -- AGENTS.md | grep filtering non-test/non-manifest/non-legacy lines | wc -l (checking AGENTS.md edits are limited to test-script references). Evidence command: python3 -c import json;print(json.load(open(package.json)).get(scripts,{}).get(test:legacy,MISSING)) — this checks test:legacy shim existence in root package.json, which is the CHK-003:edge:2 intent. The AGENTS.md scope-of-change guard for CHK-003:adversarial:1 is completely uncovered by the submitted evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:31:48.331Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-002",
+      "_hash": "286590ef0a92379afc8609e3a36c1b7b43b942456f32260b3affaa5390074154",
+      "files": [
+        "AGENTS.md"
+      ]
     }
   ]
 }
