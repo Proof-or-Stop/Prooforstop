@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-d633:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, type issues, or shell isolation violations. Gate logic (checkManagedAssetContradiction / GENERATED_MANAGED_ASSET_KINDS / normalizeAssetPath) is untouched in the diff. The seam is proven both ways: injected allowlist suppresses (adversarial case), and empty default now surfaces the .codex/hooks contradiction (regression case). Comment accurately explains why the two bridge entries were removed post-B-94ae merge. Smoke test passes green.",
+      "createdAt": "2026-06-17T02:11:39.986Z",
+      "reviewRound": "2026-06-17T02:10:38.444Z",
+      "reviewRunId": "B-d633:RR-003",
+      "_hash": "2112cf4c6fc35ce37412407e89be3b8d826f44c2743dae2de2ddac50e04443d1"
+    },
+    {
+      "id": "B-d633:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (2 items, no riskSignals, verificationIntent intentionally skipped). Verified: (a) DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST is seeded empty (both bridge entries removed); (b) smoke at lines 243-263 proves the seam still suppresses an explicitly-injected allowlisted forbidden asset; (c) smoke at lines 265-282 proves the empty default allowlist now FLAGS the .codex/hooks contradiction (regression case); (d) npm --prefix packages/main run test:docs-drift-smoke is green. No must-intent gap.",
+      "createdAt": "2026-06-17T02:12:17.207Z",
+      "reviewRound": "2026-06-17T02:10:38.444Z",
+      "reviewRunId": "B-d633:RR-002",
+      "_hash": "a6831f6dbb4b16d2b950c8b1244a2cafa0774f12374688bcc746b51f84b62854"
+    },
+    {
+      "id": "B-d633:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The two deleted allowlist entries (.codex/hooks, .codex/settings.json) have no dangling dependents in the worktree source files. Remaining references to these strings are: (1) story metadata files (background.md, checklist.json, index.json) — historical record only; (2) cli-init.ts:499 cleanupEmptyDirChain — cleanup of a managed asset dir, not allowlist-dependent; (3) codex-adapter-checks.ts:91 CODEX_MATERIAL_PATHS — material-path tracking array, not allowlist-dependent; (4) smoke test line 199 — tests excluded-path kind, no allowlist dependency; (5) smoke test lines 248/255 — the correctly-updated adversarial case using explicit injection. Gate logic reads DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST generically as a Set; no code hard-expects those specific entries to be present. No concept deletion residue blocker.",
+      "createdAt": "2026-06-17T02:12:38.281Z",
+      "reviewRound": "2026-06-17T02:10:38.444Z",
+      "reviewRunId": "B-d633:RR-001",
+      "_hash": "34219151ed98e0f32eb35f7e0216cd72af6a4a9835ae551ff18e04012b79c6a9"
+    }
+  ]
+}
