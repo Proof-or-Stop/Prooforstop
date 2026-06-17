@@ -105,7 +105,53 @@
       "context": "CHANGELOG Unreleased entry naming this story (B-2d6c). Note that B-c6cf CHK-002:happy:2 waiver is now retired and `npm run test:coverage` exits 0. Final verification: `npm run test:all` (parallel) AND `npm run test:coverage` (serial) both exit 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows B-2d6c bullet naming waiver retirement. `npm run test:all` and `npm run test:coverage` both exit 0.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased entry names this story B-2d6c -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c B-2d6c` outputs at least 1; WHY: traceability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG entry mentions B-c6cf waiver retirement -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-c6cf.*waiver|waiver.*B-c6cf|CHK-002:happy:2\"` outputs at least 1; WHY: explicit waiver retirement note",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "final test:all exits 0 -> `npm run test:all > /dev/null 2>&1; echo $?` outputs 0; WHY: end-state acceptance (duplicate of CHK-001:happy:1, intentional - final gate)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "final test:coverage exits 0 -> `npm run test:coverage > /dev/null 2>&1; echo $?` outputs 0; WHY: directly retires the B-c6cf waiver",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG entry under Test infrastructure subsection -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c \"Test infrastructure\"` outputs at least 1; WHY: pattern consistency",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no CHANGELOG sections outside Unreleased modified -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased should be modified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
