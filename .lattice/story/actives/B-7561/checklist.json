@@ -180,9 +180,9 @@
       "title": "Smoke + npm script + no regression",
       "context": "tasks/experience-layer-recall-smoke.ts + package.json test:experience-layer-recall. Hermetic. Assert: profile building; similarity ranking + top-N; recall reuses story_list scan (no FTS engine / no derived-index file created); read-only (no writes); zero outward coupling (recall module); build clean; existing experience-layer smokes still pass.",
       "userSees": "npm run test:experience-layer-recall exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T15:50:15.413Z",
-      "endTime": null,
+      "endTime": "2026-06-17T15:54:07.914Z",
       "verificationIntent": {
         "happy": [
           {
