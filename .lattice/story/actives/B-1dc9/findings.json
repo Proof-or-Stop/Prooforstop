@@ -12,6 +12,23 @@
       "reviewRound": "2026-06-17T13:34:28.121Z",
       "reviewRunId": "B-1dc9:RR-001",
       "_hash": "93d59a9a4abd04b2f22b9623f1a7b124161111a995a604cb663c5ad059c3fe3c"
+    },
+    {
+      "id": "B-1dc9:F-002",
+      "desc": "CHK-003:edge:0 verificationIntent claims \"Surface hints twice for the same story in the same review run -> exactly one experience_hint_surfaced event (deduplicated), not two\" but neither the code nor the smoke implements or tests this. The code fires one appendActivityLog per story_review() invocation unconditionally when hasExperienceHints is true (story-review.ts:545-553), so two calls to story_review() on the same story produce TWO events. The smoke (21 tests) never calls runStoryReview twice on the same storyId. The verificationEvidence for CHK-003:edge:0 cites npm run test:experience-layer-hint-injection which passes 21/21 but provides zero coverage of the cross-call dedup claim. Fix: either (a) add a dedup guard in story-review.ts that checks whether an event was already appended for this story in this review round, or (b) redefine the intent to mean \"within one story_review() call, exactly one event\" (which IS already true and tested), and add a smoke test for two consecutive calls to prove the current behavior clearly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T13:40:58.091Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-001",
+      "_hash": "ec4ba94c9d7f13251949ab30141c29f820e138bada9068672406fd9d75cc0635",
+      "files": [
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts"
+      ]
     }
   ]
 }
