@@ -39,9 +39,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "After adding dev_start to DEFAULT_PHASE_TOOLS INIT+DEV, the contract assertCommandPolicyPhaseAlignment passes (command-policy.allowedPhases === isCommandAllowed for dev_start across all phases); contract exit 0",
-          "headHash": "dafa5dabdf67cff4580cbeba4d0fe80d0f0ae2d1",
-          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
-          "timestamp": "2026-06-17T02:20:52.287Z"
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "git diff --stat main...HEAD -- packages/main/src",
           "result": "pass",
           "note": "git diff shows ONLY config.ts with 2 insertions (the two literal dev_start lines); no other command or phase changed",
-          "headHash": "e4164cbf02cf68ac0de88852ca246279603254d7",
-          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
-          "timestamp": "2026-06-17T02:20:53.865Z"
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "git diff --stat main...HEAD -- packages/main/src/core/command-policy.ts packages/main/src/handlers/worktree.ts",
           "result": "pass",
           "note": "command-policy.ts and worktree.ts have ZERO diff vs main (config aligned up to them, not vice versa); dev_start still refused in REVIEW/TEST/DONE (allowedPhases unchanged at the 4 pre-REVIEW phases)",
-          "headHash": "d4261164616484d7a601e7bd8c9ca522577772fc",
-          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
-          "timestamp": "2026-06-17T02:20:55.202Z"
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "npm run test:process-fact-contract exits 0 after the alignment (no dev_start INIT/DEV drift, no new drift surfaced)",
-          "headHash": "dec2f9672ef1779d99d9b6aa82984f3c2fb1460b",
-          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
-          "timestamp": "2026-06-17T02:20:56.442Z"
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "grep assertCommandPolicyPhaseAlignment",
           "result": "pass",
           "note": "The existing assertCommandPolicyPhaseAlignment in verify-process-fact-contract.mjs is the guard (asserts policy<->config agree for every command x phase, both directions); no redundant test added",
-          "headHash": "f0e51031e7cf5167d16cb623e878a46cb0aa71f7",
-          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
-          "timestamp": "2026-06-17T02:20:57.710Z"
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.567Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Round-trip proof: removing dev_start from the DEV array turns the contract RED (exit 1, dev_start DEV policy/default phase drift); restoring it returns exit 0 — divergence is mechanically caught",
-          "headHash": "153028362f47c6c8cb792ef578da9ddbcd586c50",
-          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
-          "timestamp": "2026-06-17T02:20:59.248Z"
+          "headHash": "291641302a2457292f06b44fa431c32630e3f17f",
+          "materialHash": "4118c17d5fde6dd930705482bbf6e2e38a259177fdf0f908a624a5443659b319",
+          "timestamp": "2026-06-17T02:25:33.568Z"
         }
       ]
     }
