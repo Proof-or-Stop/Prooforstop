@@ -125,6 +125,11 @@
             "desc": "OVER-REACH: lattice validate default-battery handlers untouched -> `git diff main...HEAD --name-only -- packages/main/src/handlers/validate-*.ts | wc -l` outputs 0; WHY: option (a) chose preflight only, not validate handler",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "PRESERVATION (decision a3): root package.json test:koala-residue script still present -> `node -e \"console.log(require('./package.json').scripts['test:koala-residue']||'MISSING')\"` prints a non-MISSING node-command string; WHY: user sub-decision (a3) requires two-place coverage (preflight + npm test); this story must NOT remove the npm script even though preflight now covers it",
+            "type": "cli",
+            "priority": "must"
           }
         ]
       }
