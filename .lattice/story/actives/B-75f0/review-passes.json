@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T23:31:35.856Z",
       "reviewRunId": "B-75f0:RR-006",
       "_hash": "0770c46bd297207b6425c5bbc2cfcbe0ed12ee845d1efc5dfeebbddea2920534"
+    },
+    {
+      "id": "B-75f0:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 2 fresh verdict: 12/12 must-intents covered, 0 missing, 0 stale after F-001 fix. verifier.ts:605 (loadConfig threaded into resolveProjectGitCwd no-story path) is within CHK-002 scope (graceful sites); project-gitroot-cwd-smoke.ts directly exercises resolveProjectGitCwd with loadConfig (CHK-003 evidence), confirming fix is covered. graceful-sites-gitroot-cwd-wrapper-root-smoke.ts covers CHK-002 story-scoped verifier path. All 12 evidences carry non-stale headHash=27c1e4acc, materialHash consistent; validate --story=B-75f0 --json reports verificationCoverage 12/12 covered 0 missingRequired.",
+      "createdAt": "2026-06-17T23:34:53.670Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-010",
+      "_hash": "9e6cde721f91dbcef068d85d0918ce6bfc70957297adee5beda68b7555e4bfc8"
     }
   ]
 }
