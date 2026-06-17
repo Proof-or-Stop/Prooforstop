@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Pattern parity with existing english-artifacts gate (byte-mirror its shape)",
+    "Purely additive (script + npm wiring byte-frozen)",
+    "Story-advance boundary is the enforcement layer (user picked option a)"
+  ],
+  "drivers": [
+    "OSS launch requires permanent gate against koala reintroduction",
+    "English-artifacts already demonstrates the pattern works",
+    "Two-place coverage (preflight + npm test) per user a3"
+  ],
+  "options": [
+    {
+      "name": "(a) preflight only",
+      "pros": [
+        "Minimal scope",
+        "Catches story-advance boundary",
+        "Pattern-tested via english-artifacts"
+      ],
+      "cons": [
+        "Standalone lattice validate does not include it"
+      ]
+    },
+    {
+      "name": "(b) preflight + lattice validate battery",
+      "pros": [
+        "Belt-and-suspenders"
+      ],
+      "cons": [
+        "Adds validate-koala-residue.ts handler",
+        "Scope creep",
+        "Marginal coverage gain (npm test already covers)"
+      ]
+    }
+  ],
+  "chosen": "(a) preflight only",
+  "rationale": "User picked (a) on 2026-06-17. Story-advance is the policy enforcement point; standalone validate is for developer self-check (npm test still catches). Adding handler is scope creep.",
+  "preMortem": [
+    {
+      "scenario": "Script changes its exit semantics in a follow-up story (e.g. exit 2 for warnings)",
+      "trigger": "Future PR modifies verify-koala-residue.mjs exit codes",
+      "consequence": "Gate may incorrectly PASS or BLOCK",
+      "mitigation": "Gate only treats exit 0 as PASS; any non-zero is BLOCK. Document this expectation in the gate label and code comment."
+    },
+    {
+      "scenario": "execFileSync hangs on a misbehaving script invocation",
+      "trigger": "Script gets stuck on a git ls-files corner case",
+      "consequence": "story_advance hangs indefinitely",
+      "mitigation": "Set a reasonable timeout on the execFileSync call (e.g. 30s); on timeout treat as fail with a clear message."
+    },
+    {
+      "scenario": "Operator runs story_advance to TEST and koala-residue gate fires unexpectedly because of a benign rename",
+      "trigger": "A genuine rename touches a legacy-detection file in a way classify() did not anticipate",
+      "consequence": "Story is blocked even though no real branding leak",
+      "mitigation": "Gate output prints hit lines; operator can extend script LEGACY_LOGIC_FILES or path exemptions in a follow-up story. Document the escape hatch in the BLOCK message."
+    }
+  ],
+  "timestamp": "2026-06-17T17:30:40.529Z"
+}

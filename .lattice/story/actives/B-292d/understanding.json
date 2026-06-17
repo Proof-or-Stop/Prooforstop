@@ -1,0 +1,30 @@
+{
+  "task": "Wire scripts/verify-koala-residue.mjs into REVIEW->TEST preflight as the 7th CLI gate so story_advance to TEST blocks if koala residue is reintroduced; finalize the koala-removal ship-clean program ahead of OSS launch.",
+  "outcome": "Developer runs lattice story_advance --phase=TEST on a story branch. The preflight section prints a 7-line gate list: channel, concept, lint, docs-drift, codex-adapter (or skipped), english-artifacts, koala-residue. When koala residue is present, the koala-residue line shows '[✗] koala-residue: fail — <hit list>' and story_advance is BLOCKED; when absent, '[✓] koala-residue: pass' and advance proceeds. lattice validate --help now lists 7 preflight gates. CHANGELOG Unreleased entry documents the new gate. Auto-memory file koala-removal-ship-clean-program.md marks story 4 DONE and corrects the stale 7-hit claim.",
+  "facts": [
+    "scripts/verify-koala-residue.mjs canonical script per B-40eb, byte-frozen for this story",
+    "On main 2026-06-17 the script returns PASS 0 unclassified + self-test 5/5",
+    "review-preflight.ts already has 6 gates incl english-artifacts (B-5f42)",
+    "english-artifacts at line 81 (label), 272 (dispatch helper), 487 (gate list entry), 114 (union type)",
+    "root npm test chain still runs test:koala-residue (kept per user a3)",
+    "Story 1+2+3a+3 of ship-clean program DONE on main"
+  ],
+  "constraints": [
+    "scripts/verify-koala-residue.mjs byte-frozen",
+    "root package.json test:koala-residue script byte-frozen",
+    "Must not modify the other 6 gates",
+    "Must not add lattice validate handler (out per user (a))",
+    "Pure preflight integration mirroring english-artifacts pattern"
+  ],
+  "unknowns": [
+    "Exact name of CLI help file (cli-help.ts vs validate.ts — needs DEV grep)",
+    "Whether CLAUDE.md has a gate enumeration that needs updating"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/review-preflight.ts (add KOALA_RESIDUE_GATE_LABEL + runKoalaResidueGate + dispatch entry + union type slot)",
+    "packages/main/src/handlers/cli-help.ts (or wherever lattice validate --help text lives)",
+    "CLAUDE.md (if enumerates preflight gates)",
+    "CHANGELOG.md (Unreleased entry)"
+  ],
+  "timestamp": "2026-06-17T17:30:39.901Z"
+}
