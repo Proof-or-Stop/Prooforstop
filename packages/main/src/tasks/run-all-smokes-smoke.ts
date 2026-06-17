@@ -1,0 +1,214 @@
+#!/usr/bin/env node
+
+/**
+ * B-6efb (B1 of test-runner consolidation): self-smoke for run-all-smokes.
+ *
+ * Verifies the in-house parallel smoke runner correctly:
+ *   (a) reports a deliberate-PASS fixture as PASS,
+ *   (b) reports a deliberate-FAIL fixture as FAIL with non-zero exit,
+ *   (c) honors `--tag <tag>` filtering (no matching tag → 0 smokes),
+ *   (d) honors `--select <pattern>` filtering,
+ *   (e) honors `--jobs N` (both --jobs 1 and --jobs 4 yield the same result),
+ *   (f) honors `skip: true` in the manifest.
+ *
+ * Strategy: write 2 fixture smoke .js files + a fixture manifest into a tmpdir,
+ * then invoke run-all-smokes.js with --smokes-dir + --manifest pointed at the
+ * fixtures. The PASS fixture exits 0; the FAIL fixture exits 1.
+ *
+ * Exit code: 0 on all-assertions-pass, 1 on any assertion failure.
+ */
+
+import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const RUNNER = resolve(__dirname, 'run-all-smokes.js');
+
+interface RunResult { stdout: string; stderr: string; code: number | null; }
+
+function runRunner(args: string[]): RunResult {
+  const r = spawnSync(process.execPath, [RUNNER, ...args], {
+    encoding: 'utf-8',
+    timeout: 30_000,
+  });
+  return { stdout: r.stdout, stderr: r.stderr, code: r.status };
+}
+
+function setupFixtures(): { root: string; smokesDir: string; manifestPath: string } {
+  const root = mkdtempSync(join(tmpdir(), 'run-all-smokes-fixtures-'));
+  const smokesDir = join(root, 'smokes');
+  mkdirSync(smokesDir, { recursive: true });
+  // PASS fixture
+  writeFileSync(
+    join(smokesDir, 'fixture-pass-smoke.js'),
+    `console.log('fixture-pass: ok'); process.exit(0);\n`,
+  );
+  // FAIL fixture
+  writeFileSync(
+    join(smokesDir, 'fixture-fail-smoke.js'),
+    `console.error('fixture-fail: deliberate failure'); process.exit(1);\n`,
+  );
+  // SKIP fixture (will be marked skip:true in manifest)
+  writeFileSync(
+    join(smokesDir, 'fixture-skip-smoke.js'),
+    `console.log('fixture-skip: should not run'); process.exit(0);\n`,
+  );
+  // TAGGED fixture (only runs with --tag selftest)
+  writeFileSync(
+    join(smokesDir, 'fixture-tagged-smoke.js'),
+    `console.log('fixture-tagged: ok'); process.exit(0);\n`,
+  );
+  const manifestPath = join(root, 'manifest.json');
+  writeFileSync(
+    manifestPath,
+    JSON.stringify({
+      smokes: [
+        { name: 'fixture-pass' },
+        { name: 'fixture-fail' },
+        { name: 'fixture-skip', skip: true },
+        { name: 'fixture-tagged', tags: ['selftest'] },
+      ],
+    }, null, 2),
+  );
+  return { root, smokesDir, manifestPath };
+}
+
+interface Check { name: string; ok: boolean; details?: string; }
+const checks: Check[] = [];
+
+function assert(name: string, condition: boolean, details?: string): void {
+  checks.push({ name, ok: condition, details });
+}
+
+function main(): void {
+  const { root, smokesDir, manifestPath } = setupFixtures();
+  try {
+    // (1) Without filters: 3 smokes run (fixture-skip excluded by manifest),
+    //     fixture-fail makes the run non-zero.
+    const passOnly = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+      '--select', 'fixture-pass',
+    ]);
+    assert(
+      'fixture-pass selected alone exits 0',
+      passOnly.code === 0,
+      `code=${passOnly.code}, stdout=${passOnly.stdout.trim()}, stderr=${passOnly.stderr.trim()}`,
+    );
+    assert(
+      'fixture-pass output contains "PASS fixture-pass"',
+      passOnly.stdout.includes('PASS fixture-pass'),
+      `stdout was: ${passOnly.stdout.trim()}`,
+    );
+
+    // (2) fixture-fail alone → non-zero exit + FAIL line
+    const failOnly = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+      '--select', 'fixture-fail',
+    ]);
+    assert(
+      'fixture-fail selected alone exits non-zero (fail-loudly guarantee)',
+      failOnly.code !== 0,
+      `code=${failOnly.code}, stdout=${failOnly.stdout.trim()}`,
+    );
+    assert(
+      'fixture-fail output contains "FAIL fixture-fail"',
+      failOnly.stdout.includes('FAIL fixture-fail'),
+      `stdout was: ${failOnly.stdout.trim()}`,
+    );
+
+    // (3) --tag missing-tag returns 0 smokes
+    const missingTag = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+      '--tag', 'no-such-tag',
+    ]);
+    assert(
+      '--tag with no match returns 0 smokes (exit 0)',
+      missingTag.code === 0 && missingTag.stdout.includes('0 smokes matched filters'),
+      `code=${missingTag.code}, stdout=${missingTag.stdout.trim()}`,
+    );
+
+    // (4) --tag selftest selects exactly fixture-tagged
+    const tagged = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+      '--tag', 'selftest',
+    ]);
+    assert(
+      '--tag selftest selects fixture-tagged only (exit 0)',
+      tagged.code === 0 && tagged.stdout.includes('PASS fixture-tagged') && !tagged.stdout.includes('fixture-pass') && !tagged.stdout.includes('fixture-fail'),
+      `code=${tagged.code}, stdout=${tagged.stdout.trim()}`,
+    );
+
+    // (5) --jobs 1 and --jobs 4 produce the same final code on the PASS fixture
+    const jobs1 = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+      '--select', 'fixture-pass',
+      '--jobs', '1',
+    ]);
+    const jobs4 = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+      '--select', 'fixture-pass',
+      '--jobs', '4',
+    ]);
+    assert(
+      '--jobs 1 and --jobs 4 produce the same exit code',
+      jobs1.code === jobs4.code,
+      `jobs1.code=${jobs1.code}, jobs4.code=${jobs4.code}`,
+    );
+
+    // (6) skip:true is honored — fixture-skip never runs even without filters
+    const noFilter = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+    ]);
+    assert(
+      'fixture-skip is skipped via skip:true manifest entry',
+      !noFilter.stdout.includes('PASS fixture-skip') && !noFilter.stdout.includes('FAIL fixture-skip'),
+      `stdout was: ${noFilter.stdout.trim()}`,
+    );
+
+    // (7) Directory-scan fallback: a smoke on disk but NOT in manifest is still discovered.
+    //     Our fixtures-dir contains fixture-pass/fail/skip/tagged. fixture-tagged is in
+    //     manifest. Add an unlisted fixture and verify it runs without filters.
+    writeFileSync(
+      join(smokesDir, 'fixture-unlisted-smoke.js'),
+      `console.log('fixture-unlisted: ok'); process.exit(0);\n`,
+    );
+    const unlisted = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', manifestPath,
+      '--select', 'unlisted',
+    ]);
+    assert(
+      'directory-scan discovers smokes missing from manifest',
+      unlisted.code === 0 && unlisted.stdout.includes('PASS fixture-unlisted'),
+      `code=${unlisted.code}, stdout=${unlisted.stdout.trim()}`,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+
+  let failed = 0;
+  for (const c of checks) {
+    if (c.ok) {
+      process.stdout.write(`✓ ${c.name}\n`);
+    } else {
+      failed++;
+      process.stdout.write(`✗ ${c.name}\n`);
+      if (c.details) process.stdout.write(`  ${c.details}\n`);
+    }
+  }
+  process.stdout.write(`\n${checks.length - failed}/${checks.length} checks passed\n`);
+  process.exit(failed === 0 ? 0 : 1);
+}
+
+main();
