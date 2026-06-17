@@ -5,9 +5,9 @@
       "title": "Define Experience Layer leaf types and a minimal learning-store that reads/writes .lattice/learning/ with zero outward imports",
       "context": "core/experience-layer-types.ts (FindingSignal/LearningSignal/derived-cache types) + core/learning-store.ts (ensure .lattice/learning dir; read/write finding-signals.json). Only node:, ./, ../ imports within the module; never ../../ out of the module.",
       "userSees": "Build is clean; the new modules exist and the smoke asserts the learning-store round-trips finding-signals.json and that the module set has zero cross-module imports.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T11:34:47.646Z",
-      "endTime": null,
+      "endTime": "2026-06-17T11:36:06.235Z",
       "verificationIntent": {
         "happy": [
           {
