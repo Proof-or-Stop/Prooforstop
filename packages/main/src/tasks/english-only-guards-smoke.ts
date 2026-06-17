@@ -162,7 +162,7 @@ const ZH_EXT_A = cp(0x3400);
   // plus a sibling file holding legacy Chinese OUTSIDE the story dir. The gate
   // must ignore the sibling entirely (it only reads AUTHOR_METADATA_BASENAMES
   // inside storyDir).
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'koala-english-scope-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-english-scope-'));
   try {
     const storyDir = join(tmpRoot, 'story');
     // Legacy Chinese living OUTSIDE the story dir — must never be scanned.
@@ -198,7 +198,7 @@ const ZH_EXT_A = cp(0x3400);
 // ─── Test 4: gate block — CJK fixture flips ok=false naming source+line ───────
 
 {
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'koala-english-block-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-english-block-'));
   try {
     const storyDir = join(tmpRoot, 'story');
     mkdirSync(storyDir, { recursive: true });
@@ -257,7 +257,7 @@ const ZH_EXT_A = cp(0x3400);
   const realStoryDir = join(repoRoot, '.lattice', 'story', 'actives', 'B-5f42');
   const storyDirForReal = existsSync(realStoryDir)
     ? realStoryDir
-    : mkdtempSync(join(tmpdir(), 'koala-english-realgit-'));
+    : mkdtempSync(join(tmpdir(), 'lattice-english-realgit-'));
 
   // No gitLogReader override => defaultGitLogReader runs `git log main..HEAD`.
   const result = runEnglishArtifactGate({ storyDir: storyDirForReal, gitCwd: repoRoot });
@@ -349,9 +349,9 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
 // array, duplicating the scope guard).
 
 {
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'koala-english-initrerun-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-english-initrerun-'));
   // A temp HOME so global agent assets / user config never bleed into the run.
-  const tmpHome = mkdtempSync(join(tmpdir(), 'koala-english-initrerun-home-'));
+  const tmpHome = mkdtempSync(join(tmpdir(), 'lattice-english-initrerun-home-'));
   try {
     // Seed a git repo (init resolves the project root via git).
     execFileSync('git', ['init', '-b', 'main'], { cwd: tmpRoot, stdio: ['pipe', 'pipe', 'pipe'] });
