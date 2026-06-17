@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-17T13:45:33.991Z",
       "reviewRunId": "B-1dc9:RR-006",
       "_hash": "630ebd77760eb27d35a07762e6f53b45ed38d24875c037ec7919218e479e8aec"
+    },
+    {
+      "id": "B-1dc9:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 30 verificationIntent entries (CHK-001 through CHK-004, happy/edge/adversarial, all priority=must) have concretely bound verificationEvidence pointing to npm --prefix packages/main run test:experience-layer-hint-injection; CHK-003:edge:0 (surface twice same run => exactly one event) now has a dedicated named smoke check 'CHK-003:edge:0 surface twice same run => one event' with a specific note and fresh headHash b0ee8aec; smoke ran 22/22 PASS; verifier printed TOTAL 30 | PASS 30 | FAIL 0; no generic fallback commands; no must-gap; no blocker.",
+      "createdAt": "2026-06-17T13:48:06.433Z",
+      "reviewRound": "2026-06-17T13:45:33.991Z",
+      "reviewRunId": "B-1dc9:RR-008",
+      "_hash": "5306a2d1e940e02d23c3d9096040e51ceb9381dbbecdae9a423687104e8885b2"
     }
   ]
 }
