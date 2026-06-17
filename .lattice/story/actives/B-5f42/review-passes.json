@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T23:18:34.507Z",
       "reviewRunId": "B-5f42:RR-005",
       "_hash": "d6479fe111ca58608b3231c80ca561a3ac8ebac89c4e8c08487e75fd52535a45"
+    },
+    {
+      "id": "B-5f42:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check complete. Deleted concepts: (1) singular `command = hooks[0]?.hooks?.[0]?.command` variable in both cli-init.ts and managed-assets.ts merge loops — both fully replaced by per-entry loop with `migrationTarget` for migration target + scoped `command` per entry; (2) spread-push `push(...hooks)` / `[...hooks[event], ...eventHooks]` — fully replaced by per-entry `push(entry)` / `[...hooks[event], entry]`. Grep confirms zero residue of old singular-command pattern or spread-push pattern in hook merge paths. New concepts (ENGLISH_ONLY_GUARD_HOOK_FILE, PRETOOL_ENGLISH_ONLY_HOOK_MATCHER, english-artifacts gate, ENGLISH_ARTIFACTS_GATE_LABEL) are consistently wired across init-assets.ts, cli-init.ts, managed-assets.ts, review-preflight.ts, and english-artifact-gate.ts. npm run test:english-only-guards-smoke script verified to exist in packages/main/package.json. No doc-promise-undelivered issues found. No blocker.",
+      "createdAt": "2026-06-17T00:27:46.211Z",
+      "reviewRound": "2026-06-17T00:25:53.158Z",
+      "reviewRunId": "B-5f42:RR-007",
+      "_hash": "7d18961b7ad25b0c827fc5ae510e81456178521a11a281c3fa3c6ed7b8f9276f"
     }
   ]
 }
