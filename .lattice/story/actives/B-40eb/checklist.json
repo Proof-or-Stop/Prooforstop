@@ -149,12 +149,12 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "git grep -nI Codex packages/lab/src/core/config.ts",
+          "command": "git grep -ni koala packages/lab/src/core/config.ts",
           "result": "pass",
-          "note": "config.ts has no .Codex lines (B-ed70-owned); only koala-lab brand lines were changed there, line 71 $schema preserved.",
-          "headHash": "1f94c9871bf4a1a601a30e2f15a768a79284bb11",
-          "materialHash": "d3d738b4034eebbe3bebe3a25c67e16d1afc57c94c4514c561222b5d473c0858",
-          "timestamp": "2026-06-16T22:18:42.755Z"
+          "note": "config.ts 仅剩 koala-lab/experiment.v1 schema id(wire)与 B-ed70 负责区,品牌已清",
+          "headHash": "0365abe26b09a7bb7bd89833ef44079ef5ae82c4",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:10.050Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
