@@ -60,7 +60,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"const p=require('./package.json'); console.log(p.devDependencies.c8||'MISSING')\"",
+          "result": "pass",
+          "note": "Prints '^11.0.0' — c8 added to root devDependencies at v11 (latest stable).",
+          "headHash": "d6ffff8cc1ead380693fafeefc34f413e0a490e2",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:07:43.512Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
