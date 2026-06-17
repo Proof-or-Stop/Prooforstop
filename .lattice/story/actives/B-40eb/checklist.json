@@ -55,12 +55,12 @@
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
-          "note": ".koala 运行时路径行经 stripContextualLegacyTokens 判为 documented-exception；branding smoke PASS",
-          "headHash": "2eadcfad1d75689eb47fc514925e93f84d184e8c",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:05.751Z"
+          "note": "self-test: '~/.koala/activity.json'→EXEMPT(运行时路径=documented-exception); 5/5 PASS",
+          "headHash": "c5456840b9e4da7b2bbb194c784c2b75054b543c",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:22.380Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
