@@ -390,7 +390,7 @@
       "desc": "CHK-003:happy:2 evidence command does not bind the intent literal. Intent literal: git diff main -- CHANGELOG.md | grep -c ’+.*test:legacy\\\\|+.*smoke-manifest\\\\|+.*removed.*test:.*-smoke’ (must return >= 1). Evidence command used: git diff HEAD~1 -- CHANGELOG.md (no grep, HEAD~1 is a lattice metadata commit). At current HEAD the evidence command returns 0 lines — empty, not reproducible. The intent assertion (>= 1 matching line) does pass when the literal command is run (returns 2). Evidence must be updated to use the intent’s literal command or a functionally identical command that also runs the grep and returns >= 1.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T13:09:17.231Z",
@@ -399,7 +399,9 @@
       "_hash": "1e72a31934bb90779badb4bad74203a8dfdab1430e4758e359cad2d1a04276d8",
       "files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "resolvedReason": "Bound CHK-003:happy:2 to literal intent command (grep for test:legacy/smoke-manifest/removed mentions in CHANGELOG diff). Sanity output >= 1 confirms Unreleased CHANGELOG documents the migration.",
+      "resolvedAt": "2026-06-17T13:09:47.223Z"
     }
   ]
 }
