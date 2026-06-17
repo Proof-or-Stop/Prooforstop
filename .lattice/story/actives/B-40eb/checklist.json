@@ -407,6 +407,16 @@
           "headHash": "0f51ad902cb516ab16d6731685b87f103e330c1f",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
           "timestamp": "2026-06-17T02:14:58.880Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "result": "pass",
+          "note": "守门测试 PASS;删 NEUTRAL_TOKEN_PATTERN 会使该 smoke fail,证明 gate 有效",
+          "headHash": "c42c3ef1c814f877acd8c7be1baf681d9f6c8f96",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:59.740Z"
         }
       ]
     },
