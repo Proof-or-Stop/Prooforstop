@@ -396,6 +396,16 @@
           "headHash": "4752c964547e5dd1cc734cda48074138b2119184",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:02:52.559Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "grep -rn koala packages/main/src/tasks/english-only-guards-smoke.ts packages/main/src/tasks/review-incremental-context-s",
+          "result": "pass",
+          "note": "Verified pass on current worktree: 0 matches",
+          "headHash": "7a5fdf26d775ed65508de0b6d5708ba7b8c1be68",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:53.162Z"
         }
       ]
     }
