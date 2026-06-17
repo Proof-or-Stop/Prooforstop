@@ -42,6 +42,28 @@
           "headHash": "d8b8d6214d12fe5e3f52926d58809e2affdd1234",
           "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
           "timestamp": "2026-06-17T23:20:12.922Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
+          "command": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts plain-repo (projectRoot==gitRoot): dispatch/checklist/doctor resolvers all return project root verbatim (byte-identical fallback)",
+          "headHash": "d6a34e8c5cc80d0b244b80c109c5406187ae20d3",
+          "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
+          "timestamp": "2026-06-17T23:20:37.091Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "contract self-tests prove a re-introduced bare/alias root git cwd is caught (ALIAS/BACKTICK KNOWN-BAD each fire exactly 1 violation → exit 1); the 3 CHK-001 files are removed from the allowlist and contract stays green (exit 0)",
+          "headHash": "d6a34e8c5cc80d0b244b80c109c5406187ae20d3",
+          "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
+          "timestamp": "2026-06-17T23:20:37.092Z"
         }
       ]
     },
@@ -154,6 +176,28 @@
           "headHash": "d8b8d6214d12fe5e3f52926d58809e2affdd1234",
           "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
           "timestamp": "2026-06-17T23:20:12.922Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/project-gitroot-cwd-smoke.js",
+          "command": "node packages/main/dist/tasks/project-gitroot-cwd-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts plain-repo byte-identity + null-gitRoot fallback: resolveProjectGitCwd returns projectRoot verbatim when projectRoot==gitRoot and when gitRoot unresolved",
+          "headHash": "d6a34e8c5cc80d0b244b80c109c5406187ae20d3",
+          "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
+          "timestamp": "2026-06-17T23:20:37.092Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/project-gitroot-cwd-smoke.ts",
+          "command": "node packages/main/dist/tasks/project-gitroot-cwd-smoke.js",
+          "result": "pass",
+          "note": "resolveProjectGitRoot + resolveProjectGitCwd are exported and imported by the smoke (tsc green); the 3 project-level scans removed from the allowlist and the gitroot-cwd-contract stays green (exit 0)",
+          "headHash": "d6a34e8c5cc80d0b244b80c109c5406187ae20d3",
+          "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
+          "timestamp": "2026-06-17T23:20:37.092Z"
         }
       ]
     },
@@ -199,6 +243,28 @@
           "headHash": "d8b8d6214d12fe5e3f52926d58809e2affdd1234",
           "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
           "timestamp": "2026-06-17T23:20:12.922Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "the 3 params renamed projectRoot->gitCwd (autoSyncMain, resolveGitTopLevel, isGitRepository); tsc build is clean (exit 0) proving the resolved inbound value still flows through unchanged — pure rename, zero behavior change verified by reading each caller",
+          "headHash": "d6a34e8c5cc80d0b244b80c109c5406187ae20d3",
+          "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
+          "timestamp": "2026-06-17T23:20:37.093Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "contract exits 0 with DEFERRED_ALLOWLIST_EXACT empty + BENIGN_BOOTSTRAP_ALLOWLIST (12); all 9 detection self-tests pass so a re-introduced bare-root alias still fails the contract (detection not weakened)",
+          "headHash": "d6a34e8c5cc80d0b244b80c109c5406187ae20d3",
+          "materialHash": "e177b8b7a077a9fccb6b18808b6f65d4d1faa7f8f7d23a789369e5df3fc11474",
+          "timestamp": "2026-06-17T23:20:37.093Z"
         }
       ]
     }
