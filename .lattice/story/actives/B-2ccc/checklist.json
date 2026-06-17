@@ -5,27 +5,477 @@
       "title": "Create leaf core/digest.ts with the canonical-JSON-digest primitives",
       "context": "New packages/main/src/core/digest.ts exporting Digestable, canonicalJson, digestCanonicalJson, digestText (and normalizeJson as needed), extracted verbatim from decision-doc-promotion.ts lines 64-88. Leaf module: imports only node:crypto. Digest values must be byte-identical to the originals.",
       "userSees": "Build clean; core/digest.ts exists; the smoke asserts digestCanonicalJson/canonicalJson/digestText produce the exact same output as a pinned set of inputs (byte-identical to pre-refactor).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T14:09:03.897Z",
+      "endTime": "2026-06-17T14:17:08.123Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "core/digest.ts exists at packages/main/src/core/digest.ts and exports Digestable, canonicalJson, digestCanonicalJson, digestText, normalizeJson; WHY: verifies the file was created with all required symbols",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson({b:1,a:2}) produces identical JSON to pre-refactor inline version (keys sorted: {a:2,b:1}); WHY: proves canonicalization is stable after extraction",
+            "type": "cli"
+          },
+          {
+            "desc": "digestCanonicalJson({b:1,a:2}) returns the same SHA-256 hex as sha256(canonicalJson({b:1,a:2})); WHY: proves digest is byte-identical to pre-refactor on a pinned input",
+            "type": "cli"
+          },
+          {
+            "desc": "digestText('hello') returns sha256 hex of 'hello'; WHY: proves text digest is byte-identical to pre-refactor",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "canonicalJson with deeply nested object with reordered keys at every level produces stable sorted output; WHY: canonicalization must be recursive, not just top-level",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson with null, boolean, number, string, and array values normalizes correctly (null stays null, arrays preserve order); WHY: boundary on all JSON primitive types",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson with undefined-valued keys omits them from output; WHY: undefined is not valid JSON and must be stripped for canonical form",
+            "type": "cli"
+          },
+          {
+            "desc": "digestCanonicalJson on empty object {} returns deterministic sha256 of '{}'; WHY: edge case for minimal valid input",
+            "type": "cli"
+          },
+          {
+            "desc": "digestText on empty string returns sha256 of empty string; WHY: empty-input edge case",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "core/digest.ts imports only node:crypto and nothing else (grep import lines); WHY: leaf-module constraint -- if it imports anything else the dependency tree is violated and future consumers inherit unwanted deps",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson with deeply nested structure (100 levels) does not crash and produces deterministic output; WHY: adversarial deep nesting stress test on recursive normalizeJson",
+            "type": "cli"
+          },
+          {
+            "desc": "digestCanonicalJson and digestText produce DIFFERENT hashes for the same string input -- digestCanonicalJson wraps in JSON.stringify quotes, digestText does not; WHY: proves the two functions are semantically distinct and not accidentally interchangeable",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "Named check 'CHK-001:edge:2 undefined-valued keys omitted': digest of {a:1,b:undefined} == digest of {a:1}.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "Named check 'CHK-001:edge:3 empty object deterministic': digestCanonicalJson({}) == pinned sha256 of '{}'.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "Named check 'CHK-001:edge:4 digestText empty string': digestText('') == pinned sha256 of ''.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "Named check 'CHK-001:adversarial:1 deep nesting 100 levels no crash': 100-level nested object digests deterministically without throwing.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Refactor decision-doc-promotion.ts to import the digest primitives from core/digest.ts",
       "context": "Replace the inline normalizeJson/canonicalJson/digestCanonicalJson/digestText definitions in handlers/decision-doc-promotion.ts with imports from ../core/digest.js. No behaviour change: computeDecisionDocProposalDigest / digestDecision produce identical values; existing decision-doc proposals stay valid.",
       "userSees": "decision-doc-promotion.ts imports from ../core/digest.js; its existing smoke/behaviour is unchanged; no digest value changes.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T14:10:17.173Z",
+      "endTime": "2026-06-17T14:17:08.799Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision-doc-promotion.ts contains import statement from '../core/digest.js' for canonicalJson, digestCanonicalJson, digestText, and Digestable; WHY: verifies the import wiring is in place",
+            "type": "cli"
+          },
+          {
+            "desc": "decision-doc-promotion.ts no longer defines normalizeJson, canonicalJson, digestCanonicalJson, or digestText locally (no function declarations for these names); WHY: verifies local duplicates were removed",
+            "type": "cli"
+          },
+          {
+            "desc": "computeDecisionDocProposalDigest on a pinned DecisionDocProposal returns the SAME hex digest as the pre-refactor version; WHY: the core behavioural invariant -- refactor must not change digest output",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "decision-doc-promotion.ts still exports computeDecisionDocProposalDigest, renderDecisionDocMarkdown, canonicalJson, digestCanonicalJson, digestText (re-exports or local); WHY: downstream consumers must not break due to missing exports",
+            "type": "cli"
+          },
+          {
+            "desc": "Digestable type is no longer defined in decision-doc-promotion.ts (it comes from core/digest.ts now); WHY: type duplication would cause maintenance drift",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "decision-doc-promotion.ts has no remaining import of node:crypto createHash (the digest logic is fully delegated to core/digest.ts); WHY: if createHash is still imported, the old inline code may be partially retained -- a mutation-detection signal",
+            "type": "cli"
+          },
+          {
+            "desc": "After refactor, calling digestDecision(decisionData, storyId) inside decision-doc-promotion.ts still works and produces same digest as before; WHY: digestDecision calls digestCanonicalJson internally, so import chain must be intact",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "decision-doc-promotion imports from ../core/digest.js; no local canonicalJson/digestCanonicalJson defs; createHash removed; computeDecisionDocProposalDigest value stable.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "decision-doc-promotion imports from ../core/digest.js; no local canonicalJson/digestCanonicalJson defs; createHash removed; computeDecisionDocProposalDigest value stable.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "decision-doc-promotion imports from ../core/digest.js; no local canonicalJson/digestCanonicalJson defs; createHash removed; computeDecisionDocProposalDigest value stable.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "Named check 'CHK-002:edge:0 decision-doc re-exports digest fns': canonicalJson/digestCanonicalJson/digestText importable from decision-doc-promotion (re-export).",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "Named check 'CHK-002:edge:1 Digestable not locally defined': decision-doc-promotion.ts has no local type/interface Digestable definition.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "decision-doc-promotion imports from ../core/digest.js; no local canonicalJson/digestCanonicalJson defs; createHash removed; computeDecisionDocProposalDigest value stable.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "decision-doc-promotion imports from ../core/digest.js; no local canonicalJson/digestCanonicalJson defs; createHash removed; computeDecisionDocProposalDigest value stable.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Smoke + npm script + no regression (digest values identical, decision-doc behaviour unchanged)",
       "context": "tasks/experience-layer-digest-extract-smoke.ts + package.json test:experience-layer-digest-extract. Assert: digest functions byte-identical on pinned inputs; computeDecisionDocProposalDigest stable; existing decision-doc + experience-layer smokes still pass; build clean.",
       "userSees": "npm run test:experience-layer-digest-extract exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing decision-doc-related smokes still pass.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T14:11:39.395Z",
+      "endTime": "2026-06-17T14:17:09.455Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:experience-layer-digest-extract exits 0 and prints 'smoke passed'; WHY: the primary success gate for the smoke test",
+            "type": "cli"
+          },
+          {
+            "desc": "tasks/experience-layer-digest-extract-smoke.ts exists and is committed; WHY: the smoke must be a committed verifier, not ad hoc",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke verifier output shows TOTAL N | PASS N | FAIL 0 with N > 0; WHY: proves assertions actually ran (non-vacuous) and all passed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing decision-doc smoke (npm run test:decision-doc or equivalent) still passes after the refactor; WHY: regression guard -- the extraction must not break the original handler's test suite",
+            "type": "cli"
+          },
+          {
+            "desc": "tsc --noEmit (or npm run build) succeeds with zero errors; WHY: type-level regression guard -- the refactor must not introduce TS compilation errors",
+            "type": "cli"
+          },
+          {
+            "desc": "package.json contains the test:experience-layer-digest-extract script entry; WHY: the npm script wiring is part of the deliverable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke test is non-vacuous: it contains at least one assertion that would fail if digest output changed (e.g., pinned expected hash compared to actual); WHY: a smoke that always passes regardless of implementation is useless -- must bind to real digest output",
+            "type": "cli"
+          },
+          {
+            "desc": "If core/digest.ts digestCanonicalJson were mutated to return a constant, the smoke would FAIL; WHY: mutation-proven non-vacuousness -- the test must actually detect implementation breakage",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers all three public functions (canonicalJson, digestCanonicalJson, digestText) with at least one assertion each; WHY: partial coverage would miss breakage in untested functions",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
+          "result": "pass",
+          "note": "digest-extract smoke + no-regression (decision-doc-promotion + finding-signals) + build clean; npm script wired.",
+          "headHash": "4200fffc40ae1143d3fa31e0a4ae3e74a8e4d2ff",
+          "materialHash": "710499c51dc69055798e805498cbc26c67b71c13d1804566ddb560f93f7341d5",
+          "timestamp": "2026-06-17T14:38:20.551Z"
+        }
+      ]
     }
   ]
 }

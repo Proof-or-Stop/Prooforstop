@@ -4,11 +4,11 @@
   "title": "Experience Layer prep: extract canonical-JSON-digest into a leaf core/digest.ts (behaviour-preserving refactor for Phase 2)",
   "description": "Behaviour-preserving refactor before Phase 2: extract the canonical-JSON-digest primitives (Digestable, canonicalJson, digestCanonicalJson, digestText) verbatim from handlers/decision-doc-promotion.ts into a new leaf packages/main/src/core/digest.ts, and have decision-doc-promotion.ts import them. This lets the future handlers/playbook.ts (Phase 2) clone the digest-integrity pattern by importing from a core leaf rather than a handler. All digest VALUES stay byte-identical, so existing decision-doc proposalDigest/sourceDigest values remain valid. No behaviour change. Proven by a smoke that digest output is identical on pinned inputs and that decision-doc-promotion behaviour is unchanged.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-06-17T13:58:10.237Z",
   "startedAt": "2026-06-17T13:58:10.237Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T14:38:41.481Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:01:06.263Z",
+      "branch": "story/B-2ccc",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:06:54.702Z",
+      "branch": "story/B-2ccc",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:17:18.545Z",
+      "branch": "story/B-2ccc",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:29:14.347Z",
+      "branch": "story/B-2ccc",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:29:15.897Z",
+      "branch": "story/B-2ccc",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:32:20.869Z",
+      "branch": "story/B-2ccc",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:38:41.482Z",
+      "branch": "story/B-2ccc",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-2ccc",
-    "branch": "story/B-2ccc",
-    "createdAt": "2026-06-17T14:00:11.224Z"
-  }
+  "currentReviewRound": "2026-06-17T14:29:15.897Z"
 }
