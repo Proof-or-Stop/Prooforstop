@@ -72,7 +72,43 @@
       "userSees": "decision-doc-promotion.ts imports from ../core/digest.js; its existing smoke/behaviour is unchanged; no digest value changes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision-doc-promotion.ts contains import statement from '../core/digest.js' for canonicalJson, digestCanonicalJson, digestText, and Digestable; WHY: verifies the import wiring is in place",
+            "type": "cli"
+          },
+          {
+            "desc": "decision-doc-promotion.ts no longer defines normalizeJson, canonicalJson, digestCanonicalJson, or digestText locally (no function declarations for these names); WHY: verifies local duplicates were removed",
+            "type": "cli"
+          },
+          {
+            "desc": "computeDecisionDocProposalDigest on a pinned DecisionDocProposal returns the SAME hex digest as the pre-refactor version; WHY: the core behavioural invariant -- refactor must not change digest output",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "decision-doc-promotion.ts still exports computeDecisionDocProposalDigest, renderDecisionDocMarkdown, canonicalJson, digestCanonicalJson, digestText (re-exports or local); WHY: downstream consumers must not break due to missing exports",
+            "type": "cli"
+          },
+          {
+            "desc": "Digestable type is no longer defined in decision-doc-promotion.ts (it comes from core/digest.ts now); WHY: type duplication would cause maintenance drift",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "decision-doc-promotion.ts has no remaining import of node:crypto createHash (the digest logic is fully delegated to core/digest.ts); WHY: if createHash is still imported, the old inline code may be partially retained -- a mutation-detection signal",
+            "type": "cli"
+          },
+          {
+            "desc": "After refactor, calling digestDecision(decisionData, storyId) inside decision-doc-promotion.ts still works and produces same digest as before; WHY: digestDecision calls digestCanonicalJson internally, so import chain must be intact",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
