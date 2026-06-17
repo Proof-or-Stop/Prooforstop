@@ -53,6 +53,17 @@
           "headHash": "e4164cbf02cf68ac0de88852ca246279603254d7",
           "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
           "timestamp": "2026-06-17T02:20:53.865Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/command-policy.ts",
+          "command": "git diff --stat main...HEAD -- packages/main/src/core/command-policy.ts packages/main/src/handlers/worktree.ts",
+          "result": "pass",
+          "note": "command-policy.ts and worktree.ts have ZERO diff vs main (config aligned up to them, not vice versa); dev_start still refused in REVIEW/TEST/DONE (allowedPhases unchanged at the 4 pre-REVIEW phases)",
+          "headHash": "d4261164616484d7a601e7bd8c9ca522577772fc",
+          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
+          "timestamp": "2026-06-17T02:20:55.202Z"
         }
       ]
     },
