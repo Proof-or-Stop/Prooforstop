@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T13:34:28.121Z",
       "reviewRunId": "B-1dc9:RR-004",
       "_hash": "0d428cfd3c2820b1d894ff1d95bbb6db4ea6a3e0febf2d65828b179deecb63a0"
+    },
+    {
+      "id": "B-1dc9:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Core functional correctness verified: (1) RANKING — loadExperienceHints ranks by signalScore*log(1+support)*recencyBoost with log damping so many-hit moderate outranks one-hit high-score (confirmed by smoke test + code); score>=0.65 recurring threshold (inclusive boundary tested); common_false_positive bucket (signalScore<0.45 + falsePositive>=2); top-N caps (3 recurring + 2 fp); support shown in summary; progressive disclosure (summary vs detail). (2) SURFACING — story-review _reviewPrompt includes the advisory hints section when signals exist and omits it when none (section label checked, mirroring grillSection+before Checklist). (3) GUARDRAIL — review-run.ts is byte-for-byte unchanged (git diff empty, confirmed by smoke + verifier); resolveReviewPromptHash output is byte-identical regardless of hint content (proven by smoke test). (4) USAGE — exactly one experience_hint_surfaced event written per story_review() call when hints surface; none written when hints empty or all filtered. All 21 smoke tests pass; committed verifier TOTAL 30 | PASS 30 | FAIL 0. Two findings raised: F-001 (low) — ExperienceHint.priority JSDoc inaccurate for FP hints; F-002 (medium) — CHK-003:edge:0 dedup claim unimplemented and untested. No blockers on the primary deliverable behaviors.",
+      "createdAt": "2026-06-17T13:41:14.724Z",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "reviewRunId": "B-1dc9:RR-001",
+      "_hash": "9de840689898a0e3079f68b3271dc429e9dee198337c1637d021799d48a9e4b2"
     }
   ]
 }
