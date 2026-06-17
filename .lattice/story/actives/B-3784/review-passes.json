@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-3784:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Diff contains only Lattice story metadata files (.lattice/story/actives/B-3784/*.json and *.jsonl): checklist.json, index.json, owner-lease.json, process-events.jsonl, process-metrics.json, review.json, scope-check.json. No application source code or test source files were changed. The three quality checks (dead code, type safety, I/O shell isolation) have no applicable surface in JSON/JSONL data files. No doc-promise-undelivered issues found (no new CLAUDE.md/README paragraphs). No blockers.",
+      "createdAt": "2026-06-17T23:28:17.179Z",
+      "reviewRound": "2026-06-17T23:27:39.658Z",
+      "reviewRunId": "B-3784:RR-001",
+      "_hash": "16ca0e17c9c2fc28c35c0ca308c1a1e536ce9ead4fa009794b4bdfaf71b080c4"
+    }
+  ]
+}
