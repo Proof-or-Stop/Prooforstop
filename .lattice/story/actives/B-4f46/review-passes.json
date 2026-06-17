@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T12:40:10.801Z",
       "reviewRunId": "B-4f46:RR-008",
       "_hash": "714d9648f40fa7f4b2aae66414fdfc18b9296a3c1bf1b3384bb202aa6c1b46f5"
+    },
+    {
+      "id": "B-4f46:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "F-001 resolved: approveSignatureTag (learning-store.ts:232-236) now throws 'has not been proposed' for never-proposed tags, and is idempotent on already-active tags (smoke checks CHK-003:adversarial:0 + edge:1 both PASS). Full suite: 21/21 PASS. Back-compat confirmed (field-less add/resolve/dismiss leave audit fields undefined). advisory.ts has zero references to any audit field (signatureTag, resolutionType, dismissReasonType, evidenceStrength). Gate isolation confirmed: advisory decision identical with/without audit fields. Signature-registry propose/approve/alias/mergedInto/resolveTag all correct. finding-signals signalScore>0 when resolutionType=fixed. Empty-string enum rejected (CHK-002:adversarial:2 PASS).",
+      "createdAt": "2026-06-17T12:50:33.043Z",
+      "reviewRound": "2026-06-17T12:40:10.801Z",
+      "reviewRunId": "B-4f46:RR-009",
+      "_hash": "00d2fa5a6443c25df1a1dfd47978632d065a04a82c977dc1889933c95f4790f6"
     }
   ]
 }
