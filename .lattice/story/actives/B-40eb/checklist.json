@@ -48,9 +48,9 @@
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
           "note": "self-test: 'koala-codex review then real Koala brand' -> UNCLASSIFIED (brand remains after neutral-token strip, in-scope boundary); 5/5 PASS",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -58,9 +58,9 @@
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
           "note": "self-test: '~/.koala/activity.json' -> EXEMPT (runtime path = documented-exception); 5/5 PASS",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -68,9 +68,9 @@
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
           "note": "self-test: bare brand 'the koala framework' with no neutral token -> UNCLASSIFIED (not silently whitelisted); 5/5 PASS",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -78,9 +78,9 @@
           "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
           "note": "self-test: 'const KoalaFoo' novel identifier matches no neutral pattern -> UNCLASSIFIED; 5/5 PASS",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         }
       ]
     },
@@ -132,9 +132,9 @@
           "command": "git grep -ci koala-lab packages/lab/src",
           "result": "pass",
           "note": "lab source koala-lab branding all changed to lattice-lab, zero brand residue",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -142,9 +142,9 @@
           "command": "npm --prefix packages/lab run build",
           "result": "pass",
           "note": "lab build passes after rename, no broken references",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,9 +152,9 @@
           "command": "git grep -ni koala packages/lab/src/core/config.ts",
           "result": "pass",
           "note": "config.ts leaves only the koala-lab/experiment.v1 schema id (wire) and B-ed70's area; branding cleaned",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -162,9 +162,9 @@
           "command": "git grep -ni koala packages/lab/package.json",
           "result": "pass",
           "note": "package.json description left to concurrent B-ed70 (coordination constraint)",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         }
       ]
     },
@@ -226,9 +226,9 @@
           "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "canonical reproducible gate (committed under scripts/) scans active scope PASS exit 0; main/src brand residue 0 (replaces the non-reproducible temp script)",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -236,9 +236,9 @@
           "command": "npm run build && node packages/main/dist/tasks/cli-engine-branding-smoke.js",
           "result": "pass",
           "note": "build exits 0 and the compiled artifact passes cli-engine-branding-smoke assertion (unclassified=0), proving main source rename has no compile errors and classification is correct",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -246,9 +246,9 @@
           "command": "git grep -n .koala packages/main/src",
           "result": "pass",
           "note": ".koala runtime path references fully preserved (documented-exception)",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -256,9 +256,9 @@
           "command": "git grep -nE 'LEGACY_KOALA|integrity-v1' packages/main/src",
           "result": "pass",
           "note": "LEGACY_KOALA constants and signature salts preserved",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -266,9 +266,9 @@
           "command": "git grep -n koala-codex packages/main/src",
           "result": "pass",
           "note": "process-lane names koala-codex etc. fully preserved",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         }
       ]
     },
@@ -315,9 +315,9 @@
           "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "canonical gate PASS exit 0; scripts brand residue 0",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -325,9 +325,9 @@
           "command": "git grep -n .koala scripts",
           "result": "pass",
           "note": ".koala runtime path references preserved",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.443Z"
         }
       ]
     },
@@ -384,9 +384,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "e2e all PASS, including cli-engine-branding and lattice-only-absence smoke",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -394,9 +394,9 @@
           "command": "git grep -ci koala packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "result": "pass",
           "note": "branding smoke's koala are all classification rules (NEUTRAL_TOKEN_PATTERNS), preserved; unclassified=0",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -404,9 +404,9 @@
           "command": "git grep -ci koala packages/main/src/tasks/lattice-only-absence-smoke.ts",
           "result": "pass",
           "note": "absence smoke's koala are all koala-absence assertion targets, preserved",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -414,9 +414,9 @@
           "command": "remove managed-assets from allowlist && node scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "empirical mutation: removing managed-assets.ts from the allowlist -> gate exit 1 naming 16 hits -> restore -> exit 0; proves the guard is non-vacuous",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         }
       ]
     },
@@ -468,9 +468,9 @@
           "command": "git grep -ni koala CLAUDE.md | perl /tmp/bf2.pl",
           "result": "pass",
           "note": "CLAUDE.md brand prose cleaned, leaving .koala runtime paths (documented-exception)",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-006:build",
@@ -498,9 +498,9 @@
           "command": "git grep -ni koala docs/guide.md",
           "result": "pass",
           "note": "guide.md Koala/Lattice wording changed to Lattice",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -508,9 +508,9 @@
           "command": "git grep -i koala CLAUDE.md docs/guide.md | perl /tmp/bf2.pl",
           "result": "pass",
           "note": "after editing the two files, branding filter shows no unclassified residue and no new dangling references",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-006:adversarial:1",
@@ -518,9 +518,9 @@
           "command": "git grep -ni koala CLAUDE.md",
           "result": "pass",
           "note": "full-file scan (not just L924); residue all .koala paths/salts documented-exception",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         }
       ]
     },
@@ -587,9 +587,9 @@
           "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "canonical gate over full active scope PASS exit 0, 0 unclassified (branding rules + path exemptions + file allowlist)",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-007:happy:1",
@@ -597,9 +597,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "validate ALL PASS, story metadata consistent",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-007:happy:2",
@@ -607,9 +607,9 @@
           "command": "npm run build && npm run test:e2e",
           "result": "pass",
           "note": "build exits 0 and e2e all PASS, proving all brand changes have no compile errors and no test regression",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-007:happy:3",
@@ -617,9 +617,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "e2e all PASS, including branding smokes, no regression",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -627,9 +627,9 @@
           "command": "git grep -i koala CHANGELOG.md docs/requirements/decisions",
           "result": "pass",
           "note": "CHANGELOG/decisions koala are all historical records, documented-exception, not changed by this story",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -637,9 +637,9 @@
           "command": "git add probe-with-koala-brand && node scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "empirical: staged probe file with koala brand -> gate exit 1 naming packages/main/src/__residue_probe__.ts -> git rm restore -> exit 0; proves the gate catches new residue to be committed",
-          "headHash": "d8e22fe3e0640dfcd998135743679d6a0b9ce0ff",
-          "materialHash": "460ea24d842fc8664d1f2f8bdb3186781b391b7807b271c9187563e8a0a8a8e0",
-          "timestamp": "2026-06-17T12:06:45.236Z"
+          "headHash": "09a2ada3f08e83299b3a456e07afd6b1a2151750",
+          "materialHash": "b9a18faedd0bb69e486e928a9f333256b678e71ef8a6653a2d98a1a90ef56433",
+          "timestamp": "2026-06-17T12:18:47.444Z"
         }
       ]
     }
