@@ -172,10 +172,10 @@
           "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
-          "note": "Strengthened contract exits 0 with passed banner: repo scan clean (520 .ts files, 0 bare-cwd violations); confirmed bare-root sites (done-oracle/evidence-freshness from CHK-001/002, validate-channel/concept renamed honest) all route through resolved gitCwd.",
-          "headHash": "d5870e40521f41c617ab839a4c94b9ad79b88fa9",
-          "materialHash": "e204ef0f636d4787412c4a14325c63bd1684ba321b739cee3f0e14dc3d87cb97",
-          "timestamp": "2026-06-17T17:09:08.375Z"
+          "note": "Contract exits 0 (GREEN): repo scan 520 .ts files 0 bare-cwd violations; done-oracle + evidence-freshness now route through resolveGitCwd; deferred sites documented in DEFERRED_ALLOWLIST_EXACT with B-99b6 burndown follow-up, original B-db56 literal-git coverage preserved for them via isOldRegexVisible.",
+          "headHash": "f5d904a21a541166202e9e450b251ba96900b5af",
+          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
+          "timestamp": "2026-06-17T17:13:03.596Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
