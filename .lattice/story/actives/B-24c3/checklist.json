@@ -94,7 +94,58 @@
       "context": "CHANGELOG Unreleased entry under Test infrastructure subsection naming this story (B-24c3) and listing the 9 timeoutMs bumps. Final verification: 3 consecutive `npm run test:all` runs all exit 0 with 162/162 PASS (no flake). If a run still fails for review-pass-discard (parallel-only FAIL, not a timeout), that is OUT OF SCOPE — file finding_add as a separate concern, leave the smoke as-is.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "3 consecutive `npm run test:all` runs all show '162/162 passed' and exit 0; no FAIL/TIMEOUT lines for the 9 target smokes.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased entry names B-24c3 -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c B-24c3` outputs at least 1; WHY: traceability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG names the 9 affected smokes (some collectively) -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"timeoutMs|parallel.race|race timeout\"` outputs at least 1; WHY: describes what changed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "first parallel test:all run exit 0 with 162/162 -> `npm run test:all > /tmp/b24c3-r1.log 2>&1; echo $?` outputs 0; WHY: primary acceptance",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "second parallel test:all run exit 0 with 162/162 -> `npm run test:all > /tmp/b24c3-r2.log 2>&1; echo $?` outputs 0; WHY: stability check",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "third parallel test:all run exit 0 with 162/162 -> `npm run test:all > /tmp/b24c3-r3.log 2>&1; echo $?` outputs 0; WHY: stability check",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "none of the 9 named smokes appear as FAIL/TIMEOUT in any of the 3 runs -> `cat /tmp/b24c3-r1.log /tmp/b24c3-r2.log /tmp/b24c3-r3.log | grep -E \"^FAIL |^TIMEOUT \" | awk \"{print \\$2}\" | grep -cE \"^(experience-layer-digest-extract|gap-log|init-check-fallback|scope-contract|story-capsule|story-create-concurrency|story-metadata-protection|unattended-dispatch|lattice-baseline)$\"` outputs 0; WHY: confirms the 9 targets are stable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no CHANGELOG sections outside Unreleased touched -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased should be modified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
