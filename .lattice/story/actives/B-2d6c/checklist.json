@@ -10,7 +10,29 @@
       "userSees": "`npm run test:all` exits 0 with 162/162 passed in <N>s. `grep -cE '^FAIL |^TIMEOUT ' /tmp/<log>` outputs 0.",
       "files": {
         "modify": [
-          "packages/main/src/tasks/"
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/autopilot-authority-smoke.ts",
+          "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+          "packages/main/src/tasks/convergence-discarded-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts",
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/init-check-fallback-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "packages/main/src/tasks/story-dedup-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
         ],
         "create": [],
         "test": []
