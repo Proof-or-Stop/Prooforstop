@@ -5,8 +5,8 @@
       "title": "Create leaf core/digest.ts with the canonical-JSON-digest primitives",
       "context": "New packages/main/src/core/digest.ts exporting Digestable, canonicalJson, digestCanonicalJson, digestText (and normalizeJson as needed), extracted verbatim from decision-doc-promotion.ts lines 64-88. Leaf module: imports only node:crypto. Digest values must be byte-identical to the originals.",
       "userSees": "Build clean; core/digest.ts exists; the smoke asserts digestCanonicalJson/canonicalJson/digestText produce the exact same output as a pinned set of inputs (byte-identical to pre-refactor).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T14:09:03.897Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
