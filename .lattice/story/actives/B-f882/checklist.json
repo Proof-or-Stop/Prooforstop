@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
           "result": "pass",
           "note": "Wrapper-root smoke drives runReviewCliGates over a metadataRoot!=gitRoot fixture; with repoRoot: gitCwd the docs-drift gate PASSes (existing-under-gitRoot CLAUDE.md path not reported missing). Output: docs-drift wrapper-root smoke passed.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "Existing plain-repo/DI docs-drift smoke still passes unchanged after the one-arg fix (projectRoot==gitCwd no-op). Output: docs-drift path+asset smoke passed.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js (with repoRoot reverted to deps.projectRoot)",
           "result": "pass",
           "note": "RED proof captured: reverting repoRoot: gitCwd -> deps.projectRoot makes the wrapper-root smoke FAIL with AssertionError missing path: dev-notes/wrapper-doc.md (exit 1). git show bc5865be confirms the diff is only the repoRoot arg + comment; no managedAssetDefs or english-gate storyDir change.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js",
           "result": "pass",
           "note": "New wrapper-root smoke builds a real git repo in a subdir (gitRoot) with metadataRoot = non-git outer parent and a CLAUDE.md referencing a path existing only under gitRoot; asserts docs-drift preflight does NOT report it missing. Exit 0: docs-drift wrapper-root smoke passed.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "node -e require(./package.json).scripts.test",
           "result": "pass",
           "note": "Wired into root npm test chain: ...test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:e2e. Root alias test:docs-drift-wrapper-root -> npm --prefix packages/main run test:docs-drift-wrapper-root. Confirmed present in root package.json test script.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js (pre-fix wiring)",
           "result": "pass",
           "note": "RED proven: with repoRoot reverted to deps.projectRoot the smoke exits non-zero (AssertionError: docs-drift gate must PASS on wrapper-root, got status=fail, missing path: dev-notes/wrapper-doc.md). DI/fixtures use os.tmpdir + git init subdir; no host-layout dependence. Secondary assertion contrasts repoRoot=gitRoot (pass) vs repoRoot=metadataRoot (fail) with real fs+git grep.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "Strengthened guard runs green and prints: ✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot). Balanced-paren-extracts the runDocsDriftGate(...) call and asserts repoRoot value is gitCwd.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "Self-test: GOOD fixture (repoRoot: gitCwd) -> 0 violations; BAD fixture (repoRoot: deps.projectRoot) -> flagged. Tightly scoped to the single docs-drift gate call; legitimate deps.projectRoot uses (managedAssetDefs/mdReader/codex) are NOT flagged (no false positives). Coverage doc block documents what it covers and does not (review-preflight-specific, not general dataflow).",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js (with review-preflight repoRoot reverted)",
           "result": "pass",
           "note": "RED proven: reverting review-preflight repoRoot: gitCwd -> deps.projectRoot makes the guard exit non-zero (GUARD_EXIT=1) flagging: runDocsDriftGate(...) repoRoot is deps.projectRoot — must be the resolved gitCwd. Restored to gitCwd -> green.",
-          "headHash": "1d460ecbc971c96ce124e8d32c47ed46a271f715",
-          "materialHash": "3502938b04da2eeb42a982a756afeb3a6913ad84004ed921b548621c25649504",
-          "timestamp": "2026-06-17T12:26:06.958Z"
+          "headHash": "4bedf158fabb2780526a5ee00f3fefaa03b99259",
+          "materialHash": "f8ee653a14f80dde33ba8a2da149783314317e58837a0173d04fd32d23b5e3b9",
+          "timestamp": "2026-06-17T12:36:11.188Z"
         }
       ]
     }
