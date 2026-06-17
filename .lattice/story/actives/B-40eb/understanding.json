@@ -1,27 +1,27 @@
 {
-  "task": "清掉 active 代码/脚本/文档里『用户会读到的』koala 品牌（注释、@title、报错、CLI 文案、prose、品牌函数名、mkdtemp 前缀），遵循既有守门测试 cli-engine-branding-smoke.ts（B-3cca）确立的分类规则保留 documented exceptions，作为 OSS 开源前 ship-clean 计划 story 3（residual sweep）。",
-  "outcome": "在 worktree 里跑 `git grep -in koala -- packages scripts README.md CLAUDE.md docs/guide.md` 并按 B-3cca branding 规则排除合法保留 token（process-lane 名、legacy alias、.koala 运行时路径、盐值、测试断言意图）后，终端输出为空——0 行未分类 koala 品牌残留；随后 `lattice validate` 打印全绿、`npm run build` 退出 0、`npm run test:e2e` 全部 PASS。用户由此在终端确认：OSS 开源前 active 代码层已无用户可读的 koala 品牌，只剩清单在案、有意保留的 documented exceptions。",
+  "task": "Remove user-readable koala branding from active source/scripts/docs (comments, @title, error messages, CLI prose, prose, brand function names, mkdtemp prefixes), following the classification rules of the existing guard test cli-engine-branding-smoke.ts (B-3cca) to preserve documented exceptions, as story 3 (residual sweep) of the ship-clean koala-removal program.",
+  "outcome": "In the worktree, run `git grep -in koala -- packages scripts README.md CLAUDE.md docs/guide.md` and exclude the whitelist (process-lane names, legacy alias, .koala runtime paths, salts, test-assertion intent) per the B-3cca branding rules; the terminal output is empty -- 0 unclassified koala brand lines. Then `lattice validate` prints all-green, `npm run build` exits 0, `npm run test:e2e` all pass. The user confirms in the terminal that, before OSS, the active code layer has no user-readable koala branding -- only the documented exceptions that are deliberately kept and recorded.",
   "facts": [
-    "盘点：active 范围 git grep -liI koala 排除文件级白名单（decisions/CHANGELOG/docs-story/framework-audit/jek.md）后 266 候选文件；用 B-3cca branding 规则逐行过滤后 272 文件 / 1655 行属未分类（真该改）品牌",
-    "关键发现：已存在守门测试 packages/main/src/tasks/cli-engine-branding-smoke.ts（B-3cca），定义权威『合法保留』规则——process-lane 名 koala-(codex|review*|implementer|reviewer|eval*|delivery|init|agent|story*)、legacy alias 'koala'、.koala 运行时路径（legacy/runtime 语境）、LEGACY_KOALA*、KoalaConfig、KOALA.md、签名盐值；但它只审计 4 个文件（cli-engine.ts/dist、hooks.ts/dist、guide-hooks.md）",
-    "该改的 1655 行集中在 smoke 测试（field-regression-cli-smoke 82、worktree-authority-smoke 76 等）、脚本（verify-*.mjs）、fixtures，多为品牌函数名 runKoala*、mkdtemp 前缀 koala-*、@title/注释品牌",
-    "前序 B-08f2（KOALA_ env）、B-747e（KoalaConfig 类型）已 DONE 合并 main；B-ed70（DEV）在改 lab/package.json description 与 packages/lab/src/core/config.ts 的 .Codex 引用",
-    "用户确认走『语义全量 + 扩展 branding gate』：清用户可读品牌、保留 B-3cca 既定 exception；story 4 把 branding 审计范围扩到全 active 范围当 verify gate"
+    "Inventory: active-scope git grep -liI koala excluding file-level whitelist (decisions/CHANGELOG/docs-story/framework-audit/jek.md) = 266 candidates; after the B-3cca branding rule, 272 files / 1655 lines are unclassified real brand.",
+    "Key finding: the existing guard test packages/main/src/tasks/cli-engine-branding-smoke.ts (B-3cca) defines the authoritative keep rules -- process-lane names koala-(codex|review*|implementer|reviewer|eval*|delivery|init|agent|story*), legacy alias 'koala', .koala runtime paths, LEGACY_KOALA*, KoalaConfig, KOALA.md, signature salts -- but only audits 4 files.",
+    "The 1655 must-change lines concentrate in smoke tests, scripts (verify-*.mjs) and fixtures, mostly brand function names runKoala*, mkdtemp prefixes koala-*, and @title/comment branding.",
+    "Prior stories B-08f2 (KOALA_ env) and B-747e (KoalaConfig type) are DONE on main; B-ed70 (DEV) touches lab/package.json description and packages/lab/src/core/config.ts .Codex refs.",
+    "User chose 'semantic-full + extend branding gate': clean user-readable branding, keep B-3cca documented exceptions; story 4 extends the branding audit scope to full active scope as a verify gate."
   ],
   "constraints": [
-    "in-scope/exception 边界以 B-3cca branding 规则为权威：不改 process-lane 名、legacy alias、.koala 运行时路径、LEGACY_KOALA、KOALA.md、盐值",
-    "不改 B-ed70 在动的 lab/package.json description 与 packages/lab/src/core/config.ts 的 .Codex 行，避免 DONE 合并冲突",
-    "不破坏测试断言意图：assertNotContains(...,'koala...') 等故意断言保留其 koala 字面量；改品牌函数名/temp 前缀时同步改全部引用",
-    "不改 docs/requirements/decisions/*.md（3×2 gate）与 CHANGELOG / docs/story 历史",
-    "每批改完 npm run build 退出 0、npm run test:e2e 全 PASS、lattice validate 全绿"
+    "In-scope/exception boundary is authoritative per the B-3cca branding rule: do not change process-lane names, legacy alias, .koala runtime paths, LEGACY_KOALA, KOALA.md, salts.",
+    "Do not touch B-ed70's in-flight lab/package.json description and packages/lab/src/core/config.ts .Codex lines, to avoid DONE merge conflicts.",
+    "Do not break test-assertion intent: assertNotContains(...,'koala...') keeps its koala literals; when renaming brand function names/temp prefixes, update all references.",
+    "Do not change docs/requirements/decisions/*.md (3x2 gate) or CHANGELOG / docs/story history.",
+    "After each batch, npm run build exits 0, npm run test:e2e all pass, lattice validate all-green."
   ],
   "unknowns": [],
   "touchpoints": [
-    "packages/lab/src/**、packages/lab/{handlers,profiles,tool-defs}.ts（避开 B-ed70 两处）",
-    "packages/main/src/**（源码注释 / CLI 文案 / 品牌函数名）、packages/main/tests（非断言意图夹具）",
-    "scripts/*.mjs、packages/utils/**",
-    "CLAUDE.md、docs/guide.md 等根文档 prose",
-    "packages/main/src/tasks/cli-engine-branding-smoke.ts（story 4 扩展 verify gate 的基座）"
+    "packages/lab/src/**, packages/lab/{handlers,profiles,tool-defs}.ts (avoid the two B-ed70 spots)",
+    "packages/main/src/** (source comments / CLI prose / brand function names), packages/main/tests (non-assertion-intent fixtures)",
+    "scripts/*.mjs, packages/utils/**",
+    "CLAUDE.md, docs/guide.md and other root-doc prose",
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts (basis for story 4's extended verify gate)"
   ],
-  "timestamp": "2026-06-16T21:59:51.151Z"
+  "timestamp": "2026-06-17T11:30:30.843Z"
 }
