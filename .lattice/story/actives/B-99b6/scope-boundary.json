@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-99b6",
+  "mode": "maintenance",
+  "allowed": [
+    "Add a smokes/contract-guard aggregator wired into the lattice validate gate path (root npm test chain, which validate runs)",
+    "Add mandated FAST contract guards to the gate path: test:process-fact-contract, test:runtime-fact-contract, test:evidence-quality, test:anti-stall",
+    "Add wrapper-root/gitRoot regression smokes to the gate (storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root); slow fixture-builders (storydir-inside-gitroot-suite ~7s) may go behind lattice validate --full",
+    "Edit root package.json + packages/main/package.json scripts, optionally a new aggregator script under packages/main/src/tasks, and verifier/validate.ts if validate must invoke it",
+    "Keep full 160-smoke test:all reachable via --full / CI but NOT in the fast gate",
+    "Prove a regression blocks: break one wired guard/smoke, show validate turns RED, revert, show GREEN"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-99b6 background.md + checklist + driver brief. Maintenance-mode battery wiring only; no guard/smoke assertion changes, no gitRoot code (B-6666 done) or process-fact-registry (B-867c done) changes. Mentions of authority/evidence-gate smokes in the story text are CONTEXT (the B-3990:F-001 systemic gap), not in-scope work for this story.",
+  "createdAt": "2026-06-17T17:48:41.065Z",
+  "updatedAt": "2026-06-17T17:48:41.065Z",
+  "_hash": "b79782b22f86f34b9d0a535c6dcda8180412f87098a575ded39f6d1581b371d6"
+}
