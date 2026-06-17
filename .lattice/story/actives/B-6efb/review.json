@@ -17,6 +17,19 @@
         }
       ],
       "_hash": "8bc8b4d34ff9aa0fa0905449db42bd26c8f7a46c763a267a73a7eb2e1770ffdd"
+    },
+    {
+      "timestamp": "2026-06-17T01:57:02.968Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Implement packages/main/src/tasks/run-all-smokes.ts with parallelism, manifest reading, and --tag/--select filters + Create packages/main/smoke-manifest.json (initial manifest with default entries) and add `test:all` npm script at root are performed simultaneously?)"
+        }
+      ],
+      "_hash": "111ba9ec73fd8aa8858ea9cb0d44792b1ed940a8ef6da48253bf0c0c7a947b41"
     }
   ]
 }
