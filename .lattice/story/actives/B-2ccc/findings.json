@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
       ]
+    },
+    {
+      "id": "B-2ccc:F-002",
+      "desc": "CHK-001:edge:3 and CHK-001:edge:4 lack any verificationEvidence assertion in the smoke: the intents require (a) digestCanonicalJson on empty object {} returns deterministic sha256 of '{}' and (b) digestText on empty string returns sha256 of the empty string. The smoke at packages/main/src/tasks/experience-layer-digest-extract-smoke.ts contains no check exercising either of these empty-input cases. Both edge cases are independently falsifiable (a corrupted digestCanonicalJson that errors on {} would not be caught).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T14:20:52.784Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-003",
+      "_hash": "d261c1a54b6d259e32ad7c54c1732e75206a5be3d23fc56559f502b0c5be3e22",
+      "files": [
+        "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
+      ]
     }
   ]
 }
