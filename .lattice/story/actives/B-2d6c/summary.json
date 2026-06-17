@@ -1,18 +1,18 @@
 {
   "storyId": "B-2d6c",
-  "changes": "B-2d6c: 17 *-smoke.ts files realigned + 8 timeoutMs bumps in manifest + NODE_OPTIONS heap fix for test:coverage + CHANGELOG Unreleased entry retiring B-c6cf waiver. Production untouched. Mid-story merge with main (165 commits incl B-ed12) — 14 smoke conflicts resolved by taking theirs (B-ed12's parallel fix to same smokes is equivalent/better).",
-  "usage": "npm run test:all parallel exits 0 162/162 in ~3-4 min. npm run test:coverage serial under c8 exits 0 in ~15-20 min with HTML+LCOV at packages/main/coverage/.",
-  "expectedOutcome": "Both npm run test:all (parallel) and npm run test:coverage (serial) exit 0 with all 162 smokes PASS. CHANGELOG names B-2d6c + retires B-c6cf waiver.",
-  "actualTranscript": "3 consecutive parallel runs all 162/162 PASS exit 0. Post-merge test:all also 162/162 in 183s exit 0. test:coverage exit 0 after NODE_OPTIONS heap. 3 reviewer lanes PASS, 2 findings resolved, escalation not required.",
-  "outcomeDiff": "No difference: A0 goal met. B-c6cf waiver retired.",
+  "changes": "Story 2: 17 smoke files realigned + 8 manifest timeoutMs bumps + NODE_OPTIONS heap; production untouched; merged main (B-ed12 conflicts taken theirs); 3 lane PASS; 2 findings resolved.",
+  "usage": "npm run test:all exits 0 162/162 in ~3-4 min parallel. npm run test:coverage exits 0 in ~15-20 min serial with HTML+LCOV reports.",
+  "expectedOutcome": "test:all and test:coverage both exit 0 with 162/162 PASS. CHANGELOG names B-2d6c + waiver retirement.",
+  "actualTranscript": "3x parallel runs all 162/162 PASS. Post-merge 162/162 in 183s. test:coverage exit 0 with heap bump.",
+  "outcomeDiff": "No difference: goal met, waiver retired.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Scope expanded twice via scope_contract_acknowledge (manifest beyond lattice-baseline, package.json for heap). Tests-only edits throughout. Authority/production receipts NOT issued.",
-  "pitfalls": "Parallel-only TIMEOUTs surface after stale-assertion fixes (per-smoke timeoutMs bump). c8 v11 OOM at 162-smoke merge (NODE_OPTIONS heap). Porcelain match too broad (narrow to specific probe path). Always npm install on main to materialize devDependencies. Parallel concurrent stories on main can create merge conflicts. DONE gate retry pattern: re-run summary_set + refresh_stale + advance until materialHash settles.",
+  "limitations": "Scope expanded twice via ack (manifest + package.json). Tests-only.",
+  "pitfalls": "Parallel TIMEOUTs need per-smoke timeoutMs; c8 v11 OOM needs heap bump; narrow porcelain matches; concurrent main stories cause merge conflicts.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 508531
+      "durationMs": 817903
     }
   },
-  "totalDurationMs": 11490072,
+  "totalDurationMs": 11799444,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-17T21:15:05.832Z",
-  "updatedAt": "2026-06-17T21:20:40.365Z"
+  "updatedAt": "2026-06-17T21:25:49.737Z"
 }
