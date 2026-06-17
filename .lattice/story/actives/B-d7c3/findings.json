@@ -178,6 +178,22 @@
         "packages/main/src/tasks/provider-codex-smoke.ts",
         "packages/main/src/tasks/reviewer-quorum-smoke.ts"
       ]
+    },
+    {
+      "id": "B-d7c3:F-011",
+      "desc": "CHK-001:happy:0 evidence does not bind to intent command and the intent assertion fails. Intent command: node -e checking test:*-smoke count = 1 (sole entry test:run-all-smokes-smoke). Actual literal intent command returns 4 (test:run-all-smokes-smoke + 3 keep-list -smoke scripts). Evidence uses a different python3 command that counts ALL test:* (returns 12), not test:*-smoke. Two failures: (1) wrong evidence command — counts test:* not test:*-smoke; (2) the literal intent assertion (count=1) is not satisfied by reality (count=4). The 4 entries are all on the keep-list (docs-drift-smoke, review-convergence-smoke, review-incremental-context-smoke, run-all-smokes-smoke), but the intent text says count must be 1.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:41:03.992Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-005",
+      "_hash": "fa42ef89930e40cfd2f0a7b1b191e1e2ac77ae7b3e87ac2e7c5085048077c911",
+      "files": [
+        "packages/main/package.json"
+      ]
     }
   ]
 }
