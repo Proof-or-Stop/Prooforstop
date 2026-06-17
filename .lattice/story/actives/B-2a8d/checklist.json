@@ -60,7 +60,59 @@
       "userSees": "The doc states per-project-only learning by design; the L1 'deterministic local signature' aggregation sentence is unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep doc for three semantic levels -> match found; WHY: confirms the Architecture section header was updated from four to three after L4 removal",
+            "type": "cli"
+          },
+          {
+            "desc": "grep doc for per-project-only or per-project only in principle 5 -> match found; WHY: confirms the cross-project framing was reworded to per-project-only by design",
+            "type": "cli"
+          },
+          {
+            "desc": "grep doc for aggregated by a deterministic local signature -> exactly 1 match; WHY: confirms the L1 local-signature sentence was preserved unchanged",
+            "type": "cli"
+          },
+          {
+            "desc": "grep doc for structured first embedding later clause -> still present; WHY: confirms only the cross-project clause was reworded while the structured-first clause survived",
+            "type": "cli"
+          },
+          {
+            "desc": "grep not-to-do section for cross-project removal as permanent design choice not v1 limitation; WHY: confirms the not-to-do line was reworded from v1 deferral to permanent exclusion",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep for four semantic levels -> no match; WHY: ensures the old four count does not survive anywhere in the doc",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for cross-project footprint in problem statement -> no match; WHY: confirms the problem-statement mention of cross-project footprint was removed or reworded",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for cross-project later in principle 5 -> no match; WHY: confirms the Local first cross-project later clause was replaced",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for cross-project appearing anywhere as an in-scope or future capability -> zero matches; WHY: ensures no residual cross-project framing survives that positions it as planned or deferred rather than excluded by design",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for unchanged from v1.0 in Architecture header -> no match; WHY: after removing L4 the levels ARE changed from v1.0 so this claim must be updated or removed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for L1 deterministic local signature sentence -> still 1 match after all rewording; WHY: adversarial guard against rewording passes accidentally modifying or deleting the L1 aggregation key sentence",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
