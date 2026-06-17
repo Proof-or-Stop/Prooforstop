@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T11:55:47.885Z",
       "reviewRunId": "B-000c:RR-008",
       "_hash": "d237d6954cdcd100b4de9a3c0ace33217334b0f6ce311a4a824df7a4311480ca"
+    },
+    {
+      "id": "B-000c:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Production code unchanged since last round — 993390ba added only 115 lines to the smoke test (test-only change). All 21/21 smoke checks pass live. Verified: deriveFindingSignals grouping (localSignature = category|signatureTag??\"\"  |fileKind|lifecyclePhase), signalScore = positive/(positive+negative+1) never NaN (denom always >=1), single-fixed=0.5/support-1, conservative 0 when enums absent, deriveFindingSignalsFromStore reads exclusively via store.readFindings port (static scan confirms ./store.js sole non-leaf import, no ../ anywhere), gate-safety confirmed (3 materialHash-unchanged checks pass, registry entries materialHash:exclude + volatile:true + repairable). New concurrency check correctly demonstrates atomic write guarantee: 20 writers + 20 interleaved readers into one temp project, assertCompleteOrAbsent validates parse-or-absent (not string-equality), deepEqual membership check avoids false-fail on key order, observations counter proves reads ran mid-race, final state is a complete last-writer-wins value. All spec-declared Phase 1a boundaries from lattice-experience-layer-execution-plan.md are covered by checklist userSees. No findings.",
+      "createdAt": "2026-06-17T11:58:11.228Z",
+      "reviewRound": "2026-06-17T11:55:47.885Z",
+      "reviewRunId": "B-000c:RR-007",
+      "_hash": "d7245fe8a7d4c13da48536714f1d3f4ad54f729e9abf4df6ac6d47351bcc9736"
     }
   ]
 }
