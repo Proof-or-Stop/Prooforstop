@@ -1,0 +1,55 @@
+{
+  "storyId": "B-f675",
+  "changes": "Added a read-only incremental-review-context helper (core/review-incremental-context.ts: a reviewer's prior verdict + bound headHash + scopeChanged + the rename-aware diff since its last pass; full main..HEAD diff for a first-timer) and a rename-aware changedFilesBetweenRenameAware in evidence-freshness.ts; exposed it as the read-only CLI lattice review_incremental_context --storyId --role=<reviewer>; added an append-only round>=2 advisory in transition-effects.ts that lists scope-changed reviewers and notes the round-2+ gate only needs >=1 valid receipt (operator-choice targeted re-review); added a smoke (cases a-e + a gate-unchanged assertion) chained into validate; and corrected the CLAUDE.md REVIEW section to document the accurate canPassReviewGuard behavior. The REVIEW->TEST gate, bindings, materialHash, and staleness are UNCHANGED and the framework never skips a reviewer.",
+  "usage": "Run lattice review_incremental_context --storyId=B-xxx --role=<reviewer> to see a reviewer's prior verdict + what changed since it last passed (scopeChanged + changedFiles; first-timer => full diff). On a round>=2 REVIEW entry the next-step output lists reviewers whose scope changed and reminds the operator the round-2+ gate needs only >=1 valid receipt, so they MAY re-run just the scope-changed reviewers. NOTE: while developing in a worktree, run new-command gates via the worktree dist (node packages/main/dist/cli.js), since the global lattice is the stale main-repo dist.",
+  "expectedOutcome": "CLI prints a reviewer's prior verdict + incremental diff; round>=2 entry surfaces scope-changed reviewers + the >=1-receipt note; validate stays green with a smoke proving canPassReviewGuard is identical with/without the helper.",
+  "actualTranscript": "node packages/main/dist/cli.js review_incremental_context --storyId=B-f675 --role=concept -> role=concept, isFirstPass=false, scopeChanged=false, priorHeadHash=abcf35f, priorVerdict=PASS (B-f675:RP-009), changedFiles=(none). node packages/main/dist/tasks/review-incremental-context-smoke.js -> PASS (cases a-e + d gate-unchanged across all branches, helper writes nothing), exit 0. REVIEW->TEST CLI gates all pass (via worktree dist); lattice validate PASS; 9/9 verification coverage.",
+  "outcomeDiff": "Match. Helper + CLI + round>=2 advisory delivered; gate files (machine.ts/review-run.ts/review-scope-binding.ts) have zero diff vs main; smoke proves the gate is byte-identical with/without the helper. The round-2+ leniency surfaced already existed in canPassReviewGuard; the framework skips nobody.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This makes each reviewer's re-run cheaper and surfaces an already-legal round-2+ targeted re-review path; targeted re-review remains an OPERATOR judgement (same under-review responsibility as today). OUT OF SCOPE / deferred: framework-side skipping or carry-forward of reviewers (the skip variant, rejected for irreducible under-review risk); any change to canPassReviewGuard / bindings / materialHash / staleness; changing what reviewers review.",
+  "pitfalls": "Self-hosting binary mismatch: the global lattice binary is the stale main-repo dist, so the REVIEW->TEST docs-drift gate reported the new review_incremental_context command as 'unregistered' until the transition was run via the worktree dist (node packages/main/dist/cli.js), whose registry includes it. INIT-001/INIT-002: the gate is more lenient than first framed (Round 1 = all opt-in + quorum; Round 2+ = >=1 receipt; invalid-binding blocks ALL rounds) — corrected in docs. F-001 (low): isFirstPass can coexist with a non-null priorVerdict when the prior headHash is unresolvable; documented + pinned by smoke case (e). An earlier implementer ran git stash (forbidden — shared across worktrees) and pulled another session's stash in; recovered, the foreign stash stayed intact, and an untracked foreign doc was moved out of the worktree before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 438209
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 35511
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 797747
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1440115
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 912344
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 232549
+    }
+  },
+  "totalDurationMs": 3856476,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T01:41:24.180Z",
+  "updatedAt": "2026-06-17T01:41:24.180Z"
+}
