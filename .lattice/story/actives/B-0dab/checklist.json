@@ -106,6 +106,16 @@
           "headHash": "425b04260f1159a83b3d48e62b9f7eb96aa595cb",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:02:42.019Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "manual_transcript",
+          "command": "npm run build && node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0",
+          "headHash": "65b812c0a51acfdd56c3d8c81594b8367568c53d",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:42.702Z"
         }
       ]
     },
