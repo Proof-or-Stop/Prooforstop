@@ -75,12 +75,12 @@
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "command": "node scripts/verify-koala-residue.mjs --self-test",
           "result": "pass",
-          "note": "KoalaFoo 等新标识符不匹配任何 neutral pattern→判 in-scope；branding smoke PASS",
-          "headHash": "f5adb7085a2566afa273d5823167b0546b7bd0f3",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:07.456Z"
+          "note": "self-test: 'const KoalaFoo' 新标识符不匹配 neutral pattern→UNCLASSIFIED; 5/5 PASS",
+          "headHash": "6f8a2877441a0aeaa5bf40fbba43937b6ae58c48",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:24.132Z"
         }
       ]
     },
