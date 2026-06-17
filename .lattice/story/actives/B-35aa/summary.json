@@ -1,0 +1,56 @@
+{
+  "storyId": "B-35aa",
+  "changes": "Created docs/requirements/decisions/test-runner-consolidation-plan.md (211 lines, 6 H2 sections) as the A0 (kickoff/decision-only) story for Proposal #2 (test runner consolidation). Records the chosen architecture (Path B: in-house parallel runner + manifest + c8 coverage), rejecting Path A (vitest migration of 151 spawn-CLI integration smokes) and Path C (B minus c8). Decomposes implementation into 4 follow-up Lattice stories: B1 runner skeleton + manifest format + test:all entry, B2 collapse 258 test:* scripts into manifest entries, B3 c8 coverage + test:coverage entry, B4 (optional) tag/select UX improvements. Each follow-up has a one-paragraph Scope: + Acceptance: sketch quotable verbatim by future story_create calls.",
+  "usage": "This decision document is read by future contributors evaluating the test infrastructure direction. It is NOT gate-consumed; it is a one-time architectural commit. B1 should be the next Lattice story after B-35aa is DONE; B2 and B3 follow B1; B4 is optional polish.",
+  "expectedOutcome": "ls + grep + git diff confirm: file exists with 6 H2 sections, all 4 pinned numbers (151/70,280/258/49), 3 paths named with B chosen, B1-B4 follow-up sketches present, testing-infra.md referenced 6 times in rationale; testing-infra.md + testing-completeness.md byte-identical to main; packages/scripts/package.json untouched; lattice validate PASS 22/22.",
+  "actualTranscript": "All 16 gates re-verified live by delivery reviewer: file exists; 211 lines; 6 H2 sections (>=4 required); pinned numbers present (151:2 hits, 70,280:1, 258:4, 49:1); Path A/B/C all named, B marked *(chosen)*; B1/B2/B3/B4 present (4 ### headers); testing-infra.md referenced 6x; git diff against testing-infra.md/testing-completeness.md empty; git diff against packages/script/package.json empty; lattice validate PASS 22/22; 4 review lanes all PASS (docs RP-001 + test-coverage round-2 RP-002 + concept RP-003 + quality RP-004); 2 findings raised (F-001 + F-002 evidence-correspondence, B-d7ef pattern recurring) and both resolved after evidence helper re-recorded with intent-specific commands; delivery-check signed at 1384bbc.",
+  "outcomeDiff": "No gap. Decision doc delivered with required structure; zero side-effects on existing decisions or code.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Bounded scope by design: A0 is decision-only. The actual runner code (B1), npm script collapse (B2), c8 wiring (B3), and UX polish (B4) are deferred to follow-up Lattice stories per the decision doc's Follow-up section.",
+  "pitfalls": "B-d7ef evidence-correspondence pattern recurred AGAIN here: my evidence helper bound 6 distinct intents (4 number pins, B1-B4 check, byte-identical guard) all to the same generic grep -c '^## ' command. Test-coverage reviewer caught it in round 1 (F-001/F-002 high). Lesson is now thrice-confirmed: NEVER use a generic fallback grep command for evidence; bind each intent literally to the specific command from its description. The B-d7ef memory note should be updated to make this 'fail-loud' (the helper should refuse to record if the intent text doesn't contain a recognizable command pattern). Also: INIT reviewer went 3 rounds (INIT-001 'A0' undefined; INIT-003 wrong test:* count of 111 only vs 258 total; INIT-004 testing-infra.md overclaim 'dist-black-box-smoke architecture') — for decision docs especially, fact accuracy at INIT matters more than for refactor stories because the doc IS the deliverable.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 526108
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19747
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 350989
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 127011
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 482336
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 192802
+    }
+  },
+  "totalDurationMs": 1699016,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T00:03:30.031Z",
+  "updatedAt": "2026-06-17T00:03:30.031Z"
+}
