@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T14:29:15.897Z",
       "reviewRunId": "B-2ccc:RR-005",
       "_hash": "852ada22718aa97512f07ddf71a9cfa4a5528be879bec715ac78b422a075a682"
+    },
+    {
+      "id": "B-2ccc:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. Inline defs of normalizeJson, Digestable, canonicalJson, digestCanonicalJson, digestText fully removed from decision-doc-promotion.ts. All symbols now live in core/digest.ts (canonical home) with backward-compat re-exports from decision-doc-promotion.ts. No stale createHash reference remains in that file. Other occurrences of normalizeJson/canonicalJson in authority-contracts.ts and usage-ledger/canonical-json.ts are independent pre-existing symbols, not residue of this deletion. Smoke test file references are expected (they test the moved symbols). Build confirmed clean: no broken references.",
+      "createdAt": "2026-06-17T14:31:01.475Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-006",
+      "_hash": "fcf3119f76409953e727419c675ad0401e89486a8b5b62523c74d912072171d1"
     }
   ]
 }
