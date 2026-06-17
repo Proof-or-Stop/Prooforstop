@@ -51,6 +51,16 @@
           "headHash": "27fc5b1121e8bf87253ef1cb40bedd66e980ec58",
           "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
           "timestamp": "2026-06-17T16:36:36.065Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "git show --stat HEAD",
+          "result": "pass",
+          "note": "No command behavior change: commit 3ded509e9 git show --stat shows ONLY packages/main/src/core/process-fact-levels.ts (1 file, +7 lines); no handlers/* or cli-engine.ts change. Levels match handler reality (read-only listers/renders/recall = L0; .lattice/learning mutators = L2); no read-only command falsely registered as mutating or vice versa.",
+          "headHash": "5c017faab5487774b40efca1dfe453a4965cc3e4",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:36:42.329Z"
         }
       ]
     },
