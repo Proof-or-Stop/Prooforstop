@@ -18,7 +18,7 @@
 
 Lattice already accumulates a large volume of structured data with outcomes:
 findings and their final state, `checklist.json`, `decision.json`, story
-background, `activity.jsonl`, and cross-project footprint. Today this data only
+background, and `activity.jsonl`. Today this data only
 serves the current story; it is never reused across stories.
 
 What makes Lattice different from ordinary agent memory is that it knows, for
@@ -54,7 +54,7 @@ verified appear, on time and auditably, at the next review.
    surface. Support must always be displayed alongside any score.
 4. **Reuse over rebuild.** Extend existing facilities rather than building
    parallel ones. Failure-then-recovery is a first-class learning input.
-5. **Local first, cross-project later; structured first, embedding later.**
+5. **Per-project only — no cross-project learning, by design; structured first, embedding later.**
    v1 does not even do full-text search — purely structured fields.
 6. **Plan-only and naming discipline.** This document is plan-only. Use the names
    `Experience Layer` / `Evidence-backed Review Playbooks` / `Workflow Memory`;
@@ -63,7 +63,7 @@ verified appear, on time and auditably, at the next review.
 
 ## Architecture
 
-The four semantic levels are unchanged from v1.0:
+The three semantic levels are:
 
 - **L1 Finding Signals.** Derive structured signals from findings plus their
   outcomes, aggregated by a deterministic local signature, producing
@@ -75,10 +75,6 @@ The four semantic levels are unchanged from v1.0:
   human-reviewed lifecycle into a reusable playbook
   (`proposed -> candidate -> active -> stale -> archived`, with restore from
   archive).
-- **L4 Cross-project aggregation (future).** Two-layer signatures
-  (`localSignature` stays local; `publicSignature` is generalized to
-  category + fileKind + lifecyclePhase + statistical buckets only). v1 does not
-  do this.
 
 ### Module decomposition
 
@@ -245,8 +241,6 @@ slice).
   (excluded from the id-hash domain, side-band index). (Rough size: medium.)
 - **Phase 3 — Story Recall (L2).** Structured filtering + reuse of the
   `story_list` scan. No FTS, no derived index. (Rough size: medium.)
-- **Phase 4 — cross-project.** org-local / anonymized cross-project aggregation
-  (local/public two-layer signatures). (Rough size: medium-large.)
 
 Recommended order: do the FIRST STORY + Phase 1b + Phase 1.5 first — the data is
 already on hand, coupling is low, the reviewer immediately gets more accurate,
@@ -264,7 +258,7 @@ document.
 - No gate edits. `advisory.ts`, `finding-verify.ts`, `review-run.ts` gate logic,
   `evidence-freshness.ts`, and `scope-contract.ts` are not modified.
 - No FTS, no embedding, no reinforcement learning, no DSPy/GEPA, no LLM curator
-  pass, and no cross-project aggregation in v1.
+  pass, and no cross-project aggregation (per-project only, by design — not a future item).
 - Audit fields (`signatureTag`, `resolutionType`, `dismissReasonType`,
   `resolveEvidenceStrength`, `dismissEvidenceStrength`) never feed any gate.
 - Hints never enter the `promptHash` domain (or are snapshot-pinned per
