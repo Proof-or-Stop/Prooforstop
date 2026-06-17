@@ -1,0 +1,55 @@
+{
+  "storyId": "B-6745",
+  "changes": "Stabilized the 8 deferred P5 authority/baseline smokes. 2 hermetic test fixes (autopilot-authority-smoke.ts: cwd:root + cleared *_FILE env; multi-host-authority-smoke.ts: no-op fileReader) so they isolate the developer's ambient authority_trust.env instead of leaking it (the real root cause of both failures — production was correct). The 5 timeout smokes were already satisfied by manifest timeout bumps on main. authority-job-loop-live needed no change (stale-dist snapshot). 0 production change; original assertions preserved.",
+  "usage": "No runtime change; the full test:all suite is now trustworthy (163/163) so CI/--full catches real regressions instead of being masked by 8 known-red smokes.",
+  "expectedOutcome": "All 8 P5 smokes green in test:all; net diff is only 2 test files; gemini provider intact; 0 production change.",
+  "actualTranscript": "git diff main HEAD = only autopilot-authority-smoke.ts + multi-host-authority-smoke.ts; the 3 CHK-001 smokes + provider-gemini-smoke exit 0 standalone; npm run test:all = 163/163 in 168s with the 5 slow smokes PASS within bumped timeouts; tsc exit 0. A prior driver's out-of-scope gemini-provider deletion was fully reverted before this completed (gemini intact).",
+  "outcomeDiff": "expected == actual: 8 P5 smokes green, suite 163/163, 0 production change, no test deleted/weakened.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The P5 authority/autopilot/baseline subsystem itself (~47k LOC, default-inert) is unchanged — the keep/feature-flag/extract/delete strategic decision is deferred to the user. The B-6666 gitroot-cwd burndown is a separate parallel story.",
+  "pitfalls": "These P5 smokes test off-by-default authority machinery; the failures were NON-HERMETIC env leakage (the dev's repo-root authority_trust.env), NOT production bugs — fix by isolating the test's on-disk reads (cwd/fileReader override knobs), never by env-gate-skipping (that loses coverage) or changing production. An autonomous driver mis-handled this by deleting the gemini provider; always verify a driver's net git diff against the story scope before trusting its DONE claim.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 894279
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 68227
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 307599
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1817323
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 476556
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 154578
+    }
+  },
+  "totalDurationMs": 3718574,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T23:13:19.132Z",
+  "updatedAt": "2026-06-17T23:13:19.132Z"
+}

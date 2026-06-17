@@ -1,0 +1,27 @@
+{
+  "findings": [
+    {
+      "id": "B-6745:F-001",
+      "desc": "production files modified beyond stated scope: diff touches packages/main/src/core/lattice-dispatch.ts, packages/main/src/core/planned-steps-executor.ts, packages/main/src/providers/gemini-cli.ts (new), packages/main/src/providers/types.ts — stated scope is ONLY 2 hermetic smoke fixes (autopilot-authority-smoke.ts + multi-host-authority-smoke.ts). These are real gemini provider wiring changes (B-ceed feature work), not test isolation fixes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T23:04:15.640Z",
+      "reviewRound": "2026-06-17T23:02:40.347Z",
+      "reviewRunId": "B-6745:RR-001",
+      "_hash": "3b14dc711d0306f0ce540797382b97bc9cd5c44287f2df53138d8d52d861eaa0",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/core/planned-steps-executor.ts",
+        "packages/main/src/providers/gemini-cli.ts",
+        "packages/main/src/providers/types.ts"
+      ],
+      "resolvedReason": "The out-of-scope gemini-provider changes the prior driver made (lattice-dispatch.ts, planned-steps-executor.ts, gemini-cli.ts, types.ts, provider-gemini-smoke.ts deletion, CHANGELOG) were fully reverted (git checkout main -- those files). After merging main, BOTH git diff main HEAD (two-dot) AND git diff main...HEAD (three-dot) show B-6745 touches ONLY 2 files: autopilot-authority-smoke.ts + multi-host-authority-smoke.ts. The gemini files are byte-identical to main (B-ceed feature, already merged via 747f90af7) — the finding saw them via a pre-merge three-dot diff against the older merge-base. Zero production change confirmed.",
+      "resolvedAt": "2026-06-17T23:08:08.559Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

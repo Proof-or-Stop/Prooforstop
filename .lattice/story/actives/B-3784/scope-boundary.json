@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3784",
+  "mode": "custom",
+  "allowed": [
+    "packages/main/src/tasks/autopilot-authority-smoke.ts",
+    "packages/main/src/tasks/multi-host-authority-smoke.ts"
+  ],
+  "excluded": [
+    "packages/main/src/core/",
+    "packages/main/src/handlers/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "custom mode: fix 2 smoke test files only, no production core or handler changes",
+  "createdAt": "2026-06-17T23:11:17.299Z",
+  "updatedAt": "2026-06-17T23:11:17.299Z",
+  "_hash": "b188c515af5de28494fc92f0a84ef95c1dd4af5296484522fb18ba0f3839a3a0"
+}

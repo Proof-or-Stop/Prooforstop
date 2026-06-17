@@ -1,0 +1,31 @@
+{
+  "task": "Wire existing runBoundedCodexProvider (B-1550 seam) into dispatch_run via a new runCodexRealLeafDispatch, add a parallel runBoundedGeminiProvider + runGeminiRealLeafDispatch, and upgrade the dispatch switch so codex/gemini take the real path when their CLI is in PATH and fall back to claude-code real dispatch otherwise.",
+  "outcome": "Developer runs lattice dispatch_auto --host=codex with codex CLI in PATH. The dispatch record reflects status=real with redacted digests + byte counts + exit code + duration; no 'scaffolded only' warning is printed. Same for --host=gemini. With BOTH CLIs absent from PATH, --host=codex logs a fallback line then proceeds with the claude-code leaf. CHANGELOG Unreleased documents the new dispatcher paths + fallback policy. Memory marks the live-dispatch blocker as RESOLVED for these hosts.",
+  "facts": [
+    "runBoundedCodexProvider exists at packages/main/src/providers/codex-cli.ts:96",
+    "runClaudeCodeRealLeafDispatch at packages/main/src/core/lattice-dispatch.ts:1938",
+    "Lines 757-795 emit scaffolded-only warnings for codex/gemini",
+    "dispatch_run real-host branch at ~line 2408 currently routes only claude-code",
+    "providers/gemini-cli.ts does NOT exist",
+    "Existing provider-codex-smoke.ts is the pattern for the new provider-gemini-smoke.ts"
+  ],
+  "constraints": [
+    "codex-cli.ts contract-frozen",
+    "usage-ledger module untouched (separate follow-up story)",
+    "runClaudeCodeRealLeafDispatch contract-frozen (only called from new fallback path)",
+    "No new usage adapter files in this story",
+    "Authority receipt-backed signing path out of scope"
+  ],
+  "unknowns": [
+    "Exact placement of fallback logging line (in dispatch switch vs warning collector)",
+    "Whether smoke-manifest.json needs a new entry for provider-gemini-smoke (directory-scan may pick up; verify in DEV)"
+  ],
+  "touchpoints": [
+    "packages/main/src/providers/gemini-cli.ts (new)",
+    "packages/main/src/tasks/provider-gemini-smoke.ts (new)",
+    "packages/main/src/core/lattice-dispatch.ts (add 2 RealLeafDispatch fns + dispatch switch upgrade + fallback policy + warning condition)",
+    "packages/main/smoke-manifest.json (only if directory-scan does not auto-discover)",
+    "CHANGELOG.md (Unreleased entry)"
+  ],
+  "timestamp": "2026-06-17T22:00:02.836Z"
+}

@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "Production behavior is correct and must not change; only tests/config may change.",
+    "Never weaken an assertion to make a test pass — fix the test environment, not the expectation.",
+    "A smoke must be hermetic: its result must not depend on ambient on-disk files at the cwd.",
+    "Keep timeout ceilings finite so a true hang still surfaces."
+  ],
+  "drivers": [
+    "test:all must be trustworthy (green) again so the suite gate has signal.",
+    "Two authority smokes pass/fail depending on whether an authority_trust.env exists at cwd — a flakiness source.",
+    "The original triage misdiagnosed autopilot-authority as stale-assertion; the empirical repro shows it is non-hermetic."
+  ],
+  "options": [
+    {
+      "name": "A-fileReader-hermetic",
+      "pros": [
+        "0 production change — fileReader is an existing test seam (options.fileReader ?? defaultAuthorityFileReader).",
+        "Keeps every assertion intact incl. shadow.status===warn — no coverage loss.",
+        "Makes result independent of cwd; passes with or without a planted authority_trust.env.",
+        "Same mechanism for both autopilot and multi-host — consistent."
+      ],
+      "cons": [
+        "Must thread fileReader through every env-only call site (~14 in multi-host, the buildAuthorityStatus path in autopilot) — easy to miss one.",
+        "Slightly more verbose test call sites."
+      ]
+    },
+    {
+      "name": "B-weaken-assertion",
+      "pros": [
+        "2-line change."
+      ],
+      "cons": [
+        "FACTUALLY WRONG: production keeps shadow no-URL behavior, so this breaks the smoke from a clean cwd / CI.",
+        "Weakens a valid assertion and hides a real URL-empty warning — violates the no-weakening principle."
+      ]
+    },
+    {
+      "name": "C-env-gate-skip",
+      "pros": [
+        "Removes the failures quickly."
+      ],
+      "cons": [
+        "Loses coverage of off-by-default machinery that CAN and should run in-process.",
+        "Masks the real non-hermeticity bug instead of fixing it."
+      ]
+    },
+    {
+      "name": "D-cwd-redirect",
+      "pros": [
+        "Also avoids reading the dev authority_trust.env."
+      ],
+      "cons": [
+        "Brittle — relies on process.chdir or passing cwd everywhere; other code may still read process.cwd().",
+        "fileReader override is the purpose-built test seam and is more explicit/localized."
+      ]
+    }
+  ],
+  "chosen": "A-fileReader-hermetic",
+  "rationale": "Option A uses the purpose-built fileReader test seam to make the smokes hermetic with 0 production change and 0 assertion weakening, and is verifiable by running each smoke from a cwd containing a planted authority_trust.env (must still pass). B is factually wrong and breaks CI; C loses coverage; D is more brittle than the dedicated seam.",
+  "preMortem": [
+    {
+      "scenario": "Implementer misses one env-only call site in multi-host (~14 sites), so the smoke still leaks the dev authority_trust.env at one assertion.",
+      "trigger": "Smoke passes from clean cwd but still FAILS from a cwd with a planted authority_trust.env.",
+      "consequence": "False sense of done; test:all still flaky depending on whether the runner cwd has the file.",
+      "mitigation": "Verification requires running each smoke from a planted-authority_trust.env cwd (mktemp + write LATTICE_AUTHORITY_LIVE_URL) and asserting exit 0 — not just from /tmp. grep the smoke for any resolveAuthorityVerdictBacking/loadAuthorityConfig/buildAuthorityStatus call lacking fileReader."
+    },
+    {
+      "scenario": "Implementer accidentally edits production source (authority-client.ts / authority-mode.ts) to thread fileReader, instead of only the smoke files.",
+      "trigger": "git diff main...HEAD --stat shows a non-test file changed.",
+      "consequence": "Violates the 0-production-change constraint and execution boundary; could change real behavior.",
+      "mitigation": "fileReader is ALREADY an existing production parameter — no production edit is needed. Execution boundary allows only the 4 test/config files. REVIEW + delivery reviewer check git diff --stat is test-only."
+    },
+    {
+      "scenario": "Implementer weakens the autopilot assertion (warn->pass) per the stale triage text in some cached prompt.",
+      "trigger": "shadow.status assertion changed to pass or readinessWarnings===0 in the diff.",
+      "consequence": "Smoke breaks from a clean cwd / CI; a valid no-URL warning is hidden; production-correctness regression masked.",
+      "mitigation": "CHK-001 context, description, and background all explicitly forbid this; implementer prompt restates KEEP shadow.status===warn; reviewer greps the diff for assertion changes."
+    },
+    {
+      "scenario": "A timeout value is raised to an absurd/infinite ceiling while re-verifying CHK-002.",
+      "trigger": "smoke-manifest.json shows a timeoutMs like 0/Infinity/huge value.",
+      "consequence": "A future real hang would never TIMEOUT, silently stalling the suite.",
+      "mitigation": "Constraint: finite measured ceiling only; re-verify keeps existing 180000-240000 values unless a measured standalone time needs more, and never sets Infinity."
+    }
+  ],
+  "timestamp": "2026-06-17T22:28:55.644Z"
+}

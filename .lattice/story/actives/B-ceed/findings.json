@@ -1,0 +1,95 @@
+{
+  "findings": [
+    {
+      "id": "B-ceed:F-001",
+      "desc": "doc-promise-undelivered: CHK-002 plan required refining the scaffolded-only warning at line 757 to fire only when no real path is taken, but probeHostRuntime still emits `runtime is scaffolded only: Lattice records invocation metadata and waits for a local receipt; it does not auto-drive the external host.` for codex and gemini when available in PATH, even though runDispatch now has real dispatch paths for both. Line 798 limitations array also still says Real-host execution is scaffolded only in this milestone and line 801 says No external host is auto-driven by Lattice dispatch_run — both factually false for codex/gemini when allowRealHostSubprocess=true. The plan checklist CHK-002 explicitly required this fix.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-17T22:16:37.911Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-001",
+      "_hash": "b4e7be72b32e1d7a25683dd2e0294faaed1e052faced72dc5aaeb680041abb3a",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "resolvedReason": "Fixed in commit 449387731: F-001 probeHostRuntime now skips scaffolded-only warning + limitations for codex/gemini (supportsLiveDispatch branch); F-002 dispatch_auto now allows codex/gemini hosts; F-003 isProviderName includes 'gemini'; F-004 isRealProvider includes 'gemini'; F-005 unused worktreeAbs param removed.",
+      "resolvedAt": "2026-06-17T22:20:52.655Z"
+    },
+    {
+      "id": "B-ceed:F-002",
+      "desc": "doc-promise-undelivered: background.md (a1) promises lattice dispatch_auto --host=codex invokes a real codex subprocess when CLI is in PATH, and (a2) promises --host=gemini invokes real gemini subprocess — but dispatch_auto still throws at line 3081-3084 for any selectedHost !== claude-code. Additionally line 3008 always passes allowRealHostSubprocess=false for codex/gemini, so even if the guard were bypassed the runDispatch switch at lines 2506/2515 would never fire the real paths. The real codex/gemini dispatch is only reachable via direct programmatic runDispatch calls with allowRealHostSubprocess=true, not via dispatch_auto.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-17T22:16:57.763Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-001",
+      "_hash": "163bacfccecdebeca860df03d81dddf1d98b7f858c842fd0cac33e37b8b38885",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        ".lattice/story/actives/B-ceed/background.md"
+      ],
+      "resolvedReason": "Fixed in commit 449387731: F-001 probeHostRuntime now skips scaffolded-only warning + limitations for codex/gemini (supportsLiveDispatch branch); F-002 dispatch_auto now allows codex/gemini hosts; F-003 isProviderName includes 'gemini'; F-004 isRealProvider includes 'gemini'; F-005 unused worktreeAbs param removed.",
+      "resolvedAt": "2026-06-17T22:20:53.224Z"
+    },
+    {
+      "id": "B-ceed:F-003",
+      "desc": "quality-cleanup: planned-steps-executor.ts:324 isProviderName guard does not include gemini — type ProviderName widened to include gemini but the runtime guard still returns false for gemini, causing providerPolicy.primaryProvider=gemini to silently fall back to fake and allowedProviders/fallbackProviders containing gemini to be silently filtered out",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T22:17:37.960Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-002",
+      "_hash": "2ad4d57e8e56ffc2f0ef2ac20333985da8c1ea6c6117cfb11c6194ec88dd0581",
+      "files": [
+        "packages/main/src/core/planned-steps-executor.ts"
+      ],
+      "resolvedReason": "Fixed in commit 449387731: F-001 probeHostRuntime now skips scaffolded-only warning + limitations for codex/gemini (supportsLiveDispatch branch); F-002 dispatch_auto now allows codex/gemini hosts; F-003 isProviderName includes 'gemini'; F-004 isRealProvider includes 'gemini'; F-005 unused worktreeAbs param removed.",
+      "resolvedAt": "2026-06-17T22:20:53.826Z"
+    },
+    {
+      "id": "B-ceed:F-004",
+      "desc": "quality-cleanup: planned-steps-executor.ts:328 isRealProvider guard does not include gemini — BoundedProviderName widened to include gemini but the runtime guard still returns false for gemini, causing productionDoneProviders containing gemini to be silently filtered to empty (reals() call at line 337), making gemini ineligible as a real provider in resolveProviderPolicy at runtime despite the type allowing it",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T22:17:48.682Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-002",
+      "_hash": "1697a3caa8add64e188fc255826bff9e88f59e47ae646d1aa45d4a3de8135895",
+      "files": [
+        "packages/main/src/core/planned-steps-executor.ts"
+      ],
+      "resolvedReason": "Fixed in commit 449387731: F-001 probeHostRuntime now skips scaffolded-only warning + limitations for codex/gemini (supportsLiveDispatch branch); F-002 dispatch_auto now allows codex/gemini hosts; F-003 isProviderName includes 'gemini'; F-004 isRealProvider includes 'gemini'; F-005 unused worktreeAbs param removed.",
+      "resolvedAt": "2026-06-17T22:20:54.390Z"
+    },
+    {
+      "id": "B-ceed:F-005",
+      "desc": "quality-cleanup: lattice-dispatch.ts:1987 unused parameter worktreeAbs silenced with void worktreeAbs — runBoundedRealLeafDispatch accepts worktreeAbs but never uses it (uses record.worktree.worktreePath instead); void-ing a parameter is a dead-code smell; should be removed from the signature or prefixed with underscore to clarify intent",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T22:17:57.744Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-002",
+      "_hash": "1f318376512634e9e14ebfe5e435004a812b17f5c2dc5d1237d2cf769fbc225d",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "resolvedReason": "Fixed in commit 449387731: F-001 probeHostRuntime now skips scaffolded-only warning + limitations for codex/gemini (supportsLiveDispatch branch); F-002 dispatch_auto now allows codex/gemini hosts; F-003 isProviderName includes 'gemini'; F-004 isRealProvider includes 'gemini'; F-005 unused worktreeAbs param removed.",
+      "resolvedAt": "2026-06-17T22:20:54.955Z"
+    }
+  ]
+}

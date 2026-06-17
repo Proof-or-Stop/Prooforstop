@@ -40,7 +40,7 @@ export interface ILLMProvider {
 // secrets or be promoted into gate evidence.
 
 /** Real bounded providers. `fake` is handled deterministically and never reaches this contract. */
-export type BoundedProviderName = 'codex' | 'claude';
+export type BoundedProviderName = 'codex' | 'claude' | 'gemini';
 
 export interface ProviderExecRequest {
   provider: BoundedProviderName;

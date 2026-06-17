@@ -4,7 +4,7 @@
   "title": "Story #3: unblock codex + gemini real-host live dispatch (with claude-code fallback)",
   "description": "Add runCodexRealLeafDispatch + runGeminiRealLeafDispatch + providers/gemini-cli.ts + dispatch switch upgrade. Wires the existing runBoundedCodexProvider seam (B-1550) into dispatch_run and adds the equivalent gemini-cli provider + leaf. When both codex/gemini are unavailable in PATH, auto-fallback to claude-code real dispatch. Unblocks LLM usage ledger real-capture for codex/gemini per [[llm-usage-ledger-status]] memory. Out of scope: codex.ts/gemini.ts usage adapters (follow-up); Authority receipt-backed signing (future).",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "dispatch",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-17T21:52:19.039Z",
   "startedAt": "2026-06-17T21:52:19.039Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T22:27:04.004Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T21:59:07.943Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:03:38.258Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:13:53.080Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:18:33.515Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:20:51.395Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:23:28.614Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:27:04.004Z",
+      "branch": "story/B-ceed",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-ceed",
-    "branch": "story/B-ceed",
-    "createdAt": "2026-06-17T21:58:52.618Z"
-  }
+  "currentReviewRound": "2026-06-17T22:20:51.395Z"
 }

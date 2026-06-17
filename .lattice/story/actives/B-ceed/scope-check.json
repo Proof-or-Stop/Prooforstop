@@ -1,0 +1,136 @@
+{
+  "storyId": "B-ceed",
+  "checkedAt": "2026-06-17T22:03:16.560Z",
+  "features": [
+    {
+      "feature": "providers/gemini-cli.ts file — new Gemini CLI provider module",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "geminiCliAvailable() export from gemini-cli.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "runBoundedGeminiProvider() export from gemini-cli.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "provider-gemini-smoke.ts — 4-case contract smoke test (success / disabled / timeout / missing binary)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "smoke-manifest.json update to register provider-gemini-smoke entry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "runCodexRealLeafDispatch function in lattice-dispatch.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "runGeminiRealLeafDispatch function in lattice-dispatch.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "dispatch switch upgrade — route to runCodexRealLeafDispatch when codexCliAvailable()",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "dispatch switch upgrade — route to runGeminiRealLeafDispatch when geminiCliAvailable()",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "fallback to runClaudeCodeRealLeafDispatch with logged degradation reason when both codex and gemini CLIs unavailable",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "scaffolded-only warning update to fire only when real path is not taken (CLI unavailable AND no fallback)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry documenting codex/gemini live-dispatch and fallback policy",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "auto-memory llm-usage-ledger-status.md update — mark codex/gemini live-dispatch UNBLOCKED and clarify usage-adapter follow-up remains separate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dev-memory.md"
+    },
+    {
+      "feature": "Gemini/Codex real-subprocess upgrade (host-overflow.md v1.0.1 gap: both were scaffolded/refused real-subprocess targets)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    },
+    {
+      "feature": "codex.ts / gemini.ts usage-ledger provider adapters (real token capture for ledger)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "description explicitly states: Out of scope: codex.ts/gemini.ts usage adapters (follow-up)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Authority receipt-backed signing for dispatch",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "description explicitly states: Authority receipt-backed signing (future)",
+      "source": "description"
+    },
+    {
+      "feature": "runClaudeCodeRealLeafDispatch contract unchanged (seam freeze from B-1550/B-a5c2)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/host-overflow.md"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 15,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "08c6e84c3806a609e2dc9815c9103ee56b2baa3eff3b213cf20b59db21c8b94e",
+  "openQuestions": []
+}

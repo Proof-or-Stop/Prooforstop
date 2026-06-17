@@ -36,6 +36,13 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   LATTICE_AUTHORITY_ACTOR_KEY_PATH: '',
   LATTICE_AUTHORITY_RUNNER_ID: '',
   LATTICE_AUTHORITY_SESSION_ID: '',
+  // Hermetic isolation: neutralize any ambient on-disk authority profile so the
+  // dev's real authority_trust.env / authority.md (resolved relative to cwd, or
+  // via an absolute *_FILE override) cannot leak a real URL into shadow mode.
+  // These clear the file-path overrides; the cwd seam below points the default
+  // relative paths at the (authority-file-free) temp root.
+  LATTICE_AUTHORITY_TRUST_ENV_FILE: '',
+  LATTICE_AUTHORITY_KEY_FILE: '',
 };
 
 const READY_AUTHORITY_ENV: EnvOverride = {
@@ -176,7 +183,12 @@ try {
   const store = new StoryStore(root);
   seedStory(store);
 
-  const local = buildAutopilotRun(store, { mode: 'local', until: 'DONE', storyId: 'B-auto' }, EMPTY_AUTHORITY_ENV);
+  // Pass cwd:root (a fresh temp dir with no authority_trust.env/authority.md) so
+  // the authority config's default-relative file reads resolve to nothing —
+  // hermetic regardless of the dev's real cwd. cwd is an existing production
+  // parameter (AuthorityConfigLoadOptions.cwd); threading it from the test is
+  // 0 production change.
+  const local = buildAutopilotRun(store, { mode: 'local', until: 'DONE', storyId: 'B-auto' }, EMPTY_AUTHORITY_ENV, { cwd: root });
   assert.equal(local.status, 'pass');
   assert.equal(local.localWorkflowUsable, true);
   assert.equal(local.authorityRequired, false);
@@ -186,13 +198,13 @@ try {
   assert.equal(local.authorityDone, false, 'local mode never claims authority DONE');
   assertNoProductionOverclaim(local, 'local autopilot');
 
-  const shadow = buildAutopilotRun(store, { mode: 'shadow', storyId: 'B-auto' }, EMPTY_AUTHORITY_ENV);
+  const shadow = buildAutopilotRun(store, { mode: 'shadow', storyId: 'B-auto' }, EMPTY_AUTHORITY_ENV, { cwd: root });
   assert.equal(shadow.status, 'warn');
   assert.equal(shadow.localWorkflowUsable, true);
   assert.equal(shadow.authorityRequired, false);
   assert(shadow.authority.readinessWarnings.length > 0, 'shadow mode should surface authority warnings');
 
-  const authorityMissing = buildAutopilotRun(store, { mode: 'authority', until: 'DONE', storyId: 'B-auto' }, EMPTY_AUTHORITY_ENV);
+  const authorityMissing = buildAutopilotRun(store, { mode: 'authority', until: 'DONE', storyId: 'B-auto' }, EMPTY_AUTHORITY_ENV, { cwd: root });
   assert.equal(authorityMissing.status, 'fail');
   assert.equal(authorityMissing.localWorkflowUsable, true);
   assert.equal(authorityMissing.authorityRequired, true);
@@ -205,6 +217,7 @@ try {
     store,
     { mode: 'authority', until: 'TEST', storyId: 'B-auto' },
     { ...EMPTY_AUTHORITY_ENV, ...READY_AUTHORITY_ENV },
+    { cwd: root },
   );
   assert.equal(authorityReadyForTest.status, 'pass');
   assert.equal(authorityReadyForTest.receiptRequired, false);
@@ -214,6 +227,7 @@ try {
     store,
     { mode: 'authority', until: 'DONE', storyId: 'B-auto' },
     { ...EMPTY_AUTHORITY_ENV, ...READY_AUTHORITY_ENV },
+    { cwd: root },
   );
   assert.equal(authorityDoneWithoutReceipt.status, 'fail');
   assert.equal(authorityDoneWithoutReceipt.receiptRequired, true);
@@ -233,6 +247,7 @@ try {
       authorityPublicKey: publicKey,
     },
     { ...EMPTY_AUTHORITY_ENV, ...READY_AUTHORITY_ENV },
+    { cwd: root },
   );
   assert.equal(legacyReceiptCannotSatisfyNativeDone.status, 'fail');
   assert.equal(legacyReceiptCannotSatisfyNativeDone.receipt.verified, false);
@@ -253,6 +268,7 @@ try {
       receiptStoryId: 'B-other',
     },
     { ...EMPTY_AUTHORITY_ENV, ...READY_AUTHORITY_ENV },
+    { cwd: root },
   );
   assert.equal(authorityWrongStoryReceipt.status, 'fail');
   assert.equal(authorityWrongStoryReceipt.receipt.verified, false);
@@ -275,6 +291,7 @@ try {
       receiptClockSkewMs: 60_000,
     },
     { ...EMPTY_AUTHORITY_ENV, ...READY_AUTHORITY_ENV },
+    { cwd: root },
   );
   assert.equal(authorityNativeReceipt.status, 'pass');
   assert.equal(authorityNativeReceipt.receiptRequired, true);
@@ -312,6 +329,7 @@ try {
       receiptClockSkewMs: 0,
     },
     { ...EMPTY_AUTHORITY_ENV, ...READY_AUTHORITY_ENV },
+    { cwd: root },
   );
   assert.equal(authorityStaleNativeReceipt.status, 'fail');
   assert.equal(authorityStaleNativeReceipt.receipt.verified, false);
@@ -342,6 +360,7 @@ try {
       receiptClockSkewMs: 60_000,
     },
     { ...EMPTY_AUTHORITY_ENV, ...READY_AUTHORITY_ENV },
+    { cwd: root },
   );
   assert.equal(authorityMissingDigestReceipt.status, 'fail');
   assert.equal(authorityMissingDigestReceipt.receipt.verified, false);
@@ -358,7 +377,7 @@ try {
   // outcomes are already exercised above via buildAutopilotRun(); the new
   // CLI-surface contract is covered by authority-receipt-proof-smoke.ts.
 
-  const status = buildAutopilotStatus(EMPTY_AUTHORITY_ENV);
+  const status = buildAutopilotStatus(EMPTY_AUTHORITY_ENV, { cwd: root });
   assert.equal(status.localAvailable, true);
   assert.equal(status.defaultMode, 'local');
   assert.equal(status.productionDone, false);

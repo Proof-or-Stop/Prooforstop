@@ -1,0 +1,136 @@
+{
+  "storyId": "B-6745",
+  "checkedAt": "2026-06-17T22:31:51.181Z",
+  "features": [
+    {
+      "feature": "authority-job-loop-live: rebuild + verify only (no source edit, no env-gate)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "autopilot-authority: hermetic fileReader fix ({fileReader: () => undefined}) to remove ambient authority_trust.env leakage",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "autopilot-authority: keep all existing assertions (shadow.status===warn, readinessWarnings.length>0, localWorkflowUsable===true, authorityRequired===false)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "multi-host-authority: hermetic fileReader fix at ~14 resolveAuthorityVerdictBacking/loadAuthorityConfig call sites",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "multi-host-authority: keep existing assertion E2 mode===local",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "True hermeticity: smokes must exit 0 from BOTH clean cwd AND cwd containing planted authority_trust.env (not merely from /tmp)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "0 production code change: only the 3 *-smoke.ts files and smoke-manifest.json may change",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "5 slow smokes re-verify: cli-json-stdout-contract, dispatch-run, experience-layer-playbook, lattice-baseline, planner-unattended confirm PASS in test:all within already-raised finite timeout ceilings",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Finite timeout ceiling constraint: no timeoutMs set to Infinity or absurd value; true hangs must still TIMEOUT",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full test:all reaching ~162/162 (up from 154/162) after all 8 P5 smokes are green",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "autopilot-authority-smoke.ts mechanical guard: shadow mode assertions (shadow.status===warn, readinessWarnings, localWorkflowUsable, authorityRequired) preserved as spec-committed in authority-client-role.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "multi-host-authority-smoke.ts mechanical guard: §X9 receipt-before-verdict ordering, multi-host disagreement behavior preserved (authority-client-role.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "authority-job-loop-live-smoke.ts covers lease state machine / hermetic integration (fake fetch + mkdtemp + fixed clock) as described in lattice-authority-live-integration.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "smoke-manifest.json as the canonical per-smoke timeout control (test-runner-consolidation-plan.md: in-house runner + manifest architecture)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "dist-standalone-executable pattern: smokes run against compiled dist artifact; npm run build required before verification (test-runner-consolidation-plan.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "B-6666/B-75f0 gitroot-cwd burndown: explicitly out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints: Do not touch sibling B-6666/B-75f0 gitroot-cwd burndown",
+      "source": "description"
+    },
+    {
+      "feature": "P5 keep/flag/extract product decision: explicitly out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints: Do not touch the P5 keep/flag/extract product decision",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 15,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d29d3176689a5a51d92d96149111636364da349231c1081be5347134342a7a7a",
+  "openQuestions": []
+}
