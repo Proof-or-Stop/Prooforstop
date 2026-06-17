@@ -116,6 +116,17 @@
           "headHash": "7a31f2643c9ab45abc48c504818dc8009c77f047",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:08.058Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/providers/codex-cli.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — codex-cli.ts byte-identical (B-1550 frozen).",
+          "headHash": "59bbe7a5c87906de0ece359c5505393e82ca4dc3",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:08.678Z"
         }
       ]
     },
