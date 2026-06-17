@@ -7,7 +7,63 @@
       "userSees": "The smoke asserts the loader returns ranked top-N hints with correct priority ordering, the score-threshold filter, the common-false-positive bucket, and support shown alongside score.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "loadExperienceHints with 5 recurring signals (scores 0.9, 0.8, 0.7, 0.66, 0.5) + 3 false-positive signals -> returns top-3 recurring (score>=0.65 only, so 0.5 excluded) + top-2 false-positive, ordered by priority=signalScore*log(1+support)*recencyBoost descending; WHY: covers main ranking formula, score threshold, bucket caps, and top-N truncation",
+            "type": "cli"
+          },
+          {
+            "desc": "Each returned hint includes progressive disclosure format: summary line with score + support + source shown, full detail not expanded by default; WHY: verifies progressive disclosure output requirement",
+            "type": "cli"
+          },
+          {
+            "desc": "Low-score + high-false-positive signals are classified into common_false_positive bucket, not recurring bucket; WHY: verifies the two-bucket classification logic",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "One-hit high-score signal (score=0.95, support=1) vs many-hit moderate signal (score=0.7, support=50) -> many-hit signal ranks higher because log(1+50)*0.7 >> log(1+1)*0.95; WHY: proves log(1+support) damping prevents one-hit wonders from dominating",
+            "type": "cli"
+          },
+          {
+            "desc": "Exactly 3 recurring + exactly 2 false-positive signals -> all returned (at cap boundary); 4 recurring + 3 fp -> lowest-priority from each bucket dropped; WHY: boundary test at top-N caps",
+            "type": "cli"
+          },
+          {
+            "desc": "All signals have signalScore < 0.65 and low falsePositiveRate -> zero recurring hints, zero fp hints -> empty result; WHY: no signal qualifies for either bucket",
+            "type": "cli"
+          },
+          {
+            "desc": "Signal with signalScore exactly 0.65 -> included in recurring (boundary inclusive); signal at 0.6499 -> excluded; WHY: threshold boundary precision",
+            "type": "cli"
+          },
+          {
+            "desc": "Signals with identical priority scores -> stable deterministic sort order; WHY: prevents non-deterministic flicker in hint ordering",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Import-fence: grep experience-hint-loader.ts imports and assert only learning-store + experience-layer-types + node: builtins; then inject a forbidden import and re-scan -> now detected; WHY: non-vacuous import-fence test proves the scan catches real violations",
+            "type": "cli"
+          },
+          {
+            "desc": "finding-signals.json contains malformed/truncated JSON -> loader returns empty hints gracefully without throwing; WHY: file corruption resilience",
+            "type": "cli"
+          },
+          {
+            "desc": "finding-signals.json contains a signal with NaN signalScore -> that signal excluded, other valid signals still returned; WHY: invalid numeric input handling",
+            "type": "cli"
+          },
+          {
+            "desc": "finding-signals.json missing (file not found) -> loader returns empty hints, no crash; WHY: cold-start scenario with no signals yet",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
