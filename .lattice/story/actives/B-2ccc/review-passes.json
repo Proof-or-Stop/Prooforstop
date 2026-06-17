@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T14:29:15.897Z",
       "reviewRunId": "B-2ccc:RR-008",
       "_hash": "36f2f4b219cb18573f37cf48549811e8d1487c75a8b7ba44520df214997cc871"
+    },
+    {
+      "id": "B-2ccc:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "All 3 checklist items verified against diff and live smoke output. CHK-001: core/digest.ts exists, exports exactly Digestable/canonicalJson/digestCanonicalJson/digestText, normalizeJson private, only node:crypto imported — all 5 pinned sha256 hashes match. CHK-002: decision-doc-promotion.ts removes all four inline defs, imports from ../core/digest.js, re-exports backward-compat symbols; computeDecisionDocProposalDigest pinned value unchanged. CHK-003: npm run test:experience-layer-digest-extract exits 0, TOTAL 22 | PASS 22, smoke passed; decision-doc-promotion-smoke.js 9/9 passed; all 5 regression sub-smokes passed. Boundary conditions (undefined keys, empty obj, empty string, deep nesting, import-fence non-vacuousness, dynamic re-export import, createHash absence) all covered by named checks and confirmed PASS. No spec boundary cases from decision-doc-promotion-execution-plan.md are in scope for this extraction-only refactor story. No findings.",
+      "createdAt": "2026-06-17T14:31:25.330Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-007",
+      "_hash": "83666c5a64be2d64973503d918f94ae81d619aad95ec158ca9737c4546865047"
     }
   ]
 }
