@@ -52,6 +52,10 @@ const PIN = {
   digestStr: '40354c6d81d540b8ac744252a78571c3d9892b0962e71a894f0be3c2aca0b032',
   textStr: '4e9117d7d31481237f835463368f7d1f92b389f0b2072a5b5a5a7cb5a9e6659c',
   proposalDigest: '0de71653afa54c4fa623cebb6cba496f18ad6336cb72daadfe6bcd8af7d9634e',
+  // sha256 of the literal canonical-JSON string '{}' (empty object).
+  digestEmptyObj: '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a',
+  // sha256 of the empty string '' (digestText('')).
+  textEmpty: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
 } as const;
 
 const PINNED_OBJ = { b: 2, a: 1, nested: { z: [3, 2, 1], y: null } };
@@ -87,10 +91,10 @@ const PINNED_PROPOSAL = {
 
 let total = 0;
 let passed = 0;
-function check(label: string, fn: () => void): void {
+async function check(label: string, fn: () => void | Promise<void>): Promise<void> {
   total += 1;
   try {
-    fn();
+    await fn();
     passed += 1;
     console.log(`check: ${label} — PASS`);
   } catch (err) {
@@ -112,37 +116,37 @@ function importSpecifiers(src: string): string[] {
   return out;
 }
 
-function run(): void {
+async function run(): Promise<void> {
   // ─── PINNED: byte-identical canonicalization + digests ──────────────────────
-  check('pinned: canonicalJson(obj) is the exact pinned canonical string', () => {
+  await check('pinned: canonicalJson(obj) is the exact pinned canonical string', () => {
     assert.equal(canonicalJson(PINNED_OBJ), PIN.canonicalObj);
   });
 
-  check('pinned: digestCanonicalJson(obj) matches the pre-refactor sha256', () => {
+  await check('pinned: digestCanonicalJson(obj) matches the pre-refactor sha256', () => {
     assert.equal(digestCanonicalJson(PINNED_OBJ), PIN.digestObj);
   });
 
-  check('pinned: canonicalJson(str) JSON-encodes the string (with quotes)', () => {
+  await check('pinned: canonicalJson(str) JSON-encodes the string (with quotes)', () => {
     assert.equal(canonicalJson(PINNED_STR), PIN.canonicalStr);
   });
 
-  check('pinned: digestCanonicalJson(str) matches the pre-refactor sha256', () => {
+  await check('pinned: digestCanonicalJson(str) matches the pre-refactor sha256', () => {
     assert.equal(digestCanonicalJson(PINNED_STR), PIN.digestStr);
   });
 
-  check('pinned: digestText(str) matches the pre-refactor sha256', () => {
+  await check('pinned: digestText(str) matches the pre-refactor sha256', () => {
     assert.equal(digestText(PINNED_STR), PIN.textStr);
   });
 
   // ─── ORDER-INDEPENDENT canonicalization ─────────────────────────────────────
-  check('order-independent: digestCanonicalJson({a,b}) === digestCanonicalJson({b,a})', () => {
+  await check('order-independent: digestCanonicalJson({a,b}) === digestCanonicalJson({b,a})', () => {
     const ab = digestCanonicalJson({ a: 1, b: 2 });
     const ba = digestCanonicalJson({ b: 2, a: 1 });
     assert.equal(ab, ba, 'key order must not change the digest');
   });
 
   // ─── DISTINCT functions: digestText !== digestCanonicalJson for a string ─────
-  check('distinct: digestText(x) !== digestCanonicalJson(x) for a string x', () => {
+  await check('distinct: digestText(x) !== digestCanonicalJson(x) for a string x', () => {
     const x = 'distinct-fixture';
     // digestCanonicalJson hashes JSON.stringify(x) (quoted); digestText hashes x raw.
     assert.notEqual(digestText(x), digestCanonicalJson(x), 'the two functions must differ');
@@ -151,12 +155,68 @@ function run(): void {
   });
 
   // ─── PROPOSAL-DIGEST stability ──────────────────────────────────────────────
-  check('proposal-digest: computeDecisionDocProposalDigest is the pinned value', () => {
+  await check('proposal-digest: computeDecisionDocProposalDigest is the pinned value', () => {
     assert.equal(computeDecisionDocProposalDigest(PINNED_PROPOSAL), PIN.proposalDigest);
   });
 
+  // ─── CHK-001 edge/adversarial canonicalization intents ──────────────────────
+  await check('CHK-001:edge:2 undefined-valued keys omitted', () => {
+    // canonicalJson/digestCanonicalJson of {a:1, b:undefined} equals that of {a:1}.
+    assert.equal(canonicalJson({ a: 1, b: undefined }), canonicalJson({ a: 1 }), 'undefined-valued keys must be stripped');
+    assert.equal(canonicalJson({ a: 1, b: undefined }), '{"a":1}', 'undefined key must not appear in canonical JSON');
+    assert.equal(
+      digestCanonicalJson({ a: 1, b: undefined }),
+      digestCanonicalJson({ a: 1 }),
+      'digest must be identical when the only difference is an undefined-valued key',
+    );
+  });
+
+  await check('CHK-001:edge:3 empty object deterministic', () => {
+    // digestCanonicalJson({}) equals the sha256 of '{}' (pinned).
+    assert.equal(canonicalJson({}), '{}', 'empty object canonicalizes to {}');
+    assert.equal(digestCanonicalJson({}), PIN.digestEmptyObj, 'empty-object digest must be the pinned sha256 of "{}"');
+  });
+
+  await check('CHK-001:edge:4 digestText empty string', () => {
+    // digestText('') equals the sha256 of '' (pinned).
+    assert.equal(digestText(''), PIN.textEmpty, 'digestText("") must be the pinned sha256 of the empty string');
+  });
+
+  await check('CHK-001:adversarial:1 deep nesting 100 levels no crash', () => {
+    // Build a 100-level nested object; assert no throw and deterministic.
+    function buildDeep(depth: number): Record<string, unknown> {
+      let node: Record<string, unknown> = { leaf: depth };
+      for (let i = 0; i < depth; i += 1) node = { child: node };
+      return node;
+    }
+    const a = buildDeep(100);
+    const b = buildDeep(100);
+    let hashA = '';
+    let hashB = '';
+    assert.doesNotThrow(() => { hashA = digestCanonicalJson(a); }, 'deep nesting must not throw');
+    assert.doesNotThrow(() => { hashB = digestCanonicalJson(b); }, 'deep nesting must not throw');
+    assert.equal(hashA, hashB, 'same 100-level input must produce the same hash (deterministic)');
+  });
+
+  // ─── CHK-002 backward-compat re-export intents ──────────────────────────────
+  await check('CHK-002:edge:0 decision-doc re-exports digest fns', async () => {
+    // Import from the COMPILED decision-doc-promotion module (dist) and assert
+    // all three re-exported names are functions.
+    const mod = await import(join(MAIN_DIR, 'dist', 'handlers', 'decision-doc-promotion.js'));
+    assert.equal(typeof mod.canonicalJson, 'function', 'canonicalJson must be re-exported as a function');
+    assert.equal(typeof mod.digestCanonicalJson, 'function', 'digestCanonicalJson must be re-exported as a function');
+    assert.equal(typeof mod.digestText, 'function', 'digestText must be re-exported as a function');
+  });
+
+  await check('CHK-002:edge:1 Digestable not locally defined in decision-doc', () => {
+    // Source must NOT locally DEFINE the Digestable type; a re-export is allowed.
+    const src = readFileSync(join(MAIN_DIR, 'src', 'handlers', 'decision-doc-promotion.ts'), 'utf-8');
+    assert.ok(!/\btype\s+Digestable\s*=/.test(src), 'must not define `type Digestable =` locally');
+    assert.ok(!/\binterface\s+Digestable\b/.test(src), 'must not define `interface Digestable` locally');
+  });
+
   // ─── IMPORT-FENCE: core/digest.ts imports ONLY node:crypto ──────────────────
-  check('import-fence: core/digest.ts imports only node:crypto (static scan)', () => {
+  await check('import-fence: core/digest.ts imports only node:crypto (static scan)', () => {
     const src = readFileSync(join(MAIN_DIR, 'src', 'core', 'digest.ts'), 'utf-8');
     const specs = importSpecifiers(src);
     assert.ok(specs.length > 0, 'digest.ts must have at least one import (node:crypto)');
@@ -165,7 +225,7 @@ function run(): void {
     assert.deepEqual(foreign, [], `digest.ts must import ONLY node:crypto; found extra: ${foreign.join(', ')}`);
   });
 
-  check('import-fence: the static scan is non-vacuous (catches a planted foreign import)', () => {
+  await check('import-fence: the static scan is non-vacuous (catches a planted foreign import)', () => {
     const real = readFileSync(join(MAIN_DIR, 'src', 'core', 'digest.ts'), 'utf-8');
     const planted = `import { join } from 'node:path';\n${real}`;
     const specs = importSpecifiers(planted);
@@ -174,7 +234,7 @@ function run(): void {
   });
 
   // ─── NO-LOCAL-DEFS in decision-doc-promotion.ts ─────────────────────────────
-  check('no-local-defs: decision-doc-promotion.ts imports the helpers and defines none locally', () => {
+  await check('no-local-defs: decision-doc-promotion.ts imports the helpers and defines none locally', () => {
     const src = readFileSync(join(MAIN_DIR, 'src', 'handlers', 'decision-doc-promotion.ts'), 'utf-8');
     // It must import from the leaf module.
     assert.match(src, /from\s+['"]\.\.\/core\/digest\.js['"]/, 'must import from ../core/digest.js');
@@ -196,7 +256,7 @@ function run(): void {
     { label: 'experience-layer-hint-injection', rel: 'dist/tasks/experience-layer-hint-injection-smoke.js' },
   ];
   for (const { label, rel } of regressionSmokes) {
-    check(`no-regression: ${label} smoke still prints "smoke passed"`, () => {
+    await check(`no-regression: ${label} smoke still prints "smoke passed"`, () => {
       const out = execFileSync('node', [rel], { cwd: MAIN_DIR, encoding: 'utf-8' });
       assert.match(out, /smoke passed/, `${label} smoke must print "smoke passed"`);
     });
@@ -210,4 +270,8 @@ function run(): void {
   console.log('smoke passed');
 }
 
-run();
+run().catch((err) => {
+  console.error(err instanceof Error ? (err.stack ?? err.message) : String(err));
+  console.error('smoke FAILED');
+  process.exitCode = 1;
+});

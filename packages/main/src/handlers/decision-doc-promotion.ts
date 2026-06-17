@@ -1,6 +1,10 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { digestCanonicalJson, digestText } from '../core/digest.js';
+// Backward-compat re-exports (B-2ccc CHK-002:edge:0): downstream consumers that
+// imported these from this module before the extraction keep working.
+export { canonicalJson, digestCanonicalJson, digestText } from '../core/digest.js';
+export type { Digestable } from '../core/digest.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { digestScopeExtensionDecision, digestScopeExtensionProposal } from '../core/scope-anti-expansion.js';
 import type {
