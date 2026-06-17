@@ -165,12 +165,12 @@
           "intentRef": "CHK-001:adversarial:1",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git diff main...HEAD -- 'packages/main/src/tasks/*-smoke.ts' | wc -l",
+          "command": "git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l",
           "result": "pass",
-          "note": "Returns 0 (three-dot diff = changes introduced by THIS branch vs common ancestor; correct over-reach guard). Two-dot `git diff main` would show 4621 lines, but that is B-40eb's koala-residue sweep that landed on main AFTER this worktree was created (commit 8ea7a37ea) — three-dot isolates B-d7c3's actual changes.",
-          "headHash": "318e4e579cfec4b5dbd9c2351b3e264ba9dd310f",
-          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:51:39.931Z"
+          "note": "Returns 0 — three-dot diff isolated to the two files the intent names (run-all-smokes.ts + run-all-smokes-smoke.ts). They are NOT in scope_contract_acknowledge (only provider-codex-smoke.ts and reviewer-quorum-smoke.ts were ack'd for F-010 comment edits). Runner source byte-identical on this branch.",
+          "headHash": "20d04896ec7ac27ada79a26eac8b16495539751c",
+          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
+          "timestamp": "2026-06-17T13:02:55.839Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
