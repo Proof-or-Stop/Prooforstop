@@ -206,9 +206,9 @@
       "title": "Content fix: remove the CJK that english-open-source-surface flags in usage-ledger-estimate-smoke.ts",
       "context": "english-open-source-surface is NOT an assertion drift — it correctly flags CJK content in packages/main/src/tasks/usage-ledger-estimate-smoke.ts (the English-only OSS surface check working as intended). Fix the CONTENT: translate/remove the flagged CJK in that test file (comments/strings) so it is English-only, per the OSS English-only policy. Do not change the english-open-source-surface check itself. Verify english-open-source-surface passes standalone after, and that usage-ledger-estimate-smoke still passes (you only touched its non-functional text).",
       "userSees": "english-open-source-surface PASSES standalone (no CJK flagged); usage-ledger-estimate-smoke.ts is English-only and still passes its own assertions.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T20:37:39.939Z",
       "verificationIntent": {
         "happy": [
           {
