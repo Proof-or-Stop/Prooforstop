@@ -1,0 +1,69 @@
+{
+  "storyId": "B-32b9",
+  "checkedAt": "2026-06-17T19:51:10.021Z",
+  "reviewRound": "2026-06-17T19:27:55.084Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-32b9/background.md#touchpoints",
+      "promise": "lattice-console-serve.js buildLineageGraph adds understanding node reading understanding.json for PLAN-phase stories",
+      "verifiedBy": "direct file read",
+      "evidence": "lattice-console-serve.js lines 432-445: reads understanding.json via readJsonFile, adds plan-layer agent node with task/outcome/facts meta when planReviews.length===0. Code present and active."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-32b9/background.md#touchpoints",
+      "promise": "lattice-console-serve.js buildLineageGraph adds pending-dispatch nodes for undispatched CHK items from checklist.json",
+      "verifiedBy": "direct file read",
+      "evidence": "lattice-console-serve.js lines 544-563: builds dispatchedChkSet from devDisps, loops items, creates pending-{itemId} nodes in agent layer with kind=loop and verificationIntent data. Code present and active."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-32b9/checklist.json#CHK-001",
+      "promise": "Lineage graph shows phase-appropriate lifecycle nodes for PLAN, DEV, REVIEW, and DONE stories without blank or empty graphs",
+      "verifiedBy": "browser_test evidence in checklist verificationEvidence",
+      "evidence": "CHK-001 verificationEvidence: B-32b9 (PLAN) shows 12 nodes; B-08f2 (DONE) shows 25 nodes including all 7 layer types; B-2d6c (sparse DEV) shows 6 nodes without crash; null index.json returns empty-state div without JS error."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-32b9/checklist.json#CHK-002",
+      "promise": "Dispatch nodes for Claude Code stories show verificationIntent cases; no LLM calls section rendered when codexCalls absent",
+      "verifiedBy": "browser_test + logic_test evidence in checklist verificationEvidence",
+      "evidence": "CHK-002: pending-CHK-001 node shows LLM verification intent section with no LLM calls header. lineage.js codexCallsHtml guard verified by code inspection and browser screenshot. evidenceHtml renders verificationEvidence for result nodes confirmed via serve.js and lineage.js code paths."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-32b9/checklist.json#CHK-003",
+      "promise": "Review nodes show reviewer agent note text; finding nodes show finding description with severity",
+      "verifiedBy": "browser_test + logic_test evidence in checklist verificationEvidence",
+      "evidence": "CHK-003: demo behavior-review node shows REVIEW NOTE section with reviewer text (browser screenshot). serve.js lines 363-365 builds findingDescById; line 578 sets meta.findingDesc; lineage.js lines 489-491 renders it. Fallback to empty string on missing IDs confirmed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-32b9/checklist.json#CHK-004",
+      "promise": "Lineage graph auto-fits to 20-40% scale across all navigation paths: trace button, nav link, navigate-away-and-back",
+      "verifiedBy": "browser_test evidence in checklist verificationEvidence",
+      "evidence": "CHK-004: trace button path yields 30% scale; nav-link navigate-back yields 27% scale; sparse 6-node story fits at reasonable scale (not stuck at 10%); rapid story switching no stuck-at-100%. requestAnimationFrame+onVisible() defers fitView until container has positive dimensions."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "browser_test: B-32b9 (PLAN) 12 nodes at 27%; B-08f2 (DONE) 25 nodes all 7 layer types; B-2d6c sparse 6 nodes no crash; logic_test: null index.json returns null, empty-state div renders. Happy + edge + adversarial all covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "browser_test: pending-CHK-001 node shows intent section, no LLM calls header; logic_test: intentHtml empty-array guard; codexCallsHtml undefined guard confirmed by code inspection and browser screenshot. Happy + edge + adversarial all covered."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "browser_test: demo behavior-review node shows REVIEW NOTE section with reviewer text; logic_test: findingDescById lookup with fallback; rpNoteById missing-key fallback to empty string. Happy + edge + adversarial all covered."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "browser_test: trace button path 30% scale; nav-link navigate-back 27% scale; sparse story reasonable scale not stuck at 10%; rapid story switching no stuck-at-100%. Happy + edge + adversarial all covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified in source code and browser evidence. Both new features (understanding node at lines 432-445 and pending-dispatch nodes at lines 544-563 of lattice-console-serve.js) are present and active. 17/17 verificationIntent items covered via browser_test and logic_test across happy, edge, and adversarial cases. No TODOs found in serve.js. Two low-severity known issues (dead title var, empty catch) do not affect user-visible behavior and were not delivery blockers."
+  },
+  "_hash": "ad291e0f757cc4654b4c7717893d10d971fc2a7f2f66fa4eb96f6d3b50d71372"
+}
