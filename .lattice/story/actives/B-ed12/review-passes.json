@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T20:37:55.417Z",
       "reviewRunId": "B-ed12:RR-002",
       "_hash": "90424bedc818adda4e3158203997719f473e08b890281beefb232b7a2cbbcfc9"
+    },
+    {
+      "id": "B-ed12:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion/residue check complete. Identified all concept words deleted or renamed in the 15 smoke-ts diffs: (1) assertDoneRejectsWhenMainIsDirty renamed to assertDoneTreatsDirtyMainOutsideMergeScopeAsNonBlockingButNeverBypasses — zero residue in packages/ code; only appears in story metadata (plan.md, index.json, understanding.json, scope-check.json) as documentation of what was changed, not as dangling calls. (2) assertMixedCanonicalLegacyGlobalLinksAreRepaired renamed to assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink — zero residue in packages/ code; story metadata references only. (3) String-literal replacements (Parameter validation failed -> Argument validation failed; All stories complete -> All Stories completed; Primary entrypoint -> Entrypoint; Japanese-task -> japanese-task; suspected duplicate story -> Suspected duplicate/Possibly duplicate; high-risk signal detected -> High-risk signals detected; various worktree-repair messages) — all production handler strings confirmed to match the updated test assertions. (4) freezeScope helper added locally in two new smoke files with no cross-smoke export. (5) English-open-source-surface allowlist additions (done-preflight-smoke.ts, docs-drift-path-drift-smoke.ts, prompt-token-cost-smoke.ts, agent-prompt.ts, validate-docs-drift.ts) all reference files confirmed to exist. No smoke file is imported by another smoke in the changed set. No cross-smoke helper deletion leaves dangling imports. No blocker found.",
+      "createdAt": "2026-06-17T20:41:11.581Z",
+      "reviewRound": "2026-06-17T20:37:55.417Z",
+      "reviewRunId": "B-ed12:RR-001",
+      "_hash": "8f4b543d8c47f681628c897daf532050b04e540a5a7347e82e296e5ac3ee5fc5"
     }
   ]
 }
