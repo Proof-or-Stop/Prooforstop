@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d7c3:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: symbol set empty (pure docs/config diff, Fallback 1 applied). Step 2/3: compared 5 README command paragraphs + 1 CHANGELOG section. All checks passed: (a) 5 README test:legacy commands verified — smoke names exist in manifest (139 entries) and dist/tasks; shim body matches package.json exactly. (b) CHANGELOG counts verified: packages/main 151->12, root 114->43, manifest 5->139 — all confirmed against git show main + HEAD counts. (c) suffix-dropping convention correct — discoverSmokes strips -smoke.js suffix, selectSmokes does substring match on bare names; no manifest entry ends in -smoke, so passing name-with-smoke would silently fail. README flow-stability-smoke paragraph correctly documents both the concept name (with -smoke) and command (without). (d) AGENTS.md, CLAUDE.md, docs/ show 0 diff lines — no silent edits. No doc-code drift found.",
+      "createdAt": "2026-06-17T12:29:19.924Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-001",
+      "_hash": "6f46b9a5678d2879f36f21f5fa0e9bc602f3adc9b4d207e2ba5df77b555243d1"
+    }
+  ]
+}
