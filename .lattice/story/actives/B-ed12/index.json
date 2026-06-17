@@ -4,7 +4,7 @@
   "title": "Stabilize the ~13 stale smoke tests that rotted while the suite was ungated (update to current correct behavior, no production change)",
   "description": "A full-suite triage (test:all = 140/162 on current main) found 22 failing smokes; adversarial/standalone investigation confirmed 0 production regressions. ~13 are STALE-TEST: the smoke assertions rotted because the 160-smoke suite was decoupled from the gate battery (nobody ran it), so tests fell behind real, intentional behavior changes. This story updates those ~13 tests to assert the CURRENT CORRECT behavior — it does NOT change production code (the production behavior is correct; the tests are out of date). The confirmed stale smokes and their root cause (verified by reading source + running standalone): (1) init-check-fallback + init-check-required-agents — fail with 'Cannot enter INIT_CHECK: scope-boundary.json is missing [missing_scope_boundary]' because they predate the INIT_CHECK scope-boundary gate and never set up scope-boundary.json; (2) worktree-repair — assertMixedCanonicalLegacyGlobalLinksAreRepaired expects a repair but gets 'skipped' because B-097f moved agent prompts to host-neutral single-source (project-local repair is now a no-op); (3) done-preflight — assertDoneRejectsWhenMainIsDirty expects 'Cannot enter DONE' but B-72df scoped the dirty-main clean-check to merge-affected paths (unrelated dirty main is now tolerated; the story stays in TEST, NOT bypassed to DONE — no gate-bypass, just changed message/path); (4) story-dedup — expects slug 'Japanese-task' but dedup now yields 'japanese-task' (casing normalization drift); (5) convergence-discarded — expects a 'All stories complete' convergence message that drifted; (6) cli-argument-ergonomics — expects an error-message regex that changed; (7) lattice-only-absence — assertion drift; (8) lattice-cli-migration — drift from the koala->lattice rename completion; (9) english-open-source-surface — correctly flags CJK content in packages/main/src/tasks/usage-ledger-estimate-smoke.ts (this one is a CONTENT fix: remove/translate the CJK in that test file, not a test-assertion change); (10) review-loop — 3 of 38 sub-assertions drifted; plus (11) gap-log, (12) story-create-concurrency, (13) review-pass-discard — lifecycle smokes that fail standalone and must be triaged the same way (confirm stale-vs-real before fixing). CRITICAL GUARDRAIL: for each smoke, first determine the CORRECT current behavior (read the production code + the story that changed it), confirm production is intended/correct, THEN update the test to assert that. NEVER weaken or delete an assertion merely to make it pass. If any 'stale' smoke on close inspection reveals a genuine PRODUCTION bug (not just a changed expectation), STOP and report it as a real finding — do not paper it over. Each fixed smoke must pass standalone after the fix. OUT OF SCOPE: the P5 authority/baseline/autopilot TIMEOUT/ENV family (authority-job-loop-live, autopilot-authority, multi-host-authority, lattice-baseline, dispatch-run, planner-unattended, experience-layer-playbook, cli-json-stdout-contract — separate later assessment); the B-6666 deferred backtick/alias burndown; and ANY production behavior change.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "test-stabilization",
@@ -87,6 +87,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T20:45:31.789Z",
+      "branch": "story/B-ed12",
+      "user": "Harmonygo",
+      "sessionId": "lattice-stale",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T20:47:53.792Z",
       "branch": "story/B-ed12",
       "user": "Harmonygo",
       "sessionId": "lattice-stale",
