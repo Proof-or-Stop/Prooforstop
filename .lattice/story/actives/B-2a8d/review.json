@@ -55,6 +55,34 @@
         }
       ],
       "_hash": "50f0c8fe3084fe87e510bb2201b1a5358c287fa982c0a95281ca6be398d2ecaa"
+    },
+    {
+      "timestamp": "2026-06-17T18:11:57.119Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Remove the L4 Cross-project aggregation Architecture bullet and the Phase 4 Roadmap bullet from the execution plan + Reword remaining cross-project references to per-project-only by design; keep the Phase 1 local-signature concept intact are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None; the exact lines to remove/reword are identified"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "fc7c13e21fe1233137a61fa297e8de787815cb8891ff23165966f6ceaa39110c"
     }
   ]
 }
