@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0dab",
+  "changes": "Wired the canonical koala-residue gate (scripts/verify-koala-residue.mjs, from B-40eb) into the package.json test chain (the lattice validate fallback battery), and cleaned the last 7 residual koala-* mkdtemp prefixes on main (english-only-guards-smoke.ts x5, review-incremental-context-smoke.ts x2) -> lattice-*.",
+  "usage": "The gate now runs on every `lattice validate` / `npm test` via the `test:koala-residue` step. Run `node scripts/verify-koala-residue.mjs` standalone to check active-scope koala-brand residue (PASS = 0 unclassified); `--self-test` runs 5 classify() unit tests.",
+  "expectedOutcome": "node scripts/verify-koala-residue.mjs PASS 0 unclassified; npm test includes a passing test:koala-residue step; lattice validate all-green and exercises the gate.",
+  "actualTranscript": "node scripts/verify-koala-residue.mjs -> PASS koala-residue: 0 unclassified; --self-test -> 5/5; npm test -> includes test:koala-residue PASS; npm run build -> exit 0; lattice validate -> ALL PASS.",
+  "outcomeDiff": "none - expected matches actual; the gate is now continuous and green on main.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The gate scan scope is git-tracked/staged files only (a B-40eb design choice), so an untracked new file is not scanned until git add. The LEGACY_LOGIC_FILES allowlist may need refinement as new legacy-logic files appear.",
+  "pitfalls": "When adding new smoke tests, do not use a koala-* mkdtemp prefix or the gate will flag it; use lattice-* prefixes. The gate runs inside npm test, so a broken gate script fails the whole test chain (intended, so the wiring cannot silently skip).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 476770
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12260
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 328970
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 457841
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 378616
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 235666
+    }
+  },
+  "totalDurationMs": 1890132,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T13:13:28.573Z",
+  "updatedAt": "2026-06-17T13:13:28.573Z"
+}
