@@ -1,0 +1,51 @@
+{
+  "storyId": "B-5191",
+  "changes": "Corrected three misleading express-channel docstrings in review-preflight.ts (~:19-20, ~:122, ~:224): they claimed 'all gates / four gates forced-pass', but the express branch force-skips only five gates (channel/concept/lint/docs-drift/english-artifacts) while the codex-adapter gate is still conditionally evaluated (storyRequiresCodexEvidence) and can block; also corrected the stale gate count (six, not four). Comments only — zero logic change.",
+  "usage": "No runtime change; a maintainer reading review-preflight.ts now sees an accurate description of express-channel gate behavior instead of the misleading 'all gates skipped' wording.",
+  "expectedOutcome": "Three comments corrected and accurate against the express branch (runReviewCliGates ~:232-285); diff comments-only; tsc exit 0; no behavior change.",
+  "actualTranscript": "git diff main...HEAD = comments-only (review-preflight.ts, 12 lines, all comment lines per the comment-only assertion); npm run build / npx tsc --noEmit = exit 0; cross-check confirmed 5 gates pushed ok:true, codex-adapter conditionally pushed with ok=codex.status==='passing' + gates.every, 6-name gate union. 3 REVIEW reviewers PASS 0 findings; codex verify 8/8; validate ALL PASS. Captured in evidence/transcript-diff.md.",
+  "outcomeDiff": "expected == actual: comments corrected, accurate, comments-only, build green, no runtime change.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — comments-only doc correction; the express-branch behavior itself (codex-adapter evaluated on express) is intentional and unchanged.",
+  "pitfalls": "Do not 'fix' this by force-skipping codex-adapter on express too — evaluating codex adapter evidence on express is intentional (adapter state is not channel-dependent); the doc was wrong, not the behavior. Finding #3 (english-gate metadata-root mismatch) remains deferred and is NOT addressed here.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 117250
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 246540
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 178114
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 99631
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 107979
+    }
+  },
+  "totalDurationMs": 749529,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T12:53:15.230Z",
+  "updatedAt": "2026-06-17T12:53:15.230Z"
+}

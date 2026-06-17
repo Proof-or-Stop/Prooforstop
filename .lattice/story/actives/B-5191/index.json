@@ -4,7 +4,7 @@
   "title": "Correct the REVIEW preflight express-channel docstrings (codex-adapter is not forced-pass; gate count stale)",
   "description": "The same combination review that found B-f882 also found a documentation-vs-behavior drift (finding #2) in packages/main/src/handlers/review-preflight.ts. Three comments claim the express channel forces ALL CLI gates to pass: line ~19-20 ('Express channel ... skips entirely — all CLI gates treated as pass'), line ~122 ('true if fast-channel story — all 4 gates forced-pass'), and line ~224 ('Express channel → all four gates forced-pass (channel/concept/lint/docs-drift not actually run)'). The actual express branch (runReviewCliGates, ~lines 232-282) force-skips FIVE gates (channel, concept, lint, docs-drift, english-artifacts) but then CONDITIONALLY evaluates the codex-adapter gate for real: when storyRequiresCodexEvidence is true it pushes a codex-adapter entry with ok = (codex.status === 'passing'), and the function returns gates.every(g => g.ok) — so an express-channel story CAN still be blocked by a failing codex-adapter gate. The docstrings are therefore wrong on two counts: (1) they say 'all gates forced-pass' but codex-adapter is not forced-pass (it is conditionally evaluated and can block), and (2) they say 'four gates' / 'all 4 gates' but there are now six (channel/concept/lint/docs-drift/english-artifacts/codex-adapter). This is pure comment/doc drift — no behavior change — but it will mislead an operator who reads 'express = all gates skipped' and is then surprised by a codex-adapter block. Outcome: rewrite the three comments to state accurately that express channel force-skips channel/concept/lint/docs-drift/english-artifacts, while the codex-adapter gate is still conditionally evaluated (when the story touches Codex adapter assets) and can block; and correct the stale gate count. This is a comments-only change — do NOT modify any gate logic, the express branch behavior, or any other code. EXPLICITLY OUT OF SCOPE: the english-artifacts metadata-root mismatch (finding #3, deferred by the user) — do not touch it.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "low",
   "keywords": [
     "review-preflight",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-17T12:40:45.701Z",
   "startedAt": "2026-06-17T12:40:45.701Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T12:53:16.531Z",
   "events": [
     {
       "phase": "INIT",
@@ -34,11 +34,43 @@
       "user": "Harmonygo",
       "sessionId": "lattice-fix2",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:46:49.506Z",
+      "branch": "story/B-5191",
+      "user": "Harmonygo",
+      "sessionId": "lattice-fix2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:49:47.620Z",
+      "branch": "story/B-5191",
+      "user": "Harmonygo",
+      "sessionId": "lattice-fix2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:51:27.251Z",
+      "branch": "story/B-5191",
+      "user": "Harmonygo",
+      "sessionId": "lattice-fix2",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:53:16.531Z",
+      "branch": "story/B-5191",
+      "user": "Harmonygo",
+      "sessionId": "lattice-fix2",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-5191",
-    "branch": "story/B-5191",
-    "createdAt": "2026-06-17T12:42:41.999Z"
-  }
+  "currentReviewRound": "2026-06-17T12:49:47.620Z"
 }
