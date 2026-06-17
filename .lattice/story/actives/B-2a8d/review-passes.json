@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T18:14:53.140Z",
       "reviewRunId": "B-2a8d:RR-002",
       "_hash": "ac4fca45fcbbac2a83dde5e4fafd1fd341aff4d8dcda245b021f90a287e17b08"
+    },
+    {
+      "id": "B-2a8d:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: pure-docs diff, no exported TS/Python symbols. Step 2/3 (Fallback 1): compared all 6 internal-consistency checkpoints. (a) Zero dangling refs to Phase 4, L4, 'four', cross-project, publicSignature, two-layer. (b) Architecture intro reads 'three semantic levels' with exactly L1/L2/L3 bullets. (c) Roadmap lists Phase 1a/1b/1.5/Digest/2/3, no Phase 4. (d) Principle 5 and the not-to-do line both state per-project-only by design. (e) L1 'aggregated by a deterministic local signature' sentence is byte-unchanged. (f) The two remaining 'cross-project' hits are both in the new correct negative form. No blockers.",
+      "createdAt": "2026-06-17T18:16:25.417Z",
+      "reviewRound": "2026-06-17T18:14:53.140Z",
+      "reviewRunId": "B-2a8d:RR-001",
+      "_hash": "0d6423bdcd591e77c1b9e64f37741bbd55c0261086bd160a85dd88771e4c8d9e"
     }
   ]
 }
