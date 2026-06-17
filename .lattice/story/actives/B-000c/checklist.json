@@ -43,7 +43,86 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke round-trips finding-signals.json via learning-store; types is a leaf; leaf modules do not import the store port; build clean.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -92,7 +171,97 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke seeds findings, derives via the ./store.js port, asserts localSignature aggregation + signalScore=positive/(positive+negative+1) + support; coarse fallback when signatureTag absent.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -137,7 +306,86 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke asserts currentMaterialHash() identical before/after writing finding-signals.json (registry entry experience-layer-learning-cache materialHash:exclude).",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke asserts currentMaterialHash() identical before/after writing finding-signals.json (registry entry experience-layer-learning-cache materialHash:exclude).",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke asserts currentMaterialHash() identical before/after writing finding-signals.json (registry entry experience-layer-learning-cache materialHash:exclude).",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke asserts currentMaterialHash() identical before/after writing finding-signals.json (registry entry experience-layer-learning-cache materialHash:exclude).",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke asserts currentMaterialHash() identical before/after writing finding-signals.json (registry entry experience-layer-learning-cache materialHash:exclude).",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke asserts currentMaterialHash() identical before/after writing finding-signals.json (registry entry experience-layer-learning-cache materialHash:exclude).",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Smoke asserts currentMaterialHash() identical before/after writing finding-signals.json (registry entry experience-layer-learning-cache materialHash:exclude).",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -186,7 +434,97 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-signals",
+          "result": "pass",
+          "note": "Committed smoke + npm script; hermetic temp dir + env restore; static zero-outward-import scan (only ./store.js); build clean; no regression.",
+          "headHash": "c9e799f15a7819c0811aedfa8eed822af80a9c02",
+          "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+          "timestamp": "2026-06-17T11:47:43.753Z"
+        }
+      ]
     }
   ]
 }
