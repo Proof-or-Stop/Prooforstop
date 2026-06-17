@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts"
       ]
+    },
+    {
+      "id": "B-f882:F-002",
+      "desc": "CHK-003 userSees says `lattice validate` runs the strengthened gitroot-cwd-contract guard green, but the `test:gitroot-cwd-contract` script is NOT in the root `npm test` chain (only `test:docs-drift-wrapper-root` was added). `lattice validate` calls `npm test`, which does not include `test:gitroot-cwd-contract`. The guard can only run via `npm run test:gitroot-cwd-contract` or `npm run test:all`. Fix: add `npm run test:gitroot-cwd-contract` to the root `test` chain in package.json (alongside `test:docs-drift-wrapper-root`).",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T12:20:17.791Z",
+      "reviewRound": "2026-06-17T12:16:03.058Z",
+      "reviewRunId": "B-f882:RR-003",
+      "_hash": "ab3bc0adec7b268c94b67d5e6dded75b9ae03ae9530d5519bdc82a2a435eb7ef",
+      "files": [
+        "package.json"
+      ]
     }
   ]
 }
