@@ -148,10 +148,10 @@
           "file": "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts",
           "command": "npm --prefix packages/main run test:experience-layer-digest-extract",
           "result": "pass",
-          "note": "core/digest.ts is a leaf (node:crypto only) exporting the digest primitives; smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson.",
-          "headHash": "9dbf86c915f0c51eedb882a7afb1d7a48a059c22",
-          "materialHash": "dcbf5f07dd006838486951079bd2ae221f9af80e6817a50812d2f5c4e4b3fdcf",
-          "timestamp": "2026-06-17T14:17:07.393Z"
+          "note": "Named check 'CHK-001:edge:3 empty object deterministic': digestCanonicalJson({}) == pinned sha256 of '{}'.",
+          "headHash": "421bc02a125c0c49acaa4e13bf6f53a0b1842c43",
+          "materialHash": "796a6008ab57280d3945a9db0c8662e0434a4e6c57c4acac7e6910bb1313177f",
+          "timestamp": "2026-06-17T14:28:56.554Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
