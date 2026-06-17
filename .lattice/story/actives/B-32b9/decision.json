@@ -1,0 +1,63 @@
+{
+  "principles": [
+    "Show what happened — every event in process-events.jsonl maps to at least one visible node",
+    "Show what is planned — checklist items with verificationIntent are visible even before dispatch",
+    "Graceful degradation — early-phase stories show fewer nodes but never zero or a crash",
+    "No mutation — serve.js and lineage.js are read-only observers of Lattice state files",
+    "Correct emptiness — never show LLM call sections when the count is zero"
+  ],
+  "drivers": [
+    "All dashboard files are outside the Orchestrate repo; changes go directly to /Users/jek/Documents/",
+    "Server must restart to pick up serve.js changes (node module cache); lineage.js and demo.html hot-reload",
+    "verificationIntent in checklist.json and codex_cli events are the only available LLM content proxies — no raw prompt/response is stored"
+  ],
+  "options": [
+    {
+      "name": "add-understanding-and-pending-nodes",
+      "pros": [
+        "PLAN-phase stories show meaningful plan-layer node with task/outcome from understanding.json",
+        "DEV-phase stories show CHK items even before dispatch — LLM intent visible pre-agent-run",
+        "Complete picture for any lifecycle stage"
+      ],
+      "cons": [
+        "Two new code paths to maintain in serve.js",
+        "Pending nodes could confuse reviewers if they look similar to real dispatch nodes"
+      ]
+    },
+    {
+      "name": "verify-only-no-new-nodes",
+      "pros": [
+        "Zero code risk — existing implementation might already satisfy the user",
+        "Faster to deliver"
+      ],
+      "cons": [
+        "PLAN-phase stories still show no plan-layer artifact — understanding.json ignored",
+        "DEV stories with no dispatches show only INIT-review nodes which are not labelled clearly",
+        "User asked for complete lifecycle — empty plan layer for PLAN stories is incomplete"
+      ]
+    }
+  ],
+  "chosen": "add-understanding-and-pending-nodes",
+  "rationale": "The user explicitly asked for 'complete lifecycle' for every story phase. Without adding understanding node and pending-CHK nodes, a PLAN-phase story shows no plan-layer evidence and a DEV-phase story shows no CHK nodes until dispatch happens. Both gaps misrepresent the story state.",
+  "preMortem": [
+    {
+      "scenario": "understanding.json missing or malformed",
+      "trigger": "Story just entered PLAN before understanding_set was called",
+      "consequence": "serve.js throws reading undefined fields",
+      "mitigation": "Guard with existsSync and optional chaining; only create node if understanding.json has a task field"
+    },
+    {
+      "scenario": "pending-dispatch nodes confuse user — look identical to real dispatch nodes",
+      "trigger": "User clicks a pending node expecting LLM trace data",
+      "consequence": "Panel shows verificationIntent but no codexCalls or durationMs — could be misleading",
+      "mitigation": "Use kind=pending-agent and show sub label as pending — not dispatched yet, so panel omits duration/codexOps fields"
+    },
+    {
+      "scenario": "serve.js edit does not take effect (module cache)",
+      "trigger": "Developer edits serve.js but forgets to restart server",
+      "consequence": "Browser still shows old graph",
+      "mitigation": "Always restart server via preview_start or pkill after serve.js edits"
+    }
+  ],
+  "timestamp": "2026-06-17T18:41:34.229Z"
+}

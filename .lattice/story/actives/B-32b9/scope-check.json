@@ -1,0 +1,73 @@
+{
+  "storyId": "B-32b9",
+  "checkedAt": "2026-06-17T18:44:03.050Z",
+  "features": [
+    {
+      "feature": "Lifecycle node coverage for all story phases INIT through DONE in lineage graph",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "LLM interaction data (call count, role breakdown, verification intent + evidence) surfaced in lineage graph for all story types",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reviewer LLM interaction content (review agent note, finding description) shown in REVIEW and FINDING nodes",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Auto-fit graph layout when navigating to lineage graph from any navigation path",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lineage Graph as a console panel showing story-worktree-evidence-receipt traceability chain (host-neutral observability console design)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/host-neutral-observability-console.md"
+    },
+    {
+      "feature": "Thread Inspector per-host task-package threads (M4 milestone, process-events + dispatch entries)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions/host-neutral-observability-console.md"
+    },
+    {
+      "feature": "Lifecycle phases enumeration (INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST, DONE) as node types in lineage graph",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Console must not read .lattice/story/** directly (lineage graph data must come through CLI JSON surfaces)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-console-demo-mvp-requirements.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a37cc6245ddf671c9293c1571716cfc5d2b46f2e61e459b6c95d059252e796bf",
+  "openQuestions": []
+}
