@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "id": "B-7561:F-001",
+      "desc": "CHK-003 userSees promises `recall --story <id>` prints a ranked top-N list, but the CLI schema in packages/main/src/cli-engine.ts:1763-1767 only registers --storyId (not --story). Running `lattice recall --story B-7561` silently drops the flag and returns the usage message instead of results. The handler (handlers/recall.ts:136) does `args.storyId ?? args.story` but the CLI arg parser never populates args.story because the schema has no `story` field. The smoke test bypasses this by calling h.recall({storyId:...}) directly. Fix: add `story: z.string().optional()` alias in the recall schema in cli-engine.ts, or rename storyId to story to match the documented flag name.",
+      "severity": "high",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T15:59:39.027Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-002",
+      "_hash": "690de36d55f63d7d08530526bba8db30c6579d35c610ca0e30de965a99271928",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/recall.ts",
+        "packages/main/src/tasks/experience-layer-recall-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 605d5123: F-001 added story alias to the recall cli-engine schema (recall --story now runs, verified at CLI); F-002 named smoke for 121-candidate ranking (#1 correct); F-003 named smoke for malformed/partial profiles no-crash. Smoke 24/24.",
+      "resolvedAt": "2026-06-17T16:05:52.224Z"
+    },
+    {
+      "id": "B-7561:F-002",
+      "desc": "CHK-002:adversarial:0 lacks a concrete verificationEvidence binding: the intent requires a 100+ profile large-candidate-set performance + correct-ranking test, but the evidence note says only \"Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []\" — it names no perf/large-set assertion. The smoke file contains no named check block testing recallSimilarStories with 100+ candidates. Evidence must concretely correspond to the intent behavior it claims to cover.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T16:00:54.621Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-004",
+      "_hash": "4f665402319dfe10a9453df9637e581aab2322e80575925cd3bfa3b8f7a00a3c",
+      "files": [
+        "packages/main/src/tasks/experience-layer-recall-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 605d5123: F-001 added story alias to the recall cli-engine schema (recall --story now runs, verified at CLI); F-002 named smoke for 121-candidate ranking (#1 correct); F-003 named smoke for malformed/partial profiles no-crash. Smoke 24/24.",
+      "resolvedAt": "2026-06-17T16:05:53.021Z"
+    },
+    {
+      "id": "B-7561:F-003",
+      "desc": "CHK-002:adversarial:2 lacks a concrete verificationEvidence binding: the intent requires that recallSimilarStories with candidates containing malformed/partial profiles (missing keywords, missing fileKinds) does not crash. The evidence note says only \"Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []\" — it names no malformed-input crash-guard assertion. The smoke file contains no named check block passing partial/missing-field profiles into recallSimilarStories. Evidence must concretely correspond to the intent behavior it claims to cover.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T16:01:01.333Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-004",
+      "_hash": "fda429e51f59f2b90ed9e6dd7d61e6d0c9f8a942bcd9bf9153fa0d9ef1306b28",
+      "files": [
+        "packages/main/src/tasks/experience-layer-recall-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 605d5123: F-001 added story alias to the recall cli-engine schema (recall --story now runs, verified at CLI); F-002 named smoke for 121-candidate ranking (#1 correct); F-003 named smoke for malformed/partial profiles no-crash. Smoke 24/24.",
+      "resolvedAt": "2026-06-17T16:05:53.797Z"
+    }
+  ]
+}

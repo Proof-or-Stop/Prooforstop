@@ -1,0 +1,28 @@
+{
+  "storyId": "B-7561",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/story-recall.ts",
+    "packages/main/src/handlers/recall.ts",
+    "packages/main/src/tasks/experience-layer-recall-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-recall-smoke.ts",
+    ".lattice/story/actives/B-7561/evidence/verify-b-7561.mjs",
+    ".lattice/story/actives/B-7561/evidence/verify-result.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Phase 3 Story Recall: story-recall module + read-only recall CLI + smoke.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-17T15:57:13.692Z",
+  "updatedAt": "2026-06-17T15:57:13.692Z"
+}

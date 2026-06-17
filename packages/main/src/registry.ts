@@ -63,6 +63,7 @@ import { createDecisionDocQuorumHandlers } from './handlers/decision-doc-quorum.
 import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-promotion.js';
 import { createSignatureRegistryHandlers } from './handlers/signature-registry.js';
 import { createPlaybookHandlers } from './handlers/playbook.js';
+import { createRecallHandlers } from './handlers/recall.js';
 import { createReviewEscalationHandlers } from './handlers/review-escalation.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
@@ -231,6 +232,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // (playbook_propose/diff/approve/reject). Never files findings / touches gates;
   // writes only under .lattice/learning/. Approve fails closed on a stale digest.
   registry.registerBatch(createPlaybookHandlers(ctx));
+  registry.registerBatch(createRecallHandlers(ctx));
   registry.registerBatch(createReviewEscalationHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));
