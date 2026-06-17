@@ -449,7 +449,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:legacy -- gitroot-cwd-contract",
+          "result": "pass",
+          "note": "Exit 0 + 'PASS gitroot-cwd-contract' + '1/1 passed in <ms>'.",
+          "headHash": "e38926b1d99308f202c2aaac8031d0fa75a23b6d",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:15.224Z"
+        }
+      ]
     }
   ]
 }
