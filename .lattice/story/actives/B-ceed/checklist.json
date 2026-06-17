@@ -9,7 +9,9 @@
       "endTime": null,
       "userSees": "`ls packages/main/src/providers/gemini-cli.ts` shows the new provider file. `node packages/main/dist/tasks/provider-gemini-smoke.js` PASSES the 4-case contract.",
       "files": {
-        "modify": [],
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
         "create": [
           "packages/main/src/providers/gemini-cli.ts",
           "packages/main/src/tasks/provider-gemini-smoke.ts"
