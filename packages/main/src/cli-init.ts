@@ -1016,7 +1016,6 @@ if (wantsClaude) {
       if (!existing.hooks) existing.hooks = {};
       // 只添加缺失的 Lattice hook，不覆盖用户已有配置。
       for (const [event, hooks] of Object.entries(claudeHooks)) {
-        const command = hooks[0]?.hooks?.[0]?.command;
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
           console.log(`  ✓ settings.json: 添加 ${event} hook`);
@@ -1026,17 +1025,30 @@ if (wantsClaude) {
           console.log(`  - settings.json: ${event} hook 已存在但格式不兼容, skip`);
           continue;
         }
+        // B-5f42: an event can declare MULTIPLE managed entries (e.g. PreToolUse
+        // now has both the scope guard AND the english-only guard). Mirror
+        // managed-assets.ts mergeClaudeHooks and merge each entry independently —
+        // only inspecting hooks[0] silently drops every entry after the first
+        // (and would push the whole array, duplicating the scope guard).
+        const migrationTarget = hooks[0]?.hooks?.[0]?.command;
         const migrated = migrateHookCommandEntries(
           existing.hooks[event],
           hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
-          command || '',
+          migrationTarget || '',
         );
         if (migrated.changed) {
           existing.hooks[event] = migrated.entries;
           console.log(`  ✓ settings.json: 迁移 ${event} Lattice hook 名称`);
         }
-        if (command && !hasHookCommand(existing.hooks[event], command)) {
-          existing.hooks[event].push(...hooks);
+        let mergedAny = false;
+        for (const entry of hooks) {
+          const command = entry?.hooks?.[0]?.command;
+          if (command && !hasHookCommand(existing.hooks[event], command)) {
+            existing.hooks[event].push(entry);
+            mergedAny = true;
+          }
+        }
+        if (mergedAny) {
           console.log(`  ✓ settings.json: 合并 ${event} Lattice hook`);
         } else {
           console.log(`  - settings.json: ${event} hook 已存在, skip`);

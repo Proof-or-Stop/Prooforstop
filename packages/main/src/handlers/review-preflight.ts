@@ -71,6 +71,13 @@ import {
   renderEnglishArtifactViolations,
 } from './english-artifact-gate.js';
 
+// B-5f42: the english-artifacts gate has no standalone `validate --english-artifacts`
+// CLI option — it runs inline as part of the REVIEW→TEST preflight. Give it an
+// accurate label so a failing gate does not print a non-existent command. The
+// closest standalone re-run is the smoke task that exercises the same guard.
+const ENGLISH_ARTIFACTS_GATE_LABEL =
+  'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:english-only-guards-smoke)';
+
 /** Reads CLAUDE.md file contents for docs-drift gate */
 export type MdFileReader = (projectRoot: string) => string[];
 
@@ -257,6 +264,7 @@ export function runReviewCliGates(
       status: 'skipped',
       summary: 'Express channel does not check CLI gate',
       details: [],
+      commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
       const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
@@ -465,6 +473,7 @@ export function runReviewCliGates(
       ...renderEnglishArtifactViolations(englishArtifacts.violations),
       ...englishArtifacts.notes,
     ],
+    commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
   });
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {
