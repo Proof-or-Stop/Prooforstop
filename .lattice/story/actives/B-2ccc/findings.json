@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-2ccc:F-001",
+      "desc": "CHK-001:edge:2 lacks any verificationEvidence assertion in the smoke: the intent requires that canonicalJson with undefined-valued keys omits them from output, but packages/main/src/tasks/experience-layer-digest-extract-smoke.ts contains no check that exercises undefined-valued keys. All 28 evidence records share the same generic note ('smoke asserts byte-identical pinned digests + order-independence + digestText!=digestCanonicalJson') which does not demonstrate coverage of this specific behaviour.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T14:20:47.145Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-003",
+      "_hash": "cd75b30a848debf674b1058ed8046f2abace930e5dcc04c6f4fcca93b53aad6a",
+      "files": [
+        "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
+      ]
+    }
+  ]
+}
