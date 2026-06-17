@@ -130,6 +130,17 @@
           "headHash": "3b7342ba4b30720866b5c3ac65e47797afcf1f21",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:08.123Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- scripts/verify-koala-residue.mjs | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — B-292d preflight gate script untouched.",
+          "headHash": "35b6ca3f6c7fecda5ee3f2548bf06020521b8321",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:08.853Z"
         }
       ]
     },
