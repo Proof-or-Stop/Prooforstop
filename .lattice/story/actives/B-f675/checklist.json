@@ -164,7 +164,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke cases (a)+(b): incremental context for a returning reviewer and full diff for a first-timer",
+          "headHash": "e04e63d1c928314b775b6d7ec0cc0329213aa8b6",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:22:01.279Z"
+        }
+      ]
     }
   ]
 }
