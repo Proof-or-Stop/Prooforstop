@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/config.ts",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "After adding dev_start to DEFAULT_PHASE_TOOLS INIT+DEV, the contract assertCommandPolicyPhaseAlignment passes (command-policy.allowedPhases === isCommandAllowed for dev_start across all phases); contract exit 0",
+          "headHash": "dafa5dabdf67cff4580cbeba4d0fe80d0f0ae2d1",
+          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
+          "timestamp": "2026-06-17T02:20:52.287Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
