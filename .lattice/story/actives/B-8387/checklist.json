@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Playbook + proposal types and learning-store read/write for playbooks.json + proposals/",
+      "context": "experience-layer-types.ts: PlaybookProposal {id, title, trigger{keywords,fileKinds,storyPhases}, check, pitfalls[], verification[], lineage{sourceStoryId,sourceFindingId,sourceSignature}, status:'proposed', proposalDigest}; Playbook {..., status:'proposed'|'candidate'|'active'|'stale'|'archived', usage{surfacedCount,resolvedHits,dismissedHits}}. learning-store.ts: read/write .lattice/learning/playbooks.json + proposals/<id>.json (atomic). Zero outward imports except core/digest.js.",
+      "userSees": "Build clean; the smoke round-trips a proposal and a playbook through learning-store; proposalDigest = digestCanonicalJson(proposal domain).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "playbook_propose + playbook_diff + playbook_reject handlers",
+      "context": "handlers/playbook.ts: playbook_propose --finding <id> reads the finding (via the finding subsystem) + its signatureTag, builds a staged proposal with lineage + proposalDigest (digestCanonicalJson from core/digest.js), writes proposals/<id>.json. playbook_diff <proposalId> renders read-only what approve would write (no mutation). playbook_reject <proposalId> discards the proposal. Never calls finding_add or any gate.",
+      "userSees": "playbook_propose --finding <id> prints a proposalId + digest; playbook_diff shows the rendered candidate; playbook_reject removes the proposal.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "playbook_approve (staged, digest fail-closed) -> candidate with lineage",
+      "context": "playbook_approve <proposalId> requires --expectedProposalDigest matching the stored proposalDigest (stale fails closed, like decision-doc). On match, writes a candidate Playbook to playbooks.json with lineage carried over and status=candidate, then clears the proposal. active status requires explicit human approval and is NOT auto-set. Guardrail: never auto-finding_add. CLI registered via command-policy/config/registry/cli-engine (flat underscore names).",
+      "userSees": "playbook_approve with a stale digest is rejected with a clear error; with the correct digest it creates a candidate playbook in playbooks.json carrying lineage; no finding is auto-created.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke + npm script + no regression",
+      "context": "tasks/experience-layer-playbook-smoke.ts + package.json test:experience-layer-playbook. Hermetic. Assert: full propose->diff->approve->reject lifecycle; proposalDigest stability + stale-digest approve fails closed; lineage present on candidate; playbook never triggers finding_add/gate; learning modules zero outward coupling (except core/digest.js); build clean; existing experience-layer + decision-doc smokes still pass.",
+      "userSees": "npm run test:experience-layer-playbook exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

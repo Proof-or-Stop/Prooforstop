@@ -1,0 +1,35 @@
+{
+  "storyId": "B-8387",
+  "name": "experience-layer-phase-2-playbook-lifecycle",
+  "title": "Experience Layer Phase 2: staged Process Playbook lifecycle (propose/diff/approve/reject) with decision-doc digest integrity, lineage, and human-approved candidates — never auto-files findings or touches gates",
+  "description": "Implement Phase 2 from docs/requirements/decisions/lattice-experience-layer-execution-plan.md: a staged playbook lifecycle in handlers/playbook.ts (playbook_propose --finding, playbook_diff, playbook_approve, playbook_reject) backed by .lattice/learning/playbooks.json + proposals/<id>.json in learning-store. Proposals carry lineage (sourceStoryId/sourceFindingId/sourceSignature) and a proposalDigest computed via digestCanonicalJson from the leaf core/digest.js (B-2ccc); approve requires a matching expectedProposalDigest (stale fails closed, cloning the decision-doc pattern) and produces a candidate playbook (active requires explicit human approval, not auto-set). Hard guardrails: a playbook never auto-calls finding_add or any gate; every playbook has lineage. Proven by a smoke covering the full propose->diff->approve->reject lifecycle, digest fail-closed, lineage, the never-auto-finding guardrail, and no regression.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-06-17T14:40:59.812Z",
+  "startedAt": "2026-06-17T14:40:59.812Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T14:40:59.813Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:43:45.057Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-8387",
+    "branch": "story/B-8387",
+    "createdAt": "2026-06-17T14:43:29.712Z"
+  }
+}
