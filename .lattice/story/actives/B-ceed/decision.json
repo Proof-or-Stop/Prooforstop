@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Pattern parity — mirror codex-cli.ts contract byte-for-byte for gemini-cli.ts; mirror runClaudeCodeRealLeafDispatch shape",
+    "Purely additive — never modify existing real paths (codex-cli.ts, runClaudeCodeRealLeafDispatch)",
+    "Fallback is a runtime degradation, not a separate code path (reuse existing claude-code leaf)"
+  ],
+  "drivers": [
+    "Memory llm-usage-ledger-status names this as the blocking upstream story",
+    "User picked option (a) full live-dispatch over (b) stub or (c) skip",
+    "Provider seam B-1550 already real — minimal new code"
+  ],
+  "options": [
+    {
+      "name": "(a) Full live-dispatch (chosen)",
+      "pros": [
+        "Unblocks usage adapter follow-up",
+        "Defensive option for review escalation 3x2",
+        "Modest workload (~80-120 lines + new provider)"
+      ],
+      "cons": [
+        "Larger than B-c6cf / B-292d",
+        "Requires careful fallback policy"
+      ]
+    },
+    {
+      "name": "(b) Stub dispatcher + usage adapter only",
+      "pros": [
+        "Smallest"
+      ],
+      "cons": [
+        "No real tokens to parse — false value"
+      ]
+    }
+  ],
+  "chosen": "(a) Full live-dispatch (chosen)",
+  "rationale": "User picked (a) on 2026-06-17 after honest review of (a)/(b)/(c). The codex provider seam already exists; the gemini equivalent + dispatcher wiring is the minimum to actually unblock downstream value. Fallback to claude-code is the user-specified degradation policy.",
+  "preMortem": [
+    {
+      "scenario": "Codex CLI behavior differs from gemini CLI in subprocess exit semantics",
+      "trigger": "runBoundedGeminiProvider treats gemini exit conventions as if they were codex",
+      "consequence": "False positives or negatives in exit classification",
+      "mitigation": "Read gemini CLI docs + run actual gemini --version in DEV to verify; smoke test the 4 cases (success/disabled/timeout/missing) explicitly"
+    },
+    {
+      "scenario": "Dispatch switch broken when CLIs simultaneously missing",
+      "trigger": "Fallback policy not exercised under test",
+      "consequence": "Operator sees neither real-path nor fallback, just a hang or error",
+      "mitigation": "provider-gemini-smoke.ts must include the missing-binary case; lattice-dispatch.ts changes must include a dedicated smoke proving the fallback path"
+    },
+    {
+      "scenario": "Usage-ledger module accidentally touched",
+      "trigger": "Reading lattice-dispatch.ts large file leads to incidental ledger edits",
+      "consequence": "scope-boundary violation, REVIEW finding",
+      "mitigation": "scope-boundary explicitly blocks usage-ledger/; verify in evidence with git diff main...HEAD -- packages/main/src/core/usage-ledger | wc -l = 0"
+    }
+  ],
+  "timestamp": "2026-06-17T22:00:03.210Z"
+}

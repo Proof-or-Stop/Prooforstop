@@ -6,7 +6,59 @@
       "context": "Create packages/main/src/providers/gemini-cli.ts implementing geminiCliAvailable() + runBoundedGeminiProvider() with the SAME contract shape as codex-cli.ts: PATH discovery, spawnSync bounded by timeout, capture stdout/stderr digests + byte counts, exit code, duration, never surface raw output. Reuse shared subprocess types from codex-cli.ts where possible. Smoke equivalent of provider-codex-smoke.ts — provider-gemini-smoke.ts — proving the same 4 cases (success / disabled / timeout / missing binary).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`ls packages/main/src/providers/gemini-cli.ts` shows the new provider file. `node packages/main/dist/tasks/provider-gemini-smoke.js` PASSES the 4-case contract.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/providers/gemini-cli.ts",
+          "packages/main/src/tasks/provider-gemini-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "providers/gemini-cli.ts exists and exports geminiCliAvailable + runBoundedGeminiProvider -> `grep -cE \"export (function|const) (geminiCliAvailable|runBoundedGeminiProvider)\" packages/main/src/providers/gemini-cli.ts` outputs at least 2; WHY: contract parity with codex-cli.ts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "compiled dist has gemini-cli.js -> `test -s packages/main/dist/providers/gemini-cli.js && echo OK` prints OK; WHY: provider must compile cleanly for runtime use",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "provider-gemini-smoke.ts exists -> `test -s packages/main/src/tasks/provider-gemini-smoke.ts && echo OK` prints OK; WHY: smoke proves the 4-case contract",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "provider-gemini-smoke passes -> `node packages/main/dist/tasks/provider-gemini-smoke.js > /tmp/b-ceed-gem.log 2>&1; echo $?` outputs 0; WHY: smoke green proves the provider works",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gemini-cli.ts imports nothing from usage-ledger -> `grep -cE \"from.*usage-ledger\" packages/main/src/providers/gemini-cli.ts` outputs 0; WHY: scope-boundary enforced at code level",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: codex-cli.ts byte-identical -> `git diff main...HEAD -- packages/main/src/providers/codex-cli.ts | wc -l` outputs 0; WHY: B-1550 seam frozen",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: usage-ledger module untouched -> `git diff main...HEAD -- packages/main/src/core/usage-ledger | wc -l` outputs 0; WHY: separate follow-up",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
