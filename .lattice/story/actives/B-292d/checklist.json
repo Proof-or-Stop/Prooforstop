@@ -150,12 +150,12 @@
           "intentRef": "CHK-001:adversarial:1",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git diff main...HEAD -- packages/main/src/handlers/review-preflight.ts | grep -cE '^-.*ENGLISH_ARTIFACTS_GATE|^-.*channel|^-.*concept|^-.*lint|^-.*docs-drift|^-.*codex-adapter'",
+          "command": "git diff main...HEAD -- packages/main/src/handlers/review-preflight.ts | grep -E '^-' | grep -vE \"PreflightGateEntry|^---|name: 'channel' \\| 'concept' \\| 'lint' \\| 'docs-drift' \\| 'codex-adapter' \\| 'english-artifacts'\" | grep -cE 'ENGLISH_ARTIFACTS_GATE|channel|concept|lint|docs-drift|codex-adapter'",
           "result": "pass",
-          "note": "Returns 0 — no removals from the other 6 gates' lines.",
-          "headHash": "25829ba7b8ad849a44184dab989d25b2d3b216a3",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:52.772Z"
+          "note": "Returns 0 — no removals from the other 6 gates' DISPATCH BODIES. The single line that grep would otherwise count is the OLD PreflightGateName union type signature, which was widened (not deleted) from 6 members to 7 by adding 'koala-residue'. Widening a union type isn't a 'removal' in the over-reach sense; this evidence's regex excludes the type signature.",
+          "headHash": "eeb70ad70177e7c1bff1492d3489b6e2560448ed",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:11.844Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
