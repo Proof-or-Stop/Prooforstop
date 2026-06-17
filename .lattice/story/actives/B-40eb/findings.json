@@ -1,0 +1,135 @@
+{
+  "findings": [
+    {
+      "id": "B-40eb:F-001",
+      "desc": "CHK-001:edge:0, CHK-001:edge:1, CHK-001:adversarial:0, CHK-001:adversarial:1 — all four must intents describe specific classifier unit-level behaviors (mixed neutral+brand line, runtime-path-only line, bare-brand-prose, KoalaFoo substring). All four evidence entries use the same command `node packages/main/dist/tasks/cli-engine-branding-smoke.js`, which is a fixed-file scanner of 5 files (cli-engine.ts, hooks.ts, guide-hooks.md and their dists). The smoke has no inline unit test fixtures for these specific inputs. Evidence notes assert the behaviors hold by implication (the files happen to contain such patterns), but no targeted test input is constructed and run per intent. This is a command-to-intent mismatch: the command exercises file-level scanning, not the specific classifier edge cases the intent describes. A dedicated classifier unit test (feeding the specific line as input, asserting isClassified return value) is needed to bind this evidence concretely.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:05.670Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "4613e403e4ee0afa167cb5b5632b2612d09c4ebaefe469c5d5300e9b6d77c705",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-40eb:F-002",
+      "desc": "CHK-007:adversarial:0 (must) — intent requires: add a new file with unclassified koala brand text in packages/main/src/, re-run acceptance gate grep, and confirm the gate reports it as unclassified. The evidence note explicitly states: `新增未分类 koala 品牌会被 branding gate 标 unclassified 而 fail (story 4 扩展到全 active 范围)`, admitting the acceptance gate grep in CHK-007:happy:0 covers only the cli-engine-branding-smoke fixed file list, NOT the full active scope (packages/ scripts/ docs/ CLAUDE.md). The branding smoke scans 5 fixed files; CHK-007:happy:0 uses `perl /tmp/bf2.pl` which filters the broader grep but is an ephemeral script whose content is not in evidence. The adversarial must-intent tests whether a *new* bad file in packages/main/src/ is caught by re-running the acceptance gate — this was not demonstrated. Running the smoke and noting story 4 will extend scope is not valid evidence for this must-priority intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:20.198Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "aec4e72ac3968b9a447f55ea4d194453b5eab2741caf8f97c4af4293045992f1",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-40eb:F-003",
+      "desc": "CHK-003:happy:0 and CHK-004:happy:0 — both must intents require filtering git grep output through the branding classifier to confirm zero unclassified lines. Both evidence entries use `perl /tmp/bf2.pl` as the filter (a temporary file path). /tmp/bf2.pl is an ephemeral artifact with no content recorded in evidence, no hash, and no guarantee it encodes the same B-3cca branding rules as cli-engine-branding-smoke.ts. This violates evidence binding: the filter script whose output is cited as pass-proof is not durably reproducible from the evidence record. If /tmp/bf2.pl used weaker or different exclusion rules than the canonical NEUTRAL_TOKEN_PATTERNS in cli-engine-branding-smoke.ts, the zero-residual claim could be false. The evidence should reference a versioned, committed filter script or use `node packages/main/dist/tasks/cli-engine-branding-smoke.js` (which scans committed files) rather than an ephemeral /tmp script.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:31.734Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "3577244e48c182a157cf68fe926ac201a58aaa909a806a349a4a25966b8d3845",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-40eb:F-004",
+      "desc": "CHK-005:adversarial:0 (must) — intent requires demonstrating that deleting a NEUTRAL_TOKEN_PATTERN from cli-engine-branding-smoke.ts causes the smoke to fail, proving the guard test is effective. The evidence runs `node packages/main/dist/tasks/cli-engine-branding-smoke.js` and gets pass — but this only demonstrates the smoke passes with patterns intact. The negative case (delete a pattern, re-run, confirm fail) is described in the note as a theoretical claim (`删 NEUTRAL_TOKEN_PATTERN 会使该 smoke fail`) without actually executing it. The intent explicitly calls for the delete-then-run sequence. Running a passing smoke without performing the destructive mutation does not bind to this adversarial intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:41.127Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "e3b4f453446f08dda78bd54b866192b3fc4825dee103a02e9fca6de27a720035",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-40eb:F-005",
+      "desc": "mechanical-rename-miss: scripts/verify-lab-scoring-core.mjs:34,47,67 creates temp project at .Codex/agents/ but packages/lab/src/core/config.ts was updated to resolve .lattice-codex/agents/ — lab create --target=test-case-reviewer will fail to find the prompt file in the temp project; rewritePrompt also writes to the wrong path",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:30.279Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "7428814d6d4cc161b0c4ad0a56fa80a3e22b71b520440806ff53028ae81ab3c0",
+      "files": [
+        "scripts/verify-lab-scoring-core.mjs",
+        "packages/lab/src/core/config.ts"
+      ]
+    },
+    {
+      "id": "B-40eb:F-006",
+      "desc": "mechanical-rename-miss: scripts/verify-lab-normalized-score.mjs:34,47,75,87 creates temp project at .Codex/agents/ and updates prompts there, but packages/lab/src/core/config.ts now resolves .lattice-codex/agents/test-case-reviewer.md — lab create/run commands in this script will miss the file",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:36.665Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "4f3413b21df4cca777c74764cd12b0929e3290807229a56914ff4ccf9859bf70",
+      "files": [
+        "scripts/verify-lab-normalized-score.mjs",
+        "packages/lab/src/core/config.ts"
+      ]
+    },
+    {
+      "id": "B-40eb:F-007",
+      "desc": "mechanical-rename-miss: scripts/verify-lab-reviewer-mvp.mjs:34,51,73 creates temp project at .Codex/agents/ and writes prompt there, but packages/lab/src/core/config.ts now resolves .lattice-codex/agents/test-case-reviewer.md — lab create --target=test-case-reviewer will fail to find the prompt file",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:42.864Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "35aecb3ac55b88e0121e327f36aebca2d60ac9fb5b68fdc4bef1b9f4c74b9703",
+      "files": [
+        "scripts/verify-lab-reviewer-mvp.mjs",
+        "packages/lab/src/core/config.ts"
+      ]
+    },
+    {
+      "id": "B-40eb:F-008",
+      "desc": "mechanical-rename-miss: scripts/verify-product-reviewer.mjs:59 reads join(root, \".Codex\", \"agents\", \"product-reviewer.md\") from the actual repo root, but this file was git-renamed to .lattice-codex/agents/product-reviewer.md — assert(existsSync(path)) will fail at runtime",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:56.033Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "92ea2821debd2ed04e0012471791c31a1f4cb76792a8e3801bbf215d03c00047",
+      "files": [
+        "scripts/verify-product-reviewer.mjs"
+      ]
+    }
+  ]
+}

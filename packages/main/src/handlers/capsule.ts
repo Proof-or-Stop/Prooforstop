@@ -6,7 +6,7 @@
  * @priority high
  * @description
  *   Exposes Story Capsule projection commands. These commands write resumable
- *   handoff state while preserving Koala evidence authority: capsule content is
+ *   handoff state while preserving Lattice evidence authority: capsule content is
  *   display/projection state and only references evidence/process-events.
  * @changes
  *   - [CHK-004] Add capsule_show/update/handoff/run_add handlers

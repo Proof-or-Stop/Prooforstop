@@ -44,7 +44,7 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function runKoala(root: string, command: string, args: Record<string, unknown>): string {
+function runLattice(root: string, command: string, args: Record<string, unknown>): string {
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd: root,
     env: { ...process.env, LATTICE_PROJECT_ROOT: root },
@@ -53,7 +53,7 @@ function runKoala(root: string, command: string, args: Record<string, unknown>):
   });
 }
 
-function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): string {
+function runLatticeFromCwd(cwd: string, command: string, args: Record<string, unknown>): string {
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
@@ -64,9 +64,9 @@ function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unkn
   });
 }
 
-function runKoalaExpectFail(root: string, command: string, args: Record<string, unknown>): string {
+function runLatticeExpectFail(root: string, command: string, args: Record<string, unknown>): string {
   try {
-    runKoala(root, command, args);
+    runLattice(root, command, args);
   } catch (e: any) {
     return [
       e?.stdout?.toString?.() ?? '',
@@ -77,9 +77,9 @@ function runKoalaExpectFail(root: string, command: string, args: Record<string, 
   assert.fail(`${command} should have failed`);
 }
 
-function runKoalaFromCwdExpectFail(cwd: string, command: string, args: Record<string, unknown>): string {
+function runLatticeFromCwdExpectFail(cwd: string, command: string, args: Record<string, unknown>): string {
   try {
-    runKoalaFromCwd(cwd, command, args);
+    runLatticeFromCwd(cwd, command, args);
   } catch (e: any) {
     return [
       e?.stdout?.toString?.() ?? '',
@@ -161,10 +161,10 @@ function writeStory(store: StoryStore, storyId: string, phase: StoryInfo['phase'
 }
 
 function assertRecordedWorktreeRejectsMainCwd(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-authority-recorded-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-authority-recorded-'));
   const previousCwd = process.cwd();
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -202,10 +202,10 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
 }
 
 function assertInitCheckChecklistMutationRejectsMainCwd(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-authority-init-check-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-authority-init-check-'));
   const previousCwd = process.cwd();
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -230,7 +230,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
     });
 
     process.chdir(root);
-    const output = runKoalaExpectFail(root, 'checklist_add', {
+    const output = runLatticeExpectFail(root, 'checklist_add', {
       storyId,
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
@@ -244,10 +244,10 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
 }
 
 function assertTerminalStoriesDoNotRedirect(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-authority-terminal-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-authority-terminal-'));
   const previousCwd = process.cwd();
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -269,9 +269,9 @@ function assertTerminalStoriesDoNotRedirect(): void {
 }
 
 function recordPassingInitAndScopeGates(root: string, storyId: string): void {
-  runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
-  runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
-  runKoala(root, 'scope_boundary_set', {
+  runLattice(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+  runLattice(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
+  runLattice(root, 'scope_boundary_set', {
     storyId,
     mode: 'custom',
     allowedScope: ['Materialize reviewed draft metadata and bootstrap the story worktree only through INIT_CHECK.'],
@@ -280,7 +280,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
     actor: 'worktree-authority-smoke',
     confirmation: 'B-85ba F-006 fromDraft smoke expects conservative INIT creation followed by explicit INIT_CHECK bootstrap.',
   });
-  runKoala(root, 'execution_boundary_set', {
+  runLattice(root, 'execution_boundary_set', {
     storyId,
     allowedCommands: [
       'story_create --fromDraft',
@@ -297,7 +297,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
     actor: 'worktree-authority-smoke',
     notes: 'FromDraft smoke may inspect bounded lifecycle metadata and the eventual worktree bootstrap.',
   });
-  runKoala(root, 'scope_freeze_check', {
+  runLattice(root, 'scope_freeze_check', {
     storyId,
     status: 'PASS',
     actor: 'worktree-authority-smoke',
@@ -306,10 +306,10 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
 }
 
 function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-worktree-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-from-draft-worktree-'));
   const draftName = 'from-draft-smoke';
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -324,7 +324,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runKoala(root, 'story_draft', {
+    runLattice(root, 'story_draft', {
       name: draftName,
       title: 'From draft smoke story',
       description: 'Synthetic from-draft story for worktree bootstrap.',
@@ -336,12 +336,12 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
         context: 'The fromDraft CLI path must stop at INIT; worktree bootstrap happens later through gated INIT_CHECK.',
       }],
     });
-    runKoala(root, 'draft_check_set', {
+    runLattice(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
     });
-    const output = runKoala(root, 'story_create', { fromDraft: draftName });
+    const output = runLattice(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
@@ -353,7 +353,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'fromDraft creation must not register a story worktree');
 
     recordPassingInitAndScopeGates(root, storyId);
-    const advanced = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const advanced = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.match(advanced, /advanced to INIT_CHECK/, 'explicit INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report main metadata commit');
 
@@ -377,10 +377,10 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
 }
 
 function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-dirty-main-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-from-draft-dirty-main-'));
   const draftName = 'from-draft-dirty-main-smoke';
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -396,7 +396,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runKoala(root, 'story_draft', {
+    runLattice(root, 'story_draft', {
       name: draftName,
       title: 'From draft dirty main smoke story',
       description: 'Synthetic from-draft story for dirty main preservation.',
@@ -408,7 +408,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
         context: 'The fromDraft CLI path must commit bounded metadata without consuming user changes or creating a worktree.',
       }],
     });
-    runKoala(root, 'draft_check_set', {
+    runLattice(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
@@ -422,7 +422,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     assert.equal(git(root, ['diff', '--name-only', '--', 'unrelated-tracked.txt']), 'unrelated-tracked.txt');
     assert.match(dirtyBefore, /\?\? unrelated-untracked\.txt/);
 
-    const output = runKoala(root, 'story_create', { fromDraft: draftName });
+    const output = runLattice(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
@@ -454,10 +454,10 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
 }
 
 function assertFromDraftRejectsStagedMainBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-staged-main-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-from-draft-staged-main-'));
   const draftName = 'from-draft-staged-main-smoke';
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -473,7 +473,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runKoala(root, 'story_draft', {
+    runLattice(root, 'story_draft', {
       name: draftName,
       title: 'From draft staged main smoke story',
       description: 'Synthetic from-draft story for staged main preflight.',
@@ -485,7 +485,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
         context: 'The fromDraft CLI path must reject staged user changes before mutating story, draft, or worktree state.',
       }],
     });
-    runKoala(root, 'draft_check_set', {
+    runLattice(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
@@ -497,7 +497,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     git(root, ['add', '--', 'unrelated-staged.txt']);
     assert.equal(git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']), 'M\tunrelated-staged.txt');
 
-    const output = runKoalaExpectFail(root, 'story_create', { fromDraft: draftName });
+    const output = runLatticeExpectFail(root, 'story_create', { fromDraft: draftName });
     assert.match(output, /requires a clean git index before mutating story\/draft\/worktree metadata/);
     assert.match(output, /unrelated-staged\.txt/);
     const store = new StoryStore(root);
@@ -561,9 +561,9 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
 }
 
 function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-nested-done-cleanup-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-nested-done-cleanup-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -614,7 +614,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
     mkdirSync(nestedCwd, { recursive: true });
     writeFileSync(join(nestedCwd, 'runtime.txt'), 'runtime residue that must not become the cleanup root\n');
 
-    const output = runKoalaFromCwd(nestedCwd, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwd(nestedCwd, 'story_advance', { storyId, phase: 'DONE' });
     assert.doesNotMatch(output, /PVSC/, 'DONE output must not target the nested invocation cwd');
     assert.doesNotMatch(output, new RegExp(nestedCwd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'DONE output must not mention the child cwd as cleanup target');
 
@@ -630,9 +630,9 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
 }
 
 function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-mismatched-done-branch-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-mismatched-done-branch-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -671,7 +671,7 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
     git(worktreePath, ['add', '.']);
     git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence on wrong branch']);
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch story\/B-other but expected story\/B-expected/);
     assert.match(output, /merge\/delete aborted before mutating story state/);
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'wrong branch must not mark story DONE');
@@ -686,9 +686,9 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
 }
 
 function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-non-story-done-branch-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-non-story-done-branch-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -727,7 +727,7 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
     git(worktreePath, ['add', '.']);
     git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence on non-story branch']);
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch feature\/not-story but expected story\/B-non-story/);
     assert.match(output, /merge\/delete aborted before mutating story state/);
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'non-story branch must not mark worktree story DONE');
@@ -774,7 +774,7 @@ function buildDoneReadyStory(
   storyId: string,
   opts?: { withGateEvidence?: boolean; beforeEvidence?: (worktreePath: string) => void },
 ): { worktreePath: string; store: StoryStore } {
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -852,7 +852,7 @@ function assertDoneMainPackageBuildTriggerPredicate(): void {
 
 function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
   let buildCalls = 0;
-  const skipLine = runDoneMainPackageBuildAfterMerge('/tmp/koala-unused-main', 'before', 'after', {
+  const skipLine = runDoneMainPackageBuildAfterMerge('/tmp/lattice-unused-main', 'before', 'after', {
     changedPaths: ['docs/requirements/decisions/story-lifecycle.md'],
     buildRunner: () => {
       buildCalls += 1;
@@ -862,11 +862,11 @@ function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
   assert.equal(buildCalls, 0, 'skip branch must not invoke the build runner');
   assert.match(skipLine, /packages\/main build skipped after DONE merge/, 'skip branch must return a visible skip line');
 
-  const successLine = runDoneMainPackageBuildAfterMerge('/tmp/koala-main', 'before', 'after', {
+  const successLine = runDoneMainPackageBuildAfterMerge('/tmp/lattice-main', 'before', 'after', {
     changedPaths: ['packages/main/src/handlers/done-effects.ts'],
     buildRunner: (cwd) => {
       buildCalls += 1;
-      assert.equal(cwd, '/tmp/koala-main', 'success branch must run from the main merge root');
+      assert.equal(cwd, '/tmp/lattice-main', 'success branch must run from the main merge root');
       return { status: 0, stdout: 'build ok\n' };
     },
   });
@@ -875,7 +875,7 @@ function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
   assert.match(successLine, /npm --prefix packages\/main run build/, 'success line must name the package build command');
 
   try {
-    runDoneMainPackageBuildAfterMerge('/tmp/koala-main', 'before', 'after', {
+    runDoneMainPackageBuildAfterMerge('/tmp/lattice-main', 'before', 'after', {
       changedPaths: ['package-lock.json'],
       buildRunner: () => ({
         status: 2,
@@ -905,7 +905,7 @@ function markStoryBranchPartialDone(worktreePath: string, storyId: string): void
 }
 
 function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-recover-build-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-recover-build-'));
   try {
     const storyId = 'B-recover-build';
     const { worktreePath } = buildDoneReadyStory(root, storyId, {
@@ -946,7 +946,7 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
 }
 
 function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-recover-build-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-recover-build-fail-'));
   try {
     const storyId = 'B-recover-build-fail';
     const { worktreePath } = buildDoneReadyStory(root, storyId, {
@@ -1003,7 +1003,7 @@ function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
 }
 
 function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-recover-build-skip-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-recover-build-skip-'));
   try {
     const storyId = 'B-recover-build-skip';
     const { worktreePath } = buildDoneReadyStory(root, storyId, {
@@ -1048,12 +1048,12 @@ function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
  * carries an inline DONE merge implementation (CHK-003 task 2 ④).
  */
 function assertDoneSuccessPathOutputAndOrdering(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-success-path-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-success-path-'));
   try {
     const storyId = 'B-done-success';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
 
-    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
 
     // DONE Gate Checklist section — the pre-merge gate's rendered checklist is
     // prefixed onto the success message (via doneChecklistPrefix).
@@ -1171,7 +1171,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
  * Failure mode this discriminates: when LATTICE_PROJECT_ROOT points at the story
  * worktree (the realistic agent setup — they cd into the worktree and the env
  * var pins the root there), story_advance --phase=DONE removes that worktree
- * mid-command. The post-command writeLog then sees root/koala.config.json gone
+ * mid-command. The post-command writeLog then sees root/lattice.config.json gone
  * and, in the old code, fell back to resolveRoot() — which returns the now-ghost
  * worktree path again (LATTICE_PROJECT_ROOT wins), so the final successful DONE
  * record was silently dropped (heartbeat lost) instead of landing in main.
@@ -1182,7 +1182,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
  * heartbeat to be present in main and the worktree dir to stay absent.
  */
 function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-post-done-heartbeat-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-post-done-heartbeat-'));
   try {
     const storyId = 'B-heartbeat';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1227,14 +1227,14 @@ function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
  * phase=DONE is persisted.
  */
 function assertDoneOracleGateFailureKeepsStoryTest(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-oracle-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-fail-'));
   try {
     const storyId = 'B-oracle-fail';
     // withGateEvidence:false — no test-evidence / no delivery-check committed,
     // so the done-oracle gate fails.
     const { worktreePath } = buildDoneReadyStory(root, storyId, { withGateEvidence: false });
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'done-oracle gate failure must report Cannot enter DONE');
 
     // phase=DONE never written — story stays TEST in BOTH stores.
@@ -1255,7 +1255,7 @@ function assertDoneOracleGateFailureKeepsStoryTest(): void {
  * F-020 stray-file dry-run in runDonePreMergeGate throws before phase=DONE.
  */
 function assertStrayFileOffenderKeepsStoryTest(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-stray-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-stray-fail-'));
   try {
     const storyId = 'B-stray-fail';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1268,7 +1268,7 @@ function assertStrayFileOffenderKeepsStoryTest(): void {
     mkdirSync(dirname(strayPath), { recursive: true });
     writeFileSync(strayPath, 'non-whitelisted stray file that must block DONE pre-merge\n');
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /stray-offender\.txt/, 'stray-file gate failure must name the offending file');
 
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'stray-file gate failure must not mark the worktree story DONE');
@@ -1295,7 +1295,7 @@ function assertStrayFileOffenderKeepsStoryTest(): void {
  * never reaches the post-merge effects.
  */
 function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-merge-conflict-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-conflict-'));
   try {
     const storyId = 'B-conflict-fail';
     // Story branch commits its version of conflict.txt BEFORE the gate
@@ -1315,7 +1315,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
     git(root, ['add', 'conflict.txt']);
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'main edits conflict.txt']);
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'a merge conflict must trip a DONE pre-merge gate');
     assert.match(output, new RegExp(`story/${storyId} is behind main`), 'the gate must report the branch is behind main');
 
@@ -1350,7 +1350,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
  * failure surfaces only inside applyDoneMergeEffects' real merge step.
  */
 function assertRealMergeFailureMarksDoneAndThrows(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-merge-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-fail-'));
   try {
     const storyId = 'B-merge-fail';
     // Story branch ADDS shared.txt — committed BEFORE the gate evidence so the
@@ -1370,7 +1370,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
     // untracked file would be overwritten.
     writeFileSync(join(root, 'shared.txt'), 'untracked main file that blocks merge\n');
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(
       output,
       new RegExp(`Story ${storyId} (?:has been marked DONE but auto-merge failed|已标记为 DONE 但自动合并失败)`),
@@ -1407,7 +1407,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
     console.log('  (skipped assertWorktreeCleanupFailureMarksDoneMergedAndThrows — running as root, permission bits are ignored)');
     return;
   }
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-cleanup-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-cleanup-fail-'));
   const worktreesDir = join(root, '.worktrees');
   try {
     const storyId = 'B-cleanup-fail';
@@ -1419,7 +1419,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
     // throws after the merge succeeded.
     chmodSync(worktreesDir, 0o500);
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(
       output,
       new RegExp(`Story ${storyId} (?:merged, but worktree cleanup did not complete|已合并，但 worktree 清理未完成)`),
@@ -1443,14 +1443,14 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
  * contention must be surfaced to the operator while the story is still TEST.
  */
 function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-main-lock-live-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-main-lock-live-'));
   try {
     const storyId = 'B-lock-live';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
     const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /DONE main merge lock is held/, 'live DONE lock must produce an operator-visible lock message');
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'live DONE lock must leave worktree story TEST');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'live DONE lock must leave main story TEST');
@@ -1462,7 +1462,7 @@ function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
 }
 
 function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-main-lock-before-sync-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-main-lock-before-sync-'));
   try {
     const storyId = 'B-lock-before-sync';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1473,7 +1473,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
     const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /DONE main merge lock is held/, 'live DONE lock must fail before autoSyncMain');
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'lock-before-sync failure must leave story TEST');
     assert.equal(
@@ -1497,7 +1497,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
  * stale threshold, so story_advance should reclaim it and complete normally.
  */
 function assertDoneMainMergeStaleLockIsReclaimed(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-main-lock-stale-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-main-lock-stale-'));
   try {
     const storyId = 'B-lock-stale';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1506,7 +1506,7 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
     const old = new Date(Date.now() - 5 * 60 * 1000);
     utimesSync(lockDir, old, old);
 
-    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, new RegExp(`Story ${storyId} advanced to DONE`), 'stale DONE lock should be reclaimed and allow DONE');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'stale lock recovery should still complete DONE');
     assert.equal(existsSync(lockDir), false, 'DONE lock directory should be released after successful DONE');
@@ -1537,12 +1537,12 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
  * so the DONE merge has nothing uncommitted to collide with and completes.
  */
 function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-init-check-f008-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-init-check-f008-'));
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Lattice Smoke']);
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -1556,7 +1556,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
     git(root, ['commit', '-m', 'base']);
     resetConfigCache();
 
-    const created = runKoala(root, 'story_create', {
+    const created = runLattice(root, 'story_create', {
       name: 'init-check-f008',
       title: 'Init check F-008 regression',
       description: 'Verify INIT_CHECK commits its main-side story metadata mirror so DONE does not self-block.',
@@ -1579,7 +1579,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
 
     recordPassingInitAndScopeGates(root, storyId);
 
-    const advanced = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const advanced = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.match(advanced, /advanced to INIT_CHECK/, 'INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report the metadata mirror was committed');
 
@@ -1644,7 +1644,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
  * while `story/<id>` is still unmerged, nor that main is mutated twice.
  */
 async function assertConcurrentDoneSerializesWithoutPartialDone(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'koala-concurrent-done-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-concurrent-done-'));
   try {
     const storyId = 'B-concurrent-done';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1699,7 +1699,7 @@ async function assertConcurrentDoneSerializesWithoutPartialDone(): Promise<void>
 
     // No uncommitted story-metadata mirror was left behind by the racing
     // processes — that uncommitted mirror is the exact F-008 self-block
-    // precondition. Scoped to the story dir (not the whole tree) so koala's own
+    // precondition. Scoped to the story dir (not the whole tree) so lattice's own
     // gitignored runtime artifacts — .lattice/activity.jsonl, .lattice/runtime/ —
     // do not masquerade as partial-DONE residue.
     assert.equal(

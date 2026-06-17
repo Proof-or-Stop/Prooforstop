@@ -98,9 +98,9 @@ function git(cwd: string, args: string[]): string {
 // Build an isolated git-backed story repo whose only checklist item is CHK-001, so
 // CHK-MISSING is a guaranteed-unknown item for the 0-POST-on-illegal-itemId case.
 function createFlowStoryRepo(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-'));
-  mkdirSync(dirname(join(root, 'koala.config.json')), { recursive: true });
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-'));
+  mkdirSync(dirname(join(root, 'lattice.config.json')), { recursive: true });
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',

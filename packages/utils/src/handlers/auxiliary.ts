@@ -51,7 +51,7 @@ export function createAuxHandlers(ctx: HandlerContext) {
       }
 
       return JSON.stringify({
-        _hint: '→ Run koala aux_detail \'{"files":["file-to-change"]}\' to view signatures and properties without reading the source file',
+        _hint: '→ Run lattice aux_detail \'{"files":["file-to-change"]}\' to view signatures and properties without reading the source file',
         tasks,
         validation: {
           passed: validation.passed,

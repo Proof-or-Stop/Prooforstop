@@ -209,7 +209,7 @@ function assertInspectionStale(inspection: EvidenceInspection, driftHead: string
   assertEvidenceRefSemantics(inspection.evidenceRefs);
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-lattice-evidence-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-evidence-'));
 try {
   writeConfig(root);
   git(root, ['init']);

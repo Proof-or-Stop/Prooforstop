@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d7c3",
+  "mode": "custom",
+  "allowed": [
+    "Collapse 143 packages/main test:X-smoke scripts + 44 root smoke proxy scripts into smoke-manifest entries; add test:legacy compatibility shim; update tracked-doc references; CHANGELOG entry. Keep the 6 named scripts (test:e2e, test:run-all-smokes-smoke, test:main-write-lock-coverage, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke) + test:all + the root test main script + the kept root proxies for the main-test chain."
+  ],
+  "excluded": [
+    "Editing decision documents",
+    "Touching any *-smoke.ts file",
+    "Touching test:e2e or cli-e2e flow runner",
+    "Touching the runner run-all-smokes.ts",
+    "Touching verify-*.mjs scripts",
+    "Wiring c8 coverage (B3 follow-up)"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User directed B2 → B3 sequentially via Lattice workflow (2026-06-17 after B-6efb DONE).",
+  "createdAt": "2026-06-17T12:16:03.754Z",
+  "updatedAt": "2026-06-17T12:16:03.754Z",
+  "_hash": "b97600c456fc8f8c56b6feaccc5fe3b9f5a42fcc0b2ac9fcd5cca4233a3810ce"
+}

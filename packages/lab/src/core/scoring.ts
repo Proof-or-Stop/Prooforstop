@@ -1,7 +1,7 @@
 /**
  * @task B-a591
  * @checklist CHK-001
- * @title koala-lab scoring core turns metric bundles into comparable scores
+ * @title lattice-lab scoring core turns metric bundles into comparable scores
  * @type feature
  * @priority high
  * @description
@@ -32,7 +32,7 @@ function clamp01(value: number): number {
 
 function ensureFinite(label: string, value: number): void {
   if (!Number.isFinite(value)) {
-    throw new Error(`koala-lab invalid ${label}: ${value}`);
+    throw new Error(`lattice-lab invalid ${label}: ${value}`);
   }
 }
 

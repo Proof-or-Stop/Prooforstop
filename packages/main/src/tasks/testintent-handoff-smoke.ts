@@ -11,10 +11,10 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 
-const root = mkdtempSync(join(tmpdir(), 'koala-testintent-handoff-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-testintent-handoff-'));
 
 try {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

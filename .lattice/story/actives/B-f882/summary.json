@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f882",
+  "changes": "packages/main/src/handlers/review-preflight.ts: the docs-drift REVIEW->TEST preflight gate now passes repoRoot: gitCwd (the resolved gitRoot already threaded into the channel/concept/english gates) instead of deps.projectRoot, so its scanPathDrift fs.existsSync + git grep run from the real gitRoot on wrapper-root layouts (one-arg fix + comment). NEW packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts: a wrapper-root (metadataRoot != gitRoot) regression that drives runReviewCliGates end-to-end plus a direct runDocsDriftGate root-contrast, proven RED against the pre-fix wiring. packages/main/src/tasks/gitroot-cwd-contract-smoke.ts: a focused review-preflight-specific guard that balanced-paren-extracts the runDocsDriftGate(...) call and asserts its repoRoot is gitCwd (not a metadataRoot forward), with self-tests + coverage doc. package.json + packages/main/package.json: wired test:docs-drift-wrapper-root AND test:gitroot-cwd-contract into the root npm test chain (what lattice validate runs).",
+  "usage": "No new user-facing command. On a wrapper-root project (metadataRoot != gitRoot), running lattice validate / advancing REVIEW->TEST now passes the docs-drift gate (CLAUDE.md path references resolved from the gitRoot, not falsely reported missing). lattice validate runs the new regression (docs-drift wrapper-root smoke passed) and the strengthened guard (review-preflight docs-drift gate wires repoRoot: gitCwd) as part of npm test.",
+  "expectedOutcome": "Wrapper-root REVIEW->TEST preflight: [docs-drift] pass (no false missing-path drift), REVIEW->TEST proceeds; plain repo byte-identical; the wrapper-root regression and guard run green in the battery and go RED if the fix is reverted.",
+  "actualTranscript": "GREEN: node docs-drift-wrapper-root-smoke.js -> docs-drift wrapper-root smoke passed (exit 0); node gitroot-cwd-contract-smoke.js -> ✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot), ✓ gitroot-cwd-contract smoke passed (exit 0). RED (repoRoot reverted to deps.projectRoot): wrapper-root smoke -> AssertionError PRIMARY: docs-drift gate must PASS on wrapper-root (got status=fail, missing path: dev-notes/wrapper-doc.md), exit non-zero; guard -> ✗ FAILED: runDocsDriftGate(...) repoRoot is deps.projectRoot — must be the resolved gitCwd, exit non-zero. RESTORE -> green. REVIEW->TEST preflight ran against the real repo: CLI gate preflight: all pass; npm test ALL PASS; lattice validate --story=B-f882 = 9/9 intents covered. Full transcript: .lattice/story/actives/B-f882/evidence/transcript-diff.md.",
+  "outcomeDiff": "No difference — expected equals actual. Wrapper-root layouts no longer false-block REVIEW->TEST, plain-repo behavior unchanged, regression+guard wired into the battery and proven RED against the pre-fix wiring.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The CHK-003 guard is review-preflight-specific (single file, single docs-drift gate call), not a general repo-wide dataflow guard; it does not catch param-named metadataRoot forwards into other gates/files (a full lexical/AST rewrite was judged impractical and out of scope, documented in the guard coverage block). DEFERRED out of scope by user decision: the english-artifacts gate storyDir metadata-root mismatch (finding #3, separate story) and the express-channel docstring drift (#2, separate story) — both confirmed UNTOUCHED.",
+  "pitfalls": "(1) The DONE/REVIEW gate is fail-closed on stale review-run bindings: every source-changing fix-commit (the F-001/F-002 review-fix commit) stales the entire round and forces DEV->REVIEW round 2 + re-running all reviewers for fresh bindings — budget for this. (2) verificationEvidence stales on each head move (fix-commit, main merge); use lattice verification_evidence_refresh_stale (reruns the cited command) then re-validate. (3) A wrapper-root regression needs a NON-trivial metadataRoot: a bare non-git metadataRoot makes git grep exit 128 = swallowed-as-skipped (not a missing-path FAIL), so the fixture models metadataRoot as an OUTER git repo with the gitRoot in a subdir — the faithful real-world wrapper-root case. (4) test:gitroot-cwd-contract was historically NOT in the root npm test chain (only test:all auto-discovery), so lattice validate did not run it until CHK-003/review-fix wired it in — verify guard smokes are in the npm test chain, not just test:all. (5) main moved 162 commits (incl B-40eb koala sweep) during the story; merge main before DONE and re-refresh evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 246858
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 101298
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 598243
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1186962
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 844706
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 394163
+    }
+  },
+  "totalDurationMs": 3372244,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T12:36:42.344Z",
+  "updatedAt": "2026-06-17T12:36:42.344Z"
+}

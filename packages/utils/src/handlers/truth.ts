@@ -61,7 +61,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
 
       // Generate the architecture doc
       let archMd = `# Project architecture (auto-extracted)\n\n`;
-      archMd += `> Auto-generated from code metadata by \`koala truth_extract\`\n\n`;
+      archMd += `> Auto-generated from code metadata by \`lattice truth_extract\`\n\n`;
       archMd += `## File structure\n\n`;
       for (const [file, fns] of byFile) {
         archMd += `### ${file}\n\n`;
@@ -77,7 +77,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
       // Generate the Story summary doc
       if (stories.length > 0) {
         let storyMd = `# Story summary (auto-extracted)\n\n`;
-        storyMd += `> Auto-generated from Story data by \`koala truth_extract\`\n\n`;
+        storyMd += `> Auto-generated from Story data by \`lattice truth_extract\`\n\n`;
         for (const s of stories) {
           storyMd += `## ${s.id}: ${s.title} [${s.phase}]\n\n`;
           storyMd += `${s.description}\n\n`;
@@ -102,7 +102,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
       }
       writeFileSync(join(extractedDir, 'features.md'), featuresMd);
 
-      return `Extraction done:\n- ${extractedDir}/architecture.md (${byFile.size} files, ${tasks.length} functions)\n- ${extractedDir}/stories.md (${stories.length} Stories)\n- ${extractedDir}/features.md (${features.length} features)\n\n→ Run koala truth_nav to update the navigation`;
+      return `Extraction done:\n- ${extractedDir}/architecture.md (${byFile.size} files, ${tasks.length} functions)\n- ${extractedDir}/stories.md (${stories.length} Stories)\n- ${extractedDir}/features.md (${features.length} features)\n\n→ Run lattice truth_nav to update the navigation`;
     },
   };
 }

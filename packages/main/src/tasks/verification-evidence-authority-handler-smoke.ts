@@ -40,9 +40,9 @@ const STORY_ID = 'B-authh';
 const now = '2026-05-21T00:00:00.000Z';
 
 function createStoryRepo(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-authh-'));
-  mkdirSync(dirname(join(root, 'koala.config.json')), { recursive: true });
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-authh-'));
+  mkdirSync(dirname(join(root, 'lattice.config.json')), { recursive: true });
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',

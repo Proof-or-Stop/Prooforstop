@@ -120,16 +120,16 @@ function countStoryDirs(storyDirAbs: string): string[] {
 
 interface RoundConfig {
   label: string;
-  storyDir: string; // relative path stored in koala.config.json
+  storyDir: string; // relative path stored in lattice.config.json
 }
 
 async function runScenario(cfg: RoundConfig): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'koala-story-create-conc-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-story-create-conc-'));
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Lattice Smoke']);
-    writeFile(root, 'koala.config.json', JSON.stringify({
+    writeFile(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: cfg.storyDir,
@@ -260,12 +260,12 @@ function storyIdOf(output: string): string | undefined {
  * functional regressions on the dedup logic.
  */
 async function runDedupScenario(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'koala-story-dedup-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-story-dedup-'));
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Lattice Smoke']);
-    writeFile(root, 'koala.config.json', JSON.stringify({
+    writeFile(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -437,13 +437,13 @@ function backdateStory(storyDirAbs: string, storyId: string, minutesAgo: number)
  * `lattice story_create | tail` pipe never silently eats the warning.
  */
 async function runStderrChannelScenario(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'koala-story-stderr-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-story-stderr-'));
   const storyDir = '.lattice/story/actives';
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Lattice Smoke']);
-    writeFile(root, 'koala.config.json', JSON.stringify({
+    writeFile(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir,

@@ -32,7 +32,7 @@ import {
   withReentrantMainWriteLock,
 } from '../core/main-write-lock.js';
 
-const root = join(tmpdir(), `koala-main-write-lock-smoke-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `lattice-main-write-lock-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {

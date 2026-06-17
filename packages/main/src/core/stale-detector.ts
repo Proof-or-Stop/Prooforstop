@@ -2,7 +2,7 @@
  * Stale state detector — soft warning before each lattice command runs.
  *
  * Inspired by Claude Code's todo_reminder: inject system-reminder after periods of inactivity.
- * koala takes activity.jsonl + checklist.startTime + story.events + bug.foundAt as inputs,
+ * lattice takes activity.jsonl + checklist.startTime + story.events + bug.foundAt as inputs,
  * and emits a warning to stderr before each lattice command actually runs to remind the main agent and avoid stuck phases.
  *
  * Design principles:

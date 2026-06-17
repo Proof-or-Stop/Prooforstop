@@ -28,7 +28,7 @@ const TOP_LEVEL_KEYS = [
 ] as const;
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: 'Docs/story/actives',
@@ -99,7 +99,7 @@ function assertCanonicalShape(story: CanonicalStory): void {
   assert.equal((story as unknown as Record<string, unknown>).hostProfile, undefined, 'canonical story does not leak host-private profile fields');
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-canonical-story-export-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-canonical-story-export-'));
 try {
   writeConfig(root);
   resetConfigCache();

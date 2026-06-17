@@ -46,7 +46,7 @@ import { execFileSync, execSync, spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
-import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
+import { repairGlobalLatticeLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
@@ -268,7 +268,7 @@ export function acquireDoneMainMergeLock(
   return acquireMainWriteLockRegistered(mainRepoRoot, {
     label: 'DONE main merge',
     heldMessage:
-      `DONE main merge lock is held by another Koala operation; story ${storyId} phase was not changed. ` +
+      `DONE main merge lock is held by another Lattice operation; story ${storyId} phase was not changed. ` +
       `Retry after the active DONE merge finishes.`,
   });
 }
@@ -578,7 +578,7 @@ export async function runDonePreMergeGate(
   // 之前。原实现（Step 2.5，line 632 附近）在 story.phase=DONE +
   // story.worktree=undefined 已 writeStory 之后才跑，若 throw（非白名单
   // 未追踪文件）story 会卡 DONE（merge 未发生、worktree 还活着、没有
-  // koala 自愈路径）。这里预检查：dry-run detection，发现 offender 立刻
+  // lattice 自愈路径）。这里预检查：dry-run detection，发现 offender 立刻
   // throw，保留 phase=TEST 状态让 main agent 按错误提示修复后重跑。
   //
   // whitelist 文件在此**不删除**——只负责早期拦截。真正的 rm 延后到
@@ -781,7 +781,7 @@ export async function applyDoneMergeEffects(
       // state or genuine leakage we want to erase.
       if (existsSync(wtPathAbs) || isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
         const wasRegisteredWorktree = isRegisteredWorktree(mainRepoRoot, wtPathAbs);
-        const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
+        const repair = repairGlobalLatticeLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
         if (repair.action === 'relinked') mergeLines.push(repair.message);
         let removeFailure: string | null = null;
         try {

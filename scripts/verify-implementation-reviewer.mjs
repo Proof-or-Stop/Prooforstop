@@ -15,7 +15,7 @@ function read(path) {
 
 const agentPaths = [
   join(root, '.claude', 'agents', 'implementation-reviewer.md'),
-  join(root, '.Codex', 'agents', 'implementation-reviewer.md'),
+  join(root, '.lattice-codex', 'agents', 'implementation-reviewer.md'),
 ];
 
 for (const path of agentPaths) {

@@ -178,7 +178,7 @@ const pythonFunctionExecutor: FixtureExecutor = {
     const script = [
       'import importlib.util, json, sys',
       'payload=json.loads(sys.argv[1])',
-      'spec=importlib.util.spec_from_file_location("__koala_fixture_module__", payload["file"])',
+      'spec=importlib.util.spec_from_file_location("__lattice_fixture_module__", payload["file"])',
       'mod=importlib.util.module_from_spec(spec)',
       'spec.loader.exec_module(mod)',
       'target=mod',

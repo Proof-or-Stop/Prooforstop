@@ -50,7 +50,7 @@ function assertPolicyContracts(): void {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -84,7 +84,7 @@ function seedStory(store: StoryStore): void {
 }
 
 function assertNoOverclaim(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-observability-contract-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-observability-contract-'));
   try {
     writeConfig(root);
     resetConfigCache();

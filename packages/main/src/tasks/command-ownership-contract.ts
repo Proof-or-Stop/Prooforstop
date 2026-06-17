@@ -96,7 +96,7 @@ function record(source: string, detail: string): void {
  */
 const STANDALONE_COMMANDS = new Set<string>(['dashboard']);
 
-const root = join(tmpdir(), `koala-command-ownership-contract-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `lattice-command-ownership-contract-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {

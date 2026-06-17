@@ -97,10 +97,10 @@
       "sandbox": false
     },
     {
-      "name": "CHK-003 happy: koala next prints only an executable next-step line",
+      "name": "CHK-003 happy: lattice next prints only an executable next-step line",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"next\"], { cwd: $root, encoding: \"utf8\" }); return { startsWithNext: out.includes(\"Next step:\"), mentionsPhase: out.includes(\"阶段\") || out.includes(\"Resume:\"), omitsBriefHeader: !out.includes(\"# koala session brief\") && !out.includes(\"# koala status\") };",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"next\"], { cwd: $root, encoding: \"utf8\" }); return { startsWithNext: out.includes(\"Next step:\"), mentionsPhase: out.includes(\"阶段\") || out.includes(\"Resume:\"), omitsBriefHeader: !out.includes(\"# lattice session brief\") && !out.includes(\"# lattice status\") };",
       "expect": {
         "startsWithNext": true,
         "mentionsPhase": true,

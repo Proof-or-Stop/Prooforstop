@@ -75,12 +75,12 @@ function initCheckPath(root: string, storyId: string): string {
   return join(root, '.lattice/story/actives', storyId, 'init-check.json');
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-init-fallback-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-init-fallback-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

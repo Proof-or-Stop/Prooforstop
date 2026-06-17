@@ -25,7 +25,7 @@ import { renderLatticeBootstrapScript, renderLatticeCodexWrapperScript } from '.
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 
-const tmp = mkdtempSync(join(tmpdir(), 'koala-validation-protocol-'));
+const tmp = mkdtempSync(join(tmpdir(), 'lattice-validation-protocol-'));
 
 function assertRuntimeModeShape(value: any): void {
   assert.ok(value, 'runtimeMode should be present');
@@ -148,7 +148,7 @@ try {
   assert.equal(shellDiscovered[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
   assert.deepEqual(shellDiscovered[0].args, []);
 
-  const noEntryRoot = mkdtempSync(join(tmpdir(), 'koala-validation-no-entry-'));
+  const noEntryRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-no-entry-'));
   try {
     resetConfigCache();
     const logs: string[] = [];
@@ -173,7 +173,7 @@ try {
     rmSync(noEntryRoot, { recursive: true, force: true });
   }
 
-  const configuredOnlyRoot = mkdtempSync(join(tmpdir(), 'koala-validation-configured-'));
+  const configuredOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-configured-'));
   try {
     writeFileSync(join(configuredOnlyRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
@@ -209,7 +209,7 @@ try {
     rmSync(configuredOnlyRoot, { recursive: true, force: true });
   }
 
-  const configuredFailRoot = mkdtempSync(join(tmpdir(), 'koala-validation-configured-fail-'));
+  const configuredFailRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-configured-fail-'));
   try {
     writeFileSync(join(configuredFailRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
@@ -249,7 +249,7 @@ try {
     rmSync(configuredFailRoot, { recursive: true, force: true });
   }
 
-  const fallbackRoot = mkdtempSync(join(tmpdir(), 'koala-validation-fallback-'));
+  const fallbackRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-fallback-'));
   try {
     writeFileSync(join(fallbackRoot, 'package.json'), JSON.stringify({
       scripts: { test: 'node -e "process.stdout.write(\\"fallback-ok\\")"' },
@@ -336,7 +336,7 @@ try {
   }
 
   // B-38d6 CHK-002: lattice.config.json is canonical; validate.commands there
-  // must be loaded and used by koala/lattice validate.
+  // must be loaded and used by lattice validate.
   const latticeCanonicalRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-canonical-'));
   try {
     writeFileSync(join(latticeCanonicalRoot, 'lattice.config.json'), JSON.stringify({
@@ -417,7 +417,7 @@ try {
     rmSync(conflictConfigRoot, { recursive: true, force: true });
   }
 
-  const dirtyFallbackRoot = mkdtempSync(join(tmpdir(), 'koala-validation-dirty-fallback-'));
+  const dirtyFallbackRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-fallback-'));
   try {
     writeFileSync(join(dirtyFallbackRoot, 'package.json'), JSON.stringify({
       scripts: { test: 'node -e "require(\\"fs\\").writeFileSync(\\"report.md\\", \\"changed\\\\n\\")"' },
@@ -450,7 +450,7 @@ try {
     rmSync(dirtyFallbackRoot, { recursive: true, force: true });
   }
 
-  const categorizedPollutionRoot = mkdtempSync(join(tmpdir(), 'koala-validation-dirty-classified-'));
+  const categorizedPollutionRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-classified-'));
   try {
     writeFileSync(join(categorizedPollutionRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
@@ -506,7 +506,7 @@ try {
   // (lattice_metadata_changes + runtime_artifact_changes) must NOT trip
   // executeValidationPlan; status stays 'pass', allPass=true, details swap
   // to the policy-allowed wording and audit info appears.
-  const passingPollutionRoot = mkdtempSync(join(tmpdir(), 'koala-validation-passing-pollution-'));
+  const passingPollutionRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-passing-pollution-'));
   try {
     writeFileSync(join(passingPollutionRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
@@ -567,7 +567,7 @@ try {
   // dirtyWorktreeClassifierOptionsForStory must group it under
   // declared_artifact_changes — the field-derived regression target stays
   // mechanically pinned even though validation-protocol-smoke is end-to-end.
-  const declaredPathRoot = mkdtempSync(join(tmpdir(), 'koala-validation-declared-bl21-'));
+  const declaredPathRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-declared-bl21-'));
   try {
     const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
     writeFileSync(join(declaredPathRoot, 'lattice.config.json'), JSON.stringify({
@@ -670,7 +670,7 @@ try {
   // B-4b22 F-004 regression: executeValidationPlan with storyId must route
   // through dirtyWorktreeClassifierOptionsForStory so declared artifacts are
   // classified as declared_artifact_changes (not unexpected_dirty_files).
-  const declaredE2eRoot = mkdtempSync(join(tmpdir(), 'koala-validation-declared-e2e-'));
+  const declaredE2eRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-declared-e2e-'));
   try {
     const BL21_E2E = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
     writeFileSync(join(declaredE2eRoot, 'lattice.config.json'), JSON.stringify({
@@ -767,7 +767,7 @@ try {
   // pointing at a material source path must NOT let executeValidationPlan
   // pass — the classifier reorder keeps a dirty source file as
   // material_source_changes (blocking) even when it is declared.
-  const attackChainRoot = mkdtempSync(join(tmpdir(), 'koala-validation-attack-chain-'));
+  const attackChainRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-attack-chain-'));
   try {
     const ATTACK_SOURCE = 'packages/main/src/core/store.ts';
     writeFileSync(join(attackChainRoot, 'lattice.config.json'), JSON.stringify({
@@ -838,7 +838,7 @@ try {
     resetConfigCache();
   }
 
-  const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
+  const invalidArgCwd = mkdtempSync(join(tmpdir(), 'lattice-validation-schema-'));
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
   const invalidVerificationIntent = spawnSync(process.execPath, [
@@ -864,7 +864,7 @@ try {
   assert.equal(existsSync(join(invalidArgCwd, '.lattice')), false, 'schema failure should happen before metadata mutation');
   rmSync(invalidArgCwd, { recursive: true, force: true });
 
-  const malformedJsonCwd = mkdtempSync(join(tmpdir(), 'koala-validation-malformed-json-'));
+  const malformedJsonCwd = mkdtempSync(join(tmpdir(), 'lattice-validation-malformed-json-'));
   const malformedJson = spawnSync(process.execPath, [
     cliPath,
     'story_create',
@@ -898,8 +898,8 @@ try {
     rmSync(projectLocalRuntimeRoot, { recursive: true, force: true });
   }
 
-  const externalRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-external-'));
-  const externalEngineRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-engine-'));
+  const externalRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-external-'));
+  const externalEngineRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-engine-'));
   try {
     mkdirSync(join(externalEngineRoot, 'dist'), { recursive: true });
     const engineCli = join(externalEngineRoot, 'dist', 'cli.js');
@@ -918,7 +918,7 @@ try {
     rmSync(externalEngineRoot, { recursive: true, force: true });
   }
 
-  const latticeConflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-lattice-conflict-'));
+  const latticeConflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-lattice-conflict-'));
   try {
     mkdirSync(join(latticeConflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
     const localBin = join(latticeConflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
@@ -980,7 +980,7 @@ try {
 
   const previousPackagedRuntime = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
   process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
-  const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-conflict-'));
+  const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-conflict-'));
   try {
     mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
     const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
@@ -1005,7 +1005,7 @@ try {
 
   const previousPackagedRuntimeClean = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
   process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
-  const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-clean-'));
+  const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-clean-'));
   try {
     const packagedCli = join(packagedCleanRoot, 'packaged-koala');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
@@ -1024,7 +1024,7 @@ try {
     else process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntimeClean;
   }
 
-  const checkRoot = mkdtempSync(join(tmpdir(), 'koala-check-runtime-surface-'));
+  const checkRoot = mkdtempSync(join(tmpdir(), 'lattice-check-runtime-surface-'));
   try {
     resetConfigCache();
     const check = createCheckHandlers({
@@ -1057,7 +1057,7 @@ try {
     rmSync(checkRoot, { recursive: true, force: true });
   }
 
-  const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-stale-local-'));
+  const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-stale-local-'));
   try {
     writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Lattice Notes\ncustom text\n<!-- lattice:end -->\n');
     const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
@@ -1095,7 +1095,7 @@ try {
     rmSync(staleLocalAssetRoot, { recursive: true, force: true });
   }
 
-  const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-case-mismatch-'));
+  const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-case-mismatch-'));
   try {
     writeFileSync(join(caseMismatchAssetRoot, 'lattice.md'), 'case mismatch\n');
     const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
@@ -1110,7 +1110,7 @@ try {
     rmSync(caseMismatchAssetRoot, { recursive: true, force: true });
   }
 
-  const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-incompatible-'));
+  const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-incompatible-'));
   try {
     mkdirSync(join(incompatibleAssetRoot, 'bin', 'koala.js'), { recursive: true });
     const result = runManagedAssetCheck(incompatibleAssetRoot, { apply: true, profile: 'core' });
@@ -1244,7 +1244,7 @@ try {
   // falls through to null when PLAN→DEV config loading fails after parsing,
   // while the guard is fail-closed. Runtimes without snapshot.can must
   // therefore return false.
-  const transitionFallbackRoot = mkdtempSync(join(tmpdir(), 'koala-transition-fallback-'));
+  const transitionFallbackRoot = mkdtempSync(join(tmpdir(), 'lattice-transition-fallback-'));
   try {
     resetConfigCache();
     const store = new StoryStore(transitionFallbackRoot);
@@ -1300,7 +1300,7 @@ try {
   // stop the actor themselves.
   const { runValidateGate } = await import('../handlers/phase-gates.js');
 
-  const gateFailRoot = mkdtempSync(join(tmpdir(), 'koala-validate-gate-fail-'));
+  const gateFailRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-fail-'));
   try {
     writeFileSync(join(gateFailRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
@@ -1336,7 +1336,7 @@ try {
   // B-a30e CHK-001: validate storyId alias — conflict, evidence, read-only parity
 
   // 1. Conflicting story + storyId values must fail with an explicit error
-  const conflictAliasRoot = mkdtempSync(join(tmpdir(), 'koala-validate-alias-conflict-'));
+  const conflictAliasRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-alias-conflict-'));
   try {
     resetConfigCache();
     await assert.rejects(
@@ -1354,7 +1354,7 @@ try {
   }
 
   // 2. storyId alias writes test evidence (same as --story)
-  const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'koala-validate-storyid-alias-'));
+  const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-storyid-alias-'));
   try {
     resetConfigCache();
     const aliasStore = new StoryStore(storyIdAliasRoot);
@@ -1375,7 +1375,7 @@ try {
   }
 
   // 3. --story still writes test evidence (unchanged behavior)
-  const storyFlagRoot = mkdtempSync(join(tmpdir(), 'koala-validate-story-flag-'));
+  const storyFlagRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-story-flag-'));
   try {
     resetConfigCache();
     const storyFlagStore = new StoryStore(storyFlagRoot);
@@ -1394,7 +1394,7 @@ try {
   }
 
   // 4. No-story validate is diagnostic/read-only: must not write any .lattice/ state
-  const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'koala-validate-no-story-'));
+  const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-no-story-'));
   try {
     resetConfigCache();
     const noStoryJson = await createVerifierHandlers({

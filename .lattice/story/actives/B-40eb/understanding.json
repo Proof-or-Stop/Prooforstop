@@ -1,0 +1,27 @@
+{
+  "task": "Remove user-readable koala branding from active source/scripts/docs (comments, @title, error messages, CLI prose, prose, brand function names, mkdtemp prefixes), following the classification rules of the existing guard test cli-engine-branding-smoke.ts (B-3cca) to preserve documented exceptions, as story 3 (residual sweep) of the ship-clean koala-removal program.",
+  "outcome": "In the worktree, run `git grep -in koala -- packages scripts README.md CLAUDE.md docs/guide.md` and exclude the whitelist (process-lane names, legacy alias, .koala runtime paths, salts, test-assertion intent) per the B-3cca branding rules; the terminal output is empty -- 0 unclassified koala brand lines. Then `lattice validate` prints all-green, `npm run build` exits 0, `npm run test:e2e` all pass. The user confirms in the terminal that, before OSS, the active code layer has no user-readable koala branding -- only the documented exceptions that are deliberately kept and recorded.",
+  "facts": [
+    "Inventory: active-scope git grep -liI koala excluding file-level whitelist (decisions/CHANGELOG/docs-story/framework-audit/jek.md) = 266 candidates; after the B-3cca branding rule, 272 files / 1655 lines are unclassified real brand.",
+    "Key finding: the existing guard test packages/main/src/tasks/cli-engine-branding-smoke.ts (B-3cca) defines the authoritative keep rules -- process-lane names koala-(codex|review*|implementer|reviewer|eval*|delivery|init|agent|story*), legacy alias 'koala', .koala runtime paths, LEGACY_KOALA*, KoalaConfig, KOALA.md, signature salts -- but only audits 4 files.",
+    "The 1655 must-change lines concentrate in smoke tests, scripts (verify-*.mjs) and fixtures, mostly brand function names runKoala*, mkdtemp prefixes koala-*, and @title/comment branding.",
+    "Prior stories B-08f2 (KOALA_ env) and B-747e (KoalaConfig type) are DONE on main; B-ed70 (DEV) touches lab/package.json description and packages/lab/src/core/config.ts .Codex refs.",
+    "User chose 'semantic-full + extend branding gate': clean user-readable branding, keep B-3cca documented exceptions; story 4 extends the branding audit scope to full active scope as a verify gate."
+  ],
+  "constraints": [
+    "In-scope/exception boundary is authoritative per the B-3cca branding rule: do not change process-lane names, legacy alias, .koala runtime paths, LEGACY_KOALA, KOALA.md, salts.",
+    "Do not touch B-ed70's in-flight lab/package.json description and packages/lab/src/core/config.ts .Codex lines, to avoid DONE merge conflicts.",
+    "Do not break test-assertion intent: assertNotContains(...,'koala...') keeps its koala literals; when renaming brand function names/temp prefixes, update all references.",
+    "Do not change docs/requirements/decisions/*.md (3x2 gate) or CHANGELOG / docs/story history.",
+    "After each batch, npm run build exits 0, npm run test:e2e all pass, lattice validate all-green."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/lab/src/**, packages/lab/{handlers,profiles,tool-defs}.ts (avoid the two B-ed70 spots)",
+    "packages/main/src/** (source comments / CLI prose / brand function names), packages/main/tests (non-assertion-intent fixtures)",
+    "scripts/*.mjs, packages/utils/**",
+    "CLAUDE.md, docs/guide.md and other root-doc prose",
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts (basis for story 4's extended verify gate)"
+  ],
+  "timestamp": "2026-06-17T11:30:30.843Z"
+}

@@ -57,7 +57,7 @@ lattice rollout_check --projects "$(pwd)" --json
 
 | Mode | When to use | CLI behavior | Production authority? |
 |------|----------|----------|------------------------|
-| `off` (default) | Normal local Koala/Lattice story development, **free and purely local**. | No network requests at all; local evidence and DONE gate behavior are unchanged. | No: `productionDone=false`, `receiptVerified=false`. |
+| `off` (default) | Normal local Lattice story development, **free and purely local**. | No network requests at all; local evidence and DONE gate behavior are unchanged. | No: `productionDone=false`, `receiptVerified=false`. |
 | `shadow` | You want to observe the Python authority's responses while keeping local behavior. | Best-effort observational POST; on failure, only a stderr warning, with no effect on the local write. | No: the transport's `accepted: true` is `thin-client-transport-accepted`, not a signed receipt. |
 | `enforce` | Isolated headless runner / Authority job path, which **requires** a Python authority server + customer API key + a registered actor key + runner identity + project id + pinned server key. | `authority enforce runner --dry-run` projects readiness; `--live` signs the native envelope, registers/heartbeats the runner, and claims jobs. Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and then completes or releases the lease according to policy. | Only a signature-verified native `gate_decision` receipt can support per-run `authorityDone`; `fullAuthorityDone` also requires final multi-host certification. Runner heartbeat/claim alone is not production authority. |
 

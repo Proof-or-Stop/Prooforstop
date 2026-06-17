@@ -1,9 +1,9 @@
 /**
  * B-9d95 CHK-003: Clean up stray untracked files in the main repo under the story directory.
  *
- * Background: Some koala handlers (process_event_append / process_metrics_update
+ * Background: Some lattice handlers (process_event_append / process_metrics_update
  * / review_add / cluster, etc.) write runtime files directly under
- * `docs/story/actives/<storyId>/`. If koala is invoked in the **main repo cwd**
+ * `docs/story/actives/<storyId>/`. If lattice is invoked in the **main repo cwd**
  * (rather than the worktree cwd) (e.g. a slip / early script misuse), these files
  * land on the copy where the main repo's index.json lives,
  * but are not tracked in the worktree branch's git — later when story_advance DONE tries to

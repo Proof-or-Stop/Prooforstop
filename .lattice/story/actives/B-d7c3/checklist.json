@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Collapse the 143 packages/main per-smoke test:X-smoke scripts into smoke-manifest.json entries and remove them",
+      "context": "For each entry in packages/main/package.json scripts named `test:X-smoke` whose body matches the pattern `node dist/tasks/X-smoke.js` (143 such entries), record a manifest row at packages/main/smoke-manifest.json (name=X, no tags unless already classified, default timeout) and then delete the npm script entry. Do NOT touch these 6 keep-list entries: test:e2e (cli-e2e flow runner), test:run-all-smokes-smoke (B-6efb self-smoke), test:main-write-lock-coverage / test:review-convergence-smoke / test:review-incremental-context-smoke / test:docs-drift-smoke (4 scripts referenced by the root `test` main script). After: packages/main `test:*` count drops from 151 to ~8 (the 6 keep-list + cli-e2e variants); `npm run test:all` runs every smoke and exits 0; existing acceptance — the 3 wrapper-root smokes + self-smoke still pass byte-identically.",
+      "userSees": "`grep -c 'test:.*-smoke' packages/main/package.json` drops from ~143 to ~1 (only test:run-all-smokes-smoke retained); `npm run test:all` exits with aggregate summary including all 153 smokes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Remove the redundant root-level test:X-smoke proxy scripts and update the root `test` main script if needed",
+      "context": "For each entry in root package.json scripts named `test:X-smoke` whose body is `npm --prefix packages/main run test:X-smoke` (44 such entries), delete it. KEEP: `test` main script (sequence of 5 named test:* + test:e2e), `test:e2e`, `test:all`, plus the 4 named scripts the `test` main script invokes — keep their root-level proxies because the main script depends on them. After: root test:* count drops from 114 to ~70 (114 - 44 collapsed smoke proxies; remaining = ~50 verify-*.mjs entries + the keep-list proxies + ~15 other one-shot scripts like b6246-bug-cleanup); `npm test` continues to work (root `test` main script still resolves all dependencies via the kept proxies).",
+      "userSees": "`grep -c 'test:.*-smoke' package.json` drops sharply; `npm test` exit 0 with no `npm error Missing script` failures.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add `test:legacy` compatibility shim + update tracked docs that reference removed test:* names",
+      "context": "Add to root package.json: `test:legacy` script that calls run-all-smokes with --select forwarded from $1. Per the A0 doc: 'Keep a thin compatibility shim for any external doc/script referencing removed names.' Then grep tracked docs for references to removed test:X-smoke names (`git grep -nE 'test:[a-z0-9-]+-smoke' -- docs README.md CLAUDE.md AGENTS.md CHANGELOG.md`) — for each hit in non-historical context, replace with the test:all --select form OR the test:legacy form. CHANGELOG.md gets an entry documenting the removal + migration command.",
+      "userSees": "`npm run test:legacy -- gitroot-cwd-contract` runs and produces PASS output equivalent to the removed `npm run test:gitroot-cwd-contract`; tracked docs no longer reference removed test:X-smoke names in active prose; CHANGELOG documents the change.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -44,10 +44,10 @@ function assertStableStoryReviewShape(review) {
 }
 
 function createProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-story-review-output-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-story-review-output-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',

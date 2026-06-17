@@ -136,7 +136,7 @@ function seedDevMemory(root: string): void {
       id: 'memproj1',
       createdAt: '2026-06-02T00:00:03.000Z',
       summary: 'Parallel dispatch should keep runner confirmation explicit.',
-      sourceAgent: 'koala-smoke-project',
+      sourceAgent: 'lattice-smoke-project',
       tags: ['parallel'],
     }),
     memoryEntry({
@@ -144,7 +144,7 @@ function seedDevMemory(root: string): void {
       createdAt: '2026-06-02T00:00:02.000Z',
       category: 'tool-quirk',
       summary: 'Parallel report memory refs are advisory context only.',
-      sourceAgent: 'koala-smoke-project',
+      sourceAgent: 'lattice-smoke-project',
       tags: ['parallel'],
     }),
   ]);
@@ -154,7 +154,7 @@ function seedDevMemory(root: string): void {
       createdAt: '2026-06-02T00:00:04.000Z',
       scope: 'global',
       summary: 'Global parallel dispatch memory must remain non-authoritative.',
-      sourceAgent: 'koala-smoke-global',
+      sourceAgent: 'lattice-smoke-global',
       tags: ['parallel'],
     }),
   ]);
@@ -485,7 +485,7 @@ function addMissingWorktreeStory(store: StoryStore): void {
 }
 
 function assertActiveWorktreeOverlapProjection(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-lattice-parallel-wave-overlap-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-parallel-wave-overlap-'));
   try {
     writeConfig(root);
     resetConfigCache();
@@ -577,7 +577,7 @@ function assertActiveWorktreeOverlapProjection(): void {
 }
 
 function assertBrokenWorktreeProbeRisk(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-lattice-parallel-wave-broken-worktree-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-parallel-wave-broken-worktree-'));
   try {
     writeConfig(root);
     resetConfigCache();
@@ -643,7 +643,7 @@ function assertBrokenWorktreeProbeRisk(): void {
 assertActiveWorktreeOverlapProjection();
 assertBrokenWorktreeProbeRisk();
 
-const root = mkdtempSync(join(tmpdir(), 'koala-lattice-parallel-wave-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-parallel-wave-'));
 const originalGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
 try {
   process.env.LATTICE_GLOBAL_MEMORY_DIR = join(root, 'global-memory');

@@ -170,12 +170,12 @@ function makeStory(storyId: string, phase: StoryPhase): StoryInfo {
 
 // ── 2–6. Gate tests using a temp git repo ───────────────────────────────────
 
-const root = mkdtempSync(join(tmpdir(), 'koala-scope-plan-scope-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-scope-plan-scope-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'scope-plan@example.test']);
   git(root, ['config', 'user.name', 'Scope Plan Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -359,12 +359,12 @@ try {
   // Uses a fresh isolated subdirectory-repo so git diff is clean after the
   // initial commit — all other test story metadata lives in a different repo.
   {
-    const iroot = mkdtempSync(join(tmpdir(), 'koala-scope-integrate-'));
+    const iroot = mkdtempSync(join(tmpdir(), 'lattice-scope-integrate-'));
     try {
       git(iroot, ['init', '-b', 'main']);
       git(iroot, ['config', 'user.email', 'integrate@example.test']);
       git(iroot, ['config', 'user.name', 'Scope Integrate']);
-      write(iroot, 'koala.config.json', JSON.stringify({
+      write(iroot, 'lattice.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
         storyDir: '.lattice/story/actives',
