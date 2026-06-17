@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6666:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 9 must intents across CHK-001/002/003. done-oracle-wrapper-root-smoke.js exits 0 (RED baseline, GREEN, plain-repo byte-identity for git-status and evidence-freshness probes all asserted with strict assert.equal/deepEqual). npm run test:gitroot-cwd-contract exits 0 with all 9 self-tests printing (ALIAS KNOWN-BAD/GOOD, BACKTICK KNOWN-BAD/GOOD, docs-drift KNOWN-BAD/GOOD, repo scan 520 files 0 violations). No stale, missing, or hand-waving evidence found. No blocker.",
+      "createdAt": "2026-06-17T17:15:10.130Z",
+      "reviewRound": "2026-06-17T17:13:23.239Z",
+      "reviewRunId": "B-6666:RR-002",
+      "_hash": "d4886015c26f9a60bb5699f7aa47072787d10409a9b4ceb016fe928713a8912a"
+    }
+  ]
+}
