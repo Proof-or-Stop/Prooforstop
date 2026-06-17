@@ -4,7 +4,7 @@
   "title": "Story 4: wire verify-koala-residue.mjs into REVIEW->TEST preflight gate",
   "description": "Add koala-residue as the 7th CLI gate in review-preflight.ts so story_advance to TEST blocks when scripts/verify-koala-residue.mjs returns non-zero. The existing 6 gates are channel/concept/lint/docs-drift/codex-adapter (conditional)/english-artifacts. Completes the koala-removal ship-clean program for OSS launch. Purely additive; script and existing npm test wiring untouched.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "koala",
@@ -64,6 +64,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T17:46:03.529Z",
+      "branch": "story/B-292d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:49:27.079Z",
       "branch": "story/B-292d",
       "user": "Harmonygo",
       "agent": "main"

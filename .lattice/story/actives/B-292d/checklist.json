@@ -128,12 +128,12 @@
           "intentRef": "CHK-001:edge:1",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "grep -E 'execFileSync.*verify-koala-residue|timeout.*koala' packages/main/src/handlers/review-preflight.ts | wc -l",
+          "command": "grep -cE 'KOALA_RESIDUE_TIMEOUT_MS|ETIMEDOUT' packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
-          "note": "Returns 1 (execFileSync call has timeout: KOALA_RESIDUE_TIMEOUT_MS = 30s).",
-          "headHash": "649429dd529467ea8fc4de4ae58ff7e3ed7ed04c",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:51.570Z"
+          "note": "Returns >=2 — KOALA_RESIDUE_TIMEOUT_MS constant defined (= 30_000) AND used in execFileSync's timeout option, AND error handler branches on ETIMEDOUT to produce a clear timeout message. Together these enforce per-mortem D2 (prevent hung subprocess).",
+          "headHash": "438fa8ef346103d60a602c358f9668cd1a557ccb",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:10.789Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
