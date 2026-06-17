@@ -26,6 +26,8 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
+import { loadExperienceHints, formatExperienceHintsSection, hasExperienceHints, experienceHintIds } from '../core/experience-hint-loader.js';
+import { appendActivityLog } from '../core/activity-log.js';
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -523,6 +525,38 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
 
       const planReviewRound = reviewData.reviews.length;
 
+      // B-1dc9 CHK-002/CHK-003: ADVISORY-ONLY experience hints.
+      //
+      // Derived from past finding-signals; surfaced as a clearly-labelled advisory
+      // section in the `_reviewPrompt` output (mirrors grillSection). These hints
+      // are nudges, never gates: nothing in the issues/blocker computation reads
+      // them, and — CRITICAL GUARDRAIL — they live ONLY in this story-review
+      // advisory `_reviewPrompt` channel, which is SEPARATE from the REVIEW-phase
+      // reviewer prompt that feeds resolveReviewPromptHash (core/review-run.ts).
+      // Hint content must NEVER enter any reviewRunId/promptHash computation.
+      //
+      // Compute once here so the usage-tracking event fires exactly once per
+      // story_review call that surfaces hints (the `_reviewPrompt` getter below is
+      // an IIFE; building the section out here keeps surfacing single-shot).
+      let experienceHintsSection = '';
+      try {
+        const experienceHints = loadExperienceHints(ctx.root);
+        experienceHintsSection = formatExperienceHintsSection(experienceHints);
+        if (hasExperienceHints(experienceHints)) {
+          // USAGE TRACKING: exactly one event per surfacing story_review call.
+          appendActivityLog(ctx.root, {
+            timestamp: new Date().toISOString(),
+            event: 'experience_hint_surfaced',
+            storyId: args.storyId,
+            hintIds: experienceHintIds(experienceHints),
+          });
+        }
+      } catch (e) {
+        // Advisory-only: never let hint loading/tracking break story_review.
+        console.warn(`[experience-hints] surface failed for ${args.storyId}:`, (e as Error).message);
+        experienceHintsSection = '';
+      }
+
       return {
         storyId: args.storyId,
         title: story.title,
@@ -584,8 +618,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const truthSection = truthDocs.length > 0
             ? `\n---\nTruth Source (${truthDocs.length} docs):\n${truthDocs.join('\n---\n')}`
             : '';
-          // When there are no truth docs + no understanding + no decision, still return the base prompt rather than undefined
-          if (truthDocs.length === 0 && !understanding && !decision && !grill) return undefined;
+          // When there are no truth docs + no understanding + no decision + no
+          // grill + no experience hints, still return undefined (prompt absent).
+          // experienceHintsSection alone keeps the advisory prompt present so the
+          // hints are surfaced even in a bare PLAN. It is '' when no hints exist,
+          // so the prompt is byte-unchanged from the prior behavior in that case.
+          if (truthDocs.length === 0 && !understanding && !decision && !grill && experienceHintsSection === '') return undefined;
           return `Please review the PLAN-phase artifacts of the following story. Focus on:\n` +
             `  1. Whether understanding is genuine (whether unknowns contradict facts, whether touchpoints are real)\n` +
             `  2. Whether the decision choice is reasonable (why other options were not chosen, whether rationale echoes drivers)\n` +
@@ -595,7 +633,9 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             (story.riskSignals && story.riskSignals.length > 0
               ? ` (riskSignals: ${story.riskSignals.map((r: any) => r.category).join(', ')})`
               : '') +
-            understandingSection + decisionSection + grillSection + checklistSection + truthSection;
+            // experienceHintsSection mirrors grillSection (advisory channel),
+            // placed right after it. ADVISORY-ONLY: never fed to resolveReviewPromptHash.
+            understandingSection + decisionSection + grillSection + experienceHintsSection + checklistSection + truthSection;
         })(),
       };
     },
