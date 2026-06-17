@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-75f0:F-001",
+      "desc": "quality-cleanup: handlers/verifier.ts:605 resolveProjectGitCwd(projectRoot, projectRoot) omits loadConfig — all 6 other resolveProjectGitCwd call sites pass loadConfig(root) as the third arg. On a wrapper-root layout with a configured gitRoot subdir the no-story validate path (when args.story is absent) cannot discover the configured subdir and falls back to projectRoot verbatim, so currentHead(handlerGitCwd) returns undefined instead of the real HEAD hash. headSha is then undefined in the validate JSON output. Fix: resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot)) to match all other call sites.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T23:26:14.523Z",
+      "reviewRound": "2026-06-17T23:23:07.953Z",
+      "reviewRunId": "B-75f0:RR-002",
+      "_hash": "590141d85e515dc745227931620a46a391b94113c036729c9cfdf99a30d92bbc",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ]
+    }
+  ]
+}
