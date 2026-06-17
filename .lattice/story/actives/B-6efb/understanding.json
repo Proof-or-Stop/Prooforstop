@@ -1,0 +1,27 @@
+{
+  "task": "Build the in-house parallel smoke runner skeleton + manifest format + test:all entry per A0 decision doc B-35aa (Path B B1).",
+  "outcome": "After: `npm run test:all --select run-all-smokes` runs the new runner's self-smoke and exits 0; `npm run test:all` without filters runs all 153 smokes in parallel with per-smoke PASS/FAIL + aggregate summary; `--tag <tag>` and `--select <pattern>` filter correctly; the 262 existing test:* scripts and all 153 smoke files are byte-identical to main; build + e2e + verify_codex still green.",
+  "facts": [
+    "A0 decision at docs/requirements/decisions/test-runner-consolidation-plan.md (DONE in B-35aa, main commit 8f99f2130) specifies the runner shape verbatim.",
+    "153 smoke files at packages/main/src/tasks/*-smoke.ts; ~71,244 total lines.",
+    "262 test:* npm scripts (113 root + 149 packages/main).",
+    "Each smoke is a standalone executable run as `node packages/main/dist/tasks/<name>-smoke.js`.",
+    "B1 explicitly does NOT touch any existing smoke file or any existing test:* script — B2 is the mechanical collapse."
+  ],
+  "constraints": [
+    "No edits to any existing *-smoke.ts file.",
+    "No removal or rename of any existing test:* npm script (B2 handles it).",
+    "No c8 wiring (B3) and no UX polish (B4).",
+    "Runner must spawn each smoke as a separate child process (preserve dist-standalone-executable pattern).",
+    "Self-smoke must verify the runner correctly reports a deliberate-fail fixture as FAIL."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/smoke-manifest.json",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-17T01:51:03.020Z"
+}

@@ -1,0 +1,45 @@
+{
+  "$schema-doc": "B-6efb / B1: in-house smoke runner manifest. Entries override directory-scan defaults; unlisted smokes are still discovered automatically. Schema: { smokes: [{ name, tags?, timeoutMs?, skip? }] }.",
+  "smokes": [
+    {
+      "name": "run-all-smokes",
+      "tags": [
+        "runner",
+        "infra"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "name": "gitroot-cwd-contract",
+      "tags": [
+        "fast",
+        "contract"
+      ],
+      "timeoutMs": 60000
+    },
+    {
+      "name": "gitroot-cwd-routing",
+      "tags": [
+        "fast",
+        "wrapper-root"
+      ],
+      "timeoutMs": 60000
+    },
+    {
+      "name": "bare-gate-gitroot-cwd",
+      "tags": [
+        "fast",
+        "wrapper-root"
+      ],
+      "timeoutMs": 60000
+    },
+    {
+      "name": "field-regression-cli",
+      "tags": [
+        "regression",
+        "cli"
+      ],
+      "timeoutMs": 120000
+    }
+  ]
+}

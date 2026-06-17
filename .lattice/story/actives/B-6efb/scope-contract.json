@@ -1,0 +1,22 @@
+{
+  "storyId": "B-6efb",
+  "mode": "enforce",
+  "allowedModify": [
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/run-all-smokes-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-17T02:10:38.402Z",
+  "updatedAt": "2026-06-17T02:10:38.402Z"
+}

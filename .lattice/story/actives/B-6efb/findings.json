@@ -1,0 +1,213 @@
+{
+  "findings": [
+    {
+      "id": "B-6efb:F-001",
+      "desc": "CHK-001:happy:2 evidence command does not match intent. Intent requires: no-filter run, all 153 discovered smokes, summary `153/153 passed`. Evidence (CHK-001:happy:2) ran `node ... --tag fast` and noted `5/5 passed`. This is not equivalent—the no-filter full-suite coverage is entirely unverified by recorded evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:14.163Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "a2490af405ad405ef5965a8a7387325e4a2277a76fc946eda3af8e129e14791d",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:21:30.881Z"
+    },
+    {
+      "id": "B-6efb:F-002",
+      "desc": "CHK-001:edge:0 evidence command does not cover the intent. Intent: `--select ZZZZZ_NONEXISTENT -> exits 0, summary shows 0/0 passed` (empty result set must not crash). Evidence command ran `--select gitroot` which finds real smokes and exits 0—it does not exercise the zero-match empty-set path at all. Re-run confirms `--select ZZZZZ_NONEXISTENT` does exit 0 with 0 smokes, but this was never recorded as evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:20.887Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "f7e2ddbf55db297633ee8914152336edf52c09985d243831685f43bf6ea767d3",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:21:31.993Z"
+    },
+    {
+      "id": "B-6efb:F-003",
+      "desc": "CHK-001:happy:1 / CHK-001:edge:3 / CHK-002 fast-tag evidence tainted: smoke-manifest.json assigns tag `fast` to `gap-log`, but gap-log-smoke exits 1 on HEAD (assertion mismatch: handler emits `Same gap already exists`, smoke asserts `/identical gap already exists/`). All evidence entries that ran `--tag fast` and claimed `pass` are invalidated for their fast-tag coverage. The gap-log preexisting failure is not introduced by this story, but recording `--tag fast` runs as passing evidence is incorrect. Re-run of `node ... --tag fast` confirms 3/4 passed, exit 1.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:29.418Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "bdf10b0b489ebca18877f24c00c0a80b938e58b3ac281491b3a3735e28e1b326",
+      "files": [
+        "packages/main/smoke-manifest.json",
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:21:33.119Z"
+    },
+    {
+      "id": "B-6efb:F-004",
+      "desc": "CHK-002:edge:0 evidence does not execute the intent. Intent: add a temp entry `{name:skip-me,skip:true}` to the real manifest and confirm skip-me does not appear in runner output. Evidence ran `node ... run-all-smokes-smoke.js` (self-smoke fixture level), which tests skip behavior with internal fixture data, not the actual smoke-manifest.json skip path. The skip flag in the real manifest entry (e.g. `run-all-smokes-smoke.ts` check 8: fixture-skip) exercises the runner code path, but the intent specifically required a real-manifest-entry test.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:38.491Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "cb3572c99bba25c50b77d778eb767cdfcdd58fd0458ee2cea1d362013b65a3b5",
+      "files": [
+        "packages/main/smoke-manifest.json",
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:21:34.232Z"
+    },
+    {
+      "id": "B-6efb:F-005",
+      "desc": "CHK-002:edge:2 evidence command does not match intent. Intent: `node -e require(smoke-manifest.json).smokes.filter(s=>s.tags).forEach(s=>{if(!Array.isArray(s.tags))throw 1}); console.log(SCHEMA_OK)`. Evidence command: `grep -n timeoutMs packages/main/dist/tasks/run-all-smokes.js` — this only confirms timeoutMs appears in the compiled runner source, not that manifest tag fields are typed correctly as arrays. Re-run of intent command returns SCHEMA_OK but this was not recorded.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:48.155Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "9c24e6da781f53b7fa9bbd18804b05ae3f734432a523f7d51568b65d95f18e10",
+      "files": [
+        "packages/main/smoke-manifest.json"
+      ],
+      "resolvedAt": "2026-06-17T02:21:35.590Z"
+    },
+    {
+      "id": "B-6efb:F-006",
+      "desc": "CHK-003:happy:2 evidence command does not match intent. Intent: `node -e const p=require(./packages/main/package.json); console.log(p.scripts[test:run-all-smokes-smoke])` confirming the npm script value. Evidence command: `test -f packages/main/dist/tasks/run-all-smokes.js` — this only checks the dist artifact exists, completely unrelated to the npm script wiring check. Re-run of intent command confirms script is present and prints `node dist/tasks/run-all-smokes-smoke.js`.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:57.921Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "806d8007b5bf4432339df77e8724fcdd8c640e9f27904676aa8bc69a9bed681b",
+      "files": [
+        "packages/main/package.json"
+      ],
+      "resolvedAt": "2026-06-17T02:21:36.663Z"
+    },
+    {
+      "id": "B-6efb:F-007",
+      "desc": "CHK-003:adversarial:4 evidence command does not match intent. Intent: `env -i HOME=\\$HOME PATH=\\$PATH node packages/main/dist/tasks/run-all-smokes-smoke.js -> exits 0` (confirms standalone-runnable without ambient env). Evidence command: `npm --prefix packages/main run test:run-all-smokes-smoke` — npm inherits the full shell environment, which does not test the ambient-env isolation guarantee. Re-run of the intent command confirms exit 0.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:16:05.807Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "2a176f7015d44d7764dd6f2a3ce5c23f7a40fad8b6e3a503444dd1fc6689bbca",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes-smoke.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:21:38.279Z"
+    },
+    {
+      "id": "B-6efb:F-008",
+      "desc": "run-all-smokes.ts:116-118 selectSmokes pushes manifest-only entries that are not in discovered[] without deduplication — if manifest contains two entries with the same name (neither on disk), both are pushed to `all` and the smoke runs twice. No guard against this at line 110 (byName map overwrites silently) or at line 116 (includes check only deduplicates against discovered, not against already-pushed manifest extras).",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:23.931Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-004",
+      "_hash": "a712ff2d400cd0b7a0b2a8acdfe6379dc13eb9eaa97ed82b17f35c1e97eaa688",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:25:24.334Z"
+    },
+    {
+      "id": "B-6efb:F-009",
+      "desc": "run-all-smokes.ts:61 SmokeResult.status union includes `SKIP` as a valid variant, but no code path in runOneSmoke (lines 131-181) ever returns status=SKIP. Skipped entries are pre-filtered by selectSmokes before reaching runOneSmoke. The SKIP branch is dead/unreachable and the ternary at line 205 also does not handle it, so any hypothetical SKIP leakthrough would be printed as FAIL.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T02:23:31.267Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-004",
+      "_hash": "d0138608dbbd436c11cfddf087fe8c37f92dc79475fed1149497c6d4b2ed3f1f",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:25:25.643Z"
+    },
+    {
+      "id": "B-6efb:F-010",
+      "desc": "CHK-001:happy:2 replacement evidence is factually incorrect. The new evidence command `node ... --select run-all-smokes-smoke` returns `0 smokes matched filters` and exits 0 — it does NOT run the self-smoke at all. The runner derives smoke names by stripping the `-smoke.js` suffix: run-all-smokes-smoke.js becomes name=`run-all-smokes`. The substring `run-all-smokes-smoke` does not match the name `run-all-smokes` (confirmed: `run-all-smokes`.includes(`run-all-smokes-smoke`) = false). The evidence note claims `PASS run-all-smokes-smoke confirmed` but no smoke was executed. The intent (full no-filter 153-smoke run) remains uncovered. Correct select pattern is `--select run-all-smokes`.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:23:35.794Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-002",
+      "_hash": "81687ddc3cbebb84c9df30c7b07a0aa58866ca56dde5ff3b64836bb099a44954",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts",
+        "packages/main/dist/tasks/run-all-smokes.js"
+      ],
+      "resolvedAt": "2026-06-17T02:26:30.125Z"
+    },
+    {
+      "id": "B-6efb:F-011",
+      "desc": "CHK-003:edge:0 intent is unsatisfiable as written AND evidence still does not match. The intent says `--select run-all-smokes-smoke -> exits 0 with exactly 1 PASS line for run-all-smokes-smoke`. However the runner names this smoke `run-all-smokes` (strips -smoke.js suffix from run-all-smokes-smoke.js), so `--select run-all-smokes-smoke` always returns 0 smokes. The correct command to dogfood the self-smoke is `--select run-all-smokes`. Additionally the recorded evidence command is still `node ... --select gitroot` — the intent requires running the self-smoke through its own runner, not running gitroot smokes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:23:44.306Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-002",
+      "_hash": "e2678051f9dfe7aca2f812d8ae5c650d19a5178d68b390de485c4b38e2ac342b",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts",
+        "packages/main/src/tasks/run-all-smokes-smoke.ts"
+      ],
+      "resolvedAt": "2026-06-17T02:26:31.221Z"
+    },
+    {
+      "id": "B-6efb:F-012",
+      "desc": "CHK-001:happy:1 and CHK-001:edge:3 evidence notes are factually stale. Both reference `5 fast smokes from manifest` but after the F-003 fix removing gap-log from the manifest, `--tag fast` now returns 3/3. The evidence materialHash (9b262b08...) predates the manifest change. The commands exit 0 on current HEAD (3/3 confirmed by reviewer re-run), so the behavior is correct, but the recorded note count is wrong. Evidence should be re-recorded against the current materialHash with accurate counts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:23:59.460Z",
+      "reviewRound": "2026-06-17T02:21:13.397Z",
+      "reviewRunId": "B-6efb:RR-002",
+      "_hash": "3db61426478a91a856319eae689f401397bf3af26606ecad0106b56abcd4b52c",
+      "files": [
+        "packages/main/smoke-manifest.json"
+      ],
+      "resolvedAt": "2026-06-17T02:26:32.296Z"
+    }
+  ]
+}
