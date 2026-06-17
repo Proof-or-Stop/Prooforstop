@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T14:17:18.545Z",
       "reviewRunId": "B-2ccc:RR-001",
       "_hash": "b9f594550ab3b2f9283f44597a31647b6e3ea0a1504f3904f01990758f94a472"
+    },
+    {
+      "id": "B-2ccc:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Digest primitives (canonicalJson, digestCanonicalJson, digestText, normalizeJson) relocated verbatim from handlers/decision-doc-promotion.ts to core/digest.ts. decision-doc-promotion.ts now imports from ../core/digest.js with no local definitions remaining. All other canonicalJson occurrences in the repo (authority-contracts.ts, usage-ledger/canonical-json.ts, authority-signing.ts) are independent pre-existing copies in their own modules with distinct import paths; none import from decision-doc-promotion. TypeScript build is clean (tsc --noEmit exits 0). No dangling local refs, no broken imports, no residue.",
+      "createdAt": "2026-06-17T14:18:56.280Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-002",
+      "_hash": "daa536ab5b3c3a8fe58f49397d45f01a2dd1800982963afcad6d8ad071f4384f"
     }
   ]
 }
