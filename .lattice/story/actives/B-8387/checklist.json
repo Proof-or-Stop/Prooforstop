@@ -103,10 +103,10 @@
           "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
           "command": "npm --prefix packages/main run test:experience-layer-playbook",
           "result": "pass",
-          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
-          "headHash": "47d79071250488c66ddb25566c0ec8c67a4eb474",
-          "materialHash": "b7daaed212547954ce5dbbcb8d9f5b456ddd12131400627cd977a8501f93f07a",
-          "timestamp": "2026-06-17T15:06:59.077Z"
+          "note": "Named check 'CHK-001:edge:1 path-traversal proposalId rejected': hostile ids (../../etc/x, a/b, .., a\\0b) rejected by safeProposalId guard; no file escapes proposals/, no playbook written.",
+          "headHash": "353c7e296a0048ece4b9959de907fdf1c58e8323",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:21:47.218Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
