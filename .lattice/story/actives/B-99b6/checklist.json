@@ -141,6 +141,17 @@
           "headHash": "4ea5e86855512ee21bb5a3dda7c2c00a5d9e6f6d",
           "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
           "timestamp": "2026-06-17T18:08:44.903Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "per-guard timing",
+          "result": "pass",
+          "note": "Fast-gate delta is seconds-scale: process-fact-contract 2.0s, runtime-fact-contract 2.6s, evidence-quality 0.1s, anti-stall 0.2s, storydir-inside-gitroot-smoke 0.5s, gitroot-cwd-routing 1.4s, bare-gate-gitroot-cwd 0.4s, done-oracle-wrapper-root 0.8s => ~8s total added. The 7s storydir-suite and ~207s 160-smoke test:all stay OUT of the fast gate (behind test:smokes-full). No 160-smoke run in the per-commit/REVIEW->TEST path.",
+          "headHash": "a5cc85f05f6c7ac4aede46ffc601552067df428d",
+          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
+          "timestamp": "2026-06-17T18:08:45.523Z"
         }
       ]
     }
