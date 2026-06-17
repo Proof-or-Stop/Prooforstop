@@ -208,7 +208,85 @@
       "userSees": "The doc has a roadmap section naming Phase 1a as the first story and an appendix of real code anchors; no Co-Authored-By trailer anywhere.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a roadmap section header -> grep -i finds roadmap or phased.rollout heading; WHY: verifies the section exists",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Roadmap names Phase 1a as the first story -> grep finds Phase.1a as first; WHY: phase ordering is a key plan decision",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Phase 1a is described as the verifiable finding-signals slice -> grep finds finding-signals in the Phase 1a description; WHY: first-story scope must be clear",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc references currentMaterialHash() test as the proof that Phase 1a does not break determinism -> grep finds currentMaterialHash; WHY: verifiability claim is central",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a code-anchor appendix section -> grep finds code.anchor or appendix heading; WHY: appendix is a required section",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Code-anchor appendix lists real file paths (types.ts, finding.ts, store.ts, advisory.ts, dev-memory.ts, runtime-artifact-registry.ts, story-review.ts, activity-log.ts, decision-doc-promotion.ts) -> grep finds at least 7 of these filenames; WHY: completeness of anchors",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Every code-anchor file path listed in the appendix resolves to a real file in the repo -> verifier script checks each path with fs.existsSync; WHY: prevents dangling references that mislead implementers",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains no Co-Authored-By trailer anywhere -> grep -i Co-Authored-By returns no matches; WHY: explicit prohibition per user standing requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Roadmap lists all phases in order (1a, 1b, 1.5, digest-extract, 2, 3, 4) -> reviewer confirms at least 5 distinct phases mentioned; WHY: phased rollout must be complete",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "currentMaterialHash exists as a real function in the codebase -> grep -r currentMaterialHash packages/main/src/ finds at least one match; WHY: test reference must be grounded",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "runtime-artifact-registry.ts exists in the codebase -> find . -name runtime-artifact-registry.ts returns at least one result; WHY: code anchor must resolve",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No code-anchor path points to a file that was deleted or renamed -> verifier checks every anchored path and reports zero FAIL; WHY: stale anchors are worse than missing ones because they appear valid",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does not contain Co-Authored-By in any form (case-insensitive, including partial matches like co-authored) -> grep -i co-authored-by finds zero matches in the doc; WHY: trailer prohibition is absolute",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No phase is listed out of order or duplicated -> reviewer confirms monotonic phase numbering and no repeated phase labels; WHY: roadmap ordering must be unambiguous",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
