@@ -162,6 +162,60 @@ export interface Playbook {
   usage: PlaybookUsage;
 }
 
+// ── B-7561 (Experience Layer Phase 3): Story Recall — structured-field similarity ──
+//
+// The FINAL slice distils each story's existing metadata (read through the
+// `story_list` scan) into a compact `StoryProfile`, then ranks profiles by a
+// MULTI-FIELD structured similarity (Jaccard over keyword/fileKind/touchpoint
+// sets + small type/phase boosts). There is NO FTS, NO derived index, and NO
+// embedding: recall is a pure, read-only projection over the live story set.
+// These shapes stay in this LEAF (zero outward imports) so the recall surface
+// cannot couple back into the gate/handler graph through its type surface.
+
+/**
+ * A compact, comparable distillation of one story's structured metadata. Every
+ * array is deduped + sorted by `buildStoryProfile` so two profiles built from
+ * the same metadata are byte-identical (determinism). All free-text fields are
+ * conservative projections — recall never reads gate-bearing finding internals.
+ */
+export interface StoryProfile {
+  storyId: string;
+  title: string;
+  /** Story type bucket (e.g. feature/chore/fix); '' when unknown. */
+  type: string;
+  /** Lifecycle phase (e.g. DEV/REVIEW/DONE); '' when unknown. */
+  phase: string;
+  /** Priority bucket (e.g. medium/high); '' when unknown. */
+  priority: string;
+  /** Domain/module/concept tokens (from title + understanding + finding signatures). */
+  keywords: string[];
+  /** Coarse file-kind buckets (extensions / top dirs) from touchpoints + finding files. */
+  fileKinds: string[];
+  /** Code touchpoints (impact-scope paths) from the understanding snapshot + finding files. */
+  touchpoints: string[];
+  /** High-risk signal categories surfaced on the story. */
+  riskSignals: string[];
+  /** Short notable-finding summaries (signature/desc projections). */
+  notableFindings: string[];
+  /** Short notable-decision summaries (the chosen option + rationale gist). */
+  notableDecisions: string[];
+  /** The story's recorded outcome (understanding.outcome), if any. */
+  outcome?: string;
+}
+
+/**
+ * One ranked recall hit: a candidate `StoryProfile` plus the score and the
+ * human-readable `reasons` (which field dimensions overlapped) explaining WHY
+ * it ranked. `score` is a deterministic, symmetric similarity in [0, ~1.x].
+ */
+export interface RecallMatch {
+  storyId: string;
+  title: string;
+  score: number;
+  reasons: string[];
+  profile: StoryProfile;
+}
+
 /**
  * The input shape the derivation reads. A narrowed projection of a real Finding
  * plus the Phase-1b forward-compatible optional fields. ALL fields are optional
