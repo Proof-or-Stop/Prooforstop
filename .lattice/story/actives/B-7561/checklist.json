@@ -5,9 +5,9 @@
       "title": "core/story-recall.ts: build story profiles + structured similarity scoring (no FTS)",
       "context": "experience-layer-types.ts: StoryProfile {storyId,title,type,phase,priority,keywords[],fileKinds[],touchpoints[],riskSignals[],notableFindings[],notableDecisions[],outcome}. core/story-recall.ts: buildStoryProfile(storyMeta) + scoreSimilarity(a,b) using structured-field overlap (Jaccard over keyword/fileKind/touchpoint sets + type/phase match). Pure, deterministic; zero outward imports except experience-layer-types + node:.",
       "userSees": "Build clean; the smoke asserts scoreSimilarity ranks an overlapping profile above a disjoint one and is symmetric/deterministic.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T15:46:15.801Z",
-      "endTime": null,
+      "endTime": "2026-06-17T15:47:59.445Z",
       "verificationIntent": {
         "happy": [
           {
