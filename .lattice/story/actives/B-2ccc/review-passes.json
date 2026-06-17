@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-2ccc:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "All three quality checks pass. (1) Dead code: none — all exports from digest.ts are consumed (digestCanonicalJson/digestText in decision-doc-promotion.ts, canonicalJson/digestCanonicalJson/digestText in the smoke); the Digestable type is exported for future consumers; no commented-out blocks. (2) Type safety: no new `as any`; the sole `as Record<string,unknown>` cast is VERBATIM from the original; no empty catch blocks. (3) I/O shell isolation: digest.ts is a core leaf with zero handler/shell imports; no violation. The extraction is byte-identical: normalizeJson/canonicalJson/digestCanonicalJson/digestText bodies match the removed defs character-for-character; the smoke pins exact pre-refactor sha256 outputs and includes a non-vacuous import-fence test. Verdict: PASS, no blockers.",
+      "createdAt": "2026-06-17T14:18:13.037Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-001",
+      "_hash": "b9f594550ab3b2f9283f44597a31647b6e3ea0a1504f3904f01990758f94a472"
+    }
+  ]
+}
