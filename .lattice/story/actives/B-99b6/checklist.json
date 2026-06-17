@@ -49,7 +49,30 @@
       "userSees": "lattice validate GREEN with the smokes included; intentionally breaking one of them turns lattice validate red.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With all guards passing, `lattice validate --story=B-99b6` is GREEN and the REVIEW->TEST gate (same npm test fallback) passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Cross-check no excessive slowdown: the fast-gate delta from the newly-added guards stays seconds-scale (sum of fast guards ~8s, no 160-smoke run).",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Deliberately breaking ONE wired guard/smoke makes `lattice validate` turn RED with that guard reported as the failing step (no silent skip / no swallowed error); reverting restores GREEN.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
