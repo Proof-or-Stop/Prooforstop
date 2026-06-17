@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T17:13:23.239Z",
       "reviewRunId": "B-6666:RR-002",
       "_hash": "d4886015c26f9a60bb5699f7aa47072787d10409a9b4ceb016fe928713a8912a"
+    },
+    {
+      "id": "B-6666:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. (1) No residual no-op `const gitCwd = projectRoot` or `const gitCwd = root` aliases remain in the two FIXED files: done-oracle.ts now has only `const gitCwd = options.gitCwd ?? root` (the threaded assignment at line 238) plus a comment at 492 mentioning the deleted pattern; evidence-freshness.ts has zero `const gitCwd` assignments. (2) The deleted confessional comment text `makes the contract pass without changing behavior` appears only in .lattice/story/actives/B-6666/understanding.json (PLAN artifact, not a code file) — zero code residue. (3) All four git-probe functions in evidence-freshness.ts (currentGitHead, changedFilesBetween, changedFilesBetweenRenameAware, currentMaterialHash, checkEvidenceFreshnessForGit) now have `gitCwd: string` as first param — no dangling `projectRoot` param names on git-probe signatures. (4) All helpers in done-oracle.ts (readGitStatusLines, gitRefExists, gitRefContainsMain, checkMainDivergence, checkEvidenceFreshness, checkCompletedEvidenceSnapshotFreshness) are called exclusively with the threaded `gitCwd` variable — no dead-code or orphaned callers. (5) Remaining `const gitCwd = root/projectRoot` aliases in other files are all covered by the DEFERRED_ALLOWLIST_EXACT in gitroot-cwd-contract-smoke.ts with explicit backward-compat rationale — intentional deferrals, not residue. No blocker.",
+      "createdAt": "2026-06-17T17:15:15.529Z",
+      "reviewRound": "2026-06-17T17:13:23.239Z",
+      "reviewRunId": "B-6666:RR-004",
+      "_hash": "5f980e18c9598261d273c2256e49b06a1d6de93e0253de649896d1c7f4c57377"
     }
   ]
 }
