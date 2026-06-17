@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T23:02:40.347Z",
       "reviewRunId": "B-6745:RR-003",
       "_hash": "d94d68083ba70fd11eb21fdb9dda092e9c5b32aece6e79d34cac9a54a3b4c144"
+    },
+    {
+      "id": "B-6745:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 8 must-intents satisfied. CHK-001 (5 intents): authority-job-loop-live exits 0 with 0 diff from main (no source edit, stale-dist only); autopilot-authority and multi-host-authority exit 0 standalone with hermetic fileReader/cwd isolation; planted authority_trust.env hermeticity verified by evidence; shadow.status===warn, readinessWarnings.length>0, localWorkflowUsable===true, authorityRequired===false, multi-host E2 mode===local all preserved in source (no assertion weakened). CHK-002 (3 intents): 5 timeout values finite and confirmed (180000-240000ms, no Infinity); integration_test evidence records 163/163 green at headHash e7370def; standalone wall times all within manifest ceilings with ample headroom. provider-gemini-smoke.ts restored and exits 0. 7 of 8 intents show stale headHash in validate (evidence recorded during DEV before revert/REVIEW metadata commits) — staleness is an artifact, not a coverage gap: post-evidence commits only touch story metadata, the revert restores out-of-scope gemini files byte-for-byte to main (git diff main HEAD on those files = 0 lines), and direct smoke execution confirms all intents satisfied at current HEAD.",
+      "createdAt": "2026-06-17T23:05:54.354Z",
+      "reviewRound": "2026-06-17T23:02:40.347Z",
+      "reviewRunId": "B-6745:RR-002",
+      "_hash": "e54c753a6b768f4bc6dbeb0705e79fa376c41859a8d9a8b6e2affb6cdfd1bbfa"
     }
   ]
 }
