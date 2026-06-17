@@ -1,0 +1,49 @@
+{
+  "storyId": "B-a2e3",
+  "name": "experience-referential-revalidation",
+  "title": "Experience Layer: referential re-validation + valid-rate metric",
+  "description": "Add a read-only temporal-validity instrument to the per-project Experience Layer. Finding-signals are derived from historical findings whose file anchors may no longer exist at HEAD (knowledge drift). This story records each signal's anchor files, adds a pure re-validation leaf that classifies a signal valid/stale against the current HEAD file set, and exposes a re-runnable learning_validate CLI that reports valid-rate and drift-rate. Strictly advisory and read-only: no gate, no finding-lifecycle write, no scoring change, writes nothing.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "experience-layer",
+    "finding-signals",
+    "drift",
+    "revalidation",
+    "valid-rate"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "validate.ts"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-17T23:39:02.394Z",
+  "startedAt": "2026-06-17T23:39:02.394Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T23:39:02.412Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:44:05.938Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-a2e3",
+    "branch": "story/B-a2e3",
+    "createdAt": "2026-06-17T23:44:02.851Z"
+  }
+}

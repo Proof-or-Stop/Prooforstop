@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a2e3",
+  "mode": "feature",
+  "allowed": [
+    "Add anchorFiles to FindingSignal and populate it in finding-signals derivation",
+    "Pure experience-revalidation leaf (revalidateSignals, computeValidRate)",
+    "Read-only learning_validate handler + CLI command + registration",
+    "Smokes, npm script, and verifier for the validity metric"
+  ],
+  "excluded": [
+    "Aggregating learning across more than one repository",
+    "Any gate, scoring, signalScore weighting, or promptHash change",
+    "Blob-equality unchanged-since-confirmation comparison",
+    "Editing the finding write path (finding_add / finding_resolve)",
+    "Persisting or auto-demoting the signals cache"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User chose the conservative ① step (referential re-validation + valid-rate) after reviewing Baseline A; forward A/B proof deferred to a later story.",
+  "createdAt": "2026-06-17T23:39:02.394Z",
+  "updatedAt": "2026-06-17T23:39:02.394Z",
+  "_hash": "83eead7bb7ee46580d76095fd4a54e7a2f9a78707202d96584720703875c7e63"
+}
