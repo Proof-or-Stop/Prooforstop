@@ -99,6 +99,22 @@
       "files": [
         "AGENTS.md"
       ]
+    },
+    {
+      "id": "B-d7c3:F-007",
+      "desc": "CHK-003:adversarial:3 evidence command does not bind the intent. Intent literal: node -e checking packages/main/package.json for absence of test:legacy entry, expected output CORRECT. Evidence command: python3 -c checking root package.json for presence of test:legacy (same python3 command as CHK-003:edge:2 and CHK-003:adversarial:1). The intent guards that test:legacy shim is NOT accidentally placed in packages/main; the evidence only proves it IS in root package.json, which is a different property. The CHK-003:adversarial:3 check (test:legacy absent from packages/main) was actually verified in the live re-run (prints CORRECT), but the recorded evidence command does not match the intent literal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:32:16.656Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-002",
+      "_hash": "483f259fc197e6da326a5c34f950a42f6b03f4a7ee1adb300b7765d1a9719e13",
+      "files": [
+        "packages/main/package.json"
+      ]
     }
   ]
 }
