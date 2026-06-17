@@ -1,0 +1,27 @@
+{
+  "storyId": "B-1dc9",
+  "name": "experience-layer-phase-15-hint-injection",
+  "title": "Experience Layer Phase 1.5: advisory review-time hint injection (experience-hint-loader + story-review advisory section + usage tracking), excluded from the reviewRunId promptHash domain",
+  "description": "Implement Phase 1.5 from docs/requirements/decisions/lattice-experience-layer-execution-plan.md: a core/experience-hint-loader.ts that ranks finding-signals by priority=signalScore*log(1+support)*recencyBoost, filters (recurring>=0.65; common-false-positive bucket) and formats top-N hints with progressive disclosure; surfaced as an advisory-only section in handlers/story-review.ts mirroring grillSection; with experience_hint_surfaced usage tracking via appendActivityLog. Load-bearing guardrail: hints are advisory-only and never affect the deterministic reviewRunId binding — resolveReviewPromptHash must stay independent of hint content. No gate logic changes. Proven by a smoke covering ranking/filter/top-N, advisory presence, usage event, and the promptHash determinism guardrail.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "createdAt": "2026-06-17T13:10:19.038Z",
+  "startedAt": "2026-06-17T13:10:19.038Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T13:10:19.040Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-1dc9",
+    "branch": "story/B-1dc9",
+    "createdAt": "2026-06-17T13:12:34.120Z"
+  }
+}
