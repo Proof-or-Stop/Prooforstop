@@ -5,7 +5,7 @@
       "title": "Collapse the 143 packages/main per-smoke test:X-smoke scripts into smoke-manifest.json entries and remove them",
       "context": "For each entry in packages/main/package.json scripts named `test:X-smoke` whose body matches the pattern `node dist/tasks/X-smoke.js` (143 such entries), record a manifest row at packages/main/smoke-manifest.json (name=X, no tags unless already classified, default timeout) and then delete the npm script entry. Do NOT touch these 6 keep-list entries: test:e2e (cli-e2e flow runner), test:run-all-smokes-smoke (B-6efb self-smoke), test:main-write-lock-coverage / test:review-convergence-smoke / test:review-incremental-context-smoke / test:docs-drift-smoke (4 scripts referenced by the root `test` main script). After: packages/main `test:*` count drops from 151 to ~8 (the 6 keep-list + cli-e2e variants); `npm run test:all` runs every smoke and exits 0; existing acceptance — the 3 wrapper-root smokes + self-smoke still pass byte-identically.",
       "userSees": "`grep -c 'test:.*-smoke' packages/main/package.json` drops from ~143 to ~1 (only test:run-all-smokes-smoke retained); `npm run test:all` exits with aggregate summary including all 153 smokes.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-17T12:20:28.096Z",
       "endTime": "2026-06-17T12:26:23.604Z",
       "files": {
