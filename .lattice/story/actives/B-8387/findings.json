@@ -31,6 +31,19 @@
       "files": [
         "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
       ]
+    },
+    {
+      "id": "B-8387:F-003",
+      "desc": "handlers/playbook.ts:46-52 nextProposalId reads only proposals/ directory (listProposals) and does NOT consult playbooks.json; after a full lifecycle round (propose->approve->proposal deleted), the proposals/ dir is empty and the counter resets to PBP-001; a second propose then mints another PBP-001, and approving it produces two entries with identical id in playbooks.json. Reproducible with: propose F-001 (PBP-001), approve, then propose F-002 -> also PBP-001, approve -> readPlaybooks() returns [{id:'PBP-001',...},{id:'PBP-001',...}]. Fix: read both proposals/ and existing playbooks.json in nextProposalId to derive the global max; or assign IDs from playbooks.json length+1.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T15:14:50.869Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-003",
+      "_hash": "9357e1cddd0eb656a101909893d98d7ad8b19a7efeb3aaf83307c86154d19c99"
     }
   ]
 }
