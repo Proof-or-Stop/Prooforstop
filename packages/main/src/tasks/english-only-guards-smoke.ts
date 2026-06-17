@@ -49,6 +49,11 @@ import {
   renderEnglishArtifactViolations,
   type GitLogReader,
 } from '../handlers/english-artifact-gate.js';
+import {
+  getClaudeHooks,
+  PRETOOL_SCOPE_HOOK_MATCHER,
+  ENGLISH_ONLY_GUARD_HOOK_FILE,
+} from '../init-assets.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // dist/tasks -> dist -> packages/main
@@ -57,6 +62,9 @@ const pkgRoot = resolve(here, '..', '..');
 const repoRoot = resolve(pkgRoot, '..', '..');
 const hookPath = join(repoRoot, '.claude', 'hooks', 'english-only-guard.cjs');
 const cjkDetectSrc = join(pkgRoot, 'src', 'core', 'cjk-detect.ts');
+// packages/main/dist/cli.js — the compiled CLI entry, resolved like the
+// pretool-scope-hook smoke (dist sibling of dist/tasks).
+const cliPath = join(pkgRoot, 'dist', 'cli.js');
 
 /** Assemble a string from Unicode code points (keeps literal CJK out of this file). */
 function cp(...points: number[]): string {
@@ -330,6 +338,80 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
   }
 
   console.log('✓ Test 6: hook warns on CJK commit/metadata, stays silent on English/unguarded, exits 0 on bad stdin');
+}
+
+// ─── Test 7: init-rerun Claude hook merge — both PreToolUse hooks survive ─────
+// Regression guard for the cb19e86e8 fix: re-running `lattice init` on a project
+// whose .claude/settings.json ALREADY has ONLY the scope-pretool PreToolUse
+// entry must MERGE the english-only-guard entry in (not silently drop it) while
+// keeping the scope hook exactly once (the old loop only inspected hooks[0], so
+// it dropped every managed entry after the first and risked re-pushing the whole
+// array, duplicating the scope guard).
+
+{
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'koala-english-initrerun-'));
+  // A temp HOME so global agent assets / user config never bleed into the run.
+  const tmpHome = mkdtempSync(join(tmpdir(), 'koala-english-initrerun-home-'));
+  try {
+    // Seed a git repo (init resolves the project root via git).
+    execFileSync('git', ['init', '-b', 'main'], { cwd: tmpRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['config', 'user.email', 'rerun@test'], { cwd: tmpRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['config', 'user.name', 'Rerun Test'], { cwd: tmpRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+
+    // Pre-existing settings.json with ONLY the scope-pretool PreToolUse entry.
+    // Reuse getClaudeHooks().PreToolUse[0] so the command string is byte-exact
+    // with what init expects — that is what makes the "exactly once, no dup"
+    // assertion meaningful (a mismatched string would be appended, not merged).
+    const scopeEntry = getClaudeHooks().PreToolUse[0];
+    assert.equal(
+      scopeEntry.matcher,
+      PRETOOL_SCOPE_HOOK_MATCHER,
+      'precondition: seeded entry must be the scope-pretool matcher (Edit|Write|MultiEdit|NotebookEdit)',
+    );
+    const seeded = { hooks: { PreToolUse: [scopeEntry] } };
+    mkdirSync(join(tmpRoot, '.claude'), { recursive: true });
+    writeFileSync(
+      join(tmpRoot, '.claude', 'settings.json'),
+      JSON.stringify(seeded, null, 2) + '\n',
+      'utf8',
+    );
+
+    // Re-run init over the project that already has the scope hook.
+    execFileSync(process.execPath, [cliPath, 'init', '--profile=claude', tmpRoot], {
+      cwd: tmpRoot,
+      env: { ...process.env, HOME: tmpHome },
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    const merged = JSON.parse(readFileSync(join(tmpRoot, '.claude', 'settings.json'), 'utf8'));
+    const preToolUse = merged?.hooks?.PreToolUse;
+    assert.ok(Array.isArray(preToolUse), 'init-rerun: PreToolUse must remain an array');
+
+    const commands = preToolUse
+      .flatMap((entry: any) => (Array.isArray(entry?.hooks) ? entry.hooks : []))
+      .map((hook: any) => hook?.command)
+      .filter((c: any): c is string => typeof c === 'string');
+
+    // The english-only-guard hook must now be present (it was NOT dropped).
+    assert.ok(
+      commands.some((c: string) => c.includes(ENGLISH_ONLY_GUARD_HOOK_FILE)),
+      `init-rerun: english-only-guard hook must be merged in, got: ${JSON.stringify(commands)}`,
+    );
+
+    // The scope hook must appear EXACTLY ONCE (not duplicated by re-pushing).
+    const scopeHits = commands.filter((c: string) => c.includes('lattice-scope-pretool.cjs')).length;
+    assert.equal(
+      scopeHits,
+      1,
+      `init-rerun: scope-pretool hook must appear exactly once, found ${scopeHits} in ${JSON.stringify(commands)}`,
+    );
+
+    console.log('✓ Test 7: init-rerun merges english-only-guard into existing scope-only PreToolUse (scope not duplicated)');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+    rmSync(tmpHome, { recursive: true, force: true });
+  }
 }
 
 console.log('\n✓ All english-only guards smoke tests passed');
