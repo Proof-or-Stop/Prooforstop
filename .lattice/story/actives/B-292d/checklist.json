@@ -311,6 +311,17 @@
           "headHash": "bec59748687542842b96b34f29e7f8db5538034e",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:58.232Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"console.log(require('./package.json').scripts['test:koala-residue']||'MISSING')\"",
+          "result": "pass",
+          "note": "Prints 'node scripts/verify-koala-residue.mjs' (non-MISSING) — a3 preservation: root package.json test:koala-residue script still present.",
+          "headHash": "96e2d5850e1d8b2c2a124c58d52090dfe4b5e7ce",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:59.069Z"
         }
       ]
     },
