@@ -1,0 +1,56 @@
+{
+  "storyId": "B-292d",
+  "changes": "Added KOALA_RESIDUE_GATE_LABEL + runKoalaResidueGate helper + 'koala-residue' to PreflightGateName union + fast-channel skip + main-path dispatch in packages/main/src/handlers/review-preflight.ts. Mirrors english-artifacts (B-5f42) pattern. Extended scripts/verify-koala-residue.mjs NEUTRAL_TOKEN_PATTERNS with 4 narrow line-level exemptions for gate self-identifiers (koala-residue, KoalaResidueGate*, runKoalaResidueGate, koalaResidue) per script's own line 213 invitation to refine. Updated cli-prompts.ts REVIEW->TEST PREFLIGHT block from 5 gates to 7 (added missing english-artifacts + new koala-residue). Updated CLAUDE.md gate table same. CHANGELOG Unreleased entry under Test infrastructure documents the story.",
+  "usage": "Automatic on lattice story_advance --phase=TEST. The koala-residue line appears in the 7-gate preflight output; '[✓] koala-residue: pass — No brand residue in tracked source' for clean state, '[✗] koala-residue: brand residue: N hit(s)' with stdout hit list otherwise. Standalone: npm run test:koala-residue (kept in root npm test chain per user a3).",
+  "expectedOutcome": "story_advance --phase=TEST shows '[✓] koala-residue: pass — No brand residue in tracked source' as the 7th line in the preflight checklist; when residue is reintroduced, that line becomes '[✗] koala-residue: brand residue: N hit(s)' with the hit lines verbatim in details, and the advance is BLOCKED. lattice validate --help now lists 7 preflight gates (was 5).",
+  "actualTranscript": "Running B-292d through its own preflight gate: [✓] koala-residue: pass — No brand residue in tracked source. Self-applying gate validates the implementation. node scripts/verify-koala-residue.mjs returns PASS koala-residue: 0 unclassified, self-test 5/5 PASS. All 3 reviewer lanes PASS (concept R1 RP-001, quality R2 RP-002, test-coverage R2 RP-003); 3 findings F-001..F-003 all resolved.",
+  "outcomeDiff": "No difference: A0/spec requirement met. The gate fires structurally in preflight; the script reuses the canonical B-40eb implementation byte-for-byte except for the 4 narrow self-identifier exemptions explicitly invited by the script's own comment.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope expanded to scripts/verify-koala-residue.mjs (added 4 narrow exemptions) via scope_contract_acknowledge — script's line 213 explicitly invited story 4 to refine. Authority/production receipts NOT issued (degraded 3x1 fallback used per solo-operator standing approval); authorityDone/productionDone stay false.",
+  "pitfalls": "The gate's own source file (review-preflight.ts) and label string introduce literal 'koala-residue' tokens that trigger the gate itself — chicken-and-egg. Solution: extend NEUTRAL_TOKEN_PATTERNS with narrow line-level rules for gate self-identifiers (4 rules: koala-residue, KoalaResidueGate*, runKoalaResidueGate, koalaResidue). Future gates that introduce their own brand-prose identifiers must do the same. SCREAMING_CASE constants like KOALA_RESIDUE_GATE_LABEL are automatically covered by the pre-existing /KOALA_[A-Z0-9_]*/g pattern — DO NOT add a redundant rule (caught by quality reviewer F-003 in round 1; fixed in commit 438fa8ef3).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 474117
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 35569
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 397403
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 602816
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 482012
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 38137
+    }
+  },
+  "totalDurationMs": 2030055,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T17:55:30.018Z",
+  "updatedAt": "2026-06-17T17:55:30.018Z"
+}
