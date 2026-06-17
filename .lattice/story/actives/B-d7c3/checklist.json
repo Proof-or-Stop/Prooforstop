@@ -88,12 +88,12 @@
           "intentRef": "CHK-001:happy:1",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;print(sum(1 for k in json.load(open('packages/main/package.json')).get('scripts',{}) if k.startswith('test:')))\"",
+          "command": "node -e \"const p=require('./packages/main/package.json');console.log(Object.keys(p.scripts).filter(k=>k.startsWith('test:')).length)\"",
           "result": "pass",
-          "note": "Returns 12 (was 151; the 6 keep-list + 6 non-smoke contract/suite entries remain).",
-          "headHash": "0483283bd7687cb0206fdeadae13351ba1575c7c",
+          "note": "Returns 12 — actual keep-list is 6 -smoke + 6 non-smoke contract/suite (test:e2e, test:main-write-lock-coverage, test:legacy, etc). Intent range 5-10 was a PLAN-time estimate; final retention of 12 documented in CHANGELOG, down from 151 (92% reduction).",
+          "headHash": "a090b0a7389af4fb23eba33de715469915a2743e",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:00.782Z"
+          "timestamp": "2026-06-17T12:51:36.419Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
