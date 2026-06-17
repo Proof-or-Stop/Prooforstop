@@ -97,6 +97,17 @@
           "headHash": "82dd9e3cfa268a011bcb7552406fd311e50b5eb4",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:05.980Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "for i in 1 2 3; do npm run test:all > /tmp/b2d6c-flake-$i.log 2>&1 || echo FAIL_$i; done",
+          "result": "pass",
+          "note": "No FAIL_N printed — 3 consecutive parallel runs all green, no flake (preMortem D4 mitigation).",
+          "headHash": "2fd13a40d7630874e70ff17fe2f8c6e77d20b911",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:06.684Z"
         }
       ]
     },
