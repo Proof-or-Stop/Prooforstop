@@ -7,7 +7,63 @@
       "userSees": "Build clean; core/digest.ts exists; the smoke asserts digestCanonicalJson/canonicalJson/digestText produce the exact same output as a pinned set of inputs (byte-identical to pre-refactor).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "core/digest.ts exists at packages/main/src/core/digest.ts and exports Digestable, canonicalJson, digestCanonicalJson, digestText, normalizeJson; WHY: verifies the file was created with all required symbols",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson({b:1,a:2}) produces identical JSON to pre-refactor inline version (keys sorted: {a:2,b:1}); WHY: proves canonicalization is stable after extraction",
+            "type": "cli"
+          },
+          {
+            "desc": "digestCanonicalJson({b:1,a:2}) returns the same SHA-256 hex as sha256(canonicalJson({b:1,a:2})); WHY: proves digest is byte-identical to pre-refactor on a pinned input",
+            "type": "cli"
+          },
+          {
+            "desc": "digestText('hello') returns sha256 hex of 'hello'; WHY: proves text digest is byte-identical to pre-refactor",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "canonicalJson with deeply nested object with reordered keys at every level produces stable sorted output; WHY: canonicalization must be recursive, not just top-level",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson with null, boolean, number, string, and array values normalizes correctly (null stays null, arrays preserve order); WHY: boundary on all JSON primitive types",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson with undefined-valued keys omits them from output; WHY: undefined is not valid JSON and must be stripped for canonical form",
+            "type": "cli"
+          },
+          {
+            "desc": "digestCanonicalJson on empty object {} returns deterministic sha256 of '{}'; WHY: edge case for minimal valid input",
+            "type": "cli"
+          },
+          {
+            "desc": "digestText on empty string returns sha256 of empty string; WHY: empty-input edge case",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "core/digest.ts imports only node:crypto and nothing else (grep import lines); WHY: leaf-module constraint -- if it imports anything else the dependency tree is violated and future consumers inherit unwanted deps",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJson with deeply nested structure (100 levels) does not crash and produces deterministic output; WHY: adversarial deep nesting stress test on recursive normalizeJson",
+            "type": "cli"
+          },
+          {
+            "desc": "digestCanonicalJson and digestText produce DIFFERENT hashes for the same string input -- digestCanonicalJson wraps in JSON.stringify quotes, digestText does not; WHY: proves the two functions are semantically distinct and not accidentally interchangeable",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

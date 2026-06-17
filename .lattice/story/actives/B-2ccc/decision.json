@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Behaviour-preserving: digest values byte-identical",
+    "Extract verbatim, relocate only",
+    "core/digest.ts is a leaf (node:crypto only)",
+    "Avoid handler-to-handler imports in Phase 2"
+  ],
+  "drivers": [
+    "Existing decision-doc digests must stay valid",
+    "Phase 2 must import digest from a core leaf",
+    "Minimal reviewable change"
+  ],
+  "options": [
+    {
+      "name": "verbatim-extract-to-core-leaf",
+      "pros": [
+        "Digest values byte-identical (existing proposals stay valid)",
+        "core/digest.ts is a leaf; Phase 2 imports from core not a handler",
+        "Minimal, reviewable two-file change"
+      ],
+      "cons": [
+        "Two files touched"
+      ]
+    },
+    {
+      "name": "leave-in-handler-import-from-handler-in-phase2",
+      "pros": [
+        "No change now"
+      ],
+      "cons": [
+        "Phase 2 handlers/playbook.ts -> handlers/decision-doc-promotion.ts is a handler-to-handler import (layering violation)"
+      ]
+    }
+  ],
+  "chosen": "verbatim-extract-to-core-leaf",
+  "rationale": "Extracting verbatim into a core leaf keeps digests byte-identical and lets Phase 2 import from core, avoiding the handler-to-handler layering violation the plan warns about.",
+  "preMortem": [
+    {
+      "scenario": "A digest value changes during extraction",
+      "trigger": "Subtly altering canonicalJson key ordering or normalizeJson",
+      "consequence": "Existing decision-doc proposalDigest/sourceDigest become invalid",
+      "mitigation": "Extract verbatim; smoke asserts byte-identical output on pinned inputs + computeDecisionDocProposalDigest stable"
+    },
+    {
+      "scenario": "core/digest.ts gains an outward dependency",
+      "trigger": "Importing a non-node module",
+      "consequence": "Leaf invariant broken",
+      "mitigation": "core/digest.ts imports only node:crypto; smoke/static check"
+    },
+    {
+      "scenario": "decision-doc-promotion behaviour regresses",
+      "trigger": "Removing a function still referenced elsewhere",
+      "consequence": "Compile error or behaviour change",
+      "mitigation": "Build clean + existing decision-doc smokes pass"
+    }
+  ],
+  "timestamp": "2026-06-17T14:01:30.296Z"
+}
