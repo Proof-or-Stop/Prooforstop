@@ -53,6 +53,17 @@
           "headHash": "7bc35ba5322d90a06d83481f86ce2e2e5eb77efb",
           "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
           "timestamp": "2026-06-17T01:21:57.146Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-incremental-context.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (c): rename counted as changed (rename-aware changedFilesBetweenRenameAware); helper proven to write nothing to the store (case d snapshot)",
+          "headHash": "7888b6287d803b647dacc593312681338a070b03",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:21:57.974Z"
         }
       ]
     },
