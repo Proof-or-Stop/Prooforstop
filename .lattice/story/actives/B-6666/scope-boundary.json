@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6666",
+  "mode": "custom",
+  "allowed": [
+    "Add a wrapper-root regression smoke proving the done-oracle fix red->green",
+    "Fix every real bare-root site newly flagged by the strengthened contract (confirmed wrapper-root sites)",
+    "Strengthen tasks/gitroot-cwd-contract-smoke.ts: alias detection + backtick-template git call scan",
+    "Thread gitCwd through the call chain: transition-orchestrator -> done-effects -> phase-gates as needed",
+    "Thread resolved gitCwd into done-oracle.ts git-status path (readGitStatusLines + callers)",
+    "Thread resolved gitCwd into evidence-freshness.ts git probes (including the authority-receipt/done freshness callers)",
+    "Update package.json only if a new regression smoke script is needed"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Driver-confirmed scope per B-6666 charter: pure correctness fix of the gitRoot defect class. excludedScope intentionally EMPTY. mode=custom (not correctness_fix) deliberately: correctness_fix auto-injects future-capability keyword exclusions including the literal token Authority, which false-positives against the substantive technical reference authority-receipt/done freshness callers in evidence-freshness.ts that THIS story threads gitCwd through (CHK-002, an in-scope existing-code reference, not an excluded future capability). custom mode injects no default keyword exclusions; out-of-scope (B-867c process-fact-registry, B-99b6 battery wiring) is fenced via execution_boundary blockedPaths + allowedPaths instead.",
+  "createdAt": "2026-06-17T16:28:02.404Z",
+  "updatedAt": "2026-06-17T16:28:02.404Z",
+  "_hash": "a7a2ab29a9500d277e0b394d7c6615330fa2d4f33ce28e125774f5f0f86f2d88"
+}

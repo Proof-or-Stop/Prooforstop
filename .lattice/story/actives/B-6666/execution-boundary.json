@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6666",
+  "allowedCommands": [
+    "git diff",
+    "git log",
+    "git merge",
+    "git status",
+    "lattice validate",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npm run test:gitroot-cwd-contract",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/story/actives/B-6666/plan.md",
+    "package.json",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/test-runner-core.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/process-fact-config.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-6666 gitRoot defect-class fix. allowedPaths covers done-oracle + evidence-freshness + call-chain threading + strengthened contract smoke + candidate bare-root backtick sites (validate-channel/test-runner-core/validate-concept) that CHK-003 may flag, plus any new regression smoke (added under src/tasks). OUT OF SCOPE / blocked: process-fact-registry.ts, process-fact-config.ts, DEFAULT_PHASE_TOOLS (B-867c), and wiring smokes into the validate battery (B-99b6). A new regression smoke file path under packages/main/src/tasks/ is permitted.",
+  "createdAt": "2026-06-17T16:26:56.105Z",
+  "updatedAt": "2026-06-17T16:26:56.105Z",
+  "_hash": "4d29333c68f4533753662799c77ae2f3e851040338a9a349dac906264e821623"
+}

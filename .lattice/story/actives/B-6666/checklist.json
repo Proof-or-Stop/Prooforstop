@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Thread resolved gitCwd into the DONE-oracle git-status path (fix the wrapper-root DONE false-block)",
+      "context": "Resolve gitCwd once at the runDonePreMergeGate boundary (transition-orchestrator.ts already computes doneGitCwd ~:271 — pass it instead of bare ctx.root at ~:363; or resolve inside runDonePreMergeGate) and thread it through done-effects.ts runDoneOracleGate -> core/done-oracle.ts buildDoneChecklist -> readGitStatusLines so `git status` runs from the resolved gitRoot. Fall back to root when no gitRoot resolves (plain repos byte-identical). done-oracle.ts currently has no resolveGitCwd import. Verify with a wrapper-root scenario that the 'git-working-tree' done-check row no longer false-fails when metadataRoot != gitRoot.",
+      "userSees": "On a wrapper-root project (metadataRoot != gitRoot), `lattice story_advance --phase=DONE` no longer false-fails the git-working-tree DONE check with 'unable to read git status'; the DONE-oracle reads git status from the gitRoot. Plain repos are unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Thread resolved gitCwd into evidence-freshness git probes",
+      "context": "core/evidence-freshness.ts uses a no-op `const gitCwd = projectRoot` alias with no resolveGitCwd import; its authority/done callers pass bare metadataRoot, so on wrapper-root the freshness/material hashes come back undefined. Thread the resolved gitCwd into the evidence-freshness git probes (resolve at the caller boundary or accept a gitCwd param), falling back to root. Keep plain-repo behavior byte-identical.",
+      "userSees": "On a wrapper-root project, evidence-freshness / authority-receipt material hashes resolve correctly (not undefined) because the git probes run from the gitRoot; plain repos unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Strengthen the gitroot-cwd contract to close the alias + backtick-template blind spots, and make it GREEN",
+      "context": "In tasks/gitroot-cwd-contract-smoke.ts: (a) detect the no-op-alias defect — a `const <name> = projectRoot|root|metadataRoot` (or equivalent) that is then used as a git-call cwd without going through resolveGitCwd should be flagged, so B-db56's d93b69b8f-style silencing is caught; (b) extend GIT_CALL_REGEX (or add a second scan) to cover backtick-template `execSync(\\`git ...\\`)` call sites (~15 exist, 6 with literal bare-root cwd). Then FIX every real bare-root site the strengthened contract flags (thread resolveGitCwd / fall back to root). Run `npm run test:gitroot-cwd-contract` and confirm it EXITS 0 — the gate does not run it today, so verify explicitly. If the backtick blast radius exceeds what this story can safely fix, fix the confirmed wrapper-root sites + ship the alias-detection rule and explicitly log the remaining sites as a documented follow-up (do not leave the contract red).",
+      "userSees": "`npm run test:gitroot-cwd-contract` exits 0 AND now fails if someone re-introduces a `const gitCwd = projectRoot` alias or a backtick-template git call with a bare-root cwd — the contract can no longer be silenced without routing through resolveGitCwd.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
