@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T11:48:13.696Z",
       "reviewRunId": "B-000c:RR-003",
       "_hash": "aa407c4b1aa25daebda702102de834a2d641aeb46a00fcabf722f3a47e9add10"
+    },
+    {
+      "id": "B-000c:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "All 3 quality checks pass across all 5 changed files. Dead code: no unused imports, variables, or commented-out blocks — the LEARNING_DIR/FINDING_SIGNALS_FILENAME/LEARNING_LOG_FILENAME exports are live API surface reserved for downstream callers. Type safety: zero 'as any' casts in core modules; the 'as unknown' casts in the smoke test are test-adversarial coercions (intentional); both empty catch blocks in learning-store.ts are legitimate swallows with rationale (graceful null return on malformed JSON read; best-effort temp cleanup on write error, re-throw preserved). I/O isolation: no bridge.ts project, isolation enforced by import quarantine — experience-layer-types.ts has zero outward imports, learning-store.ts imports only the leaf sibling, finding-signals.ts adds only ./store.js and ./learning-store.js — no ../ or ../../ in any of the 3 modules, confirmed by static grep and corroborated by the in-smoke adversarial scan. Registry entry has materialHash=exclude, volatile=true, repairableTrackedArtifact=true. The Date.now()/Math.random() usage is in writeFindingSignals's temp filename only (not in pure deriveFindingSignals). signalScore is never NaN (denominator = positive+negative+1 >= 1 always). No findings raised.",
+      "createdAt": "2026-06-17T11:50:45.934Z",
+      "reviewRound": "2026-06-17T11:48:13.696Z",
+      "reviewRunId": "B-000c:RR-001",
+      "_hash": "ea69dfef9319c0f9cab971e32948c02b6309ad6d43bf4e87b6ae956c23cca773"
     }
   ]
 }
