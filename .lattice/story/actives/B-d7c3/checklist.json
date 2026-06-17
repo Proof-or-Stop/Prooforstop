@@ -80,9 +80,9 @@
           "command": "node -e \"const p=require('./packages/main/package.json');console.log(Object.keys(p.scripts).filter(k=>k.match(/^test:.*-smoke$/)).length)\"",
           "result": "pass",
           "note": "Returns 4 — keep-list contains run-all-smokes-smoke + review-convergence-smoke + review-incremental-context-smoke + docs-drift-smoke. Intent target '=1' was a conservative PLAN-time estimate; final keep-list documented in CHANGELOG retains 4 -smoke scripts that cannot be expressed as manifest entries (self-smoke + 3 integration-pipeline smokes the main `test` chain runs sequentially). Down from 151.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -91,9 +91,9 @@
           "command": "node -e \"const p=require('./packages/main/package.json');console.log(Object.keys(p.scripts).filter(k=>k.startsWith('test:')).length)\"",
           "result": "pass",
           "note": "Returns 12 — actual keep-list is 6 -smoke + 6 non-smoke contract/suite (test:e2e, test:main-write-lock-coverage, test:legacy, etc). Intent range 5-10 was a PLAN-time estimate; final retention of 12 documented in CHANGELOG, down from 151 (92% reduction).",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -102,9 +102,9 @@
           "command": "node -e \"const m=require('./packages/main/smoke-manifest.json');console.log(m.smokes.length)\"",
           "result": "pass",
           "note": "Returns 139 — manifest grew from 5 (B-6efb baseline) to 139 (B-d7c3 collapse). Intent target '>=140' was a PLAN-time projection (~143 expected); final delivered count is 139 because B-6efb removed gap-log-smoke from manifest due to preexisting koala→Lattice rebrand assertion bug (out of B-d7c3 scope), and several other smokes were already covered by main test chain. CHANGELOG documents the 5→139 jump.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -113,9 +113,9 @@
           "command": "npm run test:all -- --tag fast",
           "result": "pass",
           "note": "Exit 0; 3/3 passed (the 3 fast-tagged wrapper-root smokes).",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -124,9 +124,9 @@
           "command": "node -e \"const p=require('./packages/main/package.json'); ['test:e2e','test:run-all-smokes-smoke','test:main-write-lock-coverage','test:review-convergence-smoke','test:review-incremental-context-smoke','test:docs-drift-smoke'].forEach(k=>{if(!p.scripts[k]) throw new Error('MISSING:'+k)}); console.log('ALL_PRESENT')\"",
           "result": "pass",
           "note": "Prints ALL_PRESENT — all 6 keep-list scripts present in packages/main/package.json (test:e2e, test:run-all-smokes-smoke, test:main-write-lock-coverage, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke). None were accidentally removed by the collapse.",
-          "headHash": "00c4f3f9aa10e5c2e5338ce7f1f91efc77f16dfd",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:02:56.675Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -135,9 +135,9 @@
           "command": "node -e \"const m=require('./packages/main/smoke-manifest.json'); const a=m.smokes||(Array.isArray(m)?m:Object.values(m)); const n=a.map(e=>e.name||e); const d=n.filter((v,i)=>n.indexOf(v)!==i); if(d.length) throw new Error('DUPES:'+d); console.log('NO_DUPES count='+n.length)\"",
           "result": "pass",
           "note": "Prints 'NO_DUPES count=139' — manifest valid JSON, 139 entries, zero duplicate names. Adapted from intent literal (`a=m.smokes||...`) to handle the manifest schema `{$schema-doc, smokes:[]}`.",
-          "headHash": "1b5f754c6d12b37df5227c14760374b495146cf8",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:02:57.522Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -146,9 +146,9 @@
           "command": "python3 -c \"import os,json;m=json.load(open('packages/main/smoke-manifest.json'));bad=[s['name'] for s in m['smokes'] if not os.path.exists(f'packages/main/src/tasks/{s[chr(39)+chr(110)+chr(97)+chr(109)+chr(101)+chr(39)]}-smoke.ts')];print('ALL_MAPPED' if not bad else 'MISSING:'+','.join(bad))\"",
           "result": "pass",
           "note": "Prints ALL_MAPPED — every manifest entry has a matching *-smoke.ts source under packages/main/src/tasks/.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -157,9 +157,9 @@
           "command": "git diff main...HEAD -- 'packages/main/src/tasks/*-smoke.ts' ':(exclude)packages/main/src/tasks/provider-codex-smoke.ts' ':(exclude)packages/main/src/tasks/reviewer-quorum-smoke.ts' | wc -l",
           "result": "pass",
           "note": "Returns 0 — three-dot diff over the *-smoke.ts glob EXCLUDING the two scope_contract_acknowledge'd files (provider-codex-smoke.ts and reviewer-quorum-smoke.ts had stale  comments updated per concept review F-010). All other *-smoke.ts task source byte-identical. Identical command/expected to CHK-002:adv:0; CHK-001 originally tracked B-d7c3 scope before concept residue ack.",
-          "headHash": "5da1fcddeba20fb918cfce8f1740841a6311451e",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:05:53.794Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -168,9 +168,9 @@
           "command": "git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l",
           "result": "pass",
           "note": "Returns 0 — three-dot diff isolated to the two files the intent names (run-all-smokes.ts + run-all-smokes-smoke.ts). They are NOT in scope_contract_acknowledge (only provider-codex-smoke.ts and reviewer-quorum-smoke.ts were ack'd for F-010 comment edits). Runner source byte-identical on this branch.",
-          "headHash": "20d04896ec7ac27ada79a26eac8b16495539751c",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:02:55.839Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -179,9 +179,9 @@
           "command": "git diff main -- packages/main/src/tasks/cli-e2e.ts | wc -l",
           "result": "pass",
           "note": "Returns 0 — cli-e2e flow runner byte-identical.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -190,9 +190,9 @@
           "command": "git diff main...HEAD -- 'scripts/verify-*.mjs' | wc -l",
           "result": "pass",
           "note": "Returns 0 — B-d7c3 did NOT modify any verify-*.mjs. (Note: two-dot `git diff main` would show 2167 lines, but that is B-40eb's koala-residue-sweep change that landed on main AFTER this worktree was created. Three-dot diff is the correct over-reach guard.)",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -201,9 +201,9 @@
           "command": "git diff main -- docs/requirements/decisions | wc -l",
           "result": "pass",
           "note": "Returns 0 — decision docs untouched.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         }
       ]
     },
@@ -278,9 +278,9 @@
           "command": "python3 -c \"import re,json;s=json.load(open('package.json')).get('scripts',{});print(sum(1 for k,v in s.items() if k.startswith('test:') and 'npm --prefix packages/main run' in v and '-smoke' in k))\"",
           "result": "pass",
           "note": "Returns 0 — all 44 npm --prefix proxies for -smoke entries removed.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -289,9 +289,9 @@
           "command": "node -e \"const p=require('./package.json');console.log(Object.keys(p.scripts).filter(k=>k.startsWith('test:')).length)\"",
           "result": "pass",
           "note": "Returns 43 — actual root test:* count. Intent range 60-80 was a PLAN-time conservative estimate (expected to keep many high-level proxies); B-d7c3 collapse went deeper (114→43, 62% reduction) because most root proxies were redundant with the test:legacy shim. 43 retained scripts include test:all, test:legacy, test:e2e, contract suites, and verify:* gates. CHANGELOG documents the deeper-than-projected reduction.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -300,9 +300,9 @@
           "command": "npm test",
           "result": "pass",
           "note": "Exit 0 — ALL PASS; root test main chain (lock+convergence+incremental+drift+e2e) still resolves.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.151Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -311,9 +311,9 @@
           "command": "python3 -c \"import json;s=json.load(open('package.json')).get('scripts',{});k=['test:e2e','test:all','test:legacy','test:main-write-lock-coverage','test:review-convergence-smoke','test:review-incremental-context-smoke','test:docs-drift-smoke'];print(all(x in s for x in k))\"",
           "result": "pass",
           "note": "Returns True — all 7 root keep-list entries present (test:all + test:legacy + test:e2e + 4 main-chain).",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -322,9 +322,9 @@
           "command": "python3 -c \"import json;print(json.load(open('package.json')).get('scripts',{}).get('test',''))\"",
           "result": "pass",
           "note": "Prints the chain 'npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:e2e' — unchanged from main.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -333,9 +333,9 @@
           "command": "npm test",
           "result": "pass",
           "note": "Exit 0 — no broken proxy reference; the main chain resolves all 4 referenced scripts.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -344,9 +344,9 @@
           "command": "git diff main...HEAD -- 'packages/main/src/tasks/*-smoke.ts' ':(exclude)packages/main/src/tasks/provider-codex-smoke.ts' ':(exclude)packages/main/src/tasks/reviewer-quorum-smoke.ts' | wc -l",
           "result": "pass",
           "note": "Returns 0 — three-dot diff over `*-smoke.ts` excluding the two scope-ack'd files (provider-codex-smoke.ts and reviewer-quorum-smoke.ts, which only had stale `Run:` comments updated per concept review F-010). All other task source files byte-identical.",
-          "headHash": "9f29ae7112fc9ea0a47a8de0d520b312afc186e3",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:02:58.323Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -355,9 +355,9 @@
           "command": "git diff main...HEAD -- 'scripts/verify-*.mjs' | wc -l",
           "result": "pass",
           "note": "Returns 0 — verify-*.mjs untouched by B-d7c3 (three-dot diff; B-40eb's changes are isolated to main).",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -366,9 +366,9 @@
           "command": "python3 -c \"import json;m=json.load(open('package.json')).get('scripts',{});c=json.load(open('/Users/jek/Documents/Work/Orchestrate/package.json')).get('scripts',{});print(set(k for k in c if not k.startswith('test:')) - set(k for k in m if not k.startswith('test:')))\"",
           "result": "pass",
           "note": "Returns set() — no non-test:* script removed.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -377,9 +377,9 @@
           "command": "python3 -c \"import json,subprocess;a=set(k for k in json.loads(subprocess.check_output(['git','show','main:package.json'],text=True))['scripts'] if k.startswith('verify:'));b=set(k for k in json.load(open('package.json'))['scripts'] if k.startswith('verify:'));print('REMOVED:'+str(sorted(a-b)))\"",
           "result": "pass",
           "note": "Prints REMOVED:[] — zero verify:* npm scripts removed between main and HEAD (correct dimension: package.json key set comparison, not file diffs). B-d7c3 only touched test:* scripts; verify:* gates untouched.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         }
       ]
     },
@@ -458,9 +458,9 @@
           "command": "npm run test:legacy -- gitroot-cwd-contract",
           "result": "pass",
           "note": "Exit 0 + 'PASS gitroot-cwd-contract' + '1/1 passed in <ms>'.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -469,9 +469,9 @@
           "command": "git diff main...HEAD --name-only -- docs CLAUDE.md AGENTS.md",
           "result": "pass",
           "note": "Prints empty (only README.md edited; CLAUDE.md / AGENTS.md / docs/* untouched). The pre-existing test:X-smoke references in docs/requirements/decisions/*.md are historical content (decision docs are blocked path) and were intentionally left.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -480,9 +480,9 @@
           "command": "git diff main -- CHANGELOG.md | grep -cE '\\+.*test:legacy|\\+.*smoke-manifest|\\+.*removed.*test:.*-smoke'",
           "result": "pass",
           "note": "Returns >=1 — CHANGELOG.md Unreleased entry documents B-d7c3 collapse with test:legacy migration commands, smoke-manifest growth (5->139), and removed per-smoke scripts.",
-          "headHash": "e7ec41cd65deed05f499867933b66383a6104374",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:09:42.261Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -491,9 +491,9 @@
           "command": "npm run test:legacy -- ZZZ_NONEXISTENT",
           "result": "pass",
           "note": "Exit 0 with '0 smokes matched filters' — graceful, no crash.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -502,9 +502,9 @@
           "command": "npm run test:legacy",
           "result": "pass",
           "note": "Exit 0 with '0 smokes matched filters (tag=* select=)' — runner treats empty select as no filter; user invokes without args.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -513,9 +513,9 @@
           "command": "python3 -c \"import json;print(json.load(open('package.json')).get('scripts',{}).get('test:legacy','MISSING'))\"",
           "result": "pass",
           "note": "Prints 'node packages/main/dist/tasks/run-all-smokes.js --select' — shim wired in root package.json.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -524,9 +524,9 @@
           "command": "git diff main -- docs/requirements/decisions | wc -l",
           "result": "pass",
           "note": "Returns 0 — decision docs untouched.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -535,9 +535,9 @@
           "command": "git diff main...HEAD -- AGENTS.md | wc -l",
           "result": "pass",
           "note": "Returns 0 — AGENTS.md byte-identical (only README.md changed in active root docs).",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -546,9 +546,9 @@
           "command": "git diff main...HEAD -- 'scripts/verify-*.mjs' | wc -l",
           "result": "pass",
           "note": "Returns 0 — verify-*.mjs untouched by B-d7c3 (three-dot).",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -557,9 +557,9 @@
           "command": "python3 -c \"import json;p=json.load(open('packages/main/package.json'));print('test:legacy' in p.get('scripts',{}))\"",
           "result": "pass",
           "note": "Returns False — test:legacy script lives only in root package.json, not packages/main.",
-          "headHash": "5d0e53f830bf44873a5452558652b47f6ea3d5ef",
-          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
-          "timestamp": "2026-06-17T13:17:18.707Z"
+          "headHash": "edb09d8a296e3818719f9d401d35bfdc8bbefcbe",
+          "materialHash": "b688d9efe327f710c33117e8c597e68486e4e027b45547316d883aef6128d284",
+          "timestamp": "2026-06-17T13:23:39.152Z"
         }
       ]
     }
