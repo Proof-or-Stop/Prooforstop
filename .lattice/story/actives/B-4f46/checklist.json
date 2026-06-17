@@ -184,8 +184,8 @@
       "title": "Smoke + npm script + no regression (back-compat, gate-exclusion, migration, signal enrichment)",
       "context": "tasks/experience-layer-finding-enums-smoke.ts + package.json test:experience-layer-finding-enums. Assert: optional capture + enum validation; legacy finding without fields unchanged (migration tolerance); audit fields NOT read by advisory.ts gate decision; signature-registry propose/approve/alias/mergedInto; finding-signals now produces non-zero signalScore when enums present. No regression in existing finding/usage-ledger smokes.",
       "userSees": "npm run test:experience-layer-finding-enums exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing finding-related smokes still pass.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T12:24:48.512Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
