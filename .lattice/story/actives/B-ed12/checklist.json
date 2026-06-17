@@ -254,6 +254,17 @@
           "headHash": "b1c8a988ba278b9611ad337b42772090b67ca82d",
           "materialHash": "84f697420a2848bb134e9b2bfca08780bf8907f10e06926285de21d3b506d0e8",
           "timestamp": "2026-06-17T20:33:59.135Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+          "command": "git diff -- packages/main/src/tasks/english-open-source-surface-smoke.ts",
+          "result": "pass",
+          "note": "git diff confirms ONLY allowlist data arrays + comments added (CJK detector, scan set, isFileAllowlisted/isAllowlistedLine/scanFile logic all unchanged). Zero production files edited (git status: only the 2 smoke .ts). Sibling CHK-001 done-preflight-smoke.ts assertions untouched (git diff --stat empty). usage-ledger byte-estimation assertion remains meaningful (exact ==3).",
+          "headHash": "9f0573e8d86c70dedd79fc4f3e92c2c3a4bade43",
+          "materialHash": "84f697420a2848bb134e9b2bfca08780bf8907f10e06926285de21d3b506d0e8",
+          "timestamp": "2026-06-17T20:34:05.549Z"
         }
       ]
     },
