@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2d6c",
+  "mode": "feature",
+  "allowed": [
+    "CHANGELOG.md (Unreleased entry + retire B-c6cf waiver note)",
+    "packages/main/smoke-manifest.json (only for raising lattice-baseline timeoutMs if it is the chosen remedy for the TIMEOUT)",
+    "packages/main/src/tasks/*-smoke.ts (assertion realignment for any failing smoke)",
+    "scripts/verify-*.mjs (if a verify script is one of the failing smokes; same realign-only rule)"
+  ],
+  "excluded": [
+    ".c8rc.json (B-c6cf frozen)",
+    "If a smoke failure roots in real production regression: file finding, leave smoke as-is, split to follow-up story",
+    "package.json (no new test:* scripts)",
+    "packages/main/src/!(tasks)/**/* (production code is NEVER modified by this story)",
+    "packages/main/src/tasks/cli-e2e.ts (B-d7c3 frozen)",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts (B-6efb self-smoke — frozen)",
+    "packages/main/src/tasks/run-all-smokes.ts (B-6efb runner — frozen)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User picked option (a) one big batch story on 2026-06-17. Scope is intentionally 'tests only' — production stays untouched. Production-rooted regressions get filed as findings and deferred.",
+  "createdAt": "2026-06-17T18:09:26.876Z",
+  "updatedAt": "2026-06-17T18:09:26.876Z",
+  "_hash": "f6dd26a602026c1d796586c5666f15d100ac70d1a6f7282633d3509c5c48ee33"
+}
