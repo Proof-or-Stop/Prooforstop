@@ -152,9 +152,9 @@
       "title": "Smoke + npm script + no regression",
       "context": "tasks/experience-layer-hint-injection-smoke.ts + package.json test:experience-layer-hint-injection. Hermetic. Assert: loader ranking/filter/top-N/progressive-disclosure; advisory section present/absent correctly; usage event written; promptHash guardrail; zero outward imports; build clean; existing experience-layer + story-review smokes still pass.",
       "userSees": "npm run test:experience-layer-hint-injection exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T13:28:49.397Z",
-      "endTime": null,
+      "endTime": "2026-06-17T13:31:53.330Z",
       "verificationIntent": {
         "happy": [
           {
