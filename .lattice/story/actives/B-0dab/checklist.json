@@ -356,6 +356,16 @@
           "headHash": "1585285fcee4aa6dce5b5066b15f51717fbddc9a",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:00:50.890Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-koala-residue.mjs --self-test",
+          "result": "pass",
+          "note": "Verified pass on current worktree: prints PASS 5/5, exits 0",
+          "headHash": "16125147676772ea9916a0522fb42f08bd602013",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:50.671Z"
         }
       ]
     }
