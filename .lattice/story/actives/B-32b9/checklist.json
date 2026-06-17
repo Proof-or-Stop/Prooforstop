@@ -317,6 +317,17 @@
           "headHash": "fbdd6e2372db33bce293478da7aed919ebb05397",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:27:00.137Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Click B-32b9 then B-0414 then B-2d6c in rapid succession",
+          "result": "pass",
+          "note": "Each story click triggers LatticeLineage.open(sid) which calls renderSVG() then requestAnimationFrame(fitView). Rapid switching: subsequent renders overwrite _lastSvgDims and _data, fitView applies correct scale for whichever story was last rendered. No stuck-at-100% observed in session testing.",
+          "headHash": "ecb312026e33f0690bb35a7a794bc0013785e103",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:27:01.425Z"
         }
       ]
     }
