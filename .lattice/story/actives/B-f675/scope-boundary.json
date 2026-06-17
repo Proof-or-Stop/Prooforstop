@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f675",
+  "mode": "feature",
+  "allowed": [
+    "Advisory block in the round>=2 story_advance REVIEW output listing which reviewers' scope changed and noting the round-2+ gate only needs >=1 valid receipt, so the operator may run informed targeted re-review (framework skips nobody)",
+    "Read-only helper + lattice review_incremental_context CLI returning a reviewer's prior verdict, scopeChanged boolean, and the diff since its last-pass headHash (full diff fallback when no prior pass), reusing existing review-run headHash + evidence-freshness git-diff helpers",
+    "Tests asserting canPassReviewGuard semantics are unchanged plus CLAUDE.md documentation of the real gate behavior and the targeted re-review guidance"
+  ],
+  "excluded": [
+    "Anything not explicitly enumerated in the allowed scope above is out of scope for this story (the detailed out-of-scope rationale lives in the description and background)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User compared variants, learned of the round-2+ gate leniency from the INIT review, and explicitly chose the merged option 2: incremental-context helper + round-2+ informed targeted re-review guidance, with the gate unchanged and the framework never skipping a reviewer.",
+  "createdAt": "2026-06-17T00:44:14.790Z",
+  "updatedAt": "2026-06-17T00:44:14.790Z",
+  "_hash": "5e63ee6e742e88ac53afcfe76c32240118f98a5e82176c73f3aaf160359067e0"
+}

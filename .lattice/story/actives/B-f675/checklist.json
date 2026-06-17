@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Read-only incremental-context + scope-change helper (prior verdict + diff since reviewer's last-pass headHash)",
+      "context": "For a given (storyId, reviewer role), resolve that reviewer's most recent prior verdict (review-passes.json / findings.json) and the headHash it was bound to (core/review-run.ts records headHash on each run). Compute the diff between that headHash and current HEAD, reusing the git-diff helpers in core/evidence-freshness.ts (changedFilesBetween) -- use --name-status -M so renames count. Derive a boolean scopeChanged (did any material file change since that pass). If the reviewer has no prior pass, fall back to the full diff main...HEAD with scopeChanged=true. Pure / read-only: no writes, no gate side effects, does not touch canPassReviewGuard.",
+      "userSees": "A unit/smoke run prints, for reviewer X on a story: its prior verdict + bound headHash, scopeChanged=true/false, and the changed-file list since that pass (or 'no prior pass -> full diff' for a first-timer).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "lattice review_incremental_context CLI + round-2+ targeted re-review guidance in the REVIEW-entry output",
+      "context": "Expose the helper as a read-only CLI lattice review_incremental_context --storyId --role=<reviewer> (English-only output: prior verdict, scopeChanged, incremental diff). In handlers/transition-effects.ts, when entering REVIEW for round >= 2, append an advisory block listing which active reviewers' scope changed since their last pass and stating that the gate in round 2+ only requires >=1 valid current-round receipt, so the operator may re-run just the scope-changed reviewers (running review_incremental_context per reviewer) -- making explicit that this is an operator judgement and the framework does not skip anyone. Advisory only; must not change the transition result; must not touch canPassReviewGuard / bindings.",
+      "userSees": "On a round>=2 REVIEW entry the output shows e.g. 'Scope changed since last pass: behavior (src/foo.ts). Round 2+ gate needs >=1 valid receipt; you MAY re-run just the scope-changed reviewers via lattice review_incremental_context --role=<name>. Framework skips nobody; this is your call.'; running the CLI prints that reviewer's prior verdict + incremental diff.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Tests + docs; assert canPassReviewGuard semantics are UNCHANGED and document the real round-2+ behavior",
+      "context": "Add a smoke (packages/main/src/tasks style): (a) returning reviewer gets since-last-pass diff + correct scopeChanged; (b) first-timer gets full diff; (c) ASSERT the gate is unchanged by exercising canPassReviewGuard: Round 1 still blocks unless all opt-in reviewers have valid current-round verdicts + quorum; Round 2+ passes with >=1 valid current-round receipt and blocks on a current-round invalid binding or a blocking finding -- the helper/CLI/advisory change none of this. Wire the smoke into the validate/test chain. Update CLAUDE.md REVIEW section with the ACCURATE gate behavior (Round 1 = all opt-in + quorum; Round 2+ = >=1 valid receipt + no current-round invalid + no blocking), the incremental-context CLI, and the round-2+ informed targeted re-review guidance.",
+      "userSees": "lattice validate stays green with the new smoke; the smoke shows incremental context for a returning reviewer, full diff for a first-timer, and that canPassReviewGuard behaves identically with and without the helper (Round 1 all-opt-in+quorum; Round 2+ >=1 receipt). CLAUDE.md now states the real gate behavior and the targeted re-review guidance.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
