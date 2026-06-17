@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-40eb:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness verified for B-40eb koala branding removal. Grep scope: packages/lab/src, packages/main/src, packages/utils/src, scripts, CLAUDE.md, docs/guide.md. All remaining koala references in active source fall into documented-exception categories: (1) wire-format schema IDs koala.*.v1 — explicit exception; (2) legacy detection/cleanup logic in managed-assets.ts and cli-init.ts including (koala|lattice):start regex, koala-*.md cleanup patterns, .claude/skills/koala removal — explicit exception; (3) pre-existing (unchanged by this story) files such as canonical-story.ts (host: koala-cli / source: koala-story-store wire-format), authority-runner-events-smoke.ts (vendor: koala test fixture), evidence-freshness.ts, lattice-baseline-smoke.ts, gap-log.ts default agent koala-gap-log — these files were not changed by this story and are pre-existing out-of-scope; (4) test assertion fixtures that assert koala is absent or that koala.config.json is ignored; (5) koala-env / koala-override session-source wire labels; (6) legacy runtime paths (.koala, koala-debug.log, koala-tmp). No half-removed or orphaned state found in the 128 files changed by this story. The koala-lab → lattice-lab rename in packages/lab/src was complete (zero brand hits remain except koala-lab/experiment.v1 wire schema). The CLAUDE.md and docs/guide.md prose removals are clean with no dangling references introduced. 0 findings filed.",
+      "createdAt": "2026-06-17T02:24:33.265Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-002",
+      "_hash": "029c92dbe0e3784e0662744acdf72027008328179967cf0f834bf9ced69afbf8"
+    }
+  ]
+}
