@@ -117,7 +117,55 @@
       "userSees": "playbook_approve with a stale digest is rejected with a clear error; with the correct digest it creates a candidate playbook in playbooks.json carrying lineage; no finding is auto-created.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "playbook_approve <proposalId> --expectedProposalDigest <correctDigest> -> candidate Playbook written to playbooks.json with status=candidate, lineage carried from proposal, proposal file cleared; WHY: proves the core approve-with-matching-digest path",
+            "type": "cli"
+          },
+          {
+            "desc": "approved playbook in playbooks.json has status=candidate, NOT active -> assert status field equals candidate; WHY: proves active is never auto-set, requires explicit human approval",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "playbook_approve with stale/wrong expectedProposalDigest -> rejected with clear error mentioning digest mismatch; proposal NOT cleared; no candidate written; WHY: proves fail-closed digest integrity (the core safety property)",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_approve with missing expectedProposalDigest flag -> rejected with clear error; WHY: proves the flag is mandatory, not optional-defaults-to-match",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_approve for non-existent proposalId -> clear not-found error; no side effects; WHY: boundary for missing proposal",
+            "type": "cli"
+          },
+          {
+            "desc": "after successful approve, re-approve same proposalId -> not-found error (proposal already cleared); WHY: proves approve is not idempotent/replayable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "after playbook_approve, assert findings.json byte-identical to before -> approve never calls finding_add; WHY: enforces the guardrail that approve never auto-files findings",
+            "type": "cli"
+          },
+          {
+            "desc": "after playbook_approve, assert no gate was invoked (advisory/gate logs unchanged) -> approve never touches gates; WHY: enforces the guardrail that approve never touches gates",
+            "type": "cli"
+          },
+          {
+            "desc": "four CLI commands (playbook_propose, playbook_diff, playbook_approve, playbook_reject) are registered in command-policy + config + registry + cli-engine with flat underscore names -> grep/import-check confirms registration; WHY: proves CLI wiring is complete and uses correct naming convention",
+            "type": "cli"
+          },
+          {
+            "desc": "candidate playbook lineage fields (sourceStoryId, sourceFindingId, sourceSignature) are all non-empty and match the original finding -> assert each field present and matches source; WHY: proves lineage is faithfully carried through the approve boundary, not dropped or zeroed",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
