@@ -29,6 +29,23 @@
         "packages/main/src/handlers/finding.ts",
         "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts"
       ]
+    },
+    {
+      "id": "B-4f46:F-003",
+      "desc": "CHK-003:adversarial:0,1,2,3 and CHK-003:edge:1 — five must-priority intents have no corresponding smoke check. (1) adversarial:0: approve on a tag that was never proposed — no check; (2) adversarial:1: action=\"DROP_TABLE\" invalid enum — handler validates this but no smoke check asserts it; (3) adversarial:2: self-alias (tag=aliasOf) — no check; (4) adversarial:3: concurrent finding_add with different signatureTags — no check; (5) edge:1: signature_registry_set approve on already-active tag is idempotent — no check. All five evidence records point to npm run test:experience-layer-finding-enums and claim pass, but the smoke contains no named check for any of these behaviors. This is a command-binding mismatch: the evidence command does not literally execute the verification described in the intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:34:58.677Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-004",
+      "_hash": "1574d18548931a2ca61311ede3728e908471b53dc6175ae4ae624588a95328ba",
+      "files": [
+        "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+        "packages/main/src/handlers/signature-registry.ts"
+      ]
     }
   ]
 }
