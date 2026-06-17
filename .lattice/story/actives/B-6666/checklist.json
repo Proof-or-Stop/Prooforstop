@@ -85,6 +85,16 @@
           "headHash": "e66ea6d390878462d4c3691886278ae84b58ea61",
           "materialHash": "17daae82d6429564ff9f4cd63778ccd24c613115987e1a28666872053cf0e9f4",
           "timestamp": "2026-06-17T16:57:21.266Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice validate --story=B-6666",
+          "result": "pass",
+          "note": "done-oracle.ts:304 checkEvidenceFreshness(store,storyId,gitCwd,phase) is the SAME resolved gitCwd buildDoneChecklist threads into the git-status row (readGitStatusLines:gitCwd) — single options.gitCwd?? root source, no second resolveGitCwd, so no split-brain. validate green (ALL PASS).",
+          "headHash": "4ac05161ad95e060d55d589373891197f5acdcdc",
+          "materialHash": "17daae82d6429564ff9f4cd63778ccd24c613115987e1a28666872053cf0e9f4",
+          "timestamp": "2026-06-17T16:57:28.550Z"
         }
       ]
     },
