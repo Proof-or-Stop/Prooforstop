@@ -194,6 +194,22 @@
       "files": [
         "packages/main/package.json"
       ]
+    },
+    {
+      "id": "B-d7c3:F-012",
+      "desc": "CHK-001:happy:1 intent assertion fails: intent states count in range 5-10, actual literal intent command output is 12. Evidence python3 command also returns 12. The assertion range 5-10 does not cover 12. The 12 entries are plausible (6 keep-list + 6 non-smoke suite/contract scripts), but the intent boundary of 10 is too narrow. Evidence result does not satisfy the intent assertion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:41:09.846Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-005",
+      "_hash": "261281692d8cb4f18be946e8f6a8319acb2514b3b5492fe4d689619fd306e0ec",
+      "files": [
+        "packages/main/package.json"
+      ]
     }
   ]
 }
