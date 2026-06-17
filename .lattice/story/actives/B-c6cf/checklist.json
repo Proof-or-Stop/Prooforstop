@@ -105,6 +105,17 @@
           "headHash": "3b37d9a538978d56235a189ac9cbd6297e7eb735",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:07:56.508Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm install --no-save 2>&1 | grep -cE 'error|EBADENGINE'",
+          "result": "pass",
+          "note": "Returns 0 — npm install passes without error/EBADENGINE.",
+          "headHash": "6d1e9a2f517958ffe5154ba5b3332b5df88fd922",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:07:59.202Z"
         }
       ]
     },
