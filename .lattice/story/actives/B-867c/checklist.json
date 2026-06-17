@@ -41,6 +41,16 @@
           "headHash": "3ded509e9b420e5986117a967d6317ad6cc7d213",
           "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
           "timestamp": "2026-06-17T16:36:29.268Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Registry dump lists all 7 with accurate levels/owners: signature_registry_list [L0] handlers/signature-registry, playbook_diff [L0] handlers/playbook, recall [L0] handlers/recall (3 read-only); signature_registry_set [L2] handlers/signature-registry, playbook_propose/playbook_approve/playbook_reject [L2] handlers/playbook (4 mutating). None has gateConsumer — verified against each handler (lists/renders are read-only; .lattice/learning writes have no gate reader).",
+          "headHash": "27fc5b1121e8bf87253ef1cb40bedd66e980ec58",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:36:36.065Z"
         }
       ]
     },
