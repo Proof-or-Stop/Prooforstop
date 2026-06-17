@@ -39,7 +39,30 @@
       "userSees": "On a wrapper-root project, evidence-freshness / authority-receipt material hashes resolve correctly (not undefined) because the git probes run from the gitRoot; plain repos unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture, evidence-freshness git probes (currentGitHead/currentMaterialHash via checkEvidenceFreshnessForGit) return defined hashes instead of undefined after the resolved gitCwd is threaded into the probes (caller boundary or gitCwd param), so the done-path evidence-freshness row is computed against the real gitRoot",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo, currentGitHead/currentMaterialHash/changedFilesBetween results are byte-identical before/after (root fallback)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The done-path evidence-freshness caller (buildDoneChecklist:280 checkEvidenceFreshness) receives the SAME resolved gitCwd as the git-status row (no split-brain between the two done-oracle git reads); validate green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
