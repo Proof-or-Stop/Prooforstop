@@ -53,6 +53,17 @@
           "headHash": "3c6aa1bc354e95022540a6320ed40e8ecb3b7df6",
           "materialHash": "2d0a58448e587eb43f42b1539beeec2b553521b62a15fb00992d698704450cf9",
           "timestamp": "2026-06-17T20:12:05.647Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "standalone EXIT=0; adversarial/no-bypass = B-72df scoped dirty-main DONE check. Dirty README outside merge-affected set tolerated by scoped preflight, merge fails, and the test asserts NO BYPASS: main story stays TEST, main HEAD unchanged, worktree+branch survive (recoverable). No safety assertion weakened",
+          "headHash": "b819dd45cb97efb10c32f5f8423d869cfa68aab2",
+          "materialHash": "2d0a58448e587eb43f42b1539beeec2b553521b62a15fb00992d698704450cf9",
+          "timestamp": "2026-06-17T20:12:11.694Z"
         }
       ]
     },
