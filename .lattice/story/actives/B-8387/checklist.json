@@ -7,7 +7,51 @@
       "userSees": "Build clean; the smoke round-trips a proposal and a playbook through learning-store; proposalDigest = digestCanonicalJson(proposal domain).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "learningStore.writeProposal(validProposal) -> file created at proposals/<id>.json with all fields; readProposal(id) returns identical object; WHY: round-trip persistence proves atomicity and field fidelity",
+            "type": "cli"
+          },
+          {
+            "desc": "computeProposalDigest(proposal) -> returns a stable hex string; calling twice with same input yields identical digest; WHY: proves determinism which is prerequisite for fail-closed approve",
+            "type": "cli"
+          },
+          {
+            "desc": "learningStore.writePlaybook(candidatePlaybook) -> written to playbooks.json; readPlaybooks() includes it with status=candidate and usage counters at zero; WHY: proves playbook persistence path separate from proposals",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "computeProposalDigest excludes the proposalDigest field itself from hash input -> digest of proposal-with-digest equals digest of proposal-without-digest; WHY: prevents circular dependency in digest computation",
+            "type": "cli"
+          },
+          {
+            "desc": "writeProposal with id containing path-traversal characters (e.g. ../etc/passwd) -> either sanitized or rejected, never writes outside proposals/; WHY: path traversal safety",
+            "type": "cli"
+          },
+          {
+            "desc": "readProposal for non-existent id -> returns null or throws clear not-found error (not crash); WHY: boundary for missing data",
+            "type": "cli"
+          },
+          {
+            "desc": "readPlaybooks on empty/missing playbooks.json -> returns empty array, not crash; WHY: cold-start resilience",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "import analysis of learning-store.ts and experience-layer-types.ts -> zero imports from handlers/, findings, gates, or any module outside core/digest.js; WHY: enforces the import-fence guardrail non-vacuously",
+            "type": "cli"
+          },
+          {
+            "desc": "writeProposal called concurrently with same id -> last-write-wins or atomic error, never corrupted JSON; WHY: concurrent write safety",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
