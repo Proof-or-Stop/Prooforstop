@@ -232,13 +232,13 @@
         },
         {
           "intentRef": "CHK-003:happy:1",
-          "kind": "manual_transcript",
-          "command": "npm run build",
+          "kind": "integration_test",
+          "command": "npm run build && node packages/main/dist/tasks/cli-engine-branding-smoke.js",
           "result": "pass",
-          "note": "main 源码改名后 build 退出 0,无编译错误",
-          "headHash": "fe9620a0dbe889970d0bbf05132000476dc86569",
+          "note": "build 退出 0 且编译产物经 cli-engine-branding-smoke 断言 PASS(unclassified=0),证明 main 源码改名无编译错误且分类正确",
+          "headHash": "7eb2c3f37ce73a745776d2a44d427930907a2c52",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:12.605Z"
+          "timestamp": "2026-06-17T02:16:06.067Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
