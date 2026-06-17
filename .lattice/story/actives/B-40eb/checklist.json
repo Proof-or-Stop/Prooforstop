@@ -465,12 +465,12 @@
         {
           "intentRef": "CHK-006:happy:0",
           "kind": "manual_transcript",
-          "command": "git grep -niI koala packages/utils/src packages/utils/package.json CLAUDE.md docs/guide.md (then B-3cca isClassified filter)",
+          "command": "git grep -ni koala CLAUDE.md | perl /tmp/bf2.pl",
           "result": "pass",
-          "note": "All residual koala lines in batch are documented-exception runtime paths (.koala/audit-config.json, .koala-serve.json, .koala/locks, .koala/activity.jsonl) or preserved literals (koala.config.json, koala-lab/experiment.v1 schema). Brand prose/CLI hints/comments/description changed to Lattice. guide.md Koala/Lattice->Lattice; CLAUDE.md dangling docs/koala/reviewer-redesign.md pointer removed (file does not exist).",
-          "headHash": "ec253a2ab0ec8977f36304995ed1723851ea1512",
-          "materialHash": "498d7b1ee01020d8dd333bcd0a0b4fc7e577e7597c94e2b7d6f51eeceffc3f96",
-          "timestamp": "2026-06-16T22:22:56.728Z"
+          "note": "CLAUDE.md 品牌 prose 已清,剩 .koala 运行时路径(documented-exception)",
+          "headHash": "b627c4961f1c14c80944f9dd70a73579cc859ce6",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:15:00.750Z"
         },
         {
           "intentRef": "CHK-006:build",
