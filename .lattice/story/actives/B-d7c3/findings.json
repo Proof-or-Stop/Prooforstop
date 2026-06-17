@@ -210,6 +210,22 @@
       "files": [
         "packages/main/package.json"
       ]
+    },
+    {
+      "id": "B-d7c3:F-013",
+      "desc": "CHK-001:happy:2 literal intent command returns 2, not >= 140. Intent command: node -e \"const m=require(./packages/main/smoke-manifest.json); console.log(Array.isArray(m)?m.length:Object.keys(m).length)\" — the manifest is an object with keys {smokes, version}, so Object.keys(m).length = 2. Evidence uses python3 accessing m[smokes] (returns 139, which passes). The evidence command does not match the literal intent command; the literal intent command fails the >= 140 assertion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:41:16.579Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-005",
+      "_hash": "5c75028e04d4054e8ea9fcbf867d944d2b3e0945d9e13398498c9ffaa9bf9c51",
+      "files": [
+        "packages/main/smoke-manifest.json"
+      ]
     }
   ]
 }
