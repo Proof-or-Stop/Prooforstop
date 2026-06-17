@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-17T01:30:54.337Z",
       "reviewRunId": "B-f675:RR-008",
       "_hash": "9a961835e863df4a94438da558bb04707ce85575769d8d249a9448de0ce5de0d"
+    },
+    {
+      "id": "B-f675:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "F-001 fix reviewed clean: interface JSDoc for isFirstPass/priorVerdict/scopeChanged/priorHeadHash all match the code; CLAUDE.md clarification that scopeChanged===(changedFiles.length>0) only when isFirstPass=false is accurate; smoke case (e) genuinely asserts sub-case-b (prior verdict non-null, headHash empty-string forces null via falsy guard, isFirstPass=true). No dead code, no as-any, no empty-catch, no shell isolation violations.",
+      "createdAt": "2026-06-17T01:33:06.810Z",
+      "reviewRound": "2026-06-17T01:30:54.337Z",
+      "reviewRunId": "B-f675:RR-007",
+      "_hash": "f7c72d832dbabbc60b037c73ceba930c3bd77a02f81d586c21a0a14f348708c0"
     }
   ]
 }
