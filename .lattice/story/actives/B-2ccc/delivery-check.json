@@ -1,0 +1,50 @@
+{
+  "storyId": "B-2ccc",
+  "checkedAt": "2026-06-17T14:37:36.867Z",
+  "reviewRound": "2026-06-17T14:29:15.897Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-2ccc/plan.md#CHK-001",
+      "promise": "New packages/main/src/core/digest.ts created as a leaf module exporting Digestable, canonicalJson, digestCanonicalJson, digestText, importing only node:crypto; digit values byte-identical to pre-refactor inline definitions",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/digest.ts added in diff (46 lines); imports only node:crypto; exports canonicalJson, digestCanonicalJson, digestText, Digestable type; normalizeJson is private; smoke pinned-hash checks pass 5/5 (PASS 22/22)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2ccc/plan.md#CHK-002",
+      "promise": "decision-doc-promotion.ts refactored to import digest primitives from ../core/digest.js; local definitions of canonicalJson/digestCanonicalJson/digestText/normalizeJson removed; createHash import removed; backward-compat re-exports added; computeDecisionDocProposalDigest produces identical values",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows: createHash import removed, import { digestCanonicalJson, digestText } from ../core/digest.js added, export { canonicalJson, digestCanonicalJson, digestText } from ../core/digest.js added, export type { Digestable } from ../core/digest.js added; 35 lines of local function definitions deleted; smoke CHK-002:edge:0 confirms re-exports are functions at runtime; CHK-002:edge:1 confirms Digestable not locally defined; no-local-defs check confirms no createHash reference"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2ccc/plan.md#CHK-003",
+      "promise": "Smoke suite tasks/experience-layer-digest-extract-smoke.ts added with npm script test:experience-layer-digest-extract; exits 0 with smoke passed; verifier TOTAL 28 | PASS 28 | FAIL 0; no regression in decision-doc-promotion and experience-layer smokes",
+      "status": "verified",
+      "verifiedBy": "real-machine test execution",
+      "evidence": "npm --prefix packages/main run test:experience-layer-digest-extract produced TOTAL 22 | PASS 22 | FAIL 0 and smoke passed; node packages/main/dist/tasks/decision-doc-promotion-smoke.js printed decision doc promotion smoke passed (9 checks); verify-b-2ccc.mjs from worktree root printed TOTAL 28 | PASS 28 | FAIL 0 (all buildOk/digestSmoke/noRegression/ddSmoke/sigSmoke/digestLeaf/decisionImportsDigest/noLocalDefs/pkgScript=true); package.json test:experience-layer-digest-extract script confirmed in diff"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:experience-layer-digest-extract: 22/22 PASS. Pinned checks: canonicalJson(obj) exact match, digestCanonicalJson(obj) pre-refactor sha256 match, canonicalJson(str) JSON-encodes with quotes, digestCanonicalJson(str) pre-refactor sha256 match, digestText(str) pre-refactor sha256 match. Edge: undefined-valued keys omitted, empty object deterministic (pinned sha256), digestText empty string (pinned sha256). Adversarial: 100-level deep nesting no crash and deterministic. Order-independent: digestCanonicalJson({a,b})==digestCanonicalJson({b,a}). Distinct: digestText(x)!=digestCanonicalJson(x). Import-fence: only node:crypto, scan non-vacuous. No-local-defs: decision-doc-promotion imports from ../core/digest.js, no local definitions, no createHash reference."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Covered by experience-layer-digest-extract-smoke.ts checks: CHK-002:edge:0 (re-exports canonicalJson/digestCanonicalJson/digestText as functions from compiled dist/handlers/decision-doc-promotion.js), CHK-002:edge:1 (Digestable not locally defined). proposal-digest check confirms computeDecisionDocProposalDigest stable (pinned value 0de71653afa54c4fa623cebb6cba496f18ad6336cb72daadfe6bcd8af7d9634e). All pass. decision-doc-promotion-smoke.js also confirms 9/9 checks pass including stale digest detection."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "verify-b-2ccc.mjs from worktree root: TOTAL 28 | PASS 28 | FAIL 0 (buildOk=true digestSmoke=true noRegression=true ddSmoke=true sigSmoke=true digestLeaf=true decisionImportsDigest=true noLocalDefs=true pkgScript=true). npm run test:experience-layer-digest-extract: smoke passed. Regression smokes covered: decision-doc-promotion (9 checks), decision-doc-quorum, experience-layer-finding-signals, experience-layer-finding-enums, experience-layer-hint-injection all pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 documented promises (CHK-001 leaf module creation, CHK-002 import refactor with backward-compat re-exports, CHK-003 smoke+regression) are verified by real machine execution: 22/22 smoke checks pass with pinned pre-refactor sha256 hashes confirming byte-identical behaviour; verify-b-2ccc.mjs reports TOTAL 28 | PASS 28 | FAIL 0 from the worktree root; no TODOs/FIXMEs in delivered code."
+  },
+  "_hash": "7b9e293264127a2a74913247a35c0094698a939b3395879d801b8a7a923d9eee"
+}
