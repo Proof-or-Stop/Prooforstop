@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-7561:F-001",
+      "desc": "CHK-003 userSees promises `recall --story <id>` prints a ranked top-N list, but the CLI schema in packages/main/src/cli-engine.ts:1763-1767 only registers --storyId (not --story). Running `lattice recall --story B-7561` silently drops the flag and returns the usage message instead of results. The handler (handlers/recall.ts:136) does `args.storyId ?? args.story` but the CLI arg parser never populates args.story because the schema has no `story` field. The smoke test bypasses this by calling h.recall({storyId:...}) directly. Fix: add `story: z.string().optional()` alias in the recall schema in cli-engine.ts, or rename storyId to story to match the documented flag name.",
+      "severity": "high",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T15:59:39.027Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-002",
+      "_hash": "690de36d55f63d7d08530526bba8db30c6579d35c610ca0e30de965a99271928",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/recall.ts",
+        "packages/main/src/tasks/experience-layer-recall-smoke.ts"
+      ]
+    }
+  ]
+}
