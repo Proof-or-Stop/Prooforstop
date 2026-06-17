@@ -186,7 +186,55 @@
       "userSees": "npm run test:experience-layer-finding-enums exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing finding-related smokes still pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run test:experience-layer-finding-enums -> exits 0 with output containing smoke passed; WHY: confirms the smoke script exists and passes",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke verifier output shows TOTAL N | PASS N | FAIL 0 -> all assertions pass; WHY: confirms committed verifier reports clean",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts finding-signals produces non-zero signalScore when resolutionType=fixed is present -> signalScore > 0; WHY: confirms signal enrichment from enums",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts legacy finding without any new fields still verifies (migration tolerance) -> passes; WHY: confirms old data is not broken",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts signature-registry propose/approve/alias/mergedInto lifecycle -> all operations succeed in sequence; WHY: end-to-end registry lifecycle coverage",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run existing finding-related smokes (e.g. npm --prefix packages/main run test:finding-verify) -> still pass; WHY: no regression in pre-existing test suite",
+            "type": "cli"
+          },
+          {
+            "desc": "Run existing usage-ledger smoke -> still passes; WHY: no regression from Phase 1b changes",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts enum validation rejects invalid enum values for resolutionType/dismissReasonType/evidenceStrength -> error messages are clear; WHY: confirms enum boundary is exercised in smoke",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke computes advisory gate decision on a finding WITH all audit fields populated vs identical finding with audit fields stripped -> decisions are byte-identical; WHY: THE CRITICAL GUARDRAIL -- proves gate is never influenced by audit-only fields even when they are present",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke passes a finding through finding-verify with audit fields -> signature matches finding without audit fields; WHY: proves signature domain exclusion under real smoke conditions",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
