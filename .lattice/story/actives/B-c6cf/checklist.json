@@ -83,6 +83,17 @@
           "headHash": "16b88ea510a18b6ba8f3a28b556f6101e33aa588",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:07:48.566Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F packages/main/coverage/ .gitignore | wc -l",
+          "result": "pass",
+          "note": "Prints 1 — .gitignore contains 'packages/main/coverage/' entry.",
+          "headHash": "724256b18d8358ca44152799f5fe5db4dca6dafa",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:07:53.550Z"
         }
       ]
     },
