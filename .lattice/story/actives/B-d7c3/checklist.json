@@ -94,6 +94,17 @@
           "headHash": "0483283bd7687cb0206fdeadae13351ba1575c7c",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:00.782Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "python3 -c \"import json;print(len(json.load(open('packages/main/smoke-manifest.json'))['smokes']))\"",
+          "result": "pass",
+          "note": "Returns 139 (5 initial B-6efb entries + 134 collapsed from packages/main).",
+          "headHash": "0d323915af395948c052f3ac36fb30039d65a4e5",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:01.455Z"
         }
       ]
     },
