@@ -1,0 +1,37 @@
+{
+  "storyId": "B-d633",
+  "checkedAt": "2026-06-17T02:14:56.903Z",
+  "reviewRound": "2026-06-17T02:10:38.444Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/handlers/validate-docs-drift.ts#DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST",
+      "promise": "The DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST default is genuinely empty (only the seam comment remains), so the .codex/hooks contradiction class is no longer permanently masked",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD shows the two bridge entries (.codex/hooks, .codex/settings.json) removed and replaced with an explanatory comment. The Set body contains no string literals. The new B-d633 regression in the smoke (no managedAssetAllowlist override, result.status === fail) independently proves the default is empty at runtime."
+    },
+    {
+      "docPath": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts#seam-suppression-case",
+      "promise": "The seam-suppression case still passes (allowlist injection still works) and a new regression asserts the empty default now flags the .codex/hooks contradiction",
+      "verifiedBy": "diff + npm run test:docs-drift-smoke",
+      "evidence": "Diff shows seam case updated to inject managedAssetAllowlist explicitly (result.status pass). New block with no override asserts result.status === fail and managedAssetContradictions contains .codex/hooks entry. Running npm --prefix packages/main run test:docs-drift-smoke produces: docs-drift path+asset smoke passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:docs-drift-smoke → docs-drift path+asset smoke passed. The smoke contains the B-d633 regression: empty default allowlist causes .codex/hooks to be flagged (status=fail, contradiction listed). Gate logic (checkManagedAssetContradiction / GENERATED_MANAGED_ASSET_KINDS / normalizeAssetPath) is untouched per diff inspection."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke run covers CHK-002: seam-suppression case now uses an explicitly-injected managedAssetAllowlist (not the default), assert result.status === pass passes. Smoke output: docs-drift path+asset smoke passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both CHK-001 and CHK-002 delivered: the default allowlist is confirmed empty by diff and by the new regression assertion (empty default flags .codex/hooks); the seam is preserved via explicit injection; smoke is green independently verified by this reviewer. No gate logic touched. No TODOs in diff."
+  },
+  "_hash": "870f2d79c16a7a04b0596e63ba5e8f2d6a47810268bbbe0ecc1e00bbf0eb9dd7"
+}
