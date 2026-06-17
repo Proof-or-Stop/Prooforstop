@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T02:21:13.397Z",
       "reviewRunId": "B-6efb:RR-004",
       "_hash": "b7240a6784b06240163a7c70390b413244bcb130597570aabd831d92d8473dc8"
+    },
+    {
+      "id": "B-6efb:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Re-read run-all-smokes.ts lines 58-127 at commit 36082c108. F-009 fix confirmed: SKIP removed from SmokeResult.status union (now PASS|FAIL|TIMEOUT only), comment documents rationale. F-008 fix confirmed: selectSmokes now builds discoveredSet (Set<string>) and iterates byName.values() for manifest-only extras — Map guarantees unique keys so duplicate manifest names collapse correctly (last-wins at line 113) and each manifest-only name appears exactly once in all. No new issues introduced. Both fixes clean.",
+      "createdAt": "2026-06-17T02:27:24.267Z",
+      "reviewRound": "2026-06-17T02:25:19.700Z",
+      "reviewRunId": "B-6efb:RR-006",
+      "_hash": "5707d865e67a612103d8c7176de0db917c87a8e1f11a453ffdd1127767612b08"
     }
   ]
 }
