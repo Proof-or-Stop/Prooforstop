@@ -53,6 +53,17 @@
           "headHash": "b4793ace677cb7dfe194871986872cbed3d37754",
           "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
           "timestamp": "2026-06-17T17:11:57.013Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "git show 48f01df4a -- packages/main/src/handlers/transition-orchestrator.ts",
+          "result": "pass",
+          "note": "doneGitCwd resolved ONCE at transition-orchestrator (the SAME value used by autoSyncMain:298 + checkMainDivergence:295) and threaded into runDonePreMergeGate(...,doneGitCwd) at :371 — no re-resolution inside the gate chain (preMortem #4). lattice validate --story=B-6666 PASS.",
+          "headHash": "c78af85f244c65ada996a5241b99b267b99b65e7",
+          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
+          "timestamp": "2026-06-17T17:11:57.588Z"
         }
       ]
     },
