@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/handlers/review-preflight.ts"
       ]
+    },
+    {
+      "id": "B-292d:F-002",
+      "desc": "CHK-001:adversarial:1 evidence command returns 1 at re-run, not 0 as claimed. The command `git diff main...HEAD -- packages/main/src/handlers/review-preflight.ts | grep -cE '^-.*ENGLISH_ARTIFACTS_GATE|^-.*channel|^-.*concept|^-.*lint|^-.*docs-drift|^-.*codex-adapter'` matches the removed union type line: `- name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts';` — this line was removed and replaced with the extended 7-member version adding koala-residue. The underlying 6 gates are intact in the new line; no gate logic was removed. But the evidence note claims the command returns 0 when it actually returns 1, contradicting the literal result. Per evidence-must-bind-literal-intent-command rule, a result mismatch on a must-priority intent is a blocker.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T17:48:38.914Z",
+      "reviewRound": "2026-06-17T17:46:03.529Z",
+      "reviewRunId": "B-292d:RR-003",
+      "_hash": "56dbeef2614e9ac879d1f09d98cc38eb716e47dd47e3e6262f17024d04243cc4",
+      "files": [
+        "packages/main/src/handlers/review-preflight.ts"
+      ]
     }
   ]
 }
