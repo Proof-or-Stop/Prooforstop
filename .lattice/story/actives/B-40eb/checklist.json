@@ -307,7 +307,19 @@
           }
         ]
       },
-      "userSees": "branding 规则过滤 scripts 该改项为 0；相关 verify-*.mjs 仍打印 PASS"
+      "userSees": "branding 规则过滤 scripts 该改项为 0；相关 verify-*.mjs 仍打印 PASS",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala scripts | perl /tmp/bf2.pl",
+          "result": "pass",
+          "note": "scripts 品牌残留为 0(剩 legacy alias scanner/dual-accept regex)",
+          "headHash": "b7823d981a6342e94a0741ac04854fb21a75954b",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:16.031Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
