@@ -82,6 +82,22 @@
       "files": [
         "packages/main/smoke-manifest.json"
       ]
+    },
+    {
+      "id": "B-6efb:F-006",
+      "desc": "CHK-003:happy:2 evidence command does not match intent. Intent: `node -e const p=require(./packages/main/package.json); console.log(p.scripts[test:run-all-smokes-smoke])` confirming the npm script value. Evidence command: `test -f packages/main/dist/tasks/run-all-smokes.js` — this only checks the dist artifact exists, completely unrelated to the npm script wiring check. Re-run of intent command confirms script is present and prints `node dist/tasks/run-all-smokes-smoke.js`.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:15:57.921Z",
+      "reviewRound": "2026-06-17T02:10:39.421Z",
+      "reviewRunId": "B-6efb:RR-001",
+      "_hash": "806d8007b5bf4432339df77e8724fcdd8c640e9f27904676aa8bc69a9bed681b",
+      "files": [
+        "packages/main/package.json"
+      ]
     }
   ]
 }
