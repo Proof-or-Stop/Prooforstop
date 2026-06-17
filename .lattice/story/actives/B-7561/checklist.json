@@ -324,10 +324,10 @@
           "file": "packages/main/src/tasks/experience-layer-recall-smoke.ts",
           "command": "npm --prefix packages/main run test:experience-layer-recall",
           "result": "pass",
-          "note": "Smoke: recallSimilarStories most-similar-first over the story_list scan, top-N respected, zero-score dropped, target self excluded, empty candidates -> []; no derived index created.",
-          "headHash": "65aa50cf97261b03895e797c23e823ed2b1683ad",
-          "materialHash": "1b0c0ded17898174fda7a0698bc58bec96967ca3e31a52ae4d2947ab484843ed",
-          "timestamp": "2026-06-17T15:57:10.513Z"
+          "note": "Named check 'CHK-002:adversarial:0 large candidate set ranking': 121 candidates (1 planted best-match + 120 disjoint); recallSimilarStories ranks the best-match #1, positive score, sorted desc.",
+          "headHash": "8cd260e433f91f4cabdbdfa7c603d2f4f2875a46",
+          "materialHash": "0304704535fa6630f8e11b46d4e668857450696e2dbb25ba2f71a9577d6d0d6f",
+          "timestamp": "2026-06-17T16:05:54.637Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
