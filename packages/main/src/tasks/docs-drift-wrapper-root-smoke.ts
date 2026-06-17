@@ -321,8 +321,6 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
       atMetadataRoot.status,
       'SECONDARY: gitRoot vs metadataRoot must produce DIFFERENT docs-drift outcomes (root selection is load-bearing)',
     );
-
-    void gitRoot;
   } finally {
     rmSync(metadataRoot, { recursive: true, force: true });
   }
