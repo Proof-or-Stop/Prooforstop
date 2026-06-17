@@ -47,6 +47,22 @@
       "files": [
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ]
+    },
+    {
+      "id": "B-40eb:F-004",
+      "desc": "CHK-005:adversarial:0 (must) — intent requires demonstrating that deleting a NEUTRAL_TOKEN_PATTERN from cli-engine-branding-smoke.ts causes the smoke to fail, proving the guard test is effective. The evidence runs `node packages/main/dist/tasks/cli-engine-branding-smoke.js` and gets pass — but this only demonstrates the smoke passes with patterns intact. The negative case (delete a pattern, re-run, confirm fail) is described in the note as a theoretical claim (`删 NEUTRAL_TOKEN_PATTERN 会使该 smoke fail`) without actually executing it. The intent explicitly calls for the delete-then-run sequence. Running a passing smoke without performing the destructive mutation does not bind to this adversarial intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:41.127Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "e3b4f453446f08dda78bd54b866192b3fc4825dee103a02e9fca6de27a720035",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
     }
   ]
 }
