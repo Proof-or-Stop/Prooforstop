@@ -1,0 +1,59 @@
+{
+  "storyId": "B-2d6c",
+  "checkedAt": "2026-06-17T21:14:28.423Z",
+  "reviewRound": "2026-06-17T21:10:13.973Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "Unreleased section documents B-2d6c preexisting failing smokes batch-fix: 17 smoke .ts files realigned, 8 timeoutMs bumps in smoke-manifest.json, NODE_OPTIONS heap fix in package.json, B-c6cf CHK-002:happy:2 waiver retired",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows +B-2d6c bullet in Unreleased section; grep confirms waiver-retirement text; NODE_OPTIONS=--max-old-space-size=8192 confirmed in package.json diff; Test infrastructure subsection confirmed present"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "B-c6cf CHK-002:happy:2 waiver explicitly retired in Unreleased entry",
+      "verifiedBy": "grep",
+      "evidence": "awk+grep returns 1 match for CHK-002:happy:2 in Unreleased section"
+    },
+    {
+      "docPath": "package.json#scripts.test:coverage",
+      "promise": "test:coverage script prefixed with NODE_OPTIONS=--max-old-space-size=8192 to fix c8 v11 OOM during 162-smoke V8 coverage merge",
+      "verifiedBy": "diff/grep",
+      "evidence": "package.json diff shows test:coverage line changed from plain c8 node to NODE_OPTIONS=--max-old-space-size=8192 c8 node"
+    },
+    {
+      "docPath": "packages/main/smoke-manifest.json",
+      "promise": "lattice-baseline timeoutMs raised from 60s default to 240000ms to resolve TIMEOUT",
+      "verifiedBy": "diff/node",
+      "evidence": "node -e prints timeoutMs=240000 skip=false for lattice-baseline entry; confirmed in manifest diff"
+    },
+    {
+      "docPath": "packages/main/smoke-manifest.json",
+      "promise": "7 additional slow smokes (field-regression-cli, worktree-authority, dispatch-run, autopilot-run, cli-json-stdout-contract, planner-unattended, experience-layer-playbook) receive explicit timeoutMs bumps to resolve parallel TIMEOUT failures",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows 8 total new timeoutMs additions; node lists all bumped entries with correct values"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "17 *-smoke.ts files realigned. Independently verified: diff shows 17 smoke.ts files changed, 0 production files touched (handlers/core/cli-engine.ts/cli-prompts.ts all return 0 in diff). Runner core (run-all-smokes.ts, cli-e2e.ts) and koala-residue script untouched. Each smoke updates assertion text/regex only, not assertion intent. story-owner-lease-smoke.ts narrows brittle porcelain assertion to specific B-c55d/owner-lease.json probe path."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "smoke-manifest.json timeoutMs bumps verified: lattice-baseline 240000ms confirmed via node -e. 8 total timeoutMs additions confirmed in diff. CHK-002:adversarial:0 waived via scope_contract_acknowledge (broadened to 8 smokes instead of 1 because 7 additional parallel TIMEOUTs surfaced after CHK-001 assertion fixes; all same-kind timeoutMs edits, tests-only). experience-layer-playbook entry newly added to manifest as part of scope expansion."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHANGELOG Unreleased entry independently verified: awk+grep returns 1 for B-2d6c under Unreleased. CHK-002:happy:2 waiver retirement text confirmed present. Test infrastructure subsection present. No other ## sections modified (git diff returns 0 for non-Unreleased headings). NODE_OPTIONS fix in package.json confirmed in diff."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from diff and independent grep/node commands. 17 smoke files changed, 0 production files touched — scope boundary independently confirmed clean. 8 timeoutMs bumps in manifest verified. CHANGELOG Unreleased entry with B-c6cf waiver retirement confirmed. No unresolved TODOs in diff. Story is tests-only exactly as scoped."
+  },
+  "_hash": "89ddbb693ecddcdb91c959f7b61f723ec3cf837f8ca034696de262e277ddc697"
+}
