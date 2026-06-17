@@ -286,6 +286,17 @@
           "headHash": "d6be4784dd3054b1c59ef348fcb02497915957fa",
           "materialHash": "75143b417b285165577629e01ddf2eb721b05aedb2abd094846fb27e09dc5697",
           "timestamp": "2026-06-17T20:28:34.893Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "git diff --stat packages/main/src/tasks",
+          "result": "pass",
+          "note": "No assertion weakened or broadened: every fix updates a drifted regex to the CURRENT production string (e.g. Same gap already exists, Suspected duplicate of story, residuals checked/cleaned, discard stopped, As X reviewing). Safety intents preserved (dedup=1 finding, hard-block exits non-zero, fail-closed phase/branch survive). Zero production file touched (only the 3 *-smoke.ts test files changed).",
+          "headHash": "6c0eb045b2c0e1ef6bfe01ef38c0dd9238e07913",
+          "materialHash": "75143b417b285165577629e01ddf2eb721b05aedb2abd094846fb27e09dc5697",
+          "timestamp": "2026-06-17T20:28:43.229Z"
         }
       ]
     }
