@@ -273,9 +273,9 @@
       "title": "Triage + fix (or escalate) the remaining lifecycle smokes: gap-log, story-create-concurrency, review-pass-discard",
       "context": "These three failed standalone but were not individually root-caused in triage. For EACH: run standalone, read the assertion failure + the production code, and classify — STALE (update the test to current correct behavior) or REAL-REGRESSION (STOP, report as a real finding, do NOT weaken). Most likely stale given the pattern, but confirm — do not assume. Apply the same guardrail (confirm production correctness first; never weaken to pass). Each must pass standalone after a stale-fix, or be escalated with evidence if real.",
       "userSees": "gap-log, story-create-concurrency, review-pass-discard each either PASS standalone (stale-fixed to current behavior) or are escalated as a confirmed real production bug with repro evidence — none silently weakened.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T20:37:40.698Z",
       "verificationIntent": {
         "happy": [
           {
