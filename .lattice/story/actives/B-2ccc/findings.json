@@ -47,6 +47,22 @@
       "files": [
         "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
       ]
+    },
+    {
+      "id": "B-2ccc:F-004",
+      "desc": "CHK-002:edge:1 lacks a verificationEvidence assertion: the intent requires confirming that 'Digestable type is no longer defined in decision-doc-promotion.ts (it comes from core/digest.ts now)'. The smoke check 'no-local-defs' at packages/main/src/tasks/experience-layer-digest-extract-smoke.ts only checks for absence of function definitions (canonicalJson, digestCanonicalJson, digestText, normalizeJson) and absence of createHash, but does not scan for 'type Digestable' or 'Digestable'. The type duplication check specified in the intent is absent. (Note: inspection of decision-doc-promotion.ts confirms Digestable is in fact absent, but no smoke assertion binds this evidence to the intent.)",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T14:21:39.262Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-003",
+      "_hash": "a74e3c006532c2e39826f4be059e03963631de3434cf55a3aecee5f43bb7115b",
+      "files": [
+        "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
+      ]
     }
   ]
 }
