@@ -115,6 +115,16 @@
           "headHash": "3a19903746673f1282902844c3bd05d69099c273",
           "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
           "timestamp": "2026-06-17T16:39:05.235Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npx tsc -p packages/main --noEmit",
+          "result": "pass",
+          "note": "Adversarial guard: the fix is honest registration, not gate relaxation. tsc -p packages/main --noEmit EXIT=0 proves no type regression was introduced to slip past the contract. No DEFAULT_PHASE_TOOLS phase was widened (config.ts unchanged), so no phase allowlist was loosened beyond command-policy allowedPhases; the contract passes solely because CHK-001 registered the 7 real commands in PROCESS_FACT_LEVELS, not because any check was weakened. verify-process-fact-contract.mjs (which lattice validate does NOT run) is the verification-of-record and prints Process fact contract verified at EXIT=0 with 0 failure/drift lines.",
+          "headHash": "255c70ba1ddb7e09ee2a9107af8125a545a2d4d6",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:39:16.285Z"
         }
       ]
     }
