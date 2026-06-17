@@ -4,7 +4,7 @@
   "title": "Story #2: fix the ~25 preexisting failing smokes on main (test:all exit 0)",
   "description": "Update stale assertions across ~25 failing smokes so npm run test:all (and npm run test:coverage) exit 0 cleanly. Production code is NOT touched — only smoke assertion text / regex / enum is realigned to current production output. If a failing smoke is rooted in a real production bug, the implementer files a finding and the bug is split to a follow-up story. Closes the B-c6cf CHK-002:happy:2 waiver.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "test-fix",
@@ -70,6 +70,14 @@
       "branch": "story/B-2d6c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T21:10:13.973Z",
+      "branch": "story/B-2d6c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -77,5 +85,5 @@
     "branch": "story/B-2d6c",
     "createdAt": "2026-06-17T18:14:55.620Z"
   },
-  "currentReviewRound": "2026-06-17T21:05:23.729Z"
+  "currentReviewRound": "2026-06-17T21:10:13.973Z"
 }
