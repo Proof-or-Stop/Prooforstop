@@ -78,7 +78,7 @@
       "desc": "CHK-003:happy:1 evidence command covers only README.md but the intent literal covers docs/ README.md CLAUDE.md AGENTS.md. Evidence command: git grep -nE test:[a-z0-9-]+-smoke -- README.md. Intent command: git grep -nE test:[a-z0-9-]+-smoke -- docs/ README.md CLAUDE.md AGENTS.md (with keep-list filters). Executing the full intent command produces 47 lines of output from docs/requirements/decisions/*.md files containing removed test:X-smoke references. CLAUDE.md and AGENTS.md were not checked by the evidence command. The intent — confirming no removed smoke refs in active tracked doc prose — is not covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T12:31:40.860Z",
@@ -90,7 +90,9 @@
         "CLAUDE.md",
         "AGENTS.md",
         "README.md"
-      ]
+      ],
+      "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
+      "resolvedAt": "2026-06-17T12:37:04.056Z"
     },
     {
       "id": "B-d7c3:F-006",
