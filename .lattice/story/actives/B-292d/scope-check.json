@@ -1,6 +1,6 @@
 {
   "storyId": "B-292d",
-  "checkedAt": "2026-06-17T17:33:58.563Z",
+  "checkedAt": "2026-06-17T17:36:05.649Z",
   "features": [
     {
       "feature": "Wire scripts/verify-koala-residue.mjs as the 7th gate in REVIEW->TEST review-preflight.ts (KOALA_RESIDUE_GATE_LABEL constant + runKoalaResidueGate helper + PreflightGateName union + dispatch entry after docs-drift, before codex-adapter)",
@@ -25,8 +25,8 @@
     },
     {
       "feature": "Decision a3: keep existing test:koala-residue npm test script (two-place coverage, no removal)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
@@ -96,13 +96,13 @@
   ],
   "summary": {
     "total": 13,
-    "covered": 12,
+    "covered": 13,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "8ef9f2a03aa98fda031daa58573e37e5de4956bf6a706f20bcffe19b14d2cebc",
+  "_hash": "495697ba21a080cd43698459d99cc71a79ca24a75e9085f0a0480fb4c38d5030",
   "openQuestions": []
 }
