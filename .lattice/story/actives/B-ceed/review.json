@@ -27,6 +27,24 @@
         }
       ],
       "_hash": "86b67b33226aac9ae47b86a177f0478906d2cec1637132a7a6d2a77512ff3ae4"
+    },
+    {
+      "timestamp": "2026-06-17T22:03:36.898Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add providers/gemini-cli.ts (mirror codex-cli.ts pattern) + Add runCodexRealLeafDispatch + runGeminiRealLeafDispatch + dispatch switch upgrade are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact placement of fallback logging line (in dispatch switch vs warning collector); Whether smoke-manifest.json needs a new entry for provider-gemini-smoke (directory-scan may pick up; verify in DEV)"
+        }
+      ],
+      "_hash": "124bf7a46bc15c8eeef613b0ef8881d5e986d52cf419f7b153d6b0adab88301c"
     }
   ]
 }
