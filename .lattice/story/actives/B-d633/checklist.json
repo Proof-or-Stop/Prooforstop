@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Empty the two bridge entries from DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST (keep the seam + comment)",
+      "context": "In packages/main/src/handlers/validate-docs-drift.ts, remove the '.codex/hooks' and '.codex/settings.json' entries from DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST (lines ~176-188), seeding it empty exactly like DOCS_DRIFT_PATH_ALLOWLIST (keep the exported Set, the doc comment, and the 'each entry MUST carry an inline reason' seam guidance — only the two concrete bridge strings go). Do NOT touch checkManagedAssetContradiction, GENERATED_MANAGED_ASSET_KINDS, normalizeAssetPath, or any gate logic. Verify: building packages/main + running checkManagedAssetContradiction against the real CLAUDE.md with the (now-empty) default allowlist returns 0 contradictions (the real doc is already fixed by B-94ae).",
+      "userSees": "DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST is empty (only the seam/comment remain); the docs-drift gate run against the real current CLAUDE.md still passes (0 managed-asset contradictions), but a re-introduced '不要创建 .codex/hooks' prohibition would now be caught instead of silently allowed.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T02:10:26.430Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update the smoke's 'allowlisted forbidden asset → NOT flagged' assertion to inject an explicit allowlist",
+      "context": "In packages/main/src/tasks/docs-drift-path-drift-smoke.ts, the adversarial case (~lines 243-252) currently proves the seam by relying on the DEFAULT allowlist suppressing '.codex/hooks'. Since the default is now empty, change that case to pass an explicit allowlist (e.g. new Set(['.codex/hooks'])) into checkManagedAssetContradiction, so it still proves 'an allowlisted forbidden generated asset is suppressed' via the seam — without depending on a permanent default entry. Keep the companion positive case (non-allowlisted forbidden generated asset → IS flagged) intact so detection is still proven. Verify the smoke runs green from the build.",
+      "userSees": "`lattice validate` runs the docs-drift smoke green: the seam is still proven (explicitly-allowlisted forbidden asset suppressed) AND detection is still proven (non-allowlisted forbidden generated asset flagged), with no reliance on a permanent real default-allowlist entry.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T02:10:27.774Z"
+    }
+  ]
+}

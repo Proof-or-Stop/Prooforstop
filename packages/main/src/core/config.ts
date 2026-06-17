@@ -188,6 +188,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
   ],
   INIT: [
+    'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set
     'story_update', 'checklist_update',
     'init_check_set', // B-e71f CHK-003: lattice-review-story-init reviewer 在 INIT 阶段写 init-check.json
     'init_check_repair', // B-95d8 CHK-001: 受控 fallback——无 subagent 环境下显式生成签名 init-check.json
@@ -216,6 +217,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
   ],
   DEV: [
+    'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',

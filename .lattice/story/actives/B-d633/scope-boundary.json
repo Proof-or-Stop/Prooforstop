@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d633",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Empty the two now-moot bridge entries from DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST keeping the seam",
+    "Update the one smoke assertion that relied on the default allowlist to inject an explicit allowlist"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to open a small story to resolve the B-94ae+B-a7b0 combination-review finding (dead bridge allowlist masking the gate's flagship detection).",
+  "createdAt": "2026-06-17T02:07:07.491Z",
+  "updatedAt": "2026-06-17T02:07:07.491Z",
+  "_hash": "ec834d7d4500635d1208ca853ad8031e3c94c5ded66df40a86c3fb9626670bd2"
+}
