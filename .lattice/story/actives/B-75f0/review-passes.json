@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T23:23:07.953Z",
       "reviewRunId": "B-75f0:RR-001",
       "_hash": "1f355940f78153bcb76189f4978d3abf1de23a7ec8577105ca575497c2d5fc2c"
+    },
+    {
+      "id": "B-75f0:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001: dispatch resolveGitCwd keyed to record.storyId (from prepareDispatch args or readRecord — real dispatch storyId, never fabricated); no wrong-worktree hazard confirmed. doctor resolveDoctorGitCwd is id-independent (project-level config, correct for project-wide repair ops); adminBase relative-path fixed to use gitCwd as base (correct: --git-common-dir result is relative to cwd). checklist refresh uses resolveStoryGitCwd(args.storyId) — correct storyId. CHK-002: all graceful sites wrap resolveGitCwd/resolveProjectGitCwd in try/catch → projectRoot fallback; inner helpers retain their own undefined/null/[]/unknown catches; no graceful degrade turned into throw. Edge: resolveGitCwd catches all resolver errors and falls back to projectRoot — absent story or missing worktree both safe-fallback to projectRoot, never throw. CHK-003: resolveProjectGitCwd exported, returns projectRoot verbatim when resolveProjectGitRoot returns null (plain repos and no-git dirs byte-identical). CHK-004: all 3 renames are zero-behavior-change — done-effects autoSyncMain receives already-resolved doneGitCwd from transition-orchestrator:276, review-run resolveGitTopLevel receives signedWorkspaceRoot, core/review-run isGitRepository called with signedWorkspaceRoot. No blocking findings.",
+      "createdAt": "2026-06-17T23:26:52.705Z",
+      "reviewRound": "2026-06-17T23:23:07.953Z",
+      "reviewRunId": "B-75f0:RR-004",
+      "_hash": "c66af8d7b337030e94fcbf56645ef5c8664b7dd3eae192bc47f0914d1d493756"
     }
   ]
 }
