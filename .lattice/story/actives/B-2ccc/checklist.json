@@ -70,9 +70,9 @@
       "title": "Refactor decision-doc-promotion.ts to import the digest primitives from core/digest.ts",
       "context": "Replace the inline normalizeJson/canonicalJson/digestCanonicalJson/digestText definitions in handlers/decision-doc-promotion.ts with imports from ../core/digest.js. No behaviour change: computeDecisionDocProposalDigest / digestDecision produce identical values; existing decision-doc proposals stay valid.",
       "userSees": "decision-doc-promotion.ts imports from ../core/digest.js; its existing smoke/behaviour is unchanged; no digest value changes.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T14:10:17.173Z",
-      "endTime": null,
+      "endTime": "2026-06-17T14:11:36.354Z",
       "verificationIntent": {
         "happy": [
           {
