@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8387",
+  "mode": "custom",
+  "allowed": [
+    "Add a smoke task and its npm script",
+    "Add playbook + proposal types and learning-store read/write for playbooks.json and proposals/",
+    "Create handlers/playbook.ts with the propose/diff/approve/reject staged lifecycle and register the CLI"
+  ],
+  "excluded": [
+    "Auto-creating findings or invoking any review gate from a playbook",
+    "Cross-project playbook sharing",
+    "Promoting a playbook to active without explicit human approval",
+    "Surfacing playbooks into reviewer prompts (that is Phase 1.5/later)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 2 playbook lifecycle; user authorized full roadmap on 2026-06-17.",
+  "createdAt": "2026-06-17T14:41:18.510Z",
+  "updatedAt": "2026-06-17T14:41:18.510Z",
+  "_hash": "28b0652642546067655e6853470c3ced63c5e25dea3622554668065cc8c436c8"
+}
