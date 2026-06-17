@@ -289,7 +289,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"console.log(JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json')).smokes.length)\"",
+          "result": "pass",
+          "note": "Manifest parses; reports 6 entries.",
+          "headHash": "53f5d5a45ca1e81ab211fa7b874067f1b64579df",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:09:59.152Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
