@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Fix the real bug, never silence the detector (no re-allowlisting a live site).",
+    "Plain-repo byte-identity is non-negotiable: fall back to root when no gitRoot resolves.",
+    "One site at a time, re-verify the contract green after each (systematic debugging).",
+    "Prioritize the 3 hard failures; everything else is graceful-but-wrong.",
+    "Keep blast radius auditable: each fixed site is removed from the allowlist; the remaining allowlist is honestly split into permanent-benign vs explicitly-tracked-pending."
+  ],
+  "drivers": [
+    "3 deferred sites HARD-FAIL on wrapper-root (same class as the done-oracle DONE false-block already fixed) and must be fixed.",
+    "The contract is now in root npm test (B-99b6) so any regression fails validate immediately.",
+    "Blast radius spans ~16 production files; a per-site systematic approach bounds risk.",
+    "Most call sites lack store/storyId/config in scope, so the resolver must be threaded from callers or the id-independent resolveProjectGitRoot used."
+  ],
+  "options": [
+    {
+      "name": "A: full burndown (chosen)",
+      "pros": [
+        "Shrinks the deferred set to only truly-benign entries",
+        "Fixes all 3 hard failures + graceful sites + lexical renames",
+        "Contract's standing exceptions become honest (benign vs empty pending)"
+      ],
+      "cons": [
+        "Large blast radius (~16 files)",
+        "Requires threading deps through several caller chains"
+      ]
+    },
+    {
+      "name": "B: fix only the 3 hard failures + renames + allowlist split",
+      "pros": [
+        "Minimal blast radius",
+        "Still removes the only crash-class sites"
+      ],
+      "cons": [
+        "Leaves graceful-but-wrong sites in a named pending set (incomplete burndown)"
+      ]
+    },
+    {
+      "name": "C: revert B-6666 contract strengthening",
+      "pros": [
+        "Zero production change"
+      ],
+      "cons": [
+        "Loses the only mechanism that catches this whole bug class — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: full burndown (chosen)",
+  "rationale": "Chosen A because the explicit charter is to burn the deferred list down to only truly-benign entries, and the triage proved the deferred set hides 3 hard wrapper-root failures plus several graceful-but-wrong sites. A is executed with the systematic one-site-at-a-time guardrail (rebuild + contract-smoke after each) which bounds the large blast radius, and falls back to B (3 hard failures + renames + allowlist split, graceful sites become a clearly-named tracked pending set with a B-id) ONLY if blast radius proves unsafe — never leaving the contract red or a hard-failure unfixed. C is rejected outright.",
+  "preMortem": [
+    {
+      "scenario": "An implementer silences a still-broken site by re-adding it to the allowlist instead of threading the resolver, making the contract green while the wrapper-root bug persists.",
+      "trigger": "Contract goes red after a partial fix and the fastest path back to green is re-allowlisting.",
+      "consequence": "The exact anti-pattern this whole effort fights returns; the deferred set never actually shrinks.",
+      "mitigation": "Hard rule in every implementer prompt + reviewer check: a site is removed from the allowlist ONLY after resolveGitCwd/resolveProjectGitRoot is threaded; re-allowlisting a real site is a critical finding. The pending set must end EMPTY (or hold only explicitly-tracked-with-B-id follow-ups)."
+    },
+    {
+      "scenario": "Threading the resolver changes the cwd on a PLAIN repo (projectRoot==gitRoot), breaking previously-working behavior.",
+      "trigger": "resolveGitCwd/resolveProjectGitRoot returns something other than the original root, or a fallback path is missed.",
+      "consequence": "Regression on the common (plain-repo) case — far more users than wrapper-root.",
+      "mitigation": "resolveGitCwd already returns projectRoot when unresolved; resolveProjectGitRoot returns null → caller MUST `?? root`. Every site keeps an explicit root fallback; reviewers verify plain-repo byte-identity; the contract self-tests + repo scan stay green."
+    },
+    {
+      "scenario": "A caller chain lacks store/storyId/config, so the implementer fabricates a wrong storyId or skips resolution, silently resolving to the wrong worktree.",
+      "trigger": "A helper only has `root` and the implementer wants to use the storyId-keyed resolveGitCwd anyway.",
+      "consequence": "Wrong-worktree git operations (e.g. doctor --repair removing the wrong worktree) — worse than the original bug.",
+      "mitigation": "Use the id-independent resolveProjectGitRoot for no-storyId/project-level scans; only use resolveGitCwd where a REAL store+storyId is genuinely in scope at the caller. Thread deps from the caller, never invent an id. Wrapper-root regressions assert the resolved cwd is the gitRoot, not a guessed path."
+    },
+    {
+      "scenario": "The allowlist split mislabels a still-unfixed real site as permanent-benign, hiding it forever.",
+      "trigger": "Sorting 28 entries into benign vs pending under time pressure.",
+      "consequence": "A real wrapper-root bug is permanently masked under the benign rationale.",
+      "mitigation": "Each BENIGN_BOOTSTRAP entry keeps its self-bootstrap/no-story-context rationale; any deferred graceful site goes in a clearly-named pending set with a B-id, never silently into benign; reviewer cross-checks every moved entry against whether it was actually fixed."
+    }
+  ],
+  "timestamp": "2026-06-17T22:27:45.203Z"
+}

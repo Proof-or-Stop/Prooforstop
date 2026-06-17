@@ -7,7 +7,30 @@
       "userSees": "On a wrapper-root project, `lattice dispatch` worktree create/remove, `verification_evidence_refresh`, and `lattice doctor --repair` all WORK (no throw / no fail) instead of running git from the non-git metadataRoot; a wrapper-root regression for each is green; plain repos are byte-identical.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture (metadataRoot != gitRoot), lattice-dispatch worktree create/remove, checklist verification_evidence_refresh, and doctor --repair run git from the resolved gitRoot and succeed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo (projectRoot == gitRoot) every one of the 3 sites runs git from the exact same directory as before — byte-identical fallback to root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A re-introduced bare-root git cwd at any of the 3 sites is caught by the gitroot-cwd-contract-smoke (exit 1), and removing a site from the allowlist while still bare keeps the contract red",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
