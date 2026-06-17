@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-75f0",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Fall back to root when no gitRoot resolves so plain repos (projectRoot==gitCwd) stay byte-identical",
+    "Rename the 3 lexical false-positive params projectRoot->gitCwd (done-effects, handlers/review-run, core/review-run) with zero behavior change",
+    "Split DEFERRED_ALLOWLIST_EXACT in gitroot-cwd-contract-smoke.ts into a permanent BENIGN_BOOTSTRAP_ALLOWLIST + an empty pending set; keep the contract green",
+    "Thread an id-independent project git root resolver (export resolveProjectGitRoot/add a public wrapper) into the project-level scans: gap-analyze, story-query, dashboard",
+    "Thread resolveGitCwd (story-keyed) into the 3 hard-failure wrapper-root sites: lattice-dispatch worktree create/remove, checklist verification_evidence_refresh, doctor --repair mutations; add a wrapper-root regression for each",
+    "Thread resolveGitCwd into the graceful-degradation real sites: verifier, lattice-handoff, codex-adapter-checks, touchpoints-fallback, validation-executor, recover-evidence, init-check"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Autonomous driver charter for B-75f0: burn down the B-6666 gitroot-cwd DEFERRED_ALLOWLIST. correctness_fix, no excluded scope; the P5 authority/baseline smokes (sibling B-6745) and process-fact-registry are explicitly out of this story and not in allowedScope.",
+  "createdAt": "2026-06-17T22:21:18.041Z",
+  "updatedAt": "2026-06-17T22:21:18.041Z",
+  "_hash": "9b3459e2f13fac23d3507a0b28178b7f47f11ab3c216992c0bb63ab508a734b1"
+}

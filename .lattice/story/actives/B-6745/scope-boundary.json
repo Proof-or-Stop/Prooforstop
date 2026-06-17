@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6745",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts (rebuild-verify only)",
+    "packages/main/src/tasks/autopilot-authority-smoke.ts",
+    "packages/main/src/tasks/multi-host-authority-smoke.ts"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Test/config-only P5 smoke stabilization; 0 production code change; sibling B-6666/B-75f0 gitroot-cwd burndown explicitly out of scope; P5 keep/flag/extract product decision out of scope.",
+  "createdAt": "2026-06-17T22:24:57.130Z",
+  "updatedAt": "2026-06-17T22:24:57.130Z",
+  "_hash": "f17eab64a1046c77881012875786617ab83210603142a07e00c4c080c39f69d7"
+}
