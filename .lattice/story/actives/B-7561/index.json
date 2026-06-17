@@ -1,0 +1,35 @@
+{
+  "storyId": "B-7561",
+  "name": "experience-layer-phase-3-story-recall",
+  "title": "Experience Layer Phase 3 (final): Story Recall via structured-field similarity over the existing story_list scan — no FTS, no derived index, read-only",
+  "description": "Implement the final Experience Layer slice (Phase 3 / Level 2) from docs/requirements/decisions/lattice-experience-layer-execution-plan.md: a core/story-recall.ts that builds lightweight structured profiles from existing story metadata and scores similarity by structured-field overlap, plus a read-only recall CLI (recall --story <id> / --query). It reuses the existing story_list filesystem scan as the source — NO full-text search, NO derived story-index, NO embedding (the plan's cut-FTS decision). Recall writes nothing and never touches a gate; the recall module keeps zero outward coupling except the story read port. Proven by a smoke covering profile building, similarity ranking + top-N, story_list reuse (no derived index created), read-only behaviour, and no regression. Phase 4 (cross-project aggregation) is future and out of scope.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-06-17T15:33:04.589Z",
+  "startedAt": "2026-06-17T15:33:04.589Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T15:33:04.590Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T15:37:01.689Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7561",
+    "branch": "story/B-7561",
+    "createdAt": "2026-06-17T15:37:00.360Z"
+  }
+}

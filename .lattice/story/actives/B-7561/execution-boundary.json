@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7561",
+  "allowedCommands": [
+    "git *",
+    "node .lattice/story/actives/B-7561/evidence/*.mjs",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-7561/",
+    "packages/main/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/story-recall.ts",
+    "packages/main/src/handlers/recall.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/experience-layer-recall-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 3: story-recall module + read-only recall CLI + smoke; build required.",
+  "createdAt": "2026-06-17T15:33:19.855Z",
+  "updatedAt": "2026-06-17T15:33:19.855Z",
+  "_hash": "a5c5db118343d88900cbb9ab189d8e7d24b4ad7431c0b0c85064056238b3537e"
+}

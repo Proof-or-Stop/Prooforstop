@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "core/story-recall.ts: build story profiles + structured similarity scoring (no FTS)",
+      "context": "experience-layer-types.ts: StoryProfile {storyId,title,type,phase,priority,keywords[],fileKinds[],touchpoints[],riskSignals[],notableFindings[],notableDecisions[],outcome}. core/story-recall.ts: buildStoryProfile(storyMeta) + scoreSimilarity(a,b) using structured-field overlap (Jaccard over keyword/fileKind/touchpoint sets + type/phase match). Pure, deterministic; zero outward imports except experience-layer-types + node:.",
+      "userSees": "Build clean; the smoke asserts scoreSimilarity ranks an overlapping profile above a disjoint one and is symmetric/deterministic.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "recallSimilarStories over the existing story_list scan (reuse, no derived index)",
+      "context": "core/story-recall.ts: recallSimilarStories(targetProfile, candidateProfiles, topN) returns ranked matches with match reasons. The handler feeds it profiles built from the StoryStore enumeration (the existing story_list scan) — NO FTS, NO new derived index. The recall path is read-only.",
+      "userSees": "The smoke seeds several stories, builds profiles via the store enumeration, and asserts recall returns the most-similar story first, respects top-N, and writes nothing.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "handlers/recall.ts CLI (recall --story / --query --top) + registration; read-only",
+      "context": "handlers/recall.ts: `recall --story <id>` profiles that story and prints top-N similar prior stories with match reasons + notable findings/decisions/outcome; `recall --query \"...\"` builds an ad-hoc keyword profile. Reuses the store enumeration; read-only (no writes, no gate). Register via command-policy(readOnly)/config/registry/cli-engine (flat underscore: recall).",
+      "userSees": "`recall --story <id>` prints a ranked top-N list with match reasons; `recall --query \"worker schedule\"` returns keyword-matched stories; no files are written.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke + npm script + no regression",
+      "context": "tasks/experience-layer-recall-smoke.ts + package.json test:experience-layer-recall. Hermetic. Assert: profile building; similarity ranking + top-N; recall reuses story_list scan (no FTS engine / no derived-index file created); read-only (no writes); zero outward coupling (recall module); build clean; existing experience-layer smokes still pass.",
+      "userSees": "npm run test:experience-layer-recall exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
