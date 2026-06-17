@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T11:48:13.696Z",
       "reviewRunId": "B-000c:RR-002",
       "_hash": "42914971cfedca54c6718ed3c952264b5a309461c47123beebdb91c170bf39e1"
+    },
+    {
+      "id": "B-000c:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "All four checklist items verified correct against the code. deriveFindingSignals: localSignature = category|signatureTag??|fileKind|lifecyclePhase (line 120); positive = #fixed + 0.5*#partially_mitigated (lines 150-155); negative = #false_positive (lines 157-159); signalScore = positive/(positive+negative+1) with denominator always >=1 (line 183) — NaN impossible; support = positive+negative (line 191); zero-sample produces signalScore=0. Single-hit (one fixed): positive=1, negative=0, denom=2, signalScore=0.5, support=1 — confirmed. When Phase-1b enums absent, resolutionType/dismissReasonType are undefined so both branches are skipped, leaving positive=0 negative=0, signalScore=0 — conservative degradation confirmed. deriveFindingSignalsFromStore calls store.readFindings(id) (line 246, comment confirms never JSON.parse) and writes via writeFindingSignals from learning-store (line 255). writeFindingSignals uses tmp+rename atomic write; the registry excludes .lattice/learning/* from materialHash so currentMaterialHash is unchanged after cache write. Test suite TOTAL 20 | PASS 20 | FAIL 0. No boundary gaps found.",
+      "createdAt": "2026-06-17T11:49:36.576Z",
+      "reviewRound": "2026-06-17T11:48:13.696Z",
+      "reviewRunId": "B-000c:RR-003",
+      "_hash": "aa407c4b1aa25daebda702102de834a2d641aeb46a00fcabf722f3a47e9add10"
     }
   ]
 }
