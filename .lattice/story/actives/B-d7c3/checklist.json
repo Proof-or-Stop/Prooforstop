@@ -358,6 +358,17 @@
           "headHash": "0c314dc45b8234defc7c82c82d35e424da74c0c9",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:13.165Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "python3 -c \"import json;m=json.load(open('package.json')).get('scripts',{});c=json.load(open('/Users/jek/Documents/Work/Orchestrate/package.json')).get('scripts',{});print(set(k for k in c if not k.startswith('test:')) - set(k for k in m if not k.startswith('test:')))\"",
+          "result": "pass",
+          "note": "Returns set() — no non-test:* script removed.",
+          "headHash": "23730c00240828022df71f9acaaa30e96d154454",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:13.818Z"
         }
       ]
     },
