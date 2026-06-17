@@ -278,6 +278,17 @@
           "headHash": "792c4fa4a470ba8569a641294b7b5502c78a4473",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:55.998Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/REVIEW.*TEST PREFLIGHT/,/EXAMPLES/' packages/main/dist/cli-prompts.js | grep -cE '[0-9]\\.'",
+          "result": "pass",
+          "note": "Returns 7 — rebuilt dist shows updated --help text.",
+          "headHash": "0c57b269e48cc011f46c09b93b1e538b1e9f5dee",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:56.611Z"
         }
       ]
     },
