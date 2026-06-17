@@ -1,0 +1,40 @@
+{
+  "storyId": "B-7561",
+  "checkedAt": "2026-06-17T15:43:01.545Z",
+  "features": [
+    {
+      "feature": "story profiles + structured similarity scoring (no FTS)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null
+    },
+    {
+      "feature": "recallSimilarStories over the story_list scan (no derived index, read-only)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null
+    },
+    {
+      "feature": "read-only recall CLI (recall --story/--query) + registration",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null
+    },
+    {
+      "feature": "smoke + npm script + no regression",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c5903d0096171250400bcebd30698a2104e28d863b964bf79257d9f20e7798ec"
+}
