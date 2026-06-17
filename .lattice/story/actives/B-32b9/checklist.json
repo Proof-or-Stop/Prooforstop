@@ -204,7 +204,20 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-17T19:00:21.514Z"
+      "endTime": "2026-06-17T19:00:21.514Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Click 'behavior review' node in Lineage Graph demo data",
+          "result": "pass",
+          "note": "Demo data: 'behavior review' node (kind=output, meta.note set). Detail panel shows 'REVIEW NOTE' section with text 'Review confirms backward-compat alias emits deprecation warning at correct severity; env precedence order validated.' Screenshot confirmed.",
+          "headHash": "ee351a0209e0f158311f667189382e0f79af43bb",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:02:40.204Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
