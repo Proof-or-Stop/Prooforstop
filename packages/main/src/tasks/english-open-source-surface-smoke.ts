@@ -114,16 +114,19 @@ const ALLOWLIST_TEST_GLOBS: readonly RegExp[] = [
   // Branding-audit smoke: its classifier regexes literally contain legacy
   // Chinese alias markers in order to detect-and-strip them.
   /^packages\/main\/src\/tasks\/cli-engine-branding-smoke\.ts$/,
-  // Docs-drift smoke pins legacy Chinese "do-not-create X or Y" path-drift
-  // assertions; it is the test counterpart of validate-docs-drift.ts above
-  // and must be migrated together with it.
+  // Docs-drift path-parser smoke: its fixtures are Chinese prose ("do not
+  // create X" / "X must not exist") on purpose — the parser under test extracts
+  // forbidden paths from Chinese sentences, so removing the CJK would void it.
   /^packages\/main\/src\/tasks\/docs-drift-path-drift-smoke\.ts$/,
-  // Prompt-token-cost smoke accepts BOTH English and a legacy Chinese
-  // "uncertain" caveat in audit text for backward compatibility.
+  // Prompt-token-cost smoke: asserts the audit caveat matcher accepts the
+  // Chinese caveat marker (the "uncertain" caveat regex) for backward
+  // compatibility; the CJK is the fixture being matched, not stray content.
   /^packages\/main\/src\/tasks\/prompt-token-cost-smoke\.ts$/,
-  // Usage-ledger-estimate smoke uses a Japanese fixture string to verify
-  // multibyte tokenization; the CJK is data, not output.
-  /^packages\/main\/src\/tasks\/usage-ledger-estimate-smoke\.ts$/,
+  // Done-preflight smoke: asserts the genuinely-Chinese B-72df merge-failure
+  // message from done-effects.ts (itself pending-migration, allowlisted below);
+  // the test legitimately must match that Chinese output, so its fixture CJK is
+  // deliberate, not stray content.
+  /^packages\/main\/src\/tasks\/done-preflight-smoke\.ts$/,
 ];
 
 // 3b) Source files NOT covered by the cli-engine English plan / manifest.
@@ -145,20 +148,22 @@ const ALLOWLIST_PENDING_SOURCE_MIGRATION: readonly string[] = [
   'packages/main/src/core/command-policy.ts',
   'packages/main/src/handlers/done-effects.ts',
   'packages/main/src/handlers/test-auto.ts',
+  // Production handler carrying a pending Chinese code COMMENT (the `role` arg
+  // re-validation note references the Handler-conventions doc by its Chinese
+  // heading); deferred to the source-translation follow-up — comment-only, no
+  // behavior change needed.
+  'packages/main/src/handlers/agent-prompt.ts',
+  // Behavior-sensitive: parses forbidden paths out of Chinese doc prose via
+  // regexes that literally contain Chinese path-prohibition phrases ("do not
+  // create X" / "X must not exist" and the Chinese "or" separator). Changing
+  // those regexes risks behavior, so it is deferred to the same coordinated
+  // source-translation follow-up.
+  'packages/main/src/handlers/validate-docs-drift.ts',
   'packages/main/src/handlers/hints.ts',
   'packages/main/src/handlers/phase-gates.ts',
   'packages/main/src/handlers/evaluate.ts',
   'packages/main/src/handlers/verifier.ts',
   'packages/main/src/tasks/extract.ts',
-  // Comment-only Chinese (a "coding convention" tag in a comment); behavior-neutral.
-  // Tracked for the same source-translation follow-up as the rest of this list.
-  'packages/main/src/handlers/agent-prompt.ts',
-  // Behavior-sensitive: validate-docs-drift matches legacy Chinese phrases in
-  // markdown (do-not-create / must-not-exist patterns) in order to detect
-  // path-drift assertions written in Chinese. Subsystem mirrors aux-diagnose
-  // (Chinese-in/Chinese-out) and must be migrated together with its smoke
-  // counterpart below.
-  'packages/main/src/handlers/validate-docs-drift.ts',
   // Behavior-sensitive: aux-diagnose matches Chinese rootCause substrings at
   // runtime (.includes('<zh>')) and returns coupled Chinese advice — a
   // Chinese-in/Chinese-out subsystem that needs a coordinated code+test change.

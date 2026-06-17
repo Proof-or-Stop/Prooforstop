@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2a8d",
+  "changes": "Documentation-only: removed Phase 4 / L4 cross-project aggregation from docs/requirements/decisions/lattice-experience-layer-execution-plan.md. Deleted the L4 Architecture bullet (two-layer localSignature/publicSignature) and the Phase 4 Roadmap bullet; reworded principle 5 + the problem-statement footprint mention + the not-to-do line to per-project-only by design; fixed 'four semantic levels' -> 'three'. Kept the Phase 1 'deterministic local signature' aggregation sentence and all L1/L2/L3 + Phase 1a/1b/1.5/2/3 items. No source code changed.",
+  "usage": "Read docs/requirements/decisions/lattice-experience-layer-execution-plan.md — it now documents per-project-only learning by design (no cross-project tier). Verify: node .lattice/story/actives/B-2a8d/evidence/verify-b-2a8d.mjs.",
+  "expectedOutcome": "The plan doc has no Phase 4 / L4 Cross-project / publicSignature / two-layer / 'cross-project later' / 'four semantic levels' / 'cross-project aggregation in v1'; it states per-project-only by design and 'three semantic levels'; the L1 deterministic-local-signature sentence is intact; L1/L2/L3 + Phase 1a..3 remain. Verifier TOTAL 20 | PASS 20 | FAIL 0.",
+  "actualTranscript": "verifier TOTAL 20 | PASS 20 | FAIL 0 (absencesOk=true presencesOk=true; noPhase4/noL4/noPublicSig/noFourLevels/threeLevels/perProject/localSignature all true). validate 20/20 covered. Reviews: docs/quality/concept PASS; test-coverage PASS + 1 low finding F-001 (two intents lacked dedicated verifier asserts) — resolved by tightening the verifier (structuredFirst + scoped noUnchangedV1) and rebinding those 2 evidence notes; verifier-only change under .lattice (materialHash-excluded), no fresh round needed. 0 open findings. Escalation not required (0/2).",
+  "outcomeDiff": "No difference — Phase 4 removed and per-project-only documented exactly as decided; the one low finding (verifier-assert precision) was resolved.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Documentation/decision-record edit only; no runtime behaviour change. The built Phases 1a-3 were already per-project and are untouched. This records the design decision so no future implementer builds cross-project aggregation as a default.",
+  "pitfalls": "Removing the cross-project tier must NOT remove the Phase 1 'deterministic local signature' aggregation concept (distinct from the two-layer localSignature/publicSignature framing) — keep line 69. A 'no X' absence assert must be scoped: a global !/unchanged from v1.0/ wrongly flagged the legitimate 'core principle is unchanged from v1.0' line; scope it to the Architecture-header phrase. Verifier/evidence edits live under .lattice (materialHash-excluded) so they don't stale review passes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 143730
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10773
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 333625
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 129044
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 394576
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 22843
+    }
+  },
+  "totalDurationMs": 1034592,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T18:21:50.560Z",
+  "updatedAt": "2026-06-17T18:21:50.560Z"
+}

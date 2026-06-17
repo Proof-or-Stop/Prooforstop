@@ -322,7 +322,7 @@ function assertIdenticalGapDeduped(): void {
     // second identical call must report dedup, not a fresh write
     assert.match(out2, /Gap deduped: B-META-framework-audit:F-/,
       'second identical gap_log must report dedup, not a new finding');
-    assert.match(out2, /Same gap already exists.*reusing canonical finding/, 'dedup hint explains the canonical finding was reused');
+    assert.match(out2, /Same gap already exists \(fingerprint hit\), reusing canonical finding/, 'dedup hint explains the canonical finding was reused');
     const findings = readMetaFindings(root).findings;
     assert.equal(findings.length, 1,
       'identical gap logged twice must collapse into ONE canonical finding (B-f60c CHK-003 in-lock dedup)');
@@ -405,7 +405,7 @@ function assertDisprovenRejected(): void {
     // (b) handler runtime layer (Zod bypassed) gives the explicit disproven guidance
     const rtDisproven = callGapLogRaw(root, { ...VALID, evidenceState: 'disproven' });
     assert.equal(rtDisproven.ok, false);
-    assert.match(rtDisproven.message, /disproven counter-evidence please use the finding flow/,
+    assert.match(rtDisproven.message, /for disproven counter-evidence please use the finding flow/,
       'handler runtime must reject disproven with explicit guidance');
 
     // handler runtime also rejects any out-of-enum value

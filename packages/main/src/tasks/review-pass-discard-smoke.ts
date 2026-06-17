@@ -289,7 +289,7 @@ async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
 
     const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke residue cleanup' });
 
-    assert.match(output, /already DISCARDED; residuals checked\/cleaned/);
+    assert.match(output, /is already DISCARDED; residuals checked\/cleaned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -329,11 +329,7 @@ async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
 
     const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke prunable cleanup' });
 
-    // Production no longer emits a dedicated "stale worktree metadata has been
-    // pruned" line — the prune step runs silently and the verifiable side
-    // effects (no worktree registration, no branch, no .worktrees/<id> dir,
-    // phase=DISCARDED, clean git status) are asserted below.
-    assert.match(output, new RegExp(`marked as DISCARDED|discard digest recorded|Worktree .* cleaned up`));
+    assert.match(output, /stale worktree metadata pruned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(existsSync(join(root, '.worktrees', storyId)), false, 'missing worktree dir should stay gone');
@@ -386,10 +382,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
 
     const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke invalid pointer cleanup' });
 
-    // Production no longer emits the legacy "invalid worktree residue has been
-    // cleaned up" hint; the side effects (no residue dir, no branch, phase=
-    // DISCARDED, clean git status) below are what actually verify the cleanup.
-    assert.match(output, new RegExp(`marked as DISCARDED|Worktree .* cleaned up`));
+    assert.match(output, /invalid worktree residue cleaned up/);
     assert.equal(existsSync(worktreePath), false, 'forced invalid pointer cleanup should remove the physical residue dir');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -438,7 +431,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
       reason: 'smoke invalid cwd cleanup',
     });
 
-    assert.match(output, /Worktree .* cleaned up|marked as DISCARDED/);
+    assert.match(output, /invalid worktree residue cleaned up|Worktree .* cleaned up/);
     assert.equal(existsSync(worktreePath), false, 'forced discard from broken worktree cwd should remove the physical residue dir');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -475,8 +468,6 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
     try {
       await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke fail closed' });
     } catch (error) {
-      // Production wording was tightened from "discard has been stopped" to
-      // "discard stopped to avoid leaving half-cleaned state".
       failed = String((error as Error).message).includes('discard stopped');
     }
     assert.equal(failed, true, 'story_discard should fail closed when worktree metadata cannot be removed');
@@ -656,11 +647,8 @@ async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
       itemId: 'CHK-001',
       agentType: 'lattice-review-quality',
     });
-    // Prompt rendering changed: opens with "As lattice-review-<role> reviewing
-    // <storyId> <itemId>:" and the boundary line now reads "Review only; do not
-    // change code, write tests, or update the checklist."
     assert.match(output, /As lattice-review-quality reviewing/, 'reviewer item dispatch should identify reviewer role');
-    assert.match(output, /Review only/, 'reviewer item dispatch should constrain the role to review only');
+    assert.match(output, /Review only; do not change code/, 'reviewer item dispatch should constrain the role to review only');
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');

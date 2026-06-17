@@ -89,7 +89,7 @@ try {
   assert.doesNotMatch(terminalStoryCheck.detail, new RegExp(auditStoryId));
   const emptyParkedBacklogCheck = checkByName(terminalOnly, 'Parked backlog');
   assert.equal(emptyParkedBacklogCheck.passed, true);
-  assert.match(emptyParkedBacklogCheck.detail, /no parked backlog/i);
+  assert.match(emptyParkedBacklogCheck.detail, /No parked backlog/);
   assert.equal(terminalOnly.converged, true);
 
   store.writeStory('B-parked', story('B-parked', 'INIT'));

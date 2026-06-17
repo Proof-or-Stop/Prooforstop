@@ -5,18 +5,166 @@
       "title": "Add a smokes aggregator and wire it into the lattice validate run path",
       "context": "Add a test:smokes (or similar) script that runs the wrapper-root / gitRoot smokes (storydir-inside-gitroot-smoke/suite, gitroot-cwd-routing, bare-gate-gitroot-cwd) and any other currently-orphaned smokes, and make lattice validate execute it (chain into root test, or a validate.command). Decide fast vs --full placement for slower fixture-building smokes.",
       "userSees": "lattice validate runs the wrapper-root smokes (their output appears in the validate run) and a deliberately-broken smoke makes lattice validate fail.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T18:05:18.343Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After wiring, `lattice validate` output lists each newly-gated guard step (process-fact-contract, runtime-fact-contract, evidence-quality, anti-stall, storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root) and exits PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Root npm test chain runs the new guards in addition to the existing ones; no guard is double-listed (gitroot-cwd-contract appears exactly once).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The slow storydir-inside-gitroot-suite (~7s) and the 160-smoke test:all are NOT in the fast gate but remain reachable via the documented full/CI aggregator path.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Newly added root test:evidence-quality alias resolves to scripts/verify-evidence-quality.mjs and runs green.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A guard that is GREEN standalone must also be GREEN (and actually executed, not no-opped) when run inside the chained npm test context (cwd/env parity).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate --story=B-99b6",
+          "result": "pass",
+          "note": "Post-merge refresh: validate output lists all 8 newly-gated guard steps; validate --json (no --story) status=pass allPass=true commands[].code=0. Battery GREEN after git merge main.",
+          "headHash": "e6e451dbe21b1d9605e5bb5b2bf2cc9d92e155a9",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:14.963Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e print scripts.test",
+          "result": "pass",
+          "note": "Post-merge refresh: root test chain has the 8 new entries; gitroot-cwd-contract count=1 (regex verified); npm test exit 0 ALL PASS.",
+          "headHash": "7d562c9ee9bda184700756b72638a5dbd9470cdd",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:15.634Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "print scripts.test + test:smokes-full",
+          "result": "pass",
+          "note": "Post-merge refresh: storydir-inside-gitroot-suite and test:all absent from fast test chain; test:smokes-full alias = npm run test:storydir-inside-gitroot-suite && npm run test:all (full/CI path). Slow suite stays out of fast gate.",
+          "headHash": "312020557d71683bc2f8db097e53b7f318b1a503",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:16.245Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:evidence-quality",
+          "result": "pass",
+          "note": "Post-merge refresh: root alias test:evidence-quality => node scripts/verify-evidence-quality.mjs; green standalone and in chain.",
+          "headHash": "57c7ea70d279fbdb8d22d2e921f3cacbe2d8f1be",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:17.020Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Post-merge refresh: all 8 guards GREEN inside chained npm test context (not no-opped); each emits its own pass line; breaking anti-stall flips validate to status=fail proving in-chain execution.",
+          "headHash": "11078cb9e09a21e7d2b77ef27ffb9c62d6b6e071",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:17.739Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Verify the aggregated smokes run and pass under lattice validate; a regression blocks",
       "context": "Confirm lattice validate (and the CLI gate path) now executes the aggregated smokes green, and add a guard/test proving a smoke failure surfaces as a validate failure (no silent skip). Cross-check no double-run / excessive slowdown.",
       "userSees": "lattice validate GREEN with the smokes included; intentionally breaking one of them turns lattice validate red.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T18:08:52.888Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With all guards passing, `lattice validate --story=B-99b6` is GREEN and the REVIEW->TEST gate (same npm test fallback) passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Cross-check no excessive slowdown: the fast-gate delta from the newly-added guards stays seconds-scale (sum of fast guards ~8s, no 160-smoke run).",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Deliberately breaking ONE wired guard/smoke makes `lattice validate` turn RED with that guard reported as the failing step (no silent skip / no swallowed error); reverting restores GREEN.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate --json",
+          "result": "pass",
+          "note": "Post-merge refresh: validate --json status=pass allPass=true commands[].code=0; REVIEW->TEST gate consumes same validate result so passing chain lets gate pass.",
+          "headHash": "609b1d4e75ab8dbce62b7708d3e389b2bf81e9cf",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:18.456Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "per-guard timing",
+          "result": "pass",
+          "note": "Post-merge refresh: fast-gate delta ~8s (8 fast guards), no 160-smoke run in fast gate; slow suite + test:all behind test:smokes-full.",
+          "headHash": "eb01fa3e8d0a5d892af4323ff1a1c6baf2d51c9b",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:19.603Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "break test:anti-stall -> validate --json -> git restore -> validate --json",
+          "result": "pass",
+          "note": "Post-merge refresh: REGRESSION-BLOCKS PROOF re-confirmed. Reversibly broke test:anti-stall alias (&& exit 1) -> validate --json status=fail allPass=false summary names ✗ package.json test script: npm test (no silent skip, && short-circuits). git restore -> status=pass allPass=true. Break NOT committed; package.json clean. Transcript: evidence/transcript-diff.md.",
+          "headHash": "6030717bbe4c7c8c6bb7e1798ddefdcc4feb755c",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:20.397Z"
+        }
+      ]
     }
   ]
 }

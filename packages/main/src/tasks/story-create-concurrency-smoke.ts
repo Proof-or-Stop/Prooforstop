@@ -303,9 +303,7 @@ async function runDedupScenario(): Promise<void> {
     // Different name (so normalized-name does NOT match), same keyword set.
     const blocked = createStorySync(root, { name: 'kw-dup', keywords: ['auth', 'session'] });
     assert.notEqual(blocked.code, 0, 'keyword full overlap must FAIL the create');
-    // Block hint text was reworded from "suspected duplicate story" to
-     // "Suspected duplicate of story B-<id> (keyword fully overlaps: …)".
-    assert.match(blocked.output, /Suspected duplicate of story/, 'block message names the duplicate');
+    assert.match(blocked.output, /Suspected duplicate of story B-[a-f0-9]+ \(keyword fully overlaps:/, 'block message names the duplicate');
     assert.match(blocked.output, /forceNew/, 'block message points at the forceNew override');
 
     // forceNew:true overrides the block → a new story is created.
@@ -479,7 +477,6 @@ async function runStderrChannelScenario(): Promise<void> {
     assert.equal(second.code, 0, `second create exit\n${second.stdout}\n${second.stderr}`);
     assert.match(second.stdout, /Story B-[a-f0-9]+ created/, 'create conclusion stays on stdout');
     // The keyword-overlap warning must be on stderr ...
-    // Wording reworded: "suspected duplicate story" → "Possibly duplicate story".
     assert.match(
       second.stderr, /Possibly duplicate story \(keyword overlap\)/,
       'keyword-overlap dupWarning must be written to STDERR',
@@ -512,7 +509,7 @@ async function runStderrChannelScenario(): Promise<void> {
     // separately above; assert the stdout-only view is warning-free.
     const stdoutOnlyView = second.stdout;
     assert.doesNotMatch(stdoutOnlyView, /Possibly duplicate story/, '`| tail` (stdout-only) view is warning-free');
-    assert.doesNotMatch(stdoutOnlyView, /within the last 30 minutes/, '`| tail` (stdout-only) view has no concurrency note');
+    assert.doesNotMatch(stdoutOnlyView, /in the last 30 minutes/, '`| tail` (stdout-only) view has no concurrency note');
     assert.match(stdoutOnlyView, /Story B-[a-f0-9]+ created/, '`| tail` still sees the create conclusion');
 
     // 5) G3 — riskHint advisory text lands on STDERR, NOT on STDOUT.
@@ -569,7 +566,7 @@ async function runStderrChannelScenario(): Promise<void> {
     const afterDone = createStorySplit(root, { name: 'stderr-after-done' });
     assert.equal(afterDone.code, 0, `after-done create exit\n${afterDone.stdout}\n${afterDone.stderr}`);
     assert.doesNotMatch(
-      afterDone.stdout + afterDone.stderr, /Also created .* other stories within the last 30 minutes/,
+      afterDone.stdout + afterDone.stderr, /\d+ other stories were also created within the last 30 minutes/,
       'a DONE story within 30 min must NOT count as a concurrent sibling',
     );
 
@@ -593,7 +590,7 @@ async function runStderrChannelScenario(): Promise<void> {
     );
     assert.match(afterCorrupt.stdout, /Story B-[a-f0-9]+ created/, 'create still succeeds despite corrupt sibling');
     assert.doesNotMatch(
-      afterCorrupt.stdout + afterCorrupt.stderr, /Also created .* other stories within the last 30 minutes/,
+      afterCorrupt.stdout + afterCorrupt.stderr, /\d+ other stories were also created within the last 30 minutes/,
       'a story with a malformed createdAt is skipped, never listed',
     );
 

@@ -1,0 +1,23 @@
+{
+  "task": "Remove Phase 4 / L4 cross-project aggregation from the Experience Layer execution-plan doc, making per-project-only learning the documented design; keep the Phase 1 local-signature concept.",
+  "outcome": "grep on docs/requirements/decisions/lattice-experience-layer-execution-plan.md finds no 'L4 Cross-project aggregation', no 'Phase 4', no 'publicSignature', and no two-layer cross-project signature description; principle 5 and the not-to-do line state per-project-only learning by design; the 'four semantic levels' header now reads 'three'; the L1 'aggregated by a deterministic local signature' sentence is unchanged; the L1/L2/L3 bullets and Phase 1a/1b/1.5/2/3 roadmap items remain. The committed verifier prints TOTAL N | PASS N | FAIL 0.",
+  "facts": [
+    "The doc currently has an L4 bullet (line ~78), a Phase 4 roadmap bullet (line ~248), principle 5 'Local first, cross-project later' (line ~57), a 'cross-project footprint' problem-statement mention (line ~21), and a 'no cross-project aggregation in v1' not-to-do line (line ~267)",
+    "The L1 'aggregated by a deterministic local signature' sentence (line ~69) is the Phase 1 aggregation key and MUST stay",
+    "Line ~66 says 'The four semantic levels' and must become 'three' after L4 is removed (product-reviewer catch)",
+    "This is documentation only; the built Phases 1a-3 source code is per-project and unchanged"
+  ],
+  "constraints": [
+    "Documentation-only: no source code changes",
+    "Remove only the cross-project (L4/Phase 4) framing; keep the Phase 1 deterministic local-signature concept",
+    "No Co-Authored-By trailer"
+  ],
+  "unknowns": [
+    "None; the exact lines to remove/reword are identified"
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+    ".lattice/story/actives/B-2a8d/evidence/verify-b-2a8d.mjs"
+  ],
+  "timestamp": "2026-06-17T18:07:36.455Z"
+}

@@ -1,0 +1,101 @@
+{
+  "storyId": "B-99b6",
+  "checkedAt": "2026-06-17T17:58:04.813Z",
+  "features": [
+    {
+      "feature": "Wire mandated FAST contract guards (test:process-fact-contract, test:runtime-fact-contract, test:evidence-quality, test:anti-stall) into root npm test chain",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire wrapper-root/gitRoot regression smokes (storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root) into root npm test chain",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT duplicate test:gitroot-cwd-contract (already in chain)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep slow storydir-inside-gitroot-suite (~7s) and full 160-smoke test:all reachable via documented --full/CI path, NOT in fast gate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Prove a regression blocks: breaking a wired guard causes lattice validate to turn RED; reverting restores GREEN",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wiring only: do NOT change guard/smoke assertion logic, gitRoot code (B-6666), or process-fact-registry (B-867c)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "test:all (~160 smokes) stays reachable for --full/CI, not the fast gate (test-runner-consolidation-plan B1 scope)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "lattice validate falls back to root npm test (no validate.ts, no validate.command): wiring into root test covers both validate and REVIEW->TEST gate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "scripts/verify-process-fact-contract.mjs guards process-fact registry consistency; this story does NOT change the registry (B-867c done)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: no guard/smoke assertion logic changes; process-fact-registry is B-867c done",
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "test-runner-consolidation-plan B2 (collapse 258 test:* scripts into manifest entries)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: wiring/scripts ONLY; B2 is a separate follow-up story",
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "test-runner-consolidation-plan B4 optional runner UX improvements (watch mode, rerun-failed, json output)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: maintenance-mode battery wiring only; B4 is optional polish",
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Authority/evidence-gate smokes mentioned in story description (context: B-3990:F-001 systemic gap, not in-scope work)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json confirmationNote: mentions of authority/evidence-gate smokes are CONTEXT not in-scope work",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 8,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "46f4f29940e7fbbb3c90762bae309af067c3310f147843db8eaa08675d824a32",
+  "openQuestions": []
+}
