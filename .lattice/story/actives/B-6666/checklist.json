@@ -71,7 +71,30 @@
       "userSees": "`npm run test:gitroot-cwd-contract` exits 0 AND now fails if someone re-introduces a `const gitCwd = projectRoot` alias or a backtick-template git call with a bare-root cwd — the contract can no longer be silenced without routing through resolveGitCwd.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After strengthening, npm run test:gitroot-cwd-contract exits 0 and prints the passed banner, with all confirmed bare-root sites fixed (done-oracle + evidence-freshness now route through resolveGitCwd)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A KNOWN-BAD self-test fixture: a no-op const gitCwd=projectRoot alias used as a git cwd WITHOUT resolveGitCwd produces exactly 1 violation; a KNOWN-GOOD fixture (alias not used as git cwd, OR routed via resolveGitCwd) produces 0 violations — alias rule pinned both ways",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A KNOWN-BAD self-test fixture: a backtick-template execSync(`git ...`) with cwd:projectRoot is flagged (the old GIT_CALL_REGEX backtick blind spot is closed); reintroducing either gaming shape (the exact d93b69b8f alias) turns the contract RED",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
