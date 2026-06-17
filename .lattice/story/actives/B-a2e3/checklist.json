@@ -203,7 +203,63 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:experience-layer-revalidation -> exits 0 and prints smoke passed; WHY: confirms the npm script is wired and smoke passes",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs builds clean then runs all smokes -> prints TOTAL N | PASS N | FAIL 0; WHY: confirms the committed verifier covers all verification intents",
+            "type": "cli"
+          },
+          {
+            "desc": "hermetic leaf smoke creates synthetic FindingSignalsCache with known anchorFiles and injected fileExists stub -> asserts exact validRate and driftRate values; WHY: confirms deterministic pure-function testing without real fs",
+            "type": "cli"
+          },
+          {
+            "desc": "CLI smoke runs lattice learning_validate on a temp/real store -> asserts a valid-rate line is printed; WHY: confirms end-to-end CLI path works",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "hermetic leaf smoke tests that unanchored signals are excluded from the denominator -> validRate computed over anchored-only count; WHY: confirms the denominator rule that prevents unanchored dilution",
+            "type": "cli"
+          },
+          {
+            "desc": "hermetic leaf smoke tests all-gone anchors -> signal classified as stale, not valid; WHY: confirms stale classification boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "hermetic leaf smoke tests any-present anchor -> signal classified as valid, not stale; WHY: confirms the >=1 present threshold",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs runs no-regression smokes (finding-signals, playbook, recall) alongside the new smoke -> all pass; WHY: confirms no regression to existing Experience Layer functionality",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify-b-a2e3.mjs performs static check that core/experience-revalidation.ts imports ONLY experience-layer-types.js (no fs, no child_process, no store, no handler imports) -> PASS; WHY: enforces leaf purity at the verifier level",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs performs static check that handlers/learning-validate.ts has no write/finding/gate references -> PASS; WHY: enforces read-only contract at verifier level",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs checks that learning_validate command, npm script, config phase entry, and command-policy entry all exist -> PASS for each; WHY: confirms full registration wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "CLI smoke asserts nothing is written to .lattice/ after running learning_validate -> no side effects; WHY: adversarial check that the CLI test itself validates the read-only invariant",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
