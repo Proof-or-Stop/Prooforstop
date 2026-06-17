@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T13:03:14.291Z",
       "reviewRunId": "B-0dab:RR-002",
       "_hash": "2edea2355d757019e84bbfa335944f3ac043a6be4d26d0b825135eb0a4f9382d"
+    },
+    {
+      "id": "B-0dab:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 28 intents across CHK-001/CHK-002/CHK-003. Happy and edge evidence commands bind literally to their intents (gate run, grep with line numbers, npm script invocations, lattice validate output). Adversarial evidence uses a shared logic_test note describing the empirical gate-non-vacuous demonstration; CHK-001:adversarial:0 is directly named in the note; CHK-001:adversarial:1 is covered via classify() self-test case KoalaFoo (UNCLASSIFIED); CHK-002:adversarial:0 and CHK-002:adversarial:1 are indirectly supported by the live validate output which confirms test:koala-residue is actively wired in the chain (no silent skip). No intent relies solely on a generic pass-assertion without named behavior. No blocker.",
+      "createdAt": "2026-06-17T13:05:41.564Z",
+      "reviewRound": "2026-06-17T13:03:14.291Z",
+      "reviewRunId": "B-0dab:RR-003",
+      "_hash": "8b64cd6ab6d052d49ac010003c1934e0c12000369b34a41b18219a91c8ae0d08"
     }
   ]
 }
