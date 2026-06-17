@@ -135,6 +135,16 @@
           "headHash": "ccdda4ad61d318369993c8ea792aa76c8ed4cbbd",
           "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
           "timestamp": "2026-06-17T22:49:16.605Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "python3 inspect smoke-manifest.json timeoutMs values + grep run-all-smokes.ts DEFAULT_TIMEOUT_MS",
+          "result": "pass",
+          "note": "All 5 timeoutMs are finite (180000-240000 ms), no Infinity/0; runner DEFAULT_TIMEOUT_MS=60000 still applies to unlisted smokes so a true hang still TIMEOUTs. No smoke logic changed (smoke-manifest.json is config-only; git diff shows no .ts logic edit for these 5).",
+          "headHash": "54a11f06a07d439f2eb23a0442f5d21ef4333387",
+          "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
+          "timestamp": "2026-06-17T22:49:18.664Z"
         }
       ]
     }
