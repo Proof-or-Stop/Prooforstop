@@ -139,9 +139,9 @@
       "title": "Fix message/CLI/rename-drift smokes: cli-argument-ergonomics, lattice-only-absence, lattice-cli-migration, review-loop",
       "context": "These fail on drifted error-message regexes / assertions / rename-completion expectations. cli-argument-ergonomics: the 'Parameter validation failed' (or similar) message changed — update the regex to the current text. lattice-only-absence: assertion drift — confirm current behavior + update. lattice-cli-migration: drift from the koala->lattice rename completion — update to the current migrated state. review-loop: 3 of 38 sub-assertions drifted — fix the 3, keep the other 35. Confirm correctness per assertion FIRST; never weaken. Each passes standalone after.",
       "userSees": "cli-argument-ergonomics, lattice-only-absence, lattice-cli-migration, and review-loop each PASS standalone with assertions updated to the current correct messages/behavior.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T20:37:39.280Z",
       "verificationIntent": {
         "happy": [
           {
