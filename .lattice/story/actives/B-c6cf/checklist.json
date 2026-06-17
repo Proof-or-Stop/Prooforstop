@@ -164,6 +164,17 @@
           "headHash": "339374843da6cbb8239fbe71da37870b4ddca235",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:06:47.205Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"const f=require('fs'); const curr=require('./package.json'); const orig=JSON.parse(require('child_process').execSync('git show main:package.json','utf8')); const removed=Object.keys(orig.scripts).filter(k=>k.startsWith('test:')&&!curr.scripts[k]); if(removed.length) throw new Error('REMOVED:'+removed); console.log('NO_REMOVALS')\"",
+          "result": "pass",
+          "note": "Prints NO_REMOVALS — every test:* script that was in main is still in HEAD. test:coverage was ADDED; nothing removed.",
+          "headHash": "5d70c23a23bb694e6aa25bb98ea35339dd6e08c0",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:06:48.071Z"
         }
       ]
     },
