@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Realign stale assertions across all failing smokes",
+      "context": "For each smoke that fails on a fresh main checkout under both `npm run test:all` (parallel) and `node packages/main/dist/tasks/<name>-smoke.js` (single), update the offending assertion to match current production behavior. Preserve assertion INTENT (what the test is checking) but match TEXT/REGEX/ENUM to current output. DO NOT modify production source. If a failure is rooted in production-side regression (test was correct, prod drifted in a way that should be reverted), file finding_add with severity=high and leave the smoke as-is for the follow-up story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Diagnose + fix lattice-baseline TIMEOUT",
+      "context": "lattice-baseline-smoke times out at the 60s default. Three possible causes: (a) genuinely slow → raise smoke-manifest.json timeoutMs entry for this smoke only; (b) deadlock/hang → file finding + investigate; (c) parallel-race → mark with skipUnderParallel or convert to require --jobs 1. Pick the right remedy; document choice in CHANGELOG.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "CHANGELOG Unreleased entry + retire B-c6cf waiver note",
+      "context": "CHANGELOG Unreleased entry naming this story (B-xxxx). Note that B-c6cf CHK-002:happy:2 waiver is now retired and `npm run test:coverage` exits 0. Final verification: `npm run test:all` (parallel) AND `npm run test:coverage` (serial) both exit 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
