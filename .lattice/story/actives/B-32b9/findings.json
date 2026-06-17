@@ -47,6 +47,19 @@
       "files": [
         "lattice-console-serve.js"
       ]
+    },
+    {
+      "id": "B-32b9:F-004",
+      "desc": "quality-cleanup: lattice-lineage.js:623 destructures `title` from the story array but never uses it — displayTitle uses s[6] directly on line 625; `title` is dead",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T19:30:17.262Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-003",
+      "_hash": "a79ac741ccfa087a099b9b55fb226c9ee52da29fd3c3f9e0f2c0c3e7b156889a"
     }
   ]
 }
