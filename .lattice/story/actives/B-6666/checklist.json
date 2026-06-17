@@ -5,9 +5,9 @@
       "title": "Thread resolved gitCwd into the DONE-oracle git-status path (fix the wrapper-root DONE false-block)",
       "context": "Resolve gitCwd once at the runDonePreMergeGate boundary (transition-orchestrator.ts already computes doneGitCwd ~:271 — pass it instead of bare ctx.root at ~:363; or resolve inside runDonePreMergeGate) and thread it through done-effects.ts runDoneOracleGate -> core/done-oracle.ts buildDoneChecklist -> readGitStatusLines so `git status` runs from the resolved gitRoot. Fall back to root when no gitRoot resolves (plain repos byte-identical). done-oracle.ts currently has no resolveGitCwd import. Verify with a wrapper-root scenario that the 'git-working-tree' done-check row no longer false-fails when metadataRoot != gitRoot.",
       "userSees": "On a wrapper-root project (metadataRoot != gitRoot), `lattice story_advance --phase=DONE` no longer false-fails the git-working-tree DONE check with 'unable to read git status'; the DONE-oracle reads git status from the gitRoot. Plain repos are unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T16:49:50.629Z",
       "verificationIntent": {
         "happy": [
           {
