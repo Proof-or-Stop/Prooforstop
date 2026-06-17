@@ -123,7 +123,12 @@ The v1.0 draft re-built three facilities that already exist. v1.1 reuses them:
 
 - **Capture: extend `dev-memory.ts`.** `dev-memory.ts` is already ~80% of the
   capture layer. Extend it (add `status: candidate -> active -> stale ->
-  archived` plus `promotionHistory`) rather than building a new store. Because
+  archived` plus `promotionHistory`) rather than building a new store. The
+  earlier `proposed` state of the full lifecycle lives as a staged proposal in
+  `.lattice/learning/proposals/<id>.json`; a dev-memory entry begins only once a
+  proposal is human-approved into `candidate`, so this `status` enum is the
+  post-approval subset of the full
+  `proposed -> candidate -> active -> stale -> archived` lifecycle. Because
   `dev-memory` entries derive their id from the content sha7, the mutable
   `status` / `promotionHistory` fields MUST be excluded from the id-hash domain
   (folding mutable state into the id would break dedup / idempotency). Promotion
