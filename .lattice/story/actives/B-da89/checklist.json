@@ -97,7 +97,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "npm run test:process-fact-contract exits 0 after the alignment (no dev_start INIT/DEV drift, no new drift surfaced)",
+          "headHash": "dec2f9672ef1779d99d9b6aa82984f3c2fb1460b",
+          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
+          "timestamp": "2026-06-17T02:20:56.442Z"
+        }
+      ]
     }
   ]
 }
