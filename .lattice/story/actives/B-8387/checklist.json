@@ -5,36 +5,646 @@
       "title": "Playbook + proposal types and learning-store read/write for playbooks.json + proposals/",
       "context": "experience-layer-types.ts: PlaybookProposal {id, title, trigger{keywords,fileKinds,storyPhases}, check, pitfalls[], verification[], lineage{sourceStoryId,sourceFindingId,sourceSignature}, status:'proposed', proposalDigest}; Playbook {..., status:'proposed'|'candidate'|'active'|'stale'|'archived', usage{surfacedCount,resolvedHits,dismissedHits}}. learning-store.ts: read/write .lattice/learning/playbooks.json + proposals/<id>.json (atomic). Zero outward imports except core/digest.js.",
       "userSees": "Build clean; the smoke round-trips a proposal and a playbook through learning-store; proposalDigest = digestCanonicalJson(proposal domain).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T14:53:47.467Z",
+      "endTime": "2026-06-17T15:06:59.818Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "learningStore.writeProposal(validProposal) -> file created at proposals/<id>.json with all fields; readProposal(id) returns identical object; WHY: round-trip persistence proves atomicity and field fidelity",
+            "type": "cli"
+          },
+          {
+            "desc": "computeProposalDigest(proposal) -> returns a stable hex string; calling twice with same input yields identical digest; WHY: proves determinism which is prerequisite for fail-closed approve",
+            "type": "cli"
+          },
+          {
+            "desc": "learningStore.writePlaybook(candidatePlaybook) -> written to playbooks.json; readPlaybooks() includes it with status=candidate and usage counters at zero; WHY: proves playbook persistence path separate from proposals",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "computeProposalDigest excludes the proposalDigest field itself from hash input -> digest of proposal-with-digest equals digest of proposal-without-digest; WHY: prevents circular dependency in digest computation",
+            "type": "cli"
+          },
+          {
+            "desc": "writeProposal with id containing path-traversal characters (e.g. ../etc/passwd) -> either sanitized or rejected, never writes outside proposals/; WHY: path traversal safety",
+            "type": "cli"
+          },
+          {
+            "desc": "readProposal for non-existent id -> returns null or throws clear not-found error (not crash); WHY: boundary for missing data",
+            "type": "cli"
+          },
+          {
+            "desc": "readPlaybooks on empty/missing playbooks.json -> returns empty array, not crash; WHY: cold-start resilience",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "import analysis of learning-store.ts and experience-layer-types.ts -> zero imports from handlers/, findings, gates, or any module outside core/digest.js; WHY: enforces the import-fence guardrail non-vacuously",
+            "type": "cli"
+          },
+          {
+            "desc": "writeProposal called concurrently with same id -> last-write-wins or atomic error, never corrupted JSON; WHY: concurrent write safety",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Named check 'CHK-001:edge:1 path-traversal proposalId rejected': hostile ids (../../etc/x, a/b, .., a\\0b) rejected by safeProposalId guard; no file escapes proposals/, no playbook written.",
+          "headHash": "353c7e296a0048ece4b9959de907fdf1c58e8323",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:21:47.218Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook+proposal types; learning-store round-trips playbooks.json+proposals/ (outward import only ./digest.js); proposalDigest via digestCanonicalJson stable.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Named check 'CHK-001:adversarial:1 concurrent proposal writes': 24 concurrent writeProposal + interleaved reads; every read complete-or-absent, all proposals valid, no leftover .tmp (atomic temp+rename).",
+          "headHash": "0a44c3e0b7ea61e949d10df5ffd6a89340e903fb",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:21:47.804Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "playbook_propose + playbook_diff + playbook_reject handlers",
       "context": "handlers/playbook.ts: playbook_propose --finding <id> reads the finding (via the finding subsystem) + its signatureTag, builds a staged proposal with lineage + proposalDigest (digestCanonicalJson from core/digest.js), writes proposals/<id>.json. playbook_diff <proposalId> renders read-only what approve would write (no mutation). playbook_reject <proposalId> discards the proposal. Never calls finding_add or any gate.",
       "userSees": "playbook_propose --finding <id> prints a proposalId + digest; playbook_diff shows the rendered candidate; playbook_reject removes the proposal.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T14:55:22.119Z",
+      "endTime": "2026-06-17T15:07:00.512Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "playbook_propose --finding <existing-finding-id> -> prints proposalId + proposalDigest; proposals/<id>.json created with lineage.sourceStoryId, lineage.sourceFindingId, lineage.sourceSignature all populated from the source finding; WHY: proves the core propose path with lineage propagation",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_diff <proposalId> -> renders the candidate playbook that approve would write; calling diff twice returns identical output; WHY: proves diff is read-only and deterministic",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_reject <proposalId> -> proposal file removed; subsequent readProposal returns not-found; WHY: proves reject discards the proposal cleanly",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "playbook_propose --finding <non-existent-finding-id> -> clear error message mentioning the finding was not found; no proposal file created; WHY: boundary for missing source finding",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_diff on non-existent proposalId -> clear not-found error, no crash; WHY: boundary for missing proposal",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_reject on non-existent proposalId -> clear not-found error, no crash; WHY: idempotent/safe reject of missing proposal",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_diff does NOT mutate -> snapshot proposals/ directory before and after diff; file list and contents identical; WHY: proves diff is purely read-only",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "after playbook_propose, assert findings.json is byte-identical to before -> propose never calls finding_add; WHY: enforces the hard guardrail that playbook lifecycle never auto-files findings",
+            "type": "cli"
+          },
+          {
+            "desc": "after playbook_propose, assert no gate was invoked (gate log/advisory unchanged) -> propose never touches gates; WHY: enforces the hard guardrail that playbook lifecycle never touches gates",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_propose called twice for same finding -> second call either overwrites with new proposalId or returns clear already-proposed error; never leaves orphaned state; WHY: adversarial duplicate-propose scenario",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_propose builds a staged proposal with lineage+proposalDigest; diff is read-only; reject discards; playbook.ts has NO finding_add/advisory (guardrail).",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "playbook_approve (staged, digest fail-closed) -> candidate with lineage",
       "context": "playbook_approve <proposalId> requires --expectedProposalDigest matching the stored proposalDigest (stale fails closed, like decision-doc). On match, writes a candidate Playbook to playbooks.json with lineage carried over and status=candidate, then clears the proposal. active status requires explicit human approval and is NOT auto-set. Guardrail: never auto-finding_add. CLI registered via command-policy/config/registry/cli-engine (flat underscore names).",
       "userSees": "playbook_approve with a stale digest is rejected with a clear error; with the correct digest it creates a candidate playbook in playbooks.json carrying lineage; no finding is auto-created.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T14:57:48.182Z",
+      "endTime": "2026-06-17T15:07:01.184Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "playbook_approve <proposalId> --expectedProposalDigest <correctDigest> -> candidate Playbook written to playbooks.json with status=candidate, lineage carried from proposal, proposal file cleared; WHY: proves the core approve-with-matching-digest path",
+            "type": "cli"
+          },
+          {
+            "desc": "approved playbook in playbooks.json has status=candidate, NOT active -> assert status field equals candidate; WHY: proves active is never auto-set, requires explicit human approval",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "playbook_approve with stale/wrong expectedProposalDigest -> rejected with clear error mentioning digest mismatch; proposal NOT cleared; no candidate written; WHY: proves fail-closed digest integrity (the core safety property)",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_approve with missing expectedProposalDigest flag -> rejected with clear error; WHY: proves the flag is mandatory, not optional-defaults-to-match",
+            "type": "cli"
+          },
+          {
+            "desc": "playbook_approve for non-existent proposalId -> clear not-found error; no side effects; WHY: boundary for missing proposal",
+            "type": "cli"
+          },
+          {
+            "desc": "after successful approve, re-approve same proposalId -> not-found error (proposal already cleared); WHY: proves approve is not idempotent/replayable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "after playbook_approve, assert findings.json byte-identical to before -> approve never calls finding_add; WHY: enforces the guardrail that approve never auto-files findings",
+            "type": "cli"
+          },
+          {
+            "desc": "after playbook_approve, assert no gate was invoked (advisory/gate logs unchanged) -> approve never touches gates; WHY: enforces the guardrail that approve never touches gates",
+            "type": "cli"
+          },
+          {
+            "desc": "four CLI commands (playbook_propose, playbook_diff, playbook_approve, playbook_reject) are registered in command-policy + config + registry + cli-engine with flat underscore names -> grep/import-check confirms registration; WHY: proves CLI wiring is complete and uses correct naming convention",
+            "type": "cli"
+          },
+          {
+            "desc": "candidate playbook lineage fields (sourceStoryId, sourceFindingId, sourceSignature) are all non-empty and match the original finding -> assert each field present and matches source; WHY: proves lineage is faithfully carried through the approve boundary, not dropped or zeroed",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "Smoke: playbook_approve fail-closed on stale/missing expectedProposalDigest; matching digest -> candidate playbook with lineage (status=candidate, not active); CLI registered.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Smoke + npm script + no regression",
       "context": "tasks/experience-layer-playbook-smoke.ts + package.json test:experience-layer-playbook. Hermetic. Assert: full propose->diff->approve->reject lifecycle; proposalDigest stability + stale-digest approve fails closed; lineage present on candidate; playbook never triggers finding_add/gate; learning modules zero outward coupling (except core/digest.js); build clean; existing experience-layer + decision-doc smokes still pass.",
       "userSees": "npm run test:experience-layer-playbook exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T14:57:58.694Z",
+      "endTime": "2026-06-17T15:07:01.912Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run test:experience-layer-playbook -> exits 0 with output containing smoke passed; WHY: proves the smoke script is wired and the full lifecycle works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke exercises full propose->diff->approve->reject lifecycle in sequence -> verifier prints TOTAL N | PASS N | FAIL 0; WHY: proves all lifecycle transitions work together",
+            "type": "cli"
+          },
+          {
+            "desc": "existing experience-layer smoke still passes -> npm --prefix packages/main run test:experience-layer exits 0; WHY: no regression on Phase 1 experience-layer",
+            "type": "cli"
+          },
+          {
+            "desc": "existing decision-doc smoke still passes -> npm --prefix packages/main run test:decision-doc exits 0; WHY: no regression on decision-doc which shares core/digest.js",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke is hermetic -> uses a temp directory for .lattice/learning/, does not pollute the real .lattice/; WHY: proves test isolation",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke asserts proposalDigest stability -> compute digest, re-read proposal, digest matches; WHY: proves digest determinism within the integration test",
+            "type": "cli"
+          },
+          {
+            "desc": "build clean after all changes -> npm --prefix packages/main run build exits 0 with no type errors; WHY: proves types are well-formed and no compilation regressions",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke asserts the never-auto-finding guardrail -> snapshot findings state before lifecycle, compare after full propose->diff->approve->reject, findings unchanged; WHY: integration-level proof that the entire lifecycle never auto-files findings",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke asserts learning modules have zero outward coupling -> import analysis of experience-layer-types.ts + learning-store.ts + handlers/playbook.ts shows only core/digest.js + finding read port as external imports; WHY: non-vacuous import-fence check at integration level",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-playbook",
+          "result": "pass",
+          "note": "playbook smoke + no-regression (finding-signals/enums/hint/digest/decision-doc) + build clean + guardrail; npm script wired.",
+          "headHash": "3e915cb00187d0e929e73f5a759233e5563bfa01",
+          "materialHash": "002834c0829655724a1b4c37420013d72b0ea10ba09d3e49b388bde5e5b3ecb4",
+          "timestamp": "2026-06-17T15:25:49.433Z"
+        }
+      ]
     }
   ]
 }

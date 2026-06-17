@@ -425,10 +425,18 @@ async function run(): Promise<void> {
         assert.equal(deepParentImports(src).length, 0, `${name} must contain no ../../ import`);
       }
 
-      // (2) The leaf and the learning-store import only ./experience-layer-types.js.
-      const allowedLeaf = ['./experience-layer-types.js'];
+      // (2) The leaf has no relative imports; the learning-store imports only the
+      //     leaf sibling ./experience-layer-types.js plus the digest leaf
+      //     ./digest.js (B-8387 Phase 2: digestCanonicalJson for playbook
+      //     proposal digests — itself a leaf importing only node:crypto, so the
+      //     isolation bar is preserved). Both are siblings inside core/.
+      const allowedLeaf = ['./digest.js', './experience-layer-types.js'];
       assert.deepEqual(relativeImports(types), [], `types.ts must have no relative imports, got: ${relativeImports(types).join(', ')}`);
-      assert.deepEqual(relativeImports(ls), allowedLeaf, `learning-store.ts must import only the leaf, got: ${relativeImports(ls).join(', ')}`);
+      assert.deepEqual(
+        [...relativeImports(ls)].sort(),
+        allowedLeaf,
+        `learning-store.ts must import only ./digest.js + the leaf, got: ${relativeImports(ls).join(', ')}`,
+      );
 
       // (3) finding-signals.ts: only siblings ./experience-layer-types.js,
       //     ./learning-store.js, and the store port ./store.js.

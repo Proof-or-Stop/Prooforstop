@@ -1,0 +1,34 @@
+{
+  "task": "Implement the staged Process Playbook lifecycle (propose/diff/approve/reject) with decision-doc digest integrity, lineage, and human-approved candidates; never auto-file findings or touch gates.",
+  "outcome": "Running 'npm --prefix packages/main run test:experience-layer-playbook' prints 'smoke passed'. The smoke runs the full lifecycle: playbook_propose --finding creates a staged proposal with lineage + proposalDigest; playbook_diff renders it read-only; playbook_approve with a stale --expectedProposalDigest is rejected (fail-closed) while a matching digest writes a candidate playbook to playbooks.json carrying lineage (status=candidate, not active); playbook_reject discards the proposal; no finding is auto-created and no gate is touched. Build clean; existing experience-layer + decision-doc smokes still pass; verifier prints TOTAL N | PASS N | FAIL 0.",
+  "facts": [
+    "core/digest.js (B-2ccc) exports digestCanonicalJson — the leaf for proposalDigest; do NOT import the helper from decision-doc-promotion handler",
+    "learning-store.ts (Phase 1a) owns .lattice/learning/; add playbooks.json + proposals/<id>.json",
+    "finding subsystem: store.readFindings + signatureTag (Phase 1b B-4f46) provide the lineage source (sourceStoryId/sourceFindingId/sourceSignature)",
+    "decision-doc-promotion is the digest fail-closed precedent: proposalDigest + expectedProposalDigest; signature_registry CLI (B-4f46) shows command-policy/config/registry/cli-engine registration"
+  ],
+  "constraints": [
+    "Playbook NEVER auto-calls finding_add or any gate",
+    "active status requires explicit human approval; approve only yields candidate",
+    "Every playbook carries lineage to a source finding/story",
+    "proposalDigest via core/digest.js; approve fail-closed on stale expectedProposalDigest",
+    "Learning modules keep zero outward coupling except core/digest.js + the finding read port",
+    "No Co-Authored-By trailer"
+  ],
+  "unknowns": [
+    "None blocking; the playbook record + lifecycle states are fixed by the execution plan doc"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/core/digest.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-17T14:44:51.874Z"
+}

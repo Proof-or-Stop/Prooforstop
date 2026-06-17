@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Playbook never auto-files findings or touches gates",
+    "active requires explicit human approval; approve -> candidate only",
+    "Lineage mandatory (traceable to a source finding/story)",
+    "Digest fail-closed via core/digest.js (clone decision-doc, not import from it)",
+    "Source-of-truth playbooks.json/proposals under the excluded .lattice/learning/ prefix"
+  ],
+  "drivers": [
+    "Determinism: learning must not become a judge",
+    "Auditability: every playbook has lineage + a stable proposalDigest",
+    "Avoid the dev-memory id-hash hazard"
+  ],
+  "options": [
+    {
+      "name": "dedicated-playbooks-json-staged-proposals",
+      "pros": [
+        "Source-of-truth under the already-excluded .lattice/learning/ prefix; no gate pollution",
+        "Avoids dev-memory content-sha7 id-hash hazard for mutable status",
+        "Clones the proven decision-doc digest fail-closed pattern via the core/digest.js leaf"
+      ],
+      "cons": [
+        "New CLI surface needs command-policy/config/registry wiring",
+        "Two record types (proposal + playbook)"
+      ]
+    },
+    {
+      "name": "overload-dev-memory-with-status",
+      "pros": [
+        "Reuses dev-memory store"
+      ],
+      "cons": [
+        "dev-memory id = content sha7; mutable status/promotionHistory would break dedup/idempotency unless excluded from the id-hash; more hazardous"
+      ]
+    }
+  ],
+  "chosen": "dedicated-playbooks-json-staged-proposals",
+  "rationale": "A dedicated playbooks.json/proposals store under .lattice/learning/ keeps lifecycle status off dev-memory's content-hash id, stays gate-excluded, and cloning the decision-doc digest pattern via the core/digest.js leaf gives fail-closed integrity without handler-to-handler coupling.",
+  "preMortem": [
+    {
+      "scenario": "A playbook auto-creates a finding or influences a gate",
+      "trigger": "Wiring playbook approve into finding_add / advisory",
+      "consequence": "Learning becomes a judge -> violates determinism",
+      "mitigation": "playbook.ts never imports finding_add/advisory; smoke asserts no finding created + gate untouched after the full lifecycle"
+    },
+    {
+      "scenario": "A stale proposal is approved",
+      "trigger": "approve without matching expectedProposalDigest",
+      "consequence": "A drifted proposal is materialized",
+      "mitigation": "approve requires expectedProposalDigest == stored proposalDigest (fail-closed, decision-doc pattern); smoke covers stale-digest rejection"
+    },
+    {
+      "scenario": "approve silently promotes to active",
+      "trigger": "setting status=active on approve",
+      "consequence": "Skips human approval for the high-trust state",
+      "mitigation": "approve yields candidate only; active requires a separate explicit human step; smoke asserts status=candidate after approve"
+    },
+    {
+      "scenario": "A playbook lacks lineage",
+      "trigger": "propose without sourceFinding/story",
+      "consequence": "Unauditable learning item",
+      "mitigation": "propose requires a finding id; lineage sourceStoryId/sourceFindingId/sourceSignature is mandatory; smoke asserts lineage on the candidate"
+    },
+    {
+      "scenario": "playbook.ts imports the digest helper from a handler",
+      "trigger": "import from decision-doc-promotion",
+      "consequence": "handler-to-handler coupling",
+      "mitigation": "import digestCanonicalJson from core/digest.js (leaf); smoke/static check"
+    }
+  ],
+  "timestamp": "2026-06-17T14:44:52.908Z"
+}

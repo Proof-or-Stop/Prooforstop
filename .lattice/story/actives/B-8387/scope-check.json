@@ -1,0 +1,40 @@
+{
+  "storyId": "B-8387",
+  "checkedAt": "2026-06-17T14:50:16.677Z",
+  "features": [
+    {
+      "feature": "playbook+proposal types and learning-store playbooks.json/proposals store",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null
+    },
+    {
+      "feature": "playbook_propose/diff/reject handlers (lineage + proposalDigest, no finding/gate side effects)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null
+    },
+    {
+      "feature": "playbook_approve digest fail-closed -> candidate + CLI registration",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null
+    },
+    {
+      "feature": "smoke + npm script + no regression",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "27cdcb78238bba5cdb3ff3df9e58807ba88842de2501a85afe8ee6719a9a2663"
+}
