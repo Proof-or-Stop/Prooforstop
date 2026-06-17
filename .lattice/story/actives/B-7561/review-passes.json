@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T16:06:28.119Z",
       "reviewRunId": "B-7561:RR-006",
       "_hash": "1daf6958f5628efe206da90da254482f5d93d45802ab566ebf00daa9c4283413"
+    },
+    {
+      "id": "B-7561:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 38 intents (CHK-001: 11, CHK-002: 10, CHK-003: 10, CHK-004: 7) have valid manual_transcript evidence with result=pass. F-002 (CHK-002:adversarial:0 large candidate set ranking) confirmed resolved: named check in smoke verifies 121 candidates with best-match ranked #1. F-003 (CHK-002:adversarial:2 malformed/partial profiles no crash) confirmed resolved: named check verifies 10 malformed inputs with buildStoryProfile never throwing and recallSimilarStories returning well-formed array. Both evidence notes are now specifically bound to their intents, not generic. Smoke: 24/24 PASS. Verifier: TOTAL 38 | PASS 38 | FAIL 0.",
+      "createdAt": "2026-06-17T16:08:20.673Z",
+      "reviewRound": "2026-06-17T16:06:28.119Z",
+      "reviewRunId": "B-7561:RR-008",
+      "_hash": "d597821ed533b47a8b4e97018a126e5c57bbfc75aedcc945e991bdf1b894ff03"
     }
   ]
 }
