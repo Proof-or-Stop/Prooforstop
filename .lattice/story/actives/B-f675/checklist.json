@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Smoke case (a): returning reviewer -> isFirstPass=false, scopeChanged=true, changedFiles since last-pass headHash, priorVerdict present",
-          "headHash": "8330f4ae9654013510261e9243fb6ff8a774d95d",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:21:56.322Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Smoke case (b): first-timer (no prior pass) -> isFirstPass=true, scopeChanged=true, full main...HEAD diff",
-          "headHash": "7bc35ba5322d90a06d83481f86ce2e2e5eb77efb",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:21:57.146Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Smoke case (c): rename counted as changed (rename-aware changedFilesBetweenRenameAware); helper proven to write nothing to the store (case d snapshot)",
-          "headHash": "7888b6287d803b647dacc593312681338a070b03",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:21:57.974Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "lattice review_incremental_context --storyId=B-f675 --role=quality",
           "result": "pass",
           "note": "lattice review_incremental_context --role=quality prints role/isFirstPass/scopeChanged/priorHeadHash/changedFiles without error; round>=2 advisory wired in transition-effects listing scope-changed reviewers + the >=1-receipt note",
-          "headHash": "8a4e50faaca566952cc3c889fdc926d762b06297",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:21:58.795Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "lattice story_advance B-f675 REVIEW",
           "result": "pass",
           "note": "B-f675 roundCount=1 -> REVIEW entry shows NO targeted-re-review advisory (round-1 absent verified)",
-          "headHash": "5757877cefea3488fd67b38b0d4511ed43efcacb",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:21:59.636Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Advisory injection is append-only try/catch (same proven pattern as B-cfdd); smoke case (d) proves the helper writes nothing and canPassReviewGuard is byte-identical, so the round>=2 path cannot alter a transition",
-          "headHash": "5edaac05f29a4eb23bafa8a4de5d821af5ca18a6",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:22:00.469Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Smoke cases (a)+(b): incremental context for a returning reviewer and full diff for a first-timer",
-          "headHash": "e04e63d1c928314b775b6d7ec0cc0329213aa8b6",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:22:01.279Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "grep CLAUDE.md",
           "result": "pass",
           "note": "CLAUDE.md REVIEW section updated with accurate gate behavior (invalid-binding blocks all rounds; Round 1 all opt-in + quorum; Round 2+ >=1 receipt) + review_incremental_context CLI + targeted re-review guidance",
-          "headHash": "6d136fa063ebf2ea9738765ba65ec5f2b6d61047",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:22:02.091Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Smoke case (d): canPassReviewGuard outcome identical with/without the helper across all branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified blocking finding) + gate inputs byte-identical after the helper",
-          "headHash": "d5b3988442513befbc2df3be7b0472e71f70f713",
-          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
-          "timestamp": "2026-06-17T01:22:02.924Z"
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
         }
       ]
     }
