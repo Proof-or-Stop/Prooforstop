@@ -135,7 +135,30 @@
       "userSees": "gap-log, story-create-concurrency, review-pass-discard each either PASS standalone (stale-fixed to current behavior) or are escalated as a confirmed real production bug with repro evidence — none silently weakened.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gap-log, story-create-concurrency, review-pass-discard each pass standalone exit 0 after stale-fix, OR are escalated as a confirmed real production bug with repro",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each was root-caused (assertion failure + production code read) and explicitly classified STALE vs REAL-REGRESSION before any edit",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "None silently weakened; a real regression would be escalated (bug/separate story) not papered over; zero production change for the stale-fixed ones",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
