@@ -103,9 +103,9 @@
       "title": "Strengthen the gitroot-cwd contract to close the alias + backtick-template blind spots, and make it GREEN",
       "context": "In tasks/gitroot-cwd-contract-smoke.ts: (a) detect the no-op-alias defect — a `const <name> = projectRoot|root|metadataRoot` (or equivalent) that is then used as a git-call cwd without going through resolveGitCwd should be flagged, so B-db56's d93b69b8f-style silencing is caught; (b) extend GIT_CALL_REGEX (or add a second scan) to cover backtick-template `execSync(\\`git ...\\`)` call sites (~15 exist, 6 with literal bare-root cwd). Then FIX every real bare-root site the strengthened contract flags (thread resolveGitCwd / fall back to root). Run `npm run test:gitroot-cwd-contract` and confirm it EXITS 0 — the gate does not run it today, so verify explicitly. If the backtick blast radius exceeds what this story can safely fix, fix the confirmed wrapper-root sites + ship the alias-detection rule and explicitly log the remaining sites as a documented follow-up (do not leave the contract red).",
       "userSees": "`npm run test:gitroot-cwd-contract` exits 0 AND now fails if someone re-introduces a `const gitCwd = projectRoot` alias or a backtick-template git call with a bare-root cwd — the contract can no longer be silenced without routing through resolveGitCwd.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T17:09:31.976Z",
       "verificationIntent": {
         "happy": [
           {
