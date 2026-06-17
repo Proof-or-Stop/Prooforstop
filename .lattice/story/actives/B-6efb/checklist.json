@@ -533,6 +533,17 @@
           "headHash": "7ab9e5eacc377feb541bfe0ff6951a826769437a",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:18.499Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --select gitroot",
+          "result": "pass",
+          "note": "Self-smoke verifies --select substring filtering on 4 fixture smokes; live --select gitroot matches gitroot-* smokes.",
+          "headHash": "82f63c657430ea7dbc6688c24dbdd9ea73cb9c80",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:19.820Z"
         }
       ]
     }
