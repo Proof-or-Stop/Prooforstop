@@ -14,9 +14,9 @@
       "title": "Update the smoke's 'allowlisted forbidden asset → NOT flagged' assertion to inject an explicit allowlist",
       "context": "In packages/main/src/tasks/docs-drift-path-drift-smoke.ts, the adversarial case (~lines 243-252) currently proves the seam by relying on the DEFAULT allowlist suppressing '.codex/hooks'. Since the default is now empty, change that case to pass an explicit allowlist (e.g. new Set(['.codex/hooks'])) into checkManagedAssetContradiction, so it still proves 'an allowlisted forbidden generated asset is suppressed' via the seam — without depending on a permanent default entry. Keep the companion positive case (non-allowlisted forbidden generated asset → IS flagged) intact so detection is still proven. Verify the smoke runs green from the build.",
       "userSees": "`lattice validate` runs the docs-drift smoke green: the seam is still proven (explicitly-allowlisted forbidden asset suppressed) AND detection is still proven (non-allowlisted forbidden generated asset flagged), with no reliance on a permanent real default-allowlist entry.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T02:10:27.774Z"
     }
   ]
 }
