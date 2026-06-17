@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-0dab:F-001",
+      "desc": "doc-promise-undelivered: review-preflight.ts:122 and :224 — comments updated to say \"all 4 gates\" / \"all four gates (channel/concept/lint/docs-drift)\" but the fast-channel branch actually skips 5 gates (channel, concept, lint, docs-drift, english-artifacts), with codex-adapter as a 6th conditional gate. The old comment \"five of the six gates\" was accurate; the replacement is factually wrong and will mislead readers about express-channel scope.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T13:04:35.670Z",
+      "reviewRound": "2026-06-17T13:03:14.291Z",
+      "reviewRunId": "B-0dab:RR-001",
+      "_hash": "9960f44593d45fda920caf62a80650eabaa15e4ec6f88a7f1bc5bd94eb0bab0c",
+      "files": [
+        "packages/main/src/handlers/review-preflight.ts"
+      ],
+      "dismissReason": "review-preflight.ts is NOT changed by B-0dab. Its 2 commits only touch english-only-guards-smoke.ts, review-incremental-context-smoke.ts, and package.json. review-preflight.ts appears in git diff main..HEAD only because the worktree base lags current main (the comment was changed by another story already on main). Out of B-0dab scope (execution boundary excludes src/handlers).",
+      "dismissedAt": "2026-06-17T13:08:11.024Z"
+    }
+  ]
+}

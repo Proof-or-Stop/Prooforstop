@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-0dab:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "CHK-001: 7 mkdtemp prefix renames (koala-*→lattice-*) are correct in both smoke files — no dead code, no type issues, all 7 lattice-* replacements confirmed present, no koala residue. CHK-002: package.json test chain wiring is correct — test:koala-residue script defined and inserted after test:main-write-lock-coverage; gate self-test 5/5 confirmed. No dead code or type-safety issues in the renamed or wired changes. One medium finding filed (B-0dab:F-001) for incorrect gate-count in review-preflight.ts comments (says 4, code skips 5); not a blocker for CHK-001/CHK-002 correctness. Scope of this quality review: dead code, type safety, correctness of rename + wiring across the 4 changed files.",
+      "createdAt": "2026-06-17T13:04:47.826Z",
+      "reviewRound": "2026-06-17T13:03:14.291Z",
+      "reviewRunId": "B-0dab:RR-001",
+      "_hash": "58f5530cc4d870aa2bc89d96a2e1c94e03f66a14377b96ca7d618e43692e232b"
+    },
+    {
+      "id": "B-0dab:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness check passed. All 7 koala-* mkdtemp prefixes (5 in english-only-guards-smoke.ts: koala-english-scope-, koala-english-block-, koala-english-realgit-, koala-english-initrerun-, koala-english-initrerun-home-; 2 in review-incremental-context-smoke.ts: koala-incremental-ctx-, koala-incremental-gate-) are confirmed renamed to lattice-* in HEAD. The gate verify-koala-residue.mjs from the B-0dab worktree returns PASS koala-residue: 0 unclassified. The gate is wired into package.json test chain as test:koala-residue. No new koala brand references were introduced in source files. All koala additions in the diff are confined to .lattice/ story metadata which is excluded from the gate active scope. Documented exceptions in LEGACY_LOGIC_FILES are untouched. Zero findings.",
+      "createdAt": "2026-06-17T13:04:52.514Z",
+      "reviewRound": "2026-06-17T13:03:14.291Z",
+      "reviewRunId": "B-0dab:RR-002",
+      "_hash": "2edea2355d757019e84bbfa335944f3ac043a6be4d26d0b825135eb0a4f9382d"
+    },
+    {
+      "id": "B-0dab:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 28 intents across CHK-001/CHK-002/CHK-003. Happy and edge evidence commands bind literally to their intents (gate run, grep with line numbers, npm script invocations, lattice validate output). Adversarial evidence uses a shared logic_test note describing the empirical gate-non-vacuous demonstration; CHK-001:adversarial:0 is directly named in the note; CHK-001:adversarial:1 is covered via classify() self-test case KoalaFoo (UNCLASSIFIED); CHK-002:adversarial:0 and CHK-002:adversarial:1 are indirectly supported by the live validate output which confirms test:koala-residue is actively wired in the chain (no silent skip). No intent relies solely on a generic pass-assertion without named behavior. No blocker.",
+      "createdAt": "2026-06-17T13:05:41.564Z",
+      "reviewRound": "2026-06-17T13:03:14.291Z",
+      "reviewRunId": "B-0dab:RR-003",
+      "_hash": "8b64cd6ab6d052d49ac010003c1934e0c12000369b34a41b18219a91c8ae0d08"
+    }
+  ]
+}
