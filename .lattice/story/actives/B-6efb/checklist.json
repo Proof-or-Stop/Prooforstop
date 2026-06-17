@@ -152,6 +152,17 @@
           "headHash": "2ff265b8e0c9dbc1a0d00ba0079167476305c377",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:09:47.574Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --tag fast",
+          "result": "pass",
+          "note": "Self-smoke verifies --tag missing-tag returns 0 smokes; live run with --tag fast returns 5 fast smokes from manifest.",
+          "headHash": "49b3c8a0e4131401fd92d795f9c5e35c011ecda2",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:09:48.883Z"
         }
       ]
     },
