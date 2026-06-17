@@ -466,12 +466,12 @@
           "intentRef": "CHK-003:happy:1",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git grep -nE 'test:[a-z0-9-]+-smoke' -- README.md",
+          "command": "git diff main...HEAD --name-only -- docs CLAUDE.md AGENTS.md",
           "result": "pass",
-          "note": "Returns no hits in active prose; references converted to test:legacy form. CLAUDE.md mentions test:review-incremental-context-smoke and test:process-fact-contract which are still in root keep-list.",
-          "headHash": "ae298c07b5a9c0ff9446be0597a6c3cfd0f6076a",
+          "note": "Prints empty (only README.md edited; CLAUDE.md / AGENTS.md / docs/* untouched). The pre-existing test:X-smoke references in docs/requirements/decisions/*.md are historical content (decision docs are blocked path) and were intentionally left.",
+          "headHash": "9548d017af9b1aefa2b5b7ea311f422151386359",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:15.916Z"
+          "timestamp": "2026-06-17T12:34:01.258Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
