@@ -175,6 +175,71 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add docs/dev/test-coverage.md describing test:coverage usage",
+      "context": "A0 B3 spec explicitly says 'Document the report in docs/'. Create a brief markdown entry at docs/dev/test-coverage.md covering: command, output paths, single-process v1 note, on-demand not CI.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-c6cf/background.md"
+      ],
+      "userSees": "`cat docs/dev/test-coverage.md` shows a short markdown doc with the command, output paths, and v1 limitations.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/dev/test-coverage.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/ entry created documenting test:coverage usage -> `test -s docs/dev/test-coverage.md && echo DOCS_FILE_OK` prints DOCS_FILE_OK; WHY: A0 promises Document the report in docs/",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs entry mentions test:coverage command -> `grep -c \"test:coverage\" docs/dev/test-coverage.md` outputs at least 1; WHY: user-facing entry must name the command",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs entry mentions packages/main/coverage/ output path -> `grep -c \"packages/main/coverage\" docs/dev/test-coverage.md` outputs at least 1; WHY: tells user where to find HTML/LCOV",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs entry is plain markdown (no executable content) -> `head -1 docs/dev/test-coverage.md | grep -qE \"^# \"` heading; WHY: standard markdown style",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no other docs/ files modified -> `git diff main...HEAD --name-only -- docs/ | grep -vE \"docs/dev/test-coverage.md|docs/requirements/decisions/test-runner-consolidation-plan.md\" | wc -l` outputs 0; WHY: only the new docs/dev/test-coverage.md and the existing decision doc",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-17T13:42:51.837Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope-plan reviewer GAP-001: A0 B3 spec line 180-181 says 'Document the report in docs/' — a separate commitment from CHANGELOG/decision-doc DONE marker. Adding CHK-004 to close the gap.",
+      "addedTitle": "Add docs/dev/test-coverage.md describing test:coverage usage",
+      "addedContext": "A0 B3 spec explicitly says 'Document the report in docs/'. Create a brief markdown entry at docs/dev/test-coverage.md covering: command, output paths, single-process v1 note, on-demand not CI."
     }
   ]
 }
