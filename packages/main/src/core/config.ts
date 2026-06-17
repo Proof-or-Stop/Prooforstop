@@ -188,6 +188,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
     'signature_registry_*',  // B-4f46 CHK-003: audit-only finding signatureTag registry (Experience Layer Phase 1b); list/set declared allowedPhases:all in command-policy; no gate reads it
     'playbook_*',  // B-8387: audit-only staged Process Playbook lifecycle (Experience Layer Phase 2); propose/diff/approve/reject declared allowedPhases:all in command-policy; never files findings/touches gates; no gate reads it
+    'recall',  // B-7561: read-only structured-field Story Recall over the existing story_list scan (Experience Layer Phase 3); declared allowedPhases:all readOnly in command-policy; writes nothing / no derived index; no gate reads it
   ],
   INIT: [
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set

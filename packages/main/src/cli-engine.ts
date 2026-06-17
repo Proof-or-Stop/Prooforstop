@@ -1754,6 +1754,18 @@ Behavior:
     proposalId: z.string().describe('Proposal id (PBP-NNN) to discard.'),
   }},
 
+  // B-7561 (Experience Layer Phase 3, FINAL slice): Story Recall. Rank stories by
+  // structured-field similarity over the EXISTING story_list scan — multi-field
+  // Jaccard (keywords/fileKinds/touchpoints) + small type/phase boosts. READ-ONLY:
+  // writes nothing, creates no derived index / cache, and never touches a gate.
+  // NO FTS, NO embedding. `--story <id>` ranks similar stories; `--query "<text>"`
+  // ranks against an ad-hoc keyword profile. Default top = 5.
+  { name: 'recall', description: 'Rank stories by structured-field similarity over the story_list scan (read-only; no FTS/index)', schema: {
+    storyId: z.string().optional().describe('Target story id; recall ranks the stories most similar to it (excludes itself).'),
+    query: z.string().optional().describe('Ad-hoc free-text query; recall ranks stories matching its keywords. Pass either --story OR --query, not both.'),
+    top: z.coerce.number().int().optional().describe('Max number of ranked matches to return (default 5; <=0 returns none).'),
+  }},
+
   // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering plus manual merge/split).
   //
   // No arguments (default mode): auto-cluster when files intersection is at least 50% and severity matches; write back clusters.json plus findings.clusterId.
