@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T13:45:33.991Z",
       "reviewRunId": "B-1dc9:RR-007",
       "_hash": "fabcca5daf15d53e53ef6a9ec8f27bd735bb6892daa60d7020b6df58f93cbe2f"
+    },
+    {
+      "id": "B-1dc9:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "F-001 RESOLVED: ExperienceHint.priority JSDoc (experience-hint-loader.ts:62-68) now explicitly describes both base variants — signalScore for recurring hints, falsePositiveCount for common_false_positive hints — plus the shared log(1+support) damping and recencyBoost. F-002 RESOLVED: dedup keyed on story.currentReviewRound (with plan:<phase> fallback); readActivityLogTail checks storyId+reviewRound before appending; CHK-003:edge:0 smoke assertion (surface twice same run => one event, new round => new event) passes. Guardrails confirmed: resolveReviewPromptHash is byte-identical with/without hints (smoke PASS), review-run.ts diff is empty (smoke PASS). formatExperienceHintsSection returns empty string and no event fires for empty/filtered signals. 22/22 smoke checks pass, exits 0, prints TOTAL 22 | PASS 22 | FAIL 0 + smoke passed.",
+      "createdAt": "2026-06-17T13:47:34.038Z",
+      "reviewRound": "2026-06-17T13:45:33.991Z",
+      "reviewRunId": "B-1dc9:RR-006",
+      "_hash": "630ebd77760eb27d35a07762e6f53b45ed38d24875c037ec7919218e479e8aec"
     }
   ]
 }
