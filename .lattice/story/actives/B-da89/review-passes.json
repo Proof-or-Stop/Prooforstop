@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T02:21:08.224Z",
       "reviewRunId": "B-da89:RR-003",
       "_hash": "3ce01e734c34bd1af098c4b508a726de9875fb9f9b551fd5eb7a2ccb172b002b"
+    },
+    {
+      "id": "B-da89:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "All four correctness checks pass. (1) Authoritative-set: command-policy.ts:130 and worktree.ts:823 both declare the 4-phase set [INIT,INIT_CHECK,PLAN,DEV] and are UNCHANGED in the diff — config was widened upward to match (correct direction). (2) No over-widening: diff adds only two literal dev_start lines (INIT array and DEV array in DEFAULT_PHASE_TOOLS); no wildcards; REVIEW/TEST/DONE sections contain no dev_start. (3) isCommandAllowed effect: the commandAllowedByLifecyclePolicy ceiling from command-policy.ts still refuses dev_start for REVIEW/TEST/DONE before the config gate is consulted; owner-lease + scope-freeze gating for dev_start (ownershipClass storyScopedMutating) is unchanged. (4) npm run test:process-fact-contract exits 0 confirmed live; the assertCommandPolicyPhaseAlignment check covers the full command x phase matrix bidirectionally.",
+      "createdAt": "2026-06-17T02:23:27.987Z",
+      "reviewRound": "2026-06-17T02:21:08.224Z",
+      "reviewRunId": "B-da89:RR-004",
+      "_hash": "31ab47b960f3b779680095e5bb75c7efece638f18d6087bfc33dc16f2a47bb0c"
     }
   ]
 }
