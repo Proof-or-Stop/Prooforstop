@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T14:17:18.545Z",
       "reviewRunId": "B-2ccc:RR-002",
       "_hash": "daa536ab5b3c3a8fe58f49397d45f01a2dd1800982963afcad6d8ad071f4384f"
+    },
+    {
+      "id": "B-2ccc:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 5 behavior verifications pass. (1) digestCanonicalJson/canonicalJson/digestText are pinned against pre-refactor sha256 values in the smoke — equality asserted, not merely exercised (checks pinned:*). (2) Order-independence is directly asserted (digestCanonicalJson({a,b}) === digestCanonicalJson({b,a})). Distinct-functions check confirms digestText(x) != digestCanonicalJson(x) for a string. (3) computeDecisionDocProposalDigest on PINNED_PROPOSAL returns the exact pinned proposalDigest hex — existing decision-doc proposals stay valid. (4) No-regression: decision-doc-promotion + decision-doc-quorum + 3 experience-layer smokes all print smoke passed; TOTAL 16 | PASS 16 | FAIL 0. TypeScript build exits cleanly. (5) Import-fence check confirms core/digest.ts imports only node:crypto; no-local-defs check confirms decision-doc-promotion.ts has no inline canonicalJson/digestCanonicalJson/digestText/normalizeJson definitions and no createHash reference. No downstream consumer imports the removed exports from decision-doc-promotion.ts, so the removal causes no regression.",
+      "createdAt": "2026-06-17T14:20:13.357Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-004",
+      "_hash": "a9891c2be43b1a6a9c40c672a54cd9a79751b9b60ac2a4c9956ef2a6acfb8b4e"
     }
   ]
 }
