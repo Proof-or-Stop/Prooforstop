@@ -4,7 +4,7 @@
   "title": "Remove the now-moot .codex/hooks bridge allowlist that masks the docs-drift managed-asset check",
   "description": "B-a7b0 added the docs-drift managed-asset contradiction check (CLAUDE.md 'do not create X' claims about a framework-generated asset). To avoid self-blocking before its sibling story B-94ae fixed the real CLAUDE.md wording, B-a7b0 seeded DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST (packages/main/src/handlers/validate-docs-drift.ts lines ~176-188) with two BRIDGE entries — '.codex/hooks' and '.codex/settings.json' — each carrying the inline reason 'B-94ae will fix this CLAUDE.md wording; allowlisted so the gate does not self-block until then'. B-94ae has now merged (the real CLAUDE.md no longer forbids those paths), so the bridge is (1) dead config and (2) actively harmful: it PERMANENTLY masks the exact contradiction class the check was built to catch — if anyone re-introduces '不要创建 .codex/hooks' the gate would silently allow it. This was surfaced by the read-only combination review of the B-94ae + B-a7b0 pair on main and is VERIFIED safe to remove: running checkManagedAssetContradiction against the real current CLAUDE.md with an EMPTY allowlist returns 0 contradictions (proving removal does not false-fail the real doc). Outcome: empty DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST (seed it empty like DOCS_DRIFT_PATH_ALLOWLIST, preserving the seam + comment so a future genuine pending claim can be added with a reason), and update the one regression-smoke assertion that currently relies on the DEFAULT allowlist suppressing '.codex/hooks' so it injects an explicit allowlist instead — keeping the seam proven without a permanent real entry. This is a data + test change only: the gate LOGIC (checkManagedAssetContradiction, the GENERATED_MANAGED_ASSET_KINDS set, the path-normalization) is NOT modified. Scope: the two allowlist entries + the corresponding smoke assertion only.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "low",
   "keywords": [
     "docs-drift",
@@ -43,11 +43,21 @@
       "user": "Harmonygo",
       "sessionId": "lattice-combo2",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:10:38.444Z",
+      "branch": "story/B-d633",
+      "user": "Harmonygo",
+      "sessionId": "lattice-combo2",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-d633",
     "branch": "story/B-d633",
     "createdAt": "2026-06-17T02:07:08.915Z"
-  }
+  },
+  "currentReviewRound": "2026-06-17T02:10:38.444Z"
 }
