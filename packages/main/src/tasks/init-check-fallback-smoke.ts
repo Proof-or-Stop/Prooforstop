@@ -56,6 +56,36 @@ const background = [
   'A maintainer sees a clear blocker that names the missing reviewers and offers the controlled init_check_repair fallback command.',
 ].join('\n\n');
 
+/**
+ * Drive the scope-anti-expansion freeze gate to PASS via the public CLI surface.
+ *
+ * INIT_CHECK now evaluates the scope-anti-expansion gate (scope-boundary →
+ * execution-boundary → scope-freeze-check) BEFORE the init-check signature gate
+ * (machine.ts canEnterInitCheckGuard / evaluateScopeAntiExpansionGate). A virgin
+ * story therefore aborts with [missing_scope_boundary] long before it can reach
+ * the [missing_init_check] / fallback behavior this smoke verifies. Mirroring the
+ * real flow, we set + freeze the scope boundary right after creation so each
+ * story passes the freeze gate and the init-check fallback behavior is exercised.
+ */
+function freezeScope(root: string, storyId: string): void {
+  run(root, 'scope_boundary_set', {
+    storyId,
+    mode: 'correctness_fix',
+    allowedScope: ['INIT_CHECK fallback exit'],
+    excludedScope: ['unrelated expansion'],
+    userConfirmed: true,
+    confirmation: 'Synthetic user-confirmed boundary for the init-check fallback smoke.',
+  });
+  run(root, 'execution_boundary_set', {
+    storyId,
+    allowedCommands: ['npm --prefix packages/main run build'],
+    allowedTools: ['shell'],
+    excludedCommands: ['rm -rf'],
+  });
+  const frozen = run(root, 'scope_freeze_check', { storyId });
+  assert.match(frozen, /PASS/, 'scope_freeze_check must pass so INIT_CHECK reaches the init-check gate');
+}
+
 function createStory(root: string, name: string, title: string): string {
   const created = run(root, 'story_create', {
     name,
@@ -68,6 +98,7 @@ function createStory(root: string, name: string, title: string): string {
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
+  freezeScope(root, storyId!);
   return storyId!;
 }
 
@@ -239,6 +270,12 @@ try {
     fallbackReason: 'No reviewer subagent available; manual attestation performed after reading the whole story envelope.',
   });
   run(root, 'story_update', { storyId: tamperStory, title: 'Fallback tamper story changed after attestation' });
+  // story_update mutates title — a freeze-gate input AND an init-check signature
+  // input. The freeze gate runs first, so it would report [scope_freeze_check_stale]
+  // and mask the init-check tamper. Re-freeze (mirroring the real "signed content
+  // changed → re-run the gates" flow) so INIT_CHECK reaches the init-check signature
+  // check, which still detects the stale fallback attestation.
+  run(root, 'scope_freeze_check', { storyId: tamperStory });
   const tampered = run(root, 'story_advance', { storyId: tamperStory, phase: 'INIT_CHECK' }, true);
   assert.match(tampered, /init_check_tampered/, 'editing signed content after a fallback must trigger init_check_tampered');
 

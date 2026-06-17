@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Update tests to assert CURRENT correct behavior; never weaken or delete a safety assertion to make it green",
+    "Confirm production is intended/correct BEFORE touching a test; if a smoke reveals a real production bug, escalate not paper over",
+    "Change only test files; zero production code change (an edit to a non-test file means it is a real bug to escalate)",
+    "Each fixed smoke must pass standalone (node ...-smoke.js exit 0) with its original safety intent intact"
+  ],
+  "drivers": [
+    "The gate battery does not run these smokes, so per-smoke standalone verification is the only real evidence",
+    "The dominant risk is the inverse of a normal bug-fix: a careless make-it-green that masks a future real regression",
+    "Scope must stay bounded: P5 timeout/env family and B-6666 burndown are explicitly deferred"
+  ],
+  "options": [
+    {
+      "name": "per-smoke-confirm-then-update",
+      "pros": [
+        "Confirm correct current behavior against production + the changing story, then update the assertion/setup to match",
+        "Preserves safety intent; surfaces real bugs as escalations",
+        "Matches the documented allowlist mechanism for functional-CJK test fixtures"
+      ],
+      "cons": [
+        "Slower: each smoke needs root-cause reading not a blind regex bump"
+      ]
+    },
+    {
+      "name": "delete-or-relax-assertions",
+      "pros": [
+        "Fast: delete or relax the failing assertions"
+      ],
+      "cons": [
+        "Hides behavior; could mask real regressions",
+        "Directly violates the guardrail; rejected"
+      ]
+    },
+    {
+      "name": "revert-behavior-to-old-tests",
+      "pros": [
+        "Old tests pass unchanged"
+      ],
+      "cons": [
+        "Requires reverting intended/correct behavior changes (scope-boundary gate, B-097f, B-72df); rejected"
+      ]
+    }
+  ],
+  "chosen": "per-smoke-confirm-then-update",
+  "rationale": "This approach is the only one that restores trust in the lifecycle/gate smokes without weakening them or touching production. The behavior changes the tests lag behind (scope-boundary INIT_CHECK gate, B-097f host-neutral prompts, B-72df scoped dirty-main DONE check, slug lowercasing, koala->lattice rename, message text drift) are all intended and correct; the tests are simply stale. delete-or-relax and revert-behavior both defeat the purpose. The survey already confirmed 14 STALE failures and 0 production bugs, but each implementer must re-confirm per smoke and escalate if a closer look reveals a genuine regression.",
+  "preMortem": [
+    {
+      "scenario": "An implementer weakens or deletes an assertion just to make a smoke pass",
+      "trigger": "A smoke is hard to root-cause and the implementer takes the shortcut of gutting the check",
+      "consequence": "A future real regression in that lifecycle/gate path goes undetected (worst possible outcome for a stabilization story)",
+      "mitigation": "Guardrail in every implementer prompt; require standalone-green WITH original safety intent intact; REVIEW test-coverage + quality reviewers specifically check no assertion was weakened/deleted; reviewer diff-reads each changed smoke"
+    },
+    {
+      "scenario": "A smoke that looks stale is actually a real production regression",
+      "trigger": "Production behavior genuinely changed wrongly, not intentionally, and the test was correct",
+      "consequence": "Updating the test to match the wrong behavior cements a real bug",
+      "mitigation": "Every implementer must read the production code + the story that changed it and CONFIRM intent before editing; if it is a real bug, STOP and escalate (open bug/separate story); the survey found 0 such cases but CHK-005 explicitly allows the escalate outcome"
+    },
+    {
+      "scenario": "An implementer edits a production (non-test) file to make a smoke pass",
+      "trigger": "The fix appears to require a production change (e.g. CJK in agent-prompt.ts)",
+      "consequence": "Violates strict scope and may mask the real issue",
+      "mitigation": "execution-boundary allowedPaths is restricted to the 15 *-smoke.ts files; any production edit is rejected and signals a real bug to escalate; CHK-004 CJK fix is confined to the test file usage-ledger-estimate-smoke.ts, with out-of-scope CJK resolved via the smoke allowlist not by touching production"
+    },
+    {
+      "scenario": "english-open-source-surface still fails after the in-scope CJK fix",
+      "trigger": "4 other CJK sources (2 production, 2 functional-CJK test fixtures) remain beyond usage-ledger-estimate.ts",
+      "consequence": "CHK-004 userSees cannot be met within strict scope; risk of someone gutting the check or touching production to force it green",
+      "mitigation": "Resolve via the documented allowlist mechanism (functional-CJK test fixtures + pending-source-migration), confirmed as a scope-plan Open Question and resolved in writing; do NOT modify the check logic itself or touch production"
+    }
+  ],
+  "timestamp": "2026-06-17T19:56:13.469Z"
+}

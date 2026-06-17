@@ -97,7 +97,15 @@ try {
 
   const codex = runCodexAdapterChecks(legacyOnlyRoot, { executeHeartbeats: false });
   assert.equal(codex.ok, false, `legacy-only Codex assets must not pass:\n${renderCodexAdapterChecks(codex)}`);
-  assert.equal(codex.checks.find(check => check.id === 'manifest')?.status, 'fail', 'legacy-only manifest should fail');
+  // B-097f host-neutral runtime-owned model: a canonical .lattice-codex/lattice.json is no
+  // longer required; the prompt body resolves from the package registry. The legacy
+  // .lattice-codex/koala.json is simply ignored (never loaded as an active manifest), so the
+  // manifest check reports the runtime-owned default `pass` rather than the pre-B-097f `fail`.
+  // The legacy-only rejection is still proven by codex.ok===false above plus the local-wrapper
+  // fail and the INCOMPATIBLE managed-asset checks below — the legacy assets are NOT accepted.
+  const manifestCheck = codex.checks.find(check => check.id === 'manifest');
+  assert.equal(manifestCheck?.status, 'pass', 'absent canonical manifest resolves to runtime-owned default (legacy koala.json ignored)');
+  assert.match(manifestCheck?.detail ?? '', /runtime-owned default/, 'manifest pass must be the runtime-owned default, not legacy acceptance');
   assert.equal(codex.checks.find(check => check.id === 'local-wrapper')?.status, 'fail', 'legacy-only wrapper should fail');
 
   const managed = runManagedAssetCheck(legacyOnlyRoot, { profile: 'codex', assetMode: 'full' });

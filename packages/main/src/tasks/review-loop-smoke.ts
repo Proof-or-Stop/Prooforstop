@@ -468,9 +468,15 @@ console.log('\n[6] Handler projection and duplicate loopId safety');
 test('review_loop_status JSON exposes active and latest fields', () => {
   const records: ReviewLoopRecord[] = [];
   const store = {
-    readStory: () => ({ phase: 'REVIEW', currentReviewRound: 'round-1' }),
+    readStory: () => ({ storyId: 'B-handler', phase: 'REVIEW', currentReviewRound: 'round-1' }),
     readReviewLoopRecords: () => records,
     appendReviewLoopRecord: (_storyId: string, record: ReviewLoopRecord) => { records.push(record); },
+    // B-c55d signed-workspace cwd check: review_loop_start now resolves the story's signed
+    // workspace (assertCwdInWorktree → resolveStorySignedWorkspace), which reads storyDirPath.
+    // Mirror StoryStore.storyDirPath so resolution runs; with no worktree binding it falls
+    // through to the metadata git root (resolutionSource !== story-worktree) and the cwd check
+    // short-circuits, leaving the handler's own duplicate/rollback validation under test.
+    storyDirPath: (storyId: string) => join(process.cwd(), '.lattice', 'story', 'actives', storyId),
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   handlers.review_loop_start({
@@ -490,9 +496,15 @@ test('review_loop_status JSON exposes active and latest fields', () => {
 test('review_loop_start rejects duplicate explicit loopId', () => {
   const records: ReviewLoopRecord[] = [];
   const store = {
-    readStory: () => ({ phase: 'REVIEW', currentReviewRound: 'round-1' }),
+    readStory: () => ({ storyId: 'B-handler', phase: 'REVIEW', currentReviewRound: 'round-1' }),
     readReviewLoopRecords: () => records,
     appendReviewLoopRecord: (_storyId: string, record: ReviewLoopRecord) => { records.push(record); },
+    // B-c55d signed-workspace cwd check: review_loop_start now resolves the story's signed
+    // workspace (assertCwdInWorktree → resolveStorySignedWorkspace), which reads storyDirPath.
+    // Mirror StoryStore.storyDirPath so resolution runs; with no worktree binding it falls
+    // through to the metadata git root (resolutionSource !== story-worktree) and the cwd check
+    // short-circuits, leaving the handler's own duplicate/rollback validation under test.
+    storyDirPath: (storyId: string) => join(process.cwd(), '.lattice', 'story', 'actives', storyId),
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   const args = {
@@ -513,9 +525,15 @@ test('review_loop_start rejects duplicate explicit loopId', () => {
 test('review_loop_start rejects placeholder rollbackRef hashes', () => {
   const records: ReviewLoopRecord[] = [];
   const store = {
-    readStory: () => ({ phase: 'REVIEW', currentReviewRound: 'round-1' }),
+    readStory: () => ({ storyId: 'B-handler', phase: 'REVIEW', currentReviewRound: 'round-1' }),
     readReviewLoopRecords: () => records,
     appendReviewLoopRecord: (_storyId: string, record: ReviewLoopRecord) => { records.push(record); },
+    // B-c55d signed-workspace cwd check: review_loop_start now resolves the story's signed
+    // workspace (assertCwdInWorktree → resolveStorySignedWorkspace), which reads storyDirPath.
+    // Mirror StoryStore.storyDirPath so resolution runs; with no worktree binding it falls
+    // through to the metadata git root (resolutionSource !== story-worktree) and the cwd check
+    // short-circuits, leaving the handler's own duplicate/rollback validation under test.
+    storyDirPath: (storyId: string) => join(process.cwd(), '.lattice', 'story', 'actives', storyId),
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   assert.throws(

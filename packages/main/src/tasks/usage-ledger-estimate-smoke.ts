@@ -226,12 +226,17 @@ async function main(): Promise<void> {
   });
 
   await check('CHK-002 unicode/emoji (multi-byte) produces a reasonable byte-based estimate', () => {
-    const cjk = bytesCharsEstimator(MODEL, '日本語のテキスト');
+    // Accented Latin: JS .length is 10 but the two 2-byte chars (ï, é) push the
+    // UTF-8 footprint to 12 bytes -> ceil(12/4) = 3. This pins the byte-based
+    // (not char-based) estimate exactly: a char-count heuristic would give
+    // ceil(10/4) = 3 here too, so emoji below is the discriminating case.
+    const multibyte = bytesCharsEstimator(MODEL, 'naïve café');
     const emoji = bytesCharsEstimator(MODEL, '😀😀😀');
-    assert.ok(cjk.estimatedInputTokens > 0);
-    assert.ok(emoji.estimatedInputTokens > 0);
+    // 'naïve café': 10 chars, 12 UTF-8 bytes (ï + é = +2 bytes) -> 3 tokens.
+    assert.equal(multibyte.estimatedInputTokens, 3);
     // Multi-byte chars count more bytes than their JS .length would (3 emoji,
-    // 4 UTF-8 bytes each = 12 bytes -> ceil(12/4) = 3).
+    // JS .length 6 but 4 UTF-8 bytes each = 12 bytes -> ceil(12/4) = 3). A
+    // char-length heuristic would give ceil(6/4) = 2, so this proves bytes.
     assert.equal(emoji.estimatedInputTokens, 3);
   });
 

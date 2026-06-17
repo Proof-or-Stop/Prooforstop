@@ -1,0 +1,44 @@
+{
+  "task": "Stabilize ~13 stale lifecycle/gate smoke tests in packages/main/src/tasks/*-smoke.ts that rotted while the 160-smoke suite was decoupled from the gate battery; update each STALE assertion/setup to the CURRENT correct production behavior without changing any production code, and escalate (not paper over) any smoke that reveals a genuine production regression.",
+  "outcome": "After this story, running each fixed smoke standalone (node packages/main/dist/tasks/<name>-smoke.js) prints a green pass line and exits 0 with its original safety intent intact, and npm run test:all on main goes from 140/162 to ~153/162 (about 13 fewer failures) with the remaining failures being ONLY the explicitly-deferred P5 timeout/env family (authority-job-loop-live, autopilot-authority, multi-host-authority, lattice-baseline, dispatch-run, planner-unattended, experience-layer-playbook, cli-json-stdout-contract). Zero production (non-test) files changed.",
+  "facts": [
+    "test:all on main is 140/162 (22 failing); triage confirmed 0 production regressions",
+    "Survey of all 15 candidate smokes: 14 fail, all STALE assertions; usage-ledger-estimate-smoke ALREADY passes (exit 0, 55 checks) so CHK-004 is purely the CJK content fix not a functional fix",
+    "init-check-fallback / init-check-required-agents fail because production now checks scope-boundary.json BEFORE init-check (machine.ts ~113/593) so they hit [missing_scope_boundary] not the old [missing_init_check]/[missing_init_check_agent] tag",
+    "done-preflight: B-72df made the dirty-main DONE check scoped to merge-affected paths (done-effects.ts ~371) so the test sees a merge-strategy failure path not the old generic Cannot enter DONE message; story still NOT advanced to DONE",
+    "worktree-repair: B-097f made agent prompts host-neutral single-source so project-local link repair is a no-op; assertMixedCanonicalLegacyGlobalLinksAreRepaired now returns skipped not relinked",
+    "story-dedup: normalizeName now lowercases all output (Japanese-task -> japanese-task)",
+    "Message/text drift smokes: convergence-discarded (All stories complete check), cli-argument-ergonomics (Parameter->Argument validation failed), lattice-only-absence, lattice-cli-migration (koala->lattice rename: Primary entrypoint -> Entrypoint), gap-log (dedup message), story-create-concurrency (emoji prefix), review-pass-discard (residue->residuals)",
+    "review-loop: 3 of 38 sub-assertions fail with opts.store.storyDirPath is not a function (store mock interface drift); keep the other 35",
+    "english-open-source-surface flags CJK in 5 files but only usage-ledger-estimate-smoke.ts is in CHK-004 scope; the other 4 (agent-prompt.ts + validate-docs-drift.ts production; docs-drift-path-drift-smoke + prompt-token-cost-smoke functional-CJK fixtures) are out of scope and need allowlist entries or are pending-migration"
+  ],
+  "constraints": [
+    "NEVER weaken or delete an assertion just to make it pass; update to assert CURRENT correct behavior",
+    "Change ONLY test files (the 15 *-smoke.ts in execution-boundary allowedPaths); zero production code change",
+    "If a smoke reveals a real production bug, STOP and escalate (open bug/separate story), do not paper over",
+    "Each fixed smoke must pass standalone (node ...-smoke.js exit 0) with safety intent intact",
+    "OUT OF SCOPE: P5 timeout/env family and B-6666 burndown",
+    "The gate battery does NOT run these smokes, so each implementer must verify standalone explicitly"
+  ],
+  "unknowns": [
+    "CHK-004 contradiction: making english-open-source-surface pass standalone requires resolving 4 CJK sources beyond usage-ledger-estimate.ts (some are production, out of scope); resolution likely = allowlist the functional-CJK test fixtures + treat production CJK as pending-migration (already allowlisted pattern), to be confirmed by scope-plan reviewer as an Open Question"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/init-check-fallback-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "packages/main/src/tasks/story-dedup-smoke.ts",
+    "packages/main/src/tasks/convergence-discarded-smoke.ts",
+    "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+    "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "packages/main/src/tasks/review-loop-smoke.ts",
+    "packages/main/src/tasks/usage-ledger-estimate-smoke.ts",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts"
+  ],
+  "timestamp": "2026-06-17T19:55:25.078Z"
+}

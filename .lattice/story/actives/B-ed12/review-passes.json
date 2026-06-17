@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-ed12:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 15 must-intents covered (5 CHKs x 3 lanes each). Zero production files changed (git diff main...HEAD shows only 15 *-smoke.ts files). Spot-checked 5 smokes standalone: done-preflight-smoke exit 0 (10 assertions including no-bypass/recoverable dirty-main); init-check-fallback-smoke exit 0; review-pass-discard-smoke exit 0; english-open-source-surface-smoke exit 0 (565 files scanned, no CJK outside allowlist); usage-ledger-estimate-smoke exit 0 (55 checks, assertion strengthened to exact ==3 not weakened). Adversarial intent genuinely satisfied across all CHKs.",
+      "createdAt": "2026-06-17T20:40:25.746Z",
+      "reviewRound": "2026-06-17T20:37:55.417Z",
+      "reviewRunId": "B-ed12:RR-003",
+      "_hash": "5b45a3b22c7eb6889d030526a5ecd73a8205c2d23b568e078043854b81c7db9a"
+    },
+    {
+      "id": "B-ed12:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 15 changed smoke test files (zero production files changed). Checked every assertion change for weakening, deletion, or broadening. All regex/text updates track exact new message text - none were broadened to match-anything. Safety assertions preserved across all smokes: done-preflight NO-BYPASS (main store stays TEST, HEAD unchanged, stays on main branch) is intact; story-create-concurrency hard-block still asserted; review-pass-discard residue-cleaned assertions still present with specific patterns; english-open-source-surface CJK detector / scan logic / isFileAllowlisted unchanged - only allowlist DATA arrays grew additively; usage-ledger-estimate estimator assertion tightened from assert.ok(>0) to assert.equal(===3); worktree-repair legacy symlink NOT-rewritten safety assertion added. The done-preflight scenario changed from any-dirty-main to out-of-scope-dirty-main reflecting B-72df production behavior change; in-scope dirty is covered by done-merge-scope-smoke.ts (not in this diff). review-loop store mock interface updated with storyDirPath method addition only; all 35+ test assertions unchanged. No findings.",
+      "createdAt": "2026-06-17T20:40:33.733Z",
+      "reviewRound": "2026-06-17T20:37:55.417Z",
+      "reviewRunId": "B-ed12:RR-002",
+      "_hash": "90424bedc818adda4e3158203997719f473e08b890281beefb232b7a2cbbcfc9"
+    },
+    {
+      "id": "B-ed12:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion/residue check complete. Identified all concept words deleted or renamed in the 15 smoke-ts diffs: (1) assertDoneRejectsWhenMainIsDirty renamed to assertDoneTreatsDirtyMainOutsideMergeScopeAsNonBlockingButNeverBypasses — zero residue in packages/ code; only appears in story metadata (plan.md, index.json, understanding.json, scope-check.json) as documentation of what was changed, not as dangling calls. (2) assertMixedCanonicalLegacyGlobalLinksAreRepaired renamed to assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink — zero residue in packages/ code; story metadata references only. (3) String-literal replacements (Parameter validation failed -> Argument validation failed; All stories complete -> All Stories completed; Primary entrypoint -> Entrypoint; Japanese-task -> japanese-task; suspected duplicate story -> Suspected duplicate/Possibly duplicate; high-risk signal detected -> High-risk signals detected; various worktree-repair messages) — all production handler strings confirmed to match the updated test assertions. (4) freezeScope helper added locally in two new smoke files with no cross-smoke export. (5) English-open-source-surface allowlist additions (done-preflight-smoke.ts, docs-drift-path-drift-smoke.ts, prompt-token-cost-smoke.ts, agent-prompt.ts, validate-docs-drift.ts) all reference files confirmed to exist. No smoke file is imported by another smoke in the changed set. No cross-smoke helper deletion leaves dangling imports. No blocker found.",
+      "createdAt": "2026-06-17T20:41:11.581Z",
+      "reviewRound": "2026-06-17T20:37:55.417Z",
+      "reviewRunId": "B-ed12:RR-001",
+      "_hash": "8f4b543d8c47f681628c897daf532050b04e540a5a7347e82e296e5ac3ee5fc5"
+    },
+    {
+      "id": "B-ed12:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 incremental concept check: single changed file packages/main/src/tasks/lattice-cli-migration-smoke.ts (comment + assertion value fix only). No concept word deleted or renamed. (1) Regex changed from /Primary entrypoint/ to /Entrypoint/ — remaining references to \"Primary entrypoint\" are in story metadata docs only, zero production .ts residue. (2) legacyKoalaAliasPreserved assertion value changed true->false — symbol name preserved in both packages/main/src/handlers/lattice-cli.ts:510 and smoke:243, no dangling reference. No new concept deletions introduced. No blocker found.",
+      "createdAt": "2026-06-17T20:46:28.751Z",
+      "reviewRound": "2026-06-17T20:45:31.789Z",
+      "reviewRunId": "B-ed12:RR-004",
+      "_hash": "6337c407e3e83d7cc801bf664bb9ff68aa7589404cb51398517d7789a5e23236"
+    },
+    {
+      "id": "B-ed12:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 delta is a single comment-line rephrase at lattice-cli-migration-smoke.ts:240 (koala-residue brand gate wording fix). Verified: (a) git diff 2a5b27f...16917b031 shows only one comment line changed — the assertion assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, false) and all logic are unchanged; (b) whole-story invariant holds — git diff main...HEAD --name-only (excl .lattice/) shows only 15 *-smoke.ts files, zero production code. No dead code, no type safety issues, no I/O shell isolation violations introduced by this change. Clean pass.",
+      "createdAt": "2026-06-17T20:46:57.041Z",
+      "reviewRound": "2026-06-17T20:45:31.789Z",
+      "reviewRunId": "B-ed12:RR-005",
+      "_hash": "4e997e8c5c99960f5455dd05cd7a72753c3831c32da4c5506abdd741d8398dd2"
+    },
+    {
+      "id": "B-ed12:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Round 2 incremental check: single changed file lattice-cli-migration-smoke.ts has comment-only and assertion-alignment fixes (Entrypoint regex + legacyKoalaAliasPreserved=false); all 15/15 must-intents remain covered with result=pass; standalone smoke EXIT=0.",
+      "createdAt": "2026-06-17T20:47:06.776Z",
+      "reviewRound": "2026-06-17T20:45:31.789Z",
+      "reviewRunId": "B-ed12:RR-006",
+      "_hash": "f45f0a2c433810be79e604eaae932578cf9c0cfa51dccac239fe55b86a901c17"
+    }
+  ]
+}
