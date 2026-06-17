@@ -86,6 +86,17 @@
           "headHash": "a28ced782af85a147c5c70326c4cda24d9ffe92f",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:05.274Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:all > /dev/null 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — verified 3x consecutive runs all exit 0.",
+          "headHash": "82dd9e3cfa268a011bcb7552406fd311e50b5eb4",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:05.980Z"
         }
       ]
     },
