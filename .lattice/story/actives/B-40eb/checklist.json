@@ -528,9 +528,9 @@
       "id": "CHK-007",
       "title": "验收 gate：git grep -i koala 在 active 范围只剩 documented-exceptions 白名单",
       "context": "跑 git grep -i koala 排除白名单，断言为空；lattice validate 全绿；build + e2e 通过。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T02:15:12.463Z",
       "verificationIntent": {
         "happy": [
           {
