@@ -210,6 +210,17 @@
           "headHash": "daacef5cf7ff7e5d4fd8990de92e15545c3554d2",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:10.444Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"const m=require('./packages/main/smoke-manifest.json');const e=m.smokes.find(s=>s.name==='lattice-baseline');console.log('timeoutMs='+e.timeoutMs+' skip='+!!e.skip)\"",
+          "result": "pass",
+          "note": "Prints 'timeoutMs=240000 skip=false' — manifest entry documents the bumped timeout.",
+          "headHash": "a80a9e61352c1dc5e9fcf0e20ae06d1a097a86e9",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:11.224Z"
         }
       ]
     },
