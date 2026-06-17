@@ -105,6 +105,17 @@
           "headHash": "0d323915af395948c052f3ac36fb30039d65a4e5",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:01.455Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:all -- --tag fast",
+          "result": "pass",
+          "note": "Exit 0; 3/3 passed (the 3 fast-tagged wrapper-root smokes).",
+          "headHash": "80320cd92c3c5778932a54ed6c1351d0a3c13d10",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:02.195Z"
         }
       ]
     },
