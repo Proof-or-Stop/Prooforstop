@@ -497,6 +497,17 @@
           "headHash": "eec8ab7ec7384232b3bb69a4c3a9e3a502ba1f02",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:24.127Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD --name-only -- docs/ | grep -vE 'docs/dev/test-coverage.md|docs/requirements/decisions/test-runner-consolidation-plan.md' | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — only the new docs/dev/test-coverage.md and the existing decision doc edited.",
+          "headHash": "22ed54aa21ae60ec288f8a351018bb2c6a0723ac",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:25.770Z"
         }
       ]
     }
