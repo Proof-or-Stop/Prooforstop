@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-24c3",
+  "mode": "feature",
+  "allowed": [
+    "CHANGELOG.md (Unreleased entry)",
+    "packages/main/smoke-manifest.json (bump 9 timeoutMs entries; add entries if not yet listed)"
+  ],
+  "excluded": [
+    "packages/main/src/handlers/ + core/ + providers/ + cli-engine.ts + cli-prompts.ts (production code OFF LIMITS)",
+    "packages/main/src/tasks/ (all *-smoke.ts source — smoke logic NEVER touched)",
+    "packages/main/src/tasks/run-all-smokes.ts + run-all-smokes-smoke.ts + cli-e2e.ts (B-6efb / B-d7c3 frozen)",
+    "review-pass-discard parallel-only FAIL: file finding + split to follow-up story (NOT a timeout, possibly shared-state race)",
+    "scripts/verify-koala-residue.mjs (B-292d frozen)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User picked option (a) on 2026-06-18 (same pattern as B-2d6c CHK-002 + B-6745 CHK-002). Tests/config-only, no production code, no smoke logic change, no assertion weakened.",
+  "createdAt": "2026-06-17T23:47:25.800Z",
+  "updatedAt": "2026-06-17T23:47:25.800Z",
+  "_hash": "eaeb66cc384e6d36d98bfb3531e46c0dfff8f36342a430100dc73123318ad5e5"
+}

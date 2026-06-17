@@ -1,8 +1,8 @@
 {
   "storyId": "B-24c3",
   "name": "parallel-race-timeout-bumps-9-smokes",
-  "title": "Story #5: bump timeoutMs for 9 parallel-race-timeout smokes (smoke-manifest.json only)",
-  "description": "Bump per-smoke timeoutMs in packages/main/smoke-manifest.json for 8 smokes (default 60s → 180s) + lattice-baseline (240s → 360s) so npm run test:all parallel exits 0 across consecutive runs. All 9 smokes PASS standalone; the failures are purely parallel worker-pool race / load amplification. Pattern mirrors B-2d6c CHK-002 + B-6745 CHK-002 (tests/config only, 0 production change, 0 smoke logic change). review-pass-discard parallel-only FAIL is OUT of scope (filed as follow-up finding).",
+  "title": "Story #5 (within the 2026-06-17/18 OSS-launch fix-wave): bump timeoutMs for 9 parallel-race-timeout smokes (smoke-manifest.json only)",
+  "description": "Bump per-smoke timeoutMs in packages/main/smoke-manifest.json for 8 smokes (default 60s \u2192 180s) + lattice-baseline (240s \u2192 360s) so npm run test:all parallel exits 0 across consecutive runs. All 9 smokes PASS standalone; the failures are purely parallel worker-pool race / load amplification. Pattern mirrors B-2d6c CHK-002 + B-6745 CHK-002 (tests/config only, 0 production change, 0 smoke logic change). review-pass-discard parallel-only FAIL is OUT of scope (filed as follow-up finding).",
   "type": "bug",
   "phase": "INIT",
   "priority": "high",

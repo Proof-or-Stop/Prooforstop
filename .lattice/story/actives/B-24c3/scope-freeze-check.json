@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-24c3",
+  "checkedAt": "2026-06-17T23:47:27.770Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "eaeb66cc384e6d36d98bfb3531e46c0dfff8f36342a430100dc73123318ad5e5",
+  "executionBoundaryHash": "6b08244c89a815f5a51ce66fa5fe3816b5b388aea3974cf83edc752ff1c12cdb",
+  "freshnessHash": "976a5a3dbd18ec3ac95a01e91304b4c44161423c034d382b4936bb825acd148f",
+  "effectiveExcludedKeywords": [
+    "packages/main/src/handlers/ + core/ + providers/ + cli-engine.ts + cli-prompts.ts (production code OFF LIMITS)",
+    "packages/main/src/tasks/ (all *-smoke.ts source — smoke logic NEVER touched)",
+    "packages/main/src/tasks/run-all-smokes.ts + run-all-smokes-smoke.ts + cli-e2e.ts (B-6efb / B-d7c3 frozen)",
+    "review-pass-discard parallel-only FAIL: file finding + split to follow-up story (NOT a timeout, possibly shared-state race)",
+    "scripts/verify-koala-residue.mjs (B-292d frozen)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "packages/main/src/handlers/ + core/ + providers/ + cli-engine.ts + cli-prompts.ts (production code OFF LIMITS)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/ + core/ + providers/ + cli-engine.ts + cli-prompts.ts (production code OFF LIMITS)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/tasks/ (all *-smoke.ts source — smoke logic NEVER touched)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/tasks/ (all *-smoke.ts source — smoke logic NEVER touched)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/tasks/run-all-smokes.ts + run-all-smokes-smoke.ts + cli-e2e.ts (B-6efb / B-d7c3 frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/tasks/run-all-smokes.ts + run-all-smokes-smoke.ts + cli-e2e.ts (B-6efb / B-d7c3 frozen)",
+      "excluded": true
+    },
+    {
+      "keyword": "review-pass-discard parallel-only FAIL: file finding + split to follow-up story (NOT a timeout, possibly shared-state race)",
+      "source": "scopeBoundary.excluded",
+      "text": "review-pass-discard parallel-only FAIL: file finding + split to follow-up story (NOT a timeout, possibly shared-state race)",
+      "excluded": true
+    },
+    {
+      "keyword": "scripts/verify-koala-residue.mjs (B-292d frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "scripts/verify-koala-residue.mjs (B-292d frozen)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7cc7deeda29781b70b07e3cf717d12b00c3af1a5c6fe532e2513017554ee4b34"
+}
