@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1480",
+  "allowedCommands": [
+    "git *",
+    "node .lattice/story/actives/B-1480/evidence/*.mjs",
+    "node bin/lattice.js *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-1480/",
+    "docs/requirements/decisions/lattice-experience-layer-execution-plan.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Plan-only doc story: only create the one decision document and its evidence verifier; no source builds required.",
+  "createdAt": "2026-06-17T01:53:33.578Z",
+  "updatedAt": "2026-06-17T01:53:33.578Z",
+  "_hash": "9991836b45f0ee3483ad3c5cb0d9d05c67db495cb90e076cdc8196b18828f3e8"
+}

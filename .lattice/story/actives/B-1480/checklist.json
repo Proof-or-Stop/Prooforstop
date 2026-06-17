@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create the English execution-plan doc at the canonical decisions path in house format (Story header, plan-only scope note, Problem/Principles/Architecture/Roadmap sections)",
+      "context": "Match the format of lattice-llm-usage-ledger-execution-plan.md; freeform English markdown; plan only, no source code.",
+      "userSees": "File docs/requirements/decisions/lattice-experience-layer-execution-plan.md exists; opens with a Story: B-xxxx header and a scope note stating it is a future-execution plan only.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record the grounded module decomposition and the reuse-not-rebuild and cut-FTS decisions",
+      "context": "4 core + 2 handler modules under packages/main with one-way inward coupling (usage-ledger style); reuse dev-memory capture, decision-doc-promotion digest pattern, activity-log appender; cut full-text search for v1.",
+      "userSees": "The doc contains a module-decomposition section listing the new core/ and handlers/ modules, a reuse section naming dev-memory.ts / decision-doc-promotion.ts / activity-log.ts, and an explicit cut-FTS statement.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document the three determinism guardrails and the back-compat rules",
+      "context": "Guardrails: audit-only finding fields excluded from gates; finding-signals read via stable finding accessor (store.readFindings) not raw findings.json; hints excluded from reviewer promptHash domain. Back-compat: dismissReasonType optional; flat underscore command names.",
+      "userSees": "The doc has a determinism-guardrails section enumerating all three guardrails and a back-compat note (optional dismissReasonType, flat underscore commands).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the phased roadmap with first story = verifiable finding-signals slice, and include accurate code anchors",
+      "context": "Phased rollout (Phase 1a first, then 1b/1.5/2/3/4); first story is the finding-signals vertical slice proven by an unchanged currentMaterialHash() test; code anchors are real file paths.",
+      "userSees": "The doc has a roadmap section naming Phase 1a as the first story and an appendix of real code anchors; no Co-Authored-By trailer anywhere.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
