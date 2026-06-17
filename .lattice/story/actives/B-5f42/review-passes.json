@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-17T00:31:53.894Z",
       "reviewRunId": "B-5f42:RR-011",
       "_hash": "7b9146973559dda4f39cb186bc2386bcdd42170c688bbafeef1bbab549063a77"
+    },
+    {
+      "id": "B-5f42:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Test 7 (init-rerun hook merge regression) passes all quality checks: both PreToolUse hooks asserted present (english-only-guard merged in) + scope hook appears exactly once (no duplication); mkdtempSync for tmpRoot and tmpHome both cleaned in finally with rmSync recursive+force; no literal CJK in file (confirmed zero non-ASCII); no unused imports; any annotations at lines 392-394 are legitimate (JSON.parse returns any, immediately narrowed with typeof guards, same pattern as managed-assets.ts:383); precondition assertion guards the meaningful exactly-once check; follows existing test style (mkdtempSync/try/finally/rmSync identical to Tests 3 and 4); no flakiness risk (unique temp dirs, isolated HOME, synchronous subprocess); all 7 tests green on node packages/main/dist/tasks/english-only-guards-smoke.js.",
+      "createdAt": "2026-06-17T00:34:59.588Z",
+      "reviewRound": "2026-06-17T00:31:53.894Z",
+      "reviewRunId": "B-5f42:RR-012",
+      "_hash": "bfc9dacd6d23a490e0a6481cf18f99af08c75c4033afedab91a8073c53e67aac"
     }
   ]
 }
