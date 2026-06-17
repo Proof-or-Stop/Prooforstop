@@ -4,11 +4,11 @@
   "title": "Experience Layer Phase 1.5: advisory review-time hint injection (experience-hint-loader + story-review advisory section + usage tracking), excluded from the reviewRunId promptHash domain",
   "description": "Implement Phase 1.5 from docs/requirements/decisions/lattice-experience-layer-execution-plan.md: a core/experience-hint-loader.ts that ranks finding-signals by priority=signalScore*log(1+support)*recencyBoost, filters (recurring>=0.65; common-false-positive bucket) and formats top-N hints with progressive disclosure; surfaced as an advisory-only section in handlers/story-review.ts mirroring grillSection; with experience_hint_surfaced usage tracking via appendActivityLog. Load-bearing guardrail: hints are advisory-only and never affect the deterministic reviewRunId binding — resolveReviewPromptHash must stay independent of hint content. No gate logic changes. Proven by a smoke covering ranking/filter/top-N, advisory presence, usage event, and the promptHash determinism guardrail.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-06-17T13:10:19.038Z",
   "startedAt": "2026-06-17T13:10:19.038Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T13:56:06.176Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:12:55.034Z",
+      "branch": "story/B-1dc9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:22:45.478Z",
+      "branch": "story/B-1dc9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:34:28.121Z",
+      "branch": "story/B-1dc9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:45:32.969Z",
+      "branch": "story/B-1dc9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:45:33.991Z",
+      "branch": "story/B-1dc9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:51:04.900Z",
+      "branch": "story/B-1dc9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:56:06.176Z",
+      "branch": "story/B-1dc9",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1dc9",
-    "branch": "story/B-1dc9",
-    "createdAt": "2026-06-17T13:12:34.120Z"
-  }
+  "currentReviewRound": "2026-06-17T13:45:33.991Z"
 }

@@ -1,0 +1,75 @@
+{
+  "storyId": "B-1dc9",
+  "checkedAt": "2026-06-17T13:55:21.582Z",
+  "reviewRound": "2026-06-17T13:45:33.991Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/experience-hint-loader.ts#module-header",
+      "promise": "loadExperienceHints ranks finding-signals by priority=signalScore*log(1+support)*recencyBoost, filters recurring and common_false_positive buckets, caps top-N, returns progressive-disclosure summaries",
+      "status": "met",
+      "verifiedBy": "diff and real-machine smoke test",
+      "evidence": "experience-hint-loader.ts lines 114-261: computePriority, RECURRING_SCORE_THRESHOLD=0.65, FALSE_POSITIVE_SCORE_CEILING=0.45, DEFAULT_MAX_RECURRING=3, DEFAULT_MAX_FALSE_POSITIVE=2, summaryLine progressive disclosure. All 5 core ranking/filter/cap smoke checks PASS."
+    },
+    {
+      "docPath": "packages/main/src/core/experience-hint-loader.ts#import-isolation",
+      "promise": "Module imports ONLY learning-store, leaf types, and node builtins; no other outward imports; deterministic given opts.now injection",
+      "status": "met",
+      "verifiedBy": "diff and import-fence smoke assertions",
+      "evidence": "experience-hint-loader.ts imports: only experience-layer-types.js and learning-store.js. Smoke check import fence PASS; non-vacuous injected-violation detection PASS."
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-review.ts#advisory-hints-section",
+      "promise": "story_review surfaces a Project experience hints advisory section in _reviewPrompt when signals exist; omitted when none; mirrors grillSection placement before Checklist; never feeds resolveReviewPromptHash",
+      "status": "met",
+      "verifiedBy": "diff and smoke assertions",
+      "evidence": "story-review.ts lines 528-578 and 658: loads hints, formats section, appends after grillSection before checklistSection. Smoke: advisory section present when signals PASS; absent when zero signals PASS; mirrors grillSection placement PASS; resolveReviewPromptHash identical with/without hints PASS."
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-review.ts#usage-tracking-dedup",
+      "promise": "Exactly one experience_hint_surfaced usage event per review round, deduped on story.currentReviewRound; PLAN-phase fallback key plan-phase; repeated calls in same round produce only one event",
+      "status": "met",
+      "verifiedBy": "diff and smoke assertions",
+      "evidence": "story-review.ts lines 550-572: hintRoundKey = story.currentReviewRound or plan-phase fallback; alreadySurfaced check; appendActivityLog only if not already surfaced. Smoke: surface twice same run yields one event PASS; all-filtered signals no event PASS."
+    },
+    {
+      "docPath": "packages/main/src/core/experience-hint-loader.ts#promptHash-guardrail",
+      "promise": "Hint content NEVER enters resolveReviewPromptHash or reviewRunId computation; core/review-run.ts is untouched",
+      "status": "met",
+      "verifiedBy": "git diff main...HEAD on review-run.ts returned empty; smoke guardrail assertions",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/review-run.ts produced no output. Smoke: review-run.ts unchanged vs main PASS; resolveReviewPromptHash identical with/without hints PASS."
+    },
+    {
+      "docPath": "packages/main/package.json#test-script",
+      "promise": "npm script test:experience-layer-hint-injection added to packages/main/package.json pointing to the smoke build artifact",
+      "status": "met",
+      "verifiedBy": "grep package.json",
+      "evidence": "packages/main/package.json line: test:experience-layer-hint-injection = node dist/tasks/experience-layer-hint-injection-smoke.js"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:experience-layer-hint-injection TOTAL 22 PASS 22 FAIL 0 smoke passed. Covers ranking with log-damping, score threshold boundary, common_false_positive bucket, top-N truncation, boundary caps, progressive disclosure, malformed-file grace, NaN exclusion, cold-start missing file, empty-hints path."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke checks 13-16 are story_review-level integration: advisory section present in _reviewPrompt when signals exist PASS; mirrors grillSection placement before Checklist PASS; absent when zero signals PASS; absent when all-filtered PASS; special-character signals safe PASS."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Per-round dedup: surface twice same run yields one event PASS. PromptHash guardrail: resolveReviewPromptHash identical with/without hints PASS. review-run.ts unchanged PASS. Import isolation fence with non-vacuous violation detection PASS. finding-signals regression TOTAL 21 PASS 21 FAIL 0. finding-enums regression TOTAL 21 PASS 21 FAIL 0."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Smoke script committed at packages/main/src/tasks/experience-layer-hint-injection-smoke.ts. npm script test:experience-layer-hint-injection registered. Verifier verify-b-1dc9.mjs TOTAL 30 PASS 30 FAIL 0 all seven flags true. No regression in finding-signals or finding-enums smokes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docs promises verified directly in code diff and real-machine test output. Smoke suite 22/22 covers happy path, boundary and edge cases including score threshold boundary, top-N cap boundary, one-hit vs many-hit ranking, empty buckets, cold start, malformed file, identical-priority stable sort, and adversarial cases including import-fence violation injection, promptHash guardrail, per-round dedup. review-run.ts confirmed untouched by both git diff and dedicated smoke check. No TODOs in delivered source files. Verifier TOTAL 30 PASS 30 FAIL 0."
+  },
+  "_hash": "06c35dfe145ed60a5c9e138f292f178d621134b61bb85a3f44fdb6051fa58537"
+}
