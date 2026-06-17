@@ -76,9 +76,9 @@
           "command": "grep -c 'KOALA_RESIDUE_GATE_LABEL' packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
           "note": "Returns 3 (declaration + 2 usages — fast-channel and main-path dispatch).",
-          "headHash": "898e3cf88f9dc02571adbd4d9f46544b15d0d6ef",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:48.455Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -87,9 +87,9 @@
           "command": "grep -c 'koala-residue' packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
           "note": "Returns 5+ (label string + union type 'koala-residue' + 2 gate-name entries + comment).",
-          "headHash": "6855c81caf9a3ceb556c5becd27028dd9cbd0e37",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:49.083Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -98,9 +98,9 @@
           "command": "grep -c 'function runKoalaResidueGate\\|const runKoalaResidueGate' packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
           "note": "Returns 1 — function runKoalaResidueGate(projectRoot: string): KoalaResidueGateResult defined.",
-          "headHash": "332756337467b6efdc5c467f5df594072d82a239",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:49.712Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -109,9 +109,9 @@
           "command": "grep -c koala-residue packages/main/dist/handlers/review-preflight.js",
           "result": "pass",
           "note": "Returns 5+ — compiled dist contains the gate logic.",
-          "headHash": "a2495a671814ab84398fd7fe62ede9031caece0e",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:50.342Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -120,9 +120,9 @@
           "command": "node scripts/verify-koala-residue.mjs; echo $?",
           "result": "pass",
           "note": "Prints PASS line then 0 — clean state, gate passes.",
-          "headHash": "d916776a7cf9dfe35a6377077b4c84ccd75099d2",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:50.944Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -142,9 +142,9 @@
           "command": "git diff main...HEAD -- scripts/verify-koala-residue.mjs | wc -l",
           "result": "pass",
           "note": "Returns >0 (acknowledged scope expansion). The script's own comment line 213 invited Story 4 to refine NEUTRAL_TOKEN_PATTERNS; scope_contract_acknowledge recorded the expansion. Added 5 narrow line-level exemptions for gate self-identifiers only; no whole-file allowlist.",
-          "headHash": "0f5dfc892fffaf2f5433968fce0c28444f8dc274",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:52.189Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -164,9 +164,9 @@
           "command": "ls packages/main/src/handlers/validate-koala-residue.ts 2>&1 | grep -c 'No such'",
           "result": "pass",
           "note": "Returns 1 — confirms option (a) preflight-only; no validate-koala-residue.ts handler created.",
-          "headHash": "a03f520b3c0fe0483b66d02ea761543728e79914",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:53.409Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         }
       ]
     },
@@ -242,9 +242,9 @@
           "command": "awk '/REVIEW.*TEST PREFLIGHT/,/EXAMPLES/' packages/main/src/cli-prompts.ts | grep -cE '^  [0-9]\\.'",
           "result": "pass",
           "note": "Returns 7 — cli-prompts.ts REVIEW->TEST PREFLIGHT block lists all 7 gates.",
-          "headHash": "00b8c4b9a3fbfa5a42ae33b62777261af1b91422",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:54.064Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -253,9 +253,9 @@
           "command": "grep -c koala-residue packages/main/src/cli-prompts.ts",
           "result": "pass",
           "note": "Returns 1 — koala-residue listed at item 7.",
-          "headHash": "62c99ff1588703569fcceff8d709075c6747bb02",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:54.647Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -264,9 +264,9 @@
           "command": "grep -c english-artifacts packages/main/src/cli-prompts.ts",
           "result": "pass",
           "note": "Returns 1 — english-artifacts listed at item 6 (was missing before this story).",
-          "headHash": "d3c66b45415707f224fe1f16bead2b690e46e4e1",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:55.334Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -275,9 +275,9 @@
           "command": "grep -cE koala-residue CLAUDE.md",
           "result": "pass",
           "note": "Returns 4+ — CLAUDE.md gate table updated; backticks count as additional hits.",
-          "headHash": "792c4fa4a470ba8569a641294b7b5502c78a4473",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:55.998Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -286,9 +286,9 @@
           "command": "awk '/REVIEW.*TEST PREFLIGHT/,/EXAMPLES/' packages/main/dist/cli-prompts.js | grep -cE '[0-9]\\.'",
           "result": "pass",
           "note": "Returns 7 — rebuilt dist shows updated --help text.",
-          "headHash": "0c57b269e48cc011f46c09b93b1e538b1e9f5dee",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:56.611Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -297,9 +297,9 @@
           "command": "git diff main...HEAD --name-only -- packages/main/src/handlers/ | grep -v review-preflight.ts | wc -l",
           "result": "pass",
           "note": "Returns 0 — only review-preflight.ts in handlers/ modified.",
-          "headHash": "5269c918b11a399183a52a5e1e626cb9431f91bf",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:57.312Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -308,9 +308,9 @@
           "command": "git diff main...HEAD --name-only -- 'packages/main/src/handlers/validate-*.ts' | wc -l",
           "result": "pass",
           "note": "Returns 0 — no validate-*.ts handlers touched (option (a) compliance).",
-          "headHash": "bec59748687542842b96b34f29e7f8db5538034e",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:58.232Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -319,9 +319,9 @@
           "command": "node -e \"console.log(require('./package.json').scripts['test:koala-residue']||'MISSING')\"",
           "result": "pass",
           "note": "Prints 'node scripts/verify-koala-residue.mjs' (non-MISSING) — a3 preservation: root package.json test:koala-residue script still present.",
-          "headHash": "96e2d5850e1d8b2c2a124c58d52090dfe4b5e7ce",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:59.069Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         }
       ]
     },
@@ -381,9 +381,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ci koala-residue",
           "result": "pass",
           "note": "Returns 3+ — Unreleased section mentions koala-residue (gate name + gate-related references).",
-          "headHash": "4e72747ee3c56d71fcef75506781adaa178f412a",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:45:59.752Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -392,9 +392,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c B-292d",
           "result": "pass",
           "note": "Returns 1 — Unreleased entry names B-292d for traceability.",
-          "headHash": "b2d758c49f2e38c6ebd943b872fdcae0c22206cc",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:46:00.594Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -403,9 +403,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c 'Test infrastructure'",
           "result": "pass",
           "note": "Returns 1 — entry under Test infrastructure subsection (consistency with B-d7c3 + B-c6cf).",
-          "headHash": "376a7a7934e5436610d2f458f44bf6900d986372",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:46:01.249Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -414,9 +414,9 @@
           "command": "git diff main -- CHANGELOG.md | grep -E '^[-+]## ' | grep -vE 'Unreleased' | wc -l",
           "result": "pass",
           "note": "Returns 0 — only Unreleased section touched.",
-          "headHash": "8d52420733d355dad089504c7c82ea36642a748b",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:46:01.869Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -425,9 +425,9 @@
           "command": "git diff main...HEAD --name-only -- scripts/ | wc -l",
           "result": "pass",
           "note": "Returns 1 (acknowledged: scripts/verify-koala-residue.mjs scope-acked for the line-level exemption additions, no other script files touched).",
-          "headHash": "ff30fcebdbf68daa6a87ecb2e601a86e69355969",
-          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
-          "timestamp": "2026-06-17T17:46:02.542Z"
+          "headHash": "bb66bc1c0cf9289e278229ed6e73d7550d20adde",
+          "materialHash": "7ea3ebcbd5c2e273fefa77ee0b844b8af7ac1eae378e63fa8e6f3a0908742c91",
+          "timestamp": "2026-06-17T17:50:25.184Z"
         }
       ]
     }
