@@ -1,0 +1,178 @@
+{
+  "storyId": "B-a2e3",
+  "checkedAt": "2026-06-17T23:50:26.281Z",
+  "features": [
+    {
+      "feature": "anchorFiles field on FindingSignal (records file paths from composing findings)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "MAX_ANCHOR_FILES constant mirroring MAX_EXAMPLES (union-sorted-capped accumulation)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No change to localSignature key",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: No change to localSignature key",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No change to signalScore/support math",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: No change to signalScore/support math",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "revalidateSignals(cache, fileExists) — classifies each signal valid/stale/unanchored",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "computeValidRate — aggregates total/anchored/valid/stale/unanchored + validRate + driftRate",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "fileExists injected as predicate (no fs/git in the pure-leaf module)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No filesystem or git access in the pure-leaf module",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: No filesystem or git access in the leaf",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No persisted output from the re-validation leaf",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: No persisted output",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "learning_validate CLI command — read-only, prints valid-rate and drift-rate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "--json flag for machine-readable output from learning_validate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "--story flag to restrict learning_validate to a single story",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "fileExists built from git ls-tree (own execFileSync, do NOT modify evidence-freshness.ts)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Register handler in registry.ts + cli-engine.ts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No gate registration",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes: No gate registration",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No finding_add / advisory output",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes: No finding_add / advisory output",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No cache write",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes: No cache write",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Hermetic smoke test for pure re-validation leaf (synthetic signals + injected fileExists)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "CLI smoke test that runs learning_validate on temp store and asserts valid-rate line",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "npm script wired for smoke tests",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Committed verify-*.mjs verifier printing TOTAL/PASS/FAIL",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No network in smoke tests",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-004 excludes: No network",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No reliance on real repo state in the hermetic leaf test",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-004 excludes: No reliance on real repo state in the hermetic leaf test",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 13,
+    "excluded": 10,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "78e240643bc1590402501f1be80bf1e3af07d6af288b1b1871e8e60ffbb724d8",
+  "openQuestions": []
+}
