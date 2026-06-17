@@ -1,0 +1,122 @@
+{
+  "storyId": "B-1480",
+  "checkedAt": "2026-06-17T02:09:06.069Z",
+  "features": [
+    {
+      "feature": "House-format execution-plan doc at canonical decisions path with Story header, plan-only scope note, Problem/Principles/Architecture/Roadmap sections",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Module decomposition: 4 core modules (experience-layer-types, learning-store, finding-signals, experience-hint-loader) and 2 handler modules (learning, playbook)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "One-way inward coupling constraint: handler → core → types, zero outward imports from existing code",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse-not-rebuild decisions: extend dev-memory.ts, clone decision-doc-promotion.ts digest pattern, reuse activity-log.ts appendActivityLog",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Explicit cut-FTS decision for v1 (no FTS engine; Level 2 recall uses structured filtering + existing story_list scan)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Determinism guardrail 1: audit-only finding fields (signatureTag, resolutionType, dismissReasonType, resolveEvidenceStrength, dismissEvidenceStrength) excluded from any gate read",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Determinism guardrail 2: finding-signals read via stable finding accessor store.readFindings, never raw findings.json",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Determinism guardrail 3: reviewer hints excluded from promptHash domain (or pinned per reviewRunId)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Back-compat rules: dismissReasonType optional; flat underscore command names",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Phased roadmap with Phase 1a (verifiable finding-signals vertical slice) as first story, proven by unchanged currentMaterialHash() test",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Code-anchor appendix listing real file paths (types.ts, finding.ts, store.ts, advisory.ts, dev-memory.ts, runtime-artifact-registry.ts, story-review.ts, activity-log.ts, decision-doc-promotion.ts)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No Co-Authored-By trailer anywhere in the doc",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Implementing TypeScript modules, handlers, or runnable commands (source code)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: implementing any TypeScript module, handler, or command",
+      "source": "description"
+    },
+    {
+      "feature": "Editing gate logic or existing repo files (other than adding the new doc)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: editing gate logic, changing any existing repo file other than adding the new doc",
+      "source": "description"
+    },
+    {
+      "feature": "Building a full-text search or retrieval engine",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: building any search/retrieval engine",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0a0749eb90ae98a07799ea8af897aa135f7e9e6f173b2710202dc1bed41f9fe0",
+  "openQuestions": []
+}
