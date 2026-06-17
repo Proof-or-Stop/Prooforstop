@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f675",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "lattice *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm --prefix packages/main test",
+    "npx tsc *",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-f675",
+    "CLAUDE.md",
+    "packages/main/package.json",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Read-only helper in core + a read-only CLI + an advisory block in handlers/transition-effects.ts + a smoke under packages/main/src/tasks + CLAUDE.md docs. No gate/binding/staleness change. English-only artifacts.",
+  "createdAt": "2026-06-17T00:41:18.134Z",
+  "updatedAt": "2026-06-17T00:41:18.134Z",
+  "_hash": "1e43be39aeafa4d4489229babdc933bb534e1596ae775c10f081f8981df36008"
+}
