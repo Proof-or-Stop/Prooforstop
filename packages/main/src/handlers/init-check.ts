@@ -21,6 +21,7 @@ import type { HandlerContext } from './context.js';
 import type { InitCheckData, InitCheckIssue } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/story-owner-lease.js';
 import {
   INIT_CHECK_SALT,
@@ -285,8 +286,15 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         }));
 
         // 4) Audit attestation block (NOT in signature domain; surface + traceability).
+        // B-75f0 CHK-002: a real storyId (args.storyId) + store are in scope, so
+        // resolve the audit git cwd with the id-keyed resolveGitCwd. On a
+        // wrapper-root layout it is the real gitRoot subdir so the headHash /
+        // git-identity probes read the actual repo; on a plain repo (or when no
+        // gitRoot resolves) it falls back to root verbatim (byte-identical). The
+        // omit-on-failure behavior (try/catch leaving headHash/actor unset) is
+        // preserved on a non-git or unavailable cwd.
+        const auditGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
         let headHash: string | undefined;
-        const auditGitCwd = root;
         try {
           headHash = execSync('git rev-parse HEAD', { cwd: auditGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim() || undefined;
         } catch { /* PROBE: non-git or unavailable, omit headHash */ }

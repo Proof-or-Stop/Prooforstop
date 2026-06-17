@@ -224,8 +224,11 @@ export interface ReviewRunSnapshotContext {
   expectedWorktreeRoot?: string;
 }
 
-function isGitRepository(projectRoot: string): boolean {
-  const gitCwd = projectRoot;
+function isGitRepository(gitCwd: string): boolean {
+  // B-75f0 CHK-004: param named `gitCwd` because every caller chain ends at
+  // captureReviewRunSnapshot(signedWorkspaceRoot, ...) — the inbound value is
+  // the already-resolved signedWorkspaceRoot (authoritativeCwd), never a bare
+  // metadataRoot. Pure rename, zero behavior change.
   try {
     const result = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], {
       cwd: gitCwd,

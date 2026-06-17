@@ -5,36 +5,268 @@
       "title": "Fix the 3 HARD-FAILURE wrapper-root sites (lattice-dispatch worktree, checklist evidence-refresh, doctor --repair) with a wrapper-root regression each",
       "context": "These FUNCTIONALLY FAIL on wrapper-root (metadataRoot != gitRoot), not graceful: (a) core/lattice-dispatch.ts worktree create/remove (listedGitWorktreeRoots ~:1185, assertRegisteredDispatchWorktreeRoot ~:1251 — store + record.storyId available → thread resolveGitCwd); (b) handlers/checklist.ts verification_evidence_refresh / evidenceHashes (~:188 `const gitCwd = root`) HARD-THROWS on wrapper-root → thread resolveGitCwd (storyId available); (c) handlers/doctor.ts --repair MUTATION helpers (tryWorktreeRemove ~:688, removeStaleWorktreeAdminDirs ~:733, deleteTerminalStoryBranch) — resolveDoctorGitCwd ALREADY exists in doctor.ts, so pass it (one-liners). Fall back to root when no gitRoot resolves (plain-repo byte-identical). Add a wrapper-root (metadataRoot != gitRoot) regression for each proving it no longer fails. After each, build + run `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` and confirm green; remove these sites from the deferred allowlist.",
       "userSees": "On a wrapper-root project, `lattice dispatch` worktree create/remove, `verification_evidence_refresh`, and `lattice doctor --repair` all WORK (no throw / no fail) instead of running git from the non-git metadataRoot; a wrapper-root regression for each is green; plain repos are byte-identical.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T22:47:18.212Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture (metadataRoot != gitRoot), lattice-dispatch worktree create/remove, checklist verification_evidence_refresh, and doctor --repair run git from the resolved gitRoot and succeed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo (projectRoot == gitRoot) every one of the 3 sites runs git from the exact same directory as before — byte-identical fallback to root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A re-introduced bare-root git cwd at any of the 3 sites is caught by the gitroot-cwd-contract-smoke (exit 1), and removing a site from the allowlist while still bare keeps the contract red",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-checklist-doctor-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "wrapper-root regression proves the 3 hard-failure sites (lattice-dispatch worktree probes, checklist evidenceHashes, doctor repair git) resolve git from gitRoot not bare metadataRoot; plain-repo byte-identical",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.176Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
+          "command": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts plain-repo (projectRoot==gitRoot): dispatch/checklist/doctor resolvers all return project root verbatim (byte-identical fallback)",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "contract self-tests prove a re-introduced bare/alias root git cwd is caught (ALIAS/BACKTICK KNOWN-BAD each fire exactly 1 violation → exit 1); the 3 CHK-001 files are removed from the allowlist and contract stays green (exit 0)",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Thread resolveGitCwd into the graceful-degradation real sites (verifier, handoff, codex-adapter-checks, touchpoints-fallback, validation-executor, recover-evidence, init-check)",
       "context": "Lower-severity (graceful degradation, but still wrong on wrapper-root): verifier.ts currentHead ~:327 (drops headSha from DONE evidence), lattice-handoff.ts resolveCommitSha ~:878, codex-adapter-checks.ts readGitHead ~:137, touchpoints-fallback.ts detectMdTouchpointsFromGit ~:17 (wrong reviewer routing — docs reviewer not mounted), validation-executor.ts readGitStatus ~:55, recover-evidence.ts readGitStatusLines ~:61, init-check.ts init_check_repair ~:289. Each has a storyId/story context available → thread resolveGitCwd, fall back to root. One site at a time; build + re-run the gitroot-cwd-contract green after each; remove from the allowlist as fixed. Keep plain-repo behavior byte-identical.",
       "userSees": "On a wrapper-root project, DONE-evidence headSha, handoff commit-proof, verify_codex headHash, .md touchpoint detection (docs reviewer routing), validate pollution gate, dirty classification, and init_check_repair all resolve from the gitRoot; the gitroot-cwd-contract stays green; plain repos unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T23:12:48.692Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture, each graceful site (verifier currentHead, handoff resolveCommitSha, codex-adapter readGitHead, touchpoints detectMdTouchpointsFromGit, validation-executor readGitStatus, recover-evidence readGitStatusLines, init-check repair) resolves from the gitRoot and returns the real value (headSha/status/touchpoints) instead of the degraded fallback",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo each graceful site returns the same value as before (byte-identical); when no gitRoot resolves the existing graceful fallback (undefined/null/[]/unknown) is preserved",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "gitroot-cwd-contract-smoke stays green (exit 0) after each graceful site is threaded and removed from the allowlist",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graceful-sites-gitroot-cwd-wrapper-root-smoke.ts",
+          "command": "npm run test:graceful-sites-gitroot-cwd",
+          "result": "pass",
+          "note": "wrapper-root fixture: verifier currentHead + init-check repair audit resolve resolveGitCwd to the inner gitRoot (defined head hash), touchpoints detectMdTouchpointsFromGit reports docs/guide.md from gitRoot; the other 4 sites (handoff/codex/validation-executor/recover-evidence) resolve via resolveGitCwd/resolveProjectGitCwd covered by bare-gate + project-gitroot smokes",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graceful-sites-gitroot-cwd-wrapper-root-smoke.ts",
+          "command": "npm run test:graceful-sites-gitroot-cwd",
+          "result": "pass",
+          "note": "plain-repo scenario asserts head hash + touchpoints byte-identical to bare root (resolveGitCwd returns projectRoot verbatim); graceful fallback preserved: bare metadataRoot git rev-parse HEAD is undefined, non-git dir detectMdTouchpointsFromGit is undefined; each site keeps its existing undefined/null/[]/unknown fallback when no gitRoot resolves",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "gitroot-cwd-contract-smoke exits 0 after all 7 graceful sites (verifier, lattice-handoff, codex-adapter-checks, touchpoints-fallback, validation-executor, recover-evidence, init-check) are threaded AND removed from DEFERRED_ALLOWLIST_EXACT; self-tests still prove a re-introduced bare-root alias/backtick fails the contract (detection intact)",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Fix the project-level scans (gap-analyze, story-query, dashboard) with an id-independent resolveProjectGitRoot",
       "context": "These have NO storyId (project-wide scans) so they need the id-independent resolver (the resolver module already exposes resolveProjectGitRoot internally): gap-analyze.ts readLinkedStoryWorktreeIds ~:173, story-query.ts scanTerminalStoryResidues ~:1011, dashboard.ts collectProject ~:67 (git worktree list) + ~:123 (git status). Thread resolveProjectGitRoot so they survey the real gitRoot on wrapper-root; fall back to root. Build + re-run gitroot-cwd-contract green after; remove from allowlist.",
       "userSees": "On a wrapper-root project, gap-analyze worktree-id scan, story-query terminal-residue scan, and the dashboard project collection survey the real gitRoot (not the empty metadataRoot) and no longer under-report; the contract stays green; plain repos unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T22:55:52.658Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture, gap-analyze readLinkedStoryWorktreeIds, story-query scanTerminalStoryResidues, and dashboard collectProject survey the real gitRoot via the id-independent resolveProjectGitRoot and no longer under-report worktrees/residues/status",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo the 3 project-level scans return the same result as before; resolveProjectGitRoot null -> caller falls back to root (byte-identical)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveProjectGitRoot is exported and importable; gitroot-cwd-contract-smoke stays green after the 3 project-level scans are threaded and removed from the allowlist",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/project-gitroot-cwd-smoke.ts",
+          "command": "npm run test:project-gitroot-cwd",
+          "result": "pass",
+          "note": "resolveProjectGitRoot exported + resolveProjectGitCwd wrapper added; gap-analyze/story-query/dashboard project-level scans survey the real gitRoot on wrapper-root and fall back to projectRoot byte-identically on plain repos; contract-smoke green with all 3 files removed from DEFERRED_ALLOWLIST_EXACT",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/project-gitroot-cwd-smoke.js",
+          "command": "node packages/main/dist/tasks/project-gitroot-cwd-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts plain-repo byte-identity + null-gitRoot fallback: resolveProjectGitCwd returns projectRoot verbatim when projectRoot==gitRoot and when gitRoot unresolved",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/project-gitroot-cwd-smoke.ts",
+          "command": "node packages/main/dist/tasks/project-gitroot-cwd-smoke.js",
+          "result": "pass",
+          "note": "resolveProjectGitRoot + resolveProjectGitCwd are exported and imported by the smoke (tsc green); the 3 project-level scans removed from the allowlist and the gitroot-cwd-contract stays green (exit 0)",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Rename the 3 lexical false-positives + split DEFERRED_ALLOWLIST into BENIGN_BOOTSTRAP (permanent) vs empty pending; contract green",
       "context": "3 'sites' are lexical false-positives — `const gitCwd = projectRoot` aliasing a param that ALREADY receives a resolved value: done-effects.ts ~:74 (gets doneGitCwd), handlers/review-run.ts ~:63 + core/review-run.ts ~:228 (get signedWorkspaceRoot/authoritativeCwd). Rename the misleading param projectRoot->gitCwd (zero behavior change, the CHK-003 pattern). Then in gitroot-cwd-contract-smoke.ts split DEFERRED_ALLOWLIST_EXACT into BENIGN_BOOTSTRAP_ALLOWLIST (the ~14 truly-benign self-bootstrap/lab/rollout/test_auto/aux-diagnose entries, each keeping its rationale, PERMANENT) and ensure the pending/burndown set is now EMPTY (all real sites fixed in CHK-001..003). The contract must be GREEN with the fixed sites no longer allowlisted. If any graceful site was deferred as a documented sub-follow-up, it stays in a clearly-named pending set with its B-id, NOT silently in the benign set. Run `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` and confirm exit 0.",
       "userSees": "gitroot-cwd-contract-smoke exits 0 with the deferred allowlist split into a permanent BENIGN_BOOTSTRAP set (self-bootstrap/no-story-context, with rationale) and an empty (or explicitly-tracked-follow-up) pending set; the 3 renamed sites read lexically honest (gitCwd not projectRoot); a re-introduced bare-root alias still fails the contract.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T23:18:37.426Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The 3 lexical false-positive params (done-effects, handlers/review-run, core/review-run) are renamed projectRoot->gitCwd with zero behavior change (tsc green, the resolved value still flows through unchanged)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DEFERRED_ALLOWLIST_EXACT is split into a permanent BENIGN_BOOTSTRAP_ALLOWLIST (each entry keeps its self-bootstrap/no-story-context rationale) and a pending set that is EMPTY (or holds only explicitly-tracked B-id follow-ups)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js exits 0; a re-introduced bare-root alias still fails the contract (self-tests prove detection intact)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "allowlist split: BENIGN_BOOTSTRAP (12, with rationale) + empty pending; contract exits 0; detection self-tests intact",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "the 3 params renamed projectRoot->gitCwd (autoSyncMain, resolveGitTopLevel, isGitRepository); tsc build is clean (exit 0) proving the resolved inbound value still flows through unchanged — pure rename, zero behavior change verified by reading each caller",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
+          "result": "pass",
+          "note": "contract exits 0 with DEFERRED_ALLOWLIST_EXACT empty + BENIGN_BOOTSTRAP_ALLOWLIST (12); all 9 detection self-tests pass so a re-introduced bare-root alias still fails the contract (detection not weakened)",
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
+        }
+      ]
     }
   ]
 }

@@ -431,8 +431,15 @@ export function evaluateStoryDirConfigInsideGitRoot(
  * neither resolves. Reuses the same configured-gitRoot validation + git probe
  * the id-dependent resolver uses, so both helpers agree on what "the gitRoot"
  * is for this project.
+ *
+ * Exported (B-75f0 CHK-003) so project-level git scans that have NO storyId at
+ * the call site (gap-analyze worktree list, story-query terminal-residue status,
+ * dashboard worktree list + dirty status) can survey the REAL gitRoot on a
+ * wrapper-root layout instead of running git from the bare non-git metadataRoot.
+ * Prefer the {@link resolveProjectGitCwd} wrapper at call sites — it bakes in the
+ * `?? projectRoot` fallback so every caller stays byte-identical on plain repos.
  */
-function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: string | undefined): string | null {
+export function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: string | undefined): string | null {
   const configured = resolveConfiguredGitRoot(metadataRoot, configuredGitRoot);
   if (configured) {
     // A configured gitRoot that fails validation is a hard signal: treat it as
@@ -442,6 +449,31 @@ function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: string |
   const metadataGitRoot = probeGitRoot(metadataRoot);
   if (metadataGitRoot.ok && metadataGitRoot.topLevel) return metadataGitRoot.topLevel;
   return null;
+}
+
+/**
+ * B-75f0 CHK-003: id-independent project-level git cwd for scans that have NO
+ * storyId at the call site.
+ *
+ * Thin wrapper over {@link resolveProjectGitRoot} that bakes in the
+ * `?? projectRoot` fallback. On a wrapper-root layout (story-metadata root !=
+ * real git root) it returns the resolved REAL gitRoot so the scan surveys the
+ * actual repo; on a plain repo (projectRoot == gitRoot) — or whenever no gitRoot
+ * resolves — it returns the passed projectRoot VERBATIM, keeping those call
+ * sites byte-identical to their previous bare-projectRoot behavior by
+ * construction.
+ *
+ * cwd-only: never changes git command text or scan semantics. Loads config via
+ * the caller (pass `config` when already loaded to avoid a redundant read);
+ * `config?.gitRoot` feeds the same configured-gitRoot validation the id-keyed
+ * resolver uses.
+ */
+export function resolveProjectGitCwd(
+  metadataRoot: string,
+  projectRoot: string,
+  config?: LatticeConfig,
+): string {
+  return resolveProjectGitRoot(metadataRoot, config?.gitRoot) ?? projectRoot;
 }
 
 function resolved(

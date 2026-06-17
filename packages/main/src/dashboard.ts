@@ -10,6 +10,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join, resolve, basename } from 'path';
 import { StoryStore } from './core/store.js';
 import { loadConfig, hasProjectConfigFile, LATTICE_CONFIG_FILENAME } from './core/config.js';
+import { resolveProjectGitCwd } from './core/story-signed-workspace-resolution.js';
 import { formatStoryOutcomeKind, normalizeStoryOutcomeKind, type StoryOutcomeKind, type StoryInfo, type ChecklistData } from './core/types.js';
 
 // ── Types ──
@@ -56,6 +57,12 @@ export function collectProject(root: string): ProjectSnapshot {
     const store = new StoryStore(root);
     const ids = store.listStoryIds();
 
+    // B-75f0 CHK-003: survey the REAL gitRoot on wrapper-root layouts (story
+    // metadata root != git root); falls back to root verbatim on plain repos /
+    // when no gitRoot resolves (byte-identical). Project-level: one gitRoot for
+    // the whole snapshot, used by both the worktree-list and dirty-status scans.
+    const gitCwd = resolveProjectGitCwd(root, root, loadConfig(root));
+
     let doneStories = 0;
     const doneOutcomes = emptyDoneOutcomes();
     let totalBugsOpen = 0;
@@ -65,7 +72,7 @@ export function collectProject(root: string): ProjectSnapshot {
     const worktrees: Record<string, string> = {};
     try {
       const raw = execSync('git worktree list --porcelain', {
-        cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
       });
       let currentPath = '';
       for (const line of raw.split('\n')) {
@@ -121,7 +128,7 @@ export function collectProject(root: string): ProjectSnapshot {
     let gitDirty = 0;
     try {
       const status = execSync('git status --porcelain', {
-        cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();
       if (status) gitDirty = status.split('\n').length;
     } catch { /* not git */ }

@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs';
 import { digestCanonical } from './authority-contracts.js';
 import { buildCapabilityProbe, type CapabilityCategory, type CapabilityStatus } from './capabilities.js';
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
+import { loadConfig } from './config.js';
 import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
+import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { buildLatticeHostStatus, type LatticeHostStatus } from './lattice-hosts.js';
 import { phaseRank } from './phase-flow.js';
 import { resolveStoryAuthority, type StoryAuthorityRow } from './story-authority-resolver.js';
@@ -874,8 +876,12 @@ function normalizeReceiptHost(host: string): string {
   return buildCapabilityProbe(requestedHost).host;
 }
 
-function resolveCommitSha(root: string, ref: string): string | undefined {
-  const gitCwd = root;
+// B-75f0 CHK-002: `gitCwd` is the resolved git working dir (the caller computes
+// it via resolveProjectGitCwd). On a wrapper-root layout it is the real gitRoot
+// subdir; on a plain repo it is the passed root verbatim. The `undefined`
+// fallback on any git failure is preserved (graceful degradation: an
+// unresolvable ref yields undefined, never a crash).
+function resolveCommitSha(gitCwd: string, ref: string): string | undefined {
   try {
     return execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
       cwd: gitCwd,
@@ -944,6 +950,20 @@ export function readHandoffReceipt(file: string): HandoffReceipt {
 
 export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): HandoffReceiptSubmission {
   const normalized = normalizeHandoffReceipt(receipt);
+  // B-75f0 CHK-002: this entrypoint has a storyId (normalized.storyId) but NO
+  // StoryStore in scope, so the id-keyed resolveGitCwd is not usable here (never
+  // fabricate a store). Use the id-independent project-level resolver instead: on
+  // a wrapper-root layout it resolves the REAL gitRoot (configured-gitRoot subdir
+  // or the metadata git toplevel) so resolveCommitSha runs git from the actual
+  // repo; on a plain repo (or when no gitRoot resolves) it returns `root`
+  // verbatim, keeping the resolveCommitSha calls byte-identical. config is loaded
+  // so a configured gitRoot subdir is honored.
+  let handoffGitCwd: string;
+  try {
+    handoffGitCwd = resolveProjectGitCwd(root, root, loadConfig(root));
+  } catch {
+    handoffGitCwd = root;
+  }
   const expectedPackHash = computeHandoffPackHash(normalized);
   const receiptScope = evaluateScope(normalized.changedFiles, normalized.allowedPaths, normalized.deniedPaths);
   const freshnessResult = normalized.baseSha
@@ -952,11 +972,11 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
   const warnings = receiptScope.warnings.map(warning => `receipt changedFiles: ${warning}`);
   if (!normalized.baseSha) warnings.push('Receipt is missing baseSha, so freshness cannot be trusted.');
   else if (!freshnessResult.fresh) warnings.push(freshnessResult.reason);
-  const resolvedBaseSha = normalized.baseSha ? resolveCommitSha(root, normalized.baseSha) : undefined;
+  const resolvedBaseSha = normalized.baseSha ? resolveCommitSha(handoffGitCwd, normalized.baseSha) : undefined;
   if (normalized.baseSha && !resolvedBaseSha) {
     warnings.push(`Receipt baseSha ${normalized.baseSha} could not be resolved to a local git commit, so headSha diff proof could not be computed.`);
   }
-  const resolvedHeadSha = normalized.headSha ? resolveCommitSha(root, normalized.headSha) : undefined;
+  const resolvedHeadSha = normalized.headSha ? resolveCommitSha(handoffGitCwd, normalized.headSha) : undefined;
   if (!normalized.headSha) warnings.push('Receipt is missing headSha, so the overflow result cannot be tied to a concrete worker commit.');
   else if (!resolvedHeadSha) warnings.push(`Receipt headSha ${normalized.headSha} could not be resolved to a local git commit.`);
   const headCommitProof = validateReceiptHeadCommit(root, normalized, resolvedBaseSha, resolvedHeadSha);

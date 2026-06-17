@@ -64,14 +64,14 @@ import {
 // DONE-only helper.
 
 /** Auto-sync main into the current branch. Returns success/failure + message. */
-export function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
-  // B-db56: this parameter is the resolved gitCwd — the sole caller
-  // (transition-orchestrator.ts runStoryTransition DONE branch) routes ctx.root
-  // through resolveGitCwd ONCE at the entry of the DONE pre-check block and
-  // passes the resolved value here. In a wrapper-root layout that is the
-  // configured gitRoot subdir, not the metadataRoot. Plain-repo fallback is
-  // also handled by resolveGitCwd, so this stays byte-identical.
-  const gitCwd = projectRoot;
+export function autoSyncMain(gitCwd: string): { ok: boolean; message: string } {
+  // B-75f0: the parameter is named `gitCwd` because it ALREADY receives the
+  // resolved gitCwd — the sole caller (transition-orchestrator.ts
+  // runStoryTransition DONE branch) routes ctx.root through resolveGitCwd ONCE
+  // at the entry of the DONE pre-check block (doneGitCwd) and passes the
+  // resolved value here. In a wrapper-root layout that is the configured
+  // gitRoot subdir, not the metadataRoot. Plain-repo fallback is also handled
+  // by resolveGitCwd, so this stays byte-identical (pure rename, B-75f0 CHK-004).
   // Try to fetch origin main first (fails silently for local-only repos)
   try {
     execSync('git fetch origin main:main', {

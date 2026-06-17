@@ -1,0 +1,56 @@
+{
+  "storyId": "B-75f0",
+  "changes": "Threaded a git-cwd resolver into 16 wrapper-root git sites so they run git from the resolved gitRoot (not the non-git metadataRoot): 3 hard failures (lattice-dispatch worktree create/remove, checklist verification_evidence_refresh, doctor --repair), 7 graceful sites (verifier/handoff/codex-adapter-checks/touchpoints-fallback/validation-executor/recover-evidence/init-check), 3 project-level scans (gap-analyze/story-query/dashboard via newly-exported resolveProjectGitRoot + resolveProjectGitCwd). Renamed 3 lexical false-positive params projectRoot->gitCwd (done-effects autoSyncMain, handlers/review-run resolveGitTopLevel, core/review-run isGitRepository) with zero behavior change. Split DEFERRED_ALLOWLIST_EXACT into a permanent BENIGN_BOOTSTRAP_ALLOWLIST (12 self-bootstrap/no-story-context entries, each with rationale) + an EMPTY pending burndown set. Added 3 wrapper-root regression smokes wired into the root npm test chain.",
+  "usage": "On a wrapper-root project (story-metadata root != configured gitRoot subdir): run `lattice dispatch` worktree create/remove, `lattice ... verification_evidence_refresh`, or `lattice doctor --repair` — they now succeed instead of crashing/running git from the wrong dir. Verify the contract: `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` (exits 0; DEFERRED set empty).",
+  "expectedOutcome": "gitroot-cwd-contract-smoke prints \"✓ gitroot-cwd-contract smoke passed\" and exits 0 with DEFERRED_ALLOWLIST_EXACT empty + BENIGN_BOOTSTRAP_ALLOWLIST(12); the 3 wrapper-root regression smokes each print their ✓ assertions and exit 0 (each proves the operation succeeds from the resolved gitRoot and fails from the bare metadataRoot, plus plain-repo byte-identity); lattice validate is fully green with 12/12 verification coverage.",
+  "actualTranscript": "gitroot-cwd-contract-smoke → 9 self-tests pass + repo scan clean (523 .ts files, 0 violations) + passed, EXIT=0. dispatch-checklist-doctor-wrapper-root-smoke → 4 assertions (dispatch/checklist/doctor resolve to inner gitRoot, throw/undefined from bare metadataRoot; plain-repo byte-identical), EXIT=0. graceful-sites + project-gitroot-cwd smokes EXIT=0. lattice validate --story=B-75f0 PASS, 12/12 intents covered. delivery-check.json signed (9/9 promises verified, 4/4 real-machine tests).",
+  "outcomeDiff": "No difference. Actual output matches expected exactly: contract exits 0 with empty pending set + 12 benign entries, all 3 wrapper-root regressions green, plain-repo byte-identity confirmed in every smoke, validate fully green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope was the bounded set of B-6666 deferred sites. The 12 BENIGN_BOOTSTRAP entries are intentionally left allowlisted (self-bootstrapping toplevel-discovery / no-story-context probes where threading a resolver would be circular). Wrapper-root regressions are smoke-level (real git fixtures) not full end-to-end CLI invocations for every one of the 16 sites; the 4 graceful sites without a storyId (handoff/codex/validation-executor/recover-evidence) are covered by the contract + bare-gate smokes rather than a dedicated per-site assertion.",
+  "pitfalls": "Do NOT re-add any of the 16 fixed/renamed files to the allowlist to silence a future contract failure — fix the site instead (the empty pending set is the load-bearing invariant). When adding a NEW git call site, route cwd through resolveGitCwd (storyId in scope) or resolveProjectGitCwd (no storyId) and pass loadConfig(root) as the 3rd arg so a configured gitRoot subdir resolves (the F-001 lesson). Keep the explicit root fallback so plain repos stay byte-identical.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 722432
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 93638
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 398753
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 3127015
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 767926
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 605342
+    }
+  },
+  "totalDurationMs": 5715133,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T23:46:36.195Z",
+  "updatedAt": "2026-06-17T23:46:36.195Z"
+}

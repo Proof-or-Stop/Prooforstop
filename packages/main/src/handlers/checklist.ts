@@ -5,6 +5,7 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentType, VerificationLane } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
@@ -183,13 +184,22 @@ function assertChecklistScopeChangeAllowed(
   );
 }
 
-function evidenceHashes(root: string): { headHash?: string; materialHash?: string } {
+/**
+ * B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware);
+ * metadataRoot is the config-load root for the storyDir-aware metadata exclusion.
+ * Callers thread resolveGitCwd(...) at the handler boundary (where store +
+ * args.storyId live). On a wrapper-root layout (metadataRoot != gitRoot) the bare
+ * metadataRoot is not a git repo, so the old `git rev-parse HEAD` / git ls-tree
+ * from there errored and BOTH freshness hashes were silently omitted. For a plain
+ * repo (metadataRoot == gitRoot) resolveGitCwd returns root and metadataRoot
+ * defaults to gitCwd, so the hashes are byte-identical to before.
+ */
+function evidenceHashes(gitCwd: string, metadataRoot: string = gitCwd): { headHash?: string; materialHash?: string } {
   let headHash = '';
-  const gitCwd = root;
   try {
     headHash = execSync('git rev-parse HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch { /* PROBE: non-git or unavailable, omit freshness hash */ }
-  const materialHash = currentMaterialHash(root);
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
   return {
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
@@ -202,8 +212,8 @@ function normalizeEvidenceKind(kind: VerificationEvidenceKindInput): Verificatio
   return kind;
 }
 
-function normalizeEvidence(root: string, input: VerificationEvidenceInput): VerificationEvidence {
-  const hashes = evidenceHashes(root);
+function normalizeEvidence(gitCwd: string, metadataRoot: string, input: VerificationEvidenceInput): VerificationEvidence {
+  const hashes = evidenceHashes(gitCwd, metadataRoot);
   const kind = normalizeEvidenceKind(input.kind);
   return makeEvidence({
     intentRef: input.intentRef,
@@ -296,6 +306,14 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
 
 export function createChecklistHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
+  // B-75f0 CHK-001: resolve the authoritative git cwd for a story-scoped command.
+  // Every verification-evidence handler here has args.storyId in scope, so it can
+  // route freshness git probes through the single resolveGitCwd choke-point. On a
+  // wrapper-root layout this returns the configured gitRoot subdir; on a plain
+  // repo it returns `root` (byte-identical fallback). metadataRoot stays `root`
+  // so the storyDir-aware metadata exclusion loads config from the right place.
+  const resolveStoryGitCwd = (storyId: string): string =>
+    resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
   return {
     checklist_get(args: ChecklistGetArgs) {
       const full = store.readChecklist(args.storyId);
@@ -596,7 +614,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         results.push(`verificationIntent updated`);
       }
       if (args.verificationEvidence !== undefined) {
-        item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(root, ev));
+        item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev));
         results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
       }
 
@@ -770,7 +788,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           // unknown item never triggers a POST.
           if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
 
-          const hashes = evidenceHashes(root);
+          const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
 
           const evidence = makeEvidence({
             intentRef: args.intentRef,
@@ -813,7 +831,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
         return Promise.resolve();
       }).then(async () => {
-        const hashes = evidenceHashes(root);
+        const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
         const submitter = ctx.authoritySubmitter ?? createAuthoritySubmitter(settings);
         const decision = await submitter.submitSingle({
           storyId: args.storyId,
@@ -880,7 +898,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const writeLocalBatch = (): string => {
         return withChecklistLock(ctx, args.storyId, () => {
           const cl = store.readChecklist(args.storyId);
-          const hashes = evidenceHashes(root);
+          const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
           let written = 0;
           args.evidences.forEach((entry, i) => {
             const kind = normalizedKinds[i];
@@ -936,7 +954,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // shadow / enforce: preflight items -> single batch POST -> write all on accept.
       assertAllItemsExist();
       return (async () => {
-        const hashes = evidenceHashes(root);
+        const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
         const submitter = ctx.authoritySubmitter ?? createAuthoritySubmitter(settings);
         const decision = await submitter.submitBatch(
           args.evidences.map((entry, i) => ({
@@ -966,17 +984,21 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
       let headHash = '';
-      const refreshGitCwd = root;
+      // B-75f0 CHK-001: refresh freshness from the RESOLVED gitRoot, not the bare
+      // metadataRoot. On a wrapper-root layout the bare root is not a git repo, so
+      // `git rev-parse HEAD` threw and refresh was impossible. metadataRoot stays
+      // `root` for the storyDir-aware material exclusion. Plain repos: gitCwd==root.
+      const refreshGitCwd = resolveStoryGitCwd(args.storyId);
       try {
         headHash = execSync('git rev-parse HEAD', { cwd: refreshGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
       } catch {
         throw new Error('verification_evidence_refresh_stale: cannot read git HEAD in current directory, unable to refresh freshness');
       }
-      const materialHash = currentMaterialHash(root);
+      const materialHash = currentMaterialHash(refreshGitCwd, 'HEAD', root);
       const coverage = buildVerificationCoverage(
         cl,
         headHash,
-        (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(root, oldHeadHash, evidence?.materialHash).fresh,
+        (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root).fresh,
         { deferredGateEvidence: 'missing' },
       );
       const stale = coverage.entries.filter(e => e.status === 'stale' && e.evidence);

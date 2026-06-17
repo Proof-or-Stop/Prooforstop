@@ -7,6 +7,7 @@ import type { StoryPhase, StoryInfo } from '../core/types.js';
 import { StoryStore } from '../core/store.js';
 import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
+import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { isVolatileRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 import {
@@ -999,6 +1000,11 @@ function listStoryDirs(base: string): string[] {
 function scanTerminalStoryResidues(store: StoryStore, root: string): StoryResidueInfo[] {
   const cfg = loadConfig(root);
   const base = join(root, cfg.storyDir);
+  // B-75f0 CHK-003: survey the REAL gitRoot on wrapper-root layouts (story
+  // metadata root != git root); falls back to root verbatim on plain repos /
+  // when no gitRoot resolves (byte-identical). Project-level: the same gitRoot
+  // for every story, so resolve once before the loop.
+  const gitCwd = resolveProjectGitCwd(root, root, cfg);
   const residues: StoryResidueInfo[] = [];
   let ids: string[] = [];
   try { ids = store.listStoryIds(); } catch { return []; }
@@ -1008,7 +1014,6 @@ function scanTerminalStoryResidues(store: StoryStore, root: string): StoryResidu
     if (story.phase !== 'DONE' && story.phase !== 'DISCARDED') continue;
     const rel = `${cfg.storyDir.replace(/\\/g, '/')}/${id}`;
     let status = '';
-    const gitCwd = root;
     try {
       status = execSync(`git status --porcelain -uall -- ${JSON.stringify(rel)}`, {
         cwd: gitCwd,
