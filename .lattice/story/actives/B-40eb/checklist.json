@@ -159,12 +159,12 @@
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "manual_transcript",
-          "command": "git grep -niI koala packages/lab/package.json",
+          "command": "git grep -ni koala packages/lab/package.json",
           "result": "pass",
-          "note": "package.json description (B-ed70-owned) untouched; no koala token present, zero changes by this story.",
-          "headHash": "1f94c9871bf4a1a601a30e2f15a768a79284bb11",
-          "materialHash": "d3d738b4034eebbe3bebe3a25c67e16d1afc57c94c4514c561222b5d473c0858",
-          "timestamp": "2026-06-16T22:18:42.789Z"
+          "note": "package.json description 留给并行 B-ed70(协调约束)",
+          "headHash": "91bada37254ba481ca69091d7dbad94c7e239580",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:10.886Z"
         }
       ]
     },
