@@ -494,6 +494,17 @@
           "headHash": "c8f06aa011ad46f8499e694bcfa5f70ddc1b4899",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:17.712Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:legacy",
+          "result": "pass",
+          "note": "Exit 0 with '0 smokes matched filters (tag=* select=)' — runner treats empty select as no filter; user invokes without args.",
+          "headHash": "51b418d16fcfcabc07705fdd3c9df55e9c5b55aa",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:18.544Z"
         }
       ]
     }
