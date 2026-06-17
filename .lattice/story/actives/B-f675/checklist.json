@@ -69,9 +69,9 @@
       "title": "Tests + docs; assert canPassReviewGuard semantics are UNCHANGED and document the real round-2+ behavior",
       "context": "Add a smoke (packages/main/src/tasks style): (a) returning reviewer gets since-last-pass diff + correct scopeChanged; (b) first-timer gets full diff; (c) ASSERT the gate is unchanged by exercising canPassReviewGuard: Round 1 still blocks unless all opt-in reviewers have valid current-round verdicts + quorum; Round 2+ passes with >=1 valid current-round receipt and blocks on a current-round invalid binding or a blocking finding -- the helper/CLI/advisory change none of this. Wire the smoke into the validate/test chain. Update CLAUDE.md REVIEW section with the ACCURATE gate behavior (Round 1 = all opt-in + quorum; Round 2+ = >=1 valid receipt + no current-round invalid + no blocking), the incremental-context CLI, and the round-2+ informed targeted re-review guidance.",
       "userSees": "lattice validate stays green with the new smoke; the smoke shows incremental context for a returning reviewer, full diff for a first-timer, and that canPassReviewGuard behaves identically with and without the helper (Round 1 all-opt-in+quorum; Round 2+ >=1 receipt). CLAUDE.md now states the real gate behavior and the targeted re-review guidance.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T01:20:13.535Z",
       "verificationIntent": {
         "happy": [
           {
