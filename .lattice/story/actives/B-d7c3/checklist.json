@@ -269,7 +269,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "python3 -c \"import re,json;s=json.load(open('package.json')).get('scripts',{});print(sum(1 for k,v in s.items() if k.startswith('test:') and 'npm --prefix packages/main run' in v and '-smoke' in k))\"",
+          "result": "pass",
+          "note": "Returns 0 — all 44 npm --prefix proxies for -smoke entries removed.",
+          "headHash": "f5f47ece978a1702ef82d2b27f44d2bce96e20a7",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:08.473Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
