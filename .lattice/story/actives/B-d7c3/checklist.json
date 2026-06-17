@@ -552,14 +552,14 @@
         },
         {
           "intentRef": "CHK-003:adversarial:3",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;print(json.load(open('package.json')).get('scripts',{}).get('test:legacy','MISSING'))\"",
+          "command": "python3 -c \"import json;p=json.load(open('packages/main/package.json'));print('test:legacy' in p.get('scripts',{}))\"",
           "result": "pass",
-          "note": "Prints 'node packages/main/dist/tasks/run-all-smokes.js --select' — shim wired in root package.json.",
-          "headHash": "e45bdffa2e7922e1804bd5a4475fe23ab6e9cd25",
+          "note": "Returns False — test:legacy script lives only in root package.json, not packages/main.",
+          "headHash": "41595446b6d8c88a4fdb115eae12834e4bba606d",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:22.516Z"
+          "timestamp": "2026-06-17T12:34:02.554Z"
         }
       ]
     }
