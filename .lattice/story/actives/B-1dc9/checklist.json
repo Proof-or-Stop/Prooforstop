@@ -111,9 +111,9 @@
       "title": "Usage tracking + promptHash determinism guardrail",
       "context": "Surfacing writes an experience_hint_surfaced event (storyId, hintIds) to the activity log via appendActivityLog. GUARDRAIL: resolveReviewPromptHash (core/review-run.ts) must remain independent of experience hints — hint content must never feed the reviewRunId promptHash domain.",
       "userSees": "The smoke asserts an experience_hint_surfaced event is appended when hints surface, and that resolveReviewPromptHash output is identical regardless of experience-hint content (deterministic reviewRunId binding unaffected).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T13:28:48.498Z",
       "verificationIntent": {
         "happy": [
           {
