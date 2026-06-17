@@ -159,10 +159,10 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/run-all-smokes.js --tag fast",
           "result": "pass",
-          "note": "Self-smoke verifies --tag missing-tag returns 0 smokes; live run with --tag fast returns 5 fast smokes from manifest.",
-          "headHash": "49b3c8a0e4131401fd92d795f9c5e35c011ecda2",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:09:48.883Z"
+          "note": "Exit 0; 3 fast-tagged smokes from manifest run (count corrected from 5 → 3 after F-003 manifest fix).",
+          "headHash": "4d7dd00446ff7de94973c050f827e9859e766198",
+          "materialHash": "5f624787e59d36064186540ab0d0056337b45713e18f8f4b40c7bd0d8b86226c",
+          "timestamp": "2026-06-17T02:26:28.984Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
