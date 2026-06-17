@@ -183,10 +183,10 @@
           "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
           "command": "npm run test:gitroot-cwd-contract",
           "result": "pass",
-          "note": "ALIAS rule pinned both ways via self-tests: KNOWN-BAD (const gitCwd=projectRoot used as git cwd, no resolveGitCwd) -> exactly 1 alias violation; KNOWN-GOOD #1 (const x=projectRoot NOT used as git cwd) -> 0 (proximity-scoped, preMortem #3); KNOWN-GOOD #2 (const gitCwd=resolveGitCwd(...) used as git cwd) -> 0. All three assertions pass in the smoke.",
-          "headHash": "b853053dc07365402b438397ccfbee73d833696e",
-          "materialHash": "e204ef0f636d4787412c4a14325c63bd1684ba321b739cee3f0e14dc3d87cb97",
-          "timestamp": "2026-06-17T17:09:14.260Z"
+          "note": "Self-tests pin alias rule both ways: ALIAS KNOWN-BAD (const gitCwd=projectRoot used as git cwd) = exactly 1 violation; ALIAS KNOWN-GOOD (const x=projectRoot NOT a git cwd) = 0; ALIAS KNOWN-GOOD (const gitCwd=resolveGitCwd(...)) = 0. Proximity-scoped to git-call window (preMortem #3).",
+          "headHash": "982ffc630c5f230d2c309830337ca2f27b30e265",
+          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
+          "timestamp": "2026-06-17T17:13:04.235Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
