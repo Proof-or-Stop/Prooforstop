@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T15:22:26.306Z",
       "reviewRunId": "B-8387:RR-005",
       "_hash": "684202d04d1522d2c78825984dda0e3ddb358503738e488bfbc1879dd6cb19f3"
+    },
+    {
+      "id": "B-8387:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All three quality checks passed cleanly. Dead code: FindingData is imported as a type-only import in the smoke file (line 58) but never used in the body — this is a minor dead import, but it is a type import in a test helper and has zero runtime effect; below the bar for a finding. No commented-out code blocks found. Type safety: no `as any` in the changed files; the single empty catch in atomicWriteJson (pre-existing) is outside the diff scope; new empty catches in readPlaybooks/readProposal/listProposals are graceful-degradation patterns explicitly documented in the function comments (same convention as the pre-existing findingSignals cache reader). I/O shell isolation: handlers/playbook.ts imports only ../core/learning-store.js, ../core/experience-layer-types.js, ../core/types.js, and ./context.js — no direct fn.ts import; learning-store.ts imports only node: builtins, ./digest.js, and ./experience-layer-types.js. Static grep confirms no finding_add/advisory in playbook.ts. nextProposalId global-max logic: empty arrays yield max=0 -> PBP-001, correct; scanning both proposals[] and playbooks[] prevents id reuse after approve empties proposals/; no off-by-one. safeProposalId: rejects empty, slash, backslash, NUL, dot, dotdot, and any string containing ..; covers all hostile cases tested in the smoke. approve -> status=candidate not active: candidateFromProposal hardcodes status: candidate and the smoke asserts notEqual(status, active). Concurrency smoke: uses Promise.resolve().then() microtask interleaving of synchronous fs calls on a single Node.js thread — this correctly exercises the rename-atomicity contract visible to a single-threaded reader and is not flaky. No blockers found.",
+      "createdAt": "2026-06-17T15:23:53.517Z",
+      "reviewRound": "2026-06-17T15:22:26.306Z",
+      "reviewRunId": "B-8387:RR-006",
+      "_hash": "f7837703fa7bcf301170a1867cf2d14d9f73f8dffb1513807936ea84043ab2fa"
     }
   ]
 }
