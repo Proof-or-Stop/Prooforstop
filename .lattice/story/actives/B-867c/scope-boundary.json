@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-867c",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Make npm run test:process-fact-contract exit 0 with no behavior change to any command",
+    "Reconcile DEFAULT_PHASE_TOOLS in config.ts so the recall/signature_registry_*/playbook_* phase-allowlist drift is resolved while keeping DEFAULT_PHASE_TOOLS subset of command-policy allowedPhases",
+    "Register the 7 Experience-Layer/recall commands (playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set) in the process-fact registry so MAIN_TOOLS membership is satisfied"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "correctness_fix: make the existing process-fact double-contract invariant true again; no behavior change, no contract relaxation, no gate wiring (B-99b6 owns that), no gitRoot changes (B-6666 owns that).",
+  "createdAt": "2026-06-17T16:28:10.665Z",
+  "updatedAt": "2026-06-17T16:28:10.665Z",
+  "_hash": "7d26415c4f0ad7e3ccec8611f8f3a787b96efd2ab7087923ddc697edf262ad14"
+}
