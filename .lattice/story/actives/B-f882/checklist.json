@@ -53,6 +53,17 @@
           "headHash": "06649785d509cf6608315264ea47d9b1398808cd",
           "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
           "timestamp": "2026-06-17T12:15:30.512Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js (with repoRoot reverted to deps.projectRoot)",
+          "result": "pass",
+          "note": "RED proof captured: reverting repoRoot: gitCwd -> deps.projectRoot makes the wrapper-root smoke FAIL with AssertionError missing path: dev-notes/wrapper-doc.md (exit 1). git show bc5865be confirms the diff is only the repoRoot arg + comment; no managedAssetDefs or english-gate storyDir change.",
+          "headHash": "0ced26fd72aa8ab7c9ff7163c409eafbceec0884",
+          "materialHash": "936861ab925490908b3472beb99b7cbe2c744fd8a07d92e5ea0737fcaba7c371",
+          "timestamp": "2026-06-17T12:15:31.125Z"
         }
       ]
     },
