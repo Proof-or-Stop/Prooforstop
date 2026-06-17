@@ -120,6 +120,17 @@
           "headHash": "5757877cefea3488fd67b38b0d4511ed43efcacb",
           "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
           "timestamp": "2026-06-17T01:21:59.636Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Advisory injection is append-only try/catch (same proven pattern as B-cfdd); smoke case (d) proves the helper writes nothing and canPassReviewGuard is byte-identical, so the round>=2 path cannot alter a transition",
+          "headHash": "5edaac05f29a4eb23bafa8a4de5d821af5ca18a6",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:22:00.469Z"
         }
       ]
     },
