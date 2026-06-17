@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T02:41:55.130Z",
       "reviewRunId": "B-40eb:RR-006",
       "_hash": "abcc35cb6c728facddb84674dc8082752272b8d070feb0e4c37417eb74cc11bf"
+    },
+    {
+      "id": "B-40eb:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "ROUND 2 re-confirmation: two changes landed since RR-004 pass. (1) packages/lab/src/core/config.ts reverted .lattice-codex→.Codex — this is a Codex tool path with zero koala branding; grep on config.ts shows only the pre-existing koala-lab/experiment.v1 schema ID which is already a documented exemption in the gate script. (2) scripts/verify-koala-residue.mjs added — all koala references in this file are classify() exemption patterns and test strings, not brand residue; self-test 5/5 passes and full scan exits 0 with 0 unclassified residue. No new half-removed concept state introduced. Concept-deletion completeness re-confirmed: no blocker.",
+      "createdAt": "2026-06-17T02:45:20.559Z",
+      "reviewRound": "2026-06-17T02:41:55.130Z",
+      "reviewRunId": "B-40eb:RR-005",
+      "_hash": "ffc669e3db089464bd6e78f9517ad9533504462164779cceffdddb20648d4755"
     }
   ]
 }
