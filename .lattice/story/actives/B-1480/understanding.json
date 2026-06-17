@@ -1,0 +1,33 @@
+{
+  "task": "Produce one English execution-plan decision document for the Lattice Experience Layer (advisory-only review-playbook layer) and land it in docs/requirements/decisions/, code-verified and matching house format.",
+  "outcome": "Running 'ls docs/requirements/decisions/lattice-experience-layer-execution-plan.md' prints the path (file present on main). 'head' of the file shows '# Lattice Experience Layer Execution Plan', then '> Story: B-1480', then a scope note stating it is a future-execution plan only with no source code. The document contains the module-decomposition section (new core/ and handlers/ modules, one-way inward coupling), a reuse section naming dev-memory.ts / decision-doc-promotion.ts / activity-log.ts, an explicit cut-FTS statement, a determinism-guardrails section (three guardrails), and a phased-roadmap section naming Phase 1a as the first story plus a code-anchor appendix. The story verifier prints TOTAL N | PASS N | FAIL 0.",
+  "facts": [
+    "docs/requirements/decisions/ is uniformly English freeform execution-plan markdown; lattice-llm-usage-ledger-execution-plan.md is the format reference",
+    "Existing-system anchors are real: packages/main/src/core/dev-memory.ts, packages/main/src/handlers/decision-doc-promotion.ts, packages/main/src/core/activity-log.ts; no full-text-search engine exists in the repo source",
+    "The corrected v1.1 source content lives at repo-root lattice-experience-layer-v1.1-zh.md (Chinese working reference)",
+    "runtime-artifact-registry materialHash exclusion and the reviewRunId promptHash domain are the two facts the determinism guardrails depend on"
+  ],
+  "constraints": [
+    "Plan only: no TypeScript, no handlers, no runnable commands implemented in this story",
+    "English; freeform execution-plan house format with a Story header and a plan-only scope note",
+    "Every code anchor (file path) must match the real codebase",
+    "Advisory-only and deterministic-preserving framing must be preserved verbatim in intent",
+    "No Co-Authored-By trailer in any commit or file"
+  ],
+  "unknowns": [
+    "None material remaining; slug confirmed as lattice-experience-layer-execution-plan.md and language confirmed English by the user"
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+    ".lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/decision-doc-promotion.ts",
+    "packages/main/src/core/activity-log.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/advisory.ts"
+  ],
+  "timestamp": "2026-06-17T01:56:27.873Z"
+}
