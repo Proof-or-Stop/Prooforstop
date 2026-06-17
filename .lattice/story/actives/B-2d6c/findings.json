@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-2d6c:F-001",
+      "desc": "CHK-002:adversarial:0 evidence command is `echo SCOPE_ACKED` instead of the literal intent CLI. The intent prescribes `git diff main...HEAD -- packages/main/smoke-manifest.json | grep -E \"^[-+]\" | grep -v lattice-baseline | ...| wc -l` expecting output 0, but that command currently returns 20 (non-zero) because 5+ additional entries beyond lattice-baseline were modified. The scope expansion is acknowledged in scope-contract.json, but the evidence must either (a) use a `waiver` kind with an explicit note citing the scope_contract_acknowledge, or (b) the intent command must be updated to exclude the acknowledged entries and verify the expansion is bounded. Using `echo SCOPE_ACKED` as the evidence command violates the evidence-must-bind-literal-intent-command rule — it does not execute the check, so the assertion is unverified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T21:07:17.640Z",
+      "reviewRound": "2026-06-17T21:05:23.729Z",
+      "reviewRunId": "B-2d6c:RR-003",
+      "_hash": "48ac1e208e038a993efedf6ff736e0b890b3bfdd629009d2ba8ca497333d35ea",
+      "files": [
+        "packages/main/smoke-manifest.json",
+        ".lattice/story/actives/B-2d6c/scope-contract.json"
+      ]
+    }
+  ]
+}
