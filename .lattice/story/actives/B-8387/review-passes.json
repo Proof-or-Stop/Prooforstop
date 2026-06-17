@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T15:07:10.454Z",
       "reviewRunId": "B-8387:RR-002",
       "_hash": "5985c74983b49734fd73adb67dedaa73a35e1d43861f8a7e0c92e3475433afcf"
+    },
+    {
+      "id": "B-8387:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All invariants verified. grep -niE 'finding_add|advisory' handlers/playbook.ts => empty (EXIT 1). All imports in playbook.ts are limited to experience-layer-types.js, learning-store.js, core/types.js (Finding type-only), and handlers/context.js (read port). learning-store.ts new imports are node:fs (readdirSync addition), ./digest.js, and ./experience-layer-types.js — no outward ../ coupling. proposalDigestDomain correctly excludes proposalDigest via destructuring before digest computation. playbook_approve sets status=candidate (via candidateFromProposal), never active — confirmed by code read and smoke. All four commands correctly gated in command-policy: playbook_diff=readOnly, the other three=mainSharedMutating. Catch blocks in readPlaybooks/readProposal are deliberate fail-closed graceful degradation matching pre-existing pattern. No dead code: all exported learning-store symbols are consumed by playbook.ts handler or the smoke test. Smoke 20/20 PASS.",
+      "createdAt": "2026-06-17T15:09:39.258Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-001",
+      "_hash": "2aa2eb6906571a9b224eca46de1cab8832dd04c486075b43110e4a315fb08656"
     }
   ]
 }
