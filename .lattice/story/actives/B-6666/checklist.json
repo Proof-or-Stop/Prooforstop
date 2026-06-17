@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-oracle-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Wrapper-root smoke: with resolved gitCwd (real gitRoot) the git-working-tree done-check row reads clean/pass; red baseline (bare metadataRoot) was fail/blocking in the same run. Witness: neutering the fix flipped GREEN assertion to status=fail detail=fatal: not a git repository.",
+          "headHash": "7b83bf6182e1373fb2e91d628928ba68d84bf7e1",
+          "materialHash": "caa7779d4b61966fd49d56f15b183db8769c0d001436cef8fafd701dcde97b84",
+          "timestamp": "2026-06-17T17:11:56.423Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
