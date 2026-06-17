@@ -325,6 +325,17 @@
           "headHash": "46b6ae22d9d4b3cca65262cd232959ffc6cc206f",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:11.198Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Exit 0 — no broken proxy reference; the main chain resolves all 4 referenced scripts.",
+          "headHash": "fe21feb1665e1e0fb41f5458538867720d0a4537",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:11.859Z"
         }
       ]
     },
