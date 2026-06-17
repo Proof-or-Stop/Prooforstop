@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Bump 8 timeoutMs entries from default 60s to 180s",
       "context": "In packages/main/smoke-manifest.json, set timeoutMs=180000 for these 8 entries (or add the entry if missing): experience-layer-digest-extract, gap-log, init-check-fallback, scope-contract, story-capsule, story-create-concurrency, story-metadata-protection, unattended-dispatch. Each PASSES standalone in 9-21s — the 60s default is enough for serial but not for parallel worker-pool load. Bump margin: ~3x measured standalone.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T23:56:42.220Z",
       "endTime": null,
       "userSees": "`grep -A1 timeoutMs packages/main/smoke-manifest.json` shows 180000 for the 8 named entries (including the new experience-layer-digest-extract entry).",
       "files": {
