@@ -426,6 +426,16 @@
           "headHash": "9fdf89968bf8a46590779fe0fa5534d5f6d7f3e0",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:02:54.403Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "add koala- mkdtemp prefix to a file outside packages/main/src/tasks/ (e.g. packages/main/src/utils/test-helper.ts), run ",
+          "result": "pass",
+          "note": "Gate is non-vacuous (empirically demonstrated): re-introducing a koala- mkdtemp prefix into a tracked smoke file made `node scripts/verify-koala-residue.mjs` exit 1 and name the file; after revert exit 0 PASS. classify() self-test 5/5 also covers boundaries.",
+          "headHash": "fc954813ea37a7a007aab1e10b3e835cc3860f05",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:55.200Z"
         }
       ]
     }
