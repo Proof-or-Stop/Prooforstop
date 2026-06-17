@@ -125,7 +125,20 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-17T19:00:18.808Z"
+      "endTime": "2026-06-17T19:00:18.808Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Click CHK-001 pending node on B-32b9 in Lineage Graph",
+          "result": "pass",
+          "note": "Pending-CHK-001 node click (B-32b9, no codex events): detail panel shows 'LLM 验证意图 (6 cases)' with happy/edge cases color-coded. No 'LLM 调用' header rendered. codexCallsHtml checks meta.codexCalls.length which is 0 for pending/Claude Code nodes.",
+          "headHash": "e34f96dfd003d90e07156771d0841300fecac7d5",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:01:21.101Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
