@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-3784:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Diff contains only Lattice story metadata files (.lattice/story/actives/B-3784/*.json and *.jsonl): checklist.json, index.json, owner-lease.json, process-events.jsonl, process-metrics.json, review.json, scope-check.json. No application source code or test source files were changed. The three quality checks (dead code, type safety, I/O shell isolation) have no applicable surface in JSON/JSONL data files. No doc-promise-undelivered issues found (no new CLAUDE.md/README paragraphs). No blockers.",
+      "createdAt": "2026-06-17T23:28:17.179Z",
+      "reviewRound": "2026-06-17T23:27:39.658Z",
+      "reviewRunId": "B-3784:RR-001",
+      "_hash": "16ca0e17c9c2fc28c35c0ca308c1a1e536ce9ead4fa009794b4bdfaf71b080c4"
+    },
+    {
+      "id": "B-3784:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Diff contains only Lattice story metadata additions under .lattice/story/actives/B-3784/ (checklist evidence, review.json, scope-check.json, process-metrics.json, process-events.jsonl, owner-lease.json, index.json phase advance). No production code changed. The only deletions are: (1) `status: pending` replaced by `status: done` on checklist items — normal completion state, not a concept; (2) `phase: INIT_CHECK` replaced by `phase: REVIEW` in index.json — normal lifecycle phase advance, not a concept deletion. INIT_CHECK remains an active concept throughout the codebase with valid references in CLAUDE.md, AGENTS.md, handlers, and agent definitions. No concept was deleted or replaced en masse. Concept residue check complete: no blocker.",
+      "createdAt": "2026-06-17T23:28:21.277Z",
+      "reviewRound": "2026-06-17T23:27:39.658Z",
+      "reviewRunId": "B-3784:RR-002",
+      "_hash": "846ee52ebe3d13000b56bacb06ffc786d1992bb8e5377893d1aa7b5148936a83"
+    },
+    {
+      "id": "B-3784:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9 intent cases (3 items x 3 intents: happy/edge/adversarial) have valid verificationEvidence. CLI happy-path intents covered by manual_transcript with result=pass and concrete matching commands. Logic edge/adversarial intents covered by logic_test with notes specifically describing the behavior under test (no generic fallback descriptions). validate confirms 9/9 required coverage. No must-priority gaps found.",
+      "createdAt": "2026-06-17T23:29:32.285Z",
+      "reviewRound": "2026-06-17T23:27:39.658Z",
+      "reviewRunId": "B-3784:RR-003",
+      "_hash": "742198fbe859e9a848dabf7f7b4ae7a736f522f4078a0ea8557d61f1e15802c7"
+    }
+  ]
+}

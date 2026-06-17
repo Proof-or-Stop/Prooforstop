@@ -4,7 +4,7 @@
   "title": "Fix autopilot-authority and multi-host-authority smokes: isolate from authority_trust.env via fileReader",
   "description": "autopilot-authority-smoke and multi-host-authority-smoke fail when authority_trust.env exists in the project root. The smokes call resolveAuthorityVerdictBacking and buildAutopilotRun without cwd or fileReader isolation, so loadAuthorityConfig reads authority_trust.env from process.cwd() and picks up the real staging URL, turning unit-level safety assertions into failures. Fix: pass fileReader stub in affected call sites. Zero production code changes.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-17T23:08:32.509Z",
   "startedAt": "2026-06-17T23:08:32.509Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T23:33:29.512Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,6 +31,46 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:13:42.593Z",
+      "branch": "story/B-3784",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:17:15.223Z",
+      "branch": "story/B-3784",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:27:39.658Z",
+      "branch": "story/B-3784",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:30:06.979Z",
+      "branch": "story/B-3784",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:33:29.512Z",
+      "branch": "story/B-3784",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -40,9 +80,5 @@
       "at": "2026-06-17T23:08:43.254Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-3784",
-    "branch": "story/B-3784",
-    "createdAt": "2026-06-17T23:11:26.335Z"
-  }
+  "currentReviewRound": "2026-06-17T23:27:39.658Z"
 }

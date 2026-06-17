@@ -1,0 +1,73 @@
+{
+  "storyId": "B-3784",
+  "checkedAt": "2026-06-17T23:14:59.045Z",
+  "features": [
+    {
+      "feature": "multi-host-authority-smoke E2 assertion: enforce-only env with no URL should be classified as production-inert / local mode",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "multi-host-authority-smoke must pass from repo root (not pick up machine-local authority_trust.env config)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "autopilot-authority-smoke shadow mode must return status=warn (not pass) when authority config absent from test context",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "autopilot-authority-smoke must pass from repo root (not pick up machine-local authority_trust.env config)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "no other assertions in the two fixed smokes are weakened by the fix",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "EMPTY_AUTHORITY_ENV scope is not broadened unnecessarily (minimal change only)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "All 159 previously-passing smokes must not regress (npm run test:all 160+/162 from repo root)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "rollout-check concurrency flake explicitly out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes rollout-check flake as out of scope",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "96db26aee3e132dac32dddbaefb9aa8bc96511b5e6e280cc59b9d719b6016a29",
+  "openQuestions": []
+}
