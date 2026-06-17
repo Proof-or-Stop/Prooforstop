@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d633:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, type issues, or shell isolation violations. Gate logic (checkManagedAssetContradiction / GENERATED_MANAGED_ASSET_KINDS / normalizeAssetPath) is untouched in the diff. The seam is proven both ways: injected allowlist suppresses (adversarial case), and empty default now surfaces the .codex/hooks contradiction (regression case). Comment accurately explains why the two bridge entries were removed post-B-94ae merge. Smoke test passes green.",
+      "createdAt": "2026-06-17T02:11:39.986Z",
+      "reviewRound": "2026-06-17T02:10:38.444Z",
+      "reviewRunId": "B-d633:RR-003",
+      "_hash": "2112cf4c6fc35ce37412407e89be3b8d826f44c2743dae2de2ddac50e04443d1"
+    }
+  ]
+}
