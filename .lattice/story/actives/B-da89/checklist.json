@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decide the authoritative dev_start phase set and align command-policy.ts + config.ts so they agree",
+      "context": "Examine dev_start's real recovery semantics in handlers/worktree.ts (what it does in each of INIT/INIT_CHECK/PLAN/DEV, and whether standalone invocation is meaningful/safe in INIT and DEV). Per the PLAN decision, either add dev_start to DEFAULT_PHASE_TOOLS for the missing phases (widen config up to command-policy's ['INIT','INIT_CHECK','PLAN','DEV']) or shrink command-policy allowedPhases to match config (['INIT_CHECK','PLAN']). Update whichever source moves so command-policy.allowedPhases and the isCommandAllowed view derived from DEFAULT_PHASE_TOOLS agree for dev_start. Do NOT change dev_start behavior, the bootstrap flow, or REVIEW/TEST/DONE refusal.",
+      "userSees": "npm run test:process-fact-contract no longer reports a dev_start INIT or DEV policy/default phase drift; command-policy.allowedPhases and DEFAULT_PHASE_TOOLS agree on dev_start's phases.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Regression guard: npm run test:process-fact-contract passes and a future dev_start phase divergence is caught",
+      "context": "Confirm npm run test:process-fact-contract exits 0 after the alignment. Ensure the contract check (or an added focused assertion) would fail again if command-policy.allowedPhases and DEFAULT_PHASE_TOOLS diverge for dev_start in the future, so the fix is mechanically protected rather than by convention. If the existing verify-process-fact-contract.mjs already covers this once aligned, record that it is the guard; do not add a redundant test.",
+      "userSees": "npm run test:process-fact-contract exits 0; re-introducing the INIT/DEV mismatch (locally) turns it red again, proving the divergence is mechanically caught.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
