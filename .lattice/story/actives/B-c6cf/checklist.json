@@ -127,6 +127,17 @@
           "headHash": "775323c6bf6cac4826d038b54e3dfa35405612af",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:01.654Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/smoke-manifest.json | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — manifest untouched by B-c6cf (B-d7c3 frozen).",
+          "headHash": "3a00eee093ec72f1661c3181fd186f4e5042404b",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:04.161Z"
         }
       ]
     },
