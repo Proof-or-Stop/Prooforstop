@@ -5,9 +5,9 @@
       "title": "Add optional audit-only outcome fields to the Finding type",
       "context": "types.ts Finding: add optional signatureTag, resolutionType (enum), dismissReasonType (enum), resolveEvidenceStrength, dismissEvidenceStrength. Each annotated // audit-only — MUST NOT be read by any gate. Additive only; excluded from the finding signature domain.",
       "userSees": "Build is clean; the Finding type carries the new optional fields with audit-only comments; finding-verify signing is unchanged.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T12:17:54.648Z",
-      "endTime": null,
+      "endTime": "2026-06-17T12:18:18.242Z",
       "verificationIntent": {
         "happy": [
           {
