@@ -6,7 +6,61 @@
       "context": "Add c8 to root package.json devDependencies at latest stable major. Create .c8rc.json configuring reporters: html + lcov; reports-dir: packages/main/coverage; include: packages/main/src; exclude: dist, node_modules, *-smoke.ts fixtures. Update root .gitignore to exclude packages/main/coverage/.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep c8 package.json && cat .c8rc.json && grep coverage .gitignore` shows c8 in devDeps, .c8rc.json with html+lcov reporters and packages/main/coverage report-dir, and .gitignore entry for packages/main/coverage/.",
+      "files": {
+        "modify": [
+          "package.json",
+          ".gitignore"
+        ],
+        "create": [
+          ".c8rc.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "c8 in root devDependencies -> `node -e \"const p=require(\\\"./package.json\\\"); console.log(p.devDependencies.c8||\\\"MISSING\\\")\"` prints a version string starting with ^ or a digit (not MISSING); WHY: c8 must be installed for test:coverage to run",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": ".c8rc.json exists at root and is valid JSON with reporter array including html and lcov -> `node -e \"const c=require(\\\"./.c8rc.json\\\"); if(!Array.isArray(c.reporter)||!c.reporter.includes(\\\"html\\\")||!c.reporter.includes(\\\"lcov\\\")) throw new Error(\\\"BAD_REPORTERS:\\\"+JSON.stringify(c.reporter)); console.log(\\\"REPORTERS_OK\\\")\"` prints REPORTERS_OK; WHY: HTML + LCOV are the A0-required output formats",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": ".gitignore includes packages/main/coverage/ -> `grep -F packages/main/coverage/ .gitignore | wc -l` outputs at least 1; WHY: coverage output must be gitignored to keep working tree clean",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": ".c8rc.json reports-dir points to packages/main/coverage -> `node -e \"const c=require(\\\"./.c8rc.json\\\"); if(c[\\\"reports-dir\\\"]!==\\\"packages/main/coverage\\\") throw new Error(\\\"BAD_DIR:\\\"+c[\\\"reports-dir\\\"]); console.log(\\\"DIR_OK\\\")\"` prints DIR_OK; WHY: A0 spec requires this exact path",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm install completes cleanly with c8 added -> `npm install --no-save 2>&1 | grep -cE \"error|EBADENGINE\"` outputs 0; WHY: install must not break on c8 dep resolution",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: packages/main/src/tasks/run-all-smokes.ts byte-identical to main -> `git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts | wc -l` outputs 0; WHY: runner is frozen (B-6efb DONE)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: packages/main/smoke-manifest.json byte-identical to main -> `git diff main...HEAD -- packages/main/smoke-manifest.json | wc -l` outputs 0; WHY: manifest is frozen (B-d7c3 DONE)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
