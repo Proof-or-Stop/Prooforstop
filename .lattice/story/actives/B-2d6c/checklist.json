@@ -119,6 +119,17 @@
           "headHash": "03358f1ad20865863d2930b1b40047f8b782de1e",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:07.438Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts packages/main/src/tasks/cli-e2e.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — B-6efb runner + B-d7c3 cli-e2e frozen.",
+          "headHash": "3b7342ba4b30720866b5c3ac65e47797afcf1f21",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:08.123Z"
         }
       ]
     },
