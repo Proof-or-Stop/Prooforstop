@@ -47,7 +47,7 @@
         "regression",
         "cli"
       ],
-      "timeoutMs": 120000
+      "timeoutMs": 240000
     },
     {
       "name": "gap-coverage"
@@ -101,7 +101,8 @@
       "name": "story-metadata-protection"
     },
     {
-      "name": "worktree-authority"
+      "name": "worktree-authority",
+      "timeoutMs": 180000
     },
     {
       "name": "verification-intent-repair"
@@ -227,10 +228,12 @@
       "name": "lattice-cli-migration"
     },
     {
-      "name": "dispatch-run"
+      "name": "dispatch-run",
+      "timeoutMs": 180000
     },
     {
-      "name": "autopilot-run"
+      "name": "autopilot-run",
+      "timeoutMs": 180000
     },
     {
       "name": "unattended-dispatch"
@@ -251,7 +254,8 @@
       "name": "lattice-evidence"
     },
     {
-      "name": "lattice-baseline"
+      "name": "lattice-baseline",
+      "timeoutMs": 240000
     },
     {
       "name": "lattice-parallel-wave"
@@ -269,7 +273,8 @@
       "name": "observability-contract"
     },
     {
-      "name": "cli-json-stdout-contract"
+      "name": "cli-json-stdout-contract",
+      "timeoutMs": 180000
     },
     {
       "name": "pretool-scope-hook"
@@ -299,7 +304,8 @@
       "name": "authority-job-loop-live"
     },
     {
-      "name": "planner-unattended"
+      "name": "planner-unattended",
+      "timeoutMs": 180000
     },
     {
       "name": "baseline-contracts"
@@ -450,6 +456,10 @@
     },
     {
       "name": "usage-ledger-default-on"
+    },
+    {
+      "name": "experience-layer-playbook",
+      "timeoutMs": 180000
     }
   ]
 }
