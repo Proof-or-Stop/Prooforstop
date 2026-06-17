@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Purely additive (no modification of runner, manifest, or existing test:* scripts)",
+    "Verbatim from A0 sketch (HTML+LCOV at packages/main/coverage/, .gitignore)",
+    "Simple v1 (defer CI integration and child-process instrumentation)"
+  ],
+  "drivers": [
+    "A0 chosen Path B requires c8 coverage to be complete",
+    "Existing runner uses worker pool — parent-c8 cannot capture child coverage without extra setup",
+    "Must not break npm test or npm run test:all"
+  ],
+  "options": [
+    {
+      "name": "Single-process mode (--jobs 1)",
+      "pros": [
+        "Simple, accurate",
+        "Matches existing test:legacy invocation pattern",
+        "No env-var orchestration"
+      ],
+      "cons": [
+        "~30x slower wall-clock",
+        "Only acceptable for on-demand runs, not CI hot path"
+      ]
+    },
+    {
+      "name": "Multi-process with NODE_V8_COVERAGE + nyc merge",
+      "pros": [
+        "Preserves parallel wall-clock",
+        "Production-quality coverage merge"
+      ],
+      "cons": [
+        "More complex setup",
+        "Per-worker dirs need manual cleanup",
+        "Deferred per A0"
+      ]
+    }
+  ],
+  "chosen": "Single-process mode (--jobs 1)",
+  "rationale": "A0 explicitly defers CI integration; coverage is on-demand. Single-process is simpler, accurate, matches existing invocation pattern. Wall-clock penalty is acceptable. Multi-process can be added in a follow-up if needed.",
+  "preMortem": [
+    {
+      "scenario": "Some smokes assume worker-pool isolation and fail serially",
+      "trigger": "npm run test:coverage exits non-zero on first failing smoke",
+      "consequence": "v1 coverage unusable until skipped or marked",
+      "mitigation": "Run test:coverage during DEV verify; tag failing smokes with skip in manifest entry; document known limitations in CHANGELOG"
+    },
+    {
+      "scenario": "Wall-clock >30 min in serial mode",
+      "trigger": "Time npm run test:coverage; observe wall-clock",
+      "consequence": "Developers avoid running coverage; defeats purpose",
+      "mitigation": "If unacceptable, fall back to multi-process design as follow-up; document expected duration in CHANGELOG"
+    },
+    {
+      "scenario": "c8 v10 has breaking changes from prior major",
+      "trigger": "npm install c8 + run yields module errors",
+      "consequence": "test:coverage broken at install time",
+      "mitigation": "Pin to latest tested major in package.json; document version in CHANGELOG; verify via npm install + smoke run"
+    }
+  ],
+  "timestamp": "2026-06-17T13:39:48.443Z"
+}

@@ -1,0 +1,32 @@
+{
+  "task": "Add c8 coverage instrumentation + test:coverage npm script to complete A0 chosen Path B (in-house runner + manifest + c8 coverage); final step after B-6efb (runner DONE) and B-d7c3 (manifest collapse DONE).",
+  "outcome": "Developer runs npm run test:coverage from project root; full 139-entry smoke battery executes serially under c8 instrumentation; all smokes exit 0; c8 prints coverage summary to stdout; packages/main/coverage/index.html and packages/main/coverage/lcov.info are generated. Opening packages/main/coverage/index.html shows file-by-file coverage for packages/main/src/. packages/main/coverage/ gitignored so working tree stays clean. CHANGELOG Unreleased entry + A0 decision doc DONE marker for B3 = B-c6cf.",
+  "facts": [
+    "A0 decision doc test-runner-consolidation-plan.md B3 sketch specifies c8 + HTML/LCOV at packages/main/coverage/ + .gitignore + test:coverage script",
+    "B-6efb (runner) DONE on main",
+    "B-d7c3 (manifest collapse 5->139) DONE on main 2026-06-17",
+    "c8 NOT currently a root devDependency",
+    "No coverage/ dir or .gitignore entry exists",
+    "Runner uses worker pool (child processes) — single-process mode required for parent-c8 coverage capture"
+  ],
+  "constraints": [
+    "Do NOT modify packages/main/src/tasks/run-all-smokes.ts",
+    "Do NOT modify packages/main/smoke-manifest.json",
+    "Do NOT modify existing test:* scripts (purely additive)",
+    "Coverage output dir MUST be packages/main/coverage/ per A0",
+    "Must not break npm test (root chain) or npm run test:all"
+  ],
+  "unknowns": [
+    "c8 latest stable major version (probably 10.x)",
+    "Whether single-process serial run completes in acceptable time (~30x slower than parallel; expected <10 min for 139 smokes)",
+    "Whether all 139 manifest smokes pass in serial mode (some may have parallelism assumptions)"
+  ],
+  "touchpoints": [
+    "package.json (root: add c8 devDep + test:coverage script)",
+    ".c8rc.json (new file at root)",
+    ".gitignore (add packages/main/coverage/)",
+    "CHANGELOG.md (Unreleased entry)",
+    "docs/requirements/decisions/test-runner-consolidation-plan.md (B3 DONE marker)"
+  ],
+  "timestamp": "2026-06-17T13:39:03.035Z"
+}

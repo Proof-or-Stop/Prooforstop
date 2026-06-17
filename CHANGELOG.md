@@ -9,6 +9,7 @@
     - `npm run test:all -- --select <name>` (the B-6efb runner, supports `--tag`, `--jobs`, etc.), or
     - `npm run test:legacy -- <name>` (compatibility shim added in this release; `<name>` is the smoke name **without** the trailing `-smoke` suffix — e.g. `test:legacy -- autopilot-authority`, not `autopilot-authority-smoke`).
   - The root `npm test` chain (test:main-write-lock-coverage → test:review-convergence-smoke → test:review-incremental-context-smoke → test:docs-drift-smoke → test:e2e) is unchanged and remains the CI default.
+- **B-c6cf** (B3 of test-runner consolidation): added `c8` as a root devDependency and wired `npm run test:coverage` to wrap the smoke runner under c8 in single-process mode (`--jobs 1`), emitting an HTML report at `packages/main/coverage/index.html` and LCOV at `packages/main/coverage/lcov.info`. Configuration lives in root `.c8rc.json`; `packages/main/coverage/` is `.gitignore`'d. The coverage run is on-demand only — CI integration is deferred. See `docs/dev/test-coverage.md` for usage. Completes the A0 chosen Path B (in-house runner + manifest + c8) after B-6efb (runner) and B-d7c3 (manifest collapse).
 
 ## Koala 0.3.4-1 - 2026-06-02
 

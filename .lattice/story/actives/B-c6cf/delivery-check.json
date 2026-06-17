@@ -1,0 +1,70 @@
+{
+  "storyId": "B-c6cf",
+  "checkedAt": "2026-06-17T14:20:27.547Z",
+  "reviewRound": "2026-06-17T14:09:10.877Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/dev/test-coverage.md",
+      "promise": "User-facing doc created at docs/dev/test-coverage.md covering test:coverage command, output paths (packages/main/coverage/index.html + lcov.info), single-process v1 note, and on-demand-only policy",
+      "verifiedBy": "direct file read",
+      "evidence": "File exists at docs/dev/test-coverage.md; first line is # Test coverage (c8); mentions test:coverage 3 times and packages/main/coverage 5 times; Limitations (v1) section present with wall-clock warning and CI deferral note"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "CHANGELOG Unreleased entry documents B-c6cf: c8 devDep, test:coverage script, HTML at packages/main/coverage/index.html, LCOV at lcov.info, .c8rc.json, .gitignore, and pointer to docs/dev/test-coverage.md",
+      "verifiedBy": "direct file read + git diff grep",
+      "evidence": "CHANGELOG.md B-c6cf bullet is under ## Unreleased > ### Test infrastructure; git diff grep confirms +.*test:coverage count=1 and +.*c8 count=1; awk section check confirms keywords under Unreleased"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#B3",
+      "promise": "B3 marked DONE with story ID B-c6cf in the decision doc, plus a Delivered block summarising what was implemented",
+      "verifiedBy": "grep",
+      "evidence": "Line 175: ### B3 — c8 coverage instrumentation + test:coverage entry — DONE (B-c6cf, 2026-06-17); lines 188-196 contain a Delivered (B-c6cf) block listing c8 v11, .c8rc.json, test:coverage script, gitignore, and docs/dev/test-coverage.md"
+    },
+    {
+      "docPath": ".c8rc.json",
+      "promise": ".c8rc.json at repo root configures reporter=[text,html,lcov], reports-dir=packages/main/coverage, include=packages/main/src/**/*.ts, and excludes dist/node_modules/*-smoke.ts fixtures",
+      "verifiedBy": "direct file read + node -e validation",
+      "evidence": "node -e prints REPORTERS_OK (html+lcov present) and DIR_OK (reports-dir=packages/main/coverage); exclude list confirmed in file; all:true and clean:true present"
+    },
+    {
+      "docPath": ".gitignore",
+      "promise": ".gitignore updated to exclude packages/main/coverage/ (coverage output directory)",
+      "verifiedBy": "grep",
+      "evidence": "grep -F packages/main/coverage/ .gitignore returns packages/main/coverage/ with a B-c6cf attribution comment"
+    },
+    {
+      "docPath": "package.json#scripts.test:coverage",
+      "promise": "Root package.json gains a test:coverage script that wraps run-all-smokes.js with c8 in single-process mode (--jobs 1)",
+      "verifiedBy": "direct package.json read + node -e validation",
+      "evidence": "package.json line 18: test:coverage = c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1; node -e prints C8_WRAPPED and INVOCATION_OK; existing test:* scripts unchanged"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Config-only item verified via node -e: c8 devDep present (^11.0.0), REPORTERS_OK, DIR_OK, gitignore grep=1, runner and manifest untouched (git diff wc=0). All 7 verification intents pass.",
+      "waiverReason": "CHK-001 is a pure config+devDep item (.c8rc.json, root devDependency, .gitignore). No test file is appropriate; correctness verified entirely by node -e JSON introspection and git diff scope checks."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Script wiring: C8_WRAPPED (starts with c8), INVOCATION_OK (includes run-all-smokes + --jobs 1). Coverage output: HTML_OK (8994-byte index.html), LCOV_OK (1135582-byte lcov.info). Additive-only: NO_REMOVALS confirmed. Root npm test chain: exit 0. CHK-002:happy:2 waived: 17/157 preexisting failures on main not introduced by B-c6cf; A0 acceptance (runs every smoke, HTML+LCOV generated) is met."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHANGELOG Unreleased entry verified by direct read and git diff grep (test:coverage=1, c8=1, under Unreleased heading). Decision doc B3 DONE marker grep returns 1. No unexpected decision docs modified (count=0). README unchanged (wc=0)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "docs/dev/test-coverage.md verified by direct read: 50 lines, # Test coverage (c8) heading, test:coverage mentioned 3 times, packages/main/coverage mentioned 5 times, Limitations (v1) section present with wall-clock and CI-deferral notes. No other unexpected docs/ changes (count=0)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises independently verified from source files and node -e introspection without relying on main-agent claims. CHK-002:happy:2 waiver (exit 0) is defensible: 17 preexisting smoke failures on main are not introduced by this additive-only story, and A0 acceptance criteria (all smokes attempted, HTML+LCOV generated) is met. No test files in diff is appropriate for a pure config/tooling instrumentation story; coverage output existence (8994-byte HTML, 1135582-byte LCOV) provides real machine evidence."
+  },
+  "_hash": "a34f14f34b315502fbe54870b2b31bf61c054aa18bc64afd946b904e4346fff2"
+}

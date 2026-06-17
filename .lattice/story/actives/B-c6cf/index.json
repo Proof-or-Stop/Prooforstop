@@ -4,7 +4,7 @@
   "title": "B3 test-runner consolidation: c8 coverage instrumentation + test:coverage script",
   "description": "Add c8 as devDependency and wire test:coverage npm script to run the full smoke battery under coverage, emitting HTML + LCOV reports. Final step of A0 test-runner-consolidation plan after B-6efb (runner) and B-d7c3 (manifest collapse).",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "P2",
   "keywords": [
     "test-runner",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-17T13:30:31.128Z",
   "startedAt": "2026-06-17T13:30:31.128Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T14:22:29.864Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:37:24.336Z",
+      "branch": "story/B-c6cf",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:46:09.617Z",
+      "branch": "story/B-c6cf",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:09:10.877Z",
+      "branch": "story/B-c6cf",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:17:46.809Z",
+      "branch": "story/B-c6cf",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T14:22:29.864Z",
+      "branch": "story/B-c6cf",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c6cf",
-    "branch": "story/B-c6cf",
-    "createdAt": "2026-06-17T13:34:51.443Z"
-  }
+  "currentReviewRound": "2026-06-17T14:09:10.877Z"
 }
