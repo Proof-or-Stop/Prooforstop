@@ -26,7 +26,7 @@
  *     repo/                      <- the REAL inner `git init` repo (the gitRoot),
  *                                   branch main, one CLEAN commit
  *
- * Three proofs:
+ * Proofs:
  *   (1) RED baseline: buildDoneChecklist with gitCwd absent (falls back to the
  *       bare, non-git metadataRoot) -> the git-working-tree row is fail/blocking
  *       (git status errors). This is exactly the wrapper-root false-block.
@@ -35,6 +35,20 @@
  *   (3) PLAIN-REPO byte-identity: on a plain repo (metadataRoot==gitRoot), the
  *       FULL buildDoneChecklist row set is byte-identical whether gitCwd is
  *       absent or explicitly equals root.
+ *
+ * B-6666 CHK-002 extends this with the evidence-freshness git probes
+ * (currentGitHead / currentMaterialHash). Before CHK-002 those probes used a
+ * no-op `const gitCwd = projectRoot` alias (zero resolveGitCwd routing), so on a
+ * wrapper-root layout they ran git from the bare metadataRoot and returned
+ * undefined hashes. CHK-002 renames the probe param to gitCwd (resolved at the
+ * caller boundary) so:
+ *   (4) RED probes: currentGitHead/currentMaterialHash(bare metadataRoot) ===
+ *       undefined (the bare non-git root errors).
+ *   (5) GREEN probes: currentGitHead/currentMaterialHash(resolvedGitCwd) are
+ *       DEFINED hashes (run against the real gitRoot).
+ *   (6) PLAIN-REPO probe byte-identity: on a plain repo the probes return the
+ *       same value whether called with the bare root or the resolved gitCwd
+ *       (which equals root) — proving the root fallback is byte-identical.
  *
  * On success prints `done-oracle wrapper-root smoke passed`; any assert failure
  * throws -> exit 1.
@@ -47,6 +61,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -213,6 +228,44 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
       'RED (bare metadataRoot) and GREEN (resolved gitCwd) must produce DIFFERENT git-working-tree outcomes',
     );
 
+    // ── B-6666 CHK-002: evidence-freshness probe RED/GREEN on the same fixture ──
+    // (4) RED probes: bare non-git metadataRoot -> undefined hashes.
+    const redHead = currentGitHead(metadataRoot);
+    const redMaterial = currentMaterialHash(metadataRoot);
+    assert.equal(
+      redHead,
+      undefined,
+      `RED probe: currentGitHead(bare metadataRoot) must be undefined ` +
+        `(got ${JSON.stringify(redHead)}). The bare non-git root errors on git rev-parse.`,
+    );
+    assert.equal(
+      redMaterial,
+      undefined,
+      `RED probe: currentMaterialHash(bare metadataRoot) must be undefined ` +
+        `(got ${JSON.stringify(redMaterial)}). The bare non-git root errors on git ls-tree.`,
+    );
+
+    // (5) GREEN probes: resolved gitCwd (real inner gitRoot) -> defined hashes.
+    const greenHead = currentGitHead(resolvedGitCwd);
+    const greenMaterial = currentMaterialHash(resolvedGitCwd);
+    assert.ok(
+      typeof greenHead === 'string' && greenHead.length > 0,
+      `GREEN probe: currentGitHead(resolvedGitCwd) must be a defined hash ` +
+        `(got ${JSON.stringify(greenHead)})`,
+    );
+    assert.ok(
+      typeof greenMaterial === 'string' && greenMaterial.length > 0,
+      `GREEN probe: currentMaterialHash(resolvedGitCwd) must be a defined hash ` +
+        `(got ${JSON.stringify(greenMaterial)})`,
+    );
+    // RED vs GREEN probes MUST differ (undefined vs defined) — gitCwd selection
+    // is load-bearing for the evidence-freshness probes too.
+    assert.notEqual(
+      redHead,
+      greenHead,
+      'RED probe (bare metadataRoot) and GREEN probe (resolved gitCwd) must differ',
+    );
+
     void gitRoot;
   } finally {
     rmSync(metadataRoot, { recursive: true, force: true });
@@ -262,6 +315,23 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
       absentRow,
       'PLAIN: the git-working-tree row must be byte-identical with gitCwd absent vs gitCwd=root',
     );
+
+    // ── B-6666 CHK-002: evidence-freshness probe plain-repo byte-identity ──
+    // On a plain repo the resolved gitCwd points at the SAME git repo as root
+    // (resolveGitCwd may canonicalize via realpath — e.g. macOS /var ->
+    // /private/var — so compare the PROBE OUTPUTS, not the path strings). The
+    // probes must return identical, defined hashes whether called with the bare
+    // root or the resolved gitCwd: that is the byte-identity the root fallback
+    // promises.
+    const plainResolvedGitCwd = resolveGitCwd({ store, storyId: STORY_ID, metadataRoot: root, projectRoot: root });
+    const bareHead = currentGitHead(root);
+    const resolvedHead = currentGitHead(plainResolvedGitCwd);
+    const bareMaterial = currentMaterialHash(root);
+    const resolvedMaterial = currentMaterialHash(plainResolvedGitCwd);
+    assert.ok(typeof bareHead === 'string' && bareHead.length > 0, `PLAIN: currentGitHead(root) must be defined (got ${JSON.stringify(bareHead)})`);
+    assert.equal(resolvedHead, bareHead, 'PLAIN: currentGitHead must be byte-identical with bare root vs resolved gitCwd');
+    assert.ok(typeof bareMaterial === 'string' && bareMaterial.length > 0, `PLAIN: currentMaterialHash(root) must be defined (got ${JSON.stringify(bareMaterial)})`);
+    assert.equal(resolvedMaterial, bareMaterial, 'PLAIN: currentMaterialHash must be byte-identical with bare root vs resolved gitCwd');
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();

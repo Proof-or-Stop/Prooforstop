@@ -148,8 +148,11 @@ function gitRefContainsMain(gitCwd: string, ref: string): boolean {
   return true;
 }
 
+// B-6666 CHK-002: gitCwd is the resolved git invocation cwd forwarded from
+// checkEvidenceFreshness (which threads buildDoneChecklist's resolved gitCwd).
+// Plain repos pass projectRoot==gitCwd so behavior is byte-identical.
 function checkCompletedEvidenceSnapshotFreshness(
-  projectRoot: string,
+  gitCwd: string,
   evidence: TestEvidenceData,
 ): { fresh: boolean; message: string } {
   if (!evidence.headHash) {
@@ -159,7 +162,7 @@ function checkCompletedEvidenceSnapshotFreshness(
     return { fresh: false, message: 'DONE test-evidence is missing materialHash; cannot validate recorded evidence snapshot' };
   }
 
-  const recordedMaterialHash = currentMaterialHash(projectRoot, evidence.headHash);
+  const recordedMaterialHash = currentMaterialHash(gitCwd, evidence.headHash);
   if (!recordedMaterialHash) {
     return {
       fresh: false,
@@ -180,13 +183,17 @@ function checkCompletedEvidenceSnapshotFreshness(
 }
 
 // B-c622 CHK-009: active DONE-entry verifies current HEAD; completed DONE projections verify recorded snapshot.
-function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string, phase?: StoryPhase): { fresh: boolean; message: string } {
+// B-6666 CHK-002: gitCwd is the resolved git invocation cwd threaded from
+// buildDoneChecklist (the SAME resolved value the git-status row uses — no
+// split-brain between the two done-oracle git reads). Forwarded verbatim into
+// every git probe below; plain repos pass projectRoot==gitCwd (byte-identical).
+function checkEvidenceFreshness(store: StoryStore, storyId: string, gitCwd: string, phase?: StoryPhase): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json does not exist' };
   if (phase === 'DONE') {
-    return checkCompletedEvidenceSnapshotFreshness(projectRoot, evidence);
+    return checkCompletedEvidenceSnapshotFreshness(gitCwd, evidence);
   }
-  const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash, evidence.materialHash);
+  const freshness = checkEvidenceFreshnessForGit(gitCwd, evidence.headHash, evidence.materialHash);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
 
