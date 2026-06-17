@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Additive + optional only (no breaking change)",
+    "Audit-only: gates never read the new fields",
+    "New fields excluded from the finding integrity signature",
+    "Reuse evidenceState validation + learning-store; no parallel store",
+    "Signature-registry prevents synonym-tag drift; active needs human approval"
+  ],
+  "drivers": [
+    "Must not break existing finding_dismiss/resolve/add callers",
+    "Must keep gate decisions deterministic (no audit field reads)",
+    "Must keep legacy findings verifiable (signature unchanged)"
+  ],
+  "options": [
+    {
+      "name": "additive-optional-audit-only-fields",
+      "pros": [
+        "No breaking change (all fields optional; dismissReasonType optional)",
+        "Audit-only keeps gates deterministic; new fields excluded from signature",
+        "Reuses the existing evidenceState validation pattern and learning-store"
+      ],
+      "cons": [
+        "Touches existing finding handlers (back-compat risk, mitigated by smoke)",
+        "signature-registry adds a small CLI surface"
+      ]
+    },
+    {
+      "name": "separate-sidecar-outcome-store",
+      "pros": [
+        "Leaves finding.ts untouched"
+      ],
+      "cons": [
+        "Splits finding outcome data across two stores (harder to query/audit)",
+        "Duplicates persistence + signing concerns; diverges from the execution plan"
+      ]
+    }
+  ],
+  "chosen": "additive-optional-audit-only-fields",
+  "rationale": "The execution plan mandates in-place additive capture with audit-only/excluded-from-gates discipline; a sidecar store would split finding outcome data and diverge from the plan. Back-compat risk is contained by optional-only fields + a no-regression smoke.",
+  "preMortem": [
+    {
+      "scenario": "A gate starts reading an audit field",
+      "trigger": "Someone wires resolutionType/evidenceStrength into advisory.ts confidence weighting",
+      "consequence": "Reviewer-supplied labels become gate inputs -> non-determinism",
+      "mitigation": "audit-only comments on the fields; smoke asserts advisory gate decision identical with/without the fields; reviewers verify advisory.ts unchanged"
+    },
+    {
+      "scenario": "dismissReasonType shipped as required breaks callers",
+      "trigger": "Marking the enum required in the schema",
+      "consequence": "Every existing finding_dismiss call/script/replay breaks on first ship",
+      "mitigation": "Field is optional; smoke covers a field-less finding_dismiss behaving as before"
+    },
+    {
+      "scenario": "New fields enter the finding signature and stale existing findings",
+      "trigger": "finding-verify.ts signing over the new fields",
+      "consequence": "Legacy findings fail verification; churn",
+      "mitigation": "Keep new fields out of the signature domain; smoke verifies a legacy finding still verifies and signing is unchanged"
+    },
+    {
+      "scenario": "signatureTag synonyms fragment the signal",
+      "trigger": "Free-form tags with no registry",
+      "consequence": "worker-x / x-worker never aggregate",
+      "mitigation": "signature-registry auto-proposes new tags; aliases/mergedInto fold synonyms; active requires human approval"
+    }
+  ],
+  "timestamp": "2026-06-17T12:09:11.223Z"
+}

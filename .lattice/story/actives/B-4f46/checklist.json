@@ -7,7 +7,43 @@
       "userSees": "Build is clean; the Finding type carries the new optional fields with audit-only comments; finding-verify signing is unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Create a Finding object with all new audit fields (signatureTag, resolutionType, dismissReasonType, resolveEvidenceStrength, dismissEvidenceStrength) set -> object is valid and fields are accessible; WHY: confirms type additions compile and are usable",
+            "type": "cli"
+          },
+          {
+            "desc": "Create a Finding object with NO audit fields set (all omitted) -> object is valid, fields are undefined; WHY: confirms fields are truly optional",
+            "type": "cli"
+          },
+          {
+            "desc": "Run finding-verify on a legacy finding (created before these fields existed) -> signature verification still passes; WHY: confirms new fields are excluded from signature domain",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Create a Finding with only some audit fields set (e.g. resolutionType but not resolveEvidenceStrength) -> object is valid; WHY: confirms partial population is allowed, no accidental coupling between related fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Run finding-verify on a finding WITH audit fields populated -> produces identical signature as the same finding WITHOUT audit fields; WHY: proves signature domain truly excludes audit fields",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Grep advisory.ts and all gate logic files for references to signatureTag, resolutionType, dismissReasonType, evidenceStrength -> zero matches outside type definitions and smoke tests; WHY: static guardrail proving gate code never reads audit fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Compute finding signature with signatureTag present on the Finding object vs without -> signatures are byte-identical; WHY: proves no accidental signature pollution even if field is present on the object",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,33 @@
+{
+  "task": "Capture structured, audit-only finding outcome fields (signatureTag, resolutionType, dismissReasonType, evidenceStrength) + a signature-registry, additive and excluded from gates, so Phase 1a finding-signals produce meaningful scores.",
+  "outcome": "Running 'npm --prefix packages/main run test:experience-layer-finding-enums' prints 'smoke passed'. The smoke proves: finding_add/resolve/dismiss accept and persist the new optional fields; omitting them is byte-compatible with legacy behavior; invalid enums are rejected; advisory.ts gate decisions are identical with or without the audit fields; signature-registry auto-proposes a new signatureTag and signature_registry_set --action=approve flips it to active; finding-signals now yields non-zero signalScore when enums are present. Build clean; existing finding/usage-ledger smokes still pass; committed verifier prints TOTAL N | PASS N | FAIL 0.",
+  "facts": [
+    "Finding type is in packages/main/src/core/types.ts; finding_add/resolve/dismiss handlers in packages/main/src/handlers/finding.ts with an evidenceState enum-validation pattern (~112-162)",
+    "advisory.ts gate consumption reads only evidenceState=verified; it must remain the sole gate-relevant finding field",
+    "finding-verify.ts signs findings over a fixed field set; new audit fields must stay OUT of that signature",
+    "learning-store.ts (Phase 1a) is the home for the signature-registry; finding-signals.ts already reads the optional fields forward-compatibly"
+  ],
+  "constraints": [
+    "All new fields optional and additive; dismissReasonType must NOT be required",
+    "Audit-only: advisory.ts and any gate logic must never read the new fields",
+    "New fields excluded from the finding integrity signature",
+    "Back-compat: legacy findings and field-less calls behave exactly as before",
+    "No Co-Authored-By trailer"
+  ],
+  "unknowns": [
+    "None blocking; enum value sets and registry shape are fixed by the execution plan doc"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/signature-registry.ts",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-17T12:08:51.033Z"
+}
