@@ -113,7 +113,55 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "the koala-residue gate runs as part of every validate and passes; no koala can silently re-enter"
+      "userSees": "the koala-residue gate runs as part of every validate and passes; no koala can silently re-enter",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node scripts/verify-koala-residue.mjs -> prints PASS koala-residue: 0 unclassified, exits 0; WHY: gate passes clean on current tree",
+            "type": "cli"
+          },
+          {
+            "desc": "node scripts/verify-koala-residue.mjs --self-test -> prints PASS 5/5, exits 0; WHY: classify() unit tests all pass",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test -> exits 0, output includes test:koala-residue passing; WHY: full test chain green including the gate",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build -> exits 0; WHY: TypeScript compilation succeeds after prefix renames",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm run test:e2e -> all e2e tests pass; WHY: end-to-end suite unbroken by the changes",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rn koala packages/main/src/tasks/english-only-guards-smoke.ts packages/main/src/tasks/review-incremental-context-smoke.ts -> 0 matches; WHY: no residual koala references remain in the two modified files",
+            "type": "cli"
+          },
+          {
+            "desc": "node scripts/verify-koala-residue.mjs 2>&1 | grep -c unclassified -> line shows 0; WHY: zero unclassified residue across entire active scope, not just the two files",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "inject a new file src/tasks/sneaky.ts containing a koala-brand string not in any exemption list, run node scripts/verify-koala-residue.mjs -> exits 1 listing sneaky.ts as unclassified; WHY: proves the gate catches NEW koala brand introductions, not just known residue",
+            "type": "cli"
+          },
+          {
+            "desc": "add koala- mkdtemp prefix to a file outside packages/main/src/tasks/ (e.g. packages/main/src/utils/test-helper.ts), run gate -> exits 1; WHY: gate scans full active scope, not just the two files cleaned in this story",
+            "type": "cli"
+          },
+          {
+            "desc": "re-introduce all 7 original koala-* prefixes in both smoke files, run gate -> exits 1, reports exactly 7 unclassified hits; WHY: full regression scenario confirms gate catches every single one of the original residue locations",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
