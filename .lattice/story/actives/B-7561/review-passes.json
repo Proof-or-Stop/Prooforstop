@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T16:06:28.119Z",
       "reviewRunId": "B-7561:RR-005",
       "_hash": "153357dfb27a10112a7ec4d28fb2132001520257011727dac6a3947102b22975"
+    },
+    {
+      "id": "B-7561:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "F-001 resolved: cli-engine.ts line 1765 now declares `story` as a named optional schema field (alias of --storyId); `node bin/lattice.js recall --story B-7561 --top 3` runs recall correctly with ranked output and no usage-error. All lifecycle invariants verified in code and confirmed live: scoreSimilarity overlapping>disjoint (PASS), symmetric (PASS), deterministic (PASS), multi-field (PASS), Jaccard(empty)=0/no-NaN (PASS); recallSimilarStories most-similar-first (PASS), top-N (PASS), zero-score dropped (PASS), self excluded (PASS), empty->[] (PASS); large candidate set 121 profiles ranked correctly (PASS); malformed/partial profiles no crash (PASS); read-only: tree-snapshot byte-identical before/after recall (PASS); no derived-index/cache file created (PASS); import fence non-vacuous (PASS). npm run test:experience-layer-recall from worktree: TOTAL 24 | PASS 24 | FAIL 0, smoke passed.",
+      "createdAt": "2026-06-17T16:07:56.307Z",
+      "reviewRound": "2026-06-17T16:06:28.119Z",
+      "reviewRunId": "B-7561:RR-007",
+      "_hash": "7d087a13809ad0cb3dfd3e3a4dfb65012e59b98a3d66ceba99094f10449d42e7"
     }
   ]
 }
