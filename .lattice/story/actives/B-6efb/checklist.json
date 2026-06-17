@@ -339,12 +339,12 @@
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --manifest /tmp/test-manifest.json --select skip-me",
           "result": "pass",
-          "note": "Self-smoke 9/9 checks: PASS/FAIL detection verified by fixture-pass + fixture-fail child processes.",
-          "headHash": "411a798225e834e2cad23557162be2098d68b04a",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:05.113Z"
+          "note": "With a temp manifest containing {name:'skip-me',skip:true}, --select skip-me returns '0 smokes matched filters' — skip:true honored on live runner.",
+          "headHash": "ba67749102550f5bee358fb271776afb8db7d119",
+          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
+          "timestamp": "2026-06-17T02:21:01.545Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
