@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-fallback-smoke.js",
+          "result": "pass",
+          "note": "standalone EXIT=0 after adding scope_boundary_set+execution_boundary_set+scope_freeze_check before story_advance INIT_CHECK; asserts post-scope-boundary missing_init_check + fallback/repair behavior (diagnostic names reviewers + init_check_repair, fallback signs init-check that gate accepts)",
+          "headHash": "f81275f3a1f21f813b97dca8e55ddcf65e03c04c",
+          "materialHash": "2d0a58448e587eb43f42b1539beeec2b553521b62a15fb00992d698704450cf9",
+          "timestamp": "2026-06-17T20:11:59.834Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
