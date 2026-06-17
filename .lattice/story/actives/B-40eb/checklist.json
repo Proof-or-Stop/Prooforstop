@@ -634,12 +634,12 @@
         {
           "intentRef": "CHK-007:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "command": "git add probe-with-koala-brand && node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "新增未分类 koala 品牌会被 branding gate 标 unclassified 而 fail(story 4 扩展到全 active 范围)",
-          "headHash": "3a3c9f7cf91ba07242a573c33988fc02863c8b7f",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:08.661Z"
+          "note": "实跑:staged 含 koala 品牌的探针文件→gate exit 1 点名 packages/main/src/__residue_probe__.ts→git rm 恢复→exit 0;证明 gate 抓将提交的新残留",
+          "headHash": "25999d6c9ec8dc125439d16bdc48a9bf1d4cd89b",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:27.636Z"
         }
       ]
     }
