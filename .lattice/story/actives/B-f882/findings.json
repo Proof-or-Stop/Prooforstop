@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-f882:F-001",
+      "desc": "dead code: docs-drift-wrapper-root-smoke.ts:325 void gitRoot is a no-op — gitRoot is already used at line 288 (repoRoot: gitRoot), so the void expression does nothing. Copy-paste artifact from proof (1) where gitRoot was unused.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T12:19:18.069Z",
+      "reviewRound": "2026-06-17T12:16:03.058Z",
+      "reviewRunId": "B-f882:RR-002",
+      "_hash": "b215c8973265d3db4d8ee3095392bf727bff0a6c6adc96a3b3536eeeab7ce6eb",
+      "files": [
+        "packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts"
+      ]
+    }
+  ]
+}
