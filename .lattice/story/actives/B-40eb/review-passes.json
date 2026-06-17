@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T02:16:07.737Z",
       "reviewRunId": "B-40eb:RR-002",
       "_hash": "029c92dbe0e3784e0662744acdf72027008328179967cf0f834bf9ced69afbf8"
+    },
+    {
+      "id": "B-40eb:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Dead code check: no unused imports introduced in changed files. cli-init.ts removed symlinkSync/readlinkSync from imports after the symlink→thin-shim pivot; remaining imports (lstatSync, readdirSync) are used. managed-assets.ts new imports (rmSync, listManagedAgentBasenames, resolveAgentTemplateDir) are all used. doctor.ts new imports (AGENT_ASSET_MODE_RUNTIME_OWNED, scanProjectLocalManagedAgents) are all used. Type safety: no new unnecessary `as any` beyond the established handler registry pattern (Record<string, (...args: any[]) => any>). Error handling in global-agents.ts is explicit with clear messages; catch blocks in managed-assets.ts scanProjectLocalManagedAgents/migrateProjectLocalManagedAgents are intentional probe-pattern (documented). I/O isolation: no shell/main files import fn.ts directly. KoalaFlowConfig rename to LatticeFlowConfig is complete with no dangling refs. Documented exceptions are correctly preserved: idleKoala field, koala legacy alias/detection logic, KOALA_* env vars, .koala runtime paths, process-lane names, koala-gap-log persisted default, legacyKoalaAliasPreserved. Functional rename of audit-scan.ts regex (koala→lattice) is correct. .Codex→.lattice-codex rename is complete in all changed source/handler/task/fixture files. FOUR high findings registered (F-005 through F-008): scripts verify-lab-scoring-core.mjs, verify-lab-normalized-score.mjs, verify-lab-reviewer-mvp.mjs, and verify-product-reviewer.mjs still reference .Codex/agents/ paths after lab/src/core/config.ts was updated to resolve .lattice-codex/agents/ — these four verify scripts will fail at runtime.",
+      "createdAt": "2026-06-17T02:25:04.175Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "d51a4f37372928532c51d35327b9b6ce034ead22f6b0b82e9c37dec913cc6c30"
     }
   ]
 }
