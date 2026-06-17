@@ -187,6 +187,17 @@
           "headHash": "6d136fa063ebf2ea9738765ba65ec5f2b6d61047",
           "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
           "timestamp": "2026-06-17T01:22:02.091Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (d): canPassReviewGuard outcome identical with/without the helper across all branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified blocking finding) + gate inputs byte-identical after the helper",
+          "headHash": "d5b3988442513befbc2df3be7b0472e71f70f713",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:22:02.924Z"
         }
       ]
     }
