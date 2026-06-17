@@ -7,7 +7,30 @@
       "userSees": "npm run test:process-fact-contract no longer reports a dev_start INIT or DEV policy/default phase drift; command-policy.allowedPhases and DEFAULT_PHASE_TOOLS agree on dev_start's phases.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After adding the literal dev_start to DEFAULT_PHASE_TOOLS INIT and DEV, command-policy.allowedPhases and the isCommandAllowed-from-config view agree for dev_start across all phases",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Only dev_start's phase permissions change; no other command shifts (exact literal added, not a wildcard) — contract reverse-direction check still holds",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "command-policy.ts and the handler's allowedPhases for dev_start are unchanged (config moves to match them); dev_start remains refused in REVIEW/TEST/DONE",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
