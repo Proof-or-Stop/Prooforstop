@@ -613,14 +613,14 @@
         },
         {
           "intentRef": "CHK-003:adversarial:4",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "verdict": "success",
-          "command": "npm --prefix packages/main run test:run-all-smokes-smoke",
+          "command": "env -i HOME=$HOME PATH=$PATH node packages/main/dist/tasks/run-all-smokes-smoke.js",
           "result": "pass",
-          "note": "Standalone-runnable via npm script; 9/9 checks pass.",
-          "headHash": "62f574bd3e76181bf88d58e4d44eed9b1b327068",
-          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
-          "timestamp": "2026-06-17T02:10:33.328Z"
+          "note": "Runs under stripped env (only HOME+PATH); exit 0 with '9/9 checks passed' — smoke does not depend on ambient environment.",
+          "headHash": "2425a04bde64b445aad69473eda8f17b7c555f23",
+          "materialHash": "ba78b5474d1968dcf7cc296adcbbc27e7cbd5a06ca4443003e5b7927b5161065",
+          "timestamp": "2026-06-17T02:21:04.732Z"
         }
       ]
     }
