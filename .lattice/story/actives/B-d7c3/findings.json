@@ -335,7 +335,7 @@
       "desc": "CHK-001:edge:1 evidence does not cover no-duplicate-entries dimension. Intent: smoke-manifest.json has no duplicate entries (expected output NO_DUPES). Evidence command: python3 print(len(m[smokes])) — returns count=139 only. A count of 139 does not prove absence of duplicates (e.g. 70 names appearing twice each would also give 139). The no-dup dimension of this intent has no valid evidence. Live node check confirms NO_DUPES count=139, but the evidence command does not run any dedup check.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T13:00:45.265Z",
@@ -344,7 +344,9 @@
       "_hash": "4272d81f0c3e73f8df4313452ced9c2c3562efd89987289b649ee5bd70b04d7f",
       "files": [
         "packages/main/smoke-manifest.json"
-      ]
+      ],
+      "resolvedReason": "Rebound to NO_DUPES check adapted to manifest schema (m.smokes). Prints 'NO_DUPES count=139'.",
+      "resolvedAt": "2026-06-17T13:03:16.323Z"
     },
     {
       "id": "B-d7c3:F-020",
