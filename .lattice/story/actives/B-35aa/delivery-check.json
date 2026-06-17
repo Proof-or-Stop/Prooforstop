@@ -1,0 +1,70 @@
+{
+  "storyId": "B-35aa",
+  "checkedAt": "2026-06-17T00:02:40.411Z",
+  "reviewRound": "2026-06-16T23:52:14.893Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#current-state",
+      "promise": "Document records 6 pinned metrics: 151 smoke files, ~70,280 total lines, ~466 avg lines, largest smoke named, 258 test:* scripts, 49 verify scripts",
+      "verifiedBy": "grep on delivered file",
+      "evidence": "Lines 13-18: table with 151, ~70,280, ~466, flow-stability-smoke.ts (3,831 lines), 258 (111+147), 49 — all present"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#paths-considered",
+      "promise": "Three paths named: Path A (Vitest migration), Path B (in-house runner + manifest + c8), Path C (Path B minus c8)",
+      "verifiedBy": "grep on delivered file",
+      "evidence": "Line 50: ### Path A — Vitest migration; Line 70: ### Path B — In-house runner + manifest + c8 coverage *(chosen)*; Line 104: ### Path C — Path B minus c8"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#paths-considered",
+      "promise": "Path B is explicitly marked as chosen with *(chosen)* annotation",
+      "verifiedBy": "grep on delivered file",
+      "evidence": "Line 70: ### Path B — In-house runner + manifest + c8 coverage *(chosen)* — exact annotation present"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "promise": "Document has at least 4 H2 sections (## headers)",
+      "verifiedBy": "grep -c on delivered file",
+      "evidence": "grep -c returned 6: Current State, Paths Considered, Chosen Path, Follow-up Lattice Stories, Out of Scope, Closing"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#follow-up-lattice-stories",
+      "promise": "Follow-up sections B1, B2, B3, B4 all present with ### B[n] headers",
+      "verifiedBy": "grep on delivered file",
+      "evidence": "Lines 143, 159, 175, 188: ### B1, ### B2, ### B3, ### B4 (optional) headers all found"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "promise": "testing-infra.md cross-referenced at least 6 times",
+      "verifiedBy": "grep -c on delivered file",
+      "evidence": "grep -c testing-infra returned 6 — references at lines 34, 45, 65, 93, 122, 205"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#out-of-scope",
+      "promise": "Explicitly states no edits to existing decision docs (testing-infra.md and testing-completeness.md remain untouched)",
+      "verifiedBy": "file read + git diff",
+      "evidence": "Lines 204-205 state both docs remain untouched; git diff main -- docs/requirements/decisions/testing-infra.md docs/requirements/decisions/testing-completeness.md returned empty"
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#out-of-scope",
+      "promise": "Zero code, smoke file, package.json script, or c8 changes in this A0 story",
+      "verifiedBy": "git diff --name-only main -- packages package.json scripts",
+      "evidence": "git diff --name-only main -- packages package.json packages/main/package.json scripts returned empty; diff shows only story metadata + one new decision doc"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "A0 decision-only story: sole deliverable is a documentation file. Gate verification performed via shell commands: ls (file exists), wc -l (211 lines), grep -c H2 (6 sections), grep for all pinned numbers (151, 70280, 258, 49), grep for path names and *(chosen)* marker, grep -c testing-infra (6 refs), grep B1-B4 headers, git diff side-effect checks (both empty). All checks passed on real machine.",
+      "waiverReason": "Pure documentation story (A0 decision-only); no executable code introduced. All structural requirements verified by real machine shell commands above."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified from source. The single delivered file (211 lines, 6 H2 sections) contains all required pinned numbers, all three named paths with Path B marked chosen, 6 testing-infra.md cross-references, and all four B1-B4 follow-up headers. Zero side-effects: existing decision docs untouched (confirmed by empty git diff), and no code, script, or package.json changes were introduced. No TODOs or unresolved markers found."
+  },
+  "_hash": "27809c63d7791bc0cd068a76626ef170e6ce470a0a6d1f5c9c6f55b8894a4ab3"
+}

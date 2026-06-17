@@ -63,6 +63,37 @@ export type ManagedAssetKind =
   | 'excluded-path'
   | 'remove-extra';
 
+/**
+ * Canonical runtime list of every `ManagedAssetKind`. Single source of truth for
+ * any consumer that must re-validate kinds at runtime (Handler Encoding
+ * Convention) — e.g. validate-docs-drift's managed-asset contradiction guard.
+ *
+ * Two compile-time guards keep this list honest:
+ *   1. `as const satisfies readonly ManagedAssetKind[]` — every LISTED value must
+ *      be a valid kind (rejects typos / removed kinds).
+ *   2. `_AssertAllKinds` below — every UNION member must appear here, so adding a
+ *      new `ManagedAssetKind` without listing it is a TYPE ERROR (no silent drift).
+ */
+export const ALL_MANAGED_ASSET_KINDS = [
+  'managed-block',
+  'whole-file',
+  'gitignore-runtime',
+  'claude-settings',
+  'codex-hooks',
+  'excluded-path',
+  'remove-extra',
+] as const satisfies readonly ManagedAssetKind[];
+
+// Compile-time exhaustiveness: if a new ManagedAssetKind is added to the union
+// but NOT to ALL_MANAGED_ASSET_KINDS above, `Exclude<...>` is the missing kind
+// (not `never`), so this type resolves to the error tuple and the assignment
+// below fails to compile. Adding the kind to the array restores it to `never`.
+type _AssertAllKinds = Exclude<ManagedAssetKind, typeof ALL_MANAGED_ASSET_KINDS[number]> extends never
+  ? true
+  : ['MISSING_KIND', Exclude<ManagedAssetKind, typeof ALL_MANAGED_ASSET_KINDS[number]>];
+const _allKindsCovered: _AssertAllKinds = true;
+void _allKindsCovered;
+
 export interface ManagedAssetCheckOptions {
   apply?: boolean;
   upgrade?: boolean;
@@ -110,7 +141,7 @@ export interface ManagedAssetLocalEditReview {
   recommendation: string;
 }
 
-interface ManagedAssetDefinition {
+export interface ManagedAssetDefinition {
   id: string;
   relPath: string;
   kind: ManagedAssetKind;
@@ -294,10 +325,10 @@ function safeJsonParse(text: string): unknown {
   try { return JSON.parse(text); } catch { /* PROBE: malformed JSON means this asset cannot prove managed ownership. */ return null; }
 }
 
-function gitLines(root: string, args: string[]): string[] {
+function gitLines(gitCwd: string, args: string[]): string[] {
   try {
     return execFileSync('git', args, {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -362,7 +393,12 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
   let changed = !updated.hooks;
 
   for (const [event, eventHooks] of Object.entries(claudeHooks)) {
-    const command = eventHooks[0]?.hooks?.[0]?.command;
+    // The legacy scope-pretool command migrates onto the FIRST managed entry's
+    // command (the scope guard). B-5f42: an event can now declare MULTIPLE
+    // managed entries (e.g. PreToolUse has both the scope guard and the
+    // english-only guard), so each entry must be merged independently — only
+    // checking eventHooks[0] would silently drop every entry after the first.
+    const migrationTarget = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
       changed = true;
@@ -375,15 +411,18 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
     const migrated = migrateHookCommandEntries(
       hooks[event],
       hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
-      command || '',
+      migrationTarget || '',
     );
     if (migrated.changed) {
       hooks[event] = migrated.entries;
       changed = true;
     }
-    if (command && !hasHookCommand(hooks[event], command)) {
-      hooks[event] = [...hooks[event], ...eventHooks];
-      changed = true;
+    for (const entry of eventHooks) {
+      const command = entry?.hooks?.[0]?.command;
+      if (command && !hasHookCommand(hooks[event], command)) {
+        hooks[event] = [...hooks[event], entry];
+        changed = true;
+      }
     }
   }
   updated.hooks = hooks;

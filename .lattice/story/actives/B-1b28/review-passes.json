@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-1b28:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 63 verificationIntent entries (CHK-001:happy:0-11 + edge:0-3 + adversarial:0-2; CHK-002:happy:0-6 + edge:0-2 + adversarial:0-2; CHK-003:happy:0-6 + edge:0-4 + adversarial:0-4; CHK-004:happy:0-7 + edge:0-2 + adversarial:0-2) have concrete logic_test evidence via usage-ledger-default-on-smoke.ts + verify-b-1b28.mjs. Live runs confirmed: smoke exits 0 with 30 named checks covering default-ON flip, =0 byte-identical escape hatch, raw-text fallback, error swallowing, budget guard, KOALA_ alias, precedence, memoization-free re-read, and full ledger suite (7 smokes) regression-free. writer.ts comment updated to Default ON; env mutations hermetic; temp dir cleanup in finally; zero cross-module imports verified. No coverage gap found.",
+      "createdAt": "2026-06-16T22:31:37.503Z",
+      "reviewRound": "2026-06-16T22:29:31.413Z",
+      "reviewRunId": "B-1b28:RR-001",
+      "_hash": "8ce893cfd13db50c0c1db0ddc71bce935fd51aefc278ef6f63f4b93d3e8aa9a3"
+    },
+    {
+      "id": "B-1b28:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001 truth table verified: undefined->true, 0/false/off/no/empty->false, 1/true/on/yes->true; trimmed+case-insensitive; legacy KOALA_ alias honored; LATTICE_ wins ?? chain; not memoized. CHK-002 escape hatch (=0) is byte-identical legacy no-op: appendUsageRecord strict no-op (no file, no .lattice dir), buildClaudeSpawnArgs returns ['--print',file] with no --output-format json, recordDispatchPreflight null, recordDispatchFinal no-write, recordBudgetBlock inert even with budget set. CHK-003 default-ON safety: ledger writes succeed, parse failures fall back to raw text (B-0f7c), ledger errors swallowed at preflight+final, no budget block without LATTICE_HARD_BUDGET_TOKENS. All 30 smoke checks passed; full verifier TOTAL 63 | PASS 63 | FAIL 0.",
+      "createdAt": "2026-06-16T22:31:47.266Z",
+      "reviewRound": "2026-06-16T22:29:31.413Z",
+      "reviewRunId": "B-1b28:RR-003",
+      "_hash": "2e68d3ce9b23597bf26c914fb069ed7a76f6c749f001733c8f3d68e72c6662df"
+    },
+    {
+      "id": "B-1b28:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed writer.ts, usage-ledger-default-on-smoke.ts, usage-ledger-budget-smoke.ts, usage-ledger-dispatch-smoke.ts, usage-ledger-smoke.ts, and package.json. The boolean default flip (undefined => true) is correct and complete. All doc-comments now say opt-out/default-ON; grep for 'opt-in' in writer.ts returns zero results. The three existing smokes each replace {} with {LATTICE_USAGE_LEDGER:'0'} for their OFF constant, correctly reflecting the new default-ON semantic. The new default-on smoke covers CHK-001 flag parsing, CHK-002 escape-hatch byte-identity, CHK-003 default-on safety, and a STATIC zero-cross-module import walk — all appropriate. No dead code, no unused imports, no empty catch blocks, no unnecessary 'as any'. The zero cross-module import invariant holds: all '../' imports inside core/usage-ledger/adapters/ resolve to siblings within the same module, never escaping to '../../'. No dispatch/cli-engine/handlers production logic was touched.",
+      "createdAt": "2026-06-16T22:37:50.494Z",
+      "reviewRound": "2026-06-16T22:36:19.529Z",
+      "reviewRunId": "B-1b28:RR-004",
+      "_hash": "9140fc9997ac8809e2494e22cdd521ba90d0805c53447176a81948c8f607a8ba"
+    },
+    {
+      "id": "B-1b28:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 63 intents (CHK-001 through CHK-004, happy/edge/adversarial, all priority=must) are covered by logic_test evidence pointing to usage-ledger-default-on-smoke.ts + verify-b-1b28.mjs. Live run of npm test:usage-ledger-default-on confirms 30 checks pass (default-ON flip, =0 escape hatch byte-identical no-op, parse fallback, ledger error swallowed, budget guard inert). Verifier reports TOTAL 63 | PASS 63 | FAIL 0 with all 8 ledger suites green. Doc-comment fix (commit bafba39) did not alter any behavioral logic; coverage is sufficient and no gaps found.",
+      "createdAt": "2026-06-16T22:38:39.686Z",
+      "reviewRound": "2026-06-16T22:36:19.529Z",
+      "reviewRunId": "B-1b28:RR-005",
+      "_hash": "3a2af268676094fc9b15519cde55542ffed2156cad68db667ccc4db8584b5a59"
+    },
+    {
+      "id": "B-1b28:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Verified writer.ts default flip (undefined->true), complete truth table (unset/1/true/on/yes=ON; 0/false/off/no/empty/unrecognized=OFF), =0 escape hatch is byte-identical no-op (no write, no .lattice dir, no spawn --output-format json, budget guard inert), default-ON safety (ledger errors swallowed by preflight/final, parse failures fall back to raw text, no block without LATTICE_HARD_BUDGET_TOKENS). All existing OFF-path tests updated from empty-env to explicit =0. Smoke: 30/30 checks pass; full suite: 63/63 pass. Spec-boundary coverage verified against lattice-llm-usage-ledger-execution-plan.md rollout phase 6. No findings.",
+      "createdAt": "2026-06-16T22:39:20.919Z",
+      "reviewRound": "2026-06-16T22:36:19.529Z",
+      "reviewRunId": "B-1b28:RR-006",
+      "_hash": "50b2474d51bb783945ecebb3e8b365c5cddebc77f9109be3e5e99501aa2b4fc9"
+    }
+  ]
+}

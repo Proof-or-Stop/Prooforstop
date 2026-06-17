@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1480",
+  "checkedAt": "2026-06-17T01:53:44.954Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "e2a4c84ec742ac4b6ba1bed4cbfd1725a417d244b571432663327d553f86f07d",
+  "executionBoundaryHash": "9991836b45f0ee3483ad3c5cb0d9d05c67db495cb90e076cdc8196b18828f3e8",
+  "freshnessHash": "d47dda21cd80b6703e65bfd28dc94cfc4dbcfb71849edfb100c0f1949d5d4ddc",
+  "effectiveExcludedKeywords": [
+    "Building a retrieval index or text-matching engine",
+    "Changing any existing repository file other than adding the new decision document",
+    "Editing review-gate enforcement code paths",
+    "Writing TypeScript source files, request handlers, or runnable subcommands"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Building a retrieval index or text-matching engine",
+      "source": "scopeBoundary.excluded",
+      "text": "Building a retrieval index or text-matching engine",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing any existing repository file other than adding the new decision document",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing any existing repository file other than adding the new decision document",
+      "excluded": true
+    },
+    {
+      "keyword": "Editing review-gate enforcement code paths",
+      "source": "scopeBoundary.excluded",
+      "text": "Editing review-gate enforcement code paths",
+      "excluded": true
+    },
+    {
+      "keyword": "Writing TypeScript source files, request handlers, or runnable subcommands",
+      "source": "scopeBoundary.excluded",
+      "text": "Writing TypeScript source files, request handlers, or runnable subcommands",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8667e15fbe3cde60463da0f49043e56bea4f6c82ce3f85451907196cffa3384c"
+}

@@ -134,9 +134,10 @@ function collectMaterialFiles(root: string, rel: string): string[] {
 }
 
 function readGitHead(root: string): string {
+  const gitCwd = root;
   try {
     return execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 2_000,

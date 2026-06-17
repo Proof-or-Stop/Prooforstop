@@ -1,0 +1,87 @@
+{
+  "storyId": "B-1480",
+  "name": "experience-layer-execution-plan-doc",
+  "title": "Land the Lattice Experience Layer (evidence-backed review playbooks) execution plan into docs/requirements/decisions/ — English, code-verified, advisory-only and deterministic-preserving",
+  "description": "Materialize the v1.1 Experience Layer specification as an English execution-plan decision document at docs/requirements/decisions/lattice-experience-layer-execution-plan.md. The doc is a future-execution plan only (no source code): it defines an advisory-only, lineage-backed review-playbook layer that surfaces verified past story outcomes as review-time hints, never touching gate or deterministic logic. It records the grounded module decomposition (new core plus handler modules under packages/main, one-way inward coupling), the reuse of existing dev-memory, the decision-doc-promotion digest pattern and the activity-log appender, the decision to cut full-text search for v1, three determinism guardrails, and the phased rollout whose first story is a verifiable finding-signals slice.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "medium",
+  "createdAt": "2026-06-17T01:50:05.961Z",
+  "startedAt": "2026-06-17T01:50:05.961Z",
+  "endedAt": "2026-06-17T02:40:09.847Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T01:50:05.963Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T01:54:04.904Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T01:55:32.604Z",
+      "branch": "story/B-1480",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:09:53.177Z",
+      "branch": "story/B-1480",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:15:38.600Z",
+      "branch": "story/B-1480",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:27:18.184Z",
+      "branch": "story/B-1480",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:27:26.580Z",
+      "branch": "story/B-1480",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:31:33.411Z",
+      "branch": "story/B-1480",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:40:09.847Z",
+      "branch": "story/B-1480",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-17T02:27:26.580Z"
+}

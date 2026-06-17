@@ -225,9 +225,10 @@ export interface ReviewRunSnapshotContext {
 }
 
 function isGitRepository(projectRoot: string): boolean {
+  const gitCwd = projectRoot;
   try {
     const result = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();

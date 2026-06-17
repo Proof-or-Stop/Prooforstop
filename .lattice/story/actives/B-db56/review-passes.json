@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-db56:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 22 verificationIntents across 2 checklist items reviewed; all must-intents for happy and edge paths have valid non-fail evidence confirmed by live re-run (build exit 0, test:gitroot-cwd-routing exit 0, test:bare-gate-gitroot-cwd exit 0, test:e2e ALL PASS, test:gitroot-cwd-contract exit 0 with self-test + 494 files scanned); resolveGitCwd signature unchanged at :195; 3 ad-hoc helpers confirmed present; script registration confirmed in both package.json files; contract smoke source verified for inline self-test, KNOWN-BAD fixture, and allowlist correctness. One low-severity advisory finding filed (B-db56:F-001): CHK-001:adversarial:1 evidence command does not match intent but has no transitive coverage gap for the primary choke-point mechanism. No blocker.",
+      "createdAt": "2026-06-16T22:43:57.066Z",
+      "reviewRound": "2026-06-16T22:40:46.961Z",
+      "reviewRunId": "B-db56:RR-003",
+      "_hash": "b7e8ca79f0068482357e30caa4e35016234311899827d62704fc7e0063b63ae6"
+    },
+    {
+      "id": "B-db56:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion lane clean. Story rewired 28+ files from bare cwd: projectRoot/root/metadataRoot to cwd: gitCwd (alias for a resolved value). All concept words examined: (1) no new bare-cwd git calls introduced in changed files — the 2 hits in gitroot-cwd-contract-smoke.ts are intentional fixture strings (JSDoc comment + template literal), not real call sites; (2) 3 ad-hoc helpers (lab.ts runGit, cli-engine.ts runGitNoThrow, declared-artifact-commit-check.ts runGit) untouched, original signatures intact; (3) resolveGitCwd signature unchanged at story-signed-workspace-resolution.ts:195 — file not in diff; (4) no over-reach: no changes to resolveGitCwd body, no semantic changes to git args, only cwd parameter rewired; (5) all 3 mandated tests exit 0: test:gitroot-cwd-contract (494 files clean), test:gitroot-cwd-routing (byte-identical), test:bare-gate-gitroot-cwd (byte-identical); (6) remaining cwd: root/projectRoot hits in other files (non-changed) are either non-git spawns or pre-existing smoke-file fixtures correctly allowlisted. No blocker found.",
+      "createdAt": "2026-06-16T22:44:50.706Z",
+      "reviewRound": "2026-06-16T22:40:46.961Z",
+      "reviewRunId": "B-db56:RR-001",
+      "_hash": "66c220426188364302a8ab3a9751cf56e602859affe0205420635ea17bc1e224"
+    },
+    {
+      "id": "B-db56:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "CHK-001 cwd rerouting: pure parameter rewiring across all 29 changed files. Sites with storyId context use resolveGitCwd (auto-commit-metadata.ts, verifier.ts:739); sites without storyId use const gitCwd = projectRoot alias which satisfies the lexical contract. currentHead/headShaGitCwd stubs in verifier.ts are intentional (no storyId available). CHK-002 contract smoke: clean implementation, allowlist load-bearing and allowlists itself via -smoke.ts pattern, self-test runs KNOWN-GOOD + KNOWN-BAD before repo scan, GIT_CALL_REGEX lastIndex reset correctly on each call, BARE_CWD_REGEX non-global safe, failure message format correct, standalone runnable confirmed. No dead code, no unused imports, no new empty-catch swallowing, no shell/fn.ts isolation violations. One medium finding filed (F-002): misleading comment in done-effects.ts:68 claims callers route via resolveGitCwd but transition-orchestrator.ts:276 passes ctx.root directly.",
+      "createdAt": "2026-06-16T22:46:33.210Z",
+      "reviewRound": "2026-06-16T22:40:46.961Z",
+      "reviewRunId": "B-db56:RR-002",
+      "_hash": "d6f34d2a3a970e22abeac023ddd07a7e6ecb8cbf31d07ffc9975e2b24ceb95a8"
+    },
+    {
+      "id": "B-db56:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "F-002 fix verified clean. transition-orchestrator.ts: resolveGitCwd imported, doneGitCwd resolved once at DONE block entry via resolveGitCwd({store, storyId, metadataRoot:ctx.root, projectRoot:ctx.root}), threaded correctly to acquireDoneMainMergeLock, checkMainDivergence, and autoSyncMain. done-effects.ts: comment now accurately names the sole caller and describes the routing. Contract smoke still passes: 494 files, 0 bare-cwd violations. No new dead code, unused imports, or type issues introduced by the fix. No further findings.",
+      "createdAt": "2026-06-16T22:52:03.611Z",
+      "reviewRound": "2026-06-16T22:50:56.809Z",
+      "reviewRunId": "B-db56:RR-004",
+      "_hash": "a6fd385b5cb93269bbfff2e0e91ebc94fe74dfb78b1eeb7963d0eafaf9b2f0e0"
+    }
+  ]
+}

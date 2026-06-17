@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-35aa",
+  "allowedCommands": [
+    "cat *",
+    "git add *",
+    "git commit *",
+    "git grep*",
+    "git status*",
+    "grep *",
+    "ls *",
+    "node bin/lattice.js *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/test-runner-consolidation-plan.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "bin",
+    "docs/requirements/decisions/testing-completeness.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "package.json",
+    "packages",
+    "packages/main/package.json",
+    "scripts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Decision-doc-only A0 kickoff story. No code or other-decision-doc edits.",
+  "createdAt": "2026-06-16T23:42:13.713Z",
+  "updatedAt": "2026-06-16T23:42:13.713Z",
+  "_hash": "30aec35b1a88ea9aac594df16fc14f79f12017f915c48d121fba8d9e1cd98a99"
+}

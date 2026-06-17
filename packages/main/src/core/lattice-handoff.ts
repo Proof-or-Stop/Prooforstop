@@ -875,9 +875,10 @@ function normalizeReceiptHost(host: string): string {
 }
 
 function resolveCommitSha(root: string, ref: string): string | undefined {
+  const gitCwd = root;
   try {
     return execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();

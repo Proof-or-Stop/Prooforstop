@@ -35,6 +35,9 @@ import { computeProcessMetrics } from '../core/process-metrics.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
+import { assessReviewConvergenceAtEntry } from '../core/review-convergence.js';
+import { resolveReviewRoundCount } from '../core/advisory.js';
+import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -216,7 +219,7 @@ export function buildNextSteps(
         agentLines = `  Agent({ subagent_type: "lattice-review-concept", prompt: "Review story ${storyId}" })
   Agent({ subagent_type: "lattice-review-quality", prompt: "Review story ${storyId}" })`;
       }
-      return `→ ${activeLine}
+      let base = `→ ${activeLine}
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
 ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting; if no output for 4 minutes ask for status, if no result for 10 minutes/600s treat as stalled, restart that reviewer and note the previous stall in the retry prompt
@@ -224,6 +227,64 @@ ${agentLines}
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
 → Need code changes: story_advance(${storyId}, DEV) to return to DEV
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"lattice-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
+      // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
+      // over COMPLETED rounds only (assessReviewConvergenceAtEntry drops the
+      // just-entered current round, whose reviewers have not run yet). This only
+      // APPENDS text — it never throws and never affects the transition result.
+      try {
+        const convergence = assessReviewConvergenceAtEntry(store, storyId);
+        if (convergence.stalled && convergence.message) {
+          base += `\n\n${convergence.message}`;
+        }
+      } catch { /* advisory-only: never block the transition */ }
+      // B-f675 CHK-002: round>=2 informed targeted re-review advisory. The
+      // REVIEW→TEST gate at round 2+ already accepts >=1 valid current-round
+      // receipt, so an operator MAY legally re-run only the reviewers whose scope
+      // changed since their last pass. This block surfaces that set; it is
+      // STRICTLY append-only inside try/catch — it never throws, never alters the
+      // transition result, and never touches canPassReviewGuard. The framework
+      // still skips nobody; this is an operator judgement.
+      try {
+        const roundCount = resolveReviewRoundCount(store, storyId);
+        if (roundCount >= 2) {
+          const story = store.readStory(storyId);
+          let checklistForAdvisory: { items: unknown[] } = { items: [] };
+          try { checklistForAdvisory = store.readChecklist(storyId); } catch { /* none */ }
+          let decisionForAdvisory = null;
+          try { decisionForAdvisory = store.readDecision(storyId); } catch { /* none */ }
+          const understandingForAdvisory = store.readUnderstanding(storyId);
+          const touchpointsForAdvisory = understandingForAdvisory?.touchpoints
+            ?? detectMdTouchpointsFromGit(root);
+          const activeReviewers = computeActiveReviewers(
+            story,
+            checklistForAdvisory,
+            decisionForAdvisory,
+            touchpointsForAdvisory,
+          );
+          const scopeChanged = activeReviewers
+            .map((reviewer) => reviewIncrementalContext(store, root, storyId, reviewer.name))
+            .filter((context) => context.scopeChanged);
+          const advisoryLines = [
+            '',
+            `→ Round ${roundCount} informed targeted re-review (advisory):`,
+          ];
+          if (scopeChanged.length === 0) {
+            advisoryLines.push('  No active reviewer has a scope change since its last pass (all up to date).');
+          } else {
+            for (const context of scopeChanged) {
+              const label = context.isFirstPass
+                ? 'no prior pass — full diff'
+                : `${context.changedFiles.length} changed file(s) since last pass`;
+              advisoryLines.push(`  - ${context.role}: ${label}`);
+            }
+          }
+          advisoryLines.push(
+            '→ Round 2+ gate needs >=1 valid current-round receipt; you MAY re-run only the scope-changed reviewers via lattice review_incremental_context --role=<name>. The framework skips nobody; this is your call.',
+          );
+          base += `\n${advisoryLines.join('\n')}`;
+        }
+      } catch { /* advisory-only: never block the transition */ }
+      return base;
     })(),
     TEST_CASE: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
     TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,

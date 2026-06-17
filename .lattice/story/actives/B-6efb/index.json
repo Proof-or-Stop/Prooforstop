@@ -1,0 +1,110 @@
+{
+  "storyId": "B-6efb",
+  "name": "test-runner-b1-runner-skeleton-manifest",
+  "title": "B1: in-house parallel smoke runner skeleton + manifest format + test:all entry",
+  "description": "B1 of the test-runner consolidation sub-program. Per the A0 decision doc (B-35aa: docs/requirements/decisions/test-runner-consolidation-plan.md): build the in-house parallel smoke runner skeleton at packages/main/src/tasks/run-all-smokes.ts that scans packages/main/src/tasks/*-smoke.ts (currently 153 files / ~71,244 lines), spawns smokes in parallel (default = os.cpus().length workers), reads a manifest at packages/main/smoke-manifest.json controlling per-smoke timeout and optional tags, and supports --tag <tag> + --select <pattern> filters. Add `test:all` npm script at root. The 262 existing individual `test:*` scripts (113 root + 149 packages/main) are LEFT UNCHANGED in this story (B2 collapses them separately). Acceptance per the A0 doc: `npm run test:all` runs every smoke in parallel and reports per-smoke pass/fail + aggregate summary; running with --tag/--select filters; existing individual test:* scripts are untouched.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "test-infra",
+    "runner",
+    "manifest",
+    "sub-program-step",
+    "b1"
+  ],
+  "createdAt": "2026-06-17T01:45:39.863Z",
+  "startedAt": "2026-06-17T01:45:39.863Z",
+  "endedAt": "2026-06-17T02:36:46.910Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T01:45:39.881Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T01:50:03.052Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T01:51:02.234Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T01:57:25.001Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:10:39.421Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:17:37.329Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:21:13.397Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:24:11.936Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:25:19.700Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:29:40.787Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:36:46.910Z",
+      "branch": "story/B-6efb",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-17T02:25:19.700Z"
+}

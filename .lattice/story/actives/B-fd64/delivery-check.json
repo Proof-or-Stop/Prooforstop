@@ -1,0 +1,79 @@
+{
+  "storyId": "B-fd64",
+  "checkedAt": "2026-06-16T22:01:42.424Z",
+  "reviewRound": "2026-06-16T21:53:44.268Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/usage-ledger/authority-evidence.ts#module-jsdoc",
+      "promise": "buildUsageEvidenceEnvelope(record) builds a privacy-preserving envelope = sha256 digest of canonical record + explicit allowlist of non-secret fields; no raw prompt/transcript/secret/api-key/auth-header; denylist deep-scan rejects any forbidden material before digest",
+      "verifiedBy": "diff + live test",
+      "evidence": "Lines 175-211 implement the function; FORBIDDEN_FIELD_NAMES imported from record.ts (single source of truth); CHK-001 suite (9 assertions) ran live 37/37 pass; assertNoForbiddenMaterial deep-scan confirmed"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/authority-evidence.ts#verifyUsageReceipt",
+      "promise": "verifyUsageReceipt returns receiptVerified=true ONLY when injected verifier returns verified===true (strict boolean) AND subjectId is a real string matching envelope.storyId (also a real string); every other path returns receiptVerified=false fail-safe",
+      "verifiedBy": "diff + live test",
+      "evidence": "Gate condition at lines 331-336: verified===true && subjectKind===EXPECTED_SUBJECT_KIND && typeof subjectId===string && typeof envelope.storyId===string && subjectId===envelope.storyId; CHK-003 suite (10 assertions including F-001 null-bypass fix) all pass live"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/authority-evidence.ts#INV-1",
+      "promise": "INV-1: authority-evidence.ts imports ZERO other Lattice modules; only ./ siblings (canonical-json, record) and node:crypto; specifically no authority-signing import",
+      "verifiedBy": "diff grep + live static test",
+      "evidence": "grep of import lines shows only node:crypto, ./canonical-json.js, ./record.js; CHK-005 static import boundary test passes live; verify-b-fd64.mjs reports noAuthSigningImport=true"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/record.ts#LedgerAuthority",
+      "promise": "LedgerAuthority interface extended to allow nullable receiptId/receiptSubjectKind/receiptSubjectId (receipt-reference fields) while keeping receiptVerified typed as literal false; validator enforces all-or-nothing ref fields and rejects receiptVerified!==false",
+      "verifiedBy": "diff + live test",
+      "evidence": "record.ts diff shows updated interface and validator; CHK-002 suite (7 assertions) all pass live"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/record.ts#FORBIDDEN_FIELD_NAMES",
+      "promise": "FORBIDDEN_FIELD_NAMES exported from record.ts (previously unexported) so authority-evidence.ts derives its denylist from the single source of truth, preventing denylist drift (F-002 fix)",
+      "verifiedBy": "diff + live test",
+      "evidence": "record.ts diff: const changed to export const FORBIDDEN_FIELD_NAMES; imported by authority-evidence.ts at line 58; CHK-001 F-002 denylist-drift test passes live"
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-authority-smoke.ts#CHK-004",
+      "promise": "Negative controls: transport.accepted=true, real provider token counts, local JSONL hash chain, and copied receiptId (all four combined) do not produce receiptVerified=true",
+      "verifiedBy": "diff + live test",
+      "evidence": "CHK-004 suite (7 assertions) all pass live in 37-check run"
+    },
+    {
+      "docPath": "packages/main/package.json#scripts",
+      "promise": "npm run test:usage-ledger-authority script added wiring usage-ledger-authority-smoke task",
+      "verifiedBy": "diff + live execution",
+      "evidence": "package.json diff adds script; ran live and exited 0 with 37 checks passing"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "37-check authority smoke (live): CHK-001 (9 checks) all pass. Envelope mirrors allowlisted fields + stable sha256 recordDigest; deep-scan finds ZERO forbidden material; deeply nested forbidden fields rejected; multi-depth/array secrets rejected; case-variant evasion (ApiKey/API_KEY/RawPrompt) rejected; denylist derivation from record.ts confirmed (no drift); digest deterministic; null-token unavailable case produces valid digest."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "37-check authority smoke (live): CHK-002 (7 checks) all pass. Null receipt-ref fields validate; full reference (all three + receiptVerified=false) validates; partial ref (id only) rejected; partial ref (subject only) rejected; receiptVerified=true adversarial bypass rejected; verified=true with receiptId=null rejected; string-true type confusion rejected."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "37-check authority smoke (live): CHK-003 (10 checks) all pass. Golden path (injected verifier verified===true + matching string subject) -> receiptVerified=true; async verifier supported; missing subject -> false; F-001 null-subject bypass closed (null===null does not pass STRING type guard); subject mismatch -> false; verify=false -> false; throwing verifier -> false (fail-safe); {verified:1} truthy non-boolean -> false (strict ===true check)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "37-check authority smoke (live): CHK-004 (7 checks) all pass. NC1 transport accepted=true -> false; NC2 real provider tokens -> false; NC3 local JSONL hash chain -> false; NC4 copied receiptId no verifier -> false; all four combined -> false; genuine verifier mismatched subject (receipt replay) -> false; hand-built verified=true block -> validator rejects."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "37-check authority smoke (live): CHK-005 (4 checks) all pass. Static import boundary: zero cross-module imports; no authority-signing; isolation temp-dir clean. No-regression live: usage-ledger 61, -adapter 50, -estimate 55, -diagnostics 34, -dispatch 38, -budget 41 all pass. verify-b-fd64.mjs: 38/38 PASS. lattice validate --story=B-fd64: 38/38 PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 code-level docs promises verified from source (diff + live machine execution). The 37-check authority smoke passed live (37/37) covering CHK-001 through CHK-005 including adversarial cases (case-variant evasion, null-subject bypass F-001, denylist drift F-002, receipt replay, truthy coercion). Six regression suites (279 checks total) pass with no regressions. The anti-overclaim invariant is structurally enforced: receiptVerified=true only via gate with injected verifier returning verified===true + real string subject match; null cannot satisfy the string type guard on both sides; validator blocks hand-constructed verified=true. Local records stay receiptVerified=false by design; server-side deferred to future authority-server slice."
+  },
+  "_hash": "8790c59070010be452c473d6f0c2964cb88a71053c7c58c0e9a6b056ae633303"
+}

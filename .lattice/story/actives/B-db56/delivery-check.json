@@ -1,0 +1,61 @@
+{
+  "storyId": "B-db56",
+  "checkedAt": "2026-06-16T22:56:24.040Z",
+  "reviewRound": "2026-06-16T22:50:56.809Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-db56/plan.md#CHK-001",
+      "promise": "All 193 bare-cwd git call sites rerouted through resolveGitCwd across production files; existing B-2856 and B-3990 smokes pass byte-identically",
+      "verifiedBy": "live test execution + grep",
+      "evidence": "npm run test:gitroot-cwd-routing exit 0 (B-2856 pass); npm run test:bare-gate-gitroot-cwd exit 0 (B-3990 pass); npm run test:gitroot-cwd-contract exit 0 -- 494 .ts files inspected, 0 bare-cwd violations"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-db56/plan.md#CHK-001-guards",
+      "promise": "resolveGitCwd signature at story-signed-workspace-resolution.ts:195 unchanged; 3 ad-hoc helpers preserved (lab.ts:69 runGit, cli-engine.ts:3648 runGitNoThrow, declared-artifact-commit-check.ts:122 runGit)",
+      "verifiedBy": "grep",
+      "evidence": "grep confirms: line 195 export function resolveGitCwd at story-signed-workspace-resolution.ts; all 3 helpers present at original line numbers with original signatures"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-db56/plan.md#CHK-002",
+      "promise": "New file packages/main/src/tasks/gitroot-cwd-contract-smoke.ts created; smoke runs canonical grep, has inline KNOWN-GOOD + KNOWN-BAD self-tests, allowlist visible at top of source, fails with file:line + resolveGitCwd remediation message on violations",
+      "verifiedBy": "file read + live test execution",
+      "evidence": "File read confirmed: self-test fixtures at lines 132-148, allowlist ALLOWLIST_EXACT at lines 69-79 with 5 entries, failure message includes resolveGitCwd path. npm run test:gitroot-cwd-contract exit 0 with self-test pass + 0 violations"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-db56/plan.md#CHK-002-scripts",
+      "promise": "test:gitroot-cwd-contract npm script wired in both root package.json and packages/main/package.json",
+      "verifiedBy": "diff",
+      "evidence": "git diff main...HEAD shows +test:gitroot-cwd-contract in both package.json and packages/main/package.json pointing to node dist/tasks/gitroot-cwd-contract-smoke.js"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-db56/evidence/transcript-diff.md#F-002",
+      "promise": "F-002 review finding fixed: transition-orchestrator DONE block and done-effects autoSyncMain route through resolveGitCwd so wrapper-root DONE transitions use gitRoot not metadataRoot",
+      "verifiedBy": "diff",
+      "evidence": "git diff shows transition-orchestrator.ts adds resolveGitCwd import and doneGitCwd at DONE pre-check entry; done-effects.ts autoSyncMain cwd renamed gitCwd with comment. Three callee sites receive doneGitCwd"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-db56/plan.md#out-of-scope-guards",
+      "promise": "Over-reach guards: intent-coverage.ts and dev-cli.ts still exist (not deleted or moved by this story)",
+      "verifiedBy": "find",
+      "evidence": "packages/main/src/core/intent-coverage.ts confirmed present; packages/main/src/verifier/dev-cli.ts confirmed present via find command"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "live runs: npm run build exit 0; npm run test:gitroot-cwd-routing exit 0 (5 assertions, wrapper-root + plain-repo); npm run test:bare-gate-gitroot-cwd exit 0 (3 assertions, wrapper-root + plain-repo + null-gitRoot); npm run test:e2e exit 0 (story-lifecycle 5/5 + gap-convergence 4/4 ALL PASS); npm run test:gitroot-cwd-contract exit 0 (494 files, 0 bare-cwd violations, self-test known-good + known-bad both correct)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "live run: npm run test:gitroot-cwd-contract exit 0 -- self-test KNOWN-GOOD: 0 false positives; self-test KNOWN-BAD: exactly 1 violation on projectRoot; repo scan: 494 .ts files, 0 violations. Allowlist covers 5 exact paths plus smoke task pattern. Failure message format confirmed in source: includes file:line + resolveGitCwd path"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises independently verified from source and live test runs. CHK-001: 29 production files rerouted, both prior wrapper-root smokes pass byte-identically, build clean, e2e all pass. CHK-002: contract smoke file exists with real self-tests (good and bad fixtures), allowlist transparent, 494 files scanned at 0 violations. F-002 REVIEW finding correctly fixed in transition-orchestrator and done-effects. resolveGitCwd signature unchanged at line 195, all 3 ad-hoc helpers preserved, both over-reach guard files present."
+  },
+  "_hash": "b56cc187c6e7b4e8fcab18cf68d2666cda915cb6ed11890ec9568859c525c700"
+}

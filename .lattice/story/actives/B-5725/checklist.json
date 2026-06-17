@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Read-only incremental-context helper: prior verdict + diff since the reviewer's last-pass headHash",
+      "context": "For a given (storyId, reviewer role), resolve that reviewer's most recent prior review-run/verdict and the headHash it was bound to (core/review-run.ts records headHash; review-passes.json / findings.json hold the verdict). Compute the incremental diff between that headHash and current HEAD (reuse the git-diff approach from core/evidence-freshness.ts changedFilesBetween / done-effects diff helpers). If the reviewer has no prior pass (first time), fall back to the full diff main...HEAD. Pure/read-only: no writes, no gate side effects.",
+      "userSees": "A helper returns, for reviewer X on a story, its prior verdict summary + the list/diff of changes since X last passed (or the full diff when X never passed before), e.g. 'behavior last passed at <sha>; since then: src/foo.ts changed'.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose it (lattice review_incremental_context) and hint it in the round>=2 REVIEW-entry output",
+      "context": "Wire the helper as a read-only CLI command lattice review_incremental_context --storyId --role=<reviewer> (English-only output). In handlers/transition-effects.ts, when entering REVIEW for round >= 2, append a hint line telling reviewers to run that command first and re-confirm only what changed since their last pass. Keep the hint advisory; it must not change the transition result. Do NOT touch the gate / binding / canPassReview.",
+      "userSees": "On a round>=2 REVIEW entry, the output includes a hint like 'Re-review round: each reviewer should run lattice review_incremental_context --role=<name> and re-confirm only changes since its last pass'; running that command prints the prior verdict + incremental diff.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Tests + docs; assert the REVIEW->TEST gate semantics are unchanged (no skip, fresh verdict still required)",
+      "context": "Add a smoke (packages/main/src/tasks style): (a) a reviewer with a prior pass gets the since-last-pass diff; (b) a first-time reviewer gets the full diff; (c) ASSERT the REVIEW->TEST gate still requires every active reviewer to have a fresh current-round verdict -- the helper changes nothing about binding/staleness/skip (drive or stub the gate path to show an absent current-round verdict still blocks). Wire the smoke into the validate/test chain. Update CLAUDE.md REVIEW section to document the incremental-context helper and the unchanged-gate invariant.",
+      "userSees": "lattice validate stays green with the new smoke; the smoke demonstrates incremental context for a returning reviewer, full diff for a first-timer, and that the gate still blocks when any active reviewer lacks a fresh current-round verdict (no reviewer is skipped).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

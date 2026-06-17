@@ -1,0 +1,150 @@
+{
+  "storyId": "B-cfdd",
+  "checkedAt": "2026-06-16T21:08:38.549Z",
+  "features": [
+    {
+      "feature": "Read REVIEW round count from existing story events (via resolveReviewRoundCount)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Read per-round blocking-finding counts from existing findings/review-escalation grouping",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Trend-based stall heuristic: stalled only when rounds >= threshold AND recent window shows no downward trend (not a raw round ceiling)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Emit English advisory message when convergence stall is detected",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Advisory includes Debugging Contract escalation hint and dismiss-rather-than-re-round hint",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Advisory appended to story_advance REVIEW output (transition-effects.ts injection point)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Advisory must NEVER block any transition (soft/advisory-only)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Thresholds are module constants with no CLI and no config (STALL_MIN_ROUNDS, STALL_WINDOW)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "All produced artifacts and advisory string are English-only",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse existing helpers (resolveReviewRoundCount, isFindingBlocking, effectiveBlockingSeverities) - no duplicated logic",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covering four cases: healthy decreasing, stalled flat/rising, below threshold, single clean round",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke asserts advisory-present story can still advance REVIEW->TEST (non-blocking proof)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke wired into validate/test chain",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Detector kept clearly distinct from existing review-escalation quorum gate (review-escalation.ts)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "Any hard cap or blocking gate on review rounds",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Any hard cap or blocking gate on review rounds",
+      "source": "description"
+    },
+    {
+      "feature": "Automatic dismissal of findings",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Automatic dismissal of findings",
+      "source": "description"
+    },
+    {
+      "feature": "Changing existing per-round severity de-escalation rules",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Changing the existing per-round severity de-escalation rules",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Per-session configurable thresholds or CLI to set them",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Per-session configurable thresholds or a CLI to set them",
+      "source": "description"
+    },
+    {
+      "feature": "Targeted or partial re-review that reduces per-round reviewer cost (Option B deferred)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Targeted or partial re-review that reduces per-round reviewer cost (a separate larger story)",
+      "source": "decisions:decisions/three-round-two-host-review-escalation-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 14,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "46eafa6d65a9fea01a9269fba8d4f89a892962deb1704e3083ac777f0b5cbcd4",
+  "openQuestions": []
+}

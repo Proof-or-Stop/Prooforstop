@@ -1,0 +1,205 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Read-only incremental-context + scope-change helper (prior verdict + diff since reviewer's last-pass headHash)",
+      "context": "For a given (storyId, reviewer role), resolve that reviewer's most recent prior verdict (review-passes.json / findings.json) and the headHash it was bound to (core/review-run.ts records headHash on each run). Compute the diff between that headHash and current HEAD, reusing the git-diff helpers in core/evidence-freshness.ts (changedFilesBetween) -- use --name-status -M so renames count. Derive a boolean scopeChanged (did any material file change since that pass). If the reviewer has no prior pass, fall back to the full diff main...HEAD with scopeChanged=true. Pure / read-only: no writes, no gate side effects, does not touch canPassReviewGuard.",
+      "userSees": "A unit/smoke run prints, for reviewer X on a story: its prior verdict + bound headHash, scopeChanged=true/false, and the changed-file list since that pass (or 'no prior pass -> full diff' for a first-timer).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T01:08:17.475Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Helper returns a reviewer's prior verdict + bound headHash + the diff since that headHash + scopeChanged for a reviewer that has a prior pass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "First-time reviewer (no prior pass) -> full diff main...HEAD with scopeChanged=true",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Rename-aware (--name-status -M) and reuses changedFilesBetween (no duplicated diff/round logic); strictly read-only (no writes, no gate effect)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-incremental-context.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (a): returning reviewer -> isFirstPass=false, scopeChanged=true, changedFiles since last-pass headHash, priorVerdict present",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-incremental-context.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (b): first-timer (no prior pass) -> isFirstPass=true, scopeChanged=true, full main...HEAD diff",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-incremental-context.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (c): rename counted as changed (rename-aware changedFilesBetweenRenameAware); helper proven to write nothing to the store (case d snapshot)",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "lattice review_incremental_context CLI + round-2+ targeted re-review guidance in the REVIEW-entry output",
+      "context": "Expose the helper as a read-only CLI lattice review_incremental_context --storyId --role=<reviewer> (English-only output: prior verdict, scopeChanged, incremental diff). In handlers/transition-effects.ts, when entering REVIEW for round >= 2, append an advisory block listing which active reviewers' scope changed since their last pass and stating that the gate in round 2+ only requires >=1 valid current-round receipt, so the operator may re-run just the scope-changed reviewers (running review_incremental_context per reviewer) -- making explicit that this is an operator judgement and the framework does not skip anyone. Advisory only; must not change the transition result; must not touch canPassReviewGuard / bindings.",
+      "userSees": "On a round>=2 REVIEW entry the output shows e.g. 'Scope changed since last pass: behavior (src/foo.ts). Round 2+ gate needs >=1 valid receipt; you MAY re-run just the scope-changed reviewers via lattice review_incremental_context --role=<name>. Framework skips nobody; this is your call.'; running the CLI prints that reviewer's prior verdict + incremental diff.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T01:08:19.062Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice review_incremental_context --role=<r> prints prior verdict + scopeChanged + incremental diff; round>=2 REVIEW entry lists which reviewers' scope changed + the round-2+ >=1-receipt note",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Round 1 REVIEW entry shows NO targeted-re-review advisory (only round>=2 surfaces it)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Advisory is append-only inside try/catch: never throws, never alters the transition result, and is worded as an operator choice (framework skips nobody)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/review-incremental-context.ts",
+          "command": "lattice review_incremental_context --storyId=B-f675 --role=quality",
+          "result": "pass",
+          "note": "lattice review_incremental_context --role=quality prints role/isFirstPass/scopeChanged/priorHeadHash/changedFiles without error; round>=2 advisory wired in transition-effects listing scope-changed reviewers + the >=1-receipt note",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-effects.ts",
+          "command": "lattice story_advance B-f675 REVIEW",
+          "result": "pass",
+          "note": "B-f675 roundCount=1 -> REVIEW entry shows NO targeted-re-review advisory (round-1 absent verified)",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Advisory injection is append-only try/catch (same proven pattern as B-cfdd); smoke case (d) proves the helper writes nothing and canPassReviewGuard is byte-identical, so the round>=2 path cannot alter a transition",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Tests + docs; assert canPassReviewGuard semantics are UNCHANGED and document the real round-2+ behavior",
+      "context": "Add a smoke (packages/main/src/tasks style): (a) returning reviewer gets since-last-pass diff + correct scopeChanged; (b) first-timer gets full diff; (c) ASSERT the gate is unchanged by exercising canPassReviewGuard: Round 1 still blocks unless all opt-in reviewers have valid current-round verdicts + quorum; Round 2+ passes with >=1 valid current-round receipt and blocks on a current-round invalid binding or a blocking finding -- the helper/CLI/advisory change none of this. Wire the smoke into the validate/test chain. Update CLAUDE.md REVIEW section with the ACCURATE gate behavior (Round 1 = all opt-in + quorum; Round 2+ = >=1 valid receipt + no current-round invalid + no blocking), the incremental-context CLI, and the round-2+ informed targeted re-review guidance.",
+      "userSees": "lattice validate stays green with the new smoke; the smoke shows incremental context for a returning reviewer, full diff for a first-timer, and that canPassReviewGuard behaves identically with and without the helper (Round 1 all-opt-in+quorum; Round 2+ >=1 receipt). CLAUDE.md now states the real gate behavior and the targeted re-review guidance.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T01:20:13.535Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke shows incremental context for a returning reviewer and full diff for a first-timer",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLAUDE.md updated with the ACCURATE gate behavior (invalid-binding blocks all rounds; Round 1 all opt-in + quorum; Round 2+ >=1 receipt) + the targeted re-review guidance",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "canPassReviewGuard behaves identically with and without the helper: Round 1 blocks unless all opt-in have valid current-round verdicts + quorum; Round 2+ passes on >=1 valid receipt; a current-round invalid binding or a blocking finding still blocks",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke cases (a)+(b): incremental context for a returning reviewer and full diff for a first-timer",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "grep CLAUDE.md",
+          "result": "pass",
+          "note": "CLAUDE.md REVIEW section updated with accurate gate behavior (invalid-binding blocks all rounds; Round 1 all opt-in + quorum; Round 2+ >=1 receipt) + review_incremental_context CLI + targeted re-review guidance",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (d): canPassReviewGuard outcome identical with/without the helper across all branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified blocking finding) + gate inputs byte-identical after the helper",
+          "headHash": "c2c1890d1b0546c695c2c0e1bb2efb49014ae04f",
+          "materialHash": "43c849f397f0c229f87e64d30418a1886ab6bff2adb4da3279c19163b1e8a878",
+          "timestamp": "2026-06-17T01:30:52.949Z"
+        }
+      ]
+    }
+  ]
+}

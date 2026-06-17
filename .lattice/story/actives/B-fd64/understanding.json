@@ -1,0 +1,29 @@
+{
+  "task": "Add the local-only Authority usage-evidence layer in the usage-ledger module: a privacy-preserving usage-evidence envelope shape+builder, nullable receipt-reference fields on the record authority block, a PLUGGABLE verification gate (injected verifier; no authority-signing import), and negative controls keeping receiptVerified=false. Local records never become verified on their own.",
+  "outcome": "npm --prefix packages/main run test:usage-ledger-authority is all-green, including the anti-overclaim proof: (1) buildUsageEvidenceEnvelope(record) produces a privacy-safe envelope (a recordDigest via canonical-json + non-secret fields: model, provider name, usage counts, source, correlation, decision) with ZERO raw prompt/transcript/secret/key/auth-header; (2) the verification gate sets authority.receiptVerified=true ONLY when an injected verifier returns verified=true AND the subject binding matches the envelope (verifier false, subject mismatch, or no verifier => stays false); (3) FOUR negative controls each keep receiptVerified=false: transport accepted=true, a provider response with real token counts, a local JSONL hash chain, and a copied receiptId without verifier confirmation. Build clean; the usage-ledger module still imports zero other modules (no authority-signing import); full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget) no regression.",
+  "facts": [
+    "record.ts already has an authority block {mode, receiptId:null, receiptVerified:false} and optional nullable receiptSubjectKind/receiptSubjectId; the validator already rejects a local record with receiptVerified!=false or receiptId!=null",
+    "canonical-json.ts provides canonicalization for a stable recordDigest; record.ts has the privacy denylist to reuse",
+    "estimate.ts established the pluggable-injected-function pattern (countTokens) — mirror it for the receipt verifier so usage-ledger stays decoupled (no authority-signing import)",
+    "authority-signing.ts exists in core/ but MUST NOT be imported by usage-ledger (preserve zero cross-module imports)",
+    "Spec local-non-authority boundary: a local line is never authoritative; receiptVerified stays false until a signed server receipt is verified + subject-bound"
+  ],
+  "constraints": [
+    "The verification gate is the ONLY path to receiptVerified=true; the local append path never sets it",
+    "receiptVerified=true requires an injected verifier returning verified=true AND subject binding matching the envelope",
+    "The envelope is digest-only + non-secret fields; NO raw prompt/transcript/secret/key/auth-header (reuse the privacy denylist)",
+    "usage-ledger imports zero other modules (verifier injected; no authority-signing import)",
+    "A referenced receipt (receiptId/subject present) without verification is still receiptVerified=false"
+  ],
+  "unknowns": [
+    "Exact envelope field set to standardize (recordDigest + which non-secret fields)",
+    "Whether to extend record.ts authority validation or only add the gate (record.ts already mostly enforces the boundary)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/authority-evidence.ts",
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/tasks/usage-ledger-authority-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-16T21:26:18.653Z"
+}

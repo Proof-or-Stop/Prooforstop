@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Zero outward imports (usage-ledger isolation bar)",
+    "Read findings only through the stable store.readFindings port",
+    "Derived cache must be gate-excluded (materialHash:exclude)",
+    "Inert foundation: derive now, wire later",
+    "Conservative, explainable signalScore with support always shown"
+  ],
+  "drivers": [
+    "Must not pollute gate material hashing",
+    "Must not couple to findings.json on-disk format",
+    "Must keep the module independently testable and isolated"
+  ],
+  "options": [
+    {
+      "name": "separate-modules-zero-outward-imports",
+      "pros": [
+        "Matches the usage-ledger isolation bar (zero outward imports)",
+        "finding-signals reads via store.readFindings port, decoupled from on-disk format",
+        "Derived cache excluded from gates by one registry entry"
+      ],
+      "cons": [
+        "Three new files for a small slice",
+        "Signal richness limited until Phase 1b adds signatureTag"
+      ]
+    },
+    {
+      "name": "single-file-in-existing-core",
+      "pros": [
+        "Fewer files"
+      ],
+      "cons": [
+        "Breaks the zero-outward-import isolation",
+        "Couples learning logic to existing core; harder to evolve and gate-safe-test"
+      ]
+    }
+  ],
+  "chosen": "separate-modules-zero-outward-imports",
+  "rationale": "Mirrors the proven usage-ledger isolation; the store-port read and the single registry exclude entry are the two load-bearing decoupling/gate-safety choices the execution plan mandates.",
+  "preMortem": [
+    {
+      "scenario": "Derived cache pollutes gate material hash",
+      "trigger": "Forgetting the runtime-artifact-registry exclude entry",
+      "consequence": "Every cache write stales evidence/gates",
+      "mitigation": "CHK-003 registers the path; the smoke asserts currentMaterialHash unchanged after write"
+    },
+    {
+      "scenario": "finding-signals couples to findings.json on-disk format",
+      "trigger": "Parsing findings.json directly instead of store.readFindings",
+      "consequence": "Silent breakage when finding storage changes; violates isolation",
+      "mitigation": "Read only via store.readFindings; smoke + reviewer verify the accessor is used"
+    },
+    {
+      "scenario": "Module imports leak outward into existing core",
+      "trigger": "Importing a core helper with ../../",
+      "consequence": "Breaks the usage-ledger isolation bar",
+      "mitigation": "Smoke statically asserts zero ../../ imports out of the module"
+    },
+    {
+      "scenario": "signalScore divides by zero or mis-ranks on tiny samples",
+      "trigger": "positive+negative=0",
+      "consequence": "NaN or one-hit-spikes",
+      "mitigation": "signalScore = positive/(positive+negative+1); always show support; smoke covers zero-sample and single-hit cases"
+    }
+  ],
+  "timestamp": "2026-06-17T11:25:47.628Z"
+}

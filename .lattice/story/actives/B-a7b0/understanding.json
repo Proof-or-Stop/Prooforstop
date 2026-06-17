@@ -1,0 +1,32 @@
+{
+  "task": "The CLAUDE.md docs-drift preflight gate only validates lattice command names against the registry; it ignores file-path references and managed-asset (do-not-create) claims, so the doc can silently lie about paths and contradict framework-generated assets (the .Codex/hooks line-77 P3 contradiction).",
+  "outcome": "After this story, running the REVIEW->TEST docs-drift gate (or `lattice validate`) against a CLAUDE.md that references a non-existent path prints `docs-drift FAIL ... missing path: foo/bar.json (line N)`; against a CLAUDE.md that forbids a framework-generated managed asset prints `docs-drift FAIL ... managed-asset contradiction: CLAUDE.md says do not create `.codex/hooks/...` but managed-assets registry generates it`; a clean CLAUDE.md whose paths exist and whose claims do not contradict the registry still passes; and `lattice validate` runs a new docs-drift smoke green that proves all three behaviors plus unchanged command-name behavior.",
+  "facts": [
+    "validate-docs-drift.ts exports checkDocsDrift + runDocsDriftGate(mdContents, registryNames) + DOCS_DRIFT_ALLOWLIST (the allowlist seam).",
+    "runDocsDriftGate is consumed in handlers/review-preflight.ts runReviewCliGates (~line 357-387); it reads CLAUDE.md + packages/koala/CLAUDE.md via defaultMdFileReader(projectRoot) and gets registryNames from ctx; status fail blocks REVIEW->TEST.",
+    "core/audit-scan.ts already implements scanPathDrift(md, mdPath, repoRoot, opts) returning {drifts, skipped} with DriftCandidate driftType missing-path; it has noise controls (ignores docs/story/, template placeholders, fs.existsSync + git grep fallback).",
+    "core/managed-assets.ts exports listManagedAssetDefinitions(profile, root, projectRoot, assetMode): ManagedAssetDefinition[] with relPath + kind; generated kinds = managed-block/whole-file/claude-settings/codex-hooks/gitignore-runtime; NON-generated = excluded-path/remove-extra.",
+    "Smoke tasks follow dist/tasks/*-smoke.ts + a test:* script in packages/main/package.json; lattice validate for this repo runs npm test = `test:main-write-lock-coverage && test:e2e`; test:e2e (cli-e2e.js) only runs @flow flows, so chaining the new test:* into the root npm test script is the way to make lattice validate actually run it.",
+    "Handler Encoding Convention requires runtime re-validation of any Zod-constrained field at every consumption point."
+  ],
+  "constraints": [
+    "Reuse scanPathDrift from audit-scan.ts; do not re-implement path scanning.",
+    "Cross-reference core/managed-assets.ts registry as source of truth for the contradiction check; do not hardcode asset paths.",
+    "Keep the existing command-name scan intact and additive: docs with no path/asset issues must behave byte-identically.",
+    "Provide an allowlist seam mirroring DOCS_DRIFT_ALLOWLIST for intentional examples / deleted-by-design paths.",
+    "Smoke must use dependency-injected fixtures; must NOT mutate the real CLAUDE.md.",
+    "Do not change hook generation behavior; the actual CLAUDE.md:77 wording fix is out of scope (B-94ae).",
+    "The gate must still pass against the REAL current CLAUDE.md state at REVIEW->TEST — the new managed-asset check must not false-positive on the real doc (which still has the .Codex/hooks prohibition until B-94ae merges)."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/validate-docs-drift.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/core/audit-scan.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/tasks/(new docs-drift smoke).ts",
+    "packages/main/package.json",
+    "package.json"
+  ],
+  "timestamp": "2026-06-16T21:04:16.975Z"
+}

@@ -4,41 +4,670 @@
       "id": "CHK-001",
       "title": "Privacy-preserving usage-evidence envelope shape + builder",
       "context": "In a new core/usage-ledger/authority-evidence.ts (pure; imports only ./ siblings + node), define a PrivacyPreservingUsageEvidenceEnvelope type and buildUsageEvidenceEnvelope(record) that encodes a ledger record as digests (e.g. sha256 of the canonical record via canonical-json.ts) + non-secret fields (model, provider name, usage counts, source, correlation ids, decision) needed for a future Authority submission. MUST contain NO raw prompt/transcript/secret/key/auth-header (reuse the privacy denylist / reject if present). Unit-tested: envelope built from a record contains a recordDigest + allowed fields and zero forbidden material.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T21:32:48.697Z",
+      "endTime": "2026-06-16T21:43:20.632Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/authority-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildUsageEvidenceEnvelope(validRecord) returns envelope with recordDigest (non-empty hex string, matches sha256 of canonicalJson(record)) + allowlisted fields (model, provider.name, usage.source, usage.inputTokens, usage.outputTokens, usage.cacheCreationInputTokens, usage.cacheReadInputTokens, decision.kind, recordId, ledgerCallId, attemptId, sequence) -> all present and matching the source record; WHY: proves the envelope faithfully mirrors non-secret fields and computes a stable digest",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) deep-scanned for ZERO forbidden material: JSON.stringify(envelope).toLowerCase() does NOT contain any of the FORBIDDEN_FIELD_NAMES tokens (prompt, transcript, secret, apiKey, authorizationHeader, rawResponse, content, messages, password, credentials, bearerToken, accessToken, refreshToken, etc.) AND the envelope object has no key at any depth whose lowercased name is in the denylist -> assertion passes; WHY: the anti-leak gate is the whole point",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where record has extra nested metadata containing a forbidden field name (e.g. record.metadata.debug.rawPrompt) -> builder either rejects (throws/returns error) OR the envelope omits the forbidden field entirely; the envelope NEVER contains the forbidden material; WHY: tests that forbidden fields in arbitrary nesting depths are caught, not just top-level",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where usage.source is unavailable and all token dimensions are null -> envelope still has a valid recordDigest and source=unavailable with null token fields; WHY: boundary case where no actual token counts exist",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope called twice on the same record -> returns identical recordDigest both times (deterministic); WHY: digest stability is required for future receipt binding",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where record has apiKey, secret, authorization, bearerToken, password, credentials, accessToken, refreshToken fields injected at multiple nesting depths (top-level, nested in provider, nested in usage.raw, nested in arrays) -> builder rejects ALL of them; deep scan of JSON.stringify(envelope) confirms zero matches against the full FORBIDDEN_FIELD_NAMES set; WHY: adversarial attacker tries to smuggle secrets through multiple nesting paths",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where field names use mixed case to evade denylist (ApiKey, API_KEY, rawPrompt, RawPrompt, PROMPT, AuthorizationHeader) -> builder still catches them (case-insensitive denylist match); WHY: case-variant evasion is the most common denylist bypass",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where record contains field named content (in the denylist) at top level -> rejected/omitted even though content could be benign in other contexts; WHY: denylist is name-based not value-based, so even innocuous values under forbidden names are rejected by design",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); envelope is digest + non-secret allo",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Receipt-reference fields on the authority block",
       "context": "Extend the record authority block (record.ts) to allow nullable receiptId plus receiptSubjectKind and receiptSubjectId (both nullable), while KEEPING the existing rule that local records have receiptVerified=false and receiptId=null by default. Update the validator so a local record still requires receiptVerified=false; receiptId/receiptSubjectKind/receiptSubjectId may be non-null only together (a referenced receipt) but that alone does NOT make it verified. Tested: a local record validates with the nullable fields; a record claiming receiptVerified=true without going through the gate is rejected or only allowed via the gate.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T21:34:12.931Z",
+      "endTime": "2026-06-16T21:43:21.317Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/usage-ledger/record.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A local record with authority.receiptId=null, authority.receiptSubjectKind=null, authority.receiptSubjectId=null, authority.receiptVerified=false -> validateUsageLedgerRecord returns ok=true; WHY: proves the nullable receipt-ref fields are accepted on a default local record without breaking existing validation",
+            "type": "cli"
+          },
+          {
+            "desc": "A local record with authority.receiptId=some-id, authority.receiptSubjectKind=story, authority.receiptSubjectId=B-1234, authority.receiptVerified=false -> validateUsageLedgerRecord returns ok=true; WHY: proves a referenced receipt (all three fields non-null together) is valid as long as receiptVerified stays false — having a receiptId alone does NOT make it verified",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A record with authority.receiptId=some-id but authority.receiptSubjectKind=null (partial receipt ref: id present, subject fields missing) -> validator rejects with an error about receipt-ref fields needing to be all-or-nothing; WHY: partial receipt references are incoherent and must be caught",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with authority.receiptId=null but authority.receiptSubjectKind=story (partial receipt ref: subject present without id) -> validator rejects; WHY: subject fields without a receiptId are orphaned and must be caught",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with all receipt-ref fields present (receiptId + receiptSubjectKind + receiptSubjectId) but receiptVerified=false -> validates ok; WHY: boundary test that having receipt-ref fields is orthogonal to verification status — the presence of a receipt reference alone does NOT flip verified",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A record directly claiming authority.receiptVerified=true with authority.receiptId=some-id and receiptSubjectKind/Id set, but NOT going through verifyUsageReceipt gate -> validateUsageLedgerRecord rejects with error about receiptVerified; WHY: THE CORE ANTI-OVERCLAIM INVARIANT — a record cannot self-declare verified by manually setting the field; the validator enforces receiptVerified=false for local records",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with authority.receiptVerified=true and authority.receiptId=null (claiming verified with no receipt) -> validator rejects; WHY: verified without any receipt reference is logically impossible and must be caught",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with authority.receiptVerified set to the string true (type confusion attack) -> validator rejects; WHY: strict boolean false check prevents string/truthy coercion from bypassing the gate",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); nullable receipt-ref fields; local s",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Verification gate (pluggable verifier; default keeps unverified)",
       "context": "Add verifyUsageReceipt(envelope, signedReceipt, verify) where verify is an INJECTED async/sync function (signedReceipt, envelope) -> { verified: boolean, subjectKind?, subjectId? }. Only when verify returns verified=true AND the subject binding matches the envelope does the gate return an authority block with receiptVerified=true + receiptId + receiptSubject*. Otherwise it returns receiptVerified=false. The usage-ledger module does NOT import the authority-signing module (verifier is injected) — preserves zero cross-module imports. Tested: injected verifier true+matching-subject -> verified; true+mismatched-subject -> NOT verified; false -> not verified.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T21:40:23.906Z",
+      "endTime": "2026-06-16T21:43:21.917Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/authority-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verifyUsageReceipt(envelope, signedReceipt, verify) where injected verify returns {verified:true, subjectKind:\"story\", subjectId:\"B-1234\"} AND envelope matches subjectKind/subjectId -> returns authority block with receiptVerified=true, receiptId=signedReceipt.id, receiptSubjectKind=\"story\", receiptSubjectId=\"B-1234\"; WHY: the golden path — genuine verification + matching subject produces the ONLY way to get receiptVerified=true",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verifyUsageReceipt(envelope, signedReceipt, verify) where injected verify returns {verified:true} but subjectKind/subjectId are MISSING from the verify result (undefined) -> returns receiptVerified=false because subject binding cannot be confirmed; WHY: a verifier that says verified but provides no subject binding is incomplete — the gate must not trust it",
+            "type": "cli"
+          },
+          {
+            "desc": "verifyUsageReceipt called with verify=undefined/null (no verifier injected) -> returns authority block with receiptVerified=false; WHY: without a verifier the gate cannot verify anything — must default to unverified, never crash",
+            "type": "cli"
+          },
+          {
+            "desc": "verifyUsageReceipt where verify is async (returns a Promise) that resolves to {verified:true, subjectKind, subjectId} matching the envelope -> receiptVerified=true; WHY: the gate must handle both sync and async verifiers since the contract says async/sync",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verifyUsageReceipt where injected verify returns {verified:true, subjectKind:\"story\", subjectId:\"B-9999\"} but the envelope was built for subjectId:\"B-1234\" (subject MISMATCH) -> returns receiptVerified=false; WHY: a real receipt verified against the WRONG subject must not count — this is the subject-binding check that prevents receipt replay across different records",
+            "type": "cli"
+          },
+          {
+            "desc": "verifyUsageReceipt where injected verify returns {verified:false, subjectKind:\"story\", subjectId:\"B-1234\"} (correct subject but verification failed) -> returns receiptVerified=false; WHY: even if the subject matches, a failed signature check means the receipt is not trustworthy",
+            "type": "cli"
+          },
+          {
+            "desc": "verifyUsageReceipt where injected verify throws an exception -> returns receiptVerified=false (never propagates the error); WHY: a malicious or buggy verifier must not crash the gate or accidentally produce a verified result through exception-path confusion",
+            "type": "cli"
+          },
+          {
+            "desc": "verifyUsageReceipt where injected verify returns {verified:1} (truthy but not boolean true) -> returns receiptVerified=false; WHY: strict === true check prevents truthy coercion from non-boolean values bypassing the gate",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); gate verifies ONLY via injected veri",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Negative controls (cannot be tricked into verified)",
       "context": "Implement + test the spec's negative controls: transport accepted=true is NOT verification; a provider response with real token counts is NOT verification; a local JSONL hash chain is NOT verification; a copied receiptId without an injected verifier confirming signature+subject is NOT verification. In every case authority.receiptVerified stays false. Each negative control is a distinct smoke assertion.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T21:40:24.708Z",
+      "endTime": "2026-06-16T21:43:22.527Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/authority-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Negative control 1 (transport): a record with a simulated transport.accepted=true field on the record -> authority.receiptVerified remains false; transport acceptance is a network acknowledgment, NOT cryptographic verification; WHY: proves the gate does not conflate HTTP-level acceptance with receipt verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Negative control 2 (provider tokens): a record with provider-reported usage containing real token counts (inputTokens=500, outputTokens=200) -> authority.receiptVerified remains false; having real provider-reported usage is NOT proof of server verification; WHY: proves that accurate token accounting does not imply receipt verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Negative control 3 (local hash chain): a record with a valid integrity block (previousRecordHash + recordHash from the JSONL hash chain) -> authority.receiptVerified remains false; local hash-chain integrity is tamper-detection, NOT Authority verification; WHY: proves the ledger does not confuse its own integrity mechanism with external receipt verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Negative control 4 (copied receiptId): a record with authority.receiptId manually set to a real-looking receipt id (rcpt-genuine-looking-id) but NO injected verifier confirming it -> authority.receiptVerified remains false; copying a receiptId onto a record without the verifier gate confirming signature + subject is NOT verification; WHY: proves that simply possessing a receiptId string does not constitute verification — the verifier must independently confirm it",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All four negative controls combined on a single record: transport.accepted=true + real provider tokens + valid hash chain + copied receiptId, all present simultaneously, no injected verifier -> authority.receiptVerified=false; WHY: combined presence of all non-proof signals must not stack up to create a false verified state",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A record with copied receiptId + an injected verifier that returns verified=true BUT with mismatched subjectId (verifier confirms a different record) -> authority.receiptVerified=false; WHY: even with a genuine verifier response, replaying a receipt from a DIFFERENT subject must not work — this is the receipt-replay attack",
+            "type": "cli"
+          },
+          {
+            "desc": "A record where someone manually constructs the authority block with receiptVerified=true and all receipt-ref fields set, bypassing the gate entirely (direct object construction) -> validateUsageLedgerRecord rejects it; WHY: the validator is the last line of defense — even if code manually builds an authority block claiming verified=true, the validator must catch it for local records",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); 4 negative controls + subject-mismat",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); 4 negative controls + subject-mismat",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); 4 negative controls + subject-mismat",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); 4 negative controls + subject-mismat",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); 4 negative controls + subject-mismat",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); 4 negative controls + subject-mismat",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-authority smoke (33 checks: envelope/record-fields/gate/4-negative-controls); 4 negative controls + subject-mismat",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Smoke/test suite wired + no regression",
       "context": "Add packages/main/src/tasks/usage-ledger-authority-smoke.ts (follow existing *-smoke.ts; ✓/✗, non-zero exit; temp dir, no pollution), wired as npm test:usage-ledger-authority. Cover the envelope (privacy-safe, has digest), the nullable receipt-ref fields validating, the verification gate (verified only via injected verifier + subject match), and all negative controls. Assert usage-ledger still imports ZERO other modules (no authority-signing import). Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget) no regression; node bin/lattice.js validate.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-16T21:40:25.450Z",
+      "endTime": "2026-06-16T21:43:23.169Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm test:usage-ledger-authority runs to completion with exit code 0 and prints only checkmarks (no failures); WHY: the smoke script itself is wired and green, covering envelope + receipt-ref + gate + negative controls",
+            "type": "cli"
+          },
+          {
+            "desc": "Static import analysis: grep/regex scan of all .ts files under core/usage-ledger/ confirms ZERO imports from authority-signing module (no import from ../authority-signing, no import from authority-signing, no require of authority-signing) -> the usage-ledger module keeps its zero cross-module import property; WHY: the pluggable verifier design requires the ledger to stay decoupled; importing authority-signing would create the hard coupling this slice explicitly avoids",
+            "type": "cli"
+          },
+          {
+            "desc": "Full ledger test suite (usage-ledger + usage-ledger-adapter + usage-ledger-estimate + usage-ledger-diagnostics + usage-ledger-dispatch + usage-ledger-budget) all pass with no regressions -> exit code 0 for each; WHY: adding authority-evidence.ts and modifying record.ts must not break any existing ledger functionality",
+            "type": "cli"
+          },
+          {
+            "desc": "npx tsc --noEmit completes with exit code 0 -> the build is clean with the new file and modified record.ts; WHY: type errors from the new types or changed interfaces would break downstream consumers",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node bin/lattice.js validate completes with exit code 0 -> the Lattice self-validation (which checks story metadata, checklist integrity, etc.) is not broken by the code changes; WHY: ensures the story workflow tooling itself is unaffected",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke test uses a temp directory (mkdtemp) and cleans up after itself: no leftover files in /tmp matching the test prefix after the smoke completes; WHY: tests must not pollute the filesystem, matching the existing smoke pattern",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After adding authority-evidence.ts, run a static import graph check: for every .ts file in core/usage-ledger/, collect all import paths and verify none reference modules outside core/usage-ledger/ or node builtins -> the zero cross-module import property holds for the entire directory, not just the new file; WHY: a subtle import in an existing file (e.g. if record.ts imported from authority-evidence.ts which then transitively imported authority-signing) would silently break the isolation contract",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; noAuthSigningImport=true; scopeClean=true",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; noAuthSigningImport=true; scopeClean=true",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; noAuthSigningImport=true; scopeClean=true",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; noAuthSigningImport=true; scopeClean=true",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; noAuthSigningImport=true; scopeClean=true",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; noAuthSigningImport=true; scopeClean=true",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-fd64/evidence/verify-b-fd64.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; noAuthSigningImport=true; scopeClean=true",
+          "headHash": "734bd9166c176c1fb69de8346fb5fe23c73c0d62",
+          "materialHash": "2bb580faacd70290f186dbf4111b239a691f032de7081f4677835701a078a049",
+          "timestamp": "2026-06-16T21:58:08.298Z"
+        }
+      ]
     }
   ]
 }

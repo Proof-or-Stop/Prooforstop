@@ -55,11 +55,28 @@ import {
   type DocsDriftGateResult,
 } from './validate-docs-drift.js';
 import {
+  detectManagedAssetMode,
+  detectManagedAssetProfile,
+  listManagedAssetDefinitions,
+  type ManagedAssetDefinition,
+} from '../core/managed-assets.js';
+import {
   LOCAL_CODEX_VERIFY_COMMAND,
   resolveLocalCodexVerifyCommand,
   storyRequiresCodexEvidence,
   summarizeCodexEvidence,
 } from '../core/codex-adapter-checks.js';
+import {
+  runEnglishArtifactGate,
+  renderEnglishArtifactViolations,
+} from './english-artifact-gate.js';
+
+// B-5f42: the english-artifacts gate has no standalone `validate --english-artifacts`
+// CLI option — it runs inline as part of the REVIEW→TEST preflight. Give it an
+// accurate label so a failing gate does not print a non-existent command. The
+// closest standalone re-run is the smoke task that exercises the same guard.
+const ENGLISH_ARTIFACTS_GATE_LABEL =
+  'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:english-only-guards-smoke)';
 
 /** Reads CLAUDE.md file contents for docs-drift gate */
 export type MdFileReader = (projectRoot: string) => string[];
@@ -91,7 +108,7 @@ export interface PreflightDeps {
 }
 
 export interface PreflightGateEntry {
-  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter';
+  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts';
   ok: boolean;
   status: string;
   summary: string;
@@ -242,6 +259,14 @@ export function runReviewCliGates(
       summary: 'Express channel does not check CLI gate',
       details: [],
     });
+    gates.push({
+      name: 'english-artifacts',
+      ok: true,
+      status: 'skipped',
+      summary: 'Express channel does not check CLI gate',
+      details: [],
+      commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
+    });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
       const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
       const resolvedLabel = resolveLocalCodexVerifyCommand(deps.projectRoot);
@@ -360,7 +385,46 @@ export function runReviewCliGates(
   if (deps.registryNames) {
     const mdReader = deps.mdFileReader ?? defaultMdFileReader;
     const mdContents = mdReader(deps.projectRoot);
-    docsDrift = runDocsDriftGate(mdContents, deps.registryNames);
+    // B-a7b0 CHK-002: cross-reference the REAL managed-asset registry. Detect the
+    // project's profile + assetMode so listManagedAssetDefinitions returns the
+    // assets `lattice init` would actually generate for this repo. The check is
+    // provider-injected — paths are never hardcoded in the gate. A registry-
+    // resolution failure degrades to no contradiction check (never crashes the gate).
+    let managedAssetDefs: Pick<ManagedAssetDefinition, 'relPath' | 'kind'>[] | undefined;
+    // B-a7b0 F-002: registry resolution must fail SOFT (never crash the additive
+    // contradiction check), but the degrade must stay OBSERVABLE — an empty catch
+    // here would make a silent registry failure indistinguishable from a clean
+    // load. Capture the error and fold it into the gate's `details` (same in-result
+    // diagnostic convention used elsewhere in this file, e.g. the concept-reviewer
+    // read failure at conceptReviewerHandledResiduals) so a reader sees the
+    // contradiction check was skipped due to an error, not due to zero contradictions.
+    let managedAssetDegrade: string | undefined;
+    try {
+      const profile = detectManagedAssetProfile(deps.projectRoot);
+      const assetMode = detectManagedAssetMode(deps.projectRoot);
+      managedAssetDefs = listManagedAssetDefinitions(
+        profile,
+        undefined,
+        deps.projectRoot,
+        assetMode,
+      );
+    } catch (e) {
+      managedAssetDefs = undefined;
+      managedAssetDegrade = `managed-asset registry unavailable (contradiction check skipped): ${
+        e instanceof Error ? e.message : String(e)
+      }`;
+      // Also surface on stderr (advisory-warning convention, cf. checklist.ts) so
+      // the degrade is visible even though the soft-degraded gate stays ok and the
+      // renderer only prints gate `details` for failed gates.
+      process.stderr.write(`⚠ docs-drift: ${managedAssetDegrade}\n`);
+    }
+    // B-a7b0 CHK-001: pass repoRoot so the gate also runs path-reference drift
+    // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When projectRoot is absent the
+    // gate degrades to the command-only check (backward compatible).
+    docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {
+      repoRoot: deps.projectRoot,
+      managedAssetDefs,
+    });
     const docsDriftOk = docsDrift.status === 'pass' || docsDrift.status === 'skipped';
     gates.push({
       name: 'docs-drift',
@@ -368,9 +432,14 @@ export function runReviewCliGates(
       status: docsDrift.status,
       summary: docsDrift.summary,
       details: [
+        ...(managedAssetDegrade ? [managedAssetDegrade] : []),
         ...(docsDrift.missing.length > 0
           ? [`missing: ${docsDrift.missing.join(', ')}`]
           : []),
+        ...docsDrift.missingPaths.map((p) => `missing path: ${p}`),
+        ...docsDrift.managedAssetContradictions.map(
+          (c) => `managed-asset contradiction: ${c.asset} (${c.kind})`,
+        ),
         ...(docsDrift.stale.length > 0
           ? [`stale (advisory): ${docsDrift.stale.join(', ')}`]
           : []),
@@ -386,6 +455,27 @@ export function runReviewCliGates(
       details: [],
     });
   }
+
+  // ── english-artifacts (B-5f42 CHK-002) ──
+  // Diff/story-scoped CJK gate: this branch's commit messages + the current
+  // story's author-controlled metadata must be English. Legacy Chinese outside
+  // this story / branch is never scanned. Never throws — git/fs failures degrade
+  // to notes, not a block.
+  const storyDir = deps.store.storyDirPath(storyId);
+  const englishArtifacts = runEnglishArtifactGate({ storyDir, gitCwd });
+  gates.push({
+    name: 'english-artifacts',
+    ok: englishArtifacts.ok,
+    status: englishArtifacts.ok ? 'pass' : 'fail',
+    summary: englishArtifacts.ok
+      ? 'No non-English (CJK) text in this branch\'s commits or story metadata'
+      : `Non-English (CJK) text found in ${englishArtifacts.violations.length} artifact line(s)`,
+    details: [
+      ...renderEnglishArtifactViolations(englishArtifacts.violations),
+      ...englishArtifacts.notes,
+    ],
+    commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
+  });
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {
     const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);

@@ -1,0 +1,47 @@
+{
+  "storyId": "B-f675",
+  "checkedAt": "2026-06-17T00:40:02.119Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md ## Solution Tradeoffs + index.json description use \"B-skip\" as a variant label (\"Rejected B-skip\", \"the rejected B-skip variant\") without clarifying that it is NOT a story ID. In the Lattice project the B-xxxx format denotes story IDs; a new reader will naturally try to look up story B-skip. Should read e.g. \"Rejected skip-variant (B-skip)\" or add a parenthetical noting it is a local variant name, not a story reference."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "index.json description attributes the invalid.length > 0 gate block exclusively to Round 2+ (\"Round 2+ requires ... no current-round INVALID (stale) binding\") while omitting it from the Round 1 description. In the real code (machine.ts canPassReviewGuard line 348) the invalid.length > 0 check fires before the round split and blocks ALL rounds equally. The omission is not materially harmful because Round 1 requires all opt-in reviewers to have valid verdicts (a stricter condition), but the asymmetric framing implies Round 1 does not have the invalid-binding block, which is technically incorrect."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T00:38:00.784Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "riskSignal matched on keyword TEST gate but the story is about the REVIEW->TEST gate leniency (reads gate, does not modify it). The auto-elevation to high is conservative and acceptable; operator may dismiss via story_review_dismiss after PLAN if desired. No action needed."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T00:40:02.119Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md ## Solution Tradeoffs + index.json description use \"B-skip\" as a variant label (\"Rejected B-skip\", \"the rejected B-skip variant\") without clarifying that it is NOT a story ID. In the Lattice project the B-xxxx format denotes story IDs; a new reader will naturally try to look up story B-skip. Should read e.g. \"Rejected skip-variant (B-skip)\" or add a parenthetical noting it is a local variant name, not a story reference."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "index.json description attributes the invalid.length > 0 gate block exclusively to Round 2+ (\"Round 2+ requires ... no current-round INVALID (stale) binding\") while omitting it from the Round 1 description. In the real code (machine.ts canPassReviewGuard line 348) the invalid.length > 0 check fires before the round split and blocks ALL rounds equally. The omission is not materially harmful because Round 1 requires all opt-in reviewers to have valid verdicts (a stricter condition), but the asymmetric framing implies Round 1 does not have the invalid-binding block, which is technically incorrect."
+        }
+      ]
+    }
+  ],
+  "_hash": "bd45978432dc2f20e72d5b634a391b35d6e238f6d4f1f9dacd4857438b76c842"
+}

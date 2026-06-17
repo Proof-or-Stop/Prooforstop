@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-1480:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Verified 12 code anchors (all paths exist), 8 symbol claims (store.readFindings, advisory.ts isEvidenceStateBlocking verified-only gate, evidence-freshness isMaterialExcludedPath + currentMaterialHash, runtime-artifact-registry materialHash:exclude pattern, review-run.ts promptHash in reviewRunId signature, activity-log appendActivityLog, decision-doc-promotion proposalDigest SHA256 pattern, story-review grillSection, dev-memory content-sha7 id), and the no-FTS claim. Diff adds only the plan doc plus story metadata; no source code changed. All verified accurate.",
+      "createdAt": "2026-06-17T02:17:45.293Z",
+      "reviewRound": "2026-06-17T02:15:38.600Z",
+      "reviewRunId": "B-1480:RR-002",
+      "_hash": "d6996b3e4b98b20d609294c076161e18f2603630c7862b562c84b0d22b253ff4"
+    },
+    {
+      "id": "B-1480:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Decision document is complete and coherent as an execution plan. All required sections present: Problem Statement, six Principles (advisory-only/never-touch-gate), four-level Architecture with module decomposition and coupling rules, three Determinism Guardrails with specific implementation constraints, phased Roadmap with an actionable Phase 1a first story (named modules, registry entry, three testable acceptance criteria), What-not-to-do negative-space list, and verified Code Anchors appendix. A future implementer can begin Phase 1a from this document without ambiguity.",
+      "createdAt": "2026-06-17T02:18:05.984Z",
+      "reviewRound": "2026-06-17T02:15:38.600Z",
+      "reviewRunId": "B-1480:RR-002",
+      "_hash": "faf9a02475384b39d9cae6f79c53465cc3a242d0e38b1798afcbc195f6f52b14"
+    },
+    {
+      "id": "B-1480:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 44 verificationIntents (CHK-001 through CHK-004, happy/edge/adversarial) have verificationEvidence entries with result=pass pointing to verify-b-1480.mjs. The verifier runs TOTAL 44 | PASS 44 | FAIL 0. Verifier checks are concrete and intent-specific, not generic fallbacks: CHK-001 checks file existence + 12 section headers + Story:B-1480 header + plan-only note; CHK-002 checks all 6 module names + one-way coupling + 3 reuse filenames + cut-FTS language; CHK-003 checks audit-only exclusion + store.readFindings + promptHash + dismissReasonType optional + flat underscore; CHK-004 checks Phase 1a + currentMaterialHash + fs.existsSync on every appendix code-anchor path + no Co-Authored-By trailer. All referenced reuse files (dev-memory.ts, decision-doc-promotion.ts, activity-log.ts, runtime-artifact-registry.ts) independently confirmed to exist in packages/main/src/. store.readFindings and promptHash confirmed to exist in codebase. No blocker found.",
+      "createdAt": "2026-06-17T02:18:26.964Z",
+      "reviewRound": "2026-06-17T02:15:38.600Z",
+      "reviewRunId": "B-1480:RR-003",
+      "_hash": "e30d184cf2401eb6f011b5cd530976880cff72395313f8a791a6f46561102ca5"
+    },
+    {
+      "id": "B-1480:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Additive doc-only story; no concept deletion/rename/removal; no residual scan applicable.",
+      "createdAt": "2026-06-17T02:24:04.905Z",
+      "reviewRound": "2026-06-17T02:15:38.600Z",
+      "reviewRunId": "B-1480:RR-004",
+      "_hash": "dac3a18ae4f2a1627c4d921bbd528d90748127140285fd4bb82d62584f376858"
+    },
+    {
+      "id": "B-1480:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Additive doc-only; no concept deletion/rename; residual scan N/A.",
+      "createdAt": "2026-06-17T02:28:20.755Z",
+      "reviewRound": "2026-06-17T02:27:26.580Z",
+      "reviewRunId": "B-1480:RR-006",
+      "_hash": "9c7748f769b56df8e0b0b3eea9cf237a83d9504c5820c5eb163dfedcbbc40025"
+    },
+    {
+      "id": "B-1480:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed: docs/requirements/decisions/lattice-experience-layer-execution-plan.md (the only non-metadata file changed in this branch). F-001 is fully resolved: lines 124-135 now give an explicit three-part description — dev-memory status enum is 'candidate -> active -> stale -> archived', the earlier 'proposed' state lives as a staged proposal in .lattice/learning/proposals/<id>.json, and a dev-memory entry begins only once a proposal is human-approved into candidate, making this enum the post-approval subset of the full lifecycle. No dead code (doc-only story, no source). No type-safety issues (doc-only). No I/O shell isolation issues (doc-only). No remaining TODOs, placeholders, or contradictions found. FTS-cut, promptHash exclusion, phase ordering, and lifecycle terminology are internally consistent throughout. No blockers.",
+      "createdAt": "2026-06-17T02:29:02.288Z",
+      "reviewRound": "2026-06-17T02:27:26.580Z",
+      "reviewRunId": "B-1480:RR-007",
+      "_hash": "cfeac836e7a576a643423a5e169c98ceb589bd2695df35a37467c9654422ccdb"
+    },
+    {
+      "id": "B-1480:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verificationIntent (44 total, 34 must-priority) all covered by manual_transcript evidence backed by verify-b-1480.mjs; verifier concretely checks: doc existence at canonical path, all 12 house-format section headers, Story:B-1480 header, plan-only scope note, advisory-only language, module decomposition (4 core + 2 handler, one-way coupling), reuse (dev-memory/decision-doc-promotion/activity-log), explicit cut-FTS, three determinism guardrails (audit-only/store.readFindings/promptHash), back-compat (dismissReasonType optional/flat), roadmap Phase 1a with currentMaterialHash, all appendix anchors resolving to real files, and no Co-Authored-By; live run confirms TOTAL 44 | PASS 44 | FAIL 0; 0 must-gaps, 0 waivers; no blocker.",
+      "createdAt": "2026-06-17T02:29:03.999Z",
+      "reviewRound": "2026-06-17T02:27:26.580Z",
+      "reviewRunId": "B-1480:RR-008",
+      "_hash": "832577c1b7fa8b7accb32a31a3421624d01d2e3e2ece0bb71aac3cd862ecead6"
+    },
+    {
+      "id": "B-1480:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency check: pure-docs diff (Fallback 1 path). All 9 code anchor paths verified to exist. Symbol checks: store.readFindings (store.ts:359) confirmed; advisory.ts isEvidenceStateBlocking (line 43) confirmed — blocks only on verified or null-legacy, not other states; runtime-artifact-registry.ts materialHash:exclude + volatile pattern confirmed in use across many entries (the new learning entry will follow the same pattern); signReviewRun (review-run.ts:297-331) confirmed — promptHash is the 9th positional input to the SHA-256 signature, so hintSection must not enter promptHash; grillSection at ~567-598 confirmed (line 567 declaration, line 598 use); appendActivityLog confirmed at activity-log.ts:40; dev-memory.ts content-sha7 id confirmed (line 46 comment + line 294 sha7 generation); decision-doc-promotion.ts digest pattern confirmed (proposalDigest, sourceDigest, assertTargetInScope, digestCanonicalJson all present); no FTS/SQLite/BM25 anywhere in core src. Lifecycle consistency: doc correctly states proposed state lives as a staged file in .lattice/learning/proposals/<id>.json, dev-memory status enum is post-approval subset candidate->active->stale->archived — the c90aa45c fix is coherent and the description is self-consistent. No doc-code drift found. Symbols extracted (Step 1 per Fallback 1): 0 real TS exported symbols (pure docs diff). Paragraphs compared: all major sections of the doc cross-checked against 9 real code files.",
+      "createdAt": "2026-06-17T02:30:33.906Z",
+      "reviewRound": "2026-06-17T02:27:26.580Z",
+      "reviewRunId": "B-1480:RR-009",
+      "_hash": "069658d2ac7f3a6e8fd8fd3d2dabec09171555a1c2248e2ab982d98749d2914c"
+    }
+  ]
+}

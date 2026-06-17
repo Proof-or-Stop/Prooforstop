@@ -9,8 +9,8 @@
  *
  * Responsibilities (per "JSONL Ledger Record Shape", "Required record
  * constraints", "Completeness Guarantee", "Privacy Constraints"):
- *   - opt-in gate (CHK-006): a strict no-op when the flag is OFF — writes
- *     nothing and creates no file/directory;
+ *   - opt-out gate (CHK-006): default ON; a strict no-op when the flag is set
+ *     OFF (LATTICE_USAGE_LEDGER=0) — writes nothing and creates no file/directory;
  *   - ensure `.lattice/usage/` exists;
  *   - validate the record (CHK-001) and reject privacy/secret/raw-content and
  *     stored-total fields (CHK-004) before any write;
@@ -51,8 +51,11 @@ export const USAGE_LEDGER_RELATIVE_PATH = join(USAGE_LEDGER_DIR, USAGE_LEDGER_FI
 export const GENESIS_PREVIOUS_HASH = null;
 
 /**
- * Opt-in flag (CHK-006). Default OFF. The ledger is inert until explicitly
- * enabled, following Rollout Phase 2 ("Local writer behind opt-in flag").
+ * Ledger enable flag (CHK-006). Default ON; set LATTICE_USAGE_LEDGER=0 to disable.
+ * When the flag is UNSET the ledger is active by default; the explicit escape
+ * hatch ('0'/'false'/'off'/'no'/'', and the legacy KOALA_ alias) restores the
+ * byte-identical legacy default-off behavior (a strict no-op writer + the
+ * original spawn args + an inert budget guard).
  *
  * Read every call (not memoized) so tests and operators can toggle it without
  * restarting the process. Both the Lattice-branded and legacy Koala env names
@@ -60,7 +63,7 @@ export const GENESIS_PREVIOUS_HASH = null;
  */
 export function isUsageLedgerEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   const raw = env.LATTICE_USAGE_LEDGER ?? env.KOALA_USAGE_LEDGER;
-  if (raw === undefined) return false;
+  if (raw === undefined) return true;
   const normalized = raw.trim().toLowerCase();
   return normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'yes';
 }
@@ -109,7 +112,7 @@ function readLastRecordHash(ledgerPath: string): string | null {
 }
 
 export interface AppendResult {
-  /** false when the opt-in flag was OFF (strict no-op). */
+  /** false when the ledger flag was set OFF (strict no-op). */
   written: boolean;
   /** The finalized record (with computed integrity), when written. */
   record?: UsageLedgerRecord;
@@ -118,7 +121,7 @@ export interface AppendResult {
 }
 
 export interface AppendOptions {
-  /** Override env for the opt-in flag check (tests). */
+  /** Override env for the ledger flag check (tests). */
   env?: NodeJS.ProcessEnv;
 }
 

@@ -408,6 +408,11 @@ export const PRETOOL_SCOPE_HOOK_MATCHER = 'Edit|Write|MultiEdit|NotebookEdit';
 export const CODEX_PRETOOL_SCOPE_HOOK_MATCHER = 'apply_patch|Edit|Write';
 export const LEGACY_SCOPE_PRETOOL_HOOK_FILE = 'scope-pretool.cjs';
 export const LATTICE_SCOPE_PRETOOL_HOOK_FILE = 'lattice-scope-pretool.cjs';
+// B-5f42: warn-only english-only artifact guard for Bash git-commit / lattice
+// story-metadata commands. Layer 1 of the english-only policy (the hard stop is
+// the validate REVIEW->TEST gate). Matches Bash only; never blocks.
+export const PRETOOL_ENGLISH_ONLY_HOOK_MATCHER = 'Bash';
+export const ENGLISH_ONLY_GUARD_HOOK_FILE = 'english-only-guard.cjs';
 
 export function migrateHookCommandEntries(entries: unknown, oldCommand: string, newCommand: string): { entries: unknown; changed: boolean } {
   if (!Array.isArray(entries)) return { entries, changed: false };
@@ -436,7 +441,10 @@ export function migrateHookCommandEntries(entries: unknown, oldCommand: string, 
 export function getClaudeHooks() {
   return {
     UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
-    PreToolUse: [{ matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE) }] }],
+    PreToolUse: [
+      { matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE) }] },
+      { matcher: PRETOOL_ENGLISH_ONLY_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(ENGLISH_ONLY_GUARD_HOOK_FILE) }] },
+    ],
     PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
     PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
   };

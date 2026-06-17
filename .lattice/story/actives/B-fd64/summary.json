@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fd64",
+  "changes": "Added the LOCAL Authority usage-evidence layer (Touchpoint 6, local slice) in the usage-ledger module: authority-evidence.ts with buildUsageEvidenceEnvelope (privacy-preserving: sha256 recordDigest over canonicalJson + a non-secret allowlist; rejects any record carrying raw prompt/transcript/secret/key/auth-header/tool-args/env via a denylist DERIVED from record.ts FORBIDDEN_FIELD_NAMES so it cannot drift) and verifyUsageReceipt (a PLUGGABLE injected-verifier gate). record.ts gained nullable receiptId/receiptSubjectKind/receiptSubjectId with all-or-nothing reference enforcement; the validator still rejects any local record with receiptVerified!=false. The gate sets receiptVerified=true ONLY when an injected verifier returns verified===true AND a string subjectId === a string envelope.storyId (null/non-string can never verify). The usage-ledger module keeps zero cross-module imports (no authority-signing import — verifier injected). Added usage-ledger-authority-smoke.ts (37 checks incl. 4 negative controls + null-subject + denylist-drift) wired as npm test:usage-ledger-authority.",
+  "usage": "For a future Authority Server path: build a privacy-preserving evidence envelope from a ledger record (buildUsageEvidenceEnvelope) and verify a signed receipt via verifyUsageReceipt with an injected verifier. Locally, with no real receipt/verifier, records stay authority.receiptVerified=false (correct per the local-non-authority boundary). Run npm --prefix packages/main run test:usage-ledger-authority to see all 37 checks.",
+  "expectedOutcome": "A privacy-safe evidence envelope (digest + non-secret fields, no raw content); receipt-reference fields on records; receiptVerified flips to true ONLY via a genuine injected verifier + matching string subject; all 4 negative controls (transport, tokens, hash, copied id) and null-subject keep it false. Build clean; zero cross-module imports; no regression.",
+  "actualTranscript": "verify-b-fd64: TOTAL 38 | PASS 38 | FAIL 0 (gatePresent zeroImport noAuthSigningImport noForbidden scopeClean all true). authority smoke 37/37 incl. negative controls + F-001 null-subject + F-002 denylist-drift. No regression (61/50/55/34/38/41). validate ALL PASS 38/38. 4 reviewers (concept/quality/test-coverage/behavior) passed; round-1 2 medium findings F-001 (null-subject overclaim bypass) + F-002 (denylist drift) fixed + resolved.",
+  "outcomeDiff": "Expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "LOCAL slice only — no Authority Server, no network submission, no real signature crypto (verifier injected). Locally everything stays receiptVerified=false by design; the value is the frozen envelope contract + the anti-overclaim gate + negative controls. Server-side parts are separate future stories.",
+  "pitfalls": "The gate is the ONLY path to receiptVerified=true (injected verifier verified===true + STRING subject match). Never let transport-ok / token presence / local hash / a copied receiptId imply verification. Keep the envelope digest-only (no raw content); the denylist is derived from record.ts — keep it derived so it cannot drift. Keep usage-ledger decoupled (no authority-signing import; verifier injected).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 218541
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13053
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 358503
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 720348
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 818508
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 62688
+    }
+  },
+  "totalDurationMs": 2191643,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T21:58:06.484Z",
+  "updatedAt": "2026-06-16T21:58:06.484Z"
+}

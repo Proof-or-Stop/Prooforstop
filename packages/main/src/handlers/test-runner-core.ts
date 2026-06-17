@@ -40,8 +40,9 @@ export function resolveFilePlaceholder(execute: string, file: string, root: stri
   let jsPath = join(root, outDir, relPath);
   // fallback: dist may not exist under the worktree, try looking it up from git toplevel
   if (!existsSync(jsPath)) {
+    const gitCwd = root;
     try {
-      const toplevel = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      const toplevel = execSync('git rev-parse --show-toplevel', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
       const fallback = join(toplevel, outDir, relPath);
       if (existsSync(fallback)) jsPath = fallback;
     } catch { /* not a git repo, use original path */ }

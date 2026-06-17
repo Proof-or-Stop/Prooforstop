@@ -1,0 +1,178 @@
+{
+  "storyId": "B-fd64",
+  "checkedAt": "2026-06-16T21:28:57.020Z",
+  "features": [
+    {
+      "feature": "Privacy-preserving usage-evidence envelope type (PrivacyPreservingUsageEvidenceEnvelope) and builder function (buildUsageEvidenceEnvelope) encoding a ledger record as digests + non-secret fields (model, provider name, usage counts, source, correlation ids, decision)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Privacy denylist enforcement: envelope must contain NO raw prompt/transcript/secret/key/auth-header material",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Envelope contains a recordDigest (e.g. sha256 of the canonical record) field",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Receipt-reference fields on the authority block: nullable receiptId, receiptSubjectKind, receiptSubjectId",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Local records keep authority.receiptVerified=false and receiptId=null by default (local Non-authority boundary rule)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Validator enforces: receiptId/receiptSubjectKind/receiptSubjectId may be non-null only together, but that alone does NOT set receiptVerified=true",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Pluggable verification gate: verifyUsageReceipt(envelope, signedReceipt, verifyFn) that sets receiptVerified=true ONLY when injected verifyFn confirms verified=true AND subject binding matches",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Zero cross-module imports: usage-ledger module must NOT import authority-signing module (verifier injected)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Gate returns receiptVerified=false when injected verifier returns verified=true but subject binding mismatches",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Gate returns receiptVerified=false when injected verifier returns verified=false",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Negative control: transport accepted=true is NOT verification (receiptVerified stays false)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Negative control: provider response with real token counts is NOT verification (receiptVerified stays false)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Negative control: local JSONL hash chain is NOT verification (receiptVerified stays false)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Negative control: copied receiptId without injected verifier confirming signature+subject is NOT verification (receiptVerified stays false)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke suite wired as npm test:usage-ledger-authority covering envelope, nullable receipt-ref fields, verification gate (verified only via injected verifier + subject match), and all negative controls",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke asserts usage-ledger imports ZERO other modules (no authority-signing import)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "No regression on full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget) + lattice validate",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Authority Server itself (live server, network submission of evidence envelopes, real Ed25519 crypto verification, promoting local records to receipt-backed authority by default)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope per description: the Authority Server itself, network submission, real signature crypto (verifier is injected/pluggable), promoting any local record to receipt-backed authority by default",
+      "source": "description"
+    },
+    {
+      "feature": "Receipt signature verification against a real server public key (production crypto gate consumption via production-gate-decision classification)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope per description: real signature crypto excluded; verifier is injected/pluggable; server-side path belongs to different stories",
+      "source": "decisions:decisions/lattice-cli-authority-client-receipt-ref.md"
+    },
+    {
+      "feature": "Receipt-ref writer persisting production-gate-decision refs to authority-receipt-refs.json for lifecycle gate consumption",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: this story covers only the local usage-ledger module slice, not the CLI authority client or gate consumption wiring",
+      "source": "decisions:decisions/lattice-cli-authority-client-receipt-ref.md"
+    },
+    {
+      "feature": "Runner session identity, heartbeat, and job claim binding for Authority Server",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope per description: server-side runner/session infrastructure explicitly excluded (no Authority Server required)",
+      "source": "decisions:decisions/authority-runner-session-evidence-envelope.md"
+    },
+    {
+      "feature": "Lifecycle gate receipt consumption (REVIEW/TEST/DONE gates consuming verified receipt refs)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: server-dependent gate consumption belongs to Authority Server receipt path stories, not this local slice",
+      "source": "decisions:decisions/lifecycle-gate-receipt-consumption.md"
+    },
+    {
+      "feature": "Server public key discovery, production-inert key rejection, and trust policy enforcement",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: server-side contract alignment, not part of this local usage-ledger slice",
+      "source": "decisions:decisions/lattice-authority-receipt-contract.md"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 17,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "80936a20aea87cc9413eda879175f9e94c24b9f0c2847b12f6d15f4ec795c8ee",
+  "openQuestions": []
+}

@@ -1,0 +1,87 @@
+{
+  "storyId": "B-da89",
+  "checkedAt": "2026-06-17T02:14:37.589Z",
+  "features": [
+    {
+      "feature": "dev_start allowed phase set is authoritative: INIT, INIT_CHECK, PLAN, DEV — with REVIEW/TEST/DONE refused",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "config.ts DEFAULT_PHASE_TOOLS INIT array must include dev_start literal",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "config.ts DEFAULT_PHASE_TOOLS DEV array must include dev_start literal",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No other command phase permissions change (surgical literal-only addition)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npm run test:process-fact-contract exits 0 after the alignment",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Future dev_start phase divergence between command-policy and DEFAULT_PHASE_TOOLS is mechanically caught (regression guard)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DEFAULT_PHASE_TOOLS and MAIN_TOOLS must be consistent with PROCESS_FACT_REGISTRY (process-fact-contract invariant)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "verify-process-fact-contract.mjs failure wording must name missing or drift explicitly (not generic prompt drift)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope is strictly limited to aligning dev_start phase entries; wording of error messages in the contract script is not changed",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "dev_start behavior, worktree bootstrap flow, and other commands are unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "English-only artifacts and emitted strings",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 9,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e28b0baba427dec8f4851a89c8365a25e22930cc31cdbd06b7b75f192cc3f98d",
+  "openQuestions": []
+}

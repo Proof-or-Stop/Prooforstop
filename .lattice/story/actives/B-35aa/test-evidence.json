@@ -1,0 +1,456 @@
+{
+  "command": "lattice validate --story=B-35aa --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:docs-drift-smoke && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  main-write-lock-coverage: scanned 282 source files, 17 git mutation-verb sites\",\"    ✓ src/cli-engine.ts:3337  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3372  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3491  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3545  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3633  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/core/auto-commit-metadata.ts:217  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:82  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:721  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:743  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:621  [reset]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:632  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:973  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1042  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1096  [merge]  mutates-main=YES  locked=YES  OK\",\"  main-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\",\"  main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\",\"  > lattice@0.3.5 test:review-convergence-smoke\",\"  > node packages/main/dist/tasks/review-convergence-smoke.js\",\"  review-convergence-smoke: (a) STALLED fires — advisory present:\",\"        WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\",\"          - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\",\"          - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\",\"  review-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\",\"  review-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\",\"  review-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\",\"  review-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\",\"  review-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\",\"  review-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\",\"  > lattice@0.3.5 test:docs-drift-smoke\",\"  > node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\",\"  docs-drift path+asset smoke passed\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 22/22 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — ls docs/requirements/decisions/test-runner-consolidation-plan.md exits 0 -> file exists; WHY: primary deliverable existence check\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — grep -c \\\"^## \\\" docs/requirements/decisions/test-runner-consolidation-plan.md >= 4 -> doc has at least 4 H2 sections; WHY: enforces the 4 required sections contract (current state, paths considered, chosen path, follow-up)\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript verdict=success — grep -q 151 the doc exits 0 -> pinned smoke count present; WHY: current-state section must contain the audited 151 smoke file count\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via manual_transcript verdict=success — grep -qE 70[,.]?280 the doc exits 0 -> pinned line count present (allowing comma or period separator); WHY: current-state section must contain ~70,280 lines figure\",\"  ✓ CHK-001:happy:4 [happy/must/cli] covered via manual_transcript verdict=success — grep -q 258 the doc exits 0 -> pinned test:* script count present; WHY: current-state section must contain 258 test:* npm scripts\",\"  ✓ CHK-001:happy:5 [happy/must/cli] covered via manual_transcript verdict=success — grep -q 49 the doc exits 0 -> pinned verify script count present; WHY: current-state section must contain 49 verify scripts\",\"  ✓ CHK-001:happy:6 [happy/must/cli] covered via manual_transcript verdict=success — grep -qiE (path.*A|option.*A|vitest) the doc exits 0 -> Path A (vitest) is named; WHY: paths-considered section must discuss vitest migration\",\"  ✓ CHK-001:happy:7 [happy/must/cli] covered via manual_transcript verdict=success — grep -qi in-house the doc exits 0 -> Path B (in-house runner) is named; WHY: paths-considered section must discuss the in-house runner option\",\"  ✓ CHK-001:happy:8 [happy/must/cli] covered via manual_transcript verdict=success — grep -qi testing-infra the doc exits 0 -> rationale references testing-infra.md; WHY: chosen-path rationale must explicitly reference the existing project-native validation policy\",\"  ✓ CHK-001:happy:9 [happy/must/cli] covered via manual_transcript verdict=success — for B1 B2 B3 B4 grep each in the doc -> all four follow-up story IDs present; WHY: follow-up section must decompose into B1 B2 B3 B4\",\"  ✓ CHK-001:happy:10 [happy/must/cli] covered via manual_transcript verdict=success — git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md produces at least 1 line -> file is committed; WHY: story requires a commit touching this path\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript verdict=success — section count boundary: grep -c ^## returns exactly 4 or more, never 3 -> catch off-by-one where a heading is missing or malformed (missing space after ##); WHY: boundary check on minimum section count\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript verdict=success — B4 is present even if marked optional -> grep -qi B4 exits 0; WHY: spec says B4 may be noted as optional but must still appear in the decomposition\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via manual_transcript verdict=success — wc -l > 30 -> doc has substantive content not a stub; WHY: catch degenerate case where sections exist as headings but bodies are empty\",\"  ✓ CHK-001:edge:3 [edge/must/cli] covered via manual_transcript verdict=success — grep -qi c8 the doc exits 0 -> c8 coverage tool is mentioned; WHY: Path B and C both involve c8; its absence means paths-considered is incomplete\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — git diff main -- docs/requirements/decisions/testing-infra.md | wc -l returns 0 -> testing-infra.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript verdict=success — git diff main -- docs/requirements/decisions/testing-completeness.md | wc -l returns 0 -> testing-completeness.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via manual_transcript verdict=success — git diff --name-only main -- packages/ | wc -l returns 0 -> no code files in packages/ touched; WHY: over-reach guard (c) ZERO code change story\",\"  ✓ CHK-001:adversarial:3 [adversarial/must/cli] covered via manual_transcript verdict=success — git diff --name-only main -- package.json | wc -l returns 0 -> root package.json untouched; WHY: over-reach guard (c) no package.json edits allowed\",\"  ✓ CHK-001:adversarial:4 [adversarial/must/cli] covered via manual_transcript verdict=success — git diff --name-only main -- scripts/ | wc -l returns 0 -> no scripts/ edits; WHY: over-reach guard (c) no scripts changes in a doc-only story\",\"  ✓ CHK-001:adversarial:5 [adversarial/must/cli] covered via manual_transcript verdict=success — git diff --name-only main -- docs/requirements/decisions/ | grep -v test-runner-consolidation-plan.md | wc -l returns 0 -> only the target file changed in decisions/; WHY: generalized over-reach guard catches edits to ANY other decision doc\",\"  ✓ CHK-001:adversarial:6 [adversarial/must/cli] covered via manual_transcript verdict=success — 4-section minimum is a hard gate: count=$(grep -c ^## ...) test >= 4 -> ENFORCED; WHY: adversarial guard (d) if any section heading is deleted or renamed to H3 the contract must fail\"],\"warnings\":[],\"timestamp\":\"2026-06-17T00:03:44.612Z\",\"headSha\":\"b65f85cceca4847b3cc31dc2bd8a1c1671bfc884\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:docs-drift-smoke && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nmain-write-lock-coverage: scanned 282 source files, 17 git mutation-verb sites\\n  ✓ src/cli-engine.ts:3337  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3372  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3491  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3545  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3633  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/core/auto-commit-metadata.ts:217  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:82  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:721  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:743  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:621  [reset]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:632  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:973  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1042  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1096  [merge]  mutates-main=YES  locked=YES  OK\\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\\n\\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\\n\\n> lattice@0.3.5 test:review-convergence-smoke\\n> node packages/main/dist/tasks/review-convergence-smoke.js\\n\\nreview-convergence-smoke: (a) STALLED fires — advisory present:\\n      WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\\n        - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\\n        - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\\nreview-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\\nreview-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\\nreview-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\\nreview-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\\nreview-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\\n\\nreview-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\\n\\n> lattice@0.3.5 test:docs-drift-smoke\\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\\n\\ndocs-drift path+asset smoke passed\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2051}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":22,\"reason\":\"verificationIntent entries present (22)\"},\"verificationCoverage\":{\"total\":22,\"required\":22,\"covered\":22,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"ls docs/requirements/decisions/test-runner-consolidation-plan.md exits 0 -> file exists; WHY: primary deliverable existence check\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"ls docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"File exists.\",\"headHash\":\"72ab6bbbd3cc87c2aa91748d73a3ebf22ff07c6c\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:51:56.944Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -c \\\"^## \\\" docs/requirements/decisions/test-runner-consolidation-plan.md >= 4 -> doc has at least 4 H2 sections; WHY: enforces the 4 required sections contract (current state, paths considered, chosen path, follow-up)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"6 H2 sections (>= 4 required).\",\"headHash\":\"4370d7a65422a4bc14920b1aac2ebce664fe6b7f\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:51:57.627Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -q 151 the doc exits 0 -> pinned smoke count present; WHY: current-state section must contain the audited 151 smoke file count\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '151' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"'151' appears 2 times in the doc (smokes count pinned).\",\"headHash\":\"cf053941bb4145c8822eff5413a1e0507919827a\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:57:12.138Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -qE 70[,.]?280 the doc exits 0 -> pinned line count present (allowing comma or period separator); WHY: current-state section must contain ~70,280 lines figure\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '70,280' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"'70,280' appears 1 time (total lines pinned).\",\"headHash\":\"94b4f46a9bc22cb879233ca87e2d975df530c2ad\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:57:12.801Z\"}},{\"intentRef\":\"CHK-001:happy:4\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -q 258 the doc exits 0 -> pinned test:* script count present; WHY: current-state section must contain 258 test:* npm scripts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:4\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '258' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"'258' appears 4 times (test:* script count pinned).\",\"headHash\":\"16d4791354fa804b62234bf8687a7ac821f40083\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:57:13.456Z\"}},{\"intentRef\":\"CHK-001:happy:5\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -q 49 the doc exits 0 -> pinned verify script count present; WHY: current-state section must contain 49 verify scripts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:5\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '49' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"'49' appears 1 time (verify-*.mjs count pinned).\",\"headHash\":\"42104a435725ff185d2c0d26b5086d1dab62d8d8\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:57:14.097Z\"}},{\"intentRef\":\"CHK-001:happy:6\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -qiE (path.*A|option.*A|vitest) the doc exits 0 -> Path A (vitest) is named; WHY: paths-considered section must discuss vitest migration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:6\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -n 'Path A — Vitest' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"Path A (Vitest migration) named in section header.\",\"headHash\":\"26bb0e5c485a61bc089f4ebbecaa17cb7fb7b361\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:01.004Z\"}},{\"intentRef\":\"CHK-001:happy:7\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -qi in-house the doc exits 0 -> Path B (in-house runner) is named; WHY: paths-considered section must discuss the in-house runner option\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:7\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -n 'Path B — In-house' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"Path B (In-house runner + manifest + c8) named as chosen path.\",\"headHash\":\"c1b2202ba168d85185fda3073f71e0aa7c78255f\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:01.663Z\"}},{\"intentRef\":\"CHK-001:happy:8\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -qi testing-infra the doc exits 0 -> rationale references testing-infra.md; WHY: chosen-path rationale must explicitly reference the existing project-native validation policy\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:8\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c 'testing-infra' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"testing-infra.md referenced 6 times in rationale.\",\"headHash\":\"835343fc46ef6480ef78fce20a344fe974b47be5\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:02.303Z\"}},{\"intentRef\":\"CHK-001:happy:9\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"for B1 B2 B3 B4 grep each in the doc -> all four follow-up story IDs present; WHY: follow-up section must decompose into B1 B2 B3 B4\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:9\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE '^### B[1-4] ' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"4 follow-up section headers found: B1/B2/B3/B4.\",\"headHash\":\"d048ffdbb81034f5e078d8efb562103bd35bd0da\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:57:14.755Z\"}},{\"intentRef\":\"CHK-001:happy:10\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md produces at least 1 line -> file is committed; WHY: story requires a commit touching this path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:10\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"Doc has a commit in this branch (72ab6bbbd).\",\"headHash\":\"1139fdcd73d16d8a22ea9db3ba7823f1d981afde\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:03.767Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"section count boundary: grep -c ^## returns exactly 4 or more, never 3 -> catch off-by-one where a heading is missing or malformed (missing space after ##); WHY: boundary check on minimum section count\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"6 H2 sections (>= 4 required).\",\"headHash\":\"d5f381fc8a0e2f99737a4c5cb925006f55bf98ac\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:05.406Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"B4 is present even if marked optional -> grep -qi B4 exits 0; WHY: spec says B4 may be noted as optional but must still appear in the decomposition\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -n 'B4.*(optional)' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"B4 present and marked optional.\",\"headHash\":\"c3f82e3f47fa84dbb3ee40d3f9fe3d38f4840e6c\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:06.533Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"wc -l > 30 -> doc has substantive content not a stub; WHY: catch degenerate case where sections exist as headings but bodies are empty\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"wc -l docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"Doc is substantive (>30 lines; actual size ~200 lines).\",\"headHash\":\"9c870661ab01970149e2aa90bb9b75185e5063e3\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:07.705Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"grep -qi c8 the doc exits 0 -> c8 coverage tool is mentioned; WHY: Path B and C both involve c8; its absence means paths-considered is incomplete\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -n 'Path B — In-house' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"Path B (In-house runner + manifest + c8) named as chosen path.\",\"headHash\":\"0691a1fb1e511b06a228e72eedb23d00f28d0948\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:08.374Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"git diff main -- docs/requirements/decisions/testing-infra.md | wc -l returns 0 -> testing-infra.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff main -- docs/requirements/decisions/testing-infra.md | wc -l\",\"result\":\"pass\",\"note\":\"Returns 0 — testing-infra.md byte-identical to main (over-reach guard).\",\"headHash\":\"109538554304a97bfcc4b8f0a82a02a6cece1a75\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:57:15.417Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"git diff main -- docs/requirements/decisions/testing-completeness.md | wc -l returns 0 -> testing-completeness.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff main -- docs/requirements/decisions/testing-completeness.md\",\"result\":\"pass\",\"note\":\"Empty diff — testing-completeness.md byte-identical to main.\",\"headHash\":\"89ad3a7271aa8a6062340835f98c4b4d6c1f2fc7\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:09.677Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"git diff --name-only main -- packages/ | wc -l returns 0 -> no code files in packages/ touched; WHY: over-reach guard (c) ZERO code change story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff --name-only main -- packages\",\"result\":\"pass\",\"note\":\"Empty — no packages/ changes.\",\"headHash\":\"7076683eb977637f862a3cadc16cf1a0619e7aa3\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:10.320Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"git diff --name-only main -- package.json | wc -l returns 0 -> root package.json untouched; WHY: over-reach guard (c) no package.json edits allowed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff --name-only main -- 'package.json' 'packages/*/package.json'\",\"result\":\"pass\",\"note\":\"Empty — no package.json edits.\",\"headHash\":\"c140f6a32526e7b0028c6c489d6ce9aea74912e6\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:10.963Z\"}},{\"intentRef\":\"CHK-001:adversarial:4\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"git diff --name-only main -- scripts/ | wc -l returns 0 -> no scripts/ edits; WHY: over-reach guard (c) no scripts changes in a doc-only story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:4\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff --name-only main -- scripts\",\"result\":\"pass\",\"note\":\"Empty — no scripts/ edits.\",\"headHash\":\"8c86f32981a0313622d337ec03f55de2637a39f4\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:11.629Z\"}},{\"intentRef\":\"CHK-001:adversarial:5\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"git diff --name-only main -- docs/requirements/decisions/ | grep -v test-runner-consolidation-plan.md | wc -l returns 0 -> only the target file changed in decisions/; WHY: generalized over-reach guard catches edits to ANY other decision doc\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:5\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff --name-only main -- docs/requirements/decisions | grep -v test-runner-consolidation-plan\",\"result\":\"pass\",\"note\":\"Empty — only the new doc; no other decisions/ files modified.\",\"headHash\":\"26be68b867d54b469f1c98c8a527783e97570c79\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:12.314Z\"}},{\"intentRef\":\"CHK-001:adversarial:6\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"4-section minimum is a hard gate: count=$(grep -c ^## ...) test >= 4 -> ENFORCED; WHY: adversarial guard (d) if any section heading is deleted or renamed to H3 the contract must fail\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:6\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md\",\"result\":\"pass\",\"note\":\"6 H2 sections (>= 4 required).\",\"headHash\":\"f8c1afc0d953f8133535ae3a093c43c051913793\",\"materialHash\":\"100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc\",\"timestamp\":\"2026-06-16T23:52:12.984Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-17T00:03:45.359Z",
+  "headHash": "b65f85cceca4847b3cc31dc2bd8a1c1671bfc884",
+  "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+  "verificationCoverage": {
+    "total": 22,
+    "required": 22,
+    "covered": 22,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "ls docs/requirements/decisions/test-runner-consolidation-plan.md exits 0 -> file exists; WHY: primary deliverable existence check",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "ls docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "File exists.",
+          "headHash": "72ab6bbbd3cc87c2aa91748d73a3ebf22ff07c6c",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:51:56.944Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -c \"^## \" docs/requirements/decisions/test-runner-consolidation-plan.md >= 4 -> doc has at least 4 H2 sections; WHY: enforces the 4 required sections contract (current state, paths considered, chosen path, follow-up)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "6 H2 sections (>= 4 required).",
+          "headHash": "4370d7a65422a4bc14920b1aac2ebce664fe6b7f",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:51:57.627Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -q 151 the doc exits 0 -> pinned smoke count present; WHY: current-state section must contain the audited 151 smoke file count",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '151' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'151' appears 2 times in the doc (smokes count pinned).",
+          "headHash": "cf053941bb4145c8822eff5413a1e0507919827a",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:12.138Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -qE 70[,.]?280 the doc exits 0 -> pinned line count present (allowing comma or period separator); WHY: current-state section must contain ~70,280 lines figure",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '70,280' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'70,280' appears 1 time (total lines pinned).",
+          "headHash": "94b4f46a9bc22cb879233ca87e2d975df530c2ad",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:12.801Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:4",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -q 258 the doc exits 0 -> pinned test:* script count present; WHY: current-state section must contain 258 test:* npm scripts",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '258' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'258' appears 4 times (test:* script count pinned).",
+          "headHash": "16d4791354fa804b62234bf8687a7ac821f40083",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:13.456Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:5",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -q 49 the doc exits 0 -> pinned verify script count present; WHY: current-state section must contain 49 verify scripts",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '49' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'49' appears 1 time (verify-*.mjs count pinned).",
+          "headHash": "42104a435725ff185d2c0d26b5086d1dab62d8d8",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:14.097Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:6",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -qiE (path.*A|option.*A|vitest) the doc exits 0 -> Path A (vitest) is named; WHY: paths-considered section must discuss vitest migration",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Path A — Vitest' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Path A (Vitest migration) named in section header.",
+          "headHash": "26bb0e5c485a61bc089f4ebbecaa17cb7fb7b361",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:01.004Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:7",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -qi in-house the doc exits 0 -> Path B (in-house runner) is named; WHY: paths-considered section must discuss the in-house runner option",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:7",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Path B — In-house' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Path B (In-house runner + manifest + c8) named as chosen path.",
+          "headHash": "c1b2202ba168d85185fda3073f71e0aa7c78255f",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:01.663Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:8",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -qi testing-infra the doc exits 0 -> rationale references testing-infra.md; WHY: chosen-path rationale must explicitly reference the existing project-native validation policy",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:8",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'testing-infra' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "testing-infra.md referenced 6 times in rationale.",
+          "headHash": "835343fc46ef6480ef78fce20a344fe974b47be5",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:02.303Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:9",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "for B1 B2 B3 B4 grep each in the doc -> all four follow-up story IDs present; WHY: follow-up section must decompose into B1 B2 B3 B4",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:9",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE '^### B[1-4] ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "4 follow-up section headers found: B1/B2/B3/B4.",
+          "headHash": "d048ffdbb81034f5e078d8efb562103bd35bd0da",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:14.755Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:10",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md produces at least 1 line -> file is committed; WHY: story requires a commit touching this path",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:10",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Doc has a commit in this branch (72ab6bbbd).",
+          "headHash": "1139fdcd73d16d8a22ea9db3ba7823f1d981afde",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:03.767Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "section count boundary: grep -c ^## returns exactly 4 or more, never 3 -> catch off-by-one where a heading is missing or malformed (missing space after ##); WHY: boundary check on minimum section count",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "6 H2 sections (>= 4 required).",
+          "headHash": "d5f381fc8a0e2f99737a4c5cb925006f55bf98ac",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:05.406Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "B4 is present even if marked optional -> grep -qi B4 exits 0; WHY: spec says B4 may be noted as optional but must still appear in the decomposition",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'B4.*(optional)' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "B4 present and marked optional.",
+          "headHash": "c3f82e3f47fa84dbb3ee40d3f9fe3d38f4840e6c",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:06.533Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "wc -l > 30 -> doc has substantive content not a stub; WHY: catch degenerate case where sections exist as headings but bodies are empty",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "wc -l docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Doc is substantive (>30 lines; actual size ~200 lines).",
+          "headHash": "9c870661ab01970149e2aa90bb9b75185e5063e3",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:07.705Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "grep -qi c8 the doc exits 0 -> c8 coverage tool is mentioned; WHY: Path B and C both involve c8; its absence means paths-considered is incomplete",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Path B — In-house' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Path B (In-house runner + manifest + c8) named as chosen path.",
+          "headHash": "0691a1fb1e511b06a228e72eedb23d00f28d0948",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:08.374Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "git diff main -- docs/requirements/decisions/testing-infra.md | wc -l returns 0 -> testing-infra.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- docs/requirements/decisions/testing-infra.md | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — testing-infra.md byte-identical to main (over-reach guard).",
+          "headHash": "109538554304a97bfcc4b8f0a82a02a6cece1a75",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:15.417Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "git diff main -- docs/requirements/decisions/testing-completeness.md | wc -l returns 0 -> testing-completeness.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- docs/requirements/decisions/testing-completeness.md",
+          "result": "pass",
+          "note": "Empty diff — testing-completeness.md byte-identical to main.",
+          "headHash": "89ad3a7271aa8a6062340835f98c4b4d6c1f2fc7",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:09.677Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "git diff --name-only main -- packages/ | wc -l returns 0 -> no code files in packages/ touched; WHY: over-reach guard (c) ZERO code change story",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- packages",
+          "result": "pass",
+          "note": "Empty — no packages/ changes.",
+          "headHash": "7076683eb977637f862a3cadc16cf1a0619e7aa3",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:10.320Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "git diff --name-only main -- package.json | wc -l returns 0 -> root package.json untouched; WHY: over-reach guard (c) no package.json edits allowed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- 'package.json' 'packages/*/package.json'",
+          "result": "pass",
+          "note": "Empty — no package.json edits.",
+          "headHash": "c140f6a32526e7b0028c6c489d6ce9aea74912e6",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:10.963Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:4",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "git diff --name-only main -- scripts/ | wc -l returns 0 -> no scripts/ edits; WHY: over-reach guard (c) no scripts changes in a doc-only story",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- scripts",
+          "result": "pass",
+          "note": "Empty — no scripts/ edits.",
+          "headHash": "8c86f32981a0313622d337ec03f55de2637a39f4",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:11.629Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:5",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "git diff --name-only main -- docs/requirements/decisions/ | grep -v test-runner-consolidation-plan.md | wc -l returns 0 -> only the target file changed in decisions/; WHY: generalized over-reach guard catches edits to ANY other decision doc",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- docs/requirements/decisions | grep -v test-runner-consolidation-plan",
+          "result": "pass",
+          "note": "Empty — only the new doc; no other decisions/ files modified.",
+          "headHash": "26be68b867d54b469f1c98c8a527783e97570c79",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:12.314Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:6",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "4-section minimum is a hard gate: count=$(grep -c ^## ...) test >= 4 -> ENFORCED; WHY: adversarial guard (d) if any section heading is deleted or renamed to H3 the contract must fail",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "6 H2 sections (>= 4 required).",
+          "headHash": "f8c1afc0d953f8133535ae3a093c43c051913793",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:12.984Z"
+        }
+      }
+    ]
+  }
+}

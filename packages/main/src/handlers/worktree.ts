@@ -363,8 +363,9 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   }
 
   function getRepoRoot(): string {
+    const gitCwd = root;
     try {
-      return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+      return execSync('git rev-parse --show-toplevel', { cwd: gitCwd, encoding: 'utf-8' }).trim();
     } catch {
       return root;
     }

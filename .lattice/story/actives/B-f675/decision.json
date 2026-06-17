@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Never weaken review integrity: the gate and bindings stay byte-for-byte unchanged; the framework never skips a reviewer.",
+    "Surface information, let the human decide: expose scope-change + the already-existing round-2+ leniency, do not automate skipping.",
+    "Reuse existing round/diff/headHash machinery; do not duplicate or fork gate logic.",
+    "Stay read-only and additive: a helper, a CLI, and an advisory line -- nothing that can alter a transition result."
+  ],
+  "drivers": [
+    "Re-review rounds re-analyze the whole diff from scratch even when little changed since a reviewer last passed.",
+    "The round-2+ gate is already lenient (>=1 receipt), but operators do not know it and there is no signal of which reviewers' scope changed.",
+    "All inputs (bound headHash, changed-files-between) already exist, so this is cheap and additive."
+  ],
+  "options": [
+    {
+      "name": "Option 2 merged: incremental context helper + round-2+ informed targeted re-review guidance",
+      "pros": [
+        "Zero added under-review risk: gate unchanged, no reviewer ever skipped by the framework.",
+        "Cuts real cost: cheaper per-reviewer re-runs AND unlocks the already-legal round-2+ targeted path with information support.",
+        "Small, read-only, additive surface."
+      ],
+      "cons": [
+        "Targeted re-review stays an operator judgement (same under-review responsibility as today).",
+        "Saving is per-reviewer work + informed operator choice, not framework automation."
+      ]
+    },
+    {
+      "name": "Skip variant: framework carries forward unaffected reviewers",
+      "pros": [
+        "Largest automation: the framework itself skips reviewers whose scope did not change."
+      ],
+      "cons": [
+        "Irreducible under-review risk: an LLM reviewer's true dependency set is not statically provable, so a wrong scope guess silently ships a regression.",
+        "Requires changing the gate / binding semantics and an audited carry-forward path."
+      ]
+    },
+    {
+      "name": "Do nothing: rely on converge-fixes discipline + the B-cfdd advisory",
+      "pros": [
+        "Zero code."
+      ],
+      "cons": [
+        "Each re-run still redoes full analysis; the round-2+ leniency stays hidden, so operators keep over-running reviewers."
+      ]
+    }
+  ],
+  "chosen": "Option 2 merged: incremental context helper + round-2+ informed targeted re-review guidance",
+  "rationale": "Option 2 cuts the real re-review cost with a read-only, gate-unchanged, additive change and zero added under-review risk, while unlocking an already-legal round-2+ path with information support. The skip variant is rejected because its under-review risk cannot be reduced to zero (LLM dependency sets are not statically provable). Do-nothing leaves redundant full re-analysis and a hidden leniency.",
+  "preMortem": [
+    {
+      "scenario": "The advisory or helper is mistaken for a framework instruction to skip reviewers, leading to under-review.",
+      "trigger": "The wording implies the framework decides which reviewers to skip.",
+      "consequence": "An operator skips a reviewer that should have re-run; a regression ships.",
+      "mitigation": "Word the advisory explicitly as an operator judgement ('you MAY', 'the framework skips nobody, this is your call'); the gate is unchanged so a genuinely-needed reviewer's absence still surfaces via the normal round-1/blocking-finding paths; CHK-003 asserts the gate is untouched."
+    },
+    {
+      "scenario": "The helper accidentally mutates state or affects a transition (not truly read-only).",
+      "trigger": "The CLI or transition-effects injection writes or throws.",
+      "consequence": "A read-only feature changes gate/transition behavior.",
+      "mitigation": "Implement the helper as a pure read over the store; inject the advisory in a try/catch append-only block (like B-cfdd); CHK-003 asserts canPassReviewGuard behaves identically with and without the helper."
+    },
+    {
+      "scenario": "scopeChanged is computed wrongly (renames/moves missed, or wrong baseline commit), misleading the operator.",
+      "trigger": "Using plain --name-only without -M, or diffing from the wrong headHash.",
+      "consequence": "The operator re-runs the wrong set, or wrongly believes nothing changed.",
+      "mitigation": "Diff from the reviewer's recorded last-pass headHash using --name-status -M (rename-aware), reusing evidence-freshness.changedFilesBetween; fall back to full diff when no prior pass; cover a rename case in the smoke."
+    }
+  ],
+  "timestamp": "2026-06-17T00:46:05.284Z"
+}
