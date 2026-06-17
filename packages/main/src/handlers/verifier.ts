@@ -42,7 +42,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
-import { resolveGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
 import {
@@ -323,8 +323,12 @@ export async function runCommand(
   };
 }
 
-function currentHead(projectRoot: string): string | undefined {
-  const gitCwd = projectRoot;
+// B-75f0 CHK-002: `gitCwd` is the resolved git working dir (resolveGitCwd at the
+// caller, which has store+storyId in scope). On a wrapper-root layout it is the
+// real gitRoot subdir; on a plain repo it is the projectRoot verbatim. The
+// `undefined` fallback on any git failure is preserved (graceful degradation:
+// callers treat a missing head as "no head hash", never crash).
+function currentHead(gitCwd: string): string | undefined {
   try {
     return execSync('git rev-parse HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch {
@@ -346,7 +350,8 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
     try { decision = ctx.store.readDecision(storyId); } catch { /* no decision for express/fast stories */ }
     verificationPolicy = resolveVerificationIntentPolicy(story, cl, decision);
     const effectivePolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
-    const head = currentHead(ctx.root);
+    const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    const head = currentHead(gitCwd);
     coverage = buildVerificationCoverage(
       cl,
       head,
@@ -415,7 +420,8 @@ function evaluateValidationAuthorityGate(
   const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
   if (settings.mode === 'off') return undefined;
   const targetPhase = 'TEST';
-  const headHash = currentHead(ctx.root);
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const headHash = currentHead(gitCwd);
   const materialHash = currentMaterialHash(ctx.root);
   const baseAllPass = Boolean(result.allPass ?? result.status === 'pass');
   if (!headHash || !materialHash) {
@@ -513,7 +519,8 @@ function resolveStoryVerificationPolicy(ctx: HandlerContext, storyId: string) {
 function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, result: any, command: string): void {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
-  const headHash = currentHead(ctx.root) ?? result.headSha ?? result.headHash;
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const headHash = currentHead(gitCwd) ?? result.headSha ?? result.headHash;
   const materialHash = currentMaterialHash(ctx.root);
   ctx.store.writeTestEvidence(storyId, {
     command,
@@ -586,6 +593,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         args.story = sid;
       }
       const projectRoot = ctx.root;
+      // B-75f0 CHK-002: resolve the git working dir once at handler entry so every
+      // headSha read below (currentHead / `git rev-parse --short HEAD`) runs from
+      // the REAL gitRoot on a wrapper-root layout. With a real --story use the
+      // id-keyed resolveGitCwd; otherwise the id-independent project-level resolver.
+      // Both fall back to projectRoot verbatim when no gitRoot resolves, so plain
+      // repos stay byte-identical and the existing `undefined`/not-git graceful
+      // degradation of each reader is preserved.
+      const handlerGitCwd = args.story
+        ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot })
+        : resolveProjectGitCwd(projectRoot, projectRoot);
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
         if (!args.noSync) {
@@ -679,7 +696,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             warnings: [
               '这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。',
             ],
-            headSha: currentHead(projectRoot),
+            headSha: currentHead(handlerGitCwd),
           });
           const decorated = args.story ? decorateStoryVerification(ctx, args.story, base) : base;
           if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
@@ -697,7 +714,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
           commands,
           warnings: [],
-        }, projectRoot, currentHead(projectRoot), args.story);
+        }, projectRoot, currentHead(handlerGitCwd), args.story);
         for (const cmd of commands) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
@@ -781,7 +798,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           warnings: isBlocking ? [
             'Validation side effects are not auto-restored because tracked snapshots/docs may be legitimate review artifacts.',
           ] : [],
-          headSha: currentHead(projectRoot),
+          headSha: currentHead(handlerGitCwd),
           commands: [commandResult],
         });
         const decorated = args.story ? decorateStoryVerification(ctx, args.story, polluted) : polluted;
@@ -803,10 +820,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         // If validate.ts doesn't support --json yet, wrap the output
         let headSha: string | undefined;
-        const headShaGitCwd = projectRoot;
         try {
-          headSha = execSync('git rev-parse --short HEAD', { cwd: headShaGitCwd, encoding: 'utf-8' }).trim();
-        } catch { /* not git */ }
+          headSha = execSync('git rev-parse --short HEAD', { cwd: handlerGitCwd, encoding: 'utf-8' }).trim();
+        } catch { /* not git — graceful: headSha stays undefined */ }
 
         const wrapped = {
           provider: 'lattice-verifier',
@@ -827,7 +843,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       if (args.story) {
         try {
           const cl = ctx.store.readChecklist(args.story);
-          const head = currentHead(projectRoot);
+          const head = currentHead(handlerGitCwd);
           const story = ctx.store.readStory(args.story);
           const effectivePolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
           const coverage = buildVerificationCoverage(

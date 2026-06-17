@@ -9,6 +9,7 @@ import {
   renderDirtyWorktreeGroups,
 } from './dirty-worktree.js';
 import { StoryStore } from './store.js';
+import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import type {
   ValidationCommand,
@@ -50,10 +51,16 @@ function trimOutput(output: string): string {
   return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
 }
 
-function readGitStatus(projectRoot: string): string[] | null {
+// B-75f0 CHK-002: `gitCwd` is the resolved git working dir (runValidationCommand
+// resolves it via resolveProjectGitCwd). On a wrapper-root layout it is the real
+// gitRoot subdir so the dirty-status probe reads the actual repo; on a plain repo
+// (or when no gitRoot resolves) it is the passed projectRoot verbatim. The `null`
+// fallback on any git failure is preserved (the side-effect guard is only
+// available inside git worktrees; outside one it degrades to null, never crash).
+function readGitStatus(gitCwd: string): string[] | null {
   try {
     const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -145,7 +152,18 @@ export function formatWorktreePollutionDetails(
 export function runValidationCommand(command: ValidationCommand, projectRoot: string): Promise<ValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
-  const statusBefore = readGitStatus(projectRoot);
+  // B-75f0 CHK-002: no storyId in scope here (runValidationCommand takes only
+  // projectRoot), so resolve the dirty-status probe cwd with the id-independent
+  // project-level resolver — config loaded so a configured gitRoot subdir on a
+  // wrapper-root layout is honored. Plain repos / unresolved → projectRoot
+  // verbatim (byte-identical).
+  let statusGitCwd: string;
+  try {
+    statusGitCwd = resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
+  } catch {
+    statusGitCwd = projectRoot;
+  }
+  const statusBefore = readGitStatus(statusGitCwd);
 
   return new Promise((resolveResult) => {
     let output = '';
@@ -158,7 +176,7 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
       settled = true;
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
-      const statusAfter = readGitStatus(projectRoot);
+      const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       resolveResult({
         label: command.label,

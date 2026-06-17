@@ -144,16 +144,12 @@ const DEFERRED_ALLOWLIST_EXACT = new Set<string>([
   //    a git cwd without resolveGitCwd (the exact d93b69b8f shape). Not in this
   //    story's allowed paths; each needs its own caller to thread a resolved gitCwd.
   'packages/lab/src/core/sandbox.ts',
-  'packages/main/src/core/codex-adapter-checks.ts',
-  'packages/main/src/core/lattice-handoff.ts',
   'packages/main/src/core/review-run.ts',
   'packages/main/src/core/rollout-check.ts',
   'packages/main/src/handlers/done-effects.ts',
-  'packages/main/src/handlers/init-check.ts',
   'packages/main/src/handlers/review-run.ts',
   'packages/main/src/handlers/session.ts',
   'packages/main/src/handlers/test-auto.ts',
-  'packages/main/src/handlers/verifier.ts',
   'packages/main/src/handlers/worktree.ts',
   'packages/main/src/tasks/trace-store.ts',
   // ── Bare-root backtick git calls (BLIND SPOT B) outside this story's safely-
@@ -183,11 +179,8 @@ const DEFERRED_ALLOWLIST_EXACT = new Set<string>([
   //    and outside the confirmed wrapper-root DONE/authority blast radius.
   //    FOLLOW-UP (TODO B-6666 → B-99b6 burndown): thread resolveGitCwd into each.
   'packages/main/src/core/stale-detector.ts',          // detectActiveStoryId branch probe
-  'packages/main/src/core/touchpoints-fallback.ts',    // detectMdTouchpointsFromGit diff
-  'packages/main/src/core/validation-executor.ts',     // readGitStatus porcelain
   'packages/main/src/handlers/codex-adapter.ts',       // detectStoryIdFromBranch
   'packages/main/src/handlers/fixture.ts',             // inferStoryIdFromGit
-  'packages/main/src/handlers/recover-evidence.ts',    // readGitStatusLines porcelain
   // session.ts is ALSO in the alias batch above; its :265 listActiveWorktrees is
   // an inline-arg literal bare-root probe (same deferral) — single entry covers both.
 ]);

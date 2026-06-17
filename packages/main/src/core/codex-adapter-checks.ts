@@ -16,6 +16,8 @@ import {
   summarizeAgentAssetResolution,
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
+import { loadConfig } from './config.js';
+import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
   readPromptRegistry,
@@ -133,8 +135,13 @@ function collectMaterialFiles(root: string, rel: string): string[] {
     .flatMap((child) => collectMaterialFiles(root, join(rel, child)));
 }
 
-function readGitHead(root: string): string {
-  const gitCwd = root;
+// B-75f0 CHK-002: `gitCwd` is the resolved git working dir (the caller computes
+// it via resolveProjectGitCwd). On a wrapper-root layout it is the real gitRoot
+// subdir so the snapshot's head hash reflects the actual repo; on a plain repo
+// (or when no gitRoot resolves) it is the passed root verbatim. The `'unknown'`
+// fallback on any git failure is preserved (temporary projects / unpacked
+// packages that are not git worktrees still degrade gracefully).
+function readGitHead(gitCwd: string): string {
   try {
     return execFileSync('git', ['rev-parse', 'HEAD'], {
       cwd: gitCwd,
@@ -149,6 +156,18 @@ function readGitHead(root: string): string {
 }
 
 export function computeCodexAdapterMaterialSnapshot(root: string): CodexAdapterMaterialSnapshot {
+  // B-75f0 CHK-002: this snapshot is id-independent (no storyId in scope), so
+  // resolve the git cwd with the id-independent project-level resolver. On a
+  // wrapper-root layout it resolves the REAL gitRoot (configured-gitRoot subdir
+  // or metadata git toplevel — config is loaded so a configured subdir is
+  // honored) so the head hash reflects the actual repo; on a plain repo (or when
+  // no gitRoot resolves) it returns `root` verbatim, byte-identical to before.
+  let gitCwd: string;
+  try {
+    gitCwd = resolveProjectGitCwd(root, root, loadConfig(root));
+  } catch {
+    gitCwd = root;
+  }
   const files = Array.from(new Set(CODEX_MATERIAL_PATHS.flatMap((rel) => collectMaterialFiles(root, rel))))
     .sort((a, b) => a.localeCompare(b));
   const hash = createHash('sha256');
@@ -168,7 +187,7 @@ export function computeCodexAdapterMaterialSnapshot(root: string): CodexAdapterM
     hash.update('\n');
   }
   return {
-    headHash: readGitHead(root),
+    headHash: readGitHead(gitCwd),
     materialHash: hash.digest('hex'),
     files,
   };
