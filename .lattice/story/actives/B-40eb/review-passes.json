@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-40eb:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness verified for B-40eb koala branding removal. Grep scope: packages/lab/src, packages/main/src, packages/utils/src, scripts, CLAUDE.md, docs/guide.md. All remaining koala references in active source fall into documented-exception categories: (1) wire-format schema IDs koala.*.v1 — explicit exception; (2) legacy detection/cleanup logic in managed-assets.ts and cli-init.ts including (koala|lattice):start regex, koala-*.md cleanup patterns, .claude/skills/koala removal — explicit exception; (3) pre-existing (unchanged by this story) files such as canonical-story.ts (host: koala-cli / source: koala-story-store wire-format), authority-runner-events-smoke.ts (vendor: koala test fixture), evidence-freshness.ts, lattice-baseline-smoke.ts, gap-log.ts default agent koala-gap-log — these files were not changed by this story and are pre-existing out-of-scope; (4) test assertion fixtures that assert koala is absent or that koala.config.json is ignored; (5) koala-env / koala-override session-source wire labels; (6) legacy runtime paths (.koala, koala-debug.log, koala-tmp). No half-removed or orphaned state found in the 128 files changed by this story. The koala-lab → lattice-lab rename in packages/lab/src was complete (zero brand hits remain except koala-lab/experiment.v1 wire schema). The CLAUDE.md and docs/guide.md prose removals are clean with no dangling references introduced. 0 findings filed.",
+      "createdAt": "2026-06-17T02:24:33.265Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-002",
+      "_hash": "029c92dbe0e3784e0662744acdf72027008328179967cf0f834bf9ced69afbf8"
+    },
+    {
+      "id": "B-40eb:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Dead code check: no unused imports introduced in changed files. cli-init.ts removed symlinkSync/readlinkSync from imports after the symlink→thin-shim pivot; remaining imports (lstatSync, readdirSync) are used. managed-assets.ts new imports (rmSync, listManagedAgentBasenames, resolveAgentTemplateDir) are all used. doctor.ts new imports (AGENT_ASSET_MODE_RUNTIME_OWNED, scanProjectLocalManagedAgents) are all used. Type safety: no new unnecessary `as any` beyond the established handler registry pattern (Record<string, (...args: any[]) => any>). Error handling in global-agents.ts is explicit with clear messages; catch blocks in managed-assets.ts scanProjectLocalManagedAgents/migrateProjectLocalManagedAgents are intentional probe-pattern (documented). I/O isolation: no shell/main files import fn.ts directly. KoalaFlowConfig rename to LatticeFlowConfig is complete with no dangling refs. Documented exceptions are correctly preserved: idleKoala field, koala legacy alias/detection logic, KOALA_* env vars, .koala runtime paths, process-lane names, koala-gap-log persisted default, legacyKoalaAliasPreserved. Functional rename of audit-scan.ts regex (koala→lattice) is correct. .Codex→.lattice-codex rename is complete in all changed source/handler/task/fixture files. FOUR high findings registered (F-005 through F-008): scripts verify-lab-scoring-core.mjs, verify-lab-normalized-score.mjs, verify-lab-reviewer-mvp.mjs, and verify-product-reviewer.mjs still reference .Codex/agents/ paths after lab/src/core/config.ts was updated to resolve .lattice-codex/agents/ — these four verify scripts will fail at runtime.",
+      "createdAt": "2026-06-17T02:25:04.175Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-001",
+      "_hash": "d51a4f37372928532c51d35327b9b6ce034ead22f6b0b82e9c37dec913cc6c30"
+    },
+    {
+      "id": "B-40eb:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "ROUND 2 re-verification of F-005, F-006, F-007, F-008: config.ts lines 36-37 have been reverted to .Codex/agents/test-case-reviewer.md and .Codex/agents/test-intent.md (not .lattice-codex). All four scripts (verify-lab-scoring-core.mjs, verify-lab-normalized-score.mjs, verify-lab-reviewer-mvp.mjs, verify-product-reviewer.mjs) consistently use .Codex as confirmed by grep. git grep -n lattice-codex -- packages/ scripts/ returns no hits in the scope of these files. The root-cause inconsistency is fully resolved. No new issues introduced by the fix commit. Dead code: none. Type safety: none. I/O shell isolation: not applicable (lab scripts are not shell files). All four prior findings are disproven by this re-verification.",
+      "createdAt": "2026-06-17T02:44:28.923Z",
+      "reviewRound": "2026-06-17T02:41:55.130Z",
+      "reviewRunId": "B-40eb:RR-004",
+      "_hash": "a2b5f81701a34aa4792f8b1e3b26b11ba533a7c3948f52597cd845beaac69f1f"
+    },
+    {
+      "id": "B-40eb:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2 re-verification): F-001 resolved — CHK-001 edge/adversarial must intents now bound to node scripts/verify-koala-residue.mjs --self-test with 5 inline classify() unit tests, each with specific input fixture and asserted return value (UNCLASSIFIED/EXEMPT), 5/5 PASS; F-002 resolved — CHK-007:adversarial:0 now has EMPIRICAL evidence: staged probe file with koala brand triggered gate exit 1 naming packages/main/src/__residue_probe__.ts, git rm + rerun → exit 0; F-003 resolved — CHK-003:happy:0 and CHK-004:happy:0 evidence rebound to committed scripts/verify-koala-residue.mjs, /tmp/bf2.pl no longer referenced; F-004 resolved — CHK-005:adversarial:0 has EMPIRICAL allowlist mutation evidence: removing managed-assets.ts from LEGACY_LOGIC_FILES caused gate exit 1 with 16 hits, restoring → exit 0, proving guard is not vacuous. All four must-intents that were blocked in round 1 are now covered by durable, reproducible, committed gate evidence. No new blocker found.",
+      "createdAt": "2026-06-17T02:44:43.194Z",
+      "reviewRound": "2026-06-17T02:41:55.130Z",
+      "reviewRunId": "B-40eb:RR-006",
+      "_hash": "abcc35cb6c728facddb84674dc8082752272b8d070feb0e4c37417eb74cc11bf"
+    },
+    {
+      "id": "B-40eb:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "ROUND 2 re-confirmation: two changes landed since RR-004 pass. (1) packages/lab/src/core/config.ts reverted .lattice-codex→.Codex — this is a Codex tool path with zero koala branding; grep on config.ts shows only the pre-existing koala-lab/experiment.v1 schema ID which is already a documented exemption in the gate script. (2) scripts/verify-koala-residue.mjs added — all koala references in this file are classify() exemption patterns and test strings, not brand residue; self-test 5/5 passes and full scan exits 0 with 0 unclassified residue. No new half-removed concept state introduced. Concept-deletion completeness re-confirmed: no blocker.",
+      "createdAt": "2026-06-17T02:45:20.559Z",
+      "reviewRound": "2026-06-17T02:41:55.130Z",
+      "reviewRunId": "B-40eb:RR-005",
+      "_hash": "ffc669e3db089464bd6e78f9517ad9533504462164779cceffdddb20648d4755"
+    },
+    {
+      "id": "B-40eb:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 incremental re-confirmation: two changes landed since round 2 — (1) .Codex->.lattice-codex path forward-fix in config.ts + 5 scripts (Codex dir rename, no koala involvement), (2) English-only translation of story artifacts (.lattice/story/actives/B-40eb/ metadata only). Neither change touches any source/scripts/docs under koala brand scope. Verified: git show of commits 501dcf954 and 38139e0f1+d8e22fe3e introduces zero new koala-brand lines in packages/, scripts/, CLAUDE.md, or docs/guide.md. No new half-removed koala state. Koala-branding-removal concept completeness from rounds 1 and 2 still holds.",
+      "createdAt": "2026-06-17T12:08:35.507Z",
+      "reviewRound": "2026-06-17T12:06:45.973Z",
+      "reviewRunId": "B-40eb:RR-009",
+      "_hash": "05bc82871854bfbf5dc77d877f994e15b140862506b51935563c896bd0726aa7"
+    },
+    {
+      "id": "B-40eb:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Incremental round 3 check: commit 501dcf954 correctly replaces all .Codex/agents/ with .lattice-codex/agents/ in the 6 changed files (packages/lab/src/core/config.ts + 5 scripts). git grep -n .Codex/agents -- packages/lab scripts returns empty (exit 1). The real .lattice-codex/agents/ directory exists on disk with all required files (test-case-reviewer.md, product-reviewer.md, implementation-reviewer.md confirmed). The residual .Codex/agents refs in packages/main/src/tasks/prompt-registry-smoke.ts:90,92 and packages/main/tests/fixtures/product-reviewer.json:7,39 are pre-existing on main branch, not introduced by this branch (git diff main...HEAD shows no change to these files). The prompt-registry-smoke.ts usage is existsSync-guarded so it only fires if .Codex/agents/ exists on disk (it does not); the fixture is hard-rule-protected. Neither file is in scope for this incremental change. The .Codex/ directory on disk only contains hooks/ and hooks.json (Codex CLI hook dir), consistent with .Codex/agents/ not being a valid target. Findings F-005 through F-008 (the .Codex/agents path mismatch in lab+scripts) are resolved by this commit. No new quality issues introduced by the two incremental changes (forward fix commit + english-artifacts metadata commit). No new findings raised.",
+      "createdAt": "2026-06-17T12:08:49.772Z",
+      "reviewRound": "2026-06-17T12:06:45.973Z",
+      "reviewRunId": "B-40eb:RR-007",
+      "_hash": "fc3606d89755ccd0d2a083fb8a2c1923b748161a409df777ed0f0570d6ba7338"
+    },
+    {
+      "id": "B-40eb:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Round 3 incremental: (1) .Codex->.lattice-codex forward-fix in config.ts+scripts does not touch any evidence binding — scripts/verify-koala-residue.mjs runs PASS exit 0 and --self-test 5/5 PASS on the post-fix HEAD; (2) English-only translation changed only artifact prose fields (title/context/notes/background/plan/understanding) — intentRef, command, result fields on all 29 must-covered evidence entries are UNCHANGED; missingRequired=0 (29/29 must intents covered); 11 should-priority gaps are pre-existing advisory items carried from RP-004, none are new.",
+      "createdAt": "2026-06-17T12:08:54.032Z",
+      "reviewRound": "2026-06-17T12:06:45.973Z",
+      "reviewRunId": "B-40eb:RR-008",
+      "_hash": "1ef9d290a3a6dc959f5cda8db837822944bfc18f381f63a44047bf2f12153a9e"
+    }
+  ]
+}

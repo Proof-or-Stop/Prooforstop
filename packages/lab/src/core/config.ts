@@ -1,11 +1,11 @@
 /**
  * @task B-9ba3
  * @checklist CHK-001
- * @title koala-lab config defaults define the safe offline baseline
+ * @title lattice-lab config defaults define the safe offline baseline
  * @type feature
  * @priority high
  * @description
- *   koala-lab 第一版的价值在于“默认安全”，不是让实验无限自由。这里集中生成
+ *   lattice-lab 第一版的价值在于“默认安全”，不是让实验无限自由。这里集中生成
  *   experiment.json 的安全默认值，并拒绝任何试图把 story/fixture 变更打开的
  *   配置，保证离线优化模块从一开始就和正式流程隔离。
  * @changes
@@ -39,7 +39,7 @@ function defaultTarget(targetId: string, editableFiles?: string[]): LabTargetCon
   };
   const resolved = defaults[targetId];
   if (!resolved) {
-    throw new Error(`未知 koala-lab target: ${targetId}`);
+    throw new Error(`未知 lattice-lab target: ${targetId}`);
   }
   return {
     kind: 'prompt',
@@ -129,15 +129,15 @@ export function buildExperimentConfig(args: {
 
 export function validateExperimentConfig(config: LabExperimentConfig): void {
   if (config.mode !== 'offline') {
-    throw new Error(`koala-lab 第一版仅支持 offline 模式，当前收到: ${config.mode}`);
+    throw new Error(`lattice-lab 第一版仅支持 offline 模式，当前收到: ${config.mode}`);
   }
   if (config.candidatePolicy.allowStoryMutation || config.candidatePolicy.allowFixtureMutation) {
-    throw new Error('koala-lab 第一版不允许打开 allowStoryMutation / allowFixtureMutation');
+    throw new Error('lattice-lab 第一版不允许打开 allowStoryMutation / allowFixtureMutation');
   }
   if (config.candidatePolicy.allowDocsStoryMutation || config.candidatePolicy.allowTestsFixturesMutation) {
-    throw new Error('koala-lab 第一版不允许修改 docs/story 或 tests/fixtures');
+    throw new Error('lattice-lab 第一版不允许修改 docs/story 或 tests/fixtures');
   }
   if (config.target.editableFiles.length === 0) {
-    throw new Error('koala-lab 目标至少需要一个 editableFiles 入口');
+    throw new Error('lattice-lab 目标至少需要一个 editableFiles 入口');
   }
 }

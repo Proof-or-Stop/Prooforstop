@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const repoRoot = process.cwd();
-const cli = join(repoRoot, 'bin', 'koala.js');
+const cli = join(repoRoot, 'bin', 'lattice.js');
 const mode = process.argv[2] || 'all';
 
 function assert(condition, message) {
@@ -28,11 +28,11 @@ function parseCliJson(text) {
 }
 
 function createProject(filePath, content, id, profile) {
-  const root = mkdtempSync(join(tmpdir(), 'koala-lab-flow-profile-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-lab-flow-profile-'));
   mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(root, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(root, filePath, '..'), { recursive: true });
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -46,8 +46,8 @@ function createProject(filePath, content, id, profile) {
   writeFileSync(join(root, 'README.md'), '# temp\n');
   writeFileSync(join(root, filePath), content);
   execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Koala Lab Test'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'koala-lab@example.com'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'Lattice Lab Test'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'lattice-lab@example.com'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   run(root, ['lab', 'create', JSON.stringify({ id, target: id, profile, editableFiles: [filePath] })]);
@@ -60,14 +60,14 @@ function runAndCompare(root, id) {
 }
 
 const sessionWeak = [
-  '# koala session brief',
+  '# lattice session brief',
   '**Story**: B-test',
   '**Phase**: DEV',
   '## Checklist (1/3 done)',
 ].join('\n');
 
 const sessionStrong = [
-  '# koala session brief',
+  '# lattice session brief',
   '**Story**: B-test',
   '**Phase**: TEST_CASE_REVIEW',
   '## Checklist (3/3 done)',
@@ -118,7 +118,7 @@ const cases = {
   'session-edge': () => {
     const root = createProject('samples/session-brief.txt', sessionWeak, 'lab-session-brief-quality-v1', 'session-brief-quality-v1');
     try {
-      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# koala session brief\n## → Next step\n  continue\n');
+      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# lattice session brief\n## → Next step\n  continue\n');
       const compare = runAndCompare(root, 'lab-session-brief-quality-v1');
       assert(compare.best.contentSummary.some((item) => item === 'missing reviewerStatus'), 'missing reviewer status should be summarized');
     } finally {
@@ -196,7 +196,7 @@ const cases = {
   'compare-adversarial': () => {
     const root = createProject('samples/session-brief.txt', sessionWeak, 'lab-session-brief-quality-v1', 'session-brief-quality-v1');
     try {
-      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# koala session brief\n**Story**: B-test\n**Phase**: DEV\n');
+      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# lattice session brief\n**Story**: B-test\n**Phase**: DEV\n');
       const compare = runAndCompare(root, 'lab-session-brief-quality-v1');
       assert(compare.best.contentSummary.some((item) => item === 'missing nextStep'), 'compare should reveal missing nextStep even if score changes');
     } finally {

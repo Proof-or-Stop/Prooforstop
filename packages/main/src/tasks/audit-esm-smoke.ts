@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runMechanicalAudit } from '../core/audit-scan.js';
 
-const root = mkdtempSync(join(tmpdir(), 'koala-audit-esm-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-audit-esm-'));
 
 try {
   const mdPath = join(root, 'CLAUDE.md');
@@ -13,7 +13,7 @@ try {
     '',
     '```bash',
     'lattice validate --json',
-    'koala missing_cmd',
+    'lattice missing_cmd',
     '```',
     '',
   ].join('\n'), 'utf-8');
@@ -28,7 +28,7 @@ try {
   });
 
   assert.equal(
-    report.drifts.some(d => d.symbol === 'koala missing_cmd' && d.driftType === 'missing-command'),
+    report.drifts.some(d => d.symbol === 'lattice missing_cmd' && d.driftType === 'missing-command'),
     true,
     'registry docs-drift branch should complete and preserve missing command drift',
   );

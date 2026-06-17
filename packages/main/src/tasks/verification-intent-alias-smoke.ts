@@ -77,9 +77,9 @@ parseTool('verification_evidence_refresh_stale', {
 const summary = parseTool('summary_set', {
   storyId: 'B-smoke',
   changes: 'User-visible change summary',
-  usage: 'Run koala next to see the current next step',
+  usage: 'Run lattice next to see the current next step',
   expectedOutcome: 'User sees a precise next action in the terminal',
-  actualTranscript: 'koala next prints the precise next action',
+  actualTranscript: 'lattice next prints the precise next action',
   outcomeDiff: 'No user-visible difference remains',
   acceptanceVerdict: 'accepted',
   limitations: 'none — fully covered',

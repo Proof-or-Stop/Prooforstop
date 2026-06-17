@@ -33,12 +33,12 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
   }
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-init-required-agents-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-init-required-agents-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

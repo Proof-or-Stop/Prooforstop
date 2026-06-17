@@ -82,7 +82,7 @@ export function ensureMetaStory(store: StoryStore): { created: boolean; storyId:
   const story: StoryInfo = {
     storyId: META_STORY_ID,
     name: 'framework-audit',
-    title: 'koala framework introspection audit (cross-story long-lived container)',
+    title: 'lattice framework introspection audit (cross-story long-lived container)',
     description:
       'Meta-story container introduced by B-9bd9: carries drift findings for "CLAUDE.md promises vs actual code behavior". ' +
       'Each audit appends a new round, drift hash provides stable signature to prevent duplicates; this story never advances to DONE.',

@@ -116,7 +116,7 @@ assert.ok(list.categories.some(c => c.id === 'prewrite-guard'), 'prewrite-guard 
 
 // Human output is present and useful.
 const text = renderCapabilityListText(list);
-assert.match(text, /Koala capability profiles/);
+assert.match(text, /Lattice capability profiles/);
 assert.match(text, /unknown\/fallback/);
 assert.match(text, /authorityImpact=blocks-production-done/);
 assert.doesNotMatch(text, /fatal=/);

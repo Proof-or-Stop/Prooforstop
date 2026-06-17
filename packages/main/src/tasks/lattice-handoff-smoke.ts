@@ -24,7 +24,7 @@ import { MAIN_TOOLS } from '../cli-engine.js';
 import { createMainRegistry } from '../registry.js';
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: 'Docs/story/actives',
@@ -156,7 +156,7 @@ function assertResumeProjection(projection: HandoffResumeProjection): void {
   assert.ok(projection.nextActions.some(action => /verified receipt/.test(action)), 'resume keeps production authority guidance visible');
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-lattice-handoff-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-handoff-'));
 try {
   writeConfig(root);
   resetConfigCache();

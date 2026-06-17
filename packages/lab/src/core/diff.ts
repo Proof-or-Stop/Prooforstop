@@ -1,7 +1,7 @@
 /**
  * @task B-17a6
  * @checklist CHK-001
- * @title koala-lab diff core emits a real candidate patch artifact for reviewer targets
+ * @title lattice-lab diff core emits a real candidate patch artifact for reviewer targets
  * @type feature
  * @priority high
  * @description

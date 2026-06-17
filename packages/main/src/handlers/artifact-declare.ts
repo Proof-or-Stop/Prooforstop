@@ -8,7 +8,7 @@
  *   - Writes to the configured storyDir/<storyId>/declared-artifacts.json (store interface).
  *   - After writing, calls autoCommitStoryMetadata(B-3506) to automatically commit metadata.
  *
- * Three-layer validation (packages/koala/CLAUDE.md "Handler coding conventions"):
+ * Three-layer validation (CLAUDE.md "Handler coding conventions"):
  *   - Zod schema (cli-engine.ts registration side): structural constraints like min(1) / min(10) / regex.
  *   - Handler runtime (sanitizeArgs entry in this file): repeats same-standard trim / path-shape validation,
  *     preventing internal calls or legacy JSON paths from bypassing Zod.

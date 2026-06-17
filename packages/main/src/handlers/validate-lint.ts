@@ -23,7 +23,7 @@
  *     }
  *   }
  *
- * See docs/koala/reviewer-redesign.md §3 S1 item 3.
+ * See docs/reviewer-redesign.md §3 S1 item 3.
  */
 
 import { execSync, spawnSync } from 'node:child_process';
@@ -357,8 +357,8 @@ function resolvePackageDir(
 /**
  * B-5a28 CHK-002: recursively enumerate all tsconfig.json under projectRoot.
  *
- * Why recursive: compilation errors in monorepo sub-packages (e.g. packages/koala/packages/main/tsconfig.json)
- * were missed by single-root scanning — the entire koala package's TS2451 compilation errors were only found by an independent sonnet reviewer after the
+ * Why recursive: compilation errors in monorepo sub-packages (e.g. a nested packages/<sub>/packages/main/tsconfig.json)
+ * were missed by single-root scanning — an entire sub-package's TS2451 compilation errors were only found by an independent sonnet reviewer after the
  * two stories B-9bd9 / B-9d95 reached DONE. The root cause was that the old runTsc hardcoded
  * `<projectRoot>/tsconfig.json`, and the avalon root has no tsconfig.json → skipped → sub-package errors
  * were never visible.

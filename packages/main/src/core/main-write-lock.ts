@@ -13,7 +13,7 @@
  *   - mtime-based stale reclaim, sized to the DONE critical section (120s).
  *   - acquisition failure is BLOCKING — `failFastIfHeld` makes a live lock
  *     throw immediately instead of silently polling/optimistically proceeding
- *     (Rule 6: "Koala must not proceed optimistically").
+ *     (Rule 6: "Lattice must not proceed optimistically").
  *
  * This generalizes the former DONE-only `done-effects.ts` `acquireDoneMainMergeLock`
  * (`.koala/runtime/done-main-merge.lock`). The old path is retired; there is no
@@ -112,7 +112,7 @@ export function buildMainWriteLockContentionMessage(
   // No holder.json — a lock from older code or a stale leftover. Still emit a
   // clear blocking message; only the holder identity is unavailable.
   return (
-    `${label} is blocked: the main write lock is held by another Koala operation ` +
+    `${label} is blocked: the main write lock is held by another Lattice operation ` +
     `(holder details unavailable), ${heartbeat}. ` +
     retry
   );
@@ -140,7 +140,7 @@ export interface MainWriteLockOptions {
   label?: string;
   /**
    * Operator-facing message shown when the lock is already held by a live
-   * holder. Defaults to a generic "held by another Koala operation" message.
+   * holder. Defaults to a generic "held by another Lattice operation" message.
    */
   heldMessage?: string;
   /**

@@ -10,7 +10,7 @@ import { resetConfigCache } from '../core/config.js';
 import type { Finding, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkConvergence } from './gap-analyze.js';
 
-const tmp = mkdtempSync(join(tmpdir(), 'koala-convergence-discarded-'));
+const tmp = mkdtempSync(join(tmpdir(), 'lattice-convergence-discarded-'));
 const auditStoryId = 'B-META-framework-audit';
 
 function story(storyId: string, phase: StoryPhase, options: { withWorktree?: boolean } = {}): StoryInfo {
@@ -65,7 +65,7 @@ function git(args: string[]): void {
 try {
   mkdirSync(join(tmp, 'packages/main/src'), { recursive: true });
   writeFileSync(join(tmp, 'packages/main/src/empty.ts'), 'export const noop = true;\n');
-  writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -73,9 +73,9 @@ try {
   }));
   resetConfigCache();
   git(['init']);
-  git(['config', 'user.email', 'koala-smoke@example.invalid']);
+  git(['config', 'user.email', 'lattice-smoke@example.invalid']);
   git(['config', 'user.name', 'Lattice Smoke']);
-  git(['add', 'koala.config.json', 'packages/main/src/empty.ts']);
+  git(['add', 'lattice.config.json', 'packages/main/src/empty.ts']);
   git(['commit', '-m', 'initial smoke project']);
 
   const store = new StoryStore(tmp);

@@ -1,11 +1,11 @@
 /**
  * @task B-9ba3
  * @checklist CHK-004
- * @title koala-lab patch policy rejects writes outside the experiment whitelist
+ * @title lattice-lab patch policy rejects writes outside the experiment whitelist
  * @type feature
  * @priority high
  * @description
- *   koala-lab 第一版的关键护栏是“即便实验点子很好，也不能碰 story/fixture 和
+ *   lattice-lab 第一版的关键护栏是“即便实验点子很好，也不能碰 story/fixture 和
  *   未授权源码”。patch policy 负责解析 touched paths，并基于 editableFiles 和
  *   永久禁止目录做双重校验。
  * @changes

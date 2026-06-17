@@ -1,5 +1,5 @@
 // ============================================================
-// verifier — koala built-in code verification module
+// verifier — lattice built-in code verification module
 // ============================================================
 
 export type {
