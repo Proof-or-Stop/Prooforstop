@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c6cf",
+  "mode": "feature",
+  "allowed": [
+    ".c8rc.json (new file at root; c8 reporter + dir config)",
+    ".gitignore (add packages/main/coverage/)",
+    "CHANGELOG.md (Unreleased entry)",
+    "docs/requirements/decisions/test-runner-consolidation-plan.md (mark B3 DONE)",
+    "packages/main/coverage/ (output dir; gitignored)",
+    "root package.json (add c8 devDependency + test:coverage script)"
+  ],
+  "excluded": [
+    "authoritative receipts (degraded 3x1 standing approval)",
+    "B4 UX polish (deferred)",
+    "CI workflows (deferred per A0)",
+    "existing test:* scripts (additive only)",
+    "packages/main/smoke-manifest.json (manifest — do NOT modify)",
+    "packages/main/src/tasks/run-all-smokes.ts (runner source — do NOT modify)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User directed: complete B2 then B3 as independent Lattice stories. B3 scope is verbatim from A0 decision doc (test-runner-consolidation-plan.md) B3 sketch — add c8, test:coverage script, HTML+LCOV reports at packages/main/coverage/, .gitignore exclusion, brief doc reference. Purely additive; no modification of existing scripts or runner.",
+  "createdAt": "2026-06-17T13:30:54.173Z",
+  "updatedAt": "2026-06-17T13:30:54.173Z",
+  "_hash": "1d0371d1224d8e3fc2b8b3b123b8b4d35226e9c64588ab907a658521fc73559e"
+}
