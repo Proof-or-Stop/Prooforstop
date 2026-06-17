@@ -312,12 +312,12 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
-          "command": "git grep -i koala scripts | perl /tmp/bf2.pl",
+          "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "scripts 品牌残留为 0(剩 legacy alias scanner/dual-accept regex)",
-          "headHash": "b7823d981a6342e94a0741ac04854fb21a75954b",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:14:16.031Z"
+          "note": "canonical gate PASS exit 0；scripts 品牌残留 0",
+          "headHash": "793eb144db70087f56ff1ccfc838f8961059784f",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:25.879Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
