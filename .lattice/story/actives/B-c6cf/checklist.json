@@ -68,7 +68,58 @@
       "context": "Add to root package.json scripts: test:coverage running c8 wrapping run-all-smokes.js. PLAN-time decision: single-process mode (--jobs 1) for v1 OR c8 child-process instrumentation. Verify: npm run test:coverage exits 0, HTML + LCOV both non-empty.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm run test:coverage` exits 0; `ls packages/main/coverage/` shows index.html + lcov.info both non-empty; opening packages/main/coverage/index.html in a browser shows file-by-file coverage for packages/main/src/.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "root test:coverage script exists and uses c8 -> `node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:coverage\\\"]||\\\"\\\"; if(!s.startsWith(\\\"c8 \\\")&&!s.includes(\\\" c8 \\\")) throw new Error(\\\"NO_C8:\\\"+s); console.log(\\\"C8_WRAPPED\\\")\"` prints C8_WRAPPED; WHY: test:coverage MUST wrap the runner with c8",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "test:coverage script invokes run-all-smokes.js with --jobs 1 -> `node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:coverage\\\"]; if(!s.includes(\\\"run-all-smokes\\\")||!s.includes(\\\"--jobs 1\\\")) throw new Error(\\\"BAD_INVOCATION:\\\"+s); console.log(\\\"INVOCATION_OK\\\")\"` prints INVOCATION_OK; WHY: single-process mode required for accurate coverage in v1",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run test:coverage exits 0 -> `npm run test:coverage > /tmp/c6cf-cov.log 2>&1; echo $?` outputs 0; WHY: full battery must run cleanly under c8",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "packages/main/coverage/index.html generated and non-empty -> `test -s packages/main/coverage/index.html && echo HTML_OK` prints HTML_OK; WHY: A0 requires HTML report",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "packages/main/coverage/lcov.info generated and non-empty -> `test -s packages/main/coverage/lcov.info && echo LCOV_OK` prints LCOV_OK; WHY: A0 requires LCOV report",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: existing test:* scripts in root package.json unchanged (only addition) -> `node -e \"const f=require(\\\"fs\\\"); const curr=require(\\\"./package.json\\\"); const orig=JSON.parse(require(\\\"child_process\\\").execSync(\\\"git show main:package.json\\\",\\\"utf8\\\")); const removed=Object.keys(orig.scripts).filter(k=>k.startsWith(\\\"test:\\\")&&!curr.scripts[k]); if(removed.length) throw new Error(\\\"REMOVED:\\\"+removed); console.log(\\\"NO_REMOVALS\\\")\"` prints NO_REMOVALS; WHY: B3 is purely additive",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: npm test root chain exit 0 (unchanged behavior) -> `npm test > /tmp/c6cf-test.log 2>&1; echo $?` outputs 0; WHY: must not break root test chain",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
