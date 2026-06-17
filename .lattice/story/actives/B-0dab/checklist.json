@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Clean the 7 residual koala-* mkdtemp prefixes on main",
       "context": "packages/main/src/tasks/english-only-guards-smoke.ts (lines 165/201/260/352/354: koala-english-scope-/block-/realgit-/initrerun-/initrerun-home-) and review-incremental-context-smoke.ts (lines 262/437: koala-incremental-ctx-/gate-): rename mkdtemp prefixes koala-* -> lattice-*. These are brand temp-dir names, not assertion targets. Run the smokes after to confirm still pass.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T12:56:13.495Z",
       "endTime": null,
       "userSees": "node scripts/verify-koala-residue.mjs prints PASS koala-residue: 0 unclassified (down from 7)",
       "verificationIntent": {

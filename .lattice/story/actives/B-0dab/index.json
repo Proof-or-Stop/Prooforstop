@@ -4,7 +4,7 @@
   "title": "Wire the koala-residue gate into the lattice validate battery + clean 7 residual koala-* mkdtemp prefixes on main",
   "description": "ship-clean program story 4 (verify gate). Make the canonical koala-residue gate (scripts/verify-koala-residue.mjs, delivered in B-40eb) a permanent part of the lattice validate battery so new koala branding cannot silently re-enter active scope. Also clean the 7 residual koala-* mkdtemp prefixes currently on main (english-only-guards-smoke.ts x5, review-incremental-context-smoke.ts x2) so the gate passes green on main. No re-sweep: B-40eb already did the full brand sweep; this story only wires the gate and clears the temp-prefix residue.",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "koala",
@@ -44,6 +44,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-17T12:50:07.480Z",
+      "branch": "story/B-0dab",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:55:36.450Z",
       "branch": "story/B-0dab",
       "user": "Harmonygo",
       "agent": "main"
