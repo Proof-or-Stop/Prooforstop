@@ -66,6 +66,16 @@
           "headHash": "3f20f621f7a8ceb614fa77af5cf28a0f4dd3f020",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:00:49.755Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -n koala- review-incremental-context-smoke.ts after rename",
+          "result": "pass",
+          "note": "Verified pass on current worktree: 0 matches",
+          "headHash": "69239880e2de27efcd061868161afebc3f433af3",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:36.650Z"
         }
       ]
     },
