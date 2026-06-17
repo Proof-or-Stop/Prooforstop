@@ -1,0 +1,94 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-000c:RR-001",
+      "storyId": "B-000c",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-17T11:48:13.696Z",
+      "startedAt": "2026-06-17T11:48:57.589Z",
+      "headHash": "851b6fa8d9412c6b6c52a5051551549dcdf42fea",
+      "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "ecf34a5acc1083c664ed363562996bdb916e51074f277b79a55d191c57083370",
+        "diffPackHash": "da3cfdad30152c0eb3d6666d142bdc475fb730ba18fa615886e1702780b75df1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/finding-signals.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3fce36f687938180628bc17a35872338bc5a5320c067f4b06b955a385b498333",
+          "43db5cafb4248b9f841c3e4eafd40f0fda0c59478b664aae7d7f1729bba989ad",
+          "839f0da84cbadf62121c3628b4b7ca2cec986efb2daeb23af6cd2416f61ce7d3",
+          "a8bde50fa2ab0a6159f20b87a0d54d1b5260b2ee9d221a3c8a13c7f00ecade64",
+          "b4e74d8953227dfb9ce9cace97eca95790d402386051107f61ea67ba778b7eee",
+          "be24fae579a9661e364bdd325d7ee4b8fa1aab4b7b756b0fc827778ae14be310"
+        ],
+        "bindingHash": "4ec3e47188c8a4deedf96f0414e81bfe67619985237cfa3bc7f94434a662a59f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-000c",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-000c",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-000c",
+        "workspaceMode": "story-worktree",
+        "headHash": "851b6fa8d9412c6b6c52a5051551549dcdf42fea",
+        "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+        "bindingHash": "fed196ecabba92b91405ada6619bb6cefa4203a5f41fdce9789b57edd8412cb0"
+      },
+      "_hash": "e63654a952ef3040cebffd6ba9ee6cfc1fb9a17d90fd16ad2d97bcea8d412921"
+    },
+    {
+      "reviewRunId": "B-000c:RR-002",
+      "storyId": "B-000c",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-17T11:48:13.696Z",
+      "startedAt": "2026-06-17T11:49:02.255Z",
+      "headHash": "851b6fa8d9412c6b6c52a5051551549dcdf42fea",
+      "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "ecf34a5acc1083c664ed363562996bdb916e51074f277b79a55d191c57083370",
+        "diffPackHash": "da3cfdad30152c0eb3d6666d142bdc475fb730ba18fa615886e1702780b75df1",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/finding-signals.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3fce36f687938180628bc17a35872338bc5a5320c067f4b06b955a385b498333",
+          "43db5cafb4248b9f841c3e4eafd40f0fda0c59478b664aae7d7f1729bba989ad",
+          "839f0da84cbadf62121c3628b4b7ca2cec986efb2daeb23af6cd2416f61ce7d3",
+          "a8bde50fa2ab0a6159f20b87a0d54d1b5260b2ee9d221a3c8a13c7f00ecade64",
+          "b4e74d8953227dfb9ce9cace97eca95790d402386051107f61ea67ba778b7eee",
+          "be24fae579a9661e364bdd325d7ee4b8fa1aab4b7b756b0fc827778ae14be310"
+        ],
+        "bindingHash": "4ec3e47188c8a4deedf96f0414e81bfe67619985237cfa3bc7f94434a662a59f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-000c",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-000c",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-000c",
+        "workspaceMode": "story-worktree",
+        "headHash": "851b6fa8d9412c6b6c52a5051551549dcdf42fea",
+        "materialHash": "41e2cef4ff8e1b0c4a4d0434b720894ae347a6fe2991c5ed0b1dc938524aa5a7",
+        "bindingHash": "fed196ecabba92b91405ada6619bb6cefa4203a5f41fdce9789b57edd8412cb0"
+      },
+      "_hash": "d69dc820ebdfb1c8cc1589bb934c43a6a32c30ea08739736745fb8d9244f9457"
+    }
+  ]
+}
