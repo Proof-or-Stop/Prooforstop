@@ -483,6 +483,17 @@
           "headHash": "a9a8ff6d34fb40d1d7b6d3e6b1bcc6542dcf5c76",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:16.785Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:legacy -- ZZZ_NONEXISTENT",
+          "result": "pass",
+          "note": "Exit 0 with '0 smokes matched filters' — graceful, no crash.",
+          "headHash": "c8f06aa011ad46f8499e694bcfa5f70ddc1b4899",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:17.712Z"
         }
       ]
     }
