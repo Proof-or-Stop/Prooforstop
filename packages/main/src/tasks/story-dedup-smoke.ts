@@ -65,7 +65,10 @@ check('normalizeName: all-special-character name → "" (separator-only)', () =>
 
 check('normalizeName preserves Unicode letters (only cases them)', () => {
   assert.equal(normalizeName('Café-Story'), 'café-story');
-  assert.equal(normalizeName('Japanese task'), 'Japanese-task');
+  // normalizeName now consistently lowercases the result for all letters
+   // (matching the Café→café, Über→über behavior on the adjacent lines), so
+   // the Latin-only case-preservation assertion was tightened to lowercase.
+  assert.equal(normalizeName('Japanese task'), 'japanese-task');
   assert.equal(normalizeName('Über_Fix'), 'über-fix');
 });
 

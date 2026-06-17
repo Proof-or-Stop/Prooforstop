@@ -189,11 +189,17 @@ function assertMixedCanonicalLegacyGlobalLinksAreRepaired(): void {
       globalPackageRoot: globalRoot,
     });
 
-    assert.equal(result.action, 'relinked');
-    assert.match(result.message, /@koala-agent\/core \(legacy fallback/);
+    // Ship-clean program: resolveGlobalCorePackagePaths now only resolves the
+    // canonical @lattice-agent/core path; the legacy @koala-agent/core
+    // fallback is no longer probed. With only the canonical path resolved
+    // (which is a plain dir here, not a symlink to the worktree), the repair
+    // correctly reports 'skipped' and leaves the legacy symlink alone. We
+    // keep the side-effect assertion (legacy symlink survives) so any future
+    // re-introduction of legacy-path support is still covered.
+    assert.equal(result.action, 'skipped');
     assert.equal(lstatSync(canonicalPath).isDirectory(), true, 'canonical install should remain untouched when it is not the stale symlink');
-    assert.equal(lstatSync(legacyPath).isSymbolicLink(), true, 'legacy global package should remain a symlink after repair');
-    assert.equal(resolve(dirname(legacyPath), readlinkSync(legacyPath)), mainPackagePath);
+    assert.equal(lstatSync(legacyPath).isSymbolicLink(), true, 'legacy global package symlink survives (no longer probed)');
+    assert.equal(resolve(dirname(legacyPath), readlinkSync(legacyPath)), worktreePath);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

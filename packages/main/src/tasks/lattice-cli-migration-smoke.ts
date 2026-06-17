@@ -98,7 +98,7 @@ assert.equal(mainPackage.bin.koala, undefined, 'legacy koala package bin is remo
 // Help exposes first-class Lattice identity and the new command set.
 const help = runCli(['help']);
 assert.match(help, /Lattice CLI 0\.3\.5/);
-assert.match(help, /Primary entrypoint:\s+lattice/);
+assert.match(help, /Entrypoint:\s+lattice/);
 for (const command of COMMANDS) {
   assert.match(help, new RegExp(command), `help exposes ${command}`);
   assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `MAIN_TOOLS exposes ${command}`);
@@ -237,7 +237,9 @@ const configDoctor = runJson<any>(['lattice', 'config', 'doctor', '--format=json
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
-assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, true);
+// Ship-clean program (B-08f2 + follow-ups) has stripped the legacy alias
+// from the migration surface; field now reports false.
+assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, false);
 assert.equal(configDoctor.versions.expected, LATTICE_CLI_VERSION);
 assertNoProductionOverclaim(configDoctor, 'lattice config doctor');
 

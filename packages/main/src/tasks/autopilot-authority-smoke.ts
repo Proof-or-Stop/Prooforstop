@@ -42,6 +42,8 @@ const READY_AUTHORITY_ENV: EnvOverride = {
   LATTICE_AUTHORITY_MODE: 'enforce',
   LATTICE_AUTHORITY_URL: 'https://authority.test',
   LATTICE_AUTHORITY_ACTOR_KEY: 'test-actor-key',
+  // Production now requires a customer API key for authority-mode runs (B-ea92+).
+  LATTICE_AUTHORITY_CUSTOMER_API_KEY: 'test-customer-key',
   LATTICE_AUTHORITY_RUNNER_ID: 'runner-1',
 };
 
@@ -348,68 +350,13 @@ try {
   assert.match(authorityMissingDigestReceipt.receipt.reason, /decisionDigest/);
   assertNoProductionOverclaim(authorityMissingDigestReceipt, 'authority missing decisionDigest receipt');
 
-  const cliReceiptVerify = runCliJson<JsonObject>(
-    root,
-    [
-      'lattice', 'authority', 'receipt', 'verify',
-      `--receiptFile=${nativeReceiptPath}`,
-      `--serverPublicKey=${serverPublicKeyHex}`,
-      '--receiptKind=gate_decision',
-      `--receiptProjectId=${nativeReceipt.projectId}`,
-      `--receiptStoryId=${nativeReceipt.storyId}`,
-      `--serverKeyId=${nativeReceipt.serverKeyId}`,
-      `--expectedDecisionDigest=${nativeReceipt.decisionDigest}`,
-      '--receiptMaxAgeMs=60000',
-      '--receiptClockSkewMs=60000',
-      '--json',
-    ],
-  );
-  assert.equal(cliReceiptVerify.status, 'pass');
-  assert.equal(cliReceiptVerify.verified, true);
-
-  const staleNativeReceiptPath = join(root, 'native-gate-receipt-stale.json');
-  const { receipt: staleNativeReceipt, serverPublicKeyHex: stalePublicKeyHex } = signedNativeGateReceipt({
-    issuedAt: '2026-01-01T00:00:00.000Z',
-  });
-  writeFileSync(staleNativeReceiptPath, JSON.stringify(staleNativeReceipt, null, 2));
-  const staleVerify = runCliJson<JsonObject>(
-    root,
-    [
-      'lattice', 'authority', 'receipt', 'verify',
-      `--receiptFile=${staleNativeReceiptPath}`,
-      `--serverPublicKey=${stalePublicKeyHex}`,
-      '--receiptKind=gate_decision',
-      `--receiptProjectId=${staleNativeReceipt.projectId}`,
-      `--receiptStoryId=${staleNativeReceipt.storyId}`,
-      `--serverKeyId=${staleNativeReceipt.serverKeyId}`,
-      `--expectedDecisionDigest=${staleNativeReceipt.decisionDigest}`,
-      '--receiptMaxAgeMs=60000',
-      '--receiptClockSkewMs=0',
-      '--json',
-    ],
-  );
-  assert.equal(staleVerify.status, 'fail');
-  assert.equal(staleVerify.verified, false);
-  assert.match(String(staleVerify.reason), /stale/);
-
-  const missingDecisionDigestPath = join(root, 'native-gate-receipt-missing-decision.json');
-  const { receipt: missingDecisionDigestReceipt, serverPublicKeyHex: missingDecisionPublicKeyHex } = signedNativeGateReceipt({
-    decisionDigest: undefined,
-  });
-  writeFileSync(missingDecisionDigestPath, JSON.stringify(missingDecisionDigestReceipt, null, 2));
-  const missingDecisionVerify = runCliJson<JsonObject>(
-    root,
-    [
-      'lattice', 'authority', 'receipt', 'verify',
-      `--receiptFile=${missingDecisionDigestPath}`,
-      `--serverPublicKey=${missingDecisionPublicKeyHex}`,
-      '--receiptKind=gate_decision',
-      '--receiptMaxAgeMs=60000',
-      '--json',
-    ],
-  );
-  assert.equal(missingDecisionVerify.status, 'fail');
-  assert.match(String(missingDecisionVerify.reason), /decisionDigest/);
+  // CLI `lattice authority receipt verify` was redesigned in 9581a0f9c
+  // ("verify and consume authority receipt refs") to accept an Authority gate
+  // proof object (--proof / --proofFile / --proofPath + --storyId) instead of
+  // the legacy native-receipt args (--receiptFile / --serverPublicKey / …).
+  // The programmatic equivalents for valid / stale / missing-decisionDigest
+  // outcomes are already exercised above via buildAutopilotRun(); the new
+  // CLI-surface contract is covered by authority-receipt-proof-smoke.ts.
 
   const status = buildAutopilotStatus(EMPTY_AUTHORITY_ENV);
   assert.equal(status.localAvailable, true);
@@ -444,23 +391,13 @@ try {
   assert.equal(events[0].type, 'autopilot_projection');
   assert.equal(events[0].receiptVerified, false);
 
-  const cliStatus = runCliJson<JsonObject>(root, ['lattice', 'autopilot', 'status', '--json']);
-  assert.equal(cliStatus.schemaVersion, 'lattice.autopilot_status.v1');
-  assert.equal(cliStatus.localAvailable, true);
-
-  const cliLocal = runCliJson<JsonObject>(root, ['lattice', 'autopilot', 'run', '--mode=local', '--storyId=B-auto', '--json']);
-  assert.equal(cliLocal.schemaVersion, 'lattice.autopilot_run.v1');
-  assert.equal(cliLocal.status, 'pass');
-  assert.equal(cliLocal.authorityRequired, false);
-
-  const cliAuthority = runCliJson<JsonObject>(
-    root,
-    ['lattice', 'autopilot', 'run', '--mode=authority', '--until=DONE', '--storyId=B-auto', '--json'],
-    READY_AUTHORITY_ENV,
-  );
-  assert.equal(cliAuthority.status, 'fail');
-  assert.equal(cliAuthority.receiptRequired, true);
-  assertNoProductionOverclaim(cliAuthority, 'cli authority missing receipt');
+  // CLI `lattice autopilot status` and `lattice autopilot run` were redesigned
+  // (autopilot_status now reads ONE persisted run by --runId; autopilot_run now
+  // runs a saved --policy=<name>, not --mode=local/--mode=authority). The
+  // schema-version + pass/fail intent of these three calls is already covered
+  // programmatically by buildAutopilotStatus()/buildAutopilotRun() above; the
+  // policy-based CLI surface is covered by dedicated autopilot-run/policy smokes.
+  void runCliJson;
 } finally {
   rmSync(root, { recursive: true, force: true });
   resetConfigCache();

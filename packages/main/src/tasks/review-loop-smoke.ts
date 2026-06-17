@@ -471,6 +471,12 @@ test('review_loop_status JSON exposes active and latest fields', () => {
     readStory: () => ({ phase: 'REVIEW', currentReviewRound: 'round-1' }),
     readReviewLoopRecords: () => records,
     appendReviewLoopRecord: (_storyId: string, record: ReviewLoopRecord) => { records.push(record); },
+    // assertCwdInWorktree now calls resolveStorySignedWorkspace which needs
+    // both storyDirPath and storyDirRel on the store. Stub these as a fixed
+    // non-worktree path so the cwd guard treats this run as outside any
+    // worktree (assertPathInsideWorktree is not reached).
+    storyDirPath: (_storyId: string) => '/tmp/review-loop-smoke-mock-story-dir',
+    storyDirRel: () => '.lattice/story/actives',
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   handlers.review_loop_start({
@@ -493,6 +499,12 @@ test('review_loop_start rejects duplicate explicit loopId', () => {
     readStory: () => ({ phase: 'REVIEW', currentReviewRound: 'round-1' }),
     readReviewLoopRecords: () => records,
     appendReviewLoopRecord: (_storyId: string, record: ReviewLoopRecord) => { records.push(record); },
+    // assertCwdInWorktree now calls resolveStorySignedWorkspace which needs
+    // both storyDirPath and storyDirRel on the store. Stub these as a fixed
+    // non-worktree path so the cwd guard treats this run as outside any
+    // worktree (assertPathInsideWorktree is not reached).
+    storyDirPath: (_storyId: string) => '/tmp/review-loop-smoke-mock-story-dir',
+    storyDirRel: () => '.lattice/story/actives',
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   const args = {
@@ -516,6 +528,12 @@ test('review_loop_start rejects placeholder rollbackRef hashes', () => {
     readStory: () => ({ phase: 'REVIEW', currentReviewRound: 'round-1' }),
     readReviewLoopRecords: () => records,
     appendReviewLoopRecord: (_storyId: string, record: ReviewLoopRecord) => { records.push(record); },
+    // assertCwdInWorktree now calls resolveStorySignedWorkspace which needs
+    // both storyDirPath and storyDirRel on the store. Stub these as a fixed
+    // non-worktree path so the cwd guard treats this run as outside any
+    // worktree (assertPathInsideWorktree is not reached).
+    storyDirPath: (_storyId: string) => '/tmp/review-loop-smoke-mock-story-dir',
+    storyDirRel: () => '.lattice/story/actives',
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   assert.throws(

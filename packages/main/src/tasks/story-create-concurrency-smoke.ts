@@ -42,7 +42,7 @@
  *    explicitly read STDOUT alone and assert the warning is NOT there, then
  *    read STDERR and assert it IS.
  *  - G4: a second story created within 30 minutes of the first triggers the
- *    "N other stories were also created in the last 30 minutes" note on STDERR.
+ *    "N other stories were also created within the last 30 minutes" note on STDERR.
  *  - false-positive guard: a fresh repo's very first story has no concurrent
  *    siblings → the concurrent-story note must NOT appear.
  *  - 30-minute window boundary: a story whose createdAt is just OUTSIDE the
@@ -303,7 +303,9 @@ async function runDedupScenario(): Promise<void> {
     // Different name (so normalized-name does NOT match), same keyword set.
     const blocked = createStorySync(root, { name: 'kw-dup', keywords: ['auth', 'session'] });
     assert.notEqual(blocked.code, 0, 'keyword full overlap must FAIL the create');
-    assert.match(blocked.output, /suspected duplicate story/, 'block message names the duplicate');
+    // Block hint text was reworded from "suspected duplicate story" to
+     // "Suspected duplicate of story B-<id> (keyword fully overlaps: …)".
+    assert.match(blocked.output, /Suspected duplicate of story/, 'block message names the duplicate');
     assert.match(blocked.output, /forceNew/, 'block message points at the forceNew override');
 
     // forceNew:true overrides the block → a new story is created.
@@ -344,7 +346,7 @@ async function runDedupScenario(): Promise<void> {
     assert.match(againstDone.output, /Story B-[a-f0-9]+ created/,
       'DONE-story keyword overlap still creates');
     assert.match(
-      againstDone.output, /keywords fully overlap with a completed story \(advisory only, does not block creation\)/,
+      againstDone.output, /keyword fully overlaps with completed story \(advisory only, does not block creation\)/,
       'F-004: full overlap with a DONE story emits a non-blocking warn',
     );
 
@@ -373,7 +375,7 @@ async function runDedupScenario(): Promise<void> {
     assert.match(againstDiscarded.output, /Story B-[a-f0-9]+ created/,
       'DISCARDED-story keyword overlap still creates');
     assert.match(
-      againstDiscarded.output, /keywords fully overlap with a completed story \(advisory only, does not block creation\)/,
+      againstDiscarded.output, /keyword fully overlaps with completed story \(advisory only, does not block creation\)/,
       'F-004: full overlap with a DISCARDED story emits a non-blocking warn',
     );
 
@@ -385,7 +387,7 @@ async function runDedupScenario(): Promise<void> {
     assert.equal(partialTerminal.code, 0,
       `partial overlap with a terminal story exit\n${partialTerminal.output}`);
     assert.doesNotMatch(
-      partialTerminal.output, /keywords fully overlap with a completed story/,
+      partialTerminal.output, /keyword fully overlaps with completed story/,
       'F-004: partial overlap with a terminal story does NOT emit the warn',
     );
 
@@ -462,7 +464,7 @@ async function runStderrChannelScenario(): Promise<void> {
     assert.equal(first.code, 0, `first create exit\n${first.stdout}\n${first.stderr}`);
     assert.match(first.stdout, /Story B-[a-f0-9]+ created/, 'first create conclusion on stdout');
     assert.doesNotMatch(
-      first.stdout + first.stderr, /were also created in the last 30 minutes/,
+      first.stdout + first.stderr, /were also created within the last 30 minutes/,
       'no concurrent siblings → concurrent-story note must NOT be emitted (false-positive guard)',
     );
     const idFirst = storyIdOf(first.stdout);
@@ -477,13 +479,14 @@ async function runStderrChannelScenario(): Promise<void> {
     assert.equal(second.code, 0, `second create exit\n${second.stdout}\n${second.stderr}`);
     assert.match(second.stdout, /Story B-[a-f0-9]+ created/, 'create conclusion stays on stdout');
     // The keyword-overlap warning must be on stderr ...
+    // Wording reworded: "suspected duplicate story" → "Possibly duplicate story".
     assert.match(
-      second.stderr, /suspected duplicate story \(keyword overlap\)/,
+      second.stderr, /Possibly duplicate story \(keyword overlap\)/,
       'keyword-overlap dupWarning must be written to STDERR',
     );
     // ... and must NOT be on stdout (the `| tail` pipe reads stdout only).
     assert.doesNotMatch(
-      second.stdout, /suspected duplicate story \(keyword overlap\)/,
+      second.stdout, /Possibly duplicate story \(keyword overlap\)/,
       'keyword-overlap dupWarning must NOT leak into STDOUT',
     );
 
@@ -491,7 +494,7 @@ async function runStderrChannelScenario(): Promise<void> {
     // appears on STDERR. `second` already created a sibling; assert it named
     // the earlier active stories.
     assert.match(
-      second.stderr, /\d+ other stories were also created in the last 30 minutes/,
+      second.stderr, /\d+ other stories were also created within the last 30 minutes/,
       'recently-created concurrent stories must be surfaced on STDERR',
     );
     assert.match(
@@ -499,7 +502,7 @@ async function runStderrChannelScenario(): Promise<void> {
       'concurrent-story note lists the earlier active story id',
     );
     assert.doesNotMatch(
-      second.stdout, /were also created in the last 30 minutes/,
+      second.stdout, /were also created within the last 30 minutes/,
       'concurrent-story note must NOT leak into STDOUT',
     );
 
@@ -508,8 +511,8 @@ async function runStderrChannelScenario(): Promise<void> {
     // were not lost, they are on STDERR. We already captured both streams
     // separately above; assert the stdout-only view is warning-free.
     const stdoutOnlyView = second.stdout;
-    assert.doesNotMatch(stdoutOnlyView, /suspected duplicate story/, '`| tail` (stdout-only) view is warning-free');
-    assert.doesNotMatch(stdoutOnlyView, /in the last 30 minutes/, '`| tail` (stdout-only) view has no concurrency note');
+    assert.doesNotMatch(stdoutOnlyView, /Possibly duplicate story/, '`| tail` (stdout-only) view is warning-free');
+    assert.doesNotMatch(stdoutOnlyView, /within the last 30 minutes/, '`| tail` (stdout-only) view has no concurrency note');
     assert.match(stdoutOnlyView, /Story B-[a-f0-9]+ created/, '`| tail` still sees the create conclusion');
 
     // 5) G3 — riskHint advisory text lands on STDERR, NOT on STDOUT.
@@ -519,8 +522,8 @@ async function runStderrChannelScenario(): Promise<void> {
       description: 'B-6812 CHK-003 probe touching auth and token handling.',
     });
     assert.equal(risky.code, 0, `risky create exit\n${risky.stdout}\n${risky.stderr}`);
-    assert.match(risky.stderr, /high-risk signal detected/, 'riskHint must be written to STDERR');
-    assert.doesNotMatch(risky.stdout, /high-risk signal detected/, 'riskHint must NOT leak into STDOUT');
+    assert.match(risky.stderr, /High-risk signals detected/, 'riskHint must be written to STDERR');
+    assert.doesNotMatch(risky.stdout, /High-risk signals detected/, 'riskHint must NOT leak into STDOUT');
     assert.match(risky.stdout, /Story B-[a-f0-9]+ created/, 'risky create conclusion stays on stdout');
 
     // 6) 30-MINUTE WINDOW BOUNDARY.
@@ -532,7 +535,7 @@ async function runStderrChannelScenario(): Promise<void> {
     const outside = createStorySplit(root, { name: 'stderr-outside-window' });
     assert.equal(outside.code, 0, `outside-window create exit\n${outside.stdout}\n${outside.stderr}`);
     assert.doesNotMatch(
-      outside.stdout + outside.stderr, /were also created in the last 30 minutes/,
+      outside.stdout + outside.stderr, /were also created within the last 30 minutes/,
       'stories older than 30 min are OUTSIDE the window → no concurrent-story note',
     );
     const idOutside = storyIdOf(outside.stdout);
@@ -544,7 +547,7 @@ async function runStderrChannelScenario(): Promise<void> {
     const inside = createStorySplit(root, { name: 'stderr-inside-window' });
     assert.equal(inside.code, 0, `inside-window create exit\n${inside.stdout}\n${inside.stderr}`);
     assert.match(
-      inside.stderr, /Also created \d+ other stories in the last 30 minutes/,
+      inside.stderr, /\d+ other stories were also created within the last 30 minutes/,
       'a story 29 min old is INSIDE the window → concurrent-story note must appear',
     );
     assert.match(
@@ -566,7 +569,7 @@ async function runStderrChannelScenario(): Promise<void> {
     const afterDone = createStorySplit(root, { name: 'stderr-after-done' });
     assert.equal(afterDone.code, 0, `after-done create exit\n${afterDone.stdout}\n${afterDone.stderr}`);
     assert.doesNotMatch(
-      afterDone.stdout + afterDone.stderr, /Also created .* other stories in the last 30 minutes/,
+      afterDone.stdout + afterDone.stderr, /Also created .* other stories within the last 30 minutes/,
       'a DONE story within 30 min must NOT count as a concurrent sibling',
     );
 
@@ -590,7 +593,7 @@ async function runStderrChannelScenario(): Promise<void> {
     );
     assert.match(afterCorrupt.stdout, /Story B-[a-f0-9]+ created/, 'create still succeeds despite corrupt sibling');
     assert.doesNotMatch(
-      afterCorrupt.stdout + afterCorrupt.stderr, /Also created .* other stories in the last 30 minutes/,
+      afterCorrupt.stdout + afterCorrupt.stderr, /Also created .* other stories within the last 30 minutes/,
       'a story with a malformed createdAt is skipped, never listed',
     );
 

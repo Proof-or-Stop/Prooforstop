@@ -114,6 +114,16 @@ const ALLOWLIST_TEST_GLOBS: readonly RegExp[] = [
   // Branding-audit smoke: its classifier regexes literally contain legacy
   // Chinese alias markers in order to detect-and-strip them.
   /^packages\/main\/src\/tasks\/cli-engine-branding-smoke\.ts$/,
+  // Docs-drift smoke pins legacy Chinese "do-not-create X or Y" path-drift
+  // assertions; it is the test counterpart of validate-docs-drift.ts above
+  // and must be migrated together with it.
+  /^packages\/main\/src\/tasks\/docs-drift-path-drift-smoke\.ts$/,
+  // Prompt-token-cost smoke accepts BOTH English and a legacy Chinese
+  // "uncertain" caveat in audit text for backward compatibility.
+  /^packages\/main\/src\/tasks\/prompt-token-cost-smoke\.ts$/,
+  // Usage-ledger-estimate smoke uses a Japanese fixture string to verify
+  // multibyte tokenization; the CJK is data, not output.
+  /^packages\/main\/src\/tasks\/usage-ledger-estimate-smoke\.ts$/,
 ];
 
 // 3b) Source files NOT covered by the cli-engine English plan / manifest.
@@ -140,6 +150,15 @@ const ALLOWLIST_PENDING_SOURCE_MIGRATION: readonly string[] = [
   'packages/main/src/handlers/evaluate.ts',
   'packages/main/src/handlers/verifier.ts',
   'packages/main/src/tasks/extract.ts',
+  // Comment-only Chinese (a "coding convention" tag in a comment); behavior-neutral.
+  // Tracked for the same source-translation follow-up as the rest of this list.
+  'packages/main/src/handlers/agent-prompt.ts',
+  // Behavior-sensitive: validate-docs-drift matches legacy Chinese phrases in
+  // markdown (do-not-create / must-not-exist patterns) in order to detect
+  // path-drift assertions written in Chinese. Subsystem mirrors aux-diagnose
+  // (Chinese-in/Chinese-out) and must be migrated together with its smoke
+  // counterpart below.
+  'packages/main/src/handlers/validate-docs-drift.ts',
   // Behavior-sensitive: aux-diagnose matches Chinese rootCause substrings at
   // runtime (.includes('<zh>')) and returns coupled Chinese advice — a
   // Chinese-in/Chinese-out subsystem that needs a coordinated code+test change.

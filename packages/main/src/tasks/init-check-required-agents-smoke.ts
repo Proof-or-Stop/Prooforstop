@@ -33,6 +33,25 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
   }
 }
 
+function seedScopeFreeze(root: string, storyId: string): void {
+  run(root, 'scope_boundary_set', {
+    storyId,
+    mode: 'correctness_fix',
+    allowedScope: ['INIT_CHECK required-agents diagnostic'],
+    excludedScope: ['unrelated production behavior'],
+    userConfirmed: true,
+    actor: 'init-check-required-agents-smoke',
+  });
+  run(root, 'execution_boundary_set', {
+    storyId,
+    allowedCommands: ['npm --prefix packages/main run build'],
+    allowedTools: ['shell'],
+    excludedCommands: ['forbidden-cmd'],
+    actor: 'init-check-required-agents-smoke',
+  });
+  run(root, 'scope_freeze_check', { storyId, actor: 'init-check-required-agents-smoke' });
+}
+
 const root = mkdtempSync(join(tmpdir(), 'lattice-init-required-agents-'));
 try {
   git(root, ['init', '-b', 'main']);
@@ -70,6 +89,11 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
 
+  // Scope-boundary + execution-boundary + scope-freeze-check now precede the
+  // init-check gates in story_advance INIT_CHECK; seed them so the intended
+  // missing_init_check_agent diagnostic surfaces.
+  seedScopeFreeze(root, storyId!);
+
   run(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(missingProduct, /missing_init_check_agent/);
@@ -105,9 +129,15 @@ try {
   const tamperStoryId = tamperCreated.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(tamperStoryId, 'story_create should return tamper story id');
 
+  seedScopeFreeze(root, tamperStoryId!);
+
   run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'lattice-review-story-init' });
   run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'product-reviewer' });
   run(root, 'story_update', { storyId: tamperStoryId, title: 'Init tamper gate changed after review' });
+  // story_update invalidates the freeze inputs; rerun scope_freeze_check so the
+  // next advance failure surfaces from init_check_tampered (the intent of this
+  // test), not scope_freeze_check_stale.
+  run(root, 'scope_freeze_check', { storyId: tamperStoryId!, actor: 'init-check-required-agents-smoke' });
   const tampered = run(root, 'story_advance', { storyId: tamperStoryId, phase: 'INIT_CHECK' }, true);
   assert.match(tampered, /init_check_tampered/);
 } finally {

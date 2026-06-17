@@ -68,6 +68,27 @@ function createStory(root: string, name: string, title: string): string {
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
+  // Scope-boundary is now checked BEFORE init-check on INIT_CHECK advance. Seed
+  // it here so the smoke can still exercise the init-check fallback diagnostic.
+  run(root, 'scope_boundary_set', {
+    storyId: storyId!,
+    mode: 'correctness_fix',
+    allowedScope: ['INIT_CHECK fallback diagnostic'],
+    excludedScope: ['unrelated production behavior'],
+    userConfirmed: true,
+    actor: 'init-check-fallback-smoke',
+  });
+  run(root, 'execution_boundary_set', {
+    storyId: storyId!,
+    allowedCommands: ['npm --prefix packages/main run build'],
+    allowedTools: ['shell'],
+    excludedCommands: ['forbidden-cmd'],
+    actor: 'init-check-fallback-smoke',
+  });
+  run(root, 'scope_freeze_check', {
+    storyId: storyId!,
+    actor: 'init-check-fallback-smoke',
+  });
   return storyId!;
 }
 
@@ -239,6 +260,10 @@ try {
     fallbackReason: 'No reviewer subagent available; manual attestation performed after reading the whole story envelope.',
   });
   run(root, 'story_update', { storyId: tamperStory, title: 'Fallback tamper story changed after attestation' });
+  // story_update mutates the freeze-check inputs; rerun scope_freeze_check so
+  // the next story_advance failure surfaces from init_check_tampered (the
+  // intent of this test), not scope_freeze_check_stale (a prior preflight).
+  run(root, 'scope_freeze_check', { storyId: tamperStory, actor: 'init-check-fallback-smoke' });
   const tampered = run(root, 'story_advance', { storyId: tamperStory, phase: 'INIT_CHECK' }, true);
   assert.match(tampered, /init_check_tampered/, 'editing signed content after a fallback must trigger init_check_tampered');
 

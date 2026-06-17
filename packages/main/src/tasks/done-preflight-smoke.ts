@@ -443,6 +443,27 @@ function assertDoneRejectsWhenMainIsDirty(): void {
     // creation. Must be a tracked-file change (not untracked) — untracked files
     // in the main repo are skipped by the preflight (runtime artifacts like
     // .lattice/locks/ would otherwise trigger a false positive).
+    //
+    // B-72df narrowed the preflight to OVERLAPPING dirty paths only: a dirty
+    // tracked file blocks DONE only if `git diff main...story/<storyId>` would
+    // also touch it. Dirtying README.md (unrelated to the merge) used to be
+    // enough; now we must dirty a path the merge actually affects — the story
+    // metadata file under .lattice/story/<storyId>/story.json, which the
+    // worktree branch updates on phase advance.
+    // First, modify README.md on the story branch (via the worktree) so the
+    // story-branch diff against main includes README.md. Then dirty README.md
+    // on main → the dirty path now overlaps the merge's affected set, which
+    // is the trigger the narrowed B-72df preflight checks for.
+    writeFileSync(join(worktreePath, 'README.md'), `done-preflight-smoke ${storyId} (story-side change)\n`);
+    git(worktreePath, ['add', 'README.md']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story-side README change']);
+    // Re-stamp test evidence so the materialHash freshness check still passes;
+    // we want the preflight (not evidence freshness) to be the blocker.
+    const worktreeStoreForRefresh = new StoryStore(worktreePath);
+    writeDoneGateEvidence(worktreeStoreForRefresh, worktreePath, storyId);
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'refresh done gate evidence']);
+    // Now dirty README.md on main; this overlaps the story-branch change.
     writeFileSync(join(root, 'README.md'), 'dirty main content that must block DONE\n');
     git(root, ['add', 'README.md']);
     // Verify main is actually dirty (tracked changes).

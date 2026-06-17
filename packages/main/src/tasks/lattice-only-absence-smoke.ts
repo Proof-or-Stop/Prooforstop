@@ -97,7 +97,13 @@ try {
 
   const codex = runCodexAdapterChecks(legacyOnlyRoot, { executeHeartbeats: false });
   assert.equal(codex.ok, false, `legacy-only Codex assets must not pass:\n${renderCodexAdapterChecks(codex)}`);
-  assert.equal(codex.checks.find(check => check.id === 'manifest')?.status, 'fail', 'legacy-only manifest should fail');
+  // After the koala-removal ship-clean program, the manifest resolver only
+  // looks at .lattice-codex/lattice.json — legacy .lattice-codex/koala.json
+  // is silently ignored. With no Lattice manifest present, the manifest check
+  // returns pass under the runtime-owned default (prompt registry resolves
+  // from the package, not a project file). Overall failure now comes from
+  // the legacy-wrapper + native-hooks checks below, which is what we assert.
+  assert.equal(codex.checks.find(check => check.id === 'manifest')?.status, 'pass', 'runtime-owned default manifest now passes (legacy koala.json is ignored, not a manifest)');
   assert.equal(codex.checks.find(check => check.id === 'local-wrapper')?.status, 'fail', 'legacy-only wrapper should fail');
 
   const managed = runManagedAssetCheck(legacyOnlyRoot, { profile: 'codex', assetMode: 'full' });
