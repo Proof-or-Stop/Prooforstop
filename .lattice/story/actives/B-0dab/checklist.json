@@ -55,7 +55,19 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -n 'koala-english|koala-incremental' packages/main/src/tasks; node scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "All 7 koala-* mkdtemp prefixes renamed to lattice-*; git grep returns nothing; gate PASS 0 unclassified",
+          "headHash": "3f20f621f7a8ceb614fa77af5cf28a0f4dd3f020",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:00:49.755Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
