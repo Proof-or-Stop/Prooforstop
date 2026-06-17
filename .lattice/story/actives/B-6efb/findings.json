@@ -110,7 +110,7 @@
       "desc": "CHK-003:adversarial:4 evidence command does not match intent. Intent: `env -i HOME=\\$HOME PATH=\\$PATH node packages/main/dist/tasks/run-all-smokes-smoke.js -> exits 0` (confirms standalone-runnable without ambient env). Evidence command: `npm --prefix packages/main run test:run-all-smokes-smoke` — npm inherits the full shell environment, which does not test the ambient-env isolation guarantee. Re-run of the intent command confirms exit 0.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T02:16:05.807Z",
@@ -119,7 +119,8 @@
       "_hash": "2a176f7015d44d7764dd6f2a3ce5c23f7a40fad8b6e3a503444dd1fc6689bbca",
       "files": [
         "packages/main/src/tasks/run-all-smokes-smoke.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-17T02:21:38.279Z"
     }
   ]
 }
