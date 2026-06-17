@@ -9,12 +9,13 @@
  *    returns a `FindingSignalsCache`. It NEVER calls `Date.now()`/`new Date()`,
  *    NEVER touches the filesystem, and NEVER produces `NaN` (zero-sample => 0).
  *
- *  - `deriveFindingSignalsFromStore` is the ADAPTER: its ONLY outward dependency
- *    is the read-only store port `../store.js`. It enumerates story ids and reads
- *    findings via `store.readFindings(id)` (NEVER `JSON.parse` of findings.json),
- *    maps them to `SignalSourceFinding`, derives, and persists via the
- *    learning-store. This is the only module in the set allowed to import
- *    `../store.js`; everything else stays import-free (the isolation bar).
+ *  - `deriveFindingSignalsFromStore` is the ADAPTER: its ONLY non-sibling
+ *    dependency is the read-only store port `./store.js`. It enumerates story ids
+ *    and reads findings via `store.readFindings(id)` (NEVER `JSON.parse` of
+ *    findings.json), maps them to `SignalSourceFinding`, derives, and persists via
+ *    the learning-store. This is the only module in the set allowed to import the
+ *    store port; everything else stays import-free (the isolation bar). No module
+ *    in the set may import `../` (out of core/) or `../../` anywhere.
  *
  * Scoring (conservative positive-fraction):
  *   positive  = #resolutionType==='fixed' + 0.5 * #resolutionType==='partially_mitigated'
@@ -32,7 +33,7 @@ import type {
   SignalSourceFinding,
 } from './experience-layer-types.js';
 
-import { StoryStore } from '../store.js';
+import { StoryStore } from './store.js';
 
 import { writeFindingSignals } from './learning-store.js';
 
