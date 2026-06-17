@@ -267,6 +267,17 @@
           "headHash": "d3c66b45415707f224fe1f16bead2b690e46e4e1",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:55.334Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE koala-residue CLAUDE.md",
+          "result": "pass",
+          "note": "Returns 4+ — CLAUDE.md gate table updated; backticks count as additional hits.",
+          "headHash": "792c4fa4a470ba8569a641294b7b5502c78a4473",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:55.998Z"
         }
       ]
     },
