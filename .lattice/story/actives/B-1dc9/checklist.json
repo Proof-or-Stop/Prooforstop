@@ -72,7 +72,39 @@
       "userSees": "story_review output _reviewPrompt includes a 'Project experience hints (advisory only)' section when signals exist; absent/empty when there are none.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_review with signals present -> _reviewPrompt contains a section labelled Project experience hints (advisory only) with hint content from the loader; WHY: covers the main integration path",
+            "type": "cli"
+          },
+          {
+            "desc": "story_review with zero signals -> _reviewPrompt does NOT contain the experience hints section; WHY: verifies omission when no signals exist",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_review with exactly 1 signal -> advisory section present with exactly 1 hint entry; WHY: minimum non-empty boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "Advisory section placement mirrors grillSection placement in _reviewPrompt (appears in same relative position/pattern); WHY: verifies mirror-grillSection structural requirement",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Signals contain special characters (newlines, markdown injection, backticks, angle brackets) -> advisory section renders without breaking the surrounding prompt structure; WHY: prompt injection resilience",
+            "type": "cli"
+          },
+          {
+            "desc": "Advisory section is clearly advisory-only: no gate logic references the hint content, no conditional gate pass/fail depends on hints; WHY: ensures hints cannot accidentally become blockers",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
