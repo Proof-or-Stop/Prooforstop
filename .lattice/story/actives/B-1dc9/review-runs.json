@@ -128,6 +128,49 @@
         "bindingHash": "b0a225b3847d911d7145c4561b1bcbc503fc748b79689b7bdaaacacd5faed0c7"
       },
       "_hash": "89b2c30a68f9177e45e04d4700396f659ae6a66f758ac81be6cfc30ce13d36c9"
+    },
+    {
+      "reviewRunId": "B-1dc9:RR-004",
+      "storyId": "B-1dc9",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-17T13:34:28.121Z",
+      "startedAt": "2026-06-17T13:38:47.637Z",
+      "headHash": "ddf62dba8431a6f3ef367f1df721d8fdee47d197",
+      "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "92bbcb0217e52f6555ef7207d95396d6fac9d0caf2c16daef61e6f7aff298617",
+        "diffPackHash": "2bbd85d48d5e72c9d943381e31d644a442d1308ec85a28ffd4260e2cd913ba5f",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/experience-hint-loader.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "241e5519a06edddbc66e363b6e43c38df4524640dc1b62faac5d326a4bfbf6cb",
+          "7d5d242b526dd9464746b6a2f4d372a496a1d9419d9e20793a84c4ca582745ff",
+          "93ebdfdef42507ac344f985c16c5cb21d643fb5bc7e3d9500cbfae5455c607b0",
+          "db026c638e52e8ffa05394bd912c770ff913ad4064e1626fd87d8847e7376e9a",
+          "f61dc832212f853bf93badff6b8664c58ee21b9a9f7a977fbd37f78f50b17d89",
+          "f7ab28e7e7f71f446c432e15dbc92a461ed0be8562ed2b562e60020297a28a33"
+        ],
+        "bindingHash": "4871e0e9f60a817d65abb602fc63a999d5f68aaa4b36db86372a7b263baac7de"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-1dc9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-1dc9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-1dc9",
+        "workspaceMode": "story-worktree",
+        "headHash": "ddf62dba8431a6f3ef367f1df721d8fdee47d197",
+        "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
+        "bindingHash": "f6a124ed9c474abfe4c574468e1027cc64f80af71f9a0ddae714987d89215001"
+      },
+      "_hash": "2224006be382033f03c943304d67572ec887bc99c93951d0b4ff350856060910"
     }
   ]
 }
