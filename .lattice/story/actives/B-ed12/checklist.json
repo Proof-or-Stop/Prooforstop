@@ -129,7 +129,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-only-absence-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node packages/main/dist/tasks/review-loop-smoke.js",
+          "result": "pass",
+          "note": "all 4 smokes EXIT=0 standalone; review-loop 38/38 passed. Updated to: Argument validation failed; runtime-owned manifest pass; Entrypoint+legacyKoalaAliasPreserved=false; storyDirPath mock",
+          "headHash": "72d93f44d9496ccb7c13fa46caade312cd74c5aa",
+          "materialHash": "544df9883fa6987cecf2d1b219baa342544c5bdab077f95ebd34289bda53e847",
+          "timestamp": "2026-06-17T20:08:36.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
