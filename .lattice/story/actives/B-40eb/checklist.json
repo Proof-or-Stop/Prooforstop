@@ -51,6 +51,16 @@
           "headHash": "de807043aee7b29fefb3ee10331625cf59016a81",
           "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
           "timestamp": "2026-06-17T02:14:04.909Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/cli-engine-branding-smoke.js",
+          "result": "pass",
+          "note": ".koala 运行时路径行经 stripContextualLegacyTokens 判为 documented-exception；branding smoke PASS",
+          "headHash": "2eadcfad1d75689eb47fc514925e93f84d184e8c",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:05.751Z"
         }
       ]
     },
