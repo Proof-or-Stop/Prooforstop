@@ -5,9 +5,9 @@
       "title": "Add a smokes aggregator and wire it into the lattice validate run path",
       "context": "Add a test:smokes (or similar) script that runs the wrapper-root / gitRoot smokes (storydir-inside-gitroot-smoke/suite, gitroot-cwd-routing, bare-gate-gitroot-cwd) and any other currently-orphaned smokes, and make lattice validate execute it (chain into root test, or a validate.command). Decide fast vs --full placement for slower fixture-building smokes.",
       "userSees": "lattice validate runs the wrapper-root smokes (their output appears in the validate run) and a deliberately-broken smoke makes lattice validate fail.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T18:05:18.343Z",
       "verificationIntent": {
         "happy": [
           {
