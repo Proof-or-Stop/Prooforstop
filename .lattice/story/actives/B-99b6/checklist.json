@@ -48,10 +48,10 @@
           "verdict": "success",
           "command": "lattice validate --story=B-99b6",
           "result": "pass",
-          "note": "Captured /tmp/b99b6-validate-green.log: validate output literally lists all 8 newly-gated guard steps (process-fact-contract, runtime-fact-contract, evidence-quality, anti-stall, storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root); FOUND for all 8 via grep. validate --json (no --story) reports status=pass allPass=true commands[].code=0.",
-          "headHash": "198dd568986ecc4059e0d210004962617093766e",
-          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
-          "timestamp": "2026-06-17T18:08:25.840Z"
+          "note": "Post-merge refresh: validate output lists all 8 newly-gated guard steps; validate --json (no --story) status=pass allPass=true commands[].code=0. Battery GREEN after git merge main.",
+          "headHash": "e6e451dbe21b1d9605e5bb5b2bf2cc9d92e155a9",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:14.963Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
