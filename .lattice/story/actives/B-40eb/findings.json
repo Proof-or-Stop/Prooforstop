@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-40eb:F-001",
+      "desc": "CHK-001:edge:0, CHK-001:edge:1, CHK-001:adversarial:0, CHK-001:adversarial:1 — all four must intents describe specific classifier unit-level behaviors (mixed neutral+brand line, runtime-path-only line, bare-brand-prose, KoalaFoo substring). All four evidence entries use the same command `node packages/main/dist/tasks/cli-engine-branding-smoke.js`, which is a fixed-file scanner of 5 files (cli-engine.ts, hooks.ts, guide-hooks.md and their dists). The smoke has no inline unit test fixtures for these specific inputs. Evidence notes assert the behaviors hold by implication (the files happen to contain such patterns), but no targeted test input is constructed and run per intent. This is a command-to-intent mismatch: the command exercises file-level scanning, not the specific classifier edge cases the intent describes. A dedicated classifier unit test (feeding the specific line as input, asserting isClassified return value) is needed to bind this evidence concretely.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T02:20:05.670Z",
+      "reviewRound": "2026-06-17T02:16:07.737Z",
+      "reviewRunId": "B-40eb:RR-003",
+      "_hash": "4613e403e4ee0afa167cb5b5632b2612d09c4ebaefe469c5d5300e9b6d77c705",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
+    }
+  ]
+}
