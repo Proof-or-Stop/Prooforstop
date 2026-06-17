@@ -52,6 +52,17 @@
           "headHash": "198dd568986ecc4059e0d210004962617093766e",
           "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
           "timestamp": "2026-06-17T18:08:25.840Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e require(./package.json).scripts.test",
+          "result": "pass",
+          "note": "Root test chain now contains the 8 new entries; gitroot-cwd-contract count = 1 (verified by regex match count). Final chain ends with test:e2e. npm test exit 0, all new guard steps ran green ending with ALL PASS.",
+          "headHash": "ad51b02b74203970cdb3887b54fc191062417a47",
+          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
+          "timestamp": "2026-06-17T18:08:26.362Z"
         }
       ]
     },
