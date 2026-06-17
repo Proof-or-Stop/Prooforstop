@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T23:02:40.347Z",
       "reviewRunId": "B-6745:RR-002",
       "_hash": "e54c753a6b768f4bc6dbeb0705e79fa376c41859a8d9a8b6e2affb6cdfd1bbfa"
+    },
+    {
+      "id": "B-6745:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "round 2: net diff is only the 2 hermetic smoke fixes (autopilot-authority-smoke.ts + multi-host-authority-smoke.ts); gemini provider intact (BoundedProviderName still includes gemini); no concept deletion or replacement found; two-dot and three-dot diffs agree on exactly these 2 files; no production file changed, no test deleted, no assertion weakened",
+      "createdAt": "2026-06-17T23:09:12.496Z",
+      "reviewRound": "2026-06-17T23:08:16.789Z",
+      "reviewRunId": "B-6745:RR-004",
+      "_hash": "767f4dc2de0ceb5457d9816d7e72ae37a01bf77f87b4311244ddc1456bd5d774"
     }
   ]
 }
