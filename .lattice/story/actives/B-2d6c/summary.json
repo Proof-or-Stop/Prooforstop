@@ -1,18 +1,18 @@
 {
   "storyId": "B-2d6c",
-  "changes": "17 *-smoke.ts files realigned (16 batch + story-owner-lease porcelain assertion narrowed to probe path B-c55d/owner-lease.json); smoke-manifest.json bumped timeoutMs for 8 slow smokes; package.json test:coverage prepended NODE_OPTIONS=--max-old-space-size=8192 to fix c8 v11 OOM; CHANGELOG Unreleased entry documents migration + retires B-c6cf CHK-002:happy:2 waiver. Production untouched. Merged main mid-story: 14 smoke files had conflicts with parallel B-ed12 'stale message smokes' fix — took main's version for all (equivalent or slightly better assertions).",
-  "usage": "npm run test:all (parallel) exits 0 with 162/162 in ~3-4 min. npm run test:coverage (serial under c8) exits 0 in ~15-20 min with HTML + LCOV reports at packages/main/coverage/.",
-  "expectedOutcome": "3 consecutive parallel runs all 162/162 exit 0. test:coverage exit 0 with reports generated. CHANGELOG Unreleased names B-2d6c + waiver retirement.",
-  "actualTranscript": "Pre-merge: 3 parallel runs all 162/162 PASS. test:coverage exit 0 after NODE_OPTIONS heap. Merged main (165 commits incl B-ed12, B-292d, B-c6cf): 14 smoke conflicts resolved by taking theirs (B-ed12's parallel fix to same smokes). Post-merge test:all: 162/162 PASS exit 0 in 183s. 3 reviewer lanes PASS, 2 findings F-001/F-002 resolved.",
-  "outcomeDiff": "No difference: test:all + test:coverage both exit 0. B-c6cf waiver retired.",
+  "changes": "B-2d6c: 17 *-smoke.ts files realigned + 8 timeoutMs bumps in manifest + NODE_OPTIONS heap fix for test:coverage + CHANGELOG Unreleased entry retiring B-c6cf waiver. Production untouched. Mid-story merge with main (165 commits incl B-ed12) — 14 smoke conflicts resolved by taking theirs (B-ed12's parallel fix to same smokes is equivalent/better).",
+  "usage": "npm run test:all parallel exits 0 162/162 in ~3-4 min. npm run test:coverage serial under c8 exits 0 in ~15-20 min with HTML+LCOV at packages/main/coverage/.",
+  "expectedOutcome": "Both npm run test:all (parallel) and npm run test:coverage (serial) exit 0 with all 162 smokes PASS. CHANGELOG names B-2d6c + retires B-c6cf waiver.",
+  "actualTranscript": "3 consecutive parallel runs all 162/162 PASS exit 0. Post-merge test:all also 162/162 in 183s exit 0. test:coverage exit 0 after NODE_OPTIONS heap. 3 reviewer lanes PASS, 2 findings resolved, escalation not required.",
+  "outcomeDiff": "No difference: A0 goal met. B-c6cf waiver retired.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Scope expanded via scope_contract_acknowledge twice (smoke-manifest broadened beyond lattice-baseline + package.json for heap). All edits tests-only. Authority/production receipts NOT issued (escalation not required at countableProblems 1/2).",
-  "pitfalls": "(1) Parallel-only TIMEOUTs surface after stale-assertion fixes; per-smoke timeoutMs bump is the remedy. (2) c8 v11 OOM at 162-smoke merge; NODE_OPTIONS=--max-old-space-size=8192 fixes. (3) git porcelain match was too broad ('owner-lease.json' .includes catches ANY); narrow to specific probe path. (4) Always npm install on main to materialize devDependencies — B-c6cf added c8 to devDeps but install didn't run. (5) Parallel concurrent stories on main can create merge conflicts — B-ed12 also fixed stale message smokes; took theirs. (6) DONE gate retry pattern: re-run summary_set + refresh_stale + advance until materialHash settles.",
+  "limitations": "Scope expanded twice via scope_contract_acknowledge (manifest beyond lattice-baseline, package.json for heap). Tests-only edits throughout. Authority/production receipts NOT issued.",
+  "pitfalls": "Parallel-only TIMEOUTs surface after stale-assertion fixes (per-smoke timeoutMs bump). c8 v11 OOM at 162-smoke merge (NODE_OPTIONS heap). Porcelain match too broad (narrow to specific probe path). Always npm install on main to materialize devDependencies. Parallel concurrent stories on main can create merge conflicts. DONE gate retry pattern: re-run summary_set + refresh_stale + advance until materialHash settles.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 458861
+      "durationMs": 508531
     }
   },
-  "totalDurationMs": 11440402,
+  "totalDurationMs": 11490072,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-17T21:15:05.832Z",
-  "updatedAt": "2026-06-17T21:19:50.696Z"
+  "updatedAt": "2026-06-17T21:20:40.365Z"
 }
