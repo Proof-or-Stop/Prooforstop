@@ -174,7 +174,51 @@
       "userSees": "npm run test:experience-layer-playbook exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run test:experience-layer-playbook -> exits 0 with output containing smoke passed; WHY: proves the smoke script is wired and the full lifecycle works end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke exercises full propose->diff->approve->reject lifecycle in sequence -> verifier prints TOTAL N | PASS N | FAIL 0; WHY: proves all lifecycle transitions work together",
+            "type": "cli"
+          },
+          {
+            "desc": "existing experience-layer smoke still passes -> npm --prefix packages/main run test:experience-layer exits 0; WHY: no regression on Phase 1 experience-layer",
+            "type": "cli"
+          },
+          {
+            "desc": "existing decision-doc smoke still passes -> npm --prefix packages/main run test:decision-doc exits 0; WHY: no regression on decision-doc which shares core/digest.js",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke is hermetic -> uses a temp directory for .lattice/learning/, does not pollute the real .lattice/; WHY: proves test isolation",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke asserts proposalDigest stability -> compute digest, re-read proposal, digest matches; WHY: proves digest determinism within the integration test",
+            "type": "cli"
+          },
+          {
+            "desc": "build clean after all changes -> npm --prefix packages/main run build exits 0 with no type errors; WHY: proves types are well-formed and no compilation regressions",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke asserts the never-auto-finding guardrail -> snapshot findings state before lifecycle, compare after full propose->diff->approve->reject, findings unchanged; WHY: integration-level proof that the entire lifecycle never auto-files findings",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke asserts learning modules have zero outward coupling -> import analysis of experience-layer-types.ts + learning-store.ts + handlers/playbook.ts shows only core/digest.js + finding read port as external imports; WHY: non-vacuous import-fence check at integration level",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
