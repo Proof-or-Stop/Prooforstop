@@ -263,7 +263,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "node packages/main/dist/tasks/gap-log-smoke.js; node packages/main/dist/tasks/story-create-concurrency-smoke.js; node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "all three standalone exit 0 after stale-fix; gap-log dedup hint + disproven/out-of-enum wording; story-create-concurrency hard-block/F-004/dupWarning/riskHint/concurrency-note wording; review-pass-discard residuals + has-been-dropped + reviewer-prompt wording. Zero production change.",
+          "headHash": "a888762f731577a8faa969ab4bfa7b27ca4a94ec",
+          "materialHash": "75143b417b285165577629e01ddf2eb721b05aedb2abd094846fb27e09dc5697",
+          "timestamp": "2026-06-17T20:28:27.629Z"
+        }
+      ]
     }
   ]
 }
