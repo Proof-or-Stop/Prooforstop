@@ -377,10 +377,10 @@
           "file": "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
           "command": "npm --prefix packages/main run test:experience-layer-hint-injection",
           "result": "pass",
-          "note": "Smoke: exactly-one experience_hint_surfaced event via appendActivityLog on surface; resolveReviewPromptHash byte-identical with/without hints (review-run.ts untouched).",
-          "headHash": "2115f0f16904814bd7dc08001ffbabb64ac8173a",
-          "materialHash": "1dfaaade8ad3730ff66a2559bab3f9843e5837638a463754720af75483b2ee4d",
-          "timestamp": "2026-06-17T13:34:10.239Z"
+          "note": "Smoke check 'CHK-003:edge:0 surface twice same run => one event': two surfacings in the same currentReviewRound append exactly one experience_hint_surfaced event; a new round yields a second.",
+          "headHash": "b0ee8aec15d0cf8b8dd9ee1cc4e044aab387ce9a",
+          "materialHash": "0eb99099ec12b4e6b4117ad860709550723a2e65f37cb1cd533dcd198b617236",
+          "timestamp": "2026-06-17T13:45:30.587Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
