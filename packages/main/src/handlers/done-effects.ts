@@ -569,10 +569,16 @@ export async function runDonePreMergeGate(
   store: StoryStore,
   root: string,
   actor: ReturnType<typeof import('../core/machine.js').createStoryActor>,
+  // B-6666 CHK-001: the resolved git cwd (wrapper-root aware), resolved ONCE at
+  // the transition-orchestrator DONE boundary and threaded down. `root`
+  // (metadataRoot) is still used for store/metadata reads; only the DONE-oracle
+  // git probes use gitCwd. Defaults to root so callers that have not resolved a
+  // gitCwd stay byte-identical (plain repos: projectRoot==gitCwd).
+  gitCwd: string = root,
 ): Promise<string> {
   // B-c622 CL-006: autoSyncMain moved before actor.can() to fix TOCTOU.
 
-  const rendered = runDoneOracleGate(storyId, store, root, actor);
+  const rendered = runDoneOracleGate(storyId, store, root, actor, gitCwd);
 
   // F-020 (B-9d95 Round 1 review): stray-file 检测提前到 phase=DONE 落盘
   // 之前。原实现（Step 2.5，line 632 附近）在 story.phase=DONE +

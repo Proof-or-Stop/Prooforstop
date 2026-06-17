@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e7c6",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/lab/src/core/config.ts: schema id koala-lab/experiment.v1 -> lattice-lab/experiment.v1",
+    "packages/main/tests/fixtures/lab-foundation.json: schema-id assertion + koala-lab-fixture- mkdtemp prefix -> lattice-lab",
+    "scripts/verify-koala-residue.mjs: remove the now-dead koala-lab exemption regex"
+  ],
+  "excluded": [
+    "experiments/ historical prose (out of scope, not validated by loader)",
+    "No dual-accept/migration (lab does not validate incoming $schema)",
+    "No schema version bump (stays .v1)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose Lattice express-channel story for the koala-lab schema-id rename (2026-06-17)",
+  "createdAt": "2026-06-17T17:46:44.544Z",
+  "updatedAt": "2026-06-17T17:46:44.544Z",
+  "_hash": "87ea23be7c1862e6ec4c73eb411043e927ecf3c5c324f5d757cd188c17ad432d"
+}

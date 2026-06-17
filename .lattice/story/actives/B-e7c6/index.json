@@ -1,0 +1,42 @@
+{
+  "storyId": "B-e7c6",
+  "name": "lab-schema-id-koala-to-lattice",
+  "title": "Rename lab experiment schema id koala-lab/experiment.v1 to lattice-lab/experiment.v1",
+  "description": "Follow-up to the koala-removal ship-clean program (B-40eb/B-0dab DONE). The lab experiment schema id koala-lab/experiment.v1 was kept as a documented exception in B-40eb (wire-format), but the user now wants it renamed to lattice-lab/experiment.v1 as the final koala-lab cleanup. 3 active-scope references; lab does not validate incoming $schema so existing experiments data is unaffected.",
+  "type": "refactor",
+  "phase": "INIT_CHECK",
+  "priority": "low",
+  "keywords": [
+    "koala",
+    "lab",
+    "schema",
+    "rename",
+    "ship-clean"
+  ],
+  "createdAt": "2026-06-17T17:46:20.482Z",
+  "startedAt": "2026-06-17T17:46:20.482Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T17:46:20.492Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T17:48:54.344Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e7c6",
+    "branch": "story/B-e7c6",
+    "createdAt": "2026-06-17T17:48:53.113Z"
+  }
+}

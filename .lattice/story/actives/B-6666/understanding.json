@@ -1,0 +1,40 @@
+{
+  "task": "The gitRoot/gitCwd defect class is NOT closed: done-oracle.ts runs git status from bare metadataRoot (false-blocks DONE on wrapper-root), evidence-freshness.ts uses the same no-op gitCwd=projectRoot alias, and the B-db56 grep-contract was silenced (not satisfied) by trivial aliases + backtick-blind regex.",
+  "outcome": "After this story, on a wrapper-root fixture (metadataRoot != gitRoot) the DONE-oracle git-working-tree row reads `clean` (was status:fail/blocking) so DONE is no longer falsely blocked; running `npm run test:gitroot-cwd-contract` prints `✓ gitroot-cwd-contract smoke passed` and exit 0 WHILE the contract now FAILS (non-zero exit, prints a violation) if anyone reintroduces a `const gitCwd = projectRoot` alias used as a git cwd or a backtick-template git call with a bare-root cwd; and `lattice validate --story=B-6666` is ALL PASS.",
+  "facts": [
+    "resolveGitCwd is at core/story-signed-workspace-resolution.ts:195; takes {store,storyId,metadataRoot,projectRoot,cwd?,config?}, returns authoritativeCwd or falls back to projectRoot, never throws.",
+    "transition-orchestrator.ts:271 already resolves doneGitCwd via resolveGitCwd and threads it into checkMainDivergence(:290) + autoSyncMain(:293), but :363 calls runDonePreMergeGate(storyId,store,ctx.root,actor) with bare ctx.root.",
+    "Chain: runDonePreMergeGate(done-effects.ts:567) -> runDoneOracleGate(phase-gates.ts:539) -> buildDoneChecklist(done-oracle.ts:210); root flows unchanged through all three.",
+    "Inside buildDoneChecklist: readGitStatusLines(root):324 is the git-working-tree row source (the false-block); also checkEvidenceFreshness(store,storyId,root):280, gitRefExists:386, gitRefContainsMain:398, checkMainDivergence:407/422, inline execSync(git diff main...HEAD,cwd:root):461.",
+    "done-oracle.ts has ZERO resolveGitCwd references; uses const gitCwd=projectRoot at 51/64/123/137 and const gitCwd=root at 459.",
+    "evidence-freshness.ts has ZERO resolveGitCwd references; 4 bare-root git probes currentGitHead:50, changedFilesBetween:67, changedFilesBetweenRenameAware:89, currentMaterialHash:116 each do const gitCwd=projectRoot; lines 51-54 contain a comment admitting the alias makes the contract pass without changing behavior.",
+    "checkEvidenceFreshness(store,storyId,projectRoot,phase) wrapper (done-oracle path) calls checkEvidenceFreshnessForGit(projectRoot,...):143 which calls currentGitHead+currentMaterialHash with that projectRoot.",
+    "Production evidence-freshness callers passing bare ctx.root: checklist.ts:192/979, verifier.ts:353, phase-gates.ts:349/350/458 (authority-receipt TEST/DONE), core/lattice-dispatch.ts. review-run.ts callers already pass resolved signedProjectRoot.",
+    "Contract smoke source: packages/main/src/tasks/gitroot-cwd-contract-smoke.ts. GIT_CALL_REGEX=/(execFileSync|spawnSync|execSync)([\\x27\"]git[\\x27\"]/g only matches string-literal git, blind to backtick execSync(`git`). BARE_CWD_REGEX=/\\bcwd:\\s*(projectRoot|root|metadataRoot)\\s*[,}]/ only catches the three literal idents at the cwd: site, blind to alias const gitCwd=projectRoot.",
+    "Baseline: npm run test:gitroot-cwd-contract currently exits 0 (519 .ts files, 0 violations) while the defect is live = gamed/silenced state.",
+    "INIT reviewers measured ~14 non-smoke backtick execSync(`git`) sites, 4 with confirmed bare-root cwd (validate-channel.ts x2 projectRoot, test-runner-core.ts x2 root).",
+    "The strengthened contract is NOT run by lattice validate (B-99b6 wires it later); must verify green explicitly via npm run test:gitroot-cwd-contract."
+  ],
+  "constraints": [
+    "NORMAL channel: main agent does NOT write business code; dispatch fresh lattice-implementer per item.",
+    "Fall back to root when no gitRoot resolves so plain repos (projectRoot==gitCwd) are byte-identical (no behavior change for the common case).",
+    "Leave the contract GREEN at DONE (B-99b6 wires it into the gate; a red contract would block B-99b6).",
+    "OUT OF SCOPE: process-fact-registry.ts/process-fact-config.ts/DEFAULT_PHASE_TOOLS (B-867c); wiring smokes into the validate battery (B-99b6).",
+    "Systematic debugging: one site at a time, re-verify the contract after each.",
+    "If the backtick blast radius is too large for one story: fix the CONFIRMED wrapper-root sites + ship the alias-detection rule + LOG remaining sites as a documented scoped follow-up; do NOT leave the contract red."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/src/handlers/test-runner-core.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "package.json"
+  ],
+  "timestamp": "2026-06-17T16:35:13.852Z"
+}

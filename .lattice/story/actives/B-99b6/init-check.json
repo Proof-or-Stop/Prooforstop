@@ -1,0 +1,57 @@
+{
+  "storyId": "B-99b6",
+  "checkedAt": "2026-06-17T17:50:45.472Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights and index.json description both state the root test script is only `npm run test:e2e`, but the actual package.json test script chains 8 commands (test:main-write-lock-coverage, test:koala-residue, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke, test:docs-drift-wrapper-root, test:gitroot-cwd-contract, test:e2e). This incorrect baseline may mislead the implementer about the starting point for CHK-001."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "description references test:storydir-inside-gitroot-smoke and test:storydir-inside-gitroot-suite as orphaned smokes to aggregate, but neither exists as an npm script entry in package.json (only as compiled dist/ task files). Similarly test:evidence-state-gate-smoke and test:authority-gate-* do not appear in package.json scripts. The implementer will need to create these script entries or adjust scope before wiring."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "test:gitroot-cwd-contract is already present in the root test script (package.json line 15), but background.md and description list the wrapper-root/gitRoot smokes as uniformly invisible to validate. This inconsistency could cause CHK-002 verification to pass prematurely or double-count an existing entry."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T17:49:41.799Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 and CHK-002 userSees overlap: both mention deliberately-broken smoke turning validate red. Consider sharpening CHK-001 userSees to focus on smoke output appearing in the validate run, and CHK-002 userSees to focus on the red/green proof. Advisory only -- does not block."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T17:50:45.472Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights and index.json description both state the root test script is only `npm run test:e2e`, but the actual package.json test script chains 8 commands (test:main-write-lock-coverage, test:koala-residue, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke, test:docs-drift-wrapper-root, test:gitroot-cwd-contract, test:e2e). This incorrect baseline may mislead the implementer about the starting point for CHK-001."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "description references test:storydir-inside-gitroot-smoke and test:storydir-inside-gitroot-suite as orphaned smokes to aggregate, but neither exists as an npm script entry in package.json (only as compiled dist/ task files). Similarly test:evidence-state-gate-smoke and test:authority-gate-* do not appear in package.json scripts. The implementer will need to create these script entries or adjust scope before wiring."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "test:gitroot-cwd-contract is already present in the root test script (package.json line 15), but background.md and description list the wrapper-root/gitRoot smokes as uniformly invisible to validate. This inconsistency could cause CHK-002 verification to pass prematurely or double-count an existing entry."
+        }
+      ]
+    }
+  ],
+  "_hash": "9b5d6186fb2f68211100bbdf64785fa1843ff55d4fd2e9ede7bcb385117775c3"
+}

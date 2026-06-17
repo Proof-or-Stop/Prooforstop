@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-6666:F-001",
+      "desc": "evidence-freshness.ts:143,218 isMaterialExcludedPath receives gitCwd instead of metadataRoot (root), violating the stated invariant in BuildDoneChecklistOptions.gitCwd and CHK-001 plan.md that \"root (metadataRoot) still drives every config/store/audit read\". In currentMaterialHash, isMaterialExcludedPath(filePath, gitCwd) calls loadConfig(gitCwd) — which looks for lattice.config.json in the gitRoot, not the metadataRoot. On a wrapper-root layout where lattice.config.json is at the metadataRoot (not at gitCwd) and storyDir is a custom prefix not covered by DEFAULT_STORY_METADATA_PREFIXES, story metadata files tracked in the gitRoot would not be excluded from the material hash, producing a different (larger) hash than expected and causing a false evidence-stale DONE block. The smoke test fixture uses storyDir=.lattice/story/actives which matches the default prefix so the bug is not caught. Fix: pass root (metadataRoot) to isMaterialExcludedPath in both call sites inside evidence-freshness.ts, keeping gitCwd only for the actual git invocation (ls-tree, rev-parse, diff). Same applies to changedFiles.filter at line 218.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T17:18:47.918Z",
+      "reviewRound": "2026-06-17T17:13:23.239Z",
+      "reviewRunId": "B-6666:RR-003",
+      "_hash": "f970ccfd31c674376a2b26c74e809c57002133578d13a8c993f08d94482c4e36",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "resolvedReason": "Fixed in 3e9c61db1: added optional metadataRoot param (default=gitCwd for plain-repo byte-identity) to currentMaterialHash + checkEvidenceFreshnessForGit; isMaterialExcludedPath config-load now uses metadataRoot while git invocation keeps gitCwd. Threaded explicit metadataRoot at the 3 wrapper-root-reachable callers. Regression in done-oracle-wrapper-root-smoke.ts proves red->green on a wrapper-root + custom-storyDir fixture.",
+      "resolvedAt": "2026-06-17T17:30:31.604Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
