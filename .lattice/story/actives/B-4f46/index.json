@@ -4,7 +4,7 @@
   "title": "Experience Layer Phase 1b: structured finding outcome enums + signatureTag capture + signature-registry (additive, audit-only, excluded from gates, back-compatible)",
   "description": "Implement Phase 1b from docs/requirements/decisions/lattice-experience-layer-execution-plan.md: add optional audit-only outcome fields to findings (finding_add signatureTag; finding_resolve resolutionType+resolveEvidenceStrength; finding_dismiss dismissReasonType(optional)+dismissEvidenceStrength), a signature-registry under .lattice/learning to prevent synonym-tag drift (auto-propose on capture, active needs human approval, aliases/mergedInto), and a minimal signature CLI. All fields are additive, optional, audit-only and MUST NOT be read by advisory.ts or any gate logic, and stay out of the finding signature domain. Back-compat: legacy findings/calls omitting the fields behave unchanged. Proven by a smoke covering capture, enum validation, gate-exclusion, registry propose/approve, migration tolerance, and signal enrichment.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -69,6 +69,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T12:40:10.801Z",
+      "branch": "story/B-4f46",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:51:49.842Z",
       "branch": "story/B-4f46",
       "user": "Harmonygo",
       "agent": "main"
