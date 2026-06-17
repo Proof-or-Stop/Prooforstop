@@ -163,6 +163,17 @@
           "headHash": "49b3c8a0e4131401fd92d795f9c5e35c011ecda2",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:09:48.883Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- 'packages/main/src/tasks/*-smoke.ts' | grep -vE 'run-all-smokes-smoke' | wc -l",
+          "result": "pass",
+          "note": "Returns 0: no existing smoke file modified (only new run-all-smokes-smoke.ts created).",
+          "headHash": "661cbf17024ff4ec6f06dacc375c4f114f273b5b",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:09:50.212Z"
         }
       ]
     },
