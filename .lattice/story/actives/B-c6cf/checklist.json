@@ -355,6 +355,17 @@
           "headHash": "c34deab6b2f044a7668ff58d3bef3019786e7212",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:08.702Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'B3.*DONE.*B-c6cf|B-c6cf.*B3.*DONE' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Returns 1 — decision doc line 175 reads '### B3 — c8 coverage instrumentation + test:coverage entry — DONE (B-c6cf, 2026-06-17)'.",
+          "headHash": "34db72d49a443e405bd80ebbf3eca24c6efa1b03",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:11.122Z"
         }
       ]
     },
