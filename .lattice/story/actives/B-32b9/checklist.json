@@ -35,7 +35,20 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-17T18:49:42.238Z"
+      "endTime": "2026-06-17T18:49:42.238Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Open B-32b9 (PLAN) in Lineage Graph",
+          "result": "pass",
+          "note": "B-32b9 graph shows: root, input-req, 4 init-review agent nodes in plan layer, 4 pending CHK nodes in agent layer, evidence-gate, done — 12 nodes total. Preview screenshot at 27% scale confirms all nodes visible.",
+          "headHash": "97aa644e44ef4a6419862c15af0203a5ed99675a",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:00:48.342Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
