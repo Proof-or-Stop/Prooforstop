@@ -464,6 +464,17 @@
           "headHash": "3363f696822cd91ab2d0db28bddd7175515a4ced",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:08:19.256Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c test:coverage docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "Returns >=1 — doc mentions the test:coverage command.",
+          "headHash": "e5e1fcd5aa01678559f331073cc14a93d9012b80",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:08:20.864Z"
         }
       ]
     }
