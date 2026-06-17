@@ -92,6 +92,58 @@
           "packages/main/smoke-manifest.json"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validate manifest JSON parses: `node -e \"const m=require('./packages/main/smoke-manifest.json'); if(!Array.isArray(m.smokes)) throw 1; console.log('VALID:'+m.smokes.length)\"` -> prints VALID:N and exits 0; WHY: confirms manifest has correct top-level schema with smokes array",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify test:all script in root package.json: `node -e \"const p=require('./package.json'); if(!p.scripts['test:all']) throw 1; console.log(p.scripts['test:all'])\"` -> prints runner invocation command; WHY: confirms npm script wiring to run-all-smokes.js",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `npm run test:all -- --select run-all-smokes` -> exits 0, stdout contains PASS and summary; WHY: confirms npm script correctly forwards CLI args to runner",
+            "type": "cli"
+          },
+          {
+            "desc": "Each manifest entry has required name field: `node -e \"require('./packages/main/smoke-manifest.json').smokes.forEach((s,i)=>{if(!s.name)throw new Error(i)}); console.log('ALL_NAMED')\"` -> ALL_NAMED; WHY: validates per-entry schema",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Manifest entry with skip:true is honored by runner: add temp entry {name:'skip-me',skip:true}, run runner -> skip-me does NOT appear in PASS/FAIL output; WHY: confirms skip flag prevents execution without error",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke not in manifest discovered by directory scan: `node packages/main/dist/tasks/run-all-smokes.js --select actor-trust` -> exits 0 with PASS even though actor-trust-smoke is not listed in manifest; WHY: confirms fallback discovery for sparse manifest",
+            "type": "cli"
+          },
+          {
+            "desc": "Optional manifest fields validate: `node -e \"require('./packages/main/smoke-manifest.json').smokes.filter(s=>s.tags).forEach(s=>{if(!Array.isArray(s.tags))throw 1}); console.log('SCHEMA_OK')\"` -> SCHEMA_OK; WHY: optional tags/timeoutMs must match documented types",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Existing test:* scripts in root package.json byte-identical to main: `git diff main -- package.json | grep -E '^[+-].*test:' | grep -v test:all | grep -v '^[+-]{3}' | wc -l` -> 0; WHY: story must not modify any existing test script in root",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing test:* scripts in packages/main/package.json byte-identical to main: `git diff main -- packages/main/package.json | grep -E '^[+-].*test:' | grep -v test:run-all-smokes-smoke | grep -v '^[+-]{3}' | wc -l` -> 0; WHY: story must not modify any existing test script in sub-package",
+            "type": "cli"
+          },
+          {
+            "desc": "Strict JSON validation via python3: `python3 -m json.tool packages/main/smoke-manifest.json > /dev/null` -> exits 0; WHY: catches trailing commas and other lax-JSON that Node tolerates but spec forbids",
+            "type": "cli"
+          },
+          {
+            "desc": "Root package.json still valid after edit: `node -e \"require('./package.json'); console.log('VALID')\"` -> VALID; WHY: editing package.json can corrupt it with trailing commas or missing brackets",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
