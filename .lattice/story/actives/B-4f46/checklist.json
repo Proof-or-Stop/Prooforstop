@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add optional audit-only outcome fields to the Finding type",
+      "context": "types.ts Finding: add optional signatureTag, resolutionType (enum), dismissReasonType (enum), resolveEvidenceStrength, dismissEvidenceStrength. Each annotated // audit-only — MUST NOT be read by any gate. Additive only; excluded from the finding signature domain.",
+      "userSees": "Build is clean; the Finding type carries the new optional fields with audit-only comments; finding-verify signing is unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Capture the fields in finding_add/resolve/dismiss with optional enums and back-compat",
+      "context": "cli-engine.ts schemas: finding_add += signatureTag?; finding_resolve += resolutionType?/resolveEvidenceStrength?; finding_dismiss += dismissReasonType?(OPTIONAL)/dismissEvidenceStrength?. finding.ts handlers: validate enums (reuse the evidenceState validation pattern) and store the fields. Legacy callers omitting the fields behave exactly as before.",
+      "userSees": "finding_resolve/dismiss/add accept the new optional flags and persist them; omitting them works unchanged (back-compat); invalid enum values are rejected with a clear error.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Signature-registry in learning-store + minimal CLI; auto-propose on capture; gate-exclusion guardrail",
+      "context": "learning-store.ts: read/write .lattice/learning/signature-registry.json (tags: {tag,status:active|proposed|deprecated,aliases,mergedInto,createdBy,approvedBy}). finding_add with a new signatureTag auto-records it as proposed. Add a minimal CLI (signature_registry_list + signature_registry_set with action propose|approve|alias|deprecate; active requires explicit approve) via a new handler + registry/cli-engine entries. Determinism guardrail: advisory.ts and gate logic never read signatureTag/resolutionType/dismissReasonType/evidenceStrength.",
+      "userSees": "signature_registry_list shows tags; signature_registry_set --action=approve flips a proposed tag to active; a finding_add with an unregistered signatureTag leaves it status=proposed; advisory gate behavior is unchanged by any audit field.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke + npm script + no regression (back-compat, gate-exclusion, migration, signal enrichment)",
+      "context": "tasks/experience-layer-finding-enums-smoke.ts + package.json test:experience-layer-finding-enums. Assert: optional capture + enum validation; legacy finding without fields unchanged (migration tolerance); audit fields NOT read by advisory.ts gate decision; signature-registry propose/approve/alias/mergedInto; finding-signals now produces non-zero signalScore when enums present. No regression in existing finding/usage-ledger smokes.",
+      "userSees": "npm run test:experience-layer-finding-enums exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing finding-related smokes still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
