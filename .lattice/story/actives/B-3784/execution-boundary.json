@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3784",
+  "allowedCommands": [
+    "node packages/main/dist/tasks/autopilot-authority-smoke.js",
+    "node packages/main/dist/tasks/multi-host-authority-smoke.js",
+    "npm run build",
+    "npm run test:all"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/tasks/autopilot-authority-smoke.ts",
+    "packages/main/src/tasks/multi-host-authority-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core",
+    "packages/main/src/handlers"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-17T23:10:24.246Z",
+  "updatedAt": "2026-06-17T23:10:24.246Z",
+  "_hash": "8985e287addad9e3893fc12513b47101afbb3b9592e7de4fc976c936112ee1e3"
+}

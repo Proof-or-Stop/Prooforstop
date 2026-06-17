@@ -1,0 +1,40 @@
+{
+  "storyId": "B-3784",
+  "name": "fix-authority-smoke-cwd-isolation",
+  "title": "Fix autopilot-authority and multi-host-authority smokes: isolate from authority_trust.env via fileReader",
+  "description": "autopilot-authority-smoke and multi-host-authority-smoke fail when authority_trust.env exists in the project root. The smokes call resolveAuthorityVerdictBacking and buildAutopilotRun without cwd or fileReader isolation, so loadAuthorityConfig reads authority_trust.env from process.cwd() and picks up the real staging URL, turning unit-level safety assertions into failures. Fix: pass fileReader stub in affected call sites. Zero production code changes.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "medium",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-17T23:08:32.509Z",
+  "startedAt": "2026-06-17T23:08:32.509Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T23:08:32.510Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the word production appears in the description only to explain what is NOT being changed (zero production code changes). This story modifies only 2 smoke test files. No production handlers, core modules, or runtime paths are touched.",
+      "at": "2026-06-17T23:08:43.254Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3784",
+    "branch": "story/B-3784",
+    "createdAt": "2026-06-17T23:11:26.335Z"
+  }
+}

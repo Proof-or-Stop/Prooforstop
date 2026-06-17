@@ -1,0 +1,32 @@
+{
+  "storyId": "B-3784",
+  "updatedAt": "2026-06-17T23:10:54.284Z",
+  "proposals": [
+    {
+      "proposalId": "SEP-B-3784-001",
+      "storyId": "B-3784",
+      "proposedBy": "jek",
+      "proposedAt": "2026-06-17T23:10:49.997Z",
+      "proposal": "authority-smoke test files (multi-host-authority-smoke.ts and autopilot-authority-smoke.ts) are the subject of this story. The keyword Authority in the title refers only to the smoke test file names, not to production authority code. The excluded core authority files (authority-mode.ts, authority-client.ts) remain excluded.",
+      "proposalTextHash": "f689a2f3e598b7a2cb9a6a0352613174b82808c97b69a442ce83a9f9327fb476",
+      "reason": "Title keyword Authority refers to smoke test file names not production code. Scope boundary already limits to 2 test files. Production authority core stays excluded.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "1ed2d107c74b569adfcfda51f2583580d0491be044286acd87ffaac34d7d2059",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "jek",
+        "decidedAt": "2026-06-17T23:10:54.284Z",
+        "rationale": "Authority in title refers to smoke test file names only. Production core authority files remain excluded. Scope boundary is correctness_fix limited to 2 test files.",
+        "_hash": "af63d1e7117b7a2333496db208e71f6fecb357f355d3f3fafa9ae1cf86f32c7d"
+      }
+    }
+  ]
+}
