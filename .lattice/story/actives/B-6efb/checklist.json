@@ -610,6 +610,17 @@
           "headHash": "69dff567c44478c0d75645619a93ac60859145fd",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:32.056Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run test:run-all-smokes-smoke",
+          "result": "pass",
+          "note": "Standalone-runnable via npm script; 9/9 checks pass.",
+          "headHash": "62f574bd3e76181bf88d58e4d44eed9b1b327068",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:33.328Z"
         }
       ]
     }
