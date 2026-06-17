@@ -141,6 +141,17 @@
           "headHash": "72d93f44d9496ccb7c13fa46caade312cd74c5aa",
           "materialHash": "544df9883fa6987cecf2d1b219baa342544c5bdab077f95ebd34289bda53e847",
           "timestamp": "2026-06-17T20:08:36.833Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
+          "result": "pass",
+          "note": "Only drifted assertions updated to current text/behavior: Parameter->Argument validation failed; Primary entrypoint->Entrypoint; legacyKoalaAliasPreserved true->false (koala alias removed); manifest fail->runtime-owned pass; review-loop store mock gains storyDirPath. Confirmed each against production source before editing.",
+          "headHash": "a54dc6c8853eae25041fc542402c5b014e5c8f8b",
+          "materialHash": "544df9883fa6987cecf2d1b219baa342544c5bdab077f95ebd34289bda53e847",
+          "timestamp": "2026-06-17T20:08:43.703Z"
         }
       ]
     },
