@@ -42,6 +42,17 @@
           "headHash": "dafa5dabdf67cff4580cbeba4d0fe80d0f0ae2d1",
           "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
           "timestamp": "2026-06-17T02:20:52.287Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/config.ts",
+          "command": "git diff --stat main...HEAD -- packages/main/src",
+          "result": "pass",
+          "note": "git diff shows ONLY config.ts with 2 insertions (the two literal dev_start lines); no other command or phase changed",
+          "headHash": "e4164cbf02cf68ac0de88852ca246279603254d7",
+          "materialHash": "8e3f91ce1d481516dc035d21f9c0b50e920b8946b2979a2de092a73ee8203e84",
+          "timestamp": "2026-06-17T02:20:53.865Z"
         }
       ]
     },
