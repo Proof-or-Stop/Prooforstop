@@ -66,6 +66,17 @@ import {
   storyRequiresCodexEvidence,
   summarizeCodexEvidence,
 } from '../core/codex-adapter-checks.js';
+import {
+  runEnglishArtifactGate,
+  renderEnglishArtifactViolations,
+} from './english-artifact-gate.js';
+
+// B-5f42: the english-artifacts gate has no standalone `validate --english-artifacts`
+// CLI option — it runs inline as part of the REVIEW→TEST preflight. Give it an
+// accurate label so a failing gate does not print a non-existent command. The
+// closest standalone re-run is the smoke task that exercises the same guard.
+const ENGLISH_ARTIFACTS_GATE_LABEL =
+  'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:english-only-guards-smoke)';
 
 /** Reads CLAUDE.md file contents for docs-drift gate */
 export type MdFileReader = (projectRoot: string) => string[];
@@ -97,7 +108,7 @@ export interface PreflightDeps {
 }
 
 export interface PreflightGateEntry {
-  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter';
+  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts';
   ok: boolean;
   status: string;
   summary: string;
@@ -246,6 +257,14 @@ export function runReviewCliGates(
       status: 'skipped',
       summary: 'Express channel does not check CLI gate',
       details: [],
+    });
+    gates.push({
+      name: 'english-artifacts',
+      ok: true,
+      status: 'skipped',
+      summary: 'Express channel does not check CLI gate',
+      details: [],
+      commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
       const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
@@ -435,6 +454,27 @@ export function runReviewCliGates(
       details: [],
     });
   }
+
+  // ── english-artifacts (B-5f42 CHK-002) ──
+  // Diff/story-scoped CJK gate: this branch's commit messages + the current
+  // story's author-controlled metadata must be English. Legacy Chinese outside
+  // this story / branch is never scanned. Never throws — git/fs failures degrade
+  // to notes, not a block.
+  const storyDir = deps.store.storyDirPath(storyId);
+  const englishArtifacts = runEnglishArtifactGate({ storyDir, gitCwd });
+  gates.push({
+    name: 'english-artifacts',
+    ok: englishArtifacts.ok,
+    status: englishArtifacts.ok ? 'pass' : 'fail',
+    summary: englishArtifacts.ok
+      ? 'No non-English (CJK) text in this branch\'s commits or story metadata'
+      : `Non-English (CJK) text found in ${englishArtifacts.violations.length} artifact line(s)`,
+    details: [
+      ...renderEnglishArtifactViolations(englishArtifacts.violations),
+      ...englishArtifacts.notes,
+    ],
+    commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
+  });
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {
     const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);

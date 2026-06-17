@@ -393,7 +393,12 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
   let changed = !updated.hooks;
 
   for (const [event, eventHooks] of Object.entries(claudeHooks)) {
-    const command = eventHooks[0]?.hooks?.[0]?.command;
+    // The legacy scope-pretool command migrates onto the FIRST managed entry's
+    // command (the scope guard). B-5f42: an event can now declare MULTIPLE
+    // managed entries (e.g. PreToolUse has both the scope guard and the
+    // english-only guard), so each entry must be merged independently — only
+    // checking eventHooks[0] would silently drop every entry after the first.
+    const migrationTarget = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
       changed = true;
@@ -406,15 +411,18 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
     const migrated = migrateHookCommandEntries(
       hooks[event],
       hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
-      command || '',
+      migrationTarget || '',
     );
     if (migrated.changed) {
       hooks[event] = migrated.entries;
       changed = true;
     }
-    if (command && !hasHookCommand(hooks[event], command)) {
-      hooks[event] = [...hooks[event], ...eventHooks];
-      changed = true;
+    for (const entry of eventHooks) {
+      const command = entry?.hooks?.[0]?.command;
+      if (command && !hasHookCommand(hooks[event], command)) {
+        hooks[event] = [...hooks[event], entry];
+        changed = true;
+      }
     }
   }
   updated.hooks = hooks;

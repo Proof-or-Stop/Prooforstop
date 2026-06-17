@@ -1,0 +1,136 @@
+{
+  "storyId": "B-5f42",
+  "checkedAt": "2026-06-16T22:46:11.318Z",
+  "features": [
+    {
+      "feature": "Warn-only PreToolUse(Bash) hook that detects CJK in git commit and lattice story-metadata commands",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hook prints warning to stderr and exits 0 (non-blocking; command still proceeds)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hook must be generated as a managed asset via init-assets.ts and managed-assets.ts (not hand-written)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Diff/story-scoped CJK gate in lattice validate (review-preflight.ts) that hard-blocks REVIEW to TEST",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CJK gate scoped to current story/branch diff only (commit subjects/bodies + author-controlled story metadata); never scans whole repo",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Legacy Chinese files outside the current story diff must not be flagged (no retroactive flagging)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Shared core/cjk-detect.ts module reused by both the hook and the validate gate",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hook resilience: malformed/empty stdin or missing tool_input must not crash the hook; must exit 0",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Unit tests for CJK detector: Chinese string detected; pure ASCII/English not detected",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Integration test: fixture CJK commit/story-metadata makes validate gate fail; English-only passes",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Scope test: legacy/outside-story file is not flagged by the gate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep-in-sync test: the self-contained hook CJK range must match the shared core/cjk-detect.ts range",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Phase 3 gate (english-open-source-surface-smoke): smoke test that fails on new Chinese text in active source AND active docs broadly (not limited to commits/story-metadata)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Already implemented as packages/main/src/tasks/english-open-source-surface-smoke.ts (B-a57f CHK-004), which scans packages/main/src/**/*.ts and active docs (README/guides/decisions/*.md) for CJK with an audited allowlist. This story covers the complementary surface (git commit messages + lattice story metadata) that Phase 3 does NOT scan.",
+      "source": "decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Phase 3 gate explicit allowlists: review document, generated translation manifests, legacy archive docs, and compatibility tests are allowlisted",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The allowlists belong to the Phase 3 active-source/doc gate already implemented in english-open-source-surface-smoke.ts, not to this story. This story scans commits and story metadata only, which have no legacy-Chinese allowlist requirement.",
+      "source": "decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Out of scope: retroactively translating existing files",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly states: Out of scope: retroactively translating existing files",
+      "source": "description"
+    },
+    {
+      "feature": "Out of scope: scanning arbitrary code/doc files (coverage = commits + lattice story metadata only)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly states: Out of scope: scanning arbitrary code/doc files (coverage = commits + lattice story metadata)",
+      "source": "description"
+    },
+    {
+      "feature": "Out of scope: a blocking hook (only warn-only)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description says warn-only; CHK-001 title confirms non-blocking",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 12,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f4bdbbc4d4003d92497cf25395c5e54ec022398302830eab645b10a964aac051",
+  "openQuestions": []
+}
