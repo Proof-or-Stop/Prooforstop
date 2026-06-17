@@ -55,7 +55,38 @@
       "context": "lattice-baseline currently has timeoutMs=240000 (set by B-2d6c). Serial standalone wall-time is 129s. Under heavy parallel load it now times out at 240s. Bump to 360000 (~3x serial standalone) to give consistent headroom. Do NOT change smoke logic.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`python3 -c 'import json;m=json.load(open(\"packages/main/smoke-manifest.json\"));print([s for s in m[\"smokes\"] if s[\"name\"]==\"lattice-baseline\"][0])'` shows timeoutMs=360000.",
+      "files": {
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice-baseline timeoutMs is 360000 -> `python3 -c \"import json;m=json.load(open(\\\"packages/main/smoke-manifest.json\\\"));e=[s for s in m[\\\"smokes\\\"] if s[\\\"name\\\"]==\\\"lattice-baseline\\\"];print(e[0].get(\\\"timeoutMs\\\") if e else \\\"MISSING\\\")\"` outputs 360000; WHY: bump from 240000 to 360000",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice-baseline serial still PASS within bumped timeout -> `node packages/main/dist/tasks/lattice-baseline-smoke.js > /tmp/b24c3-lbl.log 2>&1; echo $?` outputs 0; WHY: smoke runs cleanly",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: only timeoutMs key changed for lattice-baseline -> `git diff main...HEAD -- packages/main/smoke-manifest.json | grep -B1 -A1 \"lattice-baseline\" | grep -cE \"^[+].*(skip|tags)\"` outputs 0; WHY: only timeoutMs key allowed to change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
