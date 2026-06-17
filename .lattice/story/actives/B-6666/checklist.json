@@ -7,7 +7,30 @@
       "userSees": "On a wrapper-root project (metadataRoot != gitRoot), `lattice story_advance --phase=DONE` no longer false-fails the git-working-tree DONE check with 'unable to read git status'; the DONE-oracle reads git status from the gitRoot. Plain repos are unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture (metadataRoot != gitRoot), buildDoneChecklist git-working-tree row reads clean instead of fail/blocking after threading doneGitCwd through runDonePreMergeGate->runDoneOracleGate->buildDoneChecklist->readGitStatusLines",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo (projectRoot==gitCwd, no distinct gitRoot), the git-working-tree row + all done-oracle git calls are byte-identical before/after (root fallback preserves behavior)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveGitCwd is resolved ONCE at the boundary (the same doneGitCwd at transition-orchestrator:271 used by autoSync) and passed down — not re-resolved divergently inside the gate; lattice validate stays green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
