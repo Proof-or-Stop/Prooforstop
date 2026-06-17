@@ -323,6 +323,17 @@
           "headHash": "a6a38717489579de74eb84ccf13b84c847788404",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:02.597Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/main/smoke-manifest.json && node -e \"JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json'))\"",
+          "result": "pass",
+          "note": "Manifest file exists and is valid JSON.",
+          "headHash": "2f90ef88379247b6f7772b736a8475014f2d078e",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:03.966Z"
         }
       ]
     },
