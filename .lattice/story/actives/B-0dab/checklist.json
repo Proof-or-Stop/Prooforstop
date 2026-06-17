@@ -96,6 +96,16 @@
           "headHash": "a9eb9828d1f4ce6936c2ec4f38de910104606f95",
           "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
           "timestamp": "2026-06-17T13:02:41.315Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "command": "npm run build && node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "Verified pass on current worktree: exits 0",
+          "headHash": "425b04260f1159a83b3d48e62b9f7eb96aa595cb",
+          "materialHash": "71d6c482e82c5ec5fed89c0bd98644f79fccbbd0734cd0f32adb4e30cb8d2a4a",
+          "timestamp": "2026-06-17T13:02:42.019Z"
         }
       ]
     },
