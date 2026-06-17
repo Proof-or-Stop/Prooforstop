@@ -5,9 +5,9 @@
       "title": "Implement experience-hint-loader: load, rank, filter, format top-N hints",
       "context": "core/experience-hint-loader.ts: read finding-signals.json via learning-store; rank by priority = signalScore*log(1+support)*recencyBoost; recurring-issue hints require signalScore>=0.65; low-score+high-false-positive => common_false_positive hints; top-N (<=3 recurring + 2 false-positive) with progressive disclosure (summary first). Zero outward imports except learning-store (read-only) + types.",
       "userSees": "The smoke asserts the loader returns ranked top-N hints with correct priority ordering, the score-threshold filter, the common-false-positive bucket, and support shown alongside score.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T13:24:58.238Z",
-      "endTime": null,
+      "endTime": "2026-06-17T13:27:14.084Z",
       "verificationIntent": {
         "happy": [
           {
