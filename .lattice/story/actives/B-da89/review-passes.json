@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T02:21:08.224Z",
       "reviewRunId": "B-da89:RR-002",
       "_hash": "e6f35d24aaa5d1b77048ece3dad42fc743b4f6e16884623c95220a4e6139beb4"
+    },
+    {
+      "id": "B-da89:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 must-intents (CHK-001 happy/edge/adversarial and CHK-002 happy/edge/adversarial) have valid verificationEvidence. CHK-001:happy covered by logic_test (npm run test:process-fact-contract exit 0, independently verified). CHK-001:edge covered by manual_transcript (git diff --stat main...HEAD -- packages/main/src confirms only config.ts +2 lines, independently verified). CHK-001:adversarial covered by manual_transcript (git diff on command-policy.ts and worktree.ts is empty, independently verified). CHK-002:happy covered by manual_transcript (npm run test:process-fact-contract exit 0, independently verified). CHK-002:edge covered by docs_check (assertCommandPolicyPhaseAlignment function confirmed present in verify-process-fact-contract.mjs, source-read verified). CHK-002:adversarial covered by manual_transcript: round-trip guard is credible — assertCommandPolicyPhaseAlignment iterates every command x phase with a bidirectional assert; removing dev_start from the DEV array would cause policy=true vs defaultAllows=false for dev_start:DEV, triggering the assertion. No rubber-stamp found; no blocker.",
+      "createdAt": "2026-06-17T02:22:55.304Z",
+      "reviewRound": "2026-06-17T02:21:08.224Z",
+      "reviewRunId": "B-da89:RR-003",
+      "_hash": "3ce01e734c34bd1af098c4b508a726de9875fb9f9b551fd5eb7a2ccb172b002b"
     }
   ]
 }
