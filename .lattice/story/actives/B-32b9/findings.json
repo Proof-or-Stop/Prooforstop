@@ -60,6 +60,19 @@
       "reviewRound": "2026-06-17T19:27:55.084Z",
       "reviewRunId": "B-32b9:RR-003",
       "_hash": "a79ac741ccfa087a099b9b55fb226c9ee52da29fd3c3f9e0f2c0c3e7b156889a"
+    },
+    {
+      "id": "B-32b9:F-005",
+      "desc": "quality-cleanup: lattice-console-serve.js:389 empty catch swallows JSON parse errors for individual lines in process-events.jsonl with no logging — malformed event lines are silently dropped, making data issues invisible at runtime",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T19:30:38.830Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-003",
+      "_hash": "150ff70dec22d8908ab0c095ecdb81c75dc2ab523eedd79bdbf50b29f571d37e"
     }
   ]
 }
