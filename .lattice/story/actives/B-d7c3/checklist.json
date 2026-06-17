@@ -171,6 +171,17 @@
           "headHash": "9fa198367d2bd17909867de2d704f114f4b656d2",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:05.621Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- packages/main/src/tasks/cli-e2e.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — cli-e2e flow runner byte-identical.",
+          "headHash": "f1426025e8e9aaabcff7e79fa7a66c89e331e5b3",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:06.292Z"
         }
       ]
     },
