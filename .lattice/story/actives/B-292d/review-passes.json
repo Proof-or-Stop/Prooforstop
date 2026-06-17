@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T17:46:03.529Z",
       "reviewRunId": "B-292d:RR-001",
       "_hash": "f71fa9dfed222b4fcddf7813e57c9aa005f8982c3fc7742467119cadf0887c27"
+    },
+    {
+      "id": "B-292d:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review: F-003 fix verified in commit 438fa8ef3. Redundant /KOALA_RESIDUE[A-Z0-9_]*/g pattern removed from NEUTRAL_TOKEN_PATTERNS in scripts/verify-koala-residue.mjs; comment updated to note SCREAMING_CASE coverage via KOALA_[A-Z0-9_]* above. Gate self-test: PASS 0 unclassified. No new dead code, type safety, or I/O shell isolation issues introduced by the fix commit. No blockers.",
+      "createdAt": "2026-06-17T17:51:08.165Z",
+      "reviewRound": "2026-06-17T17:50:13.419Z",
+      "reviewRunId": "B-292d:RR-004",
+      "_hash": "3e867962d14955f27319bf19afd16178b5525f4503f7918da2cb850c292d786b"
     }
   ]
 }
