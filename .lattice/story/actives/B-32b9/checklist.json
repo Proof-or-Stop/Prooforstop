@@ -227,6 +227,17 @@
           "headHash": "0ffae0559bf3fc15dda0137cf94efedca6a7f8e5",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:02:42.632Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "Code inspection: rpNoteById with missing reviewPassId",
+          "result": "pass",
+          "note": "serve.js line 554: rpNoteById[passes[passes.length-1].reviewPassId] || ''. If reviewPassId not in rpNoteById, falls back to ''. Line 559: meta.note = latestNote.slice(0,800). lineage.js line 498: noteHtml = meta.note ? ... : ''. Empty string is falsy → no Review Note section rendered. No crash.",
+          "headHash": "eb53ae194cfcdc6e4299cb816e43038d99508eae",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:05:43.726Z"
         }
       ]
     },
