@@ -4,25 +4,434 @@
       "id": "CHK-001",
       "title": "Add providers/gemini-cli.ts (mirror codex-cli.ts pattern)",
       "context": "Create packages/main/src/providers/gemini-cli.ts implementing geminiCliAvailable() + runBoundedGeminiProvider() with the SAME contract shape as codex-cli.ts: PATH discovery, spawnSync bounded by timeout, capture stdout/stderr digests + byte counts, exit code, duration, never surface raw output. Reuse shared subprocess types from codex-cli.ts where possible. Smoke equivalent of provider-codex-smoke.ts — provider-gemini-smoke.ts — proving the same 4 cases (success / disabled / timeout / missing binary).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T22:03:44.839Z",
+      "endTime": "2026-06-17T22:06:07.549Z",
+      "userSees": "`ls packages/main/src/providers/gemini-cli.ts` shows the new provider file. `node packages/main/dist/tasks/provider-gemini-smoke.js` PASSES the 4-case contract.",
+      "files": {
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [
+          "packages/main/src/providers/gemini-cli.ts",
+          "packages/main/src/tasks/provider-gemini-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "providers/gemini-cli.ts exists and exports geminiCliAvailable + runBoundedGeminiProvider -> `grep -cE \"export (function|const) (geminiCliAvailable|runBoundedGeminiProvider)\" packages/main/src/providers/gemini-cli.ts` outputs at least 2; WHY: contract parity with codex-cli.ts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "compiled dist has gemini-cli.js -> `test -s packages/main/dist/providers/gemini-cli.js && echo OK` prints OK; WHY: provider must compile cleanly for runtime use",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "provider-gemini-smoke.ts exists -> `test -s packages/main/src/tasks/provider-gemini-smoke.ts && echo OK` prints OK; WHY: smoke proves the 4-case contract",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "provider-gemini-smoke passes -> `node packages/main/dist/tasks/provider-gemini-smoke.js > /tmp/b-ceed-gem.log 2>&1; echo $?` outputs 0; WHY: smoke green proves the provider works",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gemini-cli.ts imports nothing from usage-ledger -> `grep -cE \"from.*usage-ledger\" packages/main/src/providers/gemini-cli.ts` outputs 0; WHY: scope-boundary enforced at code level",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: codex-cli.ts byte-identical -> `git diff main...HEAD -- packages/main/src/providers/codex-cli.ts | wc -l` outputs 0; WHY: B-1550 seam frozen",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: usage-ledger module untouched -> `git diff main...HEAD -- packages/main/src/core/usage-ledger | wc -l` outputs 0; WHY: separate follow-up",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'export (function|const) (geminiCliAvailable|runBoundedGeminiProvider)' packages/main/src/providers/gemini-cli.ts",
+          "result": "pass",
+          "note": "Returns 2 — both exports present per codex-cli.ts contract.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -s packages/main/dist/providers/gemini-cli.js && echo OK",
+          "result": "pass",
+          "note": "Prints OK — provider compiled cleanly.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -s packages/main/src/tasks/provider-gemini-smoke.ts && echo OK",
+          "result": "pass",
+          "note": "Prints OK — smoke file exists.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/provider-gemini-smoke.js > /tmp/b-ceed-gem.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — 4-case smoke contract passes.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'from.*usage-ledger' packages/main/src/providers/gemini-cli.ts",
+          "result": "pass",
+          "note": "Returns 0 — no usage-ledger imports (scope-boundary preserved at code level).",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/providers/codex-cli.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — codex-cli.ts byte-identical (B-1550 frozen).",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/core/usage-ledger | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — usage-ledger module untouched.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add runCodexRealLeafDispatch + runGeminiRealLeafDispatch + dispatch switch upgrade",
       "context": "In packages/main/src/core/lattice-dispatch.ts: add runCodexRealLeafDispatch + runGeminiRealLeafDispatch (mirror runClaudeCodeRealLeafDispatch shape at line 1938). In the dispatch_run switch at line ~2400: when normalized===\"codex\" AND codexCliAvailable() → branch to runCodexRealLeafDispatch (REAL); when normalized===\"gemini\" AND geminiCliAvailable() → runGeminiRealLeafDispatch (REAL); when normalized in {codex,gemini} but BOTH CLIs unavailable → fall back to runClaudeCodeRealLeafDispatch with a logged degradation reason. Update the scaffolded-only warning at line 757 to fire only when the REAL path is not taken (i.e. CLI unavailable AND no fallback).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T22:09:00.911Z",
+      "endTime": "2026-06-17T22:11:41.043Z",
+      "userSees": "`grep runCodexRealLeafDispatch packages/main/src/core/lattice-dispatch.ts` and `grep runGeminiRealLeafDispatch` each return matches. `grep -E 'codexCliAvailable|geminiCliAvailable' ...` shows the routing conditions. `grep -E 'falling back.*claude-code' ...` shows the fallback message.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runCodexRealLeafDispatch defined -> `grep -c \"function runCodexRealLeafDispatch\\|const runCodexRealLeafDispatch\" packages/main/src/core/lattice-dispatch.ts` outputs at least 1; WHY: codex real leaf required",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "runGeminiRealLeafDispatch defined -> `grep -c \"function runGeminiRealLeafDispatch\\|const runGeminiRealLeafDispatch\" packages/main/src/core/lattice-dispatch.ts` outputs at least 1; WHY: gemini real leaf required",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch switch routes codex when available -> `grep -c \"codexCliAvailable\" packages/main/src/core/lattice-dispatch.ts` outputs at least 1; WHY: routing condition",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch switch routes gemini when available -> `grep -c \"geminiCliAvailable\" packages/main/src/core/lattice-dispatch.ts` outputs at least 1; WHY: routing condition",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "fallback to claude-code real when both CLIs missing -> `grep -cE \"falling back to claude-code|fallback.*claude.code\" packages/main/src/core/lattice-dispatch.ts` outputs at least 1; WHY: per-mortem D2 mitigation + user policy",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rebuilt dist includes the new routes -> `grep -c runCodexRealLeafDispatch packages/main/dist/core/lattice-dispatch.js` outputs at least 1; WHY: must land in compiled output",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test root chain still green -> `npm test > /tmp/b-ceed-npmtest.log 2>&1; echo $?` outputs 0; WHY: no regression in root chain",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: runClaudeCodeRealLeafDispatch byte-identical -> `git diff main...HEAD -- packages/main/src/core/lattice-dispatch.ts | grep -E \"^-\" | grep -c \"runClaudeCodeRealLeafDispatch\"` outputs 0; WHY: existing real path preserved",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: no handlers/ touched -> `git diff main...HEAD --name-only -- packages/main/src/handlers | wc -l` outputs 0; WHY: dispatch core is only allowed change in core path",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'function runCodexRealLeafDispatch' packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 1 — runCodexRealLeafDispatch defined (via runBoundedRealLeafDispatch shared helper).",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'function runGeminiRealLeafDispatch' packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 1 — runGeminiRealLeafDispatch defined.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c codexCliAvailable packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 2 — routing condition + import (uses bounded provider seam).",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c geminiCliAvailable packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 2 — same pattern for gemini.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'falling back to claude-code|fallback.*claude.code' packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 2 — fallback message in both codex and gemini branches.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c runCodexRealLeafDispatch packages/main/dist/core/lattice-dispatch.js",
+          "result": "pass",
+          "note": "Returns 1+ — compiled dist includes the new route.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test > /tmp/b-ceed-npmtest.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — root test chain unchanged + still green.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/core/lattice-dispatch.ts | grep -E '^-' | grep -c 'runClaudeCodeRealLeafDispatch'",
+          "result": "pass",
+          "note": "Returns 0 — runClaudeCodeRealLeafDispatch line not removed.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/handlers | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — handlers/ untouched.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "CHANGELOG Unreleased entry + memory update",
       "context": "CHANGELOG Unreleased entry under Test infrastructure or Runtime subsection documenting the new dispatcher paths + fallback policy. Update auto-memory llm-usage-ledger-status.md to mark codex/gemini live-dispatch as UNBLOCKED (the blocker described in the memory is now resolved) and clarify that the usage parsing story remains separate.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T22:11:41.734Z",
+      "endTime": "2026-06-17T22:12:55.774Z",
+      "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows the B-ceed bullet naming codex/gemini live-dispatch + fallback.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased mentions codex live-dispatch -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"codex.*live.*dispatch|live-dispatch.*codex\"` outputs at least 1; WHY: change must be documented",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG mentions gemini -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c gemini` outputs at least 1; WHY: gemini support is half the value",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG names B-ceed -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c B-ceed` outputs at least 1; WHY: traceability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG mentions fallback to claude-code -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"fallback.*claude-code|claude-code.*fallback\"` outputs at least 1; WHY: per user (a) decision",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG entry under Test infrastructure OR Runtime subsection -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -cE \"^### (Test infrastructure|Runtime)\"` outputs at least 1; WHY: pattern consistency",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: CHANGELOG only Unreleased touched -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased should change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'codex.*live.*dispatch|live-dispatch.*codex|codex.*real-host live dispatch'",
+          "result": "pass",
+          "note": "Returns >=1 — Unreleased mentions codex live-dispatch.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c gemini",
+          "result": "pass",
+          "note": "Returns >=1 — gemini mentioned.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c B-ceed",
+          "result": "pass",
+          "note": "Returns 1 — B-ceed named for traceability.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'fallback.*claude-code|claude-code.*fallback'",
+          "result": "pass",
+          "note": "Returns >=1 — fallback policy documented.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -cE '^### (Test infrastructure|Runtime)'",
+          "result": "pass",
+          "note": "Returns 1 — pattern consistency with prior stories.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- CHANGELOG.md | grep -E '^[-+]## ' | grep -vE 'Unreleased' | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — only Unreleased modified.",
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
+        }
+      ]
     }
   ]
 }
