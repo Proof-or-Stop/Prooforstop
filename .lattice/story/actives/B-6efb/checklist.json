@@ -566,6 +566,17 @@
           "headHash": "6d84c778b965990951e5204455e485d0e2db2e92",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:26.369Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js",
+          "result": "pass",
+          "note": "Self-smoke checks 3-4: fixture-fail exits non-zero AND output contains 'FAIL fixture-fail'.",
+          "headHash": "f87a3ed492f89dad9ef9a996910c4dedc1da6b3c",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:28.744Z"
         }
       ]
     }
