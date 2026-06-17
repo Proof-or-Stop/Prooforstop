@@ -5,13 +5,15 @@
       "desc": "experience-hint-loader.ts:62 ExperienceHint.priority JSDoc claims \"signalScore * log(1+support) * recencyBoost\" but for common_false_positive hints the actual computation is falsePositiveCount * log(1+support) * recencyBoost (line 195: computePriority(fpStrength, signal.support, boost)). The exported interface JSDoc misrepresents the priority formula for one of its two hint kinds. Fix: update the jsdoc to say \"For recurring: signalScore * log(1+support) * recencyBoost. For common_false_positive: falsePositiveCount * log(1+support) * recencyBoost.\"",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-17T13:40:47.410Z",
       "reviewRound": "2026-06-17T13:34:28.121Z",
       "reviewRunId": "B-1dc9:RR-001",
-      "_hash": "93d59a9a4abd04b2f22b9623f1a7b124161111a995a604cb663c5ad059c3fe3c"
+      "_hash": "93d59a9a4abd04b2f22b9623f1a7b124161111a995a604cb663c5ad059c3fe3c",
+      "resolvedReason": "Updated ExperienceHint.priority JSDoc to describe both kinds: base=signalScore (recurring) / falsePositiveCount (common_false_positive). Commit 07d048a9.",
+      "resolvedAt": "2026-06-17T13:45:29.264Z"
     },
     {
       "id": "B-1dc9:F-002",
