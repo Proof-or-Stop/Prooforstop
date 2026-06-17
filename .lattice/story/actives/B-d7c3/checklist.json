@@ -155,6 +155,54 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test:legacy shim runs a named smoke -> `npm run test:legacy -- gitroot-cwd-contract` exits 0 and stdout contains PASS; WHY: confirms the compatibility shim forwards --select to run-all-smokes and the legacy invocation pattern works",
+            "type": "cli"
+          },
+          {
+            "desc": "tracked docs no longer reference removed test:X-smoke names in active prose -> `git grep -nE 'test:[a-z0-9]+-smoke' -- docs/ README.md CLAUDE.md AGENTS.md | grep -v CHANGELOG | grep -v '\\btest:run-all-smokes-smoke\\b' | grep -v '\\btest:review-convergence-smoke\\b' | grep -v '\\btest:review-incremental-context-smoke\\b' | grep -v '\\btest:docs-drift-smoke\\b' | grep -v '\\btest:main-write-lock-coverage\\b'` produces zero lines; WHY: docs must not reference npm scripts that no longer exist (filtering out keep-list names and CHANGELOG which documents the removal historically)",
+            "type": "cli"
+          },
+          {
+            "desc": "CHANGELOG.md documents the migration -> `git diff main -- CHANGELOG.md | grep -c '+.*test:legacy\\|+.*smoke-manifest\\|+.*removed.*test:.*-smoke'` outputs >= 1; WHY: CHANGELOG must have an entry documenting the removal and migration path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:legacy with unknown smoke name -> `npm run test:legacy -- nonexistent-smoke-name-xyzzy 2>&1; echo EXIT:$?` outputs a non-zero exit or recognizable error; WHY: shim should not silently succeed when given a name that matches no smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "test:legacy with no argument -> `npm run test:legacy 2>&1; echo EXIT:$?` either runs all smokes or prints usage/error, does not crash with unhandled exception; WHY: users may invoke the shim without arguments by mistake",
+            "type": "cli"
+          },
+          {
+            "desc": "test:legacy script exists in root package.json -> `node -e \"const p=require('./package.json'); if(!p.scripts['test:legacy']) throw new Error('MISSING'); console.log('PRESENT:',p.scripts['test:legacy'])\"` prints PRESENT; WHY: basic existence check before runtime tests",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no decision-doc edits -> `git diff main -- docs/requirements/decisions | wc -l` outputs 0; WHY: decision docs are out of scope for B2",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: AGENTS.md changes are limited to test-script references (no unrelated content edits) -> `git diff main -- AGENTS.md | grep '^[+-]' | grep -v '^[+-][+-][+-]' | grep -v 'test:' | grep -v 'smoke-manifest' | grep -v 'test:legacy' | grep -v '^[+-]$' | wc -l` outputs 0 or very small number; WHY: doc updates should only touch lines referencing removed smoke scripts",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: verify-*.mjs scripts byte-identical to main -> `git diff main -- 'scripts/verify-*.mjs' | wc -l` outputs 0; WHY: verify scripts are not in scope for CHK-003",
+            "type": "cli"
+          },
+          {
+            "desc": "OVER-REACH: packages/main/package.json not modified by CHK-003 (CHK-001 owns it) -> changes to packages/main/package.json are only from CHK-001, no additional test:legacy entry added there -> `node -e \"const p=require('./packages/main/package.json'); if(p.scripts['test:legacy']) throw new Error('LEGACY_IN_WRONG_PKG'); console.log('CORRECT: test:legacy not in packages/main')\"` prints CORRECT; WHY: legacy shim belongs in root only, not in packages/main",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
