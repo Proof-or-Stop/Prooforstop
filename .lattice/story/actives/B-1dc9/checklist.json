@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement experience-hint-loader: load, rank, filter, format top-N hints",
+      "context": "core/experience-hint-loader.ts: read finding-signals.json via learning-store; rank by priority = signalScore*log(1+support)*recencyBoost; recurring-issue hints require signalScore>=0.65; low-score+high-false-positive => common_false_positive hints; top-N (<=3 recurring + 2 false-positive) with progressive disclosure (summary first). Zero outward imports except learning-store (read-only) + types.",
+      "userSees": "The smoke asserts the loader returns ranked top-N hints with correct priority ordering, the score-threshold filter, the common-false-positive bucket, and support shown alongside score.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Surface hints as an advisory section in story-review (mirror grillSection)",
+      "context": "handlers/story-review.ts: add an experienceHintsSection (advisory only) into the _reviewPrompt advisory output, mirroring grillSection placement, sourced from experience-hint-loader. Clearly labelled 'Project experience hints (advisory only)'. Advisory-only; does not change any gate.",
+      "userSees": "story_review output _reviewPrompt includes a 'Project experience hints (advisory only)' section when signals exist; absent/empty when there are none.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Usage tracking + promptHash determinism guardrail",
+      "context": "Surfacing writes an experience_hint_surfaced event (storyId, hintIds) to the activity log via appendActivityLog. GUARDRAIL: resolveReviewPromptHash (core/review-run.ts) must remain independent of experience hints — hint content must never feed the reviewRunId promptHash domain.",
+      "userSees": "The smoke asserts an experience_hint_surfaced event is appended when hints surface, and that resolveReviewPromptHash output is identical regardless of experience-hint content (deterministic reviewRunId binding unaffected).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke + npm script + no regression",
+      "context": "tasks/experience-layer-hint-injection-smoke.ts + package.json test:experience-layer-hint-injection. Hermetic. Assert: loader ranking/filter/top-N/progressive-disclosure; advisory section present/absent correctly; usage event written; promptHash guardrail; zero outward imports; build clean; existing experience-layer + story-review smokes still pass.",
+      "userSees": "npm run test:experience-layer-hint-injection exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing smokes still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

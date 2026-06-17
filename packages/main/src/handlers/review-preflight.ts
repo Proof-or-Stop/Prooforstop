@@ -16,8 +16,11 @@
  *   - lint:       status === 'pass' or 'skipped' → ok; 'fail' → block
  *   - docs-drift: status === 'pass' or 'skipped' → ok; 'fail' → block
  *
- * Express channel (checklist ≤ 2 and riskSignals empty) skips entirely — all CLI gates treated as pass,
- * symmetric with the existing "express channel REVIEW reviewer not checked".
+ * Express channel (checklist ≤ 2 and riskSignals empty) force-skips the channel/concept/lint/
+ * docs-drift/english-artifacts gates (treated as pass), symmetric with the existing "express channel
+ * REVIEW reviewer not checked". The codex-adapter gate is the one exception: it is still
+ * conditionally evaluated (when the story touches Codex adapter assets) and can block even on the
+ * express channel — so "express" skips five of the six gates, not all of them.
  *
  * See docs/reviewer-redesign.md §3 S1 item 7.
  */
@@ -119,7 +122,7 @@ export interface PreflightGateEntry {
 
 export interface PreflightResult {
   ok: boolean;
-  /** true if fast-channel story — all 4 gates forced-pass */
+  /** true if fast-channel story — channel/concept/lint/docs-drift/english-artifacts force-skipped (codex-adapter still conditionally evaluated, can block) */
   fastChannel: boolean;
   channel?: ChannelCheckResult;
   concept?: ConceptCheckResult;
@@ -221,7 +224,8 @@ function defaultMdFileReader(projectRoot: string): string[] {
 
 /**
  * Run CLI gates and aggregate into one structured result.
- * Express channel → all four gates forced-pass (channel/concept/lint/docs-drift not actually run).
+ * Express channel → channel/concept/lint/docs-drift/english-artifacts force-skipped (not actually
+ * run); the codex-adapter gate is still conditionally evaluated and can block even on express.
  */
 export function runReviewCliGates(
   storyId: string,

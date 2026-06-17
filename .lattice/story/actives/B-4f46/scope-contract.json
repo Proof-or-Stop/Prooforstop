@@ -1,0 +1,29 @@
+{
+  "storyId": "B-4f46",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/signature-registry.ts",
+    "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+    ".lattice/story/actives/B-4f46/evidence/verify-b-4f46.mjs",
+    ".lattice/story/actives/B-4f46/evidence/verify-result.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Phase 1b: additive finding fields + signature-registry; command-policy.ts/config.ts entries are required to gate the new signature_registry_* commands (ownership-contract fail-closes ungated commands).",
+  "acknowledgements": [],
+  "createdAt": "2026-06-17T12:30:23.701Z",
+  "updatedAt": "2026-06-17T12:30:23.701Z"
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1dc9",
+  "mode": "custom",
+  "allowed": [
+    "Add a smoke task and its npm script",
+    "Create core/experience-hint-loader.ts and surface an advisory hints section through handlers/story-review.ts",
+    "Write an experience_hint_surfaced usage event via the activity log"
+  ],
+  "excluded": [
+    "Adding cross-project aggregation",
+    "Building the staged playbook proposal lifecycle",
+    "Letting hint content feed the reviewRunId promptHash computation",
+    "Modifying review-gate enforcement code paths"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 1.5 advisory hint injection; user authorized full roadmap on 2026-06-17.",
+  "createdAt": "2026-06-17T13:10:36.185Z",
+  "updatedAt": "2026-06-17T13:10:36.185Z",
+  "_hash": "d64dae296d017cf182d83624f523788c6f42c6498744c7491699a6efa39ad288"
+}

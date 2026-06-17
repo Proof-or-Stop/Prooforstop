@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-4f46:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 1b; no concept deletion/rename detected. All 18 deletions are confined to .lattice/ story metadata files (checklist.json/index.json). Source packages show only insertions: new signature-registry handler, new finding fields, new smoke, additive command-policy/config/registry entries. No concept word deleted or replaced en masse; residual scan N/A.",
+      "createdAt": "2026-06-17T12:31:13.675Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-001",
+      "_hash": "0a65c0bef9ad534fdac61c4e2d40360a4e89b432159081461ee3618ebc48b2be"
+    },
+    {
+      "id": "B-4f46:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none — all three new learning-store imports (hasActiveOrProposedTag, proposeSignatureTag, suggestNearActiveTag) are called in finding.ts finding_add path; writeSignatureRegistry/SIGNATURE_REGISTRY_FILENAME/resolveSignatureRegistryPath are internal to learning-store.ts (not a dead-code concern for exported library functions). Type safety: validateOptionalEnum uses a correct include-check plus a narrowing cast that is safe (guarded by the includes check); no unsafe any casts. I/O isolation: signature-registry.ts imports only from learning-store.ts and context.ts — no fn.ts or direct store writes; finding.ts uses the learning-store API (not direct file I/O). advisory.ts audit-field isolation confirmed by grep: zero matches for signatureTag, resolutionType, dismissReasonType, resolveEvidenceStrength, dismissEvidenceStrength. finding-verify.ts unchanged confirmed by git diff: empty output. dismissReasonType is z.optional() in cli-engine.ts schema and .optional() in all handler code paths. Signature-registry writes only under .lattice/learning/ (confirmed by path construction in learning-store.ts). No gate reads audit fields. Smoke task covers back-compat, validation rejection, advisory guardrail, and registry file location.",
+      "createdAt": "2026-06-17T12:31:58.867Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-002",
+      "_hash": "2df49fd7d8e0b7c6064be577ad515e132cbfd2854da6b06af8a3a69bfb6668fa"
+    },
+    {
+      "id": "B-4f46:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 5 load-bearing guardrails verified: (1) BACK-COMPAT confirmed — field-less calls behave identically to pre-1b (smoke checks 'back-compat' PASS); (2) DETERMINISM GUARDRAIL confirmed — isFindingBlocking decisions are identical with/without audit fields (smoke 'guardrail' PASS) and static grep proves advisory.ts contains zero references to signatureTag/resolutionType/dismissReasonType/evidenceStrength; (3) ENUM VALIDATION confirmed — invalid resolutionType, dismissReasonType, and evidenceStrength values each throw clear errors with allowed values listed (smoke 'validation' PASS); (4) SIGNATURE-REGISTRY confirmed — finding_add auto-proposes new tags, signature_registry_set approve flips to active, alias+mergedInto fold through resolveTag (smoke PASS); (5) ENRICHMENT confirmed — resolutionType=fixed yields signalScore=0.5 vs 0 without (smoke 'enrichment' PASS). Acceptance verifier: TOTAL 42 | PASS 42 | FAIL 0. Smoke: TOTAL 14 | PASS 14 | FAIL 0. One medium/edge finding filed: approveSignatureTag on a never-proposed tag auto-creates as active (bypasses propose step), diverging from CHK-003 adversarial:0 spec language and not asserted in the smoke. Not a blocker; no gate reads the registry; behavior is audit-only.",
+      "createdAt": "2026-06-17T12:33:36.694Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-003",
+      "_hash": "80c68df0e492bd983a4842f7b63a3a96713484c289601fa8053206dc3b5cf251"
+    },
+    {
+      "id": "B-4f46:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 1b; no concept deletion/rename detected in source files; residual scan N/A.",
+      "createdAt": "2026-06-17T12:40:56.764Z",
+      "reviewRound": "2026-06-17T12:40:10.801Z",
+      "reviewRunId": "B-4f46:RR-006",
+      "_hash": "bca44a917d7713eba9c024f83c641e3eacdf14b92ea5d130195e5bc633eed7c6"
+    },
+    {
+      "id": "B-4f46:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-002 (CHK-002:adversarial:2 empty-string enum) and F-003 (CHK-003:adversarial:0/1/2/3 + edge:0/1) are resolved. Smoke 21/21 PASS; verifier TOTAL 42 | PASS 42 | FAIL 0. All 42 must-intents across CHK-001/002/003/004 have concrete, named assertions in experience-layer-finding-enums-smoke.ts; each evidence entry carries the correct bound command (npm --prefix packages/main run test:experience-layer-finding-enums); no generic fallback notes remain for any previously-uncovered intent.",
+      "createdAt": "2026-06-17T12:41:24.239Z",
+      "reviewRound": "2026-06-17T12:40:10.801Z",
+      "reviewRunId": "B-4f46:RR-007",
+      "_hash": "7de2761bb12d5e8ba5d342da9d21db6200eba1873e685c6f50d482486b341c84"
+    },
+    {
+      "id": "B-4f46:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "All three fixed invariants verified: (1) validateOptionalEnum in finding.ts correctly rejects empty-string and whitespace-only values (they are not undefined/null, not in allowed list => throws); undefined/null still returns undefined cleanly. (2) approveSignatureTag in learning-store.ts now throws on never-proposed tags and is idempotent on already-active. (3) Smoke test covers 16 named checks including F-001/F-002/F-003 adversarial paths with hermetic temp dirs. No dead code: all imports used (ChecklistData/StoryInfo/Finding used in helpers, listSignatureTags/resolveTag/readSignatureRegistry each have multiple call sites). No unsafe casts in production code (as unknown as string / as Record in test-only adversarial checks is intentional and appropriate). The void args on signature_registry_list is a standard TS no-op to acknowledge an intentionally unused optional parameter. advisory.ts grep returns zero hits for signatureTag/resolutionType/dismissReasonType/evidenceStrength. finding-verify.ts has an empty diff — unchanged. catch blocks: readSignatureRegistry graceful-degradation catch returns emptyRegistry() (correct); auto-propose catch logs console.warn then continues (best-effort non-blocking); atomicWriteJson cleanup catch is best-effort temp-file removal. No I/O shell isolation issue: no bridge.ts exists in the project. All new code quality gates pass.",
+      "createdAt": "2026-06-17T12:42:36.385Z",
+      "reviewRound": "2026-06-17T12:40:10.801Z",
+      "reviewRunId": "B-4f46:RR-008",
+      "_hash": "714d9648f40fa7f4b2aae66414fdfc18b9296a3c1bf1b3384bb202aa6c1b46f5"
+    },
+    {
+      "id": "B-4f46:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "F-001 resolved: approveSignatureTag (learning-store.ts:232-236) now throws 'has not been proposed' for never-proposed tags, and is idempotent on already-active tags (smoke checks CHK-003:adversarial:0 + edge:1 both PASS). Full suite: 21/21 PASS. Back-compat confirmed (field-less add/resolve/dismiss leave audit fields undefined). advisory.ts has zero references to any audit field (signatureTag, resolutionType, dismissReasonType, evidenceStrength). Gate isolation confirmed: advisory decision identical with/without audit fields. Signature-registry propose/approve/alias/mergedInto/resolveTag all correct. finding-signals signalScore>0 when resolutionType=fixed. Empty-string enum rejected (CHK-002:adversarial:2 PASS).",
+      "createdAt": "2026-06-17T12:50:33.043Z",
+      "reviewRound": "2026-06-17T12:40:10.801Z",
+      "reviewRunId": "B-4f46:RR-009",
+      "_hash": "00d2fa5a6443c25df1a1dfd47978632d065a04a82c977dc1889933c95f4790f6"
+    }
+  ]
+}

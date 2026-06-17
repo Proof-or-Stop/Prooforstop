@@ -577,6 +577,32 @@ export interface Finding {
   /** leave an evidence chain on auto-resolve, distinct from regular finding_resolve */
   resolvedReason?: string;
   resolvedAt?: string;
+  /**
+   * B-4f46 CHK-001 (Experience Layer Phase 1b): coarse signature tag grouping a
+   * finding into a recurring pattern family.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  signatureTag?: string;
+  /**
+   * B-4f46 CHK-001: how this finding was resolved.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  resolutionType?: 'fixed' | 'duplicate' | 'superseded' | 'accepted_risk' | 'partially_mitigated';
+  /**
+   * B-4f46 CHK-001: why this finding was dismissed.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  dismissReasonType?: 'false_positive' | 'out_of_scope' | 'duplicate' | 'wontfix' | 'unclear' | 'already_covered';
+  /**
+   * B-4f46 CHK-001: confidence strength of the resolve evidence.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  resolveEvidenceStrength?: 'strong' | 'medium' | 'weak';
+  /**
+   * B-4f46 CHK-001: confidence strength of the dismiss evidence.
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  dismissEvidenceStrength?: 'strong' | 'medium' | 'weak';
 }
 
 export interface FindingData {
