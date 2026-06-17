@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T02:16:07.737Z",
       "reviewRunId": "B-40eb:RR-001",
       "_hash": "d51a4f37372928532c51d35327b9b6ce034ead22f6b0b82e9c37dec913cc6c30"
+    },
+    {
+      "id": "B-40eb:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "ROUND 2 re-verification of F-005, F-006, F-007, F-008: config.ts lines 36-37 have been reverted to .Codex/agents/test-case-reviewer.md and .Codex/agents/test-intent.md (not .lattice-codex). All four scripts (verify-lab-scoring-core.mjs, verify-lab-normalized-score.mjs, verify-lab-reviewer-mvp.mjs, verify-product-reviewer.mjs) consistently use .Codex as confirmed by grep. git grep -n lattice-codex -- packages/ scripts/ returns no hits in the scope of these files. The root-cause inconsistency is fully resolved. No new issues introduced by the fix commit. Dead code: none. Type safety: none. I/O shell isolation: not applicable (lab scripts are not shell files). All four prior findings are disproven by this re-verification.",
+      "createdAt": "2026-06-17T02:44:28.923Z",
+      "reviewRound": "2026-06-17T02:41:55.130Z",
+      "reviewRunId": "B-40eb:RR-004",
+      "_hash": "a2b5f81701a34aa4792f8b1e3b26b11ba533a7c3948f52597cd845beaac69f1f"
     }
   ]
 }
