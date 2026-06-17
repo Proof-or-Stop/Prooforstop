@@ -5,9 +5,9 @@
       "title": "Implement packages/main/src/tasks/run-all-smokes.ts with parallelism, manifest reading, and --tag/--select filters",
       "context": "Create packages/main/src/tasks/run-all-smokes.ts (TS source) + ensure its dist artifact builds. Behavior: scan `packages/main/src/tasks/*-smoke.ts` (or a manifest-configured list); spawn each smoke as `node packages/main/dist/tasks/<name>-smoke.js` in a worker pool (default size = os.cpus().length, overridable via --jobs N); per-smoke timeout from the manifest (default 60s); aggregate exit codes (fail if ANY smoke fails); print per-smoke `PASS`/`FAIL` lines + `<n>/<m> passed in <duration>s` summary; support `--tag <tag>` to run only smokes whose manifest entry contains <tag>; support `--select <substring>` to run only smokes whose name contains <substring>; do NOT touch any existing test:* script; do NOT modify any existing smoke file. Acceptance: `node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes` runs only its own self-smoke; `node packages/main/dist/tasks/run-all-smokes.js --tag fast` filters by tag. Build (tsc) passes.",
       "userSees": "`node packages/main/dist/tasks/run-all-smokes.js --select <something>` prints PASS/FAIL per smoke + aggregate summary; running it without filters runs all 153 smokes in parallel and aggregates.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T01:57:28.947Z",
-      "endTime": null,
+      "endTime": "2026-06-17T02:10:34.576Z",
       "files": {
         "modify": [],
         "create": [
