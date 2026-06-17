@@ -87,6 +87,17 @@
           "headHash": "de0e852cb329f8916bc098a0438402e9c910f12c",
           "materialHash": "69b772cd66d2207436a10e4f59558593a73227d259360faa477279117f82d639",
           "timestamp": "2026-06-17T23:10:56.316Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graceful-sites-gitroot-cwd-wrapper-root-smoke.ts",
+          "command": "npm run test:graceful-sites-gitroot-cwd",
+          "result": "pass",
+          "note": "plain-repo scenario asserts head hash + touchpoints byte-identical to bare root (resolveGitCwd returns projectRoot verbatim); graceful fallback preserved: bare metadataRoot git rev-parse HEAD is undefined, non-git dir detectMdTouchpointsFromGit is undefined; each site keeps its existing undefined/null/[]/unknown fallback when no gitRoot resolves",
+          "headHash": "1b1ea675d1a2d032f77f5694d05ea58f64bed332",
+          "materialHash": "69b772cd66d2207436a10e4f59558593a73227d259360faa477279117f82d639",
+          "timestamp": "2026-06-17T23:11:02.029Z"
         }
       ]
     },
