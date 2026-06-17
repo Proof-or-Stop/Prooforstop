@@ -52,12 +52,12 @@
           "intentRef": "CHK-001:happy:1",
           "kind": "browser_test",
           "verdict": "success",
-          "command": "Open B-0414 (REVIEW) in Lineage Graph",
+          "command": "Open B-08f2 (DONE) in Lineage Graph — verify DISPATCH/RESULT/REVIEW/FINDING nodes",
           "result": "pass",
-          "note": "B-0414 graph shows: root, input-req, 2 init-review plan nodes, 3 pending CHK nodes, gate, done — 9 nodes. No process-events.jsonl dispatch events exist on main for this story yet so no DISPATCH/RESULT/REVIEW/FINDING nodes; graph shows phase-appropriate available nodes without crash.",
-          "headHash": "649b77f410c92c8a3c787bc62eec4cde939d9708",
+          "note": "B-08f2 (DONE, 7 dispatch events) lineage graph shows 25 nodes: root, input-req, plan-r1/r2 (PLAN), init-0/init-1 (INIT dispatches), dispatch-CHK-001/CHK-002/CHK-003 (DISPATCH), result-CHK-001/CHK-002/CHK-003 (RESULT), codex-verify, rev-lattice-review-concept/test-coverage/quality/docs (REVIEW nodes, type=output, host=claude-code), finding-F-001 through F-006 (FINDING), evidence-gate, done. Click on dispatch-CHK-001 shows AGENT node with 20 codex ops, 279.5s, 3 attempts. Click on rev-lattice-review-concept shows OUTPUT node with REVIEW NOTE section containing reviewer LLM text. All 4 node types specified in intent confirmed present and rendering correctly.",
+          "headHash": "151f2ab04c94697efbb798773c4becc2902932ad",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
-          "timestamp": "2026-06-17T19:00:58.439Z"
+          "timestamp": "2026-06-17T19:42:25.351Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
