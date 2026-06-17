@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T14:09:10.877Z",
       "reviewRunId": "B-c6cf:RR-002",
       "_hash": "eaeba6d622fe99a536bbe8c475dcf369b377ebfaf4f6ca371cb5a728162202ff"
+    },
+    {
+      "id": "B-c6cf:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Story is purely additive (c8 coverage instrumentation). No concept deleted or replaced — residue check N/A. Scope checks: (1) test:coverage script exists only at root package.json, no conflicting script in any sub-package. (2) docs/dev/test-coverage.md is referenced in both the CHANGELOG Unreleased entry and the decision doc (test-runner-consolidation-plan.md line 196). (3) Closing self-check: all doc promises delivered — .c8rc.json present with html+lcov+text reporters, reports-dir packages/main/coverage, all:true, clean:true; c8 ^11.0.0 in root devDependencies; packages/main/coverage/ in .gitignore; test:coverage script in root package.json uses c8 with --jobs 1. No promised-but-undelivered items found. No blocker.",
+      "createdAt": "2026-06-17T14:11:05.285Z",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "reviewRunId": "B-c6cf:RR-001",
+      "_hash": "767532b8e5cfdc86d2ec9575d5de80009ba6f8889deefb9d3723a3de92fbe92a"
     }
   ]
 }
