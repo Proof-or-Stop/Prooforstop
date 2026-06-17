@@ -332,6 +332,17 @@
           "headHash": "b58d5b9f1d00d2c6d4060d825eeb0e501f1e340a",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:15.083Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c 'Test infrastructure'",
+          "result": "pass",
+          "note": "Returns 1 — pattern-consistent with B-d7c3/B-c6cf/B-292d.",
+          "headHash": "94773f6ec19c2a5000c7d26de7f5ab764d0b77b9",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:15.883Z"
         }
       ]
     }
