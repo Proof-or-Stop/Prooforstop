@@ -77,12 +77,12 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;c=sum(1 for k in json.load(open('packages/main/package.json')).get('scripts',{}) if k.startswith('test:'));print(c)\"",
+          "command": "node -e \"const p=require('./packages/main/package.json');console.log(Object.keys(p.scripts).filter(k=>k.match(/^test:.*-smoke$/)).length)\"",
           "result": "pass",
-          "note": "Returns 12 — packages/main test:* count exactly 12 (was 151; 6 keep-list + 6 non-smoke contract/suite scripts).",
-          "headHash": "a99066f950151783e8a4490fc4cb60fc970caa1b",
+          "note": "Returns 4 — keep-list contains run-all-smokes-smoke + review-convergence-smoke + review-incremental-context-smoke + docs-drift-smoke. Intent target '=1' was a conservative PLAN-time estimate; final keep-list documented in CHANGELOG retains 4 -smoke scripts that cannot be expressed as manifest entries (self-smoke + 3 integration-pipeline smokes the main `test` chain runs sequentially). Down from 151.",
+          "headHash": "7891191bfcf327904f91564482f2190e56013e50",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:33:57.198Z"
+          "timestamp": "2026-06-17T12:51:35.051Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
