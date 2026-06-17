@@ -14,6 +14,66 @@
           "packages/main/src/tasks/run-all-smokes.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes.js --select run-all-smokes` -> exits 0, stdout contains PASS line for run-all-smokes-smoke and summary line matching passed in; WHY: confirms runner can discover+execute a single smoke via --select and produce aggregate output",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes.js --tag fast` -> exits 0, only smokes tagged fast in manifest appear in output; WHY: confirms --tag filter reads manifest tags and restricts execution set",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes.js` with no filters -> spawns all 153 discovered smokes, prints per-smoke PASS/FAIL lines, prints summary like 153/153 passed in Ns; WHY: confirms full unfiltered run with directory-scan discovery",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `npx tsc --noEmit -p packages/main/tsconfig.json` -> exits 0; WHY: confirms the new run-all-smokes.ts compiles without type errors",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes.js --select ZZZZZ_NONEXISTENT` -> exits 0, summary shows 0/0 passed; WHY: empty result set from --select should not crash or report failure",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes.js --jobs 1 --select run-all-smokes` -> exits 0 with same PASS/FAIL result as default parallelism; WHY: serial execution must not change correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes.js --jobs 8 --select run-all-smokes` -> exits 0; WHY: parallelism exceeding cpu count should degrade gracefully, not crash",
+            "type": "cli"
+          },
+          {
+            "desc": "Run `node packages/main/dist/tasks/run-all-smokes.js --tag missing-tag-xyz` -> exits 0, summary shows 0 smokes run; WHY: nonexistent tag should yield empty passing run, not error",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify existing 153 smoke files byte-identical to main: `git diff main -- packages/main/src/tasks/*-smoke.ts -- :!packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l` -> 0; WHY: runner must NOT modify any existing smoke file",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify intent-coverage.ts still exists: `test -f packages/main/src/core/intent-coverage.ts && echo EXISTS` -> EXISTS; WHY: always-on guard against cross-cutting infrastructure deletion",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify dev-cli.ts still exists: `test -f packages/main/src/verifier/dev-cli.ts && echo EXISTS` -> EXISTS; WHY: always-on guard against cross-cutting infrastructure deletion",
+            "type": "cli"
+          },
+          {
+            "desc": "Inject deliberate-fail fixture (echo process.exit(1) to tmpdir/bad-smoke.js), run runner with that dir as scan root -> runner exits non-zero and stdout contains FAIL; WHY: runner must propagate child non-zero exit, never swallow failures",
+            "type": "cli"
+          },
+          {
+            "desc": "Compare `--jobs 1` vs `--jobs 4` for same --select: both produce identical PASS count on stdout; WHY: parallelism level must not change pass/fail correctness",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
