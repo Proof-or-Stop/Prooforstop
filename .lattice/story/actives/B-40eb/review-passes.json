@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-17T12:06:45.973Z",
       "reviewRunId": "B-40eb:RR-007",
       "_hash": "fc3606d89755ccd0d2a083fb8a2c1923b748161a409df777ed0f0570d6ba7338"
+    },
+    {
+      "id": "B-40eb:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Round 3 incremental: (1) .Codex->.lattice-codex forward-fix in config.ts+scripts does not touch any evidence binding — scripts/verify-koala-residue.mjs runs PASS exit 0 and --self-test 5/5 PASS on the post-fix HEAD; (2) English-only translation changed only artifact prose fields (title/context/notes/background/plan/understanding) — intentRef, command, result fields on all 29 must-covered evidence entries are UNCHANGED; missingRequired=0 (29/29 must intents covered); 11 should-priority gaps are pre-existing advisory items carried from RP-004, none are new.",
+      "createdAt": "2026-06-17T12:08:54.032Z",
+      "reviewRound": "2026-06-17T12:06:45.973Z",
+      "reviewRunId": "B-40eb:RR-008",
+      "_hash": "1ef9d290a3a6dc959f5cda8db837822944bfc18f381f63a44047bf2f12153a9e"
     }
   ]
 }
