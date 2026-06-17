@@ -4,7 +4,7 @@
   "title": "koala residual full sweep: remove koala branding from active source/scripts/docs, keeping runtime-paths/salts/historical-decisions/test-intent as documented exceptions",
   "description": "ship-clean program story 3 (residual sweep). Pre-OSS removal of residual koala branding in the active code layer. Acceptance: git grep -i koala in active code/scripts/docs leaves only the documented-exceptions whitelist.",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "koala",
@@ -22,7 +22,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-16T21:32:01.527Z",
   "startedAt": "2026-06-16T21:32:01.527Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T12:25:28.478Z",
   "events": [
     {
       "phase": "INIT",
@@ -119,12 +119,15 @@
       "branch": "story/B-40eb",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:25:28.478Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-40eb",
-    "branch": "story/B-40eb",
-    "createdAt": "2026-06-16T21:37:39.712Z"
-  },
   "currentReviewRound": "2026-06-17T12:06:45.973Z"
 }
