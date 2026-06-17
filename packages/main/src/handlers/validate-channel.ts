@@ -70,17 +70,22 @@ export type GitChangedFilesReader = (args: {
   projectRoot: string;
 }) => string[];
 
-const defaultGitLogReader: GitLogReader = ({ base, branch, projectRoot }) => {
+// B-6666: the reader's `projectRoot` field actually carries the RESOLVED gitCwd
+// (checkCommitAuthor threads deps.gitCwd in as `projectRoot: gitCwd` — B-2856).
+// Alias it to `gitCwd` locally so the git child-process `cwd:` is lexically honest
+// (and passes the strengthened gitroot-cwd-contract bare-cwd rule). The public
+// GitLogReader/GitChangedFilesReader field name stays `projectRoot` (no external ripple).
+const defaultGitLogReader: GitLogReader = ({ base, branch, projectRoot: gitCwd }) => {
   try {
-    execSync(`git rev-parse --verify --quiet ${branch}`, { cwd: projectRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execSync(`git rev-parse --verify --quiet ${branch}`, { cwd: gitCwd, stdio: ['ignore', 'ignore', 'ignore'] });
   } catch {
     try {
       const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
-        cwd: projectRoot,
+        cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();
-      execSync(`git merge-base --is-ancestor HEAD ${base}`, { cwd: projectRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+      execSync(`git merge-base --is-ancestor HEAD ${base}`, { cwd: gitCwd, stdio: ['ignore', 'ignore', 'ignore'] });
       if (currentBranch === base) return '';
     } catch {
       // Keep the original git log failure for non-main branches with a missing story ref.
@@ -88,14 +93,14 @@ const defaultGitLogReader: GitLogReader = ({ base, branch, projectRoot }) => {
   }
   return execSync(
     `git log ${base}..${branch} "--format=%H|%an|%s"`,
-    { cwd: projectRoot, encoding: 'utf-8' },
+    { cwd: gitCwd, encoding: 'utf-8' },
   );
 };
 
-const defaultGitChangedFilesReader: GitChangedFilesReader = ({ sha, projectRoot }) => {
+const defaultGitChangedFilesReader: GitChangedFilesReader = ({ sha, projectRoot: gitCwd }) => {
   const raw = execSync(
     `git show --name-only --format= --no-renames ${sha}`,
-    { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
+    { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
   );
   return raw.split('\n').map(line => line.trim()).filter(Boolean);
 };

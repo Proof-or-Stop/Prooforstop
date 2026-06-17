@@ -74,21 +74,26 @@ function isIgnoredResidualFile(file: string): boolean {
   return IGNORED_PATH_PREFIXES.some(prefix => normalized.startsWith(prefix));
 }
 
-const defaultGitDiffReader: GitDiffReader = ({ base, projectRoot }) => {
+// B-6666: the reader's `projectRoot` field actually carries the RESOLVED gitCwd
+// (checkConcept threads deps.gitCwd in as `projectRoot: gitCwd` — B-2856). Alias
+// it to `gitCwd` locally so the git child-process `cwd:` is lexically honest (and
+// passes the strengthened gitroot-cwd-contract bare-cwd rule). The public
+// GitDiffReader/GrepReader field name stays `projectRoot` (no external ripple).
+const defaultGitDiffReader: GitDiffReader = ({ base, projectRoot: gitCwd }) => {
   return execSync(`git diff ${base}...HEAD`, {
-    cwd: projectRoot,
+    cwd: gitCwd,
     encoding: 'utf-8',
     maxBuffer: 50 * 1024 * 1024,
   });
 };
 
-const defaultGrepReader: GrepReader = ({ symbol, projectRoot }) => {
+const defaultGrepReader: GrepReader = ({ symbol, projectRoot: gitCwd }) => {
   // -rn → recursive + line numbers, -F → fixed string (symbol may contain `_`)
   // --exclude-dir handles each ignored subdir. swallow non-zero (exit 1 = no match).
   const excludes = IGNORED_DIRS.map((d) => `--exclude-dir=${d}`).join(' ');
   try {
     return execSync(`grep -rnF ${excludes} -- ${JSON.stringify(symbol)} .`, {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       maxBuffer: 50 * 1024 * 1024,
     });

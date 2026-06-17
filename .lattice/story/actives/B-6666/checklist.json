@@ -5,27 +5,201 @@
       "title": "Thread resolved gitCwd into the DONE-oracle git-status path (fix the wrapper-root DONE false-block)",
       "context": "Resolve gitCwd once at the runDonePreMergeGate boundary (transition-orchestrator.ts already computes doneGitCwd ~:271 — pass it instead of bare ctx.root at ~:363; or resolve inside runDonePreMergeGate) and thread it through done-effects.ts runDoneOracleGate -> core/done-oracle.ts buildDoneChecklist -> readGitStatusLines so `git status` runs from the resolved gitRoot. Fall back to root when no gitRoot resolves (plain repos byte-identical). done-oracle.ts currently has no resolveGitCwd import. Verify with a wrapper-root scenario that the 'git-working-tree' done-check row no longer false-fails when metadataRoot != gitRoot.",
       "userSees": "On a wrapper-root project (metadataRoot != gitRoot), `lattice story_advance --phase=DONE` no longer false-fails the git-working-tree DONE check with 'unable to read git status'; the DONE-oracle reads git status from the gitRoot. Plain repos are unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T16:49:50.629Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture (metadataRoot != gitRoot), buildDoneChecklist git-working-tree row reads clean instead of fail/blocking after threading doneGitCwd through runDonePreMergeGate->runDoneOracleGate->buildDoneChecklist->readGitStatusLines",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo (projectRoot==gitCwd, no distinct gitRoot), the git-working-tree row + all done-oracle git calls are byte-identical before/after (root fallback preserves behavior)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveGitCwd is resolved ONCE at the boundary (the same doneGitCwd at transition-orchestrator:271 used by autoSync) and passed down — not re-resolved divergently inside the gate; lattice validate stays green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-oracle-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Wrapper-root smoke: with resolved gitCwd (real gitRoot) the git-working-tree done-check row reads clean/pass; red baseline (bare metadataRoot) was fail/blocking in the same run. Witness: neutering the fix flipped GREEN assertion to status=fail detail=fatal: not a git repository.",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-oracle-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Plain-repo byte-identity: smoke proof drives buildDoneChecklist on a plain repo (metadataRoot==gitRoot) with gitCwd absent vs {gitCwd:root} and assert.deepEqual on the full row set + git-working-tree row — identical (root fallback preserves behavior).",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "git show 48f01df4a -- packages/main/src/handlers/transition-orchestrator.ts",
+          "result": "pass",
+          "note": "doneGitCwd resolved ONCE at transition-orchestrator (the SAME value used by autoSyncMain:298 + checkMainDivergence:295) and threaded into runDonePreMergeGate(...,doneGitCwd) at :371 — no re-resolution inside the gate chain (preMortem #4). lattice validate --story=B-6666 PASS.",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Thread resolved gitCwd into evidence-freshness git probes",
       "context": "core/evidence-freshness.ts uses a no-op `const gitCwd = projectRoot` alias with no resolveGitCwd import; its authority/done callers pass bare metadataRoot, so on wrapper-root the freshness/material hashes come back undefined. Thread the resolved gitCwd into the evidence-freshness git probes (resolve at the caller boundary or accept a gitCwd param), falling back to root. Keep plain-repo behavior byte-identical.",
       "userSees": "On a wrapper-root project, evidence-freshness / authority-receipt material hashes resolve correctly (not undefined) because the git probes run from the gitRoot; plain repos unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T16:57:42.604Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture, evidence-freshness git probes (currentGitHead/currentMaterialHash via checkEvidenceFreshnessForGit) return defined hashes instead of undefined after the resolved gitCwd is threaded into the probes (caller boundary or gitCwd param), so the done-path evidence-freshness row is computed against the real gitRoot",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo, currentGitHead/currentMaterialHash/changedFilesBetween results are byte-identical before/after (root fallback)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The done-path evidence-freshness caller (buildDoneChecklist:280 checkEvidenceFreshness) receives the SAME resolved gitCwd as the git-status row (no split-brain between the two done-oracle git reads); validate green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-oracle-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Wrapper-root smoke: evidence-freshness probes (currentGitHead/currentMaterialHash via checkEvidenceFreshnessForGit) return DEFINED hashes against the resolved inner gitRoot; bare metadataRoot returned undefined (red baseline in same run).",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-oracle-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "Plain-repo probe byte-identity: currentGitHead/currentMaterialHash outputs identical bare-root vs resolved gitCwd (root fallback).",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/done-oracle.ts",
+          "command": "git show defb288a1 -- packages/main/src/core/done-oracle.ts",
+          "result": "pass",
+          "note": "done-oracle.ts:280 checkEvidenceFreshness receives the SAME buildDoneChecklist-threaded resolved gitCwd as the git-status row — no split-brain. Confessional comment + no-op aliases removed from evidence-freshness.ts (grep returns 0). validate PASS.",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Strengthen the gitroot-cwd contract to close the alias + backtick-template blind spots, and make it GREEN",
       "context": "In tasks/gitroot-cwd-contract-smoke.ts: (a) detect the no-op-alias defect — a `const <name> = projectRoot|root|metadataRoot` (or equivalent) that is then used as a git-call cwd without going through resolveGitCwd should be flagged, so B-db56's d93b69b8f-style silencing is caught; (b) extend GIT_CALL_REGEX (or add a second scan) to cover backtick-template `execSync(\\`git ...\\`)` call sites (~15 exist, 6 with literal bare-root cwd). Then FIX every real bare-root site the strengthened contract flags (thread resolveGitCwd / fall back to root). Run `npm run test:gitroot-cwd-contract` and confirm it EXITS 0 — the gate does not run it today, so verify explicitly. If the backtick blast radius exceeds what this story can safely fix, fix the confirmed wrapper-root sites + ship the alias-detection rule and explicitly log the remaining sites as a documented follow-up (do not leave the contract red).",
       "userSees": "`npm run test:gitroot-cwd-contract` exits 0 AND now fails if someone re-introduces a `const gitCwd = projectRoot` alias or a backtick-template git call with a bare-root cwd — the contract can no longer be silenced without routing through resolveGitCwd.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T17:09:31.976Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After strengthening, npm run test:gitroot-cwd-contract exits 0 and prints the passed banner, with all confirmed bare-root sites fixed (done-oracle + evidence-freshness now route through resolveGitCwd)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A KNOWN-BAD self-test fixture: a no-op const gitCwd=projectRoot alias used as a git cwd WITHOUT resolveGitCwd produces exactly 1 violation; a KNOWN-GOOD fixture (alias not used as git cwd, OR routed via resolveGitCwd) produces 0 violations — alias rule pinned both ways",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A KNOWN-BAD self-test fixture: a backtick-template execSync(`git ...`) with cwd:projectRoot is flagged (the old GIT_CALL_REGEX backtick blind spot is closed); reintroducing either gaming shape (the exact d93b69b8f alias) turns the contract RED",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "npm run test:gitroot-cwd-contract",
+          "result": "pass",
+          "note": "Contract exits 0 (GREEN): repo scan 520 .ts files 0 bare-cwd violations; done-oracle + evidence-freshness now route through resolveGitCwd; deferred sites documented in DEFERRED_ALLOWLIST_EXACT with B-99b6 burndown follow-up, original B-db56 literal-git coverage preserved for them via isOldRegexVisible.",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "npm run test:gitroot-cwd-contract",
+          "result": "pass",
+          "note": "Self-tests pin alias rule both ways: ALIAS KNOWN-BAD (const gitCwd=projectRoot used as git cwd) = exactly 1 violation; ALIAS KNOWN-GOOD (const x=projectRoot NOT a git cwd) = 0; ALIAS KNOWN-GOOD (const gitCwd=resolveGitCwd(...)) = 0. Proximity-scoped to git-call window (preMortem #3).",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "command": "npm run test:gitroot-cwd-contract",
+          "result": "pass",
+          "note": "BACKTICK KNOWN-BAD (execSync(`git`,{cwd:projectRoot})) flagged; KNOWN-GOOD (cwd:resolvedGitCwd) = 0. LIVE red->green witness: injected const witnessGitCwd=projectRoot;execSync(`git status`,{cwd:witnessGitCwd}) into done-oracle.ts -> contract exit 1 flagging the d93b69b8f shape -> revert -> exit 0.",
+          "headHash": "d3440651e2d871fe993acbf2a40932c4c72e3b7b",
+          "materialHash": "67df791ab12379f2d9ddad74cd93af0643eb31bf8462f6f77ec0066c2a5d0cc8",
+          "timestamp": "2026-06-17T17:39:34.927Z"
+        }
+      ]
     }
   ]
 }
