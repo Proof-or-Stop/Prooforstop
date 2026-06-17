@@ -4,7 +4,7 @@
   "title": "Stabilize the 8 deferred P5 authority/baseline smokes (2 stale-assertion, 1 non-hermetic env, 5 timeout-bump) — test/config only, 0 production change",
   "description": "A triage workflow characterized the 8 deferred P5 (authority/autopilot/baseline) smoke failures in test:all and confirmed 0 production regressions — all are test-or-config issues. This story makes them green so the full test:all suite is trustworthy again. CORRECTION (established by running each smoke on a fresh build from repo-root cwd vs /tmp clean cwd): the original triage prescription for autopilot-authority was WRONG; corrected below.\n\nPer-smoke (verified standalone): (1) authority-job-loop-live — STALE SNAPSHOT: it already PASSES on a current build (exit 0, hermetic — injected fake fetch + mkdtemp + fixed clock; commit 3a0199f79 realigned its assertions); the suite FAIL was a stale-dist artifact. Fix = rebuild + verify; do NOT edit the smoke; do NOT env-gate it. (2) autopilot-authority — NON-HERMETIC ENV (NOT a stale assertion): it FAILS from repo-root cwd (actual shadow.status=\"pass\" expected \"warn\") and PASSES from /tmp. Root cause: buildAuthorityStatus reads the dev on-disk authority_trust.env via fileReader from cwd; for shadow mode enabled=true so the dev real URL (LATTICE_AUTHORITY_LIVE_URL=https://staging.hostneutral.net) leaks in, suppressing the URL-empty warning -> status=pass. PRODUCTION IS CORRECT: authority-mode.ts:446-452 applies the localhost DEFAULT_AUTHORITY_URL ONLY to enforce mode; shadow deliberately keeps no-URL behavior, so shadow.status===\"warn\" with empty env is the correct intended behavior and must NOT be weakened. Fix = make the smoke hermetic (pass fileReader: () => undefined into the buildAuthorityStatus/buildAuthorityEnforceRunnerPlan path used by the smoke; AuthorityStatusRuntime extends AuthorityConfigLoadOptions which exposes fileReader). KEEP all assertions including shadow.status===\"warn\", readinessWarnings.length>0, localWorkflowUsable===true, authorityRequired===false. Test-only override; 0 production change. (3) multi-host-authority — NON-HERMETIC ENV: it reads the dev real authority_trust.env at repo-root cwd, so E2 asserts mode===\"local\" but gets \"server\"; PASSES from /tmp. Production correct. Fix = pass fileReader: () => undefined into the ~14 resolveAuthorityVerdictBacking/loadAuthorityConfig env-only call sites so disk reads return nothing. Test-only override; 0 production change. (4-8) cli-json-stdout-contract, dispatch-run, experience-layer-playbook, lattice-baseline, planner-unattended — TIMEOUT-SLOW: each PASSES standalone (44-50s wall) but historically exceeded the 60s manifest default under parallel suite load. NOTE: smoke-manifest.json ALREADY carries raised finite timeouts for all five (180000-240000 ms); this item is now RE-VERIFY (confirm each value gives headroom under test:all and none TIMEOUT; bump only if still too tight, keeping a real finite ceiling). Goal: after this story, all 8 are green in test:all (target ~162/162) with NO production code change and NO assertion weakened.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "test-stabilization",
@@ -84,6 +84,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-17T23:08:16.789Z",
+      "branch": "story/B-6745",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p5fix",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:10:44.554Z",
       "branch": "story/B-6745",
       "user": "Harmonygo",
       "sessionId": "lattice-p5fix",
