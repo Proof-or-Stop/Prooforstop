@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-32b9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement detected in this diff. The changes are: (1) Lattice story metadata updates (checklist status/verificationEvidence for CHK-001 through CHK-004, phase advancement from INIT_CHECK, scope-check, understanding.json, decision.json additions); (2) the code changes to lattice-console-serve.js (two feature additions to buildLineageGraph: understanding node from understanding.json, and pending-dispatch nodes for undispatched CHK items) are outside the Orchestrate repo and not present in this diff. No concept words were deleted or replaced en masse. Concept residue check completed — no blocker.",
+      "createdAt": "2026-06-17T19:29:18.955Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-001",
+      "_hash": "5cb497ad155287de193e6945ba8ee703a964dcfff4a8f346811ae061f21ee1a5"
+    }
+  ]
+}
