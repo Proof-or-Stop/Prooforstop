@@ -303,6 +303,17 @@
           "headHash": "e603db3a187de2cc49abe257ff03c9145d52ba1a",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:09.850Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "python3 -c \"import json;s=json.load(open('package.json')).get('scripts',{});k=['test:e2e','test:all','test:legacy','test:main-write-lock-coverage','test:review-convergence-smoke','test:review-incremental-context-smoke','test:docs-drift-smoke'];print(all(x in s for x in k))\"",
+          "result": "pass",
+          "note": "Returns True — all 7 root keep-list entries present (test:all + test:legacy + test:e2e + 4 main-chain).",
+          "headHash": "aca3f3fab0a22084504933e0533cda73f6c827c9",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:10.527Z"
         }
       ]
     },
