@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T23:23:07.953Z",
       "reviewRunId": "B-75f0:RR-004",
       "_hash": "c66af8d7b337030e94fcbf56645ef5c8664b7dd3eae192bc47f0914d1d493756"
+    },
+    {
+      "id": "B-75f0:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "round 2 re-verify after F-001 fix (commit f32bfb3): (1) DEFERRED_ALLOWLIST_EXACT is confirmed empty new Set<string>([]) in gitroot-cwd-contract-smoke.ts — story metadata references are historical audit trail only, zero code residue. (2) resolveProjectGitRoot is exported from story-signed-workspace-resolution.ts:442 with correct importers in gap-analyze, story-query, dashboard, project-gitroot-cwd-smoke. (3) 3 CHK-004 renames confirmed: autoSyncMain(gitCwd) in done-effects.ts, resolveGitTopLevel(gitCwd) in handlers/review-run.ts, isGitRepository(gitCwd) in core/review-run.ts — all renamed, remaining projectRoot usages in those files are for unrelated params. (4) F-001 delta consistency: verifier.ts:605 now passes loadConfig(projectRoot) as 3rd arg — loadConfig was already imported at line 33, no new import needed. All 8 production resolveProjectGitCwd call sites (dashboard, lattice-handoff, touchpoints-fallback, validation-executor, story-query, gap-analyze, codex-adapter-checks, verifier) now pass a config 3rd arg. The fix is consistent with all other sites. No new concept residue introduced by F-001 commit. No blocker.",
+      "createdAt": "2026-06-17T23:33:09.845Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-005",
+      "_hash": "7545ca3a80e67e98ae5e3fd862aa83e2b00aacf70122965816300765f4a0095f"
     }
   ]
 }
