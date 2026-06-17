@@ -27,7 +27,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/multi-host-authority-smoke.js",
+          "result": "pass",
+          "note": "Smoke passes from repo root with authority_trust.env present; fix (fileReader:NO_DISK) already delivered by B-6745 merge",
+          "headHash": "ad81000fa488a03a751e5953a33d051532938d10",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:19:42.687Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
