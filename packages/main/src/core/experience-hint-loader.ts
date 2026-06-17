@@ -59,7 +59,13 @@ export interface ExperienceHint {
   signalScore: number;
   /** Source signal's decisive-sample count (positive + negative). */
   support: number;
-  /** Computed ranking priority (signalScore * log(1+support) * recencyBoost). */
+  /**
+   * Computed ranking priority = base * log(1+support) * recencyBoost, where the
+   * `base` differs by kind: `signalScore` for recurring hints and
+   * `falsePositiveCount` for common_false_positive hints (false positives are
+   * ranked by how often reviewers dismissed them, not by signalScore). The
+   * log(1+support) damping and recencyBoost are identical across both kinds.
+   */
   priority: number;
   /** Example story ids that contributed to this signature (deduped, sorted). */
   sourceStoryIds: string[];

@@ -27,7 +27,7 @@ import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { loadExperienceHints, formatExperienceHintsSection, hasExperienceHints, experienceHintIds } from '../core/experience-hint-loader.js';
-import { appendActivityLog } from '../core/activity-log.js';
+import { appendActivityLog, readActivityLogTail } from '../core/activity-log.js';
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -535,21 +535,41 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // reviewer prompt that feeds resolveReviewPromptHash (core/review-run.ts).
       // Hint content must NEVER enter any reviewRunId/promptHash computation.
       //
-      // Compute once here so the usage-tracking event fires exactly once per
+      // Compute once here so the usage-tracking event fires (at most) once per
       // story_review call that surfaces hints (the `_reviewPrompt` getter below is
       // an IIFE; building the section out here keeps surfacing single-shot).
+      //
+      // B-1dc9 CHK-003:edge:0 — DEDUP: usage tracking is exactly-once-PER-REVIEW-ROUND,
+      // not per-call. The stable round key is `story.currentReviewRound` (an ISO
+      // stamp set when a REVIEW round opens and unchanged across repeated calls in
+      // that round). PLAN-phase stories have no currentReviewRound, so we fall back
+      // to the stable `plan:<phase>` key (stable across repeated calls; note
+      // `planReviewRound` increments every call and is deliberately NOT used here).
+      // The `_reviewPrompt` section still renders on every call — only the EVENT is
+      // deduped — so a NEW round (or a different story) yields a new event.
+      const hintRoundKey = story.currentReviewRound || `plan:${story.phase}`;
       let experienceHintsSection = '';
       try {
         const experienceHints = loadExperienceHints(ctx.root);
         experienceHintsSection = formatExperienceHintsSection(experienceHints);
         if (hasExperienceHints(experienceHints)) {
-          // USAGE TRACKING: exactly one event per surfacing story_review call.
-          appendActivityLog(ctx.root, {
-            timestamp: new Date().toISOString(),
-            event: 'experience_hint_surfaced',
-            storyId: args.storyId,
-            hintIds: experienceHintIds(experienceHints),
-          });
+          // Skip the append if an experience_hint_surfaced event already exists for
+          // this (storyId, hintRoundKey) — repeated calls in the same round => one event.
+          const alreadySurfaced = readActivityLogTail(ctx.root, 1000).some(
+            (e) => e.event === 'experience_hint_surfaced'
+              && e.storyId === args.storyId
+              && e.reviewRound === hintRoundKey,
+          );
+          if (!alreadySurfaced) {
+            // USAGE TRACKING: exactly one event per (storyId, review round).
+            appendActivityLog(ctx.root, {
+              timestamp: new Date().toISOString(),
+              event: 'experience_hint_surfaced',
+              storyId: args.storyId,
+              reviewRound: hintRoundKey,
+              hintIds: experienceHintIds(experienceHints),
+            });
+          }
         }
       } catch (e) {
         // Advisory-only: never let hint loading/tracking break story_review.

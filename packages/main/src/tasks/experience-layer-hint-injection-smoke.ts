@@ -447,6 +447,74 @@ check('special-character signals render without breaking prompt structure', () =
   assert.equal(surfacedEvents(root).length, 1, 'still exactly one event');
 });
 
+check('CHK-003:edge:0 surface twice same run => one event', () => {
+  const root = mkTempRoot();
+  writeLatticeConfig(root);
+  const store = new StoryStore(root);
+  const storyId = 'B-hint-dedup';
+  // Seed a REVIEW-round story so currentReviewRound is the stable per-run key.
+  const now = PINNED_NOW;
+  store.writeStory(storyId, {
+    storyId,
+    name: storyId,
+    title: 'Dedup smoke story',
+    description: 'Surface hints twice in the same review run => exactly one event.',
+    type: 'chore',
+    phase: 'PLAN',
+    priority: 'medium',
+    currentReviewRound: now,
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
+  } as StoryInfo);
+  store.writeChecklist(storyId, {
+    items: [{
+      id: 'CHK-001',
+      title: 'A real checklist item',
+      context: 'Enough context to pass split-quality checks.',
+      userSees: 'The smoke asserts dedup of the usage event across calls.',
+      status: 'pending',
+      startTime: null,
+      endTime: null,
+    }],
+  } as ChecklistData);
+  store.writeUnderstanding(storyId, {
+    task: 'surface advisory hints',
+    outcome: 'one usage event per review run',
+    facts: ['hints are advisory only'],
+    constraints: [],
+    unknowns: [],
+    touchpoints: [],
+    timestamp: now,
+  });
+  seedSignals(root, [
+    signal({ localSignature: 'recDedup', signalScore: 0.9, support: 4, counts: { resolved: 4, dismissed: 0, falsePositive: 0, acceptedRisk: 0, unclear: 0, partiallyMitigated: 0 } }),
+  ]);
+
+  // Surface twice within the SAME review run (same currentReviewRound).
+  const first = runStoryReview(root, storyId);
+  const second = runStoryReview(root, storyId);
+  // The advisory SECTION still renders on every call — only the EVENT is deduped.
+  assert.ok(first._reviewPrompt.includes(SECTION_LABEL), 'section renders on first call');
+  assert.ok(second._reviewPrompt.includes(SECTION_LABEL), 'section still renders on second call');
+  const afterSameRun = surfacedEvents(root).filter((e) => e.storyId === storyId);
+  assert.equal(afterSameRun.length, 1, 'two calls in the same run => exactly one event');
+  assert.equal(afterSameRun[0].reviewRound, now, 'event is keyed by the review round');
+
+  // A NEW round (advance currentReviewRound) yields an additional event.
+  const nextRound = '2026-06-18T00:00:00.000Z';
+  const story2 = store.readStory(storyId);
+  store.writeStory(storyId, { ...story2, currentReviewRound: nextRound } as StoryInfo);
+  runStoryReview(root, storyId);
+  const afterNewRound = surfacedEvents(root).filter((e) => e.storyId === storyId);
+  assert.equal(afterNewRound.length, 2, 'a new review round produces an additional event');
+  assert.ok(
+    afterNewRound.some((e) => e.reviewRound === nextRound),
+    'the new event carries the new round key',
+  );
+});
+
 // ─── GUARDRAIL: resolveReviewPromptHash is independent of hint content ─────────
 
 check('GUARDRAIL: resolveReviewPromptHash identical with/without hints loaded', () => {
