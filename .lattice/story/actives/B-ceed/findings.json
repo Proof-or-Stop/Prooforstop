@@ -48,6 +48,22 @@
       "files": [
         "packages/main/src/core/planned-steps-executor.ts"
       ]
+    },
+    {
+      "id": "B-ceed:F-004",
+      "desc": "quality-cleanup: planned-steps-executor.ts:328 isRealProvider guard does not include gemini — BoundedProviderName widened to include gemini but the runtime guard still returns false for gemini, causing productionDoneProviders containing gemini to be silently filtered to empty (reals() call at line 337), making gemini ineligible as a real provider in resolveProviderPolicy at runtime despite the type allowing it",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-17T22:17:48.682Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-002",
+      "_hash": "1697a3caa8add64e188fc255826bff9e88f59e47ae646d1aa45d4a3de8135895",
+      "files": [
+        "packages/main/src/core/planned-steps-executor.ts"
+      ]
     }
   ]
 }
