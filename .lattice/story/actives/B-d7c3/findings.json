@@ -384,6 +384,22 @@
       ],
       "resolvedReason": "Bound CHK-001:adversarial:0 to literal glob command with explicit exclude of the 2 scope-ack'd files (same pattern as CHK-002:adv:0). Returns 0. The adv:0 intent and adv:1 intent are distinct: adv:0 is the wide *-smoke.ts glob; adv:1 is the run-all-smokes-specific pair. F-017 fixed adv:1; this fixes adv:0.",
       "resolvedAt": "2026-06-17T13:05:56.837Z"
+    },
+    {
+      "id": "B-d7c3:F-022",
+      "desc": "CHK-003:happy:2 evidence command does not bind the intent literal. Intent literal: git diff main -- CHANGELOG.md | grep -c ’+.*test:legacy\\\\|+.*smoke-manifest\\\\|+.*removed.*test:.*-smoke’ (must return >= 1). Evidence command used: git diff HEAD~1 -- CHANGELOG.md (no grep, HEAD~1 is a lattice metadata commit). At current HEAD the evidence command returns 0 lines — empty, not reproducible. The intent assertion (>= 1 matching line) does pass when the literal command is run (returns 2). Evidence must be updated to use the intent’s literal command or a functionally identical command that also runs the grep and returns >= 1.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T13:09:17.231Z",
+      "reviewRound": "2026-06-17T13:05:54.697Z",
+      "reviewRunId": "B-d7c3:RR-009",
+      "_hash": "1e72a31934bb90779badb4bad74203a8dfdab1430e4758e359cad2d1a04276d8",
+      "files": [
+        "CHANGELOG.md"
+      ]
     }
   ]
 }
