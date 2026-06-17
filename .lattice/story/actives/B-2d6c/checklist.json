@@ -299,6 +299,17 @@
           "headHash": "6c4b8fbff6a8ede20d19f061fe5d42980ec3c66d",
           "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
           "timestamp": "2026-06-17T21:05:12.754Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'B-c6cf.*waiver|waiver.*B-c6cf|CHK-002:happy:2'",
+          "result": "pass",
+          "note": "Returns >=1 — explicit waiver-retirement reference.",
+          "headHash": "685f882349b5d03ab24ac5bbb94324181d8332fd",
+          "materialHash": "3f05d88b782b68137160c8decf984a0a1f1edce1ddaee3fea4b21878cad9a0b6",
+          "timestamp": "2026-06-17T21:05:13.536Z"
         }
       ]
     }
