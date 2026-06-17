@@ -505,6 +505,17 @@
           "headHash": "51b418d16fcfcabc07705fdd3c9df55e9c5b55aa",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:18.544Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "python3 -c \"import json;print(json.load(open('package.json')).get('scripts',{}).get('test:legacy','MISSING'))\"",
+          "result": "pass",
+          "note": "Prints 'node packages/main/dist/tasks/run-all-smokes.js --select' — shim wired in root package.json.",
+          "headHash": "92717556c1a100940b47cb933cb7db93efe4f0bd",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:19.452Z"
         }
       ]
     }
