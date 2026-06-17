@@ -66,9 +66,9 @@
       "id": "CHK-002",
       "title": "Wire test:coverage npm script",
       "context": "Add to root package.json scripts: test:coverage running c8 wrapping run-all-smokes.js. PLAN-time decision: single-process mode (--jobs 1) for v1 OR c8 child-process instrumentation. Verify: npm run test:coverage exits 0, HTML + LCOV both non-empty.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T13:47:51.638Z",
-      "endTime": null,
+      "endTime": "2026-06-17T14:07:35.690Z",
       "userSees": "`npm run test:coverage` exits 0; `ls packages/main/coverage/` shows index.html + lcov.info both non-empty; opening packages/main/coverage/index.html in a browser shows file-by-file coverage for packages/main/src/.",
       "files": {
         "modify": [
