@@ -175,6 +175,17 @@
           "headHash": "5d70c23a23bb694e6aa25bb98ea35339dd6e08c0",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:06:48.071Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test > /tmp/c6cf-npmtest.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — root test chain (main-write-lock-coverage + koala-residue + review-convergence-smoke + review-incremental-context-smoke + docs-drift-smoke + docs-drift-wrapper-root + gitroot-cwd-contract + e2e) still passes. B-c6cf changes (additive only) don't affect the root test chain.",
+          "headHash": "854f29e0ff8767f1385d24384bfb3820473a4cbe",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:06:53.044Z"
         }
       ]
     },
