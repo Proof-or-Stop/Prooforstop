@@ -71,7 +71,30 @@
       "userSees": "cli-argument-ergonomics, lattice-only-absence, lattice-cli-migration, and review-loop each PASS standalone with assertions updated to the current correct messages/behavior.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cli-argument-ergonomics, lattice-only-absence, lattice-cli-migration, review-loop each pass standalone exit 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Updated only the drifted assertions to current text/behavior (Argument validation failed; current help format post koala->lattice rename; review-loop 3-of-38 sub-assertions for storyDirPath interface), keeping all other sub-assertions intact",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "review-loop: the 35 passing sub-assertions remain unchanged; no regex was broadened to accept wrong output; zero production change",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
