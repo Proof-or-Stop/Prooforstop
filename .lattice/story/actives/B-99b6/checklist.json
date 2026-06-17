@@ -7,7 +7,40 @@
       "userSees": "lattice validate runs the wrapper-root smokes (their output appears in the validate run) and a deliberately-broken smoke makes lattice validate fail.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After wiring, `lattice validate` output lists each newly-gated guard step (process-fact-contract, runtime-fact-contract, evidence-quality, anti-stall, storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root) and exits PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Root npm test chain runs the new guards in addition to the existing ones; no guard is double-listed (gitroot-cwd-contract appears exactly once).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The slow storydir-inside-gitroot-suite (~7s) and the 160-smoke test:all are NOT in the fast gate but remain reachable via the documented full/CI aggregator path.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Newly added root test:evidence-quality alias resolves to scripts/verify-evidence-quality.mjs and runs green.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A guard that is GREEN standalone must also be GREEN (and actually executed, not no-opped) when run inside the chained npm test context (cwd/env parity).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,25 @@
+{
+  "task": "lattice validate (and the REVIEW->TEST gate) falls back to the root npm test chain, but a family of mandated contract guards and wrapper-root/gitRoot regression smokes is NOT in that chain, so a RED guard (e.g. test:process-fact-contract, which sat RED on main invisibly until B-867c) can hide. Wire the orphaned fast guards + wrapper-root smokes into the gate path.",
+  "outcome": "Running `lattice validate` now prints the newly-gated guards as part of the run, e.g.:\n  > test:process-fact-contract\n  > test:runtime-fact-contract\n  > test:evidence-quality\n  > test:anti-stall\n  > test:storydir-inside-gitroot-smoke\n  > test:gitroot-cwd-routing\n  > test:bare-gate-gitroot-cwd\n  > test:done-oracle-wrapper-root\n  ✓ validate PASS\nand when a developer deliberately breaks one wired guard, `lattice validate` (and `story_advance --phase=TEST`) turns RED with that guard reported as the failing step, then reverting restores GREEN. The slow storydir suite + full 160-smoke run stay reachable via a documented --full/CI path, not the fast gate.",
+  "facts": [
+    "Root package.json `test` currently chains: test:main-write-lock-coverage, test:koala-residue, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke, test:docs-drift-wrapper-root, test:gitroot-cwd-contract, test:e2e (so gitroot-cwd-contract is ALREADY gated; do not duplicate).",
+    "No project validate.ts/js/mts exists; no validate.command in lattice.config.json. So lattice validate falls back to `npm test` (verifier.ts discoverFallbackValidationCommands), and the REVIEW->TEST gate (phase-gates.ts runValidateGate) runs the SAME npm test chain.",
+    "Mandated FAST contract guards exist as scripts: root test:process-fact-contract / test:runtime-fact-contract / test:anti-stall, and packages/main test:evidence-quality-contract (-> scripts/verify-evidence-quality.mjs). Root has NO test:evidence-quality alias yet.",
+    "Wrapper-root smokes: root has test:gitroot-cwd-routing + test:bare-gate-gitroot-cwd; packages/main has test:done-oracle-wrapper-root + test:storydir-inside-gitroot-smoke + test:storydir-inside-gitroot-suite.",
+    "Baseline timing on main (all GREEN): process-fact-contract 2.0s, runtime-fact-contract 2.6s, anti-stall 0.2s, evidence-quality 0.1s, gitroot-cwd-routing 1.4s, bare-gate-gitroot-cwd 0.4s, done-oracle-wrapper-root 0.8s, storydir-inside-gitroot-smoke 0.5s, storydir-inside-gitroot-suite 7.0s.",
+    "test:all = run-all-smokes.js (~160 smokes) — the slow full suite; keep reachable for --full/CI but NOT in fast gate."
+  ],
+  "constraints": [
+    "Battery/aggregator wiring ONLY: edit root package.json + packages/main/package.json scripts, optionally a new aggregator script under packages/main/src/tasks. Do NOT change any guard/smoke assertion logic, do NOT touch gitRoot code (B-6666 done) or process-fact-registry (B-867c done).",
+    "Do NOT duplicate test:gitroot-cwd-contract (already in chain) — avoid double-running.",
+    "Every newly-gated guard is GREEN on current main; if any is RED when wired, it is a REAL red to fix/escalate — never exclude a guard just to make the gate pass. RED becoming visible is the whole point.",
+    "Slow fixture-builder (storydir-inside-gitroot-suite ~7s) may go behind --full; keep contract guards + core wrapper-root regressions in the FAST gate.",
+    "Full 160-smoke test:all reachable via --full / documented CI path, NOT the fast gate."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-17T17:54:40.585Z"
+}
