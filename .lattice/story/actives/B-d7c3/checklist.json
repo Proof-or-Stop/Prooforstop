@@ -472,6 +472,17 @@
           "headHash": "ae298c07b5a9c0ff9446be0597a6c3cfd0f6076a",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:15.916Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff HEAD~1 -- CHANGELOG.md",
+          "result": "pass",
+          "note": "Diff shows new 'Unreleased' section with B-d7c3 entry documenting npm script collapse + migration commands.",
+          "headHash": "a9a8ff6d34fb40d1d7b6d3e6b1bcc6542dcf5c76",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:16.785Z"
         }
       ]
     }
