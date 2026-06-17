@@ -24,7 +24,8 @@
       "context": "node scripts/verify-koala-residue.mjs -> PASS 0 unclassified; --self-test -> 5/5; npm test includes test:koala-residue and passes; npm run build exits 0; npm run test:e2e all pass; lattice validate all-green and exercises the gate.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "the koala-residue gate runs as part of every validate and passes; no koala can silently re-enter"
     }
   ]
 }
