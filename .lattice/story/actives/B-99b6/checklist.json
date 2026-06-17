@@ -92,10 +92,10 @@
           "verdict": "success",
           "command": "npm test",
           "result": "pass",
-          "note": "All 8 guards run GREEN inside the chained npm test context (not just standalone): npm test exit 0 with each guard emitting its own pass line (storyDir-inside-gitRoot smoke passed, gitroot-cwd-routing smoke passed, bare-gate-gitroot-cwd smoke passed, done-oracle wrapper-root smoke passed, evidence quality contract passed, anti-stall guardrails verified). No no-op: breaking anti-stall flipped validate to status=fail proving the guard is actually executed and asserted in-chain.",
-          "headHash": "17c49f48b755c6cbeb4c88eb042404c84e53d0e9",
-          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
-          "timestamp": "2026-06-17T18:08:28.361Z"
+          "note": "Post-merge refresh: all 8 guards GREEN inside chained npm test context (not no-opped); each emits its own pass line; breaking anti-stall flips validate to status=fail proving in-chain execution.",
+          "headHash": "11078cb9e09a21e7d2b77ef27ffb9c62d6b6e071",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:17.739Z"
         }
       ]
     },
