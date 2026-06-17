@@ -384,6 +384,17 @@
           "headHash": "4e72747ee3c56d71fcef75506781adaa178f412a",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:59.752Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c B-292d",
+          "result": "pass",
+          "note": "Returns 1 — Unreleased entry names B-292d for traceability.",
+          "headHash": "b2d758c49f2e38c6ebd943b872fdcae0c22206cc",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:46:00.594Z"
         }
       ]
     }
