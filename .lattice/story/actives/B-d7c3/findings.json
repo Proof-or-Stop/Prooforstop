@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-d7c3:F-001",
+      "desc": "CHK-001:happy:0 evidence command does not bind the intent literal: intent requires node -e filter matching /^test:.*-smoke$/ printing count=1 (only test:run-all-smokes-smoke); evidence runs python3 counting all test:* entries (returns 12). The evidence covers happy:1 (total test:* count), not happy:0 (smoke-specific count=1). The CHK-001:happy:0 intent — confirming exactly 1 test:*-smoke remains — has no valid evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:31:05.151Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-002",
+      "_hash": "40547d9489ee2f322546a99a82abb20ce776342dfc061c55cd96e366b028805a",
+      "files": [
+        "packages/main/package.json"
+      ]
+    }
+  ]
+}
