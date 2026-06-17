@@ -69,9 +69,9 @@
       "title": "Reconcile DEFAULT_PHASE_TOOLS so recall/signature_registry_*/playbook_* phase drift is resolved, and confirm the whole contract is GREEN",
       "context": "The contract also reports DEFAULT_PHASE_TOOLS phase allowlist drift for patterns recall / signature_registry_* / playbook_* across PLAN/REVIEW/TEST. In config.ts (DEFAULT_PHASE_TOOLS), reconcile the phase allowlists so they agree with the registry/command-policy for these commands (add them to the phases where they are legitimately allowed; the contract enforces DEFAULT_PHASE_TOOLS ⊆ command-policy allowedPhases — keep that safe direction). Honor the Handler Encoding Convention if any consumed field has constraints. Then run `npm run test:process-fact-contract` and confirm it EXITS 0 (green) end-to-end — the gate does not run this guard today, so this explicit run is the verification of record. Capture the green output as evidence.",
       "userSees": "`npm run test:process-fact-contract` exits 0 with no drift/missing lines — the process-fact invariant is green on the story branch; the green transcript is the real-machine evidence.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T16:39:20.912Z",
       "verificationIntent": {
         "happy": [
           {
