@@ -101,6 +101,17 @@
           "headHash": "332756337467b6efdc5c467f5df594072d82a239",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:45:49.712Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c koala-residue packages/main/dist/handlers/review-preflight.js",
+          "result": "pass",
+          "note": "Returns 5+ — compiled dist contains the gate logic.",
+          "headHash": "a2495a671814ab84398fd7fe62ede9031caece0e",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:45:50.342Z"
         }
       ]
     },
