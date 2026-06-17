@@ -1,0 +1,61 @@
+{
+  "storyId": "B-4f46",
+  "checkedAt": "2026-06-17T13:02:02.873Z",
+  "reviewRound": "2026-06-17T12:40:10.801Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-4f46/plan.md#CHK-001",
+      "promise": "types.ts Finding interface gets 5 optional audit-only fields: signatureTag, resolutionType, dismissReasonType, resolveEvidenceStrength, dismissEvidenceStrength — each annotated audit-only and excluded from the finding signature",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/types.ts shows all 5 fields added with JSDoc audit-only annotations and excluded-from-signature notes; signFinding in finding-verify.ts untouched (grep of advisory.ts + finding-verify.ts for signatureTag/resolutionType/dismissReasonType/evidenceStrength returned empty)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-4f46/plan.md#CHK-002",
+      "promise": "cli-engine.ts Zod schemas extended: finding_add += signatureTag?; finding_resolve += resolutionType?/resolveEvidenceStrength?; finding_dismiss += dismissReasonType?(OPTIONAL)/dismissEvidenceStrength?. Handler (finding.ts) validates enums and persists fields; omitting any field preserves legacy behavior; invalid enum rejected with clear error",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke test 21/21",
+      "evidence": "git diff shows Zod schemas in cli-engine.ts adding the 4 enum fields; finding.ts adds validateOptionalEnum() function, validates on finding_resolve/dismiss, persists via if(field) assignments; smoke checks: capture/back-compat/validation/legacy all PASS; CHK-002:adversarial:2 empty-string enum rejected PASS"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-4f46/plan.md#CHK-003",
+      "promise": "learning-store.ts adds signature-registry CRUD (read/write/propose/approve/alias/deprecate/resolveTag); new handler signature-registry.ts exposes signature_registry_list and signature_registry_set; registered in registry.ts, policy in command-policy.ts and config.ts; finding_add auto-proposes a new signatureTag; advisory.ts and gate logic never read any audit field",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke test 21/21 + verifier 42/42",
+      "evidence": "handlers/signature-registry.ts created (93 lines) with list+set; registry.ts imports and registers createSignatureRegistryHandlers; command-policy.ts adds signature_registry_list (readOnly/all) and signature_registry_set (mainSharedMutating/all); config.ts adds signature_registry_* to DEFAULT_PHASE_TOOLS all-phases; grep of advisory.ts and finding-verify.ts for signatureTag/resolutionType/dismissReasonType/evidenceStrength returned empty; smoke passes all adversarial+edge cases; sigCli=true sigHandler=true sigRegistry=true advisoryClean=true findingVerifyUntouched=true"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-4f46/plan.md#CHK-004",
+      "promise": "tasks/experience-layer-finding-enums-smoke.ts smoke task added with npm script test:experience-layer-finding-enums; hermetic; asserts capture+validation, legacy tolerance, advisory gate unaffected, signature-registry operations, finding-signals signalScore > 0 with enums, existing smokes still pass",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:experience-layer-finding-enums => TOTAL 21 | PASS 21 | FAIL 0; node verify-b-4f46.mjs => TOTAL 42 | PASS 42 | FAIL 0",
+      "evidence": "npm run test:experience-layer-finding-enums output: TOTAL 21 | PASS 21 | FAIL 0 smoke passed; verifier output: TOTAL 42 | PASS 42 | FAIL 0 (buildOk=true enumsSmoke=true phase1aSmoke=true usageLedgerSmoke=true typesFields=true auditComment=true advisoryClean=true findingVerifyUntouched=true cliSchemas=true sigCli=true sigHandler=true sigRegistry=true pkgScript=true)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Verifier check typesFields=true: all 5 audit-only fields present in Finding interface with correct TypeScript union types; auditComment=true: audit-only comments found on each field; findingVerifyUntouched=true: signFinding domain unchanged. TOTAL 42 | PASS 42 | FAIL 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke: check capture (PASS): finding_add with signatureTag persists the field; finding_resolve persists resolutionType+resolveEvidenceStrength; finding_dismiss persists dismissReasonType+dismissEvidenceStrength. check back-compat (PASS): field-less calls leave audit fields undefined. check validation (PASS): invalid enum values rejected with clear error. check legacy (PASS): finding-verify verifies a legacy finding; signature byte-identical to pre-change signFinding. check CHK-002:adversarial:2 empty-string enum rejected (PASS). TOTAL 21 | PASS 21 | FAIL 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke: auto-propose (PASS); approve proposed->active (PASS); alias+mergedInto fold via resolveTag (PASS); no-regression under .lattice/learning/ only (PASS); adversarial:0 approve-never-proposed rejected (PASS); adversarial:1 invalid action rejected (PASS); adversarial:2 self-alias rejected (PASS); adversarial:3 concurrent writes (PASS); edge:0 idempotent auto-propose (PASS); edge:1 idempotent approve (PASS); guardrail advisory ignores audit fields (PASS); advisory.ts contains no audit field names (PASS). sigCli=true sigHandler=true sigRegistry=true. TOTAL 42 | PASS 42 | FAIL 0."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:experience-layer-finding-enums => TOTAL 21 | PASS 21 | FAIL 0 smoke passed. node .lattice/story/actives/B-4f46/evidence/verify-b-4f46.mjs => TOTAL 42 | PASS 42 | FAIL 0 (all 13 named checks true including phase1aSmoke=true usageLedgerSmoke=true). pkgScript=true."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 plan.md promises independently verified from diff+grep+live test runs. 21/21 smoke and 42/42 acceptance verifier pass on this machine. The new fields are strictly audit-only: advisory.ts and finding-verify.ts are untouched (grep-confirmed empty). The signature-registry is materialHash-excluded under .lattice/learning/. Newly auto-proposed signatureTags enter as status=proposed requiring explicit human approve via signature_registry_set to become active — by design (audit-only, no gate dependency), does not block DONE."
+  },
+  "_hash": "e2c82c0e41e39fb3cb82cf4789dfe87a659db7c221f3259571ebf94cd717c445"
+}

@@ -1,0 +1,57 @@
+{
+  "findings": [
+    {
+      "id": "B-4f46:F-001",
+      "desc": "learning-store.ts:approveSignatureTag (line ~222) auto-creates a never-proposed tag directly as status=active, bypassing the propose step. CHK-003 adversarial:0 specifies 'rejected OR auto-creates as proposed then requires re-approve' — neither option is implemented. The verificationEvidence for CHK-003:adversarial:0 cites the smoke, but the smoke does not assert this adversarial path. Suggest: either add an assert.throws test for approve-on-unregistered in the smoke, or document the deliberate behavior deviation in the handler comment and checklist.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T12:33:23.858Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-003",
+      "_hash": "116f871a51d15d429e32958cb1db7fd408183cd28a5dac02c2d14ec80f6811a6",
+      "resolvedReason": "approveSignatureTag now rejects approving a never-proposed tag (throws 'has not been proposed'); idempotent on already-active. Smoke check 'CHK-003:adversarial:0 approve never-proposed rejected' + 'CHK-003:edge:1 idempotent approve' added. Commit fbfec03824.",
+      "resolvedAt": "2026-06-17T12:39:31.647Z"
+    },
+    {
+      "id": "B-4f46:F-002",
+      "desc": "CHK-002:adversarial:2 lacks valid verificationEvidence: intent requires resolveEvidenceStrength=\"\" (empty string) -> rejected, but validateOptionalEnum() in finding.ts treats empty string as undefined and returns silently without throwing (line: `if (value === undefined || value === null || value === \"\") return undefined`). The smoke validation check only tests an invalid non-empty string (\"super\") and never exercises the empty-string path. No evidence record specifically binds this intent to a check that proves rejection of empty strings.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:34:48.617Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-004",
+      "_hash": "8c981ccd19430832c61261c60474b91e2afc05a1c80796d9d3886aca327a6536",
+      "files": [
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts"
+      ],
+      "resolvedReason": "validateOptionalEnum now rejects an explicitly-provided empty/whitespace enum string (undefined still = omitted); applies to all enum fields. Smoke check 'CHK-002:adversarial:2 empty-string enum rejected' added. Commit fbfec03824.",
+      "resolvedAt": "2026-06-17T12:39:32.465Z"
+    },
+    {
+      "id": "B-4f46:F-003",
+      "desc": "CHK-003:adversarial:0,1,2,3 and CHK-003:edge:1 — five must-priority intents have no corresponding smoke check. (1) adversarial:0: approve on a tag that was never proposed — no check; (2) adversarial:1: action=\"DROP_TABLE\" invalid enum — handler validates this but no smoke check asserts it; (3) adversarial:2: self-alias (tag=aliasOf) — no check; (4) adversarial:3: concurrent finding_add with different signatureTags — no check; (5) edge:1: signature_registry_set approve on already-active tag is idempotent — no check. All five evidence records point to npm run test:experience-layer-finding-enums and claim pass, but the smoke contains no named check for any of these behaviors. This is a command-binding mismatch: the evidence command does not literally execute the verification described in the intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:34:58.677Z",
+      "reviewRound": "2026-06-17T12:30:25.284Z",
+      "reviewRunId": "B-4f46:RR-004",
+      "_hash": "1574d18548931a2ca61311ede3728e908471b53dc6175ae4ae624588a95328ba",
+      "files": [
+        "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+        "packages/main/src/handlers/signature-registry.ts"
+      ],
+      "resolvedReason": "Added 7 named smoke checks for the previously-uncovered signature-registry adversarial/edge intents (approve-never-proposed, invalid action, self-alias, concurrent writes, idempotent auto-propose, idempotent approve, empty-enum). Evidence rebound to those specific checks. Commit fbfec03824.",
+      "resolvedAt": "2026-06-17T12:39:33.182Z"
+    }
+  ]
+}
