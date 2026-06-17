@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T17:13:23.239Z",
       "reviewRunId": "B-6666:RR-004",
       "_hash": "5f980e18c9598261d273c2256e49b06a1d6de93e0253de649896d1c7f4c57377"
+    },
+    {
+      "id": "B-6666:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review complete. No blocking issues found. Key findings: (1) gitCwd threading is clean — resolved once at the orchestrator boundary per preMortem #4, threaded into buildDoneChecklist, runDoneOracleGate, and runDonePreMergeGate without re-resolution on that chain. (2) runAuthorityReceiptTransitionGate resolves gitCwd independently (a second resolution), but this is a different function boundary with the same inputs and is functionally correct. (3) isMaterialExcludedPath(filePath, gitCwd) passes gitCwd instead of metadataRoot for the config-based storyDir lookup; on wrapper-root layouts with non-default storyDir this uses default prefixes — a pre-existing acknowledged limitation in the code comment, strictly better than the pre-patch state where git calls failed entirely. (4) No dead code or unused imports in changed files. (5) No unnecessary any casts or empty catch blocks swallowing errors — all catch blocks are intentionally silent with comments. (6) DEFERRED_ALLOWLIST_EXACT mechanism is sound: deferred files still get original B-db56 coverage via isOldRegexVisible(window) check; new alias and backtick rules are skipped only for listed files. (7) TAINTED_ALIAS_DECL_REGEX.lastIndex is properly reset before each file scan. (8) Self-test fixtures for alias/backtick rules are comprehensive with KNOWN-BAD and KNOWN-GOOD cases covering proximity scoping. (9) I/O isolation intact — no shell files importing fn.ts.",
+      "createdAt": "2026-06-17T17:17:23.899Z",
+      "reviewRound": "2026-06-17T17:13:23.239Z",
+      "reviewRunId": "B-6666:RR-001",
+      "_hash": "84a872d119559a6aa10367e273030b21dbe10f4894df9c934937d8db398d9f32"
     }
   ]
 }
