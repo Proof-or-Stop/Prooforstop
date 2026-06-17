@@ -69,9 +69,9 @@
           "command": "grep -cE 'export (function|const) (geminiCliAvailable|runBoundedGeminiProvider)' packages/main/src/providers/gemini-cli.ts",
           "result": "pass",
           "note": "Returns 2 — both exports present per codex-cli.ts contract.",
-          "headHash": "2c7e2419695235b092c475bf04748025d92a9b0a",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:05.517Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -80,9 +80,9 @@
           "command": "test -s packages/main/dist/providers/gemini-cli.js && echo OK",
           "result": "pass",
           "note": "Prints OK — provider compiled cleanly.",
-          "headHash": "f3acae94005a0cda496a1276e7a494d975b6f406",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:06.154Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -91,9 +91,9 @@
           "command": "test -s packages/main/src/tasks/provider-gemini-smoke.ts && echo OK",
           "result": "pass",
           "note": "Prints OK — smoke file exists.",
-          "headHash": "7661382bb7c1b199eb95be711ac90f6a8d79eeab",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:06.782Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -102,9 +102,9 @@
           "command": "node packages/main/dist/tasks/provider-gemini-smoke.js > /tmp/b-ceed-gem.log 2>&1; echo $?",
           "result": "pass",
           "note": "Returns 0 — 4-case smoke contract passes.",
-          "headHash": "ff7e67844762142634387b9865b57515386ccccd",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:07.461Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -113,9 +113,9 @@
           "command": "grep -cE 'from.*usage-ledger' packages/main/src/providers/gemini-cli.ts",
           "result": "pass",
           "note": "Returns 0 — no usage-ledger imports (scope-boundary preserved at code level).",
-          "headHash": "7a31f2643c9ab45abc48c504818dc8009c77f047",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:08.058Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -124,9 +124,9 @@
           "command": "git diff main...HEAD -- packages/main/src/providers/codex-cli.ts | wc -l",
           "result": "pass",
           "note": "Returns 0 — codex-cli.ts byte-identical (B-1550 frozen).",
-          "headHash": "59bbe7a5c87906de0ece359c5505393e82ca4dc3",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:08.678Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -135,9 +135,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/usage-ledger | wc -l",
           "result": "pass",
           "note": "Returns 0 — usage-ledger module untouched.",
-          "headHash": "d79784c823e07ee8e10adfbf1c6e407a65ead0f1",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:09.347Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         }
       ]
     },
@@ -217,9 +217,9 @@
           "command": "grep -c 'function runCodexRealLeafDispatch' packages/main/src/core/lattice-dispatch.ts",
           "result": "pass",
           "note": "Returns 1 — runCodexRealLeafDispatch defined (via runBoundedRealLeafDispatch shared helper).",
-          "headHash": "014b542ed4102ff47a83c44d5516b3c2f07bf4a3",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:09.950Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -228,9 +228,9 @@
           "command": "grep -c 'function runGeminiRealLeafDispatch' packages/main/src/core/lattice-dispatch.ts",
           "result": "pass",
           "note": "Returns 1 — runGeminiRealLeafDispatch defined.",
-          "headHash": "b994fb9a482b0a3230550a9816b6f46198ed2db4",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:10.563Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -239,9 +239,9 @@
           "command": "grep -c codexCliAvailable packages/main/src/core/lattice-dispatch.ts",
           "result": "pass",
           "note": "Returns 2 — routing condition + import (uses bounded provider seam).",
-          "headHash": "9f37067c54f3a8cf93c65169db8b62b1bfc5f18e",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:11.188Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -250,9 +250,9 @@
           "command": "grep -c geminiCliAvailable packages/main/src/core/lattice-dispatch.ts",
           "result": "pass",
           "note": "Returns 2 — same pattern for gemini.",
-          "headHash": "aecd20d5945fc2521f5c63d8db0ad661fd1367b8",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:11.855Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:happy:4",
@@ -261,9 +261,9 @@
           "command": "grep -cE 'falling back to claude-code|fallback.*claude.code' packages/main/src/core/lattice-dispatch.ts",
           "result": "pass",
           "note": "Returns 2 — fallback message in both codex and gemini branches.",
-          "headHash": "0d6338c665c9854e2a96cdd94c0350cc224db25d",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:12.492Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -272,9 +272,9 @@
           "command": "grep -c runCodexRealLeafDispatch packages/main/dist/core/lattice-dispatch.js",
           "result": "pass",
           "note": "Returns 1+ — compiled dist includes the new route.",
-          "headHash": "b606a4f9b0838a81451b6df0fd40b337f9f90e95",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:13.139Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -283,9 +283,9 @@
           "command": "npm test > /tmp/b-ceed-npmtest.log 2>&1; echo $?",
           "result": "pass",
           "note": "Returns 0 — root test chain unchanged + still green.",
-          "headHash": "dd6edc06c09f7282d1a5aca0f44de2a0b15cf957",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:13.729Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -294,9 +294,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/lattice-dispatch.ts | grep -E '^-' | grep -c 'runClaudeCodeRealLeafDispatch'",
           "result": "pass",
           "note": "Returns 0 — runClaudeCodeRealLeafDispatch line not removed.",
-          "headHash": "f24681871c2fe22d57af0dd24baa8dd0285ed0d3",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:14.346Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -305,9 +305,9 @@
           "command": "git diff main...HEAD --name-only -- packages/main/src/handlers | wc -l",
           "result": "pass",
           "note": "Returns 0 — handlers/ untouched.",
-          "headHash": "009bf405948313aade0cd766c862bba39358d131",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:14.974Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         }
       ]
     },
@@ -372,9 +372,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'codex.*live.*dispatch|live-dispatch.*codex|codex.*real-host live dispatch'",
           "result": "pass",
           "note": "Returns >=1 — Unreleased mentions codex live-dispatch.",
-          "headHash": "c39b9e69a7821e7f83e0ab900c9d1ea482a3c3b3",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:15.603Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -383,9 +383,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c gemini",
           "result": "pass",
           "note": "Returns >=1 — gemini mentioned.",
-          "headHash": "f22f139efb9e37eb7d4eae4def83f37698258163",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:16.314Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -394,9 +394,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -c B-ceed",
           "result": "pass",
           "note": "Returns 1 — B-ceed named for traceability.",
-          "headHash": "aafb04aafece986ae4a749e12dc23c23d6583efa",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:17.098Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -405,9 +405,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'fallback.*claude-code|claude-code.*fallback'",
           "result": "pass",
           "note": "Returns >=1 — fallback policy documented.",
-          "headHash": "02671dbaa3c358fede22ea680a254af5fafc4f88",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:18.025Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -416,9 +416,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -cE '^### (Test infrastructure|Runtime)'",
           "result": "pass",
           "note": "Returns 1 — pattern consistency with prior stories.",
-          "headHash": "1d2778d2f6eddea604a56940ac202d4cd32728ba",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:18.754Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -427,9 +427,9 @@
           "command": "git diff main -- CHANGELOG.md | grep -E '^[-+]## ' | grep -vE 'Unreleased' | wc -l",
           "result": "pass",
           "note": "Returns 0 — only Unreleased modified.",
-          "headHash": "b9a99a00134fc5b2a67366f6c3c6c85bff7fb426",
-          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
-          "timestamp": "2026-06-17T22:13:19.634Z"
+          "headHash": "6f78f48c148496723ced04d2a700e7e8d2ab9620",
+          "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+          "timestamp": "2026-06-17T22:21:00.963Z"
         }
       ]
     }
