@@ -1,0 +1,56 @@
+{
+  "storyId": "B-867c",
+  "changes": "packages/main/src/core/process-fact-levels.ts: +7 entries in PROCESS_FACT_LEVELS registering playbook_approve/diff/propose/reject, recall, signature_registry_list/set (3 read-only L0, 4 mutating L2, none gate-consumed). The process-fact registry derives COMMAND entries from this array, so this single edit also cleared the DEFAULT_PHASE_TOOLS drift. No handler, cli-engine.ts, or config.ts change; no behavior change.",
+  "usage": "Run `npm run test:process-fact-contract` (== node scripts/verify-process-fact-contract.mjs). It now exits 0 with final line `Process fact contract verified`. The 7 commands appear in the registry dump (e.g. `recall [L0/command] producer=handlers/recall`).",
+  "expectedOutcome": "Operator runs `npm run test:process-fact-contract` and it exits 0 — no `Process fact contract failed:` block, no `MAIN_TOOLS command ... missing` lines, no `DEFAULT_PHASE_TOOLS phase allowlist drift` lines.",
+  "actualTranscript": "EXIT=0; final line `Process fact contract verified`; failure/drift grep count = 0; all 7 commands present in registry dump at correct levels (playbook_approve [L2], playbook_diff [L0], playbook_propose [L2], playbook_reject [L2], recall [L0], signature_registry_list [L0], signature_registry_set [L2]). Build exit 0, tsc exit 0, lattice validate --story=B-867c ALL PASS with 6/6 intent coverage.",
+  "outcomeDiff": "No difference — expected EXIT 0 and clean output, got exactly that. RED baseline (EXIT=1, 28 failure lines) fully resolved.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. The contract guard is still not part of the lattice validate gate battery (an operator must run `npm run test:process-fact-contract` explicitly); that battery wiring is intentionally out of scope (owned by B-99b6).",
+  "pitfalls": "Key trap: the checklist context (and CHK-001 title) point at PROCESS_FACT_REGISTRY ~line 871, but that is only a spread combiner — the real edit target is PROCESS_FACT_LEVELS in process-fact-levels.ts, from which the registry COMMAND entries derive (process-fact-registry.ts:585; allowedPhases pulled from command-policy at :597). Editing line 871 would have been a no-op. Second insight: config.ts needed NO change — the 21 DEFAULT_PHASE_TOOLS drift lines were caused entirely by the missing registry entries, and cleared automatically once the 7 were registered (the patterns were already in the global * bucket with allowedPhases:all). Classify each command by reading its handler, not by guessing. No retries needed; 2 fresh implementers (CHK-001 substantive, CHK-002 verify-only).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 561561
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 40923
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 318873
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 329033
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 134427
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 235123
+    }
+  },
+  "totalDurationMs": 1619949,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T16:46:03.795Z",
+  "updatedAt": "2026-06-17T16:46:03.795Z"
+}

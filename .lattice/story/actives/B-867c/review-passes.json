@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-867c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed. The diff is purely additive (+7 lines, 0 deletions) to process-fact-levels.ts plus story metadata files. No concept deletion/replacement occurred. Duplicate name check: 252 entries, all unique (uniq -d returns empty). The 7 new command names (playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set) already existed in requirements docs and prior-story delivery artifacts as legitimate documentation — not stale residuals. No forward declarations, dead symbol references, or orphaned concept words were introduced. No blocker.",
+      "createdAt": "2026-06-17T16:41:00.841Z",
+      "reviewRound": "2026-06-17T16:39:54.245Z",
+      "reviewRunId": "B-867c:RR-001",
+      "_hash": "d6c6a9045da5d6c72ebfac8ba0220706e64c8541a797a144cce86ce0d8a0ede1"
+    },
+    {
+      "id": "B-867c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Audited 7 new PROCESS_FACT_LEVELS entries (signature_registry_list/set, playbook_diff/propose/approve/reject, recall). All level classifications are accurate: 3 L0 (read-only handlers confirmed via source), 4 L2 (mutating handlers confirmed, no gateConsumer). Category and ownershipClass in command-policy.ts are internally consistent with each level. Rationales truthfully state read-only vs mutating and explicitly note no gate reads the experience-layer entries. No dead code, no I/O leak (pure data file). Diff is clean — only process-fact-levels.ts source changed.",
+      "createdAt": "2026-06-17T16:41:19.429Z",
+      "reviewRound": "2026-06-17T16:39:54.245Z",
+      "reviewRunId": "B-867c:RR-002",
+      "_hash": "cc2a5fcee401b089c411b8eecce9a83ca14d7e0db9b7ba40369f75373bf36948"
+    },
+    {
+      "id": "B-867c:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 MUST verificationIntent items (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) have manual_transcript or logic_test evidence with result=pass. Independent run of node scripts/verify-process-fact-contract.mjs EXIT=0; 0 failure/drift lines; all 7 commands (playbook_approve/diff/propose/reject, recall, signature_registry_list/set) appear in registry dump with accurate L0/L2 levels. BUILD_EXIT=0. No coverage gaps found.",
+      "createdAt": "2026-06-17T16:41:20.112Z",
+      "reviewRound": "2026-06-17T16:39:54.245Z",
+      "reviewRunId": "B-867c:RR-003",
+      "_hash": "0cfd5090523d695c869732b454fed6c711756b83dc6d07a6b651c67d9d5f9c69"
+    }
+  ]
+}
