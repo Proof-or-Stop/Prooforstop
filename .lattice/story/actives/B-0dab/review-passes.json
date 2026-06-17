@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T13:03:14.291Z",
       "reviewRunId": "B-0dab:RR-001",
       "_hash": "58f5530cc4d870aa2bc89d96a2e1c94e03f66a14377b96ca7d618e43692e232b"
+    },
+    {
+      "id": "B-0dab:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness check passed. All 7 koala-* mkdtemp prefixes (5 in english-only-guards-smoke.ts: koala-english-scope-, koala-english-block-, koala-english-realgit-, koala-english-initrerun-, koala-english-initrerun-home-; 2 in review-incremental-context-smoke.ts: koala-incremental-ctx-, koala-incremental-gate-) are confirmed renamed to lattice-* in HEAD. The gate verify-koala-residue.mjs from the B-0dab worktree returns PASS koala-residue: 0 unclassified. The gate is wired into package.json test chain as test:koala-residue. No new koala brand references were introduced in source files. All koala additions in the diff are confined to .lattice/ story metadata which is excluded from the gate active scope. Documented exceptions in LEGACY_LOGIC_FILES are untouched. Zero findings.",
+      "createdAt": "2026-06-17T13:04:52.514Z",
+      "reviewRound": "2026-06-17T13:03:14.291Z",
+      "reviewRunId": "B-0dab:RR-002",
+      "_hash": "2edea2355d757019e84bbfa335944f3ac043a6be4d26d0b825135eb0a4f9382d"
     }
   ]
 }
