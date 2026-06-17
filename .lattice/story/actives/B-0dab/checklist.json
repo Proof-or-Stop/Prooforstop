@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Clean the 7 residual koala-* mkdtemp prefixes on main",
+      "context": "packages/main/src/tasks/english-only-guards-smoke.ts (lines 165/201/260/352/354: koala-english-scope-/block-/realgit-/initrerun-/initrerun-home-) and review-incremental-context-smoke.ts (lines 262/437: koala-incremental-ctx-/gate-): rename mkdtemp prefixes koala-* -> lattice-*. These are brand temp-dir names, not assertion targets. Run the smokes after to confirm still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire scripts/verify-koala-residue.mjs into the lattice validate battery",
+      "context": "Add a test:koala-residue npm script (node scripts/verify-koala-residue.mjs) and include it in the package.json `test` chain so lattice validate (which uses npm test as its fallback battery) runs the gate on every validate. Confirm lattice validate now exercises the gate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Acceptance: koala-residue gate PASS on main and wired into validate",
+      "context": "node scripts/verify-koala-residue.mjs -> PASS 0 unclassified; --self-test -> 5/5; npm test includes test:koala-residue and passes; npm run build exits 0; npm run test:e2e all pass; lattice validate all-green and exercises the gate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
