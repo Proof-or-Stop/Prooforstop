@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-292d:F-001",
+      "desc": "CHK-001:edge:1 evidence command returns 0 at re-run, not 1 as claimed. The grep pattern `execFileSync.*verify-koala-residue|timeout.*koala` does not match the actual code: `execFileSync` is called with variable `scriptAbs` (not the literal string verify-koala-residue), and `timeout:` appears on a separate line from `koala` (it references constant KOALA_RESIDUE_TIMEOUT_MS). The underlying behavior (execFileSync with timeout) is real and visible at lines 123-125 of review-preflight.ts, but the literal evidence command produces 0 matching lines, contradicting the noted result of 1. Per evidence-must-bind-literal-intent-command rule, a result mismatch on a must-priority intent is a blocker.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T17:48:14.942Z",
+      "reviewRound": "2026-06-17T17:46:03.529Z",
+      "reviewRunId": "B-292d:RR-003",
+      "_hash": "6985a2cb8afd9ba930eac0fc80a39e3b1bf94f3198f2c2989f0fdb205d2b63fe",
+      "files": [
+        "packages/main/src/handlers/review-preflight.ts"
+      ]
+    }
+  ]
+}
