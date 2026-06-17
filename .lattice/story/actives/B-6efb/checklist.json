@@ -367,6 +367,17 @@
           "headHash": "dc45df64c788e544cd43fda832310852f2cb64c2",
           "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
           "timestamp": "2026-06-17T02:10:08.159Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- package.json packages/main/package.json | grep -E '^-.*test:' | wc -l",
+          "result": "pass",
+          "note": "Returns 0: no existing test:* script removed or modified.",
+          "headHash": "9efb2422ba0226051d760d0e8cd1246b985a8686",
+          "materialHash": "9b262b08de4957be2288c82b69ac9e76727972d4ac6c054bebb61764db3cf4dd",
+          "timestamp": "2026-06-17T02:10:09.260Z"
         }
       ]
     },
