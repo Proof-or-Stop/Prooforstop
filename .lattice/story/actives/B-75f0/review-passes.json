@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T23:31:35.856Z",
       "reviewRunId": "B-75f0:RR-005",
       "_hash": "7545ca3a80e67e98ae5e3fd862aa83e2b00aacf70122965816300765f4a0095f"
+    },
+    {
+      "id": "B-75f0:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 F-001 fix analysis: (1) CORRECTNESS IMPROVEMENT — old call resolveProjectGitCwd(projectRoot, projectRoot) omitted config entirely (config=undefined), so config?.gitRoot was always undefined and the function always fell back to projectRoot, never using a configured gitRoot subdir on wrapper-root layouts; new call passes loadConfig(projectRoot) enabling the wrapper-root path to resolve correctly. (2) PLAIN-REPO BYTE-IDENTICAL — plain repo has no configured gitRoot in DEFAULT_CONFIG, so loadConfig returns config with gitRoot=undefined; resolveProjectGitRoot(metadataRoot, undefined) probes metadataRoot git top-level which equals projectRoot, returning projectRoot verbatim; behavior unchanged. (3) NO NEW THROW PATH — loadConfig never throws: missing file returns defaults (existsSync check skips parse entirely), parse errors are swallowed (catch {}); loadConfig already called unconditionally at verifier.ts lines 146, 180, 352, 848, and at all 6 other resolveProjectGitCwd call sites (dashboard.ts:64, gap-analyze.ts:177, touchpoints-fallback.ts:31, lattice-handoff.ts:963, validation-executor.ts:162, codex-adapter-checks.ts:167) — the pattern is proven safe. (4) ROUND-1 CONCLUSIONS HOLD — F-001 delta touches only verifier.ts:605 (1 line, no dispatch/doctor/checklist code touched); no wrong-worktree hazard introduced; graceful fallbacks preserved; renames are zero-behavior. No blockers.",
+      "createdAt": "2026-06-17T23:33:36.689Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-008",
+      "_hash": "6a3122f910d090513d06f592e6e2aa8b1f008b70144878e41c5f42550a0c3f4d"
     }
   ]
 }
