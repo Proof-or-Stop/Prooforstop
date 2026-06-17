@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T17:50:13.419Z",
       "reviewRunId": "B-292d:RR-004",
       "_hash": "3e867962d14955f27319bf19afd16178b5525f4503f7918da2cb850c292d786b"
+    },
+    {
+      "id": "B-292d:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 22 intents across CHK-001/CHK-002/CHK-003. Rebinds for CHK-001:edge:1 (KOALA_RESIDUE_TIMEOUT_MS|ETIMEDOUT grep, live returns 5) and CHK-001:adversarial:1 (filtered diff of 6-gate dispatch bodies, live returns 0) both confirmed valid. validate engine reports 22/22 covered with 0 required missing; npm test suite passes clean. No blocker.",
+      "createdAt": "2026-06-17T17:52:14.595Z",
+      "reviewRound": "2026-06-17T17:50:13.419Z",
+      "reviewRunId": "B-292d:RR-005",
+      "_hash": "c74c201ab6a20e58a815309a40fe0f8bb130ed72a1a4b239716f468462512eb5"
     }
   ]
 }
