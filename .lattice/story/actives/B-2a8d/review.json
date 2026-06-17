@@ -83,6 +83,29 @@
         }
       ],
       "_hash": "fc7c13e21fe1233137a61fa297e8de787815cb8891ff23165966f6ceaa39110c"
+    },
+    {
+      "timestamp": "2026-06-17T18:12:23.294Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Remove the L4 Cross-project aggregation Architecture bullet and the Phase 4 Roadmap bullet from the execution plan + Reword remaining cross-project references to per-project-only by design; keep the Phase 1 local-signature concept intact are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None; the exact lines to remove/reword are identified"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "e6588b871982104279e5eab8000e2e9f3f1c8cdbeac3cfa8414c0de33fe72815"
     }
   ]
 }
