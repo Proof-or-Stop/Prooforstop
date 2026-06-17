@@ -31,6 +31,22 @@
       "files": [
         "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
       ]
+    },
+    {
+      "id": "B-2ccc:F-003",
+      "desc": "CHK-001:adversarial:1 lacks any verificationEvidence assertion in the smoke: the intent requires that canonicalJson with a 100-level deeply nested structure does not crash and produces deterministic output, providing a stress test on recursive normalizeJson. The smoke at packages/main/src/tasks/experience-layer-digest-extract-smoke.ts contains no check that generates or tests a deeply nested structure beyond the 2-level PINNED_OBJ. A stack-overflow bug in normalizeJson would go undetected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T14:20:58.657Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-003",
+      "_hash": "6b30b401c4023887d6e7a65712d52593cae91c2a616c9d3079cc509b62940e86",
+      "files": [
+        "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
+      ]
     }
   ]
 }
