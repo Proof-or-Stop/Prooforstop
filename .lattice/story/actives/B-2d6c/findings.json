@@ -16,6 +16,23 @@
         "packages/main/smoke-manifest.json",
         ".lattice/story/actives/B-2d6c/scope-contract.json"
       ]
+    },
+    {
+      "id": "B-2d6c:F-002",
+      "desc": "doc-count-mismatch: CHANGELOG B-2d6c entry says \"7 slow smokes\" but the parenthetical list names 8 (lattice-baseline, field-regression-cli, dispatch-run, experience-layer-playbook, planner-unattended, worktree-authority, cli-json-stdout-contract, autopilot-run) and the manifest diff shows exactly 8 timeoutMs additions. Prose undercounts by 1.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-17T21:09:21.203Z",
+      "reviewRound": "2026-06-17T21:05:23.729Z",
+      "reviewRunId": "B-2d6c:RR-001",
+      "_hash": "500435b0112c4bdfd3f56949ea930a1c5a80fcd5fc08b2707ab6fb1c23848c0c",
+      "files": [
+        "CHANGELOG.md",
+        "packages/main/smoke-manifest.json"
+      ]
     }
   ]
 }
