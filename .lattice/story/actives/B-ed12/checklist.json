@@ -103,7 +103,30 @@
       "userSees": "english-open-source-surface PASSES standalone (no CJK flagged); usage-ledger-estimate-smoke.ts is English-only and still passes its own assertions.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "english-open-source-surface passes standalone exit 0 (no CJK flagged in-scope) and usage-ledger-estimate still passes its own 55 checks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CJK at usage-ledger-estimate-smoke.ts:229 replaced with English/ASCII without changing what the byte/char estimator test verifies; out-of-scope functional-CJK test fixtures handled via the documented smoke allowlist, production CJK left untouched (pending-migration)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The english-open-source-surface CHECK logic itself is not weakened; no production file edited; usage-ledger byte-estimation assertions still meaningful",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
