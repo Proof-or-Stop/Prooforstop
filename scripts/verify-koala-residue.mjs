@@ -152,13 +152,12 @@ const NEUTRAL_TOKEN_PATTERNS = [
 
   // --- B-292d Story 4 preflight gate self-identifiers ----------------------
   // The koala-residue preflight gate (review-preflight.ts) names itself in
-  // source: const KOALA_RESIDUE_GATE_LABEL, gate name 'koala-residue',
-  // runKoalaResidueGate helper, KoalaResidueGateResult type, koalaResidue
-  // local variable, and the script path literal
-  // 'scripts/verify-koala-residue.mjs'. These are not brand prose — they
-  // name the gate machinery. Without these the gate's own source would fail
-  // its own check.
-  /KOALA_RESIDUE[A-Z0-9_]*/g,
+  // source: gate name 'koala-residue', runKoalaResidueGate helper,
+  // KoalaResidueGateResult type, koalaResidue local variable, and the script
+  // path literal 'scripts/verify-koala-residue.mjs'. These are not brand
+  // prose — they name the gate machinery. Without these the gate's own
+  // source would fail its own check. (The SCREAMING_CASE constant
+  // KOALA_RESIDUE_GATE_LABEL is already covered by KOALA_[A-Z0-9_]* above.)
   /koala-residue/g,
   /KoalaResidueGate[A-Za-z0-9_]*/g,
   /runKoalaResidueGate/g,
