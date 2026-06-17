@@ -218,7 +218,19 @@
           }
         ]
       },
-      "userSees": "branding 规则过滤 packages/main/src 该改项为 0；npm run build 退出 0、相关 smoke 通过"
+      "userSees": "branding 规则过滤 packages/main/src 该改项为 0；npm run build 退出 0、相关 smoke 通过",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -i koala packages/main/src | perl /tmp/bf2.pl",
+          "result": "pass",
+          "note": "main src 经 B-3cca branding 规则过滤后品牌残留为 0(剩 legacy 检测逻辑/路径)",
+          "headHash": "09eafa35a83969d6b716bb73aa146641e7c28524",
+          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
+          "timestamp": "2026-06-17T02:14:11.741Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
