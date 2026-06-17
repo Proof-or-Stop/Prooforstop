@@ -244,7 +244,7 @@
       "desc": "CHK-001:adversarial:1 evidence command uses two-dot diff (git diff main -- packages/main/src/tasks/*-smoke.ts | wc -l) and its note claims Returns 0. But two-dot output is actually 4621 lines (B-40eb koala-residue sweep changed these files on main after this worktree was created). The note is factually incorrect for a two-dot diff. This intent should have been rebound to three-dot (git diff main...HEAD) like the other adversarial intents. Three-dot is 0 (correct), but the evidence on record uses two-dot and falsely claims 0.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T12:41:25.509Z",
@@ -253,7 +253,9 @@
       "_hash": "41ab1f5a1d3f36e4c476b5d95d63901a47158351e3cdd91f0cc4a815f59ef758",
       "files": [
         "packages/main/src/tasks"
-      ]
+      ],
+      "resolvedReason": "Evidence rebound to three-dot diff (returns 0). Two-dot vs three-dot confusion (same root cause as round-1 F-003/F-004); B-40eb landed on main after worktree create.",
+      "resolvedAt": "2026-06-17T12:54:03.365Z"
     },
     {
       "id": "B-d7c3:F-015",
