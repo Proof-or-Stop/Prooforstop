@@ -1,0 +1,27 @@
+{
+  "storyId": "B-292d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/cli-prompts.ts",
+    "CLAUDE.md",
+    "CHANGELOG.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Story 4 MUST add line-level exemptions for new gate's identifiers (KOALA_RESIDUE_* + koala-residue + runKoalaResidueGate). Script line 213 explicitly invites: 'Story 4 can refine this list'. Adding narrow line-level patterns only, not whole-file allowlist.",
+      "timestamp": "2026-06-17T17:40:45.104Z",
+      "paths": [
+        "scripts/verify-koala-residue.mjs"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-17T17:40:44.670Z",
+  "updatedAt": "2026-06-17T17:40:45.104Z"
+}

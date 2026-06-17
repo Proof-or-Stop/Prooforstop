@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add koala-residue preflight gate to review-preflight.ts",
       "context": "Add KOALA_RESIDUE_GATE_LABEL constant (string mirroring ENGLISH_ARTIFACTS_GATE_LABEL at review-preflight.ts:81: gate name + standalone repro). Add runKoalaResidueGate() helper that execFileSyncs node scripts/verify-koala-residue.mjs, captures exit code + stdout; returns pass/fail + first non-empty stdout line. Add to the PreflightGateName union type (review-preflight.ts:114) as the 7th name. Insert dispatch entry into the preflight gate list AFTER docs-drift, BEFORE codex-adapter conditional. Failed gate prints stdout (the hit lines) via the same path as english-artifacts BLOCK output.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T17:42:22.021Z",
       "userSees": "lattice story_advance --phase=TEST prints a 7th gate line: '[✓] koala-residue: pass' (or '[✗] koala-residue: fail' with hit list). grep koala-residue packages/main/src/handlers/review-preflight.ts shows 3+ hits.",
       "files": {
         "modify": [
