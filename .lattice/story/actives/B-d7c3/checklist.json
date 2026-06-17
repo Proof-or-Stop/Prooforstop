@@ -160,6 +160,17 @@
           "headHash": "d73eea34558014f038d710b37551e27a891074b1",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:04.921Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- 'packages/main/src/tasks/*-smoke.ts' | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — no existing *-smoke.ts file modified.",
+          "headHash": "9fa198367d2bd17909867de2d704f114f4b656d2",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:05.621Z"
         }
       ]
     },
