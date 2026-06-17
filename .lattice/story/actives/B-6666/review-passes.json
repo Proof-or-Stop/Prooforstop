@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-17T17:30:17.505Z",
       "reviewRunId": "B-6666:RR-006",
       "_hash": "f3aa8edcede07599d83cbe4d228b4766861708f7223098e80996d5f8e3ced95c"
+    },
+    {
+      "id": "B-6666:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-review: F-001 fix verified correct. currentMaterialHash signature changed from (gitCwd, ref, metadataRoot=gitCwd) — git ls-tree still uses gitCwd; isMaterialExcludedPath/loadConfig now uses metadataRoot. checkEvidenceFreshnessForGit forwarded metadataRoot to both currentMaterialHash and isMaterialExcludedPath filter. done-oracle.ts buildDoneChecklist passes root as metadataRoot to checkEvidenceFreshness/checkCompletedEvidenceSnapshotFreshness while gitCwd drives all git probes — no split-brain. phase-gates.ts runAuthorityReceiptTransitionGate and runValidateGate both pass ctx.root as metadataRoot (not gitCwd). Default metadataRoot=gitCwd preserves plain-repo byte-identity (proven by PLAIN-REPO assertion block in smoke). All 5 R1 properties confirmed: (1) no-split-brain: all 4 git probes in checkEvidenceFreshnessForGit use same gitCwd; (2) resolution-once: gitCwd resolved once at boundary, passed down; (3) root-fallback: default param metadataRoot=gitCwd; (4) autoSyncMain: checkMainDivergence unchanged; (5) throw-safety: all probe functions have try/catch. Smoke exit 0 with F-001 RED/GREEN block verified (gitCwd-as-metadataRoot INCLUDES custom-storyDir file vs metadataRoot EXCLUDES it, hashes differ). No new issues found.",
+      "createdAt": "2026-06-17T17:32:26.661Z",
+      "reviewRound": "2026-06-17T17:30:17.505Z",
+      "reviewRunId": "B-6666:RR-005",
+      "_hash": "3789d9aaee5661bd386d0d24edde70b9e18c822423a1b81da100be57dbd46115"
     }
   ]
 }
