@@ -68,12 +68,12 @@
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "node -e print scripts.test and scripts[test:smokes-full]",
+          "command": "print scripts.test + test:smokes-full",
           "result": "pass",
-          "note": "Root test chain does NOT contain test:storydir-inside-gitroot-suite or test:all (grep-verified absent). New test:smokes-full alias = npm run test:storydir-inside-gitroot-suite && npm run test:all (the documented full/CI path) — resolved and ran (~207s) confirming reachability; deliberately kept out of fast gate.",
-          "headHash": "810b5cada8e885258bdb751c9989c3c834d43bb2",
-          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
-          "timestamp": "2026-06-17T18:08:26.862Z"
+          "note": "Post-merge refresh: storydir-inside-gitroot-suite and test:all absent from fast test chain; test:smokes-full alias = npm run test:storydir-inside-gitroot-suite && npm run test:all (full/CI path). Slow suite stays out of fast gate.",
+          "headHash": "312020557d71683bc2f8db097e53b7f318b1a503",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:16.245Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
