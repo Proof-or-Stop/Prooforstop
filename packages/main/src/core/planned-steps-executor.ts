@@ -322,11 +322,11 @@ export function buildAuthorityGateInput(
 // --- Provider policy + bounded execution -------------------------------------
 
 function isProviderName(value: unknown): value is ProviderName {
-  return value === 'fake' || value === 'codex' || value === 'claude';
+  return value === 'fake' || value === 'codex' || value === 'claude' || value === 'gemini';
 }
 
 function isRealProvider(value: unknown): value is BoundedProviderName {
-  return value === 'codex' || value === 'claude';
+  return value === 'codex' || value === 'claude' || value === 'gemini';
 }
 
 /** Defensive normalization (Handler encoding convention): never trust the raw shape. */

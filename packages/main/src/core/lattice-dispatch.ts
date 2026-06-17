@@ -755,10 +755,17 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ? process.execPath
     : detectCommandPath(cliCommand);
   const available = Boolean(commandPath);
+  // B-ceed: codex/gemini real-host live dispatch now exists; only claude-code's
+  // own bespoke leaf retains the scaffolded-only path here, and even that is
+  // surfaced only as an informational note (real claude-code dispatch runs via
+  // runClaudeCodeRealLeafDispatch when allowRealHostSubprocess is granted).
+  const supportsLiveDispatch = normalized === 'codex' || normalized === 'gemini' || normalized === 'claude-code';
   const warnings = available
-    ? [
-      `${normalized} runtime is scaffolded only: Lattice records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
-    ]
+    ? supportsLiveDispatch
+      ? []
+      : [
+        `${normalized} runtime is scaffolded only: Lattice records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
+      ]
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
     ];
@@ -794,11 +801,15 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     unattendedSafe: capabilities.unattendedSafe,
     unattendedReasons: capabilities.unattendedReasons,
     degradations: capabilities.degradations,
-    limitations: [
-      'Real-host execution is scaffolded only in this milestone.',
-      'No external host is auto-driven by Lattice dispatch_run.',
-      'A local receipt is still diagnostic-only and leaves productionDone=false.',
-    ],
+    limitations: supportsLiveDispatch
+      ? [
+        'A local receipt is still diagnostic-only and leaves productionDone=false.',
+      ]
+      : [
+        'Real-host execution is scaffolded only in this milestone.',
+        'No external host is auto-driven by Lattice dispatch_run.',
+        'A local receipt is still diagnostic-only and leaves productionDone=false.',
+      ],
     warnings,
     nextAction: available
       ? `${normalized} is supervised-only until dispatch_auto (CHK-006) is authorized. Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Unattended execution requires dispatch_policy_check authorization and dispatch_auto policy binding.`
@@ -1952,7 +1963,6 @@ function runBoundedRealLeafDispatch(
   root: string,
   record: DispatchRecord,
   runtime: HostRuntimeProbe,
-  worktreeAbs: string,
   executionPolicy: DispatchCommandExecutionPolicy,
   hostKind: 'codex' | 'gemini',
 ): DispatchRunResult {
@@ -1984,7 +1994,6 @@ function runBoundedRealLeafDispatch(
   const nextAction = status === 'accepted_local'
     ? `${hostKind} real subprocess completed cleanly in ${record.worktree.worktreePath}. Review the transcript before merge planning.`
     : `${hostKind} real subprocess returned exitCode=${result.exitCode ?? 'null'}. Review the transcript and decide whether to retry or escalate.`;
-  void worktreeAbs;
   const updated = writeRecord(root, {
     ...record,
     status,
@@ -2012,20 +2021,18 @@ function runCodexRealLeafDispatch(
   root: string,
   record: DispatchRecord,
   runtime: HostRuntimeProbe,
-  worktreeAbs: string,
   executionPolicy: DispatchCommandExecutionPolicy,
 ): DispatchRunResult {
-  return runBoundedRealLeafDispatch(root, record, runtime, worktreeAbs, executionPolicy, 'codex');
+  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'codex');
 }
 
 function runGeminiRealLeafDispatch(
   root: string,
   record: DispatchRecord,
   runtime: HostRuntimeProbe,
-  worktreeAbs: string,
   executionPolicy: DispatchCommandExecutionPolicy,
 ): DispatchRunResult {
-  return runBoundedRealLeafDispatch(root, record, runtime, worktreeAbs, executionPolicy, 'gemini');
+  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'gemini');
 }
 
 function runClaudeCodeRealLeafDispatch(
@@ -2505,7 +2512,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   // (per user (a3) decision 2026-06-17) with a logged degradation reason.
   if (record.selectedHost === 'codex' && args.allowRealHostSubprocess === true && args.executionPolicy) {
     if (codexCliAvailable()) {
-      return runCodexRealLeafDispatch(root, record, runtime, worktreeAbs, args.executionPolicy);
+      return runCodexRealLeafDispatch(root, record, runtime, args.executionPolicy);
     }
     appendTranscript(resolve(root, record.transcriptFile), [
       `[${nowIso()}] codex CLI unavailable in PATH; falling back to claude-code real dispatch (B-ceed fallback policy)`,
@@ -2514,7 +2521,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   }
   if (record.selectedHost === 'gemini' && args.allowRealHostSubprocess === true && args.executionPolicy) {
     if (geminiCliAvailable()) {
-      return runGeminiRealLeafDispatch(root, record, runtime, worktreeAbs, args.executionPolicy);
+      return runGeminiRealLeafDispatch(root, record, runtime, args.executionPolicy);
     }
     appendTranscript(resolve(root, record.transcriptFile), [
       `[${nowIso()}] gemini CLI unavailable in PATH; falling back to claude-code real dispatch (B-ceed fallback policy)`,
@@ -3005,7 +3012,14 @@ function bindDispatchAutoArgsToPolicy(
     deniedPaths: paths.deniedPaths,
     requiredCommands,
     executionPolicy: buildDispatchCommandExecutionPolicy(policy),
-    allowRealHostSubprocess: selectedHost === 'claude-code' && policyAllowsRealHostSubprocess(policy),
+    // B-ceed: live dispatch now exists for codex + gemini in addition to
+    // claude-code. The dispatch_run switch routes the requested host to its real
+    // leaf when the CLI is available, and falls back to the claude-code real
+    // leaf otherwise. policyAllowsRealHostSubprocess() still gates the whole
+    // mechanism so unattended execution requires explicit policy authorization.
+    allowRealHostSubprocess:
+      (selectedHost === 'claude-code' || selectedHost === 'codex' || selectedHost === 'gemini')
+      && policyAllowsRealHostSubprocess(policy),
   };
 }
 
@@ -3078,9 +3092,13 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
         `dispatch_auto: host "${selectedHost}" is not available in PATH; install or expose ${probe.cliCommand ?? selectedHost} and retry, or use host=fake for deterministic local coverage.`,
       );
     }
-    if (selectedHost !== 'claude-code') {
+    // B-ceed: codex + gemini live dispatch is now wired through the dispatch_run
+    // switch (with claude-code fallback when the requested CLI is missing in
+    // PATH). The policy-side allowRealHostSubprocess gate below still applies
+    // uniformly across the three real hosts.
+    if (selectedHost !== 'claude-code' && selectedHost !== 'codex' && selectedHost !== 'gemini') {
       throw new Error(
-        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host subprocess policy is currently limited to claude-code; use host=fake for deterministic local coverage.`,
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host subprocess policy is currently limited to claude-code/codex/gemini; use host=fake for deterministic local coverage.`,
       );
     }
     if (!policyAllowsRealHostSubprocess(policy)) {
