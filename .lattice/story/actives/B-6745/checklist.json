@@ -51,6 +51,16 @@
           "headHash": "9a2fa4e12565f1533cdbdb642ddb6de0f626adc1",
           "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
           "timestamp": "2026-06-17T22:43:14.247Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD --name-only | grep src/",
+          "result": "pass",
+          "note": "Only packages/main/src/tasks/autopilot-authority-smoke.ts + multi-host-authority-smoke.ts changed; 0 production core/handlers files (verified grep returned NONE).",
+          "headHash": "7849bc39fe545bd74d08c7809610d80090dd5746",
+          "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
+          "timestamp": "2026-06-17T22:43:15.170Z"
         }
       ]
     },
