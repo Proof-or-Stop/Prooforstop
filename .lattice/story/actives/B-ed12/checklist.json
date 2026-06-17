@@ -5,9 +5,9 @@
       "title": "Fix gate-semantics-drift smokes: init-check-fallback, init-check-required-agents, done-preflight",
       "context": "These fail because production gained gates the tests don't set up / assert. init-check-fallback + init-check-required-agents fail with [missing_scope_boundary] — update them to set up scope-boundary.json (and execution-boundary / scope-freeze as the current INIT_CHECK flow requires) before advancing INIT_CHECK, mirroring the real flow. done-preflight assertDoneRejectsWhenMainIsDirty must be updated to B-72df semantics: a dirty main with files OUTSIDE the merge-affected paths is now TOLERATED, while a real merge-affecting conflict still blocks; confirm the story is NOT advanced to DONE in the dirty case (no bypass) and assert the current message. Read each production gate + the story that introduced it (scope-boundary gate, B-72df) to confirm correct behavior FIRST. Do not weaken any safety assertion. Each smoke must pass standalone after.",
       "userSees": "Running init-check-fallback, init-check-required-agents, and done-preflight standalone all PASS, asserting the CURRENT gate semantics (scope-boundary required at INIT_CHECK; B-72df scoped dirty-main DONE check that still blocks a real conflict and never bypasses to DONE).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T20:37:37.465Z",
       "verificationIntent": {
         "happy": [
           {
