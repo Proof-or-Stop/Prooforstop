@@ -145,6 +145,22 @@
       "files": [
         "packages/main/src/handlers/review-preflight.ts"
       ]
+    },
+    {
+      "id": "B-d7c3:F-009",
+      "desc": "concept-cleanup: lattice-hosts.ts:390 host-profile guidance commands[] still contains `npm --prefix packages/main run test:lattice-cli-migration-smoke` which was removed from packages/main/package.json in CHK-001; operators/agents following this guidance will receive a script-not-found error",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-17T12:40:53.532Z",
+      "reviewRound": "2026-06-17T12:34:04.110Z",
+      "reviewRunId": "B-d7c3:RR-003",
+      "_hash": "04445c802f49fbf23241c51c9496b6ace04db2159917f83a663c91b87bc93750",
+      "files": [
+        "packages/main/src/core/lattice-hosts.ts"
+      ]
     }
   ]
 }
