@@ -149,6 +149,112 @@
         "bindingHash": "052273a5ff1e9404cea5a0300dc6176e5ad732419ec5e58f0c092ff3debb301c"
       },
       "_hash": "297a456411e50935605d16d90f4bbd3e2f873c84c6ca0d68d92c20601fb405f1"
+    },
+    {
+      "reviewRunId": "B-ceed:RR-004",
+      "storyId": "B-ceed",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-17T22:20:51.395Z",
+      "startedAt": "2026-06-17T22:21:18.601Z",
+      "headHash": "ad0baf81b173039bfc1d28090f47c340d019330f",
+      "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "36586bae8fa93ca00c6ca89f1c00e7bf0b4488fd0e450965a62a0cbde04dc41c",
+        "diffPackHash": "3d41a394b9b545fa5f7ce7ddf806df8d9283aab2c181bb95eb1f6ac728c844d2",
+        "reviewedChangedFiles": [
+          "CHANGELOG.md",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/planned-steps-executor.ts",
+          "packages/main/src/providers/gemini-cli.ts",
+          "packages/main/src/providers/types.ts",
+          "packages/main/src/tasks/provider-gemini-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "26ec1613cabeeaa207d0c5a8abaf1657f9b70577d973caaa629ca2dc982cfb70",
+          "346a5d62427cf2d3e24a2221471e3a95093d71511ac1c36474ceebf6ed763545",
+          "5173b6f7c7c079a3843fce54320733f54bd7ea949b6652b41ee6d969844a325e",
+          "5d76611bf415e197725dd35b0dd8357a022eb568eede02c0ad539a3ac9417212",
+          "696d2d92ed6dc6537d25e266e08b01da7bb08e3529c0f0ff028169e2da5c6f94",
+          "766bb7f156e31945a467bf12d2e0f40d751d18506508b6b86e9a88c81e416193",
+          "9c2c11cff443fbe6059c5300d61e0c0ca2ba60f45d67674ed07ecc01457df083",
+          "cc684d02dd39d20243b9ff1ebd5b6dc18de677f093cd71a06ff8d8238e88c974",
+          "cc6e01dae517b02ec4e1ef4b5531d9af4480f893118bb0c12e480a6c8d12b5e8",
+          "da8de84a8ffd916f1723d67414a5712e2b96a3e3a06e84a2b85e2c301861029a",
+          "de2e929247a8c3f3fcb15dd6b2794011e5730d695a39ebdedcbaee77efea3730",
+          "ef90daf55b6d96722329c60ad0dc7e3bad654517dd35bad07ab847b6cdd9b2df",
+          "fdb9a56691e535873973d38f8b5ef143a302352d69295bee81e4b3689556073c"
+        ],
+        "bindingHash": "5dcc3a891c7d5e900c2bf32fedc6f073dc03c60ad31f76234acc40c5ac5ddbc4"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-ceed",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-ceed",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-ceed",
+        "workspaceMode": "story-worktree",
+        "headHash": "ad0baf81b173039bfc1d28090f47c340d019330f",
+        "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+        "bindingHash": "c65b2c135866290755c7c575cc2d52bbb5bc57503fb4ad9fa974ce931543ad8c"
+      },
+      "_hash": "a1f822b08d41972350eac0bab065b302193499e56989110e8b1b3e707cf55657"
+    },
+    {
+      "reviewRunId": "B-ceed:RR-005",
+      "storyId": "B-ceed",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-17T22:20:51.395Z",
+      "startedAt": "2026-06-17T22:21:25.901Z",
+      "headHash": "ad0baf81b173039bfc1d28090f47c340d019330f",
+      "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "36586bae8fa93ca00c6ca89f1c00e7bf0b4488fd0e450965a62a0cbde04dc41c",
+        "diffPackHash": "3d41a394b9b545fa5f7ce7ddf806df8d9283aab2c181bb95eb1f6ac728c844d2",
+        "reviewedChangedFiles": [
+          "CHANGELOG.md",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/planned-steps-executor.ts",
+          "packages/main/src/providers/gemini-cli.ts",
+          "packages/main/src/providers/types.ts",
+          "packages/main/src/tasks/provider-gemini-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "26ec1613cabeeaa207d0c5a8abaf1657f9b70577d973caaa629ca2dc982cfb70",
+          "346a5d62427cf2d3e24a2221471e3a95093d71511ac1c36474ceebf6ed763545",
+          "5173b6f7c7c079a3843fce54320733f54bd7ea949b6652b41ee6d969844a325e",
+          "5d76611bf415e197725dd35b0dd8357a022eb568eede02c0ad539a3ac9417212",
+          "696d2d92ed6dc6537d25e266e08b01da7bb08e3529c0f0ff028169e2da5c6f94",
+          "766bb7f156e31945a467bf12d2e0f40d751d18506508b6b86e9a88c81e416193",
+          "9c2c11cff443fbe6059c5300d61e0c0ca2ba60f45d67674ed07ecc01457df083",
+          "cc684d02dd39d20243b9ff1ebd5b6dc18de677f093cd71a06ff8d8238e88c974",
+          "cc6e01dae517b02ec4e1ef4b5531d9af4480f893118bb0c12e480a6c8d12b5e8",
+          "da8de84a8ffd916f1723d67414a5712e2b96a3e3a06e84a2b85e2c301861029a",
+          "de2e929247a8c3f3fcb15dd6b2794011e5730d695a39ebdedcbaee77efea3730",
+          "ef90daf55b6d96722329c60ad0dc7e3bad654517dd35bad07ab847b6cdd9b2df",
+          "fdb9a56691e535873973d38f8b5ef143a302352d69295bee81e4b3689556073c"
+        ],
+        "bindingHash": "5dcc3a891c7d5e900c2bf32fedc6f073dc03c60ad31f76234acc40c5ac5ddbc4"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-ceed",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-ceed",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-ceed",
+        "workspaceMode": "story-worktree",
+        "headHash": "ad0baf81b173039bfc1d28090f47c340d019330f",
+        "materialHash": "6fc65386cc2509ee06ba76cee2ece9db3a9066897832e92cf62caa9387c176f5",
+        "bindingHash": "c65b2c135866290755c7c575cc2d52bbb5bc57503fb4ad9fa974ce931543ad8c"
+      },
+      "_hash": "d59c3403302bb99c734ff3bc71875ff2db8bb3d55b773104e2190e0d3d53fa23"
     }
   ]
 }

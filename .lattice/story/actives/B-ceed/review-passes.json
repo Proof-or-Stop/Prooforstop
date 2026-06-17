@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T22:13:53.080Z",
       "reviewRunId": "B-ceed:RR-003",
       "_hash": "220d759e2407e93cf17a3062cb522e30af29718111b25fc9d73e8b286d8f8e23"
+    },
+    {
+      "id": "B-ceed:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept check complete. F-001 fix: probeHostRuntime supportsLiveDispatch gate correctly suppresses scaffolded-only warning and two stale limitations for codex/gemini/claude-code; non-supported hosts retain old text in else branch (correct). F-002 fix: bindDispatchAutoArgsToPolicy sets allowRealHostSubprocess=true for all three real hosts; dispatchAuto no longer throws for codex/gemini; runDispatch routes codex+gemini to their real-leaf dispatch with CLI-absent fallback. Residual references to scaffolded-only in line 767/809 are else-branch text for unknown hosts (not residue). Line 1532 is a warning-filter regex referencing the phrase (correct). No concept deletion/replacement with incomplete cleanup found. Zero blockers.",
+      "createdAt": "2026-06-17T22:22:11.710Z",
+      "reviewRound": "2026-06-17T22:20:51.395Z",
+      "reviewRunId": "B-ceed:RR-004",
+      "_hash": "60adea6be85184ac87a4c4b22f91222782b465fe3201d51e66fc12d0ec3b8cff"
     }
   ]
 }
