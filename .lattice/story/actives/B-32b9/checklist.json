@@ -80,6 +80,17 @@
           "headHash": "926b7bdde0890192407aae2918579b4353476315",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:01:08.785Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "Code inspection: buildLineageGraph returns null if index.json missing, LatticeLineage.open() handles null",
+          "result": "pass",
+          "note": "serve.js line 350: if (!idx) { lineageCache[storyId]={at:now,val:null}; return null; }. lattice-lineage.js open() calls renderSVG() which checks if (!_data) and shows empty-state div. No JS error thrown for null graph. Demo UI confirms empty-state text renders.",
+          "headHash": "66908da4c045cc10fe25acdfbc80b2d3e1648de1",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:01:09.308Z"
         }
       ]
     },
