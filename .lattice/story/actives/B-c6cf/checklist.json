@@ -127,7 +127,54 @@
       "context": "CHANGELOG Unreleased entry; mark B3 DONE in docs/requirements/decisions/test-runner-consolidation-plan.md.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`cat CHANGELOG.md | head -20` shows Unreleased entry naming c8 and test:coverage; `grep B3.*DONE docs/requirements/decisions/test-runner-consolidation-plan.md` shows the B3 line marked DONE with story ID B-c6cf.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased section mentions test:coverage -> `git diff main -- CHANGELOG.md | grep -cE \"\\+.*test:coverage\"` outputs at least 1; WHY: migration must be documented",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG Unreleased section mentions c8 -> `git diff main -- CHANGELOG.md | grep -cE \"\\+.*c8\"` outputs at least 1; WHY: dependency addition must be noted",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "decision doc B3 marked DONE with story ID B-c6cf -> `grep -cE \"B3.*DONE.*B-c6cf|B-c6cf.*B3.*DONE\" docs/requirements/decisions/test-runner-consolidation-plan.md` outputs at least 1; WHY: A0 plan completion must reference the delivering story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG entry under Unreleased heading -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -cE \"test:coverage|c8\"` outputs at least 1; WHY: entry must be in correct section",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no decision-doc edits outside test-runner-consolidation-plan.md -> `git diff main...HEAD --name-only -- docs/requirements/decisions/ | grep -v test-runner-consolidation-plan.md | wc -l` outputs 0; WHY: B3 scope is the one A0 doc only",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: README.md unchanged -> `git diff main...HEAD -- README.md | wc -l` outputs 0; WHY: B3 does not edit README",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
