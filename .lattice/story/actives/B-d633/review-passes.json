@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T02:10:38.444Z",
       "reviewRunId": "B-d633:RR-003",
       "_hash": "2112cf4c6fc35ce37412407e89be3b8d826f44c2743dae2de2ddac50e04443d1"
+    },
+    {
+      "id": "B-d633:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (2 items, no riskSignals, verificationIntent intentionally skipped). Verified: (a) DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST is seeded empty (both bridge entries removed); (b) smoke at lines 243-263 proves the seam still suppresses an explicitly-injected allowlisted forbidden asset; (c) smoke at lines 265-282 proves the empty default allowlist now FLAGS the .codex/hooks contradiction (regression case); (d) npm --prefix packages/main run test:docs-drift-smoke is green. No must-intent gap.",
+      "createdAt": "2026-06-17T02:12:17.207Z",
+      "reviewRound": "2026-06-17T02:10:38.444Z",
+      "reviewRunId": "B-d633:RR-002",
+      "_hash": "a6831f6dbb4b16d2b950c8b1244a2cafa0774f12374688bcc746b51f84b62854"
     }
   ]
 }
