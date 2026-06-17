@@ -280,7 +280,7 @@
       "desc": "CHK-002:adversarial:3 evidence command does not bind to intent. Intent: no verify:* npm scripts removed (literal command uses git show main:package.json to compare verify:* keys). Evidence command: git diff main -- scripts/verify-*.mjs | wc -l — this checks verify-*.mjs FILE diffs (two-dot), not verify:* npm script entries. The file diff returns 1804 (B-40eb effect), and the note falsely claims Returns 0. Furthermore the intent is about npm script keys (verify:*), not mjs files. Both the command and the claimed result are wrong for this intent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T12:41:43.439Z",
@@ -289,7 +289,9 @@
       "_hash": "498fa1173cbfa01847ff5cd45c152a01e62a0d5696868436779862ae6afe401c",
       "files": [
         "package.json"
-      ]
+      ],
+      "resolvedReason": "Evidence rebound to correct dimension: package.json key set comparison (REMOVED:[]). Original evidence used file diff which is wrong dimension AND two-dot which captured B-40eb's main-side changes.",
+      "resolvedAt": "2026-06-17T12:54:05.775Z"
     }
   ]
 }
