@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-32b9",
+  "allowedCommands": [
+    "cat",
+    "curl http://localhost:8800/*",
+    "grep",
+    "jq",
+    "lattice *",
+    "node lattice-console-serve.js"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "node_modules",
+    "packages",
+    "src"
+  ],
+  "confirmedBy": "main",
+  "createdAt": "2026-06-17T18:35:30.693Z",
+  "updatedAt": "2026-06-17T18:35:30.693Z",
+  "_hash": "83da4eabfb209f649544567d6877348b100dc6eb9457c6fbb10e2fe2c952999b"
+}

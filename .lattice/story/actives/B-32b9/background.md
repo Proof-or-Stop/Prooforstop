@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-17, while reviewing the Lineage Graph dashboard (lattice-console-serve.js + lattice-lineage.js), the user asked: clicking any story in the Lineage Graph should show its complete lifecycle nodes plus per-node LLM interaction count and content. Existing implementation only fully surfaced this for B-08f2 (a DONE/Codex story). Stories in other phases were missing nodes or LLM data.
+
+## Key Insights
+Three distinct data sources drive the lifecycle view: (1) process-events.jsonl provides the event timeline — dispatch, subagent_result, codex_cli, review_pass, reviewer_finding, host_verdict; (2) checklist.json provides verificationIntent (what the LLM was asked to do) and verificationEvidence (what commands were verified and their outcomes); (3) background.md and plan.md provide narrative context. The current buildLineageGraph logic in lattice-console-serve.js gates nodes on event presence, so early-phase stories naturally have fewer nodes — but each should still show ALL available data for their phase. The codexCalls field (added 2026-06-17) works for Codex-dispatched stories; Claude Code stories need equivalent treatment via their checklist data.
+
+## Solution Tradeoffs
+The serve.js buildLineageGraph function should produce the correct node set for each phase without requiring special-casing in the browser module. All phase-appropriate nodes (including review nodes with full reviewer notes/findings content, and gate/authority nodes with verdict detail) must be populated. The lineage.js renderDetail panel should present LLM data uniformly regardless of whether the story used Codex or Claude Code as its dispatch runtime.
+
+## Conversational Texture
+The user expects that clicking any story — regardless of lifecycle phase — opens a meaningful, data-rich lineage view showing what each node did and what LLM interactions occurred. The dashboard is read-only and serves at port 8800 (default; see lattice-console-serve.js:29). The three implementation files are outside the Orchestrate project scope boundary and are modified directly without a worktree: /Users/jek/Documents/lattice-console-serve.js, /Users/jek/Documents/lattice-lineage.js, /Users/jek/Documents/lattice-console-demo.html.

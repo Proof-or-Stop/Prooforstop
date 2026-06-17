@@ -1,0 +1,135 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Audit lifecycle node coverage for all story phases (INIT through DONE)",
+      "context": "Open 3+ stories from different phases in the lineage graph. Verify: INIT shows ROOT+INPUT; PLAN shows +PLAN nodes; DEV shows +DISPATCH+RESULT; REVIEW shows +REVIEW+FINDING; DONE shows full chain including GATE+AUTHORITY+DONE. Document any missing nodes in lattice-console-serve.js buildLineageGraph.",
+      "userSees": "Clicking any story phase in the story list opens a lifecycle graph that includes all nodes appropriate for that phase — no blank or empty graphs for in-progress stories.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Open a PLAN-phase story in the lineage graph — see ROOT, INPUT, and at least one PLAN node rendered",
+            "type": "browser"
+          },
+          {
+            "desc": "Open a REVIEW-phase story — see DISPATCH, RESULT, REVIEW, and FINDING nodes where events exist in process-events.jsonl",
+            "type": "browser"
+          },
+          {
+            "desc": "Open a DONE story — verify all 7 layer types are present: root, input, plan, agent, review, gate, authority",
+            "type": "browser"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "INIT-phase story with only 1-2 events shows ROOT + INPUT without crashing",
+            "type": "browser"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Story with zero process-events.jsonl shows empty-state message, not a JS error in the browser console",
+            "type": "browser"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Surface LLM interaction data for Claude Code dispatch stories (non-Codex)",
+      "context": "Stories dispatched via claude-code runtime have no codex_cli events. They do have verificationIntent + verificationEvidence in checklist.json and dispatch/subagent_result timestamps. Ensure dispatch nodes for these stories show: (a) LLM verification intent cases, (b) duration+attempts from timestamps, (c) result nodes show LLM verification evidence with pass/fail. lattice-console-serve.js buildLineageGraph handles this; lattice-lineage.js renderDetail must render codexCallsHtml gracefully when codexCalls is empty.",
+      "userSees": "Clicking a dispatch node on any active story shows its verificationIntent cases (happy/edge/adversarial) and, after result, the verificationEvidence commands with pass/fail verdicts — even with no codex_cli events.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Click a dispatch node on a Claude Code story — panel shows verification intent with intent cases and no LLM calls section when codex events are absent",
+            "type": "browser"
+          },
+          {
+            "desc": "Click the corresponding result node — panel shows verification evidence with evidence commands and pass count",
+            "type": "browser"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Story with empty verificationIntent array shows no LLM intent section and no JS error",
+            "type": "browser"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "codexCalls empty array does not render an empty LLM calls section header",
+            "type": "browser"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Show reviewer LLM interaction content in review and finding nodes",
+      "context": "Review-phase nodes (review_pass, reviewer_finding) represent reviewer agent LLM interactions. Each review_pass has a reviewPassId linkable to review-passes.json (note field = reviewer reasoning). Each reviewer_finding has a findingId linkable to findings.json (desc field). lattice-console-serve.js already reads these files; ensure the review and finding nodes expose the note/desc content so renderDetail can display it as the reviewer LLM output.",
+      "userSees": "Clicking a REVIEW node shows the reviewer agent note (what the reviewer LLM output said). Clicking a FINDING node shows the finding description. Both visible in the right detail panel.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Click a review node on a REVIEW-phase story — right panel shows review agent note text from review-passes.json",
+            "type": "browser"
+          },
+          {
+            "desc": "Click a finding node — panel shows finding severity and description text from findings.json",
+            "type": "browser"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review node with missing review-passes.json entry shows graceful fallback with no note section and no crash",
+            "type": "browser"
+          }
+        ],
+        "adversarial": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify auto-fit works across all navigation paths to the lineage graph",
+      "context": "The _fitPending + onVisible() mechanism was added to handle the case where LatticeLineage.open() is called while the lineage panel is hidden (display:none), making container dimensions zero. Must verify all three navigation paths: (a) clicking story list item, (b) clicking trace button from Active Stories, (c) clicking Lineage Graph nav link with a previously loaded story.",
+      "userSees": "Whenever the lineage graph loads or the user navigates to the Lineage Graph page, the graph auto-fits to show all nodes at correct scale — no manual Fit button click needed.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From Overview page, click trace button on any story row — lineage page opens and graph auto-fits showing all nodes at 20-40% scale",
+            "type": "browser"
+          },
+          {
+            "desc": "Navigate away and back via Lineage Graph nav item — previously loaded graph re-fits correctly",
+            "type": "browser"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Story with only 2 nodes (INIT phase) auto-fits to a reasonable scale and not stuck at 10%",
+            "type": "browser"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Rapidly switching between two stories does not leave graph stuck at 100% scale",
+            "type": "browser"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
