@@ -417,6 +417,17 @@
           "headHash": "8d52420733d355dad089504c7c82ea36642a748b",
           "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
           "timestamp": "2026-06-17T17:46:01.869Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD --name-only -- scripts/ | wc -l",
+          "result": "pass",
+          "note": "Returns 1 (acknowledged: scripts/verify-koala-residue.mjs scope-acked for the line-level exemption additions, no other script files touched).",
+          "headHash": "ff30fcebdbf68daa6a87ecb2e601a86e69355969",
+          "materialHash": "1ba337fa63e015d308a853a433db9d11f1bd41057c8d4d1a8f2e2c30e0ebc583",
+          "timestamp": "2026-06-17T17:46:02.542Z"
         }
       ]
     }
