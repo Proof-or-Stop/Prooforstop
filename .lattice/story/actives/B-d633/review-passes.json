@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T02:10:38.444Z",
       "reviewRunId": "B-d633:RR-002",
       "_hash": "a6831f6dbb4b16d2b950c8b1244a2cafa0774f12374688bcc746b51f84b62854"
+    },
+    {
+      "id": "B-d633:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The two deleted allowlist entries (.codex/hooks, .codex/settings.json) have no dangling dependents in the worktree source files. Remaining references to these strings are: (1) story metadata files (background.md, checklist.json, index.json) — historical record only; (2) cli-init.ts:499 cleanupEmptyDirChain — cleanup of a managed asset dir, not allowlist-dependent; (3) codex-adapter-checks.ts:91 CODEX_MATERIAL_PATHS — material-path tracking array, not allowlist-dependent; (4) smoke test line 199 — tests excluded-path kind, no allowlist dependency; (5) smoke test lines 248/255 — the correctly-updated adversarial case using explicit injection. Gate logic reads DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST generically as a Set; no code hard-expects those specific entries to be present. No concept deletion residue blocker.",
+      "createdAt": "2026-06-17T02:12:38.281Z",
+      "reviewRound": "2026-06-17T02:10:38.444Z",
+      "reviewRunId": "B-d633:RR-001",
+      "_hash": "34219151ed98e0f32eb35f7e0216cd72af6a4a9835ae551ff18e04012b79c6a9"
     }
   ]
 }
