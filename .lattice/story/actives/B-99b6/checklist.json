@@ -137,10 +137,10 @@
           "verdict": "success",
           "command": "lattice validate --json",
           "result": "pass",
-          "note": "With all guards passing, lattice validate --json reports status=pass allPass=true, package.json test script commands[].code=0. The REVIEW->TEST gate (phase-gates runValidateGate) consumes this same validate result, so a passing chain lets the gate pass. The story-scoped validate also gates on verificationEvidence coverage which is now being populated.",
-          "headHash": "4ea5e86855512ee21bb5a3dda7c2c00a5d9e6f6d",
-          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
-          "timestamp": "2026-06-17T18:08:44.903Z"
+          "note": "Post-merge refresh: validate --json status=pass allPass=true commands[].code=0; REVIEW->TEST gate consumes same validate result so passing chain lets gate pass.",
+          "headHash": "609b1d4e75ab8dbce62b7708d3e389b2bf81e9cf",
+          "materialHash": "6cfdf3fd55aca2bb83827bc7858c0c219231fbca79c40320679dcd91c4ead784",
+          "timestamp": "2026-06-17T18:18:18.456Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
