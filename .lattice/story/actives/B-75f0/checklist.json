@@ -82,9 +82,9 @@
       "title": "Fix the project-level scans (gap-analyze, story-query, dashboard) with an id-independent resolveProjectGitRoot",
       "context": "These have NO storyId (project-wide scans) so they need the id-independent resolver (the resolver module already exposes resolveProjectGitRoot internally): gap-analyze.ts readLinkedStoryWorktreeIds ~:173, story-query.ts scanTerminalStoryResidues ~:1011, dashboard.ts collectProject ~:67 (git worktree list) + ~:123 (git status). Thread resolveProjectGitRoot so they survey the real gitRoot on wrapper-root; fall back to root. Build + re-run gitroot-cwd-contract green after; remove from allowlist.",
       "userSees": "On a wrapper-root project, gap-analyze worktree-id scan, story-query terminal-residue scan, and the dashboard project collection survey the real gitRoot (not the empty metadataRoot) and no longer under-report; the contract stays green; plain repos unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T22:55:00.896Z",
       "verificationIntent": {
         "happy": [
           {
