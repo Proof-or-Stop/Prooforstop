@@ -309,6 +309,22 @@
         "packages/main/src/tasks/provider-codex-smoke.ts",
         "packages/main/src/tasks/reviewer-quorum-smoke.ts"
       ]
+    },
+    {
+      "id": "B-d7c3:F-018",
+      "desc": "CHK-001:edge:0 evidence does not bind to intent. Intent: 6 keep-list scripts still present in packages/main/package.json (expected output ALL_PRESENT). Evidence command: python3 -c import json;json.load(open(packages/main/smoke-manifest.json)) — this checks manifest JSON parsability, a completely different behavioral property. The keep-list ALL_PRESENT check (confirming test:e2e, test:run-all-smokes-smoke, test:main-write-lock-coverage, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke all exist in packages/main/package.json scripts) has no valid evidence. Live check confirms all 6 ARE present, but evidence does not demonstrate this.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T13:00:38.717Z",
+      "reviewRound": "2026-06-17T12:53:08.201Z",
+      "reviewRunId": "B-d7c3:RR-007",
+      "_hash": "4b8f095604a41c4e6125a16e4a66c5118488cb34e82eda6f8692b636e8cbadec",
+      "files": [
+        "packages/main/package.json"
+      ]
     }
   ]
 }
