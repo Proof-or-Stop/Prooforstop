@@ -5,9 +5,9 @@
       "title": "Decide the authoritative dev_start phase set and align command-policy.ts + config.ts so they agree",
       "context": "Examine dev_start's real recovery semantics in handlers/worktree.ts (what it does in each of INIT/INIT_CHECK/PLAN/DEV, and whether standalone invocation is meaningful/safe in INIT and DEV). Per the PLAN decision, either add dev_start to DEFAULT_PHASE_TOOLS for the missing phases (widen config up to command-policy's ['INIT','INIT_CHECK','PLAN','DEV']) or shrink command-policy allowedPhases to match config (['INIT_CHECK','PLAN']). Update whichever source moves so command-policy.allowedPhases and the isCommandAllowed view derived from DEFAULT_PHASE_TOOLS agree for dev_start. Do NOT change dev_start behavior, the bootstrap flow, or REVIEW/TEST/DONE refusal.",
       "userSees": "npm run test:process-fact-contract no longer reports a dev_start INIT or DEV policy/default phase drift; command-policy.allowedPhases and DEFAULT_PHASE_TOOLS agree on dev_start's phases.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T02:19:37.101Z",
       "verificationIntent": {
         "happy": [
           {
