@@ -47,6 +47,17 @@
           "headHash": "97aa644e44ef4a6419862c15af0203a5ed99675a",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:00:48.342Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Open B-0414 (REVIEW) in Lineage Graph",
+          "result": "pass",
+          "note": "B-0414 graph shows: root, input-req, 2 init-review plan nodes, 3 pending CHK nodes, gate, done — 9 nodes. No process-events.jsonl dispatch events exist on main for this story yet so no DISPATCH/RESULT/REVIEW/FINDING nodes; graph shows phase-appropriate available nodes without crash.",
+          "headHash": "649b77f410c92c8a3c787bc62eec4cde939d9708",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:00:58.439Z"
         }
       ]
     },
