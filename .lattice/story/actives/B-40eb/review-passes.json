@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-17T02:41:55.130Z",
       "reviewRunId": "B-40eb:RR-005",
       "_hash": "ffc669e3db089464bd6e78f9517ad9533504462164779cceffdddb20648d4755"
+    },
+    {
+      "id": "B-40eb:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 incremental re-confirmation: two changes landed since round 2 — (1) .Codex->.lattice-codex path forward-fix in config.ts + 5 scripts (Codex dir rename, no koala involvement), (2) English-only translation of story artifacts (.lattice/story/actives/B-40eb/ metadata only). Neither change touches any source/scripts/docs under koala brand scope. Verified: git show of commits 501dcf954 and 38139e0f1+d8e22fe3e introduces zero new koala-brand lines in packages/, scripts/, CLAUDE.md, or docs/guide.md. No new half-removed koala state. Koala-branding-removal concept completeness from rounds 1 and 2 still holds.",
+      "createdAt": "2026-06-17T12:08:35.507Z",
+      "reviewRound": "2026-06-17T12:06:45.973Z",
+      "reviewRunId": "B-40eb:RR-009",
+      "_hash": "05bc82871854bfbf5dc77d877f994e15b140862506b51935563c896bd0726aa7"
     }
   ]
 }
