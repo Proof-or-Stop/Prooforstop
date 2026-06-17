@@ -52,7 +52,59 @@
       "userSees": "finding_resolve/dismiss/add accept the new optional flags and persist them; omitting them works unchanged (back-compat); invalid enum values are rejected with a clear error.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call finding_add with signatureTag=\"auth-bypass\" -> finding persisted with signatureTag field present; WHY: confirms capture path for finding_add",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_resolve with resolutionType=\"fixed\", resolveEvidenceStrength=\"strong\" -> finding updated with both fields; WHY: confirms capture path for finding_resolve",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with dismissReasonType=\"false_positive\", dismissEvidenceStrength=\"medium\" -> finding updated with both fields; WHY: confirms capture path for finding_dismiss",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with NO dismissReasonType (field omitted entirely) -> call succeeds, finding dismissed normally; WHY: proves dismissReasonType is truly OPTIONAL and back-compat preserved",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call finding_add with NO new fields at all (legacy caller) -> finding created identically to pre-Phase-1b behavior; WHY: back-compat regression guard",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_resolve with resolutionType=\"fixed\" but NO resolveEvidenceStrength -> succeeds, only resolutionType stored; WHY: partial field population is valid",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with dismissEvidenceStrength=\"weak\" but NO dismissReasonType -> succeeds; WHY: confirms fields are independently optional",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call finding_resolve with resolutionType=\"INVALID_VALUE\" -> rejected with clear enum validation error; WHY: proves enum boundary enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with dismissReasonType=\"sql_injection\" -> rejected with clear error; WHY: adversarial garbage input",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_resolve with resolveEvidenceStrength=\"\" (empty string) -> rejected; WHY: empty-string edge for enum validation",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_add with signatureTag containing special characters (spaces, slashes, unicode) -> either accepted or rejected gracefully, no crash; WHY: adversarial input for string field",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
