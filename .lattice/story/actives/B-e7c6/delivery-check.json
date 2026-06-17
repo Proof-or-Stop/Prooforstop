@@ -1,0 +1,49 @@
+{
+  "storyId": "B-e7c6",
+  "checkedAt": "2026-06-17T17:56:17.891Z",
+  "reviewRound": "2026-06-17T17:51:12.351Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist#CHK-001-context",
+      "promise": "Rename $schema koala-lab/experiment.v1 to lattice-lab/experiment.v1 in packages/lab/src/core/config.ts line 71",
+      "verifiedBy": "diff/grep at worktree HEAD",
+      "evidence": "git show 12b4124cf shows -$schema: koala-lab/experiment.v1 +$schema: lattice-lab/experiment.v1; git show HEAD:packages/lab/src/core/config.ts line 71 confirms lattice-lab/experiment.v1"
+    },
+    {
+      "docPath": "checklist#CHK-001-context",
+      "promise": "Rename koala-lab-fixture- mkdtemp prefix to lattice-lab-fixture- in packages/main/tests/fixtures/lab-foundation.json",
+      "verifiedBy": "diff/grep at worktree HEAD",
+      "evidence": "git show 12b4124cf shows every initTempProject mkdtempSync argument changed from koala-lab-fixture- to lattice-lab-fixture-; python3 check of HEAD:lab-foundation.json confirms no koala-lab-fixture- strings remain"
+    },
+    {
+      "docPath": "checklist#CHK-001-context",
+      "promise": "Remove dead koala-lab/experiment exemption regex from scripts/verify-koala-residue.mjs",
+      "verifiedBy": "diff/grep at worktree HEAD",
+      "evidence": "git show 12b4124cf shows -/koala-lab\\/experiment[\\w.]*/g removed from NEUTRAL_TOKEN_PATTERNS; git show HEAD:scripts/verify-koala-residue.mjs grep for koala-lab returns no output"
+    },
+    {
+      "docPath": "checklist#CHK-002-context",
+      "promise": "git grep koala-lab over active scope (packages/, scripts/, src/, bin/) returns nothing",
+      "verifiedBy": "git grep at worktree HEAD",
+      "evidence": "git -C worktree grep koala-lab HEAD -- packages/ scripts/ src/ bin/ returned zero lines; remaining koala-lab hits confined to .lattice/story/actives/ and .lattice/artifacts/legacy-omx/ which are excluded historical/metadata paths"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lab-foundation.json contains happy (create config writes safe defaults), edge (minimal input lands safe defaults), and adversarial (unsafe config with koala-lab/$schema is rejected) test cases; adversarial case exercises renamed schema in fixture payload and asserts rejection on allowStoryMutation; all mkdtempSync prefixes now use lattice-lab-fixture-"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lab-foundation.json CHK-002 entries: happy (namespaced lab create works: hasCreated+hasNext), edge (non-lab command survives missing lab dist: stillWorks), adversarial (unknown subcommand gives suggestions: suggested); run via lattice validate e2e; verify-koala-residue.mjs self-test 5/5 and PASS-0-unclassified acceptance covered by exemption removal making the residue gate authoritative"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified from diff and worktree HEAD state. The 3 CHK-001 code locations are renamed correctly and the CHK-002 active-scope git grep returns zero hits in packages/scripts/src/bin. Test coverage spans happy+edge+adversarial paths in lab-foundation.json. No TODOs introduced. Remaining koala-lab strings are in .lattice/story metadata and legacy-omx archive only - explicitly exempted historical paths."
+  },
+  "_hash": "a23b39586a615e193458f4a7a6a3ff4544bed7503c9a11b7af71ffff17fa95b3"
+}

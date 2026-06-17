@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-e7c6:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-channel story (no verificationIntent required). All 3 rename targets verified in active source: config.ts:71 emits lattice-lab/experiment.v1, lab-foundation.json fixture mkdtemp prefix and $schema string both updated to lattice-lab, and the dead koala-lab exemption regex in verify-koala-residue.mjs was removed. lattice validate ALL PASS: test:koala-residue exits 0 unclassified (confirms no koala-lab residue in active scope), e2e test passes consuming lab-foundation.json with lattice-lab/experiment.v1 $schema, build exit 0. Since lab does not validate incoming $schema, no migration test is needed. Coverage adequate; no blocker.",
+      "createdAt": "2026-06-17T17:52:19.478Z",
+      "reviewRound": "2026-06-17T17:51:12.351Z",
+      "reviewRunId": "B-e7c6:RR-002",
+      "_hash": "49ad8a3171a3cc8522e2994605c5a19a46a9a669a3a8f25c1a55b76211c96ee3"
+    },
+    {
+      "id": "B-e7c6:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "3-file koala-lab rename is complete and correct. (1) config.ts L71: $schema literal changed to lattice-lab/experiment.v1; validateExperimentConfig does not check $schema so rename is safe. (2) lab-foundation.json: all 10 fixture mkdtemp prefixes + the embedded adversarial $schema literal updated consistently with no omissions. (3) verify-koala-residue.mjs: the koala-lab/experiment exemption regex was the only remaining shield for a token that no longer exists in active scope; removing it is correct dead-code cleanup. No unused imports, no as-any, no empty catch, no shell-isolation violation found.",
+      "createdAt": "2026-06-17T17:52:27.422Z",
+      "reviewRound": "2026-06-17T17:51:12.351Z",
+      "reviewRunId": "B-e7c6:RR-003",
+      "_hash": "ba0008f58a622c51bb0e10bf3d8b922b0de8d645bbbf23baf5e2073e7410c980"
+    },
+    {
+      "id": "B-e7c6:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness verified for B-e7c6 koala-lab schema-id rename. Grep scope: all *.ts/*.mjs/*.js/*.json/*.md in worktree excluding node_modules/dist/.git/experiments/. Active-scope koala-lab hits after the change: zero. The 3 declared scope targets are fully addressed: (1) packages/lab/src/core/config.ts:71 — $schema is now lattice-lab/experiment.v1; (2) packages/main/tests/fixtures/lab-foundation.json — mkdtemp prefix and schema assertion both use lattice-lab; (3) scripts/verify-koala-residue.mjs — the dead koala-lab exemption regex removed, zero koala-lab lines remain. Only remaining koala-lab reference in the full worktree is CHANGELOG.md:313 (historical changelog entry documenting original subsystem creation — correct to leave as historical prose, not active brand). experiments/ directory contains expected historical prose in candidate text files, untouched as intended. No half-removed or orphaned state. 0 findings filed.",
+      "createdAt": "2026-06-17T17:52:48.444Z",
+      "reviewRound": "2026-06-17T17:51:12.351Z",
+      "reviewRunId": "B-e7c6:RR-001",
+      "_hash": "ad65ffa891ed9c6d6c3a969594707998ddcf22af305ebd5595ab7f4915ae87b4"
+    }
+  ]
+}
