@@ -4,7 +4,7 @@
   "title": "Lineage Graph: show complete lifecycle and LLM interaction trace for every story phase",
   "description": "Currently the Lineage Graph shows rich lifecycle data only for completed (DONE) stories like B-08f2. Stories in INIT/PLAN/DEV/REVIEW phases show partial lifecycle, and LLM interaction data (call count, role breakdown, verification intent + evidence) is not consistently surfaced across all story types. Every story clicked in the lineage story list should reveal its complete available lifecycle with full LLM interaction details at each node.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "lineage-graph",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-17T18:32:38.930Z",
   "startedAt": "2026-06-17T18:32:38.930Z",
-  "endedAt": null,
+  "endedAt": "2026-06-17T19:59:57.100Z",
   "events": [
     {
       "phase": "INIT",
@@ -64,12 +64,15 @@
       "branch": "story/B-32b9",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T19:59:57.100Z",
+      "branch": "story/B-32b9",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-32b9",
-    "branch": "story/B-32b9",
-    "createdAt": "2026-06-17T18:37:10.614Z"
-  },
   "currentReviewRound": "2026-06-17T19:27:55.084Z"
 }
