@@ -1,0 +1,59 @@
+{
+  "storyId": "B-6efb",
+  "checkedAt": "2026-06-17T02:34:34.739Z",
+  "reviewRound": "2026-06-17T02:25:19.700Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/tasks/run-all-smokes.ts (new file)",
+      "promise": "In-house parallel smoke runner with --jobs/--tag/--select/--manifest/--smokes-dir/--quiet flags, per-smoke PASS/FAIL output, aggregate summary, manifest-driven tags/timeouts/skip, directory-scan fallback, exit-1 on any failure",
+      "verifiedBy": "diff read",
+      "evidence": "Full 247-line TypeScript implementation in diff: parseArgs handles all 6 flags, discoverSmokes scans *-smoke.js, selectSmokes filters by tag/select/skip, runOneSmoke spawns child with timeout, runAllSmokes pools workers, main resolves paths and prints 0-smokes message on empty result, exits 1 on any FAIL/TIMEOUT"
+    },
+    {
+      "docPath": "packages/main/smoke-manifest.json (new file)",
+      "promise": "5-entry manifest: run-all-smokes (runner/infra), gitroot-cwd-contract (fast/contract), gitroot-cwd-routing (fast/wrapper-root), bare-gate-gitroot-cwd (fast/wrapper-root), field-regression-cli (regression/cli)",
+      "verifiedBy": "diff read + python3 json.tool",
+      "evidence": "Manifest created with exactly 5 entries matching A0 spec. python3 json.tool exits 0 (strict JSON valid). Node parse confirms VALID:5 entries with correct name/tags/timeoutMs fields."
+    },
+    {
+      "docPath": "packages/main/src/tasks/run-all-smokes-smoke.ts (new file)",
+      "promise": "9-check self-smoke: PASS detection, FAIL detection with fail-loudly guarantee, --tag no-match=0 smokes, --tag selftest filter, --jobs equivalence, skip:true honored, directory-scan fallback",
+      "verifiedBy": "diff read + live run",
+      "evidence": "214-line TypeScript with 7 assert checks. Live run via npm --prefix packages/main run test:run-all-smokes-smoke exits 0, 9/9 checks passed."
+    },
+    {
+      "docPath": "package.json",
+      "promise": "Root test:all npm script: node packages/main/dist/tasks/run-all-smokes.js",
+      "verifiedBy": "diff read",
+      "evidence": "Diff shows exactly one addition: test:all entry. No existing test:* scripts modified (zero removals confirmed by grep)."
+    },
+    {
+      "docPath": "packages/main/package.json",
+      "promise": "packages/main test:run-all-smokes-smoke npm script: node dist/tasks/run-all-smokes-smoke.js",
+      "verifiedBy": "diff read",
+      "evidence": "Diff shows exactly one addition: test:run-all-smokes-smoke entry. No existing test:* scripts modified."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:run-all-smokes-smoke exits 0, 9/9 checks passed. Checks cover: fixture-pass exits 0 with PASS output, fixture-fail exits non-zero with FAIL output, --tag no-match returns 0 smokes exit 0, --tag selftest selects only fixture-tagged, --jobs 1 and --jobs 4 produce same exit code, skip:true excludes fixture-skip, directory-scan discovers unlisted fixture. node run-all-smokes.js --select run-all-smokes exits 0 (1/1 PASS dogfooding). node run-all-smokes.js --tag fast exits 0 (3/3 PASS). node run-all-smokes.js --select ZZZZZ_NONEXISTENT exits 0 (0 smokes matched)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "python3 -m json.tool smoke-manifest.json exits 0. Node parse VALID:5 entries. git diff main...HEAD shows only additions to test: scripts, zero removals. All manifest entries have required fields."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:run-all-smokes-smoke exits 0 (9/9 checks). Fail-loudly guarantee confirmed: fixture-fail exits non-zero with FAIL in output. npm run build exits 0 (tsc green). npm run test:e2e ALL PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from git diff and live execution. Re-verify gates: self-smoke 9/9, dogfood --select 1/1, --tag fast 3/3, ZZZZZ_NONEXISTENT exit 0. Over-reach guards clean: only 5 expected files changed (git diff main...HEAD non-lattice), no existing smoke files touched, no existing test:* removed. intent-coverage.ts and dev-cli.ts intact. Build and test:e2e green."
+  },
+  "_hash": "9f7f751c2e210595f752e58b775954354b9dfa9e4f8ab9ad17a976a4ddc1a2e3"
+}
