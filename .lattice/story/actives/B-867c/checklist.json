@@ -39,7 +39,30 @@
       "userSees": "`npm run test:process-fact-contract` exits 0 with no drift/missing lines — the process-fact invariant is green on the story branch; the green transcript is the real-machine evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:process-fact-contract exits 0 end-to-end — NO `Process fact contract failed:` block, NO `DEFAULT_PHASE_TOOLS phase allowlist drift` lines (the 21 drift lines from baseline are gone)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DEFAULT_PHASE_TOOLS stays a subset of command-policy allowedPhases (safe direction preserved); if config.ts was edited at all, no phase allowlist was widened beyond what policy permits",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The contract guard is satisfied honestly (entries registered), not by relaxing/ignoring the 7 commands; npx tsc still exits 0 (no type regression)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
