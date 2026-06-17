@@ -31,6 +31,23 @@
       "files": [
         "packages/main/smoke-manifest.json"
       ]
+    },
+    {
+      "id": "B-d7c3:F-003",
+      "desc": "CHK-001:adversarial:0 evidence command does not bind the intent. Intent is: git diff main -- packages/main/src/tasks/run-all-smokes.ts packages/main/src/tasks/run-all-smokes-smoke.ts | wc -l (run-all-smokes runner files byte-identical). Evidence command is: python3 -c import json;json.load(open(packages/main/smoke-manifest.json)) (JSON parse check). The run-all-smokes.ts / run-all-smokes-smoke.ts byte-identical guard is covered by CHK-001:adversarial:1 evidence which correctly uses git diff, but CHK-001:adversarial:0 evidence covers a different check entirely (JSON parse of manifest) and misattributes it to the runner byte-identical intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:31:20.132Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-002",
+      "_hash": "e610b4a2a17e42649ecadd4ad40e95f7b7247af63767bf2e6a33c902b2507bc7",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts",
+        "packages/main/src/tasks/run-all-smokes-smoke.ts"
+      ]
     }
   ]
 }
