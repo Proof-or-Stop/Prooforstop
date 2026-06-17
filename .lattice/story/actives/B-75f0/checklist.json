@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix the 3 HARD-FAILURE wrapper-root sites (lattice-dispatch worktree, checklist evidence-refresh, doctor --repair) with a wrapper-root regression each",
+      "context": "These FUNCTIONALLY FAIL on wrapper-root (metadataRoot != gitRoot), not graceful: (a) core/lattice-dispatch.ts worktree create/remove (listedGitWorktreeRoots ~:1185, assertRegisteredDispatchWorktreeRoot ~:1251 — store + record.storyId available → thread resolveGitCwd); (b) handlers/checklist.ts verification_evidence_refresh / evidenceHashes (~:188 `const gitCwd = root`) HARD-THROWS on wrapper-root → thread resolveGitCwd (storyId available); (c) handlers/doctor.ts --repair MUTATION helpers (tryWorktreeRemove ~:688, removeStaleWorktreeAdminDirs ~:733, deleteTerminalStoryBranch) — resolveDoctorGitCwd ALREADY exists in doctor.ts, so pass it (one-liners). Fall back to root when no gitRoot resolves (plain-repo byte-identical). Add a wrapper-root (metadataRoot != gitRoot) regression for each proving it no longer fails. After each, build + run `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` and confirm green; remove these sites from the deferred allowlist.",
+      "userSees": "On a wrapper-root project, `lattice dispatch` worktree create/remove, `verification_evidence_refresh`, and `lattice doctor --repair` all WORK (no throw / no fail) instead of running git from the non-git metadataRoot; a wrapper-root regression for each is green; plain repos are byte-identical.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Thread resolveGitCwd into the graceful-degradation real sites (verifier, handoff, codex-adapter-checks, touchpoints-fallback, validation-executor, recover-evidence, init-check)",
+      "context": "Lower-severity (graceful degradation, but still wrong on wrapper-root): verifier.ts currentHead ~:327 (drops headSha from DONE evidence), lattice-handoff.ts resolveCommitSha ~:878, codex-adapter-checks.ts readGitHead ~:137, touchpoints-fallback.ts detectMdTouchpointsFromGit ~:17 (wrong reviewer routing — docs reviewer not mounted), validation-executor.ts readGitStatus ~:55, recover-evidence.ts readGitStatusLines ~:61, init-check.ts init_check_repair ~:289. Each has a storyId/story context available → thread resolveGitCwd, fall back to root. One site at a time; build + re-run the gitroot-cwd-contract green after each; remove from the allowlist as fixed. Keep plain-repo behavior byte-identical.",
+      "userSees": "On a wrapper-root project, DONE-evidence headSha, handoff commit-proof, verify_codex headHash, .md touchpoint detection (docs reviewer routing), validate pollution gate, dirty classification, and init_check_repair all resolve from the gitRoot; the gitroot-cwd-contract stays green; plain repos unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fix the project-level scans (gap-analyze, story-query, dashboard) with an id-independent resolveProjectGitRoot",
+      "context": "These have NO storyId (project-wide scans) so they need the id-independent resolver (the resolver module already exposes resolveProjectGitRoot internally): gap-analyze.ts readLinkedStoryWorktreeIds ~:173, story-query.ts scanTerminalStoryResidues ~:1011, dashboard.ts collectProject ~:67 (git worktree list) + ~:123 (git status). Thread resolveProjectGitRoot so they survey the real gitRoot on wrapper-root; fall back to root. Build + re-run gitroot-cwd-contract green after; remove from allowlist.",
+      "userSees": "On a wrapper-root project, gap-analyze worktree-id scan, story-query terminal-residue scan, and the dashboard project collection survey the real gitRoot (not the empty metadataRoot) and no longer under-report; the contract stays green; plain repos unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Rename the 3 lexical false-positives + split DEFERRED_ALLOWLIST into BENIGN_BOOTSTRAP (permanent) vs empty pending; contract green",
+      "context": "3 'sites' are lexical false-positives — `const gitCwd = projectRoot` aliasing a param that ALREADY receives a resolved value: done-effects.ts ~:74 (gets doneGitCwd), handlers/review-run.ts ~:63 + core/review-run.ts ~:228 (get signedWorkspaceRoot/authoritativeCwd). Rename the misleading param projectRoot->gitCwd (zero behavior change, the CHK-003 pattern). Then in gitroot-cwd-contract-smoke.ts split DEFERRED_ALLOWLIST_EXACT into BENIGN_BOOTSTRAP_ALLOWLIST (the ~14 truly-benign self-bootstrap/lab/rollout/test_auto/aux-diagnose entries, each keeping its rationale, PERMANENT) and ensure the pending/burndown set is now EMPTY (all real sites fixed in CHK-001..003). The contract must be GREEN with the fixed sites no longer allowlisted. If any graceful site was deferred as a documented sub-follow-up, it stays in a clearly-named pending set with its B-id, NOT silently in the benign set. Run `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` and confirm exit 0.",
+      "userSees": "gitroot-cwd-contract-smoke exits 0 with the deferred allowlist split into a permanent BENIGN_BOOTSTRAP set (self-bootstrap/no-story-context, with rationale) and an empty (or explicitly-tracked-follow-up) pending set; the 3 renamed sites read lexically honest (gitCwd not projectRoot); a re-introduced bare-root alias still fails the contract.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
