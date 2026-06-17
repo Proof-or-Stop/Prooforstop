@@ -61,6 +61,16 @@
           "headHash": "7849bc39fe545bd74d08c7809610d80090dd5746",
           "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
           "timestamp": "2026-06-17T22:43:15.170Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "TMPD=$(mktemp -d); echo LATTICE_AUTHORITY_LIVE_URL+LATTICE_AUTHORITY_URL > $TMPD/authority_trust.env; cd $TMPD && node .../autopilot-authority-smoke.js && node .../multi-host-authority-smoke.js",
+          "result": "pass",
+          "note": "KEY HERMETICITY PROOF: with a planted authority_trust.env containing a real URL at cwd, both smokes exit 0 (BEFORE fix both exited 1: autopilot shadow.status pass!=warn, multi-host mode server!=local). True hermeticity, not cwd luck.",
+          "headHash": "4ddc7b3c464a8149a80a6dc5fbfefea314b6afe2",
+          "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
+          "timestamp": "2026-06-17T22:43:16.093Z"
         }
       ]
     },
