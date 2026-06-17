@@ -151,6 +151,17 @@
           "headHash": "b853053dc07365402b438397ccfbee73d833696e",
           "materialHash": "e204ef0f636d4787412c4a14325c63bd1684ba321b739cee3f0e14dc3d87cb97",
           "timestamp": "2026-06-17T17:09:14.260Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/done-oracle.ts",
+          "command": "npm run test:gitroot-cwd-contract",
+          "result": "pass",
+          "note": "BACKTICK rule pinned: KNOWN-BAD backtick execSync(`git status`,{cwd:projectRoot}) -> exactly 1 bare violation (old backtick blind spot closed); KNOWN-GOOD backtick with cwd:resolvedGitCwd -> 0. LIVE RED->GREEN witness: reintroduced the exact d93b69b8f shape (const witnessGitCwd=projectRoot used as cwd of a backtick `git status`) into done-oracle.ts -> contract exited 1 flagging done-oracle.ts:74 alias violation; reverted -> exited 0. Both gaming shapes turn it RED.",
+          "headHash": "5cab10e55e740ee1c716346acc764545a363b644",
+          "materialHash": "e204ef0f636d4787412c4a14325c63bd1684ba321b739cee3f0e14dc3d87cb97",
+          "timestamp": "2026-06-17T17:09:21.309Z"
         }
       ]
     }
