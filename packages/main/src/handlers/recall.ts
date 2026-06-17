@@ -141,7 +141,7 @@ export function createRecallHandlers(ctx: HandlerContext) {
         return [
           'recall: rank stories by structured-field similarity (read-only; no FTS/index).',
           'Usage:',
-          '  recall --story <id> [--top N]      similar stories to <id>',
+          '  recall --story <id> [--top N]      similar stories to <id> (--storyId is an alias of --story)',
           '  recall --query "<text>" [--top N]  stories matching a query',
           `Default top = ${DEFAULT_TOP}.`,
         ].join('\n');

@@ -1762,6 +1762,7 @@ Behavior:
   // ranks against an ad-hoc keyword profile. Default top = 5.
   { name: 'recall', description: 'Rank stories by structured-field similarity over the story_list scan (read-only; no FTS/index)', schema: {
     storyId: z.string().optional().describe('Target story id; recall ranks the stories most similar to it (excludes itself).'),
+    story: z.string().optional().describe('Alias of --storyId (documented short form): target story id whose similar stories to rank.'),
     query: z.string().optional().describe('Ad-hoc free-text query; recall ranks stories matching its keywords. Pass either --story OR --query, not both.'),
     top: z.coerce.number().int().optional().describe('Max number of ranked matches to return (default 5; <=0 returns none).'),
   }},

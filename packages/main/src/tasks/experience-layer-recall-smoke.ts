@@ -371,6 +371,106 @@ function run(): void {
       assert.deepEqual(recallSimilarStories(target, [profileShared('B-c')], -3), [], 'negative topN => []');
     });
 
+    // ─── F-002: large candidate set ranking (deterministic correctness at scale) ─
+    check('CHK-002:adversarial:0 large candidate set ranking', () => {
+      // Target shares keywords + fileKinds + touchpoints with exactly ONE planted
+      // candidate; the other 120 are varied/disjoint. The known-best must rank #1.
+      const target = profileShared('B-target');
+
+      const candidates: StoryProfile[] = [];
+      // The single clearly-most-similar candidate (shares every structural field).
+      const best = profileShared('B-best-match');
+      candidates.push(best);
+
+      // 120 varied/disjoint candidates: distinct titles, distinct file areas,
+      // distinct types/phases — none should share the target's structure.
+      const areas = ['web/styles', 'docs/guides', 'scripts/build', 'config/env', 'assets/img'];
+      const exts = ['css', 'md', 'sh', 'yaml', 'png'];
+      const types = ['chore', 'docs', 'refactor', 'test', 'perf'];
+      const phases = ['DEV', 'PLAN', 'REVIEW', 'TEST', 'INIT'];
+      for (let i = 0; i < 120; i += 1) {
+        const a = areas[i % areas.length];
+        const ext = exts[i % exts.length];
+        candidates.push(buildStoryProfile({
+          storyId: `B-noise-${String(i).padStart(3, '0')}`,
+          title: `widget palette gradient spacing variant ${i} layout column`,
+          type: types[i % types.length],
+          phase: phases[i % phases.length],
+          understanding: {
+            task: `adjust ${a} variant ${i}`,
+            outcome: '',
+            touchpoints: [`${a}/file-${i}.${ext}`],
+          },
+        }));
+      }
+      assert.ok(candidates.length >= 100, `>=100 candidates built (got ${candidates.length})`);
+
+      const matches = recallSimilarStories(target, candidates, 5);
+      assert.ok(matches.length >= 1, 'large set yields at least one ranked match');
+      assert.equal(matches[0].storyId, 'B-best-match', 'the known most-similar story ranks #1 at scale');
+      assert.ok(matches[0].score > 0, 'top match has a positive score');
+      // The call completed and produced a coherent, ordered result.
+      for (let i = 1; i < matches.length; i += 1) {
+        assert.ok(matches[i - 1].score >= matches[i].score, 'matches are sorted by score desc');
+      }
+    });
+
+    // ─── F-003: malformed / partial profiles must not crash ──────────────────
+    check('CHK-002:adversarial:2 malformed/partial profiles no crash', () => {
+      // buildStoryProfile on partial / malformed metadata must NOT throw and must
+      // return a well-formed StoryProfile (all array fields present, never null).
+      const malformedInputs: unknown[] = [
+        {},                                                       // empty
+        { storyId: 'B-no-kw', title: '' },                        // empty title => no keywords
+        { storyId: 'B-bad-kw', keywords: 'auth,token' },          // keywords not an array
+        { storyId: 'B-bad-find', findings: 'oops' },              // findings not an array
+        { storyId: 'B-null-und', understanding: null, decision: null }, // explicit nulls
+        { storyId: 'B-no-tp', understanding: { task: 'x' } },     // missing touchpoints
+        { storyId: 'B-bad-tp', understanding: { touchpoints: [1, 2, null, ''] } }, // non-string touchpoints
+        { storyId: 'B-bad-find2', findings: [null, 42, { desc: 7, files: 'nope' }] }, // malformed finding members
+        { storyId: 'B-bad-risk', riskSignals: [1, null, { nope: true }] }, // malformed riskSignals
+        { storyId: 'B-deep', futureField: { a: [1] }, title: 'auth token compare hardening' }, // extra fields
+      ];
+
+      const builtProfiles: StoryProfile[] = [];
+      for (const raw of malformedInputs) {
+        const p = buildStoryProfile(raw as StoryProfileInput); // must not throw
+        // Well-formed: every array field is an actual array; no undefined/null leaks.
+        assert.ok(Array.isArray(p.keywords), 'keywords is an array');
+        assert.ok(Array.isArray(p.fileKinds), 'fileKinds is an array');
+        assert.ok(Array.isArray(p.touchpoints), 'touchpoints is an array');
+        assert.ok(Array.isArray(p.riskSignals), 'riskSignals is an array');
+        assert.ok(Array.isArray(p.notableFindings), 'notableFindings is an array');
+        assert.ok(Array.isArray(p.notableDecisions), 'notableDecisions is an array');
+        assert.equal(typeof p.storyId, 'string', 'storyId is a string');
+        builtProfiles.push(p);
+      }
+
+      // recallSimilarStories over the malformed set + the real target must not
+      // throw and must return a well-formed result. Malformed/empty profiles
+      // (no overlap) score zero and are dropped; the one structural keyword-sharer
+      // ("B-deep") may rank but nothing crashes.
+      const target = profileShared('B-target');
+      const matches = recallSimilarStories(target, builtProfiles, 5);
+      assert.ok(Array.isArray(matches), 'recall returns an array on malformed candidates');
+      for (const m of matches) {
+        assert.equal(typeof m.storyId, 'string', 'each match has a string storyId');
+        assert.equal(typeof m.score, 'number', 'each match has a numeric score');
+        assert.ok(!Number.isNaN(m.score), 'no NaN score from a malformed profile');
+        assert.ok(m.score > 0, 'only positive-score matches survive (malformed/empty dropped)');
+        assert.ok(Array.isArray(m.reasons), 'each match has reasons[]');
+      }
+      // The fully-empty / disjoint malformed profiles must not appear (zero score).
+      assert.ok(!matches.some((m) => m.storyId === 'B-no-kw'), 'keyword-less malformed profile dropped');
+      assert.ok(!matches.some((m) => m.storyId === 'B-bad-find'), 'non-array-findings malformed profile dropped');
+
+      // scoreSimilarity directly against a malformed-derived empty profile is 0, not NaN.
+      const emptyish = buildStoryProfile({ storyId: 'B-empty' } as StoryProfileInput);
+      const { score } = scoreSimilarity(target, emptyish);
+      assert.ok(!Number.isNaN(score), 'malformed-derived empty profile scores a number, not NaN');
+      assert.equal(score, 0, 'a disjoint malformed-derived profile scores 0');
+    });
+
     // ─── READ-ONLY handler over the story_list scan ──────────────────────────
     check('handler: recall --story returns ranked results AND writes NOTHING (tree snapshot equal)', () => {
       const root = mkProject(); tmpRoots.push(root); process.chdir(root);
