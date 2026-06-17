@@ -1,0 +1,17 @@
+{
+  "findings": [
+    {
+      "id": "B-f675:F-001",
+      "desc": "packages/main/src/core/review-incremental-context.ts:130-138 When a reviewer has a prior verdict (pass or finding) but its bound reviewRunId resolves to a run with a missing or null headHash, the function returns isFirstPass=true alongside a non-null priorVerdict. CLAUDE.md line 832 only documents the no-prior-pass case for isFirstPass=true, not this sub-case. A JSON consumer reading isFirstPass=true alongside priorVerdict=PASS(RP-001) would receive conflicting signals. The behavior is intentionally conservative (show full diff rather than compute from unknown base) and is documented in the code comments (line 110), but CLAUDE.md and CHK-001 userSees do not describe it. Fix suggestion: extend CLAUDE.md to say: isFirstPass=true means either no prior verdict OR prior verdict exists but its headHash cannot be resolved (unbound run); priorVerdict will be non-null in the latter sub-case.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T01:26:28.733Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-003",
+      "_hash": "71c064364c85bbc5e3b181867f661429b36d4754a84e3fd16f101b564f791ad0"
+    }
+  ]
+}
