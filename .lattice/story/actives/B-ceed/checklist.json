@@ -231,6 +231,17 @@
           "headHash": "b994fb9a482b0a3230550a9816b6f46198ed2db4",
           "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
           "timestamp": "2026-06-17T22:13:10.563Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c codexCliAvailable packages/main/src/core/lattice-dispatch.ts",
+          "result": "pass",
+          "note": "Returns 2 — routing condition + import (uses bounded provider seam).",
+          "headHash": "9f37067c54f3a8cf93c65169db8b62b1bfc5f18e",
+          "materialHash": "dc64aa8ed28f180b47dd64f43d358d39da658dc5b1135b06c9d3f24efac73023",
+          "timestamp": "2026-06-17T22:13:11.188Z"
         }
       ]
     },
