@@ -314,6 +314,17 @@
           "headHash": "aca3f3fab0a22084504933e0533cda73f6c827c9",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
           "timestamp": "2026-06-17T12:26:10.527Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "python3 -c \"import json;print(json.load(open('package.json')).get('scripts',{}).get('test',''))\"",
+          "result": "pass",
+          "note": "Prints the chain 'npm run test:main-write-lock-coverage && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:e2e' — unchanged from main.",
+          "headHash": "46b6ae22d9d4b3cca65262cd232959ffc6cc206f",
+          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
+          "timestamp": "2026-06-17T12:26:11.198Z"
         }
       ]
     },
