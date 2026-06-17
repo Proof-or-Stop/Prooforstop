@@ -71,6 +71,16 @@
           "headHash": "4ddc7b3c464a8149a80a6dc5fbfefea314b6afe2",
           "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
           "timestamp": "2026-06-17T22:43:16.093Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD -- packages/main/src/tasks/authority-job-loop-live-smoke.ts; node .../authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "authority-job-loop-live-smoke.ts has 0 diff (no source edit); passes exit 0 on rebuild from all cwds. Stale-dist artifact confirmed.",
+          "headHash": "559764e1a68a19365d7b316a1e01f1179b64053c",
+          "materialHash": "32712e55e1a0e7759db8176ab39eca7099d867f43c06f4810243f98990234cc1",
+          "timestamp": "2026-06-17T22:43:17.012Z"
         }
       ]
     },
