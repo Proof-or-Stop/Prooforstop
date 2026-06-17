@@ -66,8 +66,8 @@
       "title": "recallSimilarStories over the existing story_list scan (reuse, no derived index)",
       "context": "core/story-recall.ts: recallSimilarStories(targetProfile, candidateProfiles, topN) returns ranked matches with match reasons. The handler feeds it profiles built from the StoryStore enumeration (the existing story_list scan) — NO FTS, NO new derived index. The recall path is read-only.",
       "userSees": "The smoke seeds several stories, builds profiles via the store enumeration, and asserts recall returns the most-similar story first, respects top-N, and writes nothing.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T15:48:00.098Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
