@@ -109,6 +109,17 @@
           "headHash": "8a4e50faaca566952cc3c889fdc926d762b06297",
           "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
           "timestamp": "2026-06-17T01:21:58.795Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-effects.ts",
+          "command": "lattice story_advance B-f675 REVIEW",
+          "result": "pass",
+          "note": "B-f675 roundCount=1 -> REVIEW entry shows NO targeted-re-review advisory (round-1 absent verified)",
+          "headHash": "5757877cefea3488fd67b38b0d4511ed43efcacb",
+          "materialHash": "e2c08358fcb13116aacdb7b84bd18cc5cc5975bc7e9ef078782a44fffadfd210",
+          "timestamp": "2026-06-17T01:21:59.636Z"
         }
       ]
     },
