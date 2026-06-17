@@ -152,6 +152,17 @@
           "headHash": "a54dc6c8853eae25041fc542402c5b014e5c8f8b",
           "materialHash": "544df9883fa6987cecf2d1b219baa342544c5bdab077f95ebd34289bda53e847",
           "timestamp": "2026-06-17T20:08:43.703Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-loop-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-loop-smoke.js",
+          "result": "pass",
+          "note": "review-loop 38/38: the 35 previously-passing sub-assertions are byte-for-byte unchanged (git diff shows only readStory storyId + storyDirPath mock added); no regex broadened (lattice-only-absence asserts specific runtime-owned detail; cli-arg asserts exact Argument validation failed text); zero production file touched.",
+          "headHash": "7d32941e2b05fe90cd80239343bf686b5628185b",
+          "materialHash": "544df9883fa6987cecf2d1b219baa342544c5bdab077f95ebd34289bda53e847",
+          "timestamp": "2026-06-17T20:08:46.890Z"
         }
       ]
     },
