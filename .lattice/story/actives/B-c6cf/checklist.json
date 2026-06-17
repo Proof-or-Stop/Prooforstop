@@ -153,6 +153,17 @@
           "headHash": "42eaac0cc64e83a38eeab6ceb43248838a171bb1",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:06:46.296Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -s packages/main/coverage/lcov.info && echo LCOV_OK",
+          "result": "pass",
+          "note": "Prints LCOV_OK — 1135582-byte non-empty LCOV file generated at packages/main/coverage/lcov.info.",
+          "headHash": "339374843da6cbb8239fbe71da37870b4ddca235",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:06:47.205Z"
         }
       ]
     },
