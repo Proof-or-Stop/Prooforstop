@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
           "result": "pass",
           "note": "wrapper-root regression proves the 3 hard-failure sites (lattice-dispatch worktree probes, checklist evidenceHashes, doctor repair git) resolve git from gitRoot not bare metadataRoot; plain-repo byte-identical",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.176Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
           "result": "pass",
           "note": "smoke asserts plain-repo (projectRoot==gitRoot): dispatch/checklist/doctor resolvers all return project root verbatim (byte-identical fallback)",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "contract self-tests prove a re-introduced bare/alias root git cwd is caught (ALIAS/BACKTICK KNOWN-BAD each fire exactly 1 violation → exit 1); the 3 CHK-001 files are removed from the allowlist and contract stays green (exit 0)",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "npm run test:graceful-sites-gitroot-cwd",
           "result": "pass",
           "note": "wrapper-root fixture: verifier currentHead + init-check repair audit resolve resolveGitCwd to the inner gitRoot (defined head hash), touchpoints detectMdTouchpointsFromGit reports docs/guide.md from gitRoot; the other 4 sites (handoff/codex/validation-executor/recover-evidence) resolve via resolveGitCwd/resolveProjectGitCwd covered by bare-gate + project-gitroot smokes",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "npm run test:graceful-sites-gitroot-cwd",
           "result": "pass",
           "note": "plain-repo scenario asserts head hash + touchpoints byte-identical to bare root (resolveGitCwd returns projectRoot verbatim); graceful fallback preserved: bare metadataRoot git rev-parse HEAD is undefined, non-git dir detectMdTouchpointsFromGit is undefined; each site keeps its existing undefined/null/[]/unknown fallback when no gitRoot resolves",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "gitroot-cwd-contract-smoke exits 0 after all 7 graceful sites (verifier, lattice-handoff, codex-adapter-checks, touchpoints-fallback, validation-executor, recover-evidence, init-check) are threaded AND removed from DEFERRED_ALLOWLIST_EXACT; self-tests still prove a re-introduced bare-root alias/backtick fails the contract (detection intact)",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "npm run test:project-gitroot-cwd",
           "result": "pass",
           "note": "resolveProjectGitRoot exported + resolveProjectGitCwd wrapper added; gap-analyze/story-query/dashboard project-level scans survey the real gitRoot on wrapper-root and fall back to projectRoot byte-identically on plain repos; contract-smoke green with all 3 files removed from DEFERRED_ALLOWLIST_EXACT",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/project-gitroot-cwd-smoke.js",
           "result": "pass",
           "note": "smoke asserts plain-repo byte-identity + null-gitRoot fallback: resolveProjectGitCwd returns projectRoot verbatim when projectRoot==gitRoot and when gitRoot unresolved",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/project-gitroot-cwd-smoke.js",
           "result": "pass",
           "note": "resolveProjectGitRoot + resolveProjectGitCwd are exported and imported by the smoke (tsc green); the 3 project-level scans removed from the allowlist and the gitroot-cwd-contract stays green (exit 0)",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         }
       ]
     },
@@ -240,9 +240,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "allowlist split: BENIGN_BOOTSTRAP (12, with rationale) + empty pending; contract exits 0; detection self-tests intact",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         },
         {
           "intentRef": "CHK-004:happy:0",
@@ -251,9 +251,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "the 3 params renamed projectRoot->gitCwd (autoSyncMain, resolveGitTopLevel, isGitRepository); tsc build is clean (exit 0) proving the resolved inbound value still flows through unchanged — pure rename, zero behavior change verified by reading each caller",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -262,9 +262,9 @@
           "command": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js",
           "result": "pass",
           "note": "contract exits 0 with DEFERRED_ALLOWLIST_EXACT empty + BENIGN_BOOTSTRAP_ALLOWLIST (12); all 9 detection self-tests pass so a re-introduced bare-root alias still fails the contract (detection not weakened)",
-          "headHash": "27c1e4acc58a35a4012acc6c038e60181231a772",
-          "materialHash": "965ad45cd8e4f07ec5b1052a0952cdd0ad5a6657cb2c6145b8b4ac9ee2031b85",
-          "timestamp": "2026-06-17T23:29:59.738Z"
+          "headHash": "18384f77f2c7f6fee7acf101d92d41bc1c3c63cf",
+          "materialHash": "0be4ee55d66c4edf4aa4881c7fa5af857f6e4c3f30468d45738abde3de6abb96",
+          "timestamp": "2026-06-17T23:45:52.177Z"
         }
       ]
     }
