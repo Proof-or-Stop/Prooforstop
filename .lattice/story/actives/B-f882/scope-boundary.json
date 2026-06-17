@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f882",
+  "mode": "correctness_fix",
+  "allowed": [
+    "CHK-001: change runDocsDriftGate call in packages/main/src/handlers/review-preflight.ts (~:424) to pass repoRoot: gitCwd instead of deps.projectRoot",
+    "CHK-002: add a wrapper-root (metadataRoot != gitRoot) regression that drives the docs-drift preflight path-drift and proves fs/git scoping to the gitRoot; wire into the validate battery",
+    "CHK-003: strengthen the gitCwd guard (gitroot-cwd-contract-smoke.ts or focused new check) so a review-preflight git-gate not threaded the resolved gitCwd is caught mechanically"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "User-confirmed correctness fix: thread resolved gitCwd into docs-drift preflight repoRoot. Explicitly deferred (separate stories): english-gate storyDir metadata-root mismatch (#3) and express-channel docstring drift (#2). Do not touch managedAssetDefs resolution unless independently proven needed.",
+  "createdAt": "2026-06-17T11:44:14.324Z",
+  "updatedAt": "2026-06-17T11:44:14.324Z",
+  "_hash": "2ed73e692cfaa1f01eba868a98b248cd3bd03c6a78d087a605066ad00f3f0825"
+}

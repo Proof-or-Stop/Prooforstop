@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f882",
+  "allowedCommands": [
+    "git",
+    "grep",
+    "lattice",
+    "node",
+    "npm",
+    "npx",
+    "rg",
+    "sed",
+    "tsc"
+  ],
+  "allowedTools": [
+    "lattice-implementer",
+    "lattice-review-behavior",
+    "lattice-review-concept",
+    "lattice-review-delivery",
+    "lattice-review-docs",
+    "lattice-review-quality",
+    "lattice-review-test-coverage"
+  ],
+  "allowedPaths": [
+    "docs/story/actives/B-f882/plan.md",
+    "package.json",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/tasks",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+    "packages/main/src/validate.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "CHK-002 may add a new smoke task file under packages/main/src/tasks and wire it into the validate battery; allowedPaths includes the tasks dir + validate.ts for that wiring. Do NOT modify the english-artifacts gate storyDir wiring or the express docstring.",
+  "createdAt": "2026-06-17T11:44:25.647Z",
+  "updatedAt": "2026-06-17T11:44:25.647Z",
+  "_hash": "d5fe4fb8c84c53a4a7f2bab03a1f616c287b986bae483d92f1967e559729c0ef"
+}
