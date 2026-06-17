@@ -1,0 +1,22 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-17T01:54:37.282Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Implement packages/main/src/tasks/run-all-smokes.ts with parallelism, manifest reading, and --tag/--select filters + Create packages/main/smoke-manifest.json (initial manifest with default entries) and add `test:all` npm script at root are performed simultaneously?)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "8bc8b4d34ff9aa0fa0905449db42bd26c8f7a46c763a267a73a7eb2e1770ffdd"
+    }
+  ]
+}
