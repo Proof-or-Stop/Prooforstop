@@ -46,9 +46,14 @@ import {
 
 // B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
-/** Check how many commits main has that the current branch doesn't. */
-export function checkMainDivergence(projectRoot: string): { behind: number; needsSync: boolean } {
-  const gitCwd = projectRoot;
+/**
+ * Check how many commits main has that the current branch doesn't.
+ *
+ * B-6666 CHK-001: the parameter is the resolved git cwd (wrapper-root aware),
+ * not the bare metadataRoot. Callers thread `resolveGitCwd(...)` here; plain
+ * repos pass projectRoot==gitCwd so behavior is byte-identical.
+ */
+export function checkMainDivergence(gitCwd: string): { behind: number; needsSync: boolean } {
   try {
     const result = execSync('git rev-list --count HEAD..main', {
       cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
@@ -60,8 +65,10 @@ export function checkMainDivergence(projectRoot: string): { behind: number; need
   }
 }
 
-function readGitStatusLines(projectRoot: string): { ok: true; lines: string[] } | { ok: false; error: string } {
-  const gitCwd = projectRoot;
+// B-6666 CHK-001: gitCwd is the resolved git cwd (wrapper-root aware). On a
+// wrapper-root layout the bare metadataRoot is not a git repo, so reading
+// `git status` from it errors -> the git-working-tree DONE row falsely blocks.
+function readGitStatusLines(gitCwd: string): { ok: true; lines: string[] } | { ok: false; error: string } {
   try {
     const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
       cwd: gitCwd,
@@ -119,8 +126,7 @@ function evaluateDirtyGitStatus(
   return { classification, result };
 }
 
-function gitRefExists(projectRoot: string, ref: string): boolean {
-  const gitCwd = projectRoot;
+function gitRefExists(gitCwd: string, ref: string): boolean {
   try {
     execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
       cwd: gitCwd,
@@ -133,8 +139,7 @@ function gitRefExists(projectRoot: string, ref: string): boolean {
   }
 }
 
-function gitRefContainsMain(projectRoot: string, ref: string): boolean {
-  const gitCwd = projectRoot;
+function gitRefContainsMain(gitCwd: string, ref: string): boolean {
   execFileSync('git', ['merge-base', '--is-ancestor', 'main', ref], {
     cwd: gitCwd,
     encoding: 'utf-8',
@@ -198,6 +203,15 @@ export interface BuildDoneChecklistOptions {
    * default so audit-write failures still block completion.
    */
   auditWriter?: AuditWriter | null;
+  /**
+   * B-6666 CHK-001: the resolved git invocation cwd (wrapper-root aware),
+   * threaded from the DONE pre-merge gate boundary (transition-orchestrator.ts
+   * resolveGitCwd, resolved ONCE). ONLY the git probes (status / refs /
+   * divergence / diff) use this; `root` (metadataRoot) still drives every
+   * config/store/audit read. When absent it falls back to `root`, so plain
+   * repos (projectRoot==gitCwd) and read-only projections stay byte-identical.
+   */
+  gitCwd?: string;
 }
 
 function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean }): DoneCheckRow {
@@ -209,6 +223,12 @@ function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean
 
 export function buildDoneChecklist(storyId: string, store: StoryStore, root: string, options: BuildDoneChecklistOptions = {}): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
+
+  // B-6666 CHK-001: the cwd for every git probe below. Falls back to `root`
+  // (metadataRoot) when no resolved gitCwd is threaded, so plain repos and
+  // read-only projections stay byte-identical. `root` is still used for all
+  // config/store/audit reads — ONLY git invocation cwd changes.
+  const gitCwd = options.gitCwd ?? root;
 
   // Resolve workflow policy for policy-aware gates
   const config = loadConfig(root);
@@ -277,7 +297,11 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 1b. evidence freshness (B-c622 CHK-009)
-  const freshness = checkEvidenceFreshness(store, storyId, root, storyForPolicy.phase);
+  // B-6666 CHK-001: pass the resolved gitCwd at this boundary so the DONE-path
+  // freshness git probe shares the same gitRoot as the git-status row (no
+  // split-brain). The evidence-freshness.ts internals (its own no-op gitCwd
+  // alias) are CHK-002; this only routes the resolved cwd to the call boundary.
+  const freshness = checkEvidenceFreshness(store, storyId, gitCwd, storyForPolicy.phase);
   if (!freshness.fresh) {
     rows.push(doneCheckRow({
       id: 'evidence-freshness',
@@ -321,7 +345,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 3. git working tree clean (B-4b22: category-aware via dirty-gate-policy)
-  const gitStatus = readGitStatusLines(root);
+  // B-6666 CHK-001: read git status from the resolved gitCwd, not bare root.
+  const gitStatus = readGitStatusLines(gitCwd);
   if (gitStatus.ok && gitStatus.lines.length === 0) {
     rows.push(doneCheckRow({
       id: 'git-working-tree',
@@ -383,7 +408,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     const story = store.readStory(storyId);
     if (story.worktree?.branch) {
       const branch = story.worktree.branch;
-      if (!gitRefExists(root, branch)) {
+      if (!gitRefExists(gitCwd, branch)) {
         rows.push({
           id: 'branch-synced-main',
           status: 'warn',
@@ -395,7 +420,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         });
       } else {
         try {
-          gitRefContainsMain(root, branch);
+          gitRefContainsMain(gitCwd, branch);
           rows.push(doneCheckRow({
             id: 'branch-synced-main',
             status: 'pass',
@@ -404,7 +429,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
             source: 'git merge-base --is-ancestor main',
           }));
         } catch {
-          const divergence = checkMainDivergence(root);
+          const divergence = checkMainDivergence(gitCwd);
           rows.push(doneCheckRow({
             id: 'branch-synced-main',
             status: 'fail',
@@ -419,7 +444,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       }
     } else {
       // No worktree branch recorded — detect from git directly
-      const divergence = checkMainDivergence(root);
+      const divergence = checkMainDivergence(gitCwd);
       if (divergence.needsSync) {
         rows.push(doneCheckRow({
           id: 'branch-synced-main',
@@ -456,7 +481,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }
     if (allDocs.size > 0) {
       let changedFiles = new Set<string>();
-      const gitCwd = root;
+      // B-6666 CHK-001: use the resolved gitCwd threaded into buildDoneChecklist
+      // (no inner no-op `const gitCwd = root` alias) so wrapper-root layouts
+      // resolve the diff against the real gitRoot.
       try {
         const out = execSync('git diff main...HEAD --name-only', {
           cwd: gitCwd,

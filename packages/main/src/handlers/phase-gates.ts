@@ -541,8 +541,14 @@ export function runDoneOracleGate(
   store: StoryStore,
   root: string,
   _actor: { stop(): void },
+  // B-6666 CHK-001: the resolved git cwd (wrapper-root aware), threaded from
+  // runDonePreMergeGate. `root` (metadataRoot) still drives store/config reads;
+  // only the DONE-oracle git probes use gitCwd. Defaults to root for callers
+  // that have not resolved a gitCwd (plain repos / read-only projections) so
+  // behavior is byte-identical.
+  gitCwd: string = root,
 ): string {
-  const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root);
+  const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root, { gitCwd });
   const rendered = renderDoneChecklist(storyId, checkRows);
   const failed = checkRows.filter(r => r.status === 'fail');
 
