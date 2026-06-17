@@ -85,6 +85,17 @@
           "headHash": "6b74badacfcb7f1c0e601d2ab76b3948ec80856a",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T20:06:09.369Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-discarded-smoke.js",
+          "result": "pass",
+          "note": "each behavior confirmed correct vs production+story before test edit: B-097f canonical-only resolver (worktree.ts resolveGlobalCorePackagePaths) → sane skip; normalizeName lowercases all output (story-dedup.ts); checkConvergence check renamed to English All Stories completed (gap-analyze.ts:349, commit 6fff2110f). Zero production change; all 3 STALE not real bugs",
+          "headHash": "41b28d16596b800d5d464d8e26b8febd9eeab46e",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T20:06:16.294Z"
         }
       ]
     },
