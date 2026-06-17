@@ -1,0 +1,29 @@
+{
+  "storyId": "B-ceed",
+  "name": "codex-gemini-live-dispatch-story3",
+  "title": "Story #3: unblock codex + gemini real-host live dispatch (with claude-code fallback)",
+  "description": "Add runCodexRealLeafDispatch + runGeminiRealLeafDispatch + providers/gemini-cli.ts + dispatch switch upgrade. Wires the existing runBoundedCodexProvider seam (B-1550) into dispatch_run and adds the equivalent gemini-cli provider + leaf. When both codex/gemini are unavailable in PATH, auto-fallback to claude-code real dispatch. Unblocks LLM usage ledger real-capture for codex/gemini per [[llm-usage-ledger-status]] memory. Out of scope: codex.ts/gemini.ts usage adapters (follow-up); Authority receipt-backed signing (future).",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "P2",
+  "keywords": [
+    "dispatch",
+    "codex",
+    "gemini",
+    "usage-ledger",
+    "real-host"
+  ],
+  "createdAt": "2026-06-17T21:52:19.039Z",
+  "startedAt": "2026-06-17T21:52:19.039Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T21:52:19.040Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

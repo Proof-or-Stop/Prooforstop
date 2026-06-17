@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add providers/gemini-cli.ts (mirror codex-cli.ts pattern)",
+      "context": "Create packages/main/src/providers/gemini-cli.ts implementing geminiCliAvailable() + runBoundedGeminiProvider() with the SAME contract shape as codex-cli.ts: PATH discovery, spawnSync bounded by timeout, capture stdout/stderr digests + byte counts, exit code, duration, never surface raw output. Reuse shared subprocess types from codex-cli.ts where possible. Smoke equivalent of provider-codex-smoke.ts — provider-gemini-smoke.ts — proving the same 4 cases (success / disabled / timeout / missing binary).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add runCodexRealLeafDispatch + runGeminiRealLeafDispatch + dispatch switch upgrade",
+      "context": "In packages/main/src/core/lattice-dispatch.ts: add runCodexRealLeafDispatch + runGeminiRealLeafDispatch (mirror runClaudeCodeRealLeafDispatch shape at line 1938). In the dispatch_run switch at line ~2400: when normalized===\"codex\" AND codexCliAvailable() → branch to runCodexRealLeafDispatch (REAL); when normalized===\"gemini\" AND geminiCliAvailable() → runGeminiRealLeafDispatch (REAL); when normalized in {codex,gemini} but BOTH CLIs unavailable → fall back to runClaudeCodeRealLeafDispatch with a logged degradation reason. Update the scaffolded-only warning at line 757 to fire only when the REAL path is not taken (i.e. CLI unavailable AND no fallback).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "CHANGELOG Unreleased entry + memory update",
+      "context": "CHANGELOG Unreleased entry under Test infrastructure or Runtime subsection documenting the new dispatcher paths + fallback policy. Update auto-memory llm-usage-ledger-status.md to mark codex/gemini live-dispatch as UNBLOCKED (the blocker described in the memory is now resolved) and clarify that the usage parsing story remains separate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
