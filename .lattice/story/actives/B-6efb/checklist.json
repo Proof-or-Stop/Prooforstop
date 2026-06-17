@@ -7,7 +7,14 @@
       "userSees": "`node packages/main/dist/tasks/run-all-smokes.js --select <something>` prints PASS/FAIL per smoke + aggregate summary; running it without filters runs all 153 smokes in parallel and aggregates.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
