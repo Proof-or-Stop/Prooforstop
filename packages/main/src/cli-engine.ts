@@ -1721,6 +1721,20 @@ Behavior:
       .describe('Audit-only: confidence strength of the dismiss evidence. Never read by any gate.'),
   }},
 
+  // B-4f46 CHK-003: signature-registry (Experience Layer Phase 1b). AUDIT-ONLY catalog
+  // of finding signatureTags under .lattice/learning/. No gate reads it.
+  { name: 'signature_registry_list', description: 'List signature-registry tags + statuses (audit-only)', schema: {
+    storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
+  }},
+  { name: 'signature_registry_set', description: 'Mutate the signature-registry (propose/approve/alias/deprecate; audit-only)', schema: {
+    tag: z.string().describe('Signature tag.'),
+    action: z.enum(['propose', 'approve', 'alias', 'deprecate']).describe('propose -> proposed; approve -> active (active requires explicit approve); alias adds a synonym; deprecate (optionally mergedInto).'),
+    alias: z.string().optional().describe('Required when action=alias: the synonym to fold into the canonical tag.'),
+    mergedInto: z.string().optional().describe('Optional when action=deprecate: canonical tag this deprecated tag folds into.'),
+    by: z.string().optional().describe('Caller identity (audit trace; defaults from LATTICE_AGENT).'),
+    storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
+  }},
+
   // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering plus manual merge/split).
   //
   // No arguments (default mode): auto-cluster when files intersection is at least 50% and severity matches; write back clusters.json plus findings.clusterId.
