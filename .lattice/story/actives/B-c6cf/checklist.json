@@ -72,6 +72,17 @@
           "headHash": "d6ffff8cc1ead380693fafeefc34f413e0a490e2",
           "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
           "timestamp": "2026-06-17T14:07:43.512Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node -e \"const c=require('./.c8rc.json'); if(!Array.isArray(c.reporter)||!c.reporter.includes('html')||!c.reporter.includes('lcov')) throw new Error('BAD_REPORTERS:'+JSON.stringify(c.reporter)); console.log('REPORTERS_OK')\"",
+          "result": "pass",
+          "note": "Prints REPORTERS_OK — reporter is ['text','html','lcov']; both html and lcov present.",
+          "headHash": "16b88ea510a18b6ba8f3a28b556f6101e33aa588",
+          "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+          "timestamp": "2026-06-17T14:07:48.566Z"
         }
       ]
     },
