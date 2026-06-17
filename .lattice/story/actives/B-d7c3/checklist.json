@@ -121,12 +121,12 @@
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;json.load(open('packages/main/smoke-manifest.json'))\"",
+          "command": "node -e \"const p=require('./packages/main/package.json'); ['test:e2e','test:run-all-smokes-smoke','test:main-write-lock-coverage','test:review-convergence-smoke','test:review-incremental-context-smoke','test:docs-drift-smoke'].forEach(k=>{if(!p.scripts[k]) throw new Error('MISSING:'+k)}); console.log('ALL_PRESENT')\"",
           "result": "pass",
-          "note": "Parses cleanly; no exception.",
-          "headHash": "43868fda9ece972a7c666bc9021006a87fc47774",
-          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:02.870Z"
+          "note": "Prints ALL_PRESENT — all 6 keep-list scripts present in packages/main/package.json (test:e2e, test:run-all-smokes-smoke, test:main-write-lock-coverage, test:review-convergence-smoke, test:review-incremental-context-smoke, test:docs-drift-smoke). None were accidentally removed by the collapse.",
+          "headHash": "00c4f3f9aa10e5c2e5338ce7f1f91efc77f16dfd",
+          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
+          "timestamp": "2026-06-17T13:02:56.675Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
