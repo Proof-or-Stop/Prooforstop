@@ -5,9 +5,9 @@
       "title": "Fix the 3 HARD-FAILURE wrapper-root sites (lattice-dispatch worktree, checklist evidence-refresh, doctor --repair) with a wrapper-root regression each",
       "context": "These FUNCTIONALLY FAIL on wrapper-root (metadataRoot != gitRoot), not graceful: (a) core/lattice-dispatch.ts worktree create/remove (listedGitWorktreeRoots ~:1185, assertRegisteredDispatchWorktreeRoot ~:1251 — store + record.storyId available → thread resolveGitCwd); (b) handlers/checklist.ts verification_evidence_refresh / evidenceHashes (~:188 `const gitCwd = root`) HARD-THROWS on wrapper-root → thread resolveGitCwd (storyId available); (c) handlers/doctor.ts --repair MUTATION helpers (tryWorktreeRemove ~:688, removeStaleWorktreeAdminDirs ~:733, deleteTerminalStoryBranch) — resolveDoctorGitCwd ALREADY exists in doctor.ts, so pass it (one-liners). Fall back to root when no gitRoot resolves (plain-repo byte-identical). Add a wrapper-root (metadataRoot != gitRoot) regression for each proving it no longer fails. After each, build + run `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` and confirm green; remove these sites from the deferred allowlist.",
       "userSees": "On a wrapper-root project, `lattice dispatch` worktree create/remove, `verification_evidence_refresh`, and `lattice doctor --repair` all WORK (no throw / no fail) instead of running git from the non-git metadataRoot; a wrapper-root regression for each is green; plain repos are byte-identical.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-17T22:47:18.212Z",
       "verificationIntent": {
         "happy": [
           {
