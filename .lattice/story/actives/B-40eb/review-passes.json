@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T12:06:45.973Z",
       "reviewRunId": "B-40eb:RR-009",
       "_hash": "05bc82871854bfbf5dc77d877f994e15b140862506b51935563c896bd0726aa7"
+    },
+    {
+      "id": "B-40eb:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Incremental round 3 check: commit 501dcf954 correctly replaces all .Codex/agents/ with .lattice-codex/agents/ in the 6 changed files (packages/lab/src/core/config.ts + 5 scripts). git grep -n .Codex/agents -- packages/lab scripts returns empty (exit 1). The real .lattice-codex/agents/ directory exists on disk with all required files (test-case-reviewer.md, product-reviewer.md, implementation-reviewer.md confirmed). The residual .Codex/agents refs in packages/main/src/tasks/prompt-registry-smoke.ts:90,92 and packages/main/tests/fixtures/product-reviewer.json:7,39 are pre-existing on main branch, not introduced by this branch (git diff main...HEAD shows no change to these files). The prompt-registry-smoke.ts usage is existsSync-guarded so it only fires if .Codex/agents/ exists on disk (it does not); the fixture is hard-rule-protected. Neither file is in scope for this incremental change. The .Codex/ directory on disk only contains hooks/ and hooks.json (Codex CLI hook dir), consistent with .Codex/agents/ not being a valid target. Findings F-005 through F-008 (the .Codex/agents path mismatch in lab+scripts) are resolved by this commit. No new quality issues introduced by the two incremental changes (forward fix commit + english-artifacts metadata commit). No new findings raised.",
+      "createdAt": "2026-06-17T12:08:49.772Z",
+      "reviewRound": "2026-06-17T12:06:45.973Z",
+      "reviewRunId": "B-40eb:RR-007",
+      "_hash": "fc3606d89755ccd0d2a083fb8a2c1923b748161a409df777ed0f0570d6ba7338"
     }
   ]
 }
