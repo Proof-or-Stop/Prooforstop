@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T01:22:15.761Z",
       "reviewRunId": "B-f675:RR-005",
       "_hash": "98fec9df7e791272820140f5683ded07e3def879f098f4e9f5d95cdf3c57d179"
+    },
+    {
+      "id": "B-f675:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. Change is purely additive: new changedFilesBetweenRenameAware added to evidence-freshness.ts alongside intact changedFilesBetween (no callers broken); new core/review-incremental-context.ts + handlers/review-incremental-context.ts wired via registry; all imports (findingAgentMatchesReviewer, Finding/ReviewPass/ReviewRun, isMaterialExcludedPath, resolveReviewRoundCount, computeActiveReviewers) resolve to real exports; no exported symbol deleted or renamed; no dangling references; no unused imports introduced.",
+      "createdAt": "2026-06-17T01:24:25.894Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-001",
+      "_hash": "859d407377d9076957d8ce8971f214bf1f10f80b1180e7e6cdafc9d5a6df4ed1"
     }
   ]
 }
