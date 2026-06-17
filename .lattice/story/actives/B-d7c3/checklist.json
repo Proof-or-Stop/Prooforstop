@@ -374,12 +374,12 @@
           "intentRef": "CHK-002:adversarial:3",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git diff main -- scripts/verify-*.mjs | wc -l",
+          "command": "python3 -c \"import json,subprocess;a=set(k for k in json.loads(subprocess.check_output(['git','show','main:package.json'],text=True))['scripts'] if k.startswith('verify:'));b=set(k for k in json.load(open('package.json'))['scripts'] if k.startswith('verify:'));print('REMOVED:'+str(sorted(a-b)))\"",
           "result": "pass",
-          "note": "Returns 0 — verify-*.mjs untouched.",
-          "headHash": "e6b20ce19968aee4df672f88bd7833210a962c32",
+          "note": "Prints REMOVED:[] — zero verify:* npm scripts removed between main and HEAD (correct dimension: package.json key set comparison, not file diffs). B-d7c3 only touched test:* scripts; verify:* gates untouched.",
+          "headHash": "8aa7f7247bb48a987b334c1ac80af4e16c78d5df",
           "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:14.537Z"
+          "timestamp": "2026-06-17T12:51:42.866Z"
         }
       ]
     },
