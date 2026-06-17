@@ -22,6 +22,11 @@
  *   (c) RENAME CASE — a file renamed since the reviewer's last pass is counted as
  *       changed (rename-aware `git diff --name-status -M`): both old + new paths
  *       surface, scopeChanged=true.
+ *   (e) PRIOR VERDICT W/ UNRESOLVABLE headHash — a reviewer that DID pass before,
+ *       but whose bound run has an unresolvable headHash: the helper falls back to
+ *       isFirstPass=true, priorHeadHash=null, full main...HEAD diff, while
+ *       priorVerdict stays NON-null. Pins the documented contract that consumers
+ *       must key off isFirstPass (not priorVerdict) for "no incremental baseline".
  *   (d) GATE-UNCHANGED ASSERTION (the load-bearing one) — exercises the REAL
  *       canPassReviewGuard (imported from core/machine.ts) over deterministic
  *       fixture stories and asserts the actual gate semantics:
@@ -360,6 +365,51 @@ function runIncrementalCases(): void {
         `(c) rename-aware diff must surface BOTH old + new paths, got ${JSON.stringify(ctx.changedFiles)}`,
       );
       console.log(`${MARKER} (c) RENAME CASE: scopeChanged=true, changedFiles=${JSON.stringify(ctx.changedFiles)} (both rename sides counted)`);
+    }
+
+    // ---- (e) PRIOR VERDICT WITH UNRESOLVABLE BOUND headHash (sub-case b of the
+    //          isFirstPass contract) ----
+    // 'behavior' DID pass before (priorVerdict non-null), but the run it was bound
+    // to has an empty/unresolvable headHash. The helper conservatively treats this
+    // as a first pass: isFirstPass=true, priorHeadHash=null, full main...HEAD diff,
+    // while priorVerdict stays NON-null (informational). This pins the documented
+    // invariant that consumers must key off isFirstPass, not priorVerdict.
+    {
+      const runId = 'RR-behavior-unresolvable';
+      const story = reviewStory(storyId, 1, ts(1));
+      const pass: ReviewPass = signedPass(storyId, 'RP-003', 'lattice-review-behavior', ts(2), ts(1));
+      pass.reviewRunId = runId;
+      pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId);
+      const run: ReviewRun = {
+        reviewRunId: runId,
+        storyId,
+        agent: 'lattice-review-behavior',
+        lane: 'lattice-review-behavior',
+        reviewRound: ts(1),
+        startedAt: ts(2),
+        // Unresolvable bound headHash: headHashForRun returns null for a falsy hash.
+        headHash: '',
+        materialHash: 'unused-by-incremental-context',
+        promptHash: '',
+      };
+      const store = buildFixtureStore({ story, passes: [pass], runs: [run] });
+      const ctx = reviewIncrementalContext(store, root, storyId, 'behavior');
+      // Documented invariant: when isFirstPass=true, priorHeadHash is null and
+      // changedFiles is the full diff — REGARDLESS of priorVerdict.
+      assert.equal(ctx.isFirstPass, true, '(e) unresolvable bound headHash must fall back to isFirstPass=true');
+      assert.equal(ctx.priorHeadHash, null, '(e) isFirstPass=true must always carry priorHeadHash=null');
+      assert.equal(ctx.scopeChanged, true, '(e) first-pass fallback => scopeChanged=true');
+      assert.ok(
+        ctx.changedFiles.includes('src/feature.ts'),
+        `(e) isFirstPass=true must return the full main...HEAD diff, got ${JSON.stringify(ctx.changedFiles)}`,
+      );
+      // priorVerdict MAY be non-null here (the reviewer did pass before); the point
+      // is that it is NOT the authoritative baseline signal — isFirstPass is.
+      assert.ok(
+        ctx.priorVerdict && ctx.priorVerdict.includes('RP-003'),
+        `(e) priorVerdict stays non-null/informational alongside isFirstPass=true, got ${JSON.stringify(ctx.priorVerdict)}`,
+      );
+      console.log(`${MARKER} (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=${ctx.priorVerdict} (non-null, informational), full diff changedFiles=${JSON.stringify(ctx.changedFiles)}`);
     }
 
     void headSha; // headSha is HEAD; referenced for clarity in fixture wiring above.

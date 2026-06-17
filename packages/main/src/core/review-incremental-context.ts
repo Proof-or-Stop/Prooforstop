@@ -29,11 +29,50 @@ import {
 } from './evidence-freshness.js';
 
 export interface ReviewIncrementalContext {
+  /** The reviewer role this context was computed for (echoed back). */
   role: string;
+  /**
+   * Authoritative "no usable incremental baseline" signal. `isFirstPass=true`
+   * means there is NO resolvable prior-pass headHash to diff against, which
+   * covers BOTH sub-cases:
+   *   (a) the reviewer has never passed/finding-ed on this story, AND
+   *   (b) a prior verdict EXISTS but the run it was bound to has a missing /
+   *       unresolvable headHash (so we cannot compute an incremental base).
+   * In both sub-cases `priorHeadHash` is null and `changedFiles` is the full
+   * `main...HEAD` material diff. Consumers MUST treat `isFirstPass` — NOT
+   * `priorVerdict` — as the authoritative "no incremental baseline" flag.
+   */
   isFirstPass: boolean;
+  /**
+   * The headHash the prior verdict was bound to, when resolvable. Always null
+   * whenever `isFirstPass=true` (including sub-case (b) above). Non-null only
+   * when `isFirstPass=false`, in which case it is the base of the incremental
+   * `changedFiles` diff.
+   */
   priorHeadHash: string | null;
+  /**
+   * Human summary of the most recent prior verdict (e.g. "PASS (RP-001)" or
+   * "finding F-002: high"), or null when the reviewer has no prior verdict.
+   * INFORMATIONAL ONLY. It MAY be non-null even when `isFirstPass=true`: in
+   * sub-case (b) a prior verdict exists but its bound headHash is unresolvable,
+   * so `priorVerdict` is non-null yet `priorHeadHash` is null and the full diff
+   * is returned. Never infer "has incremental baseline" from `priorVerdict`;
+   * use `isFirstPass` for that.
+   */
   priorVerdict: string | null;
+  /**
+   * Whether any MATERIAL file changed relative to the baseline. When
+   * `isFirstPass=false` this equals `changedFiles.length > 0`. When
+   * `isFirstPass=true` it is forced to true (a first pass conservatively
+   * "shows everything"), so it MAY be true even if `changedFiles` is empty —
+   * do not assume `scopeChanged === (changedFiles.length > 0)` in that branch.
+   */
   scopeChanged: boolean;
+  /**
+   * Material files changed since the baseline. When `isFirstPass=true` this is
+   * the full `main...HEAD` material diff; otherwise the diff from
+   * `priorHeadHash` to HEAD (rename-aware, material-filtered).
+   */
   changedFiles: string[];
 }
 
