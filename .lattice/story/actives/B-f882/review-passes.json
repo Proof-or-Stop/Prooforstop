@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-17T12:16:03.058Z",
       "reviewRunId": "B-f882:RR-004",
       "_hash": "33098485224decce64fa4541691546cdd03db640e8f02ec5cd0124d6a1224050"
+    },
+    {
+      "id": "B-f882:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or symbol rename in this diff. The change is a single one-arg fix (repoRoot: deps.projectRoot -> repoRoot: gitCwd in review-preflight.ts line 430), plus two additive smoke files (docs-drift-wrapper-root-smoke.ts new, gitroot-cwd-contract-smoke.ts additions) and package.json wiring. All new symbols (ONLY_UNDER_GITROOT, WRAPPER_CLAUDE_MD, extractRunDocsDriftGateCalls, EXPECTED_DOCS_DRIFT_REPO_ROOT, FORBIDDEN_REPO_ROOT_TOKENS, REVIEW_PREFLIGHT_REL) are self-contained within their respective smoke files with zero external dangling references. No residue check triggered; no orphaned identifiers found.",
+      "createdAt": "2026-06-17T12:17:59.164Z",
+      "reviewRound": "2026-06-17T12:16:03.058Z",
+      "reviewRunId": "B-f882:RR-001",
+      "_hash": "67eb5acb98215f6f131dcf7b26cdb69bfb37bfe6064ecb2514cbaa0b1ed724e6"
     }
   ]
 }
