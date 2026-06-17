@@ -39,7 +39,30 @@
       "userSees": "On a wrapper-root project, DONE-evidence headSha, handoff commit-proof, verify_codex headHash, .md touchpoint detection (docs reviewer routing), validate pollution gate, dirty classification, and init_check_repair all resolve from the gitRoot; the gitroot-cwd-contract stays green; plain repos unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a wrapper-root fixture, each graceful site (verifier currentHead, handoff resolveCommitSha, codex-adapter readGitHead, touchpoints detectMdTouchpointsFromGit, validation-executor readGitStatus, recover-evidence readGitStatusLines, init-check repair) resolves from the gitRoot and returns the real value (headSha/status/touchpoints) instead of the degraded fallback",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a plain repo each graceful site returns the same value as before (byte-identical); when no gitRoot resolves the existing graceful fallback (undefined/null/[]/unknown) is preserved",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "gitroot-cwd-contract-smoke stays green (exit 0) after each graceful site is threaded and removed from the allowlist",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
