@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-17T01:22:15.761Z",
       "reviewRunId": "B-f675:RR-004",
       "_hash": "f5220fbf4b8035579507484d01aeeb30a4116d961d662aefa5e672eea4203cfc"
+    },
+    {
+      "id": "B-f675:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All new code passes quality checks. core/review-incremental-context.ts: clean read-only design, correct headHash resolution via run lookup, proper fallback to full diff for unresolvable priorHeadHash, conservative isFirstPass=true on unresolvable run, sort order correct (ascending then take last). evidence-freshness.ts: changedFilesBetweenRenameAware is additive — existing changedFilesBetween untouched, no logic duplication, both old+new paths for R/C records correctly emitted. handlers/review-incremental-context.ts: append-only CLI handler, runtime storyId/role validation, mirrors reviewer-list.ts registration pattern exactly. transition-effects.ts: advisory block is strictly append-only inside try/catch, never throws, never alters transition result, operator-choice framing is accurate. CLI registration across cli-engine/command-policy/config/process-fact-levels/registry: all consistent, readOnly/L0 throughout, phase=all correct. No Chinese in any new code or comments. No dead code, unused imports, or empty catch swallowing errors in the new files. headHash || null on line 59 is safe because ReviewRun.headHash is typed as non-optional string. CLAUDE.md promise for lattice review_incremental_context matches implemented schema. void headSha in smoke is intentional to suppress unused-variable lint. isFirstPass=true when prior.headHash unresolvable is correct conservative behavior documented in code comments.",
+      "createdAt": "2026-06-17T01:26:28.283Z",
+      "reviewRound": "2026-06-17T01:22:15.761Z",
+      "reviewRunId": "B-f675:RR-002",
+      "_hash": "e79fa987e161ae2a89beb98ef210d73ced795814ea907317ac68b3dd44168266"
     }
   ]
 }
