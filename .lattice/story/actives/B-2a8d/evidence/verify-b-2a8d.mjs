@@ -16,7 +16,7 @@ const noFourLevels = !/four semantic levels/i.test(doc);
 const noCrossFootprint = !/cross-project footprint/i.test(doc);
 const noCrossInV1 = !/cross-project aggregation in v1/i.test(doc);
 const noTwoLayer = !/two-layer signature/i.test(doc);
-const noUnchangedV1 = !/unchanged from v1\.0/i.test(doc);  // CHK-002:adversarial:1 — stale "unchanged" claim removed
+const noUnchangedV1 = !/semantic levels are unchanged from v1\.0/i.test(doc);  // CHK-002:adversarial:1 — stale Architecture-header "unchanged" claim removed (the unrelated "core principle is unchanged from v1.0" line is fine)
 const absencesOk = noPhase4 && noL4 && noPublicSig && noCrossLater && noFourLevels && noCrossFootprint && noCrossInV1 && noTwoLayer && noUnchangedV1;
 
 // presences (per-project framing + preserved Phase 1 concept + remaining phases)
