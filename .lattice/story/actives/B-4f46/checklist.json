@@ -111,9 +111,9 @@
       "title": "Signature-registry in learning-store + minimal CLI; auto-propose on capture; gate-exclusion guardrail",
       "context": "learning-store.ts: read/write .lattice/learning/signature-registry.json (tags: {tag,status:active|proposed|deprecated,aliases,mergedInto,createdBy,approvedBy}). finding_add with a new signatureTag auto-records it as proposed. Add a minimal CLI (signature_registry_list + signature_registry_set with action propose|approve|alias|deprecate; active requires explicit approve) via a new handler + registry/cli-engine entries. Determinism guardrail: advisory.ts and gate logic never read signatureTag/resolutionType/dismissReasonType/evidenceStrength.",
       "userSees": "signature_registry_list shows tags; signature_registry_set --action=approve flips a proposed tag to active; a finding_add with an unregistered signatureTag leaves it status=proposed; advisory gate behavior is unchanged by any audit field.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-17T12:21:34.123Z",
-      "endTime": null,
+      "endTime": "2026-06-17T12:24:47.740Z",
       "verificationIntent": {
         "happy": [
           {
