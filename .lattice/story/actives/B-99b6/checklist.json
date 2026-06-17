@@ -85,6 +85,17 @@
           "headHash": "f0ad8d7369990fde9181f1f8fc38f5519edcc188",
           "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
           "timestamp": "2026-06-17T18:08:27.411Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "All 8 guards run GREEN inside the chained npm test context (not just standalone): npm test exit 0 with each guard emitting its own pass line (storyDir-inside-gitRoot smoke passed, gitroot-cwd-routing smoke passed, bare-gate-gitroot-cwd smoke passed, done-oracle wrapper-root smoke passed, evidence quality contract passed, anti-stall guardrails verified). No no-op: breaking anti-stall flipped validate to status=fail proving the guard is actually executed and asserted in-chain.",
+          "headHash": "17c49f48b755c6cbeb4c88eb042404c84e53d0e9",
+          "materialHash": "021d5ab226aa7659c932f1f7af80441486da88a90f0df1defefcf7f163e9260c",
+          "timestamp": "2026-06-17T18:08:28.361Z"
         }
       ]
     },
