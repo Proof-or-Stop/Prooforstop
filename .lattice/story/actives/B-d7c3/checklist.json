@@ -142,8 +142,8 @@
       "title": "Add `test:legacy` compatibility shim + update tracked docs that reference removed test:* names",
       "context": "Add to root package.json: `test:legacy` script that calls run-all-smokes with --select forwarded from $1. Per the A0 doc: 'Keep a thin compatibility shim for any external doc/script referencing removed names.' Then grep tracked docs for references to removed test:X-smoke names (`git grep -nE 'test:[a-z0-9-]+-smoke' -- docs README.md CLAUDE.md AGENTS.md CHANGELOG.md`) — for each hit in non-historical context, replace with the test:all --select form OR the test:legacy form. CHANGELOG.md gets an entry documenting the removal + migration command.",
       "userSees": "`npm run test:legacy -- gitroot-cwd-contract` runs and produces PASS output equivalent to the removed `npm run test:gitroot-cwd-contract`; tracked docs no longer reference removed test:X-smoke names in active prose; CHANGELOG documents the change.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-17T12:20:29.869Z",
       "endTime": null,
       "files": {
         "modify": [
