@@ -48,6 +48,22 @@
         "packages/main/src/tasks/run-all-smokes.ts",
         "packages/main/src/tasks/run-all-smokes-smoke.ts"
       ]
+    },
+    {
+      "id": "B-d7c3:F-004",
+      "desc": "CHK-001:adversarial:3, CHK-002:adversarial:1, CHK-003:adversarial:2: all three evidence entries claim git diff main -- scripts/verify-*.mjs | wc -l returns 0, but executing that command against the current branch returns 2167 (the branch has verify-*.mjs diffs relative to main). The evidence result=pass and note=Returns 0 are factually incorrect. The over-reach guard — that verify-*.mjs files are unmodified — cannot be confirmed; the branch has introduced changes in scripts/verify-*.mjs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T12:31:27.136Z",
+      "reviewRound": "2026-06-17T12:26:26.645Z",
+      "reviewRunId": "B-d7c3:RR-002",
+      "_hash": "f68e8c42b8ceaa8ebc42f77dde9dcfbd22cfab95bffa63e13498b944f7f0a50a",
+      "files": [
+        "scripts/verify-*.mjs"
+      ]
     }
   ]
 }
