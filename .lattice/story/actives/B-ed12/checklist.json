@@ -39,7 +39,30 @@
       "userSees": "worktree-repair, story-dedup, convergence-discarded each PASS standalone, asserting the current correct behavior (post-B-097f skip; normalized slug; current convergence message), with no production change.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "worktree-repair, story-dedup, convergence-discarded each pass standalone exit 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktree-repair asserts the post-B-097f host-neutral skip (no-op link repair); story-dedup expects the normalized lowercased slug; convergence-discarded asserts the current convergence message/behavior",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Each behavior was confirmed correct against production+story before the test was updated; no production change; if any was a real bug it was escalated not weakened",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
