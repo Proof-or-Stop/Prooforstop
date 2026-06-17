@@ -1,0 +1,51 @@
+{
+  "storyId": "B-d633",
+  "changes": "Emptied the two now-moot bridge entries ('.codex/hooks', '.codex/settings.json') from DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST in validate-docs-drift.ts (kept the exported Set + seam comment), and updated docs-drift-path-drift-smoke.ts so the seam-suppression case injects an explicit allowlist plus a new regression asserting the empty default now FLAGS the .codex/hooks contradiction. Gate logic untouched.",
+  "usage": "No usage change for end users; the docs-drift managed-asset contradiction check (run automatically in REVIEW→TEST preflight) now once again catches a CLAUDE.md 'do not create .codex/hooks' prohibition instead of silently allowing it.",
+  "expectedOutcome": "Default allowlist empty; gate run against real current CLAUDE.md passes (0 contradictions, since B-94ae fixed the wording); a re-introduced .codex/hooks prohibition is flagged; smoke proves both seam (injected) and detection (empty default).",
+  "actualTranscript": "npm run test:docs-drift-smoke = 'docs-drift path+asset smoke passed' (covers seam-via-injection + the new empty-default-flags-.codex/hooks regression); node check vs real CLAUDE.md with empty default allowlist = 0 contradictions, allowlist size 0; lattice codex verify = 8/8 pass; lattice validate = ALL PASS. Captured in evidence/transcript-diff.md.",
+  "outcomeDiff": "expected == actual: default empty, real doc passes, masking removed (empty default now flags .codex/hooks), seam still proven, gate logic unchanged.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — the seam mechanism is preserved for a future genuine pending claim (add a path-normalized token with an inline reason); only the two dead bridge entries were removed.",
+  "pitfalls": "If a future story needs to temporarily tolerate a real managed-asset contradiction while a sibling doc fix is in flight, add the path-normalized token back to DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST WITH an inline reason and REMOVE it once the sibling merges — do not leave bridge entries behind, or they permanently mask that contradiction class.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 97123
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13885
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 193822
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 151183
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 139275
+    }
+  },
+  "totalDurationMs": 595330,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T02:15:28.902Z",
+  "updatedAt": "2026-06-17T02:15:28.902Z"
+}
