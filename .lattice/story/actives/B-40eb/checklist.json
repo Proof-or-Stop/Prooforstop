@@ -584,12 +584,12 @@
         {
           "intentRef": "CHK-007:happy:0",
           "kind": "manual_transcript",
-          "command": "git grep -i koala packages scripts README.md CLAUDE.md docs/guide.md | perl /tmp/bf2.pl",
+          "command": "node scripts/verify-koala-residue.mjs",
           "result": "pass",
-          "note": "active 范围品牌残留 0;28 文件残留逐行核实全为 documented-exception(legacy 检测逻辑/dual-accept/断言目标/.koala路径/盐值)",
-          "headHash": "a99dc33240a743b147f4d6ad8aea271ba9f2365b",
-          "materialHash": "35af17e42515a56a9cb4872611f27b830ca0c7650fedaf5e8f63b3b6643df9bc",
-          "timestamp": "2026-06-17T02:15:04.006Z"
+          "note": "canonical gate 全 active 范围 PASS exit 0,0 unclassified(branding 规则+path 豁免+文件白名单)",
+          "headHash": "9055800d3ed99ae14181f16386c433b1393aef45",
+          "materialHash": "b95965273915e8f4142c1d963ec917ffc04b5450b9439783353004015e2d970b",
+          "timestamp": "2026-06-17T02:41:26.797Z"
         },
         {
           "intentRef": "CHK-007:happy:1",
