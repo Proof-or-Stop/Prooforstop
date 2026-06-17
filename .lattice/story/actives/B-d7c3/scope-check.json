@@ -1,0 +1,87 @@
+{
+  "storyId": "B-d7c3",
+  "checkedAt": "2026-06-17T12:18:41.186Z",
+  "features": [
+    {
+      "feature": "Migrate 143 packages/main test:X-smoke scripts into smoke-manifest.json entries",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Delete migrated test:X-smoke npm scripts from packages/main/package.json (preserve 6-entry keep-list)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Remove 44 root-level test:X-smoke proxy scripts from root package.json",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Keep thin compatibility shim (test:legacy) proxying removed names to --select",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "CHANGELOG entry documenting the removal and migration command",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Update tracked docs (README.md, CLAUDE.md, AGENTS.md) to remove active-prose references to removed test:X-smoke names",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "root + packages/main test:* count drops to <=10 orchestration entries post-migration",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "npm run test:all exits 0 byte-identical to prior batch behavior after migration",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "c8 coverage instrumentation and test:coverage entry (B3 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B3 is a separate story per A0 §B3; checklist has no CHK item for c8 — correctly out of B2 scope",
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Tag/select UX improvements — watch mode, failure-only re-run, JSON output, CONTRIBUTING.md docs (B4 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B4 is explicitly optional polish per A0; no CHK item — correctly out of B2 scope",
+      "source": "decisions/test-runner-consolidation-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 8,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "87cae3c9100dbf7c10ccce65f13036b17e3f4ab7c40e48c61c3e47bced8f2e20",
+  "openQuestions": []
+}
