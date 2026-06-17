@@ -56,7 +56,7 @@ function makeBackground(label) {
 
 const agentPaths = [
   join(root, '.claude', 'agents', 'product-reviewer.md'),
-  join(root, '.Codex', 'agents', 'product-reviewer.md'),
+  join(root, '.lattice-codex', 'agents', 'product-reviewer.md'),
 ];
 for (const path of agentPaths) {
   assert(existsSync(path), `missing product-reviewer agent: ${path}`);

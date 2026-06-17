@@ -31,7 +31,7 @@ function createTempProject(initialPrompt, options = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'lattice-lab-reviewer-mvp-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  mkdirSync(join(dir, '.Codex', 'agents'), { recursive: true });
+  mkdirSync(join(dir, '.lattice-codex', 'agents'), { recursive: true });
   writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -48,7 +48,7 @@ function createTempProject(initialPrompt, options = {}) {
     mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-bad'), { recursive: true });
     writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-bad', 'index.json'), '{"phase":"INIT"}\n');
   }
-  writeFileSync(join(dir, '.Codex', 'agents', 'test-case-reviewer.md'), initialPrompt);
+  writeFileSync(join(dir, '.lattice-codex', 'agents', 'test-case-reviewer.md'), initialPrompt);
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['config', 'user.name', 'Lattice Lab Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['config', 'user.email', 'lattice-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -70,7 +70,7 @@ function readRunArtifacts(projectRoot, runId = 'run-001') {
 }
 
 function rewritePrompt(projectRoot, prompt) {
-  writeFileSync(join(projectRoot, '.Codex', 'agents', 'test-case-reviewer.md'), prompt);
+  writeFileSync(join(projectRoot, '.lattice-codex', 'agents', 'test-case-reviewer.md'), prompt);
 }
 
 const weakPrompt = [
