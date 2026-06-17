@@ -132,12 +132,12 @@
           "intentRef": "CHK-001:edge:1",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "python3 -c \"import json;print(len(json.load(open('packages/main/smoke-manifest.json'))['smokes']))\"",
+          "command": "node -e \"const m=require('./packages/main/smoke-manifest.json'); const a=m.smokes||(Array.isArray(m)?m:Object.values(m)); const n=a.map(e=>e.name||e); const d=n.filter((v,i)=>n.indexOf(v)!==i); if(d.length) throw new Error('DUPES:'+d); console.log('NO_DUPES count='+n.length)\"",
           "result": "pass",
-          "note": "Returns 139 (5 initial B-6efb entries + 134 collapsed from packages/main).",
-          "headHash": "82353124e990dbfdb8d8e380b0d4507a94a5fe89",
-          "materialHash": "6ac18d1b86db3b778707cbd94a2d6808dac4366583403e0710b8188cf701f5d4",
-          "timestamp": "2026-06-17T12:26:03.542Z"
+          "note": "Prints 'NO_DUPES count=139' — manifest valid JSON, 139 entries, zero duplicate names. Adapted from intent literal (`a=m.smokes||...`) to handle the manifest schema `{$schema-doc, smokes:[]}`.",
+          "headHash": "1b5f754c6d12b37df5227c14760374b495146cf8",
+          "materialHash": "ece298d5afc3c6fdd96b9a49d202bf263f09815e960e2bc83a41fdea7916d366",
+          "timestamp": "2026-06-17T13:02:57.522Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
