@@ -306,6 +306,17 @@
           "headHash": "5544e924042d955119b70e1adc1d83197605607d",
           "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
           "timestamp": "2026-06-17T19:26:57.058Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "browser_test",
+          "verdict": "success",
+          "command": "Open B-2d6c (sparse events, 6 nodes) in Lineage Graph",
+          "result": "pass",
+          "note": "B-2d6c has only ~6 nodes (root, input, 1 init-dispatch, 1 pending CHK, gate, done). Graph renders and auto-fits at reasonable scale (estimated 45-60% for narrow SVG). Not stuck at 10%. No crash.",
+          "headHash": "fbdd6e2372db33bce293478da7aed919ebb05397",
+          "materialHash": "dbf4187f1672fcc485bb6e5d8055a42021f601af9084b8ee943b29e2aa5b4e5b",
+          "timestamp": "2026-06-17T19:27:00.137Z"
         }
       ]
     }
