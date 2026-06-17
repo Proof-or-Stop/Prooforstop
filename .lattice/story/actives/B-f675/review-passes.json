@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-17T01:30:54.337Z",
       "reviewRunId": "B-f675:RR-009",
       "_hash": "5adb57f19f350306ed724c3e0766c8895bf8af59db956f937b141c1af0f09dbd"
+    },
+    {
+      "id": "B-f675:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 2 exported symbols extracted (ReviewIncrementalContext, reviewIncrementalContext). Step 2: 1 paragraph in CLAUDE.md references them (the new B-f675 section). Step 3: 6 claims compared — all consistent. (1) isFirstPass=true covering sub-cases (a)+(b) matches code guard !prior||!prior.headHash; (2) priorVerdict non-null in sub-case (b) matches priorVerdict:prior?prior.summary:null; (3) scopeChanged forced true when isFirstPass=true matches unconditional scopeChanged:true in first-pass branch; (4) scopeChanged===(changedFiles.length>0) when isFirstPass=false matches changedFiles.length>0 in else branch; (5) invalid-binding blocks ALL rounds matches evidenceState.invalid.length>0 check before roundCount split; (6) Round1 all-opt-in+quorum / Round2+ >=1 receipt matches roundCount<=1 vs else branches. No blockers.",
+      "createdAt": "2026-06-17T01:33:04.721Z",
+      "reviewRound": "2026-06-17T01:30:54.337Z",
+      "reviewRunId": "B-f675:RR-008",
+      "_hash": "9a961835e863df4a94438da558bb04707ce85575769d8d249a9448de0ce5de0d"
     }
   ]
 }
