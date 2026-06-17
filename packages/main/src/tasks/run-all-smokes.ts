@@ -56,8 +56,10 @@ interface RunOptions {
 }
 
 interface SmokeResult {
+  // B-6efb F-009: 'SKIP' removed — filter happens in selectSmokes before runOneSmoke,
+  // so no SmokeResult ever carries SKIP. Dropping the dead union member.
   name: string;
-  status: 'PASS' | 'FAIL' | 'TIMEOUT' | 'SKIP';
+  status: 'PASS' | 'FAIL' | 'TIMEOUT';
   durationMs: number;
   reason?: string;
   stdout?: string;
@@ -113,8 +115,11 @@ export function selectSmokes(
   // Include manifest-only entries (e.g. fixture smokes referenced explicitly) that
   // are not in the discovery dir but are listed in the manifest, so tag filtering
   // can target them. The runner will report them as MISSING if absent on disk.
-  for (const m of manifest.smokes ?? []) {
-    if (!discovered.includes(m.name)) all.push(m);
+  // B-6efb F-008: dedupe via byName (manifest may list the same name twice; the
+  // map keeps the last config, and we push that single entry).
+  const discoveredSet = new Set(discovered);
+  for (const m of byName.values()) {
+    if (!discoveredSet.has(m.name)) all.push(m);
   }
   return all.filter((e) => {
     if (e.skip) return false;
