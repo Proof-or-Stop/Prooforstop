@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-17T16:39:54.245Z",
       "reviewRunId": "B-867c:RR-002",
       "_hash": "cc2a5fcee401b089c411b8eecce9a83ca14d7e0db9b7ba40369f75373bf36948"
+    },
+    {
+      "id": "B-867c:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 MUST verificationIntent items (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) have manual_transcript or logic_test evidence with result=pass. Independent run of node scripts/verify-process-fact-contract.mjs EXIT=0; 0 failure/drift lines; all 7 commands (playbook_approve/diff/propose/reject, recall, signature_registry_list/set) appear in registry dump with accurate L0/L2 levels. BUILD_EXIT=0. No coverage gaps found.",
+      "createdAt": "2026-06-17T16:41:20.112Z",
+      "reviewRound": "2026-06-17T16:39:54.245Z",
+      "reviewRunId": "B-867c:RR-003",
+      "_hash": "0cfd5090523d695c869732b454fed6c711756b83dc6d07a6b651c67d9d5f9c69"
     }
   ]
 }
