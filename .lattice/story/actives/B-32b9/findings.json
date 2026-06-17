@@ -22,7 +22,7 @@
       "desc": "CHK-004:happy:0 intent specifies \"From Overview page, click trace button on any story row\" as the navigation path under test. The evidence command is \"Navigate from Overview to Lineage Graph via nav link\" (clicking the Lineage Graph nav link). These are two distinct code paths: the trace button calls LatticeLineage.open(sid) from the Overview panel while the nav link relies on the onVisible() mechanism for a previously-loaded story. The trace-button path is the one named in the intent and was not tested.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-17T19:29:36.279Z",
@@ -31,7 +31,8 @@
       "_hash": "bd3372abef62b91447823a446a3f3a2ff38be150ad077ea0464920939e482fdc",
       "files": [
         "lattice-console-serve.js"
-      ]
+      ],
+      "resolvedAt": "2026-06-17T19:44:41.120Z"
     },
     {
       "id": "B-32b9:F-003",
