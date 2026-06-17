@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Rename schema id koala-lab/experiment.v1 to lattice-lab/experiment.v1 across the 3 references",
       "context": "packages/lab/src/core/config.ts:71 ($schema output marker) -> lattice-lab/experiment.v1; packages/main/tests/fixtures/lab-foundation.json (the schema-id assertion AND the koala-lab-fixture- mkdtemp prefix) -> lattice-lab/experiment.v1 and lattice-lab-fixture-; scripts/verify-koala-residue.mjs:105 -> remove the now-dead koala-lab exemption regex. lab does not validate incoming $schema so existing experiments data is unaffected.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-17T17:51:11.307Z"
     },
     {
       "id": "CHK-002",
