@@ -184,6 +184,147 @@
         "bindingHash": "7d2fd8537b713f136d629826128d8ed26c8ecbf454ed2fd638e36d58d6208d0b"
       },
       "_hash": "9d97a6415d756c74c6f429b0ddffa12706e015483e22de88b51e8750c93f3424"
+    },
+    {
+      "reviewRunId": "B-c6cf:RR-005",
+      "storyId": "B-c6cf",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "startedAt": "2026-06-17T14:16:33.761Z",
+      "headHash": "dd6160b54086fc313c0055b5d8999ac78e3639dd",
+      "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b47a0f56ea39b36eb128091b9782ee6be8f9a2089e51ea9851e4684341da0ae",
+        "diffPackHash": "748d416405437aa79a995de5909dc6ae7d129f6f5bf5843513fba4fee0c9e3cd",
+        "reviewedChangedFiles": [
+          ".c8rc.json",
+          ".gitignore",
+          "CHANGELOG.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/b3787-post-merge-two-host-three-round-audit-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "package.json"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1a2511c917430a2587a35796411156eec32db3a9b057786fe4bf576aa5e00272",
+          "39c9ba94f61e931cdd6e1ac4e0b4333eedda6b69c0faa40f34d310dea75776d1",
+          "6cdd5d6fb917000c7432e172cda50182538d5294e03daefbdf768e04bd9b5135",
+          "7913211b40ad3fd576f276518e21f22c78af5be31dfe5ba71fb457756ab867b1",
+          "90f0558df9e1e1249b24b173fdc17aa9d2922675d87d1edf6c924b4706c0b0c6",
+          "c671b8b82a980af9a7ccd8ccea4ba94286022dc4d8d12573127c6f4c80e9f32b",
+          "cd20849ff8b4f897f0786cbe6f6540afd37bc5c5d2021db73d70503f0beb6357"
+        ],
+        "bindingHash": "d2de48a90c9fe312e700da8902d195383439a0d54ba91eacb0a8918c3e23d3c1"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "workspaceMode": "story-worktree",
+        "headHash": "dd6160b54086fc313c0055b5d8999ac78e3639dd",
+        "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+        "bindingHash": "d11fdbb20573c5ac4d3ba122cbe399d822bcf3eb0cc9b7ed0341f0def4887af2"
+      },
+      "_hash": "358aab23dcc99ef6d6421d294ae67791f80653fc4f25ddacba0a33f5a222dfdc"
+    },
+    {
+      "reviewRunId": "B-c6cf:RR-006",
+      "storyId": "B-c6cf",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "startedAt": "2026-06-17T14:16:35.449Z",
+      "headHash": "dd6160b54086fc313c0055b5d8999ac78e3639dd",
+      "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b47a0f56ea39b36eb128091b9782ee6be8f9a2089e51ea9851e4684341da0ae",
+        "diffPackHash": "748d416405437aa79a995de5909dc6ae7d129f6f5bf5843513fba4fee0c9e3cd",
+        "reviewedChangedFiles": [
+          ".c8rc.json",
+          ".gitignore",
+          "CHANGELOG.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/b3787-post-merge-two-host-three-round-audit-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "package.json"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1a2511c917430a2587a35796411156eec32db3a9b057786fe4bf576aa5e00272",
+          "39c9ba94f61e931cdd6e1ac4e0b4333eedda6b69c0faa40f34d310dea75776d1",
+          "6cdd5d6fb917000c7432e172cda50182538d5294e03daefbdf768e04bd9b5135",
+          "7913211b40ad3fd576f276518e21f22c78af5be31dfe5ba71fb457756ab867b1",
+          "90f0558df9e1e1249b24b173fdc17aa9d2922675d87d1edf6c924b4706c0b0c6",
+          "c671b8b82a980af9a7ccd8ccea4ba94286022dc4d8d12573127c6f4c80e9f32b",
+          "cd20849ff8b4f897f0786cbe6f6540afd37bc5c5d2021db73d70503f0beb6357"
+        ],
+        "bindingHash": "d2de48a90c9fe312e700da8902d195383439a0d54ba91eacb0a8918c3e23d3c1"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "workspaceMode": "story-worktree",
+        "headHash": "dd6160b54086fc313c0055b5d8999ac78e3639dd",
+        "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+        "bindingHash": "d11fdbb20573c5ac4d3ba122cbe399d822bcf3eb0cc9b7ed0341f0def4887af2"
+      },
+      "_hash": "b803281f5541c9c3e43bb25123e31b924b80e01650ade7fb3a9d07392b03d300"
+    },
+    {
+      "reviewRunId": "B-c6cf:RR-007",
+      "storyId": "B-c6cf",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "startedAt": "2026-06-17T14:16:51.645Z",
+      "headHash": "dd6160b54086fc313c0055b5d8999ac78e3639dd",
+      "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2b47a0f56ea39b36eb128091b9782ee6be8f9a2089e51ea9851e4684341da0ae",
+        "diffPackHash": "748d416405437aa79a995de5909dc6ae7d129f6f5bf5843513fba4fee0c9e3cd",
+        "reviewedChangedFiles": [
+          ".c8rc.json",
+          ".gitignore",
+          "CHANGELOG.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/b3787-post-merge-two-host-three-round-audit-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "package.json"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1a2511c917430a2587a35796411156eec32db3a9b057786fe4bf576aa5e00272",
+          "39c9ba94f61e931cdd6e1ac4e0b4333eedda6b69c0faa40f34d310dea75776d1",
+          "6cdd5d6fb917000c7432e172cda50182538d5294e03daefbdf768e04bd9b5135",
+          "7913211b40ad3fd576f276518e21f22c78af5be31dfe5ba71fb457756ab867b1",
+          "90f0558df9e1e1249b24b173fdc17aa9d2922675d87d1edf6c924b4706c0b0c6",
+          "c671b8b82a980af9a7ccd8ccea4ba94286022dc4d8d12573127c6f4c80e9f32b",
+          "cd20849ff8b4f897f0786cbe6f6540afd37bc5c5d2021db73d70503f0beb6357"
+        ],
+        "bindingHash": "d2de48a90c9fe312e700da8902d195383439a0d54ba91eacb0a8918c3e23d3c1"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c6cf",
+        "workspaceMode": "story-worktree",
+        "headHash": "dd6160b54086fc313c0055b5d8999ac78e3639dd",
+        "materialHash": "f754fee3d7d2b9c965ed6407831a177a58a66816e41e6028ed3ef810ed44582e",
+        "bindingHash": "d11fdbb20573c5ac4d3ba122cbe399d822bcf3eb0cc9b7ed0341f0def4887af2"
+      },
+      "_hash": "50fcc0fc59f9f0caedcb77c5c60dcf048d78d6033049c1d2f4ede981b1d81547"
     }
   ]
 }
