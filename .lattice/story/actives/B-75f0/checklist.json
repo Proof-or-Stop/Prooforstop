@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-checklist-doctor-wrapper-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "wrapper-root regression proves the 3 hard-failure sites (lattice-dispatch worktree probes, checklist evidenceHashes, doctor repair git) resolve git from gitRoot not bare metadataRoot; plain-repo byte-identical",
+          "headHash": "a876b54ec230537429b34c5568cde8a17f51b039",
+          "materialHash": "629abbdf476219e7e27e816124a10614151ec453e15e0ee1f24e980267af421a",
+          "timestamp": "2026-06-17T22:45:46.671Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
