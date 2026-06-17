@@ -1,0 +1,31 @@
+{
+  "storyId": "B-6745",
+  "checkedAt": "2026-06-17T23:12:48.871Z",
+  "reviewRound": "2026-06-17T23:08:16.789Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "story-description#B-6745",
+      "promise": "8 deferred P5 authority/baseline smokes are green; net diff is test-only (2 files: autopilot-authority-smoke.ts + multi-host-authority-smoke.ts); zero production change; original assertions intact; gemini provider not deleted",
+      "verifiedBy": "diff/grep + live smoke runs",
+      "evidence": "git diff main...HEAD --name-only shows only the 2 smoke ts files (plus .lattice/ metadata). All original assert.equal/assert.ok lines preserved. `node autopilot-authority-smoke.js` exit 0; `node multi-host-authority-smoke.js` exit 0; `node provider-gemini-smoke.js` exit 0 (gemini intact). Changes add only cwd:root + LATTICE_AUTHORITY_TRUST_ENV_FILE= + LATTICE_AUTHORITY_KEY_FILE= (autopilot) and NO_DISK fileReader (multi-host) for hermetic isolation."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Live runs this session: `node packages/main/dist/tasks/autopilot-authority-smoke.js` exit 0 (hermetic isolation via cwd:root + cleared *_FILE env vars). `node packages/main/dist/tasks/multi-host-authority-smoke.js` exit 0 (hermetic via no-op fileReader). Covers: local mode pass, shadow mode advisory warnings, authority-missing fail-closed, authority-ready pass for TEST, authority-done without receipt fail, legacy receipt reject, wrong-story receipt reject, valid native receipt pass, stale receipt fail, missing-digest receipt fail; E1/E2/E3/E4 server-vs-local backing; F/G/H multi-host verdict scenarios. Original assertions intact (not deleted or weakened). Transcript-diff.md corroborates full suite 163/163 in 168s."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "CHK-002 timeout bumps satisfied by smoke-manifest.json changes on main; no source change in this story. The 5 slow smokes (cli-json-stdout-contract 79.7s, dispatch-run 83.2s, lattice-baseline 127.8s, experience-layer-playbook 44.3s, planner-unattended 45.7s) pass within bumped timeouts per transcript-diff.md. Full suite 163/163 confirms all 8 P5 smokes green."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Net diff is exactly 2 test files with hermetic isolation fixes; 0 production change verified; all original assertions preserved; 3 standalone smokes pass live this session; full suite 163/163 per recorded transcript; no TODO/FIXME/HACK in diff."
+  },
+  "_hash": "30514ba1e3a6ce0000c074c628f39ed2c9a52f452e97eb466294e0df2167cba1"
+}

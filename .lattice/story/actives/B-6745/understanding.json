@@ -1,0 +1,27 @@
+{
+  "task": "Make the 8 deferred P5 authority/baseline smokes green in test:all without changing any production code or weakening any assertion.",
+  "outcome": "Running `npm run test:all` from the repo root prints a green summary reaching ~162/162 (up from 154/162) with all 8 previously-failing P5 smokes now PASS; running each of the 3 authority smokes standalone (`node packages/main/dist/tasks/<name>-smoke.js`) prints its ✓ pass line and exits 0 even when an authority_trust.env with a real URL is present at the cwd; and `git diff main...HEAD --stat` shows only the 3 *-smoke.ts files plus smoke-manifest.json changed (0 production source files).",
+  "facts": [
+    "authority-job-loop-live PASSES standalone exit 0 on a fresh build (stale-dist artifact; commit 3a0199f79 realigned it).",
+    "autopilot-authority and multi-host-authority are NON-HERMETIC: they read the dev on-disk authority_trust.env via fileReader from cwd; from a clean cwd they pass, from a cwd containing an authority_trust.env with a URL they FAIL (autopilot: shadow.status pass!=warn; multi-host: mode server!=local).",
+    "Production is correct: authority-mode.ts:446-452 applies the localhost DEFAULT_AUTHORITY_URL ONLY to enforce mode; shadow keeps no-URL behavior so shadow.status===warn with empty env is the intended assertion.",
+    "authority-client.ts readAuthorityTrustEnvConfig (~1541-1551) reads authority_trust.env via options.fileReader ?? defaultAuthorityFileReader; passing fileReader:()=>undefined makes the disk read return nothing.",
+    "buildAuthorityStatus/buildAuthorityEnforceRunnerPlan accept an AuthorityStatusRuntime/AuthorityConfigLoadOptions that includes fileReader; AuthorityStatusRuntime extends AuthorityConfigLoadOptions.",
+    "The 5 slow smokes already have finite raised timeouts in smoke-manifest.json (dispatch-run=180000, lattice-baseline=240000, cli-json-stdout-contract=180000, planner-unattended=180000, experience-layer-playbook=180000)."
+  ],
+  "constraints": [
+    "0 production code change — only the 3 *-smoke.ts files and smoke-manifest.json may change.",
+    "NEVER weaken an assertion to pass; the hermetic fix removes ambient-env leakage, not coverage. Keep shadow.status===warn, readinessWarnings.length>0, localWorkflowUsable===true, authorityRequired===false, multi-host E2 mode===local.",
+    "Each fixed smoke must pass standalone from BOTH a clean cwd AND a cwd containing a planted authority_trust.env (proving true hermeticity).",
+    "Timeout ceilings must stay finite (no Infinity) so a true hang still TIMEOUTs.",
+    "Do not touch the sibling B-6666/B-75f0 gitroot-cwd burndown; do not touch the P5 keep/flag/extract product decision."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/autopilot-authority-smoke.ts",
+    "packages/main/src/tasks/multi-host-authority-smoke.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+    "packages/main/smoke-manifest.json"
+  ],
+  "timestamp": "2026-06-17T22:27:43.024Z"
+}
