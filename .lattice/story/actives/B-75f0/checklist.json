@@ -103,7 +103,30 @@
       "userSees": "gitroot-cwd-contract-smoke exits 0 with the deferred allowlist split into a permanent BENIGN_BOOTSTRAP set (self-bootstrap/no-story-context, with rationale) and an empty (or explicitly-tracked-follow-up) pending set; the 3 renamed sites read lexically honest (gitCwd not projectRoot); a re-introduced bare-root alias still fails the contract.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The 3 lexical false-positive params (done-effects, handlers/review-run, core/review-run) are renamed projectRoot->gitCwd with zero behavior change (tsc green, the resolved value still flows through unchanged)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DEFERRED_ALLOWLIST_EXACT is split into a permanent BENIGN_BOOTSTRAP_ALLOWLIST (each entry keeps its self-bootstrap/no-story-context rationale) and a pending set that is EMPTY (or holds only explicitly-tracked B-id follow-ups)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js exits 0; a re-introduced bare-root alias still fails the contract (self-tests prove detection intact)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
