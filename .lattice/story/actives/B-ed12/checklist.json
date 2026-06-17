@@ -275,6 +275,17 @@
           "headHash": "a888762f731577a8faa969ab4bfa7b27ca4a94ec",
           "materialHash": "75143b417b285165577629e01ddf2eb721b05aedb2abd094846fb27e09dc5697",
           "timestamp": "2026-06-17T20:28:27.629Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Each smoke root-caused: ran standalone, read the production message source + behavior. ALL classified STALE (wording drift, behavior intact): gap-log dedup collapses to ONE finding; story-create still hard-blocks keyword-full-overlap (non-zero exit); discard fail-closed proven via repro (ok=false, phase stays INIT_CHECK, branch survives, error says discard stopped). No REAL-REGRESSION found.",
+          "headHash": "d6be4784dd3054b1c59ef348fcb02497915957fa",
+          "materialHash": "75143b417b285165577629e01ddf2eb721b05aedb2abd094846fb27e09dc5697",
+          "timestamp": "2026-06-17T20:28:34.893Z"
         }
       ]
     }
