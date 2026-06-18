@@ -389,7 +389,7 @@ Remaining boundaries that must not be overclaimed:
   DONE from a release call;
 - Python Authority gate semantics are explicit: `POST /v1/gates/evaluate`
   receives a signed `{ decision: ... }` envelope from a gate-capable actor role
-  (`main`, `mac_ui`, or `human`). Runner actors cannot request the gate. The CLI
+  (`main` or `human`). Runner actors cannot request the gate. The CLI
   supports separate `LATTICE_AUTHORITY_GATE_ACTOR_*` signing material and fails
   closed when no gate-capable signing key is configured;
 - `planner run` can produce the Story/job/typed steps and execute the
