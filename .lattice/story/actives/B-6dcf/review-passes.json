@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6dcf:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept review: lattice check diagnostics now explicitly report metadataRoot, assetRoot, gitRoot, pathsRelativeTo, and split state while existing evaluate/apply/manifest writes remain rooted at the original ctx.root/assetRoot. Wrapper-root smoke covers JSON/text guidance and confirms check --apply writes under metadataRoot/assetRoot rather than configured gitRoot.",
+      "createdAt": "2026-06-18T01:57:23.057Z",
+      "reviewRound": "2026-06-18T01:55:20.787Z",
+      "reviewRunId": "B-6dcf:RR-003",
+      "_hash": "b8bcd511665d29aee6c7d79e6770234cd66c29cc4469faccad9b04b7ad0856d8"
+    }
+  ]
+}
