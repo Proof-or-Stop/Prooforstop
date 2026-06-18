@@ -81,6 +81,17 @@
           "headHash": "daf891ee8c3b01bbb07543d98aca812368bff25e",
           "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
           "timestamp": "2026-06-18T19:29:57.025Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/worktree.ts",
+          "command": "grep -n getRepoRoot packages/main/src/handlers/worktree.ts",
+          "result": "pass",
+          "note": "getRepoRoot() itself unchanged; only resolveBootstrapGitRoot no-gitRoot path now calls new resolveMainRepoRoot(); non-bootstrap caller resolveWorktreePath (:482) untouched. RED-GREEN proof: smoke FAILS (nested) on reverted resolver, PASSES (non-nested) on fix.",
+          "headHash": "66b73a93ece362adc9212778e1f8f968a8af351d",
+          "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
+          "timestamp": "2026-06-18T19:29:58.243Z"
         }
       ]
     },
