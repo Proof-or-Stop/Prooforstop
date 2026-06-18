@@ -92,9 +92,9 @@
       "id": "CHK-003",
       "title": "CHANGELOG Unreleased entry + 3x parallel verify",
       "context": "CHANGELOG Unreleased entry under Test infrastructure subsection naming this story (B-24c3) and listing the 9 timeoutMs bumps. Final verification: 3 consecutive `npm run test:all` runs all exit 0 with 162/162 PASS (no flake). If a run still fails for review-pass-discard (parallel-only FAIL, not a timeout), that is OUT OF SCOPE — file finding_add as a separate concern, leave the smoke as-is.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T00:00:51.674Z",
-      "endTime": null,
+      "endTime": "2026-06-18T00:40:08.381Z",
       "userSees": "3 consecutive `npm run test:all` runs all show '162/162 passed' and exit 0; no FAIL/TIMEOUT lines for the 9 target smokes.",
       "files": {
         "modify": [
