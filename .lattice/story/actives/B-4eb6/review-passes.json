@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T02:22:16.644Z",
       "reviewRunId": "B-4eb6:RR-003",
       "_hash": "353c3d6b0797948813ffbfaaabde93a03573d8d1a8a0fe1baba78c27a196d81a"
+    },
+    {
+      "id": "B-4eb6:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior review complete for all three checklist items. CHK-001: real CLI run derives 31 signals, writes .lattice/learning/finding-signals.json, prints signal count + path + updatedAt; --json emits parseable {written,path,signals,schemaVersion,updatedAt}; --story restricts to N signals; git status shows no tracked-source changes after (only .lattice/story/ metadata modified). CHK-002: learning_scan registered in all 5 required files (cli-engine, registry, config, command-policy, process-fact-levels); ownershipClass=mainSharedMutating (NOT readOnly); absent from READ_ONLY_COMMANDS; L2 experience-layer in process-fact-levels; policy explicitly notes cannot satisfy DONE/authorityDone evidence; no gateConsumer. CHK-003: smoke suite 7/7 pass (empty-before/firing-after activation loop, valid FindingSignalsCache with schemaVersion+signals[]+anchorFiles, determinism, zero-findings empty array, --story scoping, nonexistent story graceful). Committed verifier 39/39 pass. Key code paths verified: deriveFindingSignalsFromStore(projectRoot) writes via writeFindingSignals when projectRoot provided; handler uses ctx.root (not user-supplied arg); hint loader reads from same resolveFindingSignalsPath(projectRoot); hints injected into _reviewPrompt only (outside promptHash domain per story-review.ts line 536). Spec boundary: execution-plan determinism guardrails 1-3 all satisfied. No findings.",
+      "createdAt": "2026-06-18T02:28:36.842Z",
+      "reviewRound": "2026-06-18T02:22:16.644Z",
+      "reviewRunId": "B-4eb6:RR-004",
+      "_hash": "8cf090a77c6a857b64335d1ca2c0d190a5d2ce1af3aba5dbfcb332bf39ebf49f"
     }
   ]
 }
