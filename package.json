@@ -77,17 +77,12 @@
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/koala-agent/koala.git"
+    "type": "git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
-  "bugs": {
-    "url": "https://github.com/koala-agent/koala/issues"
-  },
-  "homepage": "https://github.com/koala-agent/koala#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "xstate": "^5.31.1",
