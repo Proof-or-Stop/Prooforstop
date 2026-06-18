@@ -1,3 +1,7 @@
+## Operator Impact
+
+What broke: when two Lattice stories run in parallel and one reaches DONE while another hits INIT_CHECK in the same process, the DONE story can be silently marked DONE but never merged to main — the operator must manually `git merge` to recover (hit twice this session). What changes: the in-process lock reentrancy becomes async-context-aware so concurrent stories correctly contend instead of one skipping the lock, restoring the "DONE means merged" invariant; plus a 2-line guard fix restores a heartbeat-only warning that was silently suppressed.
+
 ## Trigger Event
 
 User directive (2026-06-18): after the test-infra convergence work, the user asked whether a trustworthy CI gate makes parallel multi-story development more trustworthy. A read-only root-cause investigation of three parallel-dev friction points found that the highest-severity one is a real, intermittent data-integrity bug: a DONE story can be marked DONE on its branch but never merged to main, requiring manual git merge recovery (observed twice this session: B-be91 and B-2941). The investigation overturned the surface framing (it is NOT a worktree-remove ordering problem) and pinned the actual root cause to an in-process main-write-lock reentrancy race.

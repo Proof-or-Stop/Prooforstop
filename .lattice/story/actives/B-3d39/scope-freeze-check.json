@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3d39",
+  "checkedAt": "2026-06-18T14:11:58.404Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2845d5b7962defb6bc276670688a1cb786bb2e4bd3fe2977de9aa8493c0d7858",
+  "executionBoundaryHash": "be9dc666cc50baa180d43f705c1573bee9152bb8c41b45b2b22cf2b34304cbc5",
+  "freshnessHash": "facc25f57559fba538c844271f97b5142f99692d0f482e985fa22b6085714932",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "other core modules",
+    "other handlers",
+    "packages/main/src/core/lattice-paths.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "other core modules",
+      "source": "scopeBoundary.excluded",
+      "text": "other core modules",
+      "excluded": true
+    },
+    {
+      "keyword": "other handlers",
+      "source": "scopeBoundary.excluded",
+      "text": "other handlers",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/lattice-paths.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/lattice-paths.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/done-effects.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/done-effects.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/done-recover.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/done-recover.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/tasks/run-all-smokes.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/tasks/run-all-smokes.ts",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "37ebda92dca60d0f6eade752a9acfd85f71a7cb2eb431c81e065ee62c9d58ac9"
+}
