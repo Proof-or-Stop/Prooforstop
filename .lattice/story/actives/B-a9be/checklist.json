@@ -46,7 +46,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The startup command block shows only supported lattice serve invocations and no npm run serve:web or npm run serve:cli examples.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Any remaining direct web startup example stays clearly separated from lattice serve so it cannot be misread as an unsupported CLI alias.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "package.json and packages/main/package.json still do not contain serve:web or serve:cli scripts after the rewrite, so the docs cannot drift back to nonexistent npm commands.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
