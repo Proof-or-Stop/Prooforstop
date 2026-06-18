@@ -47,9 +47,9 @@
           "command": "lattice gap_analyze --json",
           "result": "pass",
           "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists decision-doc-promotion-execution-plan.md:174 verificationRequirements.",
-          "headHash": "127aa681b4c40118609a660f8d38b19bb16af3fd",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:00:32.547Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -57,9 +57,9 @@
           "command": "node packages/main/dist/tasks/decision-doc-promotion-smoke.js",
           "result": "pass",
           "note": "decision doc promotion smoke passed 9 checks, confirming the implementation exists; no finding branch was needed.",
-          "headHash": "127aa681b4c40118609a660f8d38b19bb16af3fd",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:00:32.760Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -67,9 +67,9 @@
           "command": "git diff main...HEAD -- packages/main/src/tasks/decision-doc-promotion-smoke.ts",
           "result": "pass",
           "note": "diff adds local CLI coverage wording only and does not claim Authority Server receipt-backed completion.",
-          "headHash": "127aa681b4c40118609a660f8d38b19bb16af3fd",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:00:32.955Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         }
       ]
     },
@@ -120,9 +120,9 @@
           "command": "lattice gap_analyze --json",
           "result": "pass",
           "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir.",
-          "headHash": "e68c0268567670c0a7410e1c057b2dc8ccdcd9df",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:03.144Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -130,9 +130,9 @@
           "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
           "result": "pass",
           "note": "runtime-owned-agent-assets-smoke passed, confirming runtime-owned prompt registry behavior while requirementsDir remains a project config fact.",
-          "headHash": "e68c0268567670c0a7410e1c057b2dc8ccdcd9df",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:03.330Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -140,9 +140,9 @@
           "command": "git diff main...HEAD -- packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
           "result": "pass",
           "note": "diff adds only a local annotation anchor; it does not introduce project-local prompt templates or downstream thin config.",
-          "headHash": "e68c0268567670c0a7410e1c057b2dc8ccdcd9df",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:03.559Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         }
       ]
     },
@@ -194,9 +194,9 @@
           "command": "lattice gap_analyze --json",
           "result": "pass",
           "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists the customerKeyRef redacted/non-secret row.",
-          "headHash": "ded23cbf34baf35d2d2a178eb13207f80fdd725f",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:11.784Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -204,9 +204,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/scope-anti-expansion.ts",
           "result": "pass",
           "note": "diff anchors customerKeyRef as future/blocked, redacted, and non-secret; it does not implement producer, loader, verifier, receipt, or evaluator consumption.",
-          "headHash": "ded23cbf34baf35d2d2a178eb13207f80fdd725f",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:11.939Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -214,9 +214,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/scope-anti-expansion.ts packages/main/src/tasks/authority-status-smoke.ts",
           "result": "pass",
           "note": "diff did not touch authority-status-smoke.ts and does not introduce receiptVerified=true, productionDone=true, authorityDone=true, or fullAuthorityDone=true.",
-          "headHash": "ded23cbf34baf35d2d2a178eb13207f80fdd725f",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:12.110Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         }
       ]
     },
@@ -275,9 +275,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/decision-doc-promotion-smoke.js && node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && lattice gap_analyze --json",
           "result": "pass",
           "note": "build passed; decision-doc promotion smoke passed 9 checks; runtime-owned-agent-assets-smoke passed; gap_analyze returned Gaps: 0 high / 0 medium.",
-          "headHash": "ac9a8c135b2c16d8439efe0634ec17534b204d26",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:20.107Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -285,9 +285,9 @@
           "command": "lattice convergence_check --json",
           "result": "pass",
           "note": "No high-priority gaps passed. Overall convergence remains false only because of unrelated active stories and pre-existing annotation errors in english-open-source-surface-smoke.ts, lattice-only-absence-smoke.ts, and verification-intent-repair-smoke.ts.",
-          "headHash": "ac9a8c135b2c16d8439efe0634ec17534b204d26",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:20.446Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -295,9 +295,9 @@
           "command": "manual review of diff and verification transcript",
           "result": "pass",
           "note": "Verification is local Non-authority evidence only; no Authority Server receipt-backed completion, productionDone, authorityDone, or fullAuthorityDone is claimed.",
-          "headHash": "ac9a8c135b2c16d8439efe0634ec17534b204d26",
-          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
-          "timestamp": "2026-06-18T02:01:20.619Z"
+          "headHash": "5961deea55e0b232a77a0dc9da7d29d6dfb39413",
+          "materialHash": "1a7003c189c17521f931f81bbd9e5cd6b2b0ea5b07cf94a0e86c5b65ee36085c",
+          "timestamp": "2026-06-18T02:22:05.678Z"
         }
       ]
     }
