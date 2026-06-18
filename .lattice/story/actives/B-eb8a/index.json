@@ -4,7 +4,7 @@
   "title": "Clarify one-round policy for annotation compliance and pure typo",
   "description": "Unify the audit-round guidance so annotation compliance, pure typo-only, and wording-only changes are explicitly treated as low-risk one-round work. Keep the stronger three-round two-host requirement unchanged for lifecycle, gate, Authority, and process-fact changes.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "audit-rounds",
@@ -55,6 +55,14 @@
       "branch": "story/B-eb8a",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T11:21:07.292Z",
+      "branch": "story/B-eb8a",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -68,5 +76,6 @@
       "reason": "False positive: this story only clarifies audit-round wording for annotation compliance / pure typo low-risk routing. It does not change privacy/compliance behavior, Authority semantics, or runtime gates.",
       "at": "2026-06-18T11:06:14.922Z"
     }
-  ]
+  ],
+  "currentReviewRound": "2026-06-18T11:21:07.292Z"
 }
