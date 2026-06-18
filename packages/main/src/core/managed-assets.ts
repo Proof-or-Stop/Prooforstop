@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   rmSync,
   statSync,
   unlinkSync,
@@ -12,7 +13,7 @@ import {
 } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
@@ -45,6 +46,8 @@ import {
   listRuntimeArtifactIgnorePatterns,
 } from './runtime-artifact-registry.js';
 import { listManagedAgentBasenames, resolveAgentTemplateDir } from './global-agents.js';
+import { loadConfig } from './config.js';
+import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 
 export type ManagedAssetStatus =
   | 'OK'
@@ -120,6 +123,11 @@ export interface ManagedAssetCheckResult {
   profile: InitProfile;
   assetMode: InitAssetMode;
   mode: 'check' | 'apply' | 'upgrade';
+  metadataRoot: string;
+  assetRoot: string;
+  gitRoot: string | null;
+  pathsRelativeTo: 'assetRoot';
+  assetRootGitRootSplit: boolean;
   applied: string[];
   warnings: string[];
   summary: Record<ManagedAssetStatus, number>;
@@ -1132,6 +1140,31 @@ function collectLocalEditReviews(
     .filter((review): review is ManagedAssetLocalEditReview => Boolean(review));
 }
 
+function canonicalRootPath(root: string): string {
+  const absolute = resolvePath(root);
+  try {
+    return existsSync(absolute) ? realpathSync(absolute) : absolute;
+  } catch {
+    return absolute;
+  }
+}
+
+function managedAssetRootDiagnostics(root: string): Pick<
+  ManagedAssetCheckResult,
+  'metadataRoot' | 'assetRoot' | 'gitRoot' | 'pathsRelativeTo' | 'assetRootGitRootSplit'
+> {
+  const metadataRoot = canonicalRootPath(root);
+  const assetRoot = metadataRoot;
+  const gitRoot = resolveProjectGitRoot(metadataRoot, loadConfig(metadataRoot).gitRoot);
+  return {
+    metadataRoot,
+    assetRoot,
+    gitRoot,
+    pathsRelativeTo: 'assetRoot',
+    assetRootGitRootSplit: Boolean(gitRoot && canonicalRootPath(gitRoot) !== assetRoot),
+  };
+}
+
 export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOptions = {}): ManagedAssetCheckResult {
   const profile = options.profile ?? detectManagedAssetProfile(root);
   const assetMode = options.assetMode ?? detectManagedAssetMode(root);
@@ -1164,6 +1197,7 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
     profile,
     assetMode,
     mode,
+    ...managedAssetRootDiagnostics(root),
     applied,
     warnings,
     summary,
@@ -1173,10 +1207,28 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
   };
 }
 
+function renderManagedAssetRootGuidance(result: ManagedAssetCheckResult): string[] {
+  const lines = [
+    'Paths: managed asset relPath/applied/manifestPath values are relative to assetRoot.',
+    `  metadataRoot: ${result.metadataRoot}`,
+    `  assetRoot: ${result.assetRoot}`,
+  ];
+  if (result.gitRoot) {
+    const suffix = result.assetRootGitRootSplit
+      ? ' (separate from assetRoot; managed assets are not rooted here)'
+      : ' (same as assetRoot)';
+    lines.push(`  gitRoot: ${result.gitRoot}${suffix}`);
+  } else {
+    lines.push('  gitRoot: unresolved');
+  }
+  return lines;
+}
+
 export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string {
   const lines = [
     `Lattice managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile}, assetMode=${result.assetMode})`,
     `Summary: OK=${result.summary.OK}, MISSING=${result.summary.MISSING}, CASE_MISMATCH=${result.summary.CASE_MISMATCH}, STALE_SAFE=${result.summary.STALE_SAFE}, STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT}, INCOMPATIBLE=${result.summary.INCOMPATIBLE}`,
+    ...renderManagedAssetRootGuidance(result),
   ];
   if (result.applied.length > 0) {
     lines.push(`Applied: ${result.applied.join(', ')}`);

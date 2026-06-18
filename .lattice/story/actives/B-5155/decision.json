@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Only bind truth rows to code when the implementation or explicit future boundary is already real.",
+    "Keep local Lattice CLI evidence separate from Authority Server receipt-backed completion.",
+    "Prefer the smallest mechanical mapping change that makes gap_analyze report the truth.",
+    "Preserve the locked key-ref and production-safety boundary."
+  ],
+  "drivers": [
+    "The user needs the current high-priority gap_analyze reports resolved without false coverage.",
+    "The scanner consumes @task title/description/changes text, so the fix must match that mechanical contract.",
+    "The key-ref row is a future/blocked Layer 4 requirement, not current implemented support."
+  ],
+  "options": [
+    {
+      "name": "A: Add truthful annotation anchors to existing implementation and boundary files",
+      "pros": [
+        "Clears false high gaps when code or explicit future boundary already exists",
+        "Keeps patch small and aligned with gap_analyze mechanics",
+        "Does not broaden Authority or production-safety scope"
+      ],
+      "cons": [
+        "Requires careful wording so annotation text does not overclaim implementation"
+      ]
+    },
+    {
+      "name": "B: Implement missing feature paths for all three rows",
+      "pros": [
+        "Would make every row implemented in a broad sense"
+      ],
+      "cons": [
+        "Would arbitrarily expand scope",
+        "Would violate the locked key-ref boundary",
+        "Would risk Authority Server overclaim without receipt-backed proof"
+      ]
+    },
+    {
+      "name": "C: Change gap_analyze matching logic",
+      "pros": [
+        "Could make future scans more sophisticated"
+      ],
+      "cons": [
+        "Optimization beyond the current correctness issue",
+        "Higher regression risk across all truth coverage",
+        "Unnecessary if the existing annotation contract can represent the facts"
+      ]
+    }
+  ],
+  "chosen": "A: Add truthful annotation anchors to existing implementation and boundary files",
+  "rationale": "Choose option A because the current evidence shows the first two rows already have smoke or handler coverage and the third row is explicitly future/blocked; annotation anchors are the minimal real correctness fix for gap_analyze truth mapping without arbitrary optimization or Authority overclaim.",
+  "preMortem": [
+    {
+      "scenario": "Annotation claims customerKeyRef is implemented",
+      "trigger": "Developer writes broad production-safety wording to satisfy keyword matching",
+      "consequence": "gap_analyze turns green while the locked Layer 4 evidence path is still absent",
+      "mitigation": "Wording must state future/blocked boundary only, and validation must grep for forbidden completion booleans or overclaim language in the diff."
+    },
+    {
+      "scenario": "A real implementation gap is hidden by annotation text",
+      "trigger": "Existing smoke does not actually cover the cited requirement but the annotation mentions the keyword anyway",
+      "consequence": "The user gets false confidence from a 0-high gap report",
+      "mitigation": "Before editing, inspect the cited docs and smoke/code paths; if coverage is absent, record a finding and keep the checklist blocked."
+    },
+    {
+      "scenario": "The scanner remains red after annotation",
+      "trigger": "Annotation text misses the exact keywords extracted from the requirement summary",
+      "consequence": "The user still sees high gaps and the story fails its visible outcome",
+      "mitigation": "Run lattice gap_analyze before and after, and adjust only truthful title/description/changes text consumed by the scanner."
+    },
+    {
+      "scenario": "Local evidence is mistaken for Authority completion",
+      "trigger": "The delivery summary or annotation mentions production completion too broadly",
+      "consequence": "Lattice CLI Non-authority evidence is overclaimed as Authority Server proof",
+      "mitigation": "Keep receiptVerified, productionDone, authorityDone, and fullAuthorityDone false or absent; explicitly state no Authority completion is claimed."
+    }
+  ],
+  "timestamp": "2026-06-18T01:43:28.923Z"
+}

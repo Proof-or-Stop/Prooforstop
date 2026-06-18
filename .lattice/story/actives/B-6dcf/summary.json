@@ -1,0 +1,55 @@
+{
+  "storyId": "B-6dcf",
+  "changes": "lattice check now reports explicit managed asset root diagnostics in JSON and text output, including metadataRoot, assetRoot, gitRoot, pathsRelativeTo, and split-root status.",
+  "usage": "Run lattice check or lattice check --json; read assetRoot as the base for managed asset relPath, applied paths, and manifestPath before running check --apply.",
+  "expectedOutcome": "Users can tell whether managed asset paths are rooted at the metadata/asset root or only related to gitRoot diagnostics before applying drift fixes.",
+  "actualTranscript": "node packages/main/dist/cli.js check --json exposed metadataRoot/assetRoot/gitRoot/pathsRelativeTo/assetRootGitRootSplit; node packages/main/dist/cli.js check printed Paths guidance before Drift and marked gitRoot as same as assetRoot in this worktree.",
+  "outcomeDiff": "Expected path-base diagnostics matched actual output; existing DRIFT status remains visible because the story intentionally clarifies roots without applying managed asset changes.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered by build, npm test, focused wrapper-root smoke, JSON/text transcript, and four reviewer lanes",
+  "pitfalls": "Do not interpret gitRoot as the managed asset write root; asset writes remain assetRoot-relative even when gitRoot is shown for diagnostic clarity.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 107208
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 28619
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 259591
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1039068
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 383927
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 104529
+    }
+  },
+  "totalDurationMs": 1923131,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T02:03:29.243Z",
+  "updatedAt": "2026-06-18T02:03:29.243Z"
+}

@@ -9,9 +9,107 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
       ],
       "userSees": "lattice check --json includes explicit metadataRoot/assetRoot/gitRoot path-base diagnostics.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T01:39:15.281Z",
+      "endTime": "2026-06-18T01:46:28.255Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice check --json in a normal project and parse the root JSON object; assert explicit root diagnostics are present as stable machine-readable fields for metadataRoot, assetRoot, gitRoot, and the asset-path relativity flag/context rather than only being inferable from manifestPath or item relPath strings.",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the JSON root diagnostics identify metadataRoot/assetRoot as the base for managed asset relPath/applied paths while preserving the existing profile, assetMode, manifestPath, summary, and items fields for backward-compatible consumers.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice check --json where metadataRoot and configured gitRoot differ; assert metadataRoot and assetRoot resolve to the wrapper metadata root while gitRoot resolves to the configured repo root, with all fields explicit even when paths differ.",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice check --json where gitRoot is absent or unavailable; assert the gitRoot diagnostic is still explicit as null/empty by contract and metadataRoot/assetRoot remain populated so callers never have to guess the path base.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the item if the implementation only adds prose or nested per-item hints but no explicit root-level JSON diagnostics, because JSON consumers must not scrape text or reverse-engineer roots from relative paths.",
+            "type": "cli"
+          },
+          {
+            "desc": "Fail the item if adding gitRoot diagnostics changes relPath/applied path semantics or makes managed asset paths appear gitRoot-relative; diagnostics may explain gitRoot but must not redefine the asset root.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after commit b602ae20b; ManagedAssetCheckResult now includes metadataRoot, assetRoot, gitRoot, pathsRelativeTo, and assetRootGitRootSplit.",
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused wrapper-root smoke asserts check --json distinguishes metadataRoot, assetRoot, configured gitRoot, pathsRelativeTo=assetRoot, and split=true.",
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke now runs an unconfigured, non-git metadataRoot before setting gitRoot and asserts check --json reports gitRoot as null while metadataRoot/assetRoot remain populated and pathsRelativeTo=assetRoot.",
+          "headHash": "9961d1bb32670676acdb813945a5bfad01db4382",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:50:59.650Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke parses check --json and verifies metadataRoot/assetRoot are the managed asset path base while existing profile, assetMode, manifestPath, summary, and item relPath fields remain stable.",
+          "headHash": "6ee9f434d9ce3b8de31dbec1c1f4913e89a468f4",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:53:58.357Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Smoke asserts root-level JSON diagnostics directly, including metadataRoot, assetRoot, gitRoot, pathsRelativeTo, and split flag, so consumers do not need to scrape prose or infer roots from relPath.",
+          "headHash": "250ec29d0afef069dd1b80f332effeee7236a0df",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:53:59.265Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Split-root smoke verifies managed asset relPath/apply semantics remain assetRoot-relative: .lattice/Lattice.md is missing/applied under metadataRoot while configured gitRoot remains diagnostic context only.",
+          "headHash": "907e4cef62259cf34bb412a11737101032682038",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:00.397Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +120,107 @@
         "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
       ],
       "userSees": "lattice check text output explains that managed asset relPath values are relative to the metadata/asset root, and displays gitRoot when different.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T01:46:35.540Z",
+      "endTime": "2026-06-18T01:46:41.113Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice check in text mode and assert the output names the managed asset metadata/asset root and states that relPath, applied paths, and manifest paths are metadata-root or asset-root relative.",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the path-base guidance appears near the check summary for both clean and drift states so a human reading the default terminal output sees the root context before acting.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run text output in a wrapper-root fixture where metadataRoot != gitRoot; assert the output shows both metadataRoot/assetRoot and gitRoot as separate paths and makes the difference visually clear.",
+            "type": "cli"
+          },
+          {
+            "desc": "Run text output when gitRoot equals metadataRoot or is unavailable; assert the guidance remains explicit without redundant or misleading split-root wording.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the item if the text says or implies relPath values are gitRoot-relative, repo-root-relative, or cwd-relative when managed asset apply semantics remain metadata-root based.",
+            "type": "cli"
+          },
+          {
+            "desc": "Fail the item if check --apply is recommended before the output explains the path base, because wrapper-root users must know which root will be modified before applying managed assets.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after commit b602ae20b; renderManagedAssetCheck includes root guidance immediately after Summary for all check states.",
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke asserts DRIFT and OK text place root guidance immediately after Summary, before apply recommendations or manifest output, and show configured gitRoot separately when split.",
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Smoke checks text guidance appears immediately after Summary for both DRIFT and OK states, before manifest/apply details, so humans see path-base context before acting.",
+          "headHash": "ff8a702e710e891f09e8918d891c413d09aaa19c",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:01.335Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "node packages/main/dist/cli.js check 2>&1 | rg -n \"Paths: managed asset relPath/applied/manifestPath values are relative to assetRoot\\.|gitRoot: .*\\(same as assetRoot\\)\"",
+          "result": "pass",
+          "note": "Current worktree text output explicitly prints assetRoot-relative path guidance and marks gitRoot as same as assetRoot, covering the non-split case without misleading split-root wording.",
+          "headHash": "965f972bf99623475125183cc8c91804af1fcf7f",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:02.354Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Text assertions require the wording relative to assetRoot and, in split-root mode, say managed assets are not rooted at gitRoot, preventing repo/cwd/gitRoot-relative implication.",
+          "headHash": "b29130bdcfe1e0e9ec95e08531490f40736fcb7f",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:03.247Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Smoke asserts root guidance is rendered before the apply recommendation, so wrapper-root users see which root will be modified before running check --apply.",
+          "headHash": "0f39db1d359de6a27a26e4fe9d27142774b06942",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:04.277Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,9 +231,106 @@
         "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
       ],
       "userSees": "A regression command proves wrapper-root lattice check diagnostics are explicit and apply semantics remain metadata-root based.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T01:46:47.533Z",
+      "endTime": "2026-06-18T01:46:54.032Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Add and run a focused regression command that creates a temporary wrapper-root fixture with non-git metadataRoot and configured gitRoot subdirectory; assert lattice check --json reports metadataRoot/assetRoot separately from gitRoot.",
+            "type": "cli"
+          },
+          {
+            "desc": "In the same regression, assert text output displays the split-root diagnostics and explains managed asset paths are metadata/asset-root relative.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise the fixture with drift present and with managed assets already clean; assert diagnostics remain present in both states and item relPath values remain unchanged relative paths.",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the regression on a metadataRoot path that is not itself a git repository; assert gitRoot discovery/configuration still appears only as diagnostic context and does not become the asset write root.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the regression with check --apply or the apply path helper and assert files are written/updated under metadataRoot/assetRoot, not under configured gitRoot, while gitRoot remains visible in diagnostics.",
+            "type": "cli"
+          },
+          {
+            "desc": "Fail the regression if it uses metadataRoot == gitRoot, checks only implementation internals, or validates only prose without parsing JSON root fields, because that would not protect the ClawCreek-style wrapper-root bug.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke creates a temporary non-git metadataRoot with configured gitRoot subdir and verifies JSON/text diagnostics distinguish roots.",
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke runs check --apply and asserts .lattice/Lattice.md plus .lattice/managed-assets.json are written under metadataRoot/assetRoot while gitRoot sentinel content remains unchanged.",
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed with managed-assets-wrapper-root-smoke.ts compiled and exposed by package scripts.",
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Regression validates text output in the wrapper-root fixture, including split-root diagnostics and assetRoot-relative path-base guidance.",
+          "headHash": "a693150bc6c029862ac93509a082ddb322564396",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:05.332Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Regression fixture uses a metadataRoot that is not itself a git repository and a configured gitRoot subdirectory; assertions keep gitRoot diagnostic-only and asset writes under metadataRoot.",
+          "headHash": "4377fa440a338674d75b2fe0f40fc73ace5a2509",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:06.316Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Regression fails unless metadataRoot differs from gitRoot and JSON root fields are parsed directly, protecting the ClawCreek-style wrapper-root bug instead of checking only prose or internals.",
+          "headHash": "acf7b7b1d457ec06d86e8f6f336456eb201d00f2",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:07.261Z"
+        }
+      ]
     }
   ]
 }

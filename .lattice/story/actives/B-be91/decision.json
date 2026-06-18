@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Simplest viable fix first",
+    "Tests/config-only — no runner / smoke / production code change",
+    "Manual override preserved"
+  ],
+  "drivers": [
+    "B-24c3 convergence-tail proved per-smoke bumps do not terminate",
+    "Shared kernel resource contention diagnosed as root cause",
+    "Single-line script change has minimal blast radius"
+  ],
+  "options": [
+    {
+      "name": "(a) Plan A — cap default --jobs (chosen)",
+      "pros": [
+        "Single-line edit",
+        "Runner already supports it",
+        "Cheap to revert"
+      ],
+      "cons": [
+        "Wall-clock doubles",
+        "Hypothesis-based"
+      ]
+    },
+    {
+      "name": "(b) Plan B — two-pass retry",
+      "pros": [
+        "Self-healing"
+      ],
+      "cons": [
+        "50 line runner change (unfreeze B-6efb)"
+      ]
+    },
+    {
+      "name": "(c) Plan C — full architecture redesign",
+      "pros": [
+        "Most thorough"
+      ],
+      "cons": [
+        "Over-engineered"
+      ]
+    },
+    {
+      "name": "(d) Accept flake",
+      "pros": [
+        "Zero work"
+      ],
+      "cons": [
+        "Weak OSS-launch story"
+      ]
+    }
+  ],
+  "chosen": "(a) Plan A — cap default --jobs (chosen)",
+  "rationale": "User picked (a) on 2026-06-18 after explicit review. Plan B reserved as escalation. Lowest-risk change with highest expected benefit.",
+  "preMortem": [
+    {
+      "scenario": "N=4 still flakes",
+      "trigger": "3x verify at N=4 has any FAIL/TIMEOUT",
+      "consequence": "Plan A partial-fail",
+      "mitigation": "Drop to N=2 and re-run 3x verify. If N=2 also flakes, file finding and open Plan B story."
+    },
+    {
+      "scenario": "Wall-clock at chosen N exceeds 10 minutes",
+      "trigger": "3x verify mean wall-clock > 10 min",
+      "consequence": "Slow dev loop",
+      "mitigation": "Accept trade-off if 3/3 green; document in CHANGELOG; users override with --jobs 8."
+    },
+    {
+      "scenario": "N choice leaks into other test infra",
+      "trigger": "CI scripts hard-code timing",
+      "consequence": "CI breakage",
+      "mitigation": "Grep for references to test:all timing during DEV."
+    }
+  ],
+  "timestamp": "2026-06-18T01:11:08.086Z"
+}
