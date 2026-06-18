@@ -10,7 +10,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"F-010 now cites packages/main/src/handlers/story-query.ts\" in the audit doc diff, and no line mentions core/story-query.ts for that finding.",
+      "files": {
+        "modify": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The audit doc F-010 section now cites packages/main/src/handlers/story-query.ts and still preserves the real checklist-inlining claim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The nearby summary prose and appendix remain internally consistent after the citation correction, with no unrelated files changed.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story does not alter runtime code, CLAUDE.md, or the source-backed behavior; it only corrects the audit document text.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

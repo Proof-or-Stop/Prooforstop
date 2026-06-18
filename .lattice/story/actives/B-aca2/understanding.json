@@ -1,0 +1,24 @@
+{
+  "task": "Correct two open verified audit advisories so the audit doc matches the actual code and helper boundary.",
+  "outcome": "A user runs lattice audit or lattice finding_list and sees F-010 and F-011 resolved, with the audit doc pointing to the real handlers/story-query.ts file and showing noHiddenContextSharing:true in the authority boundary table.",
+  "facts": [
+    "B-META-framework-audit currently shows F-010 and F-011 as open verified findings.",
+    "packages/main/src/handlers/story-query.ts contains story_get and still inlines checklist data.",
+    "packages/main/src/core/lattice-handoff.ts defines noHiddenContextSharing:true in HandoffAuthorityBoundary.",
+    "The audit doc currently points to core/story-query.ts and omits noHiddenContextSharing in the boundary table.",
+    "The appendix and later references already point at packages/main/src/handlers/story-query.ts, so only the summary citation needs alignment.",
+    "The authority boundary table already contains noHiddenContextSharing:true in the source-backed row; the stale prose is the mismatch."
+  ],
+  "constraints": [
+    "Docs-only fix: do not change runtime code or CLAUDE.md in this story.",
+    "Keep the audit claims intact; only correct the citation and the missing table field.",
+    "Use the current worktree and keep the story scope frozen to the audit document."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/core/lattice-handoff.ts"
+  ],
+  "timestamp": "2026-06-18T11:08:08.600Z"
+}
