@@ -53,6 +53,24 @@
       "_hash": "60679a177db453407d50b40d8075acd3f9a31802abbd7fb0480d7854c31705f9",
       "signatureTag": "review-smoke|confirmed-path-test",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5d48:F-004",
+      "desc": "REVIEWER-SMOKE: whitespace-only signatureTag boundary test",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Live-fire boundary test for whitespace-only tag. Not a real finding."
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T13:39:24.227Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-004",
+      "_hash": "14f128b33a7e9e132c280e45d290d5110f2af99d543c2f30c5b49752e4c733e7",
+      "signatureTag": "edge|unknown|reviewer-smoke-whitespace",
+      "signatureTagSource": "auto"
     }
   ]
 }
