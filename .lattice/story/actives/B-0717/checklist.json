@@ -191,9 +191,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T14:19:21.306Z",
-      "endTime": null,
+      "endTime": "2026-06-18T14:19:36.841Z",
       "userSees": "Final response includes: \"Authority Server receipt flow, local 3x2 quorum, and degraded 3x1 fallback are documented; current local Authority status is off/not-configured, so no production Authority completion is claimed.\"",
       "excludes": [
         "Do not claim Authority production completion without verified gate_decision receipt",
@@ -233,7 +233,49 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js authority_status --json; node bin/lattice.js authority_job_create --help; node bin/lattice.js authority_verdict_submit --help; node bin/lattice.js authority_job_status --help; node bin/lattice.js authority_receipt_verify --help",
+          "result": "pass",
+          "note": "Authority command flow is mechanically available and documented: status/readiness, job creation, verdict submit, job status reconciliation, receipt verify, and lifecycle consumption boundary via verified production gate_decision receipt refs.",
+          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:36.951Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js authority_verdict_list --jobId=B-0717-cli-engine-plan-local-3x2 --runId=B-0717-local-review-2026-06-18 --requiredHosts=2 --json",
+          "result": "pass",
+          "note": "Local 3x2 evidence was recorded: 6 pass verdicts across host A and host B, 2 independent passing hosts, staleVerdicts=0, multiHostVerified=true; every verdict note says local/offline and not a production Authority gate_decision receipt.",
+          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:37.059Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js authority_status --json",
+          "result": "pass",
+          "note": "Current local Authority state is status=not-configured, authorityReady=false, receiptVerified=false, productionDone=false, canClaimProductionDone=false, so B-0717 cannot claim production Authority completion.",
+          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:37.160Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Local Quorum Flow section defines 3 rounds x 2 independent hosts as default high-risk local review and 3 rounds x 1 host as degraded lower-assurance fallback only, never equivalent to 3x2 for major architecture work.",
+          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:37.282Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -281,6 +323,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start recording Authority readiness and review quorum evidence."
+    },
+    {
+      "timestamp": "2026-06-18T14:19:36.841Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Authority readiness and local strong-verification quorum evidence recorded."
     }
   ]
 }
