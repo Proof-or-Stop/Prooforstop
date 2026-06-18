@@ -183,6 +183,78 @@
         "test": [
           "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test: resolveHintMode deterministic assertion passes (same id -> same arm across calls); WHY: core determinism contract in test harness",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: balance assertion passes (1000 synthetic ids -> 40-60% split); WHY: distribution contract in test harness",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: ON-arm _reviewPrompt contains experience-hints section, OFF-arm does not; WHY: gating logic verified end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: experience_hint_surfaced event fires on BOTH arms with correct hintMode field; WHY: measurement on both arms verified",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: issues/blocker output and promptHash unchanged between arms; WHY: invariance contract verified in test",
+            "type": "cli"
+          },
+          {
+            "desc": "npm script test:experience-layer-ab-shadow-gate exists and runs the smoke successfully; WHY: npm entry point wired correctly",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier (verify-b-06b3.mjs) runs: build clean + smoke + full npm test + static checks -> prints TOTAL N | PASS N | FAIL 0; WHY: full verification pipeline green",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke: empty-string storyId tolerated by resolveHintMode in test -> no crash; WHY: edge input coverage in smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier: no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) all pass; WHY: feature did not regress existing smokes",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier: process-fact-contract test passes within npm test; WHY: core contract not broken by new module",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test maps every verificationIntent from CHK-001 and CHK-002; WHY: completeness check that smoke covers all declared intents",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CRITICAL: Verifier static check confirms hints are NOT passed into resolveReviewPromptHash; WHY: the critical regression verified by static analysis in committed verifier",
+            "type": "cli"
+          },
+          {
+            "desc": "CRITICAL: Verifier static check confirms blocker computation block has no hintMode references; WHY: gating must not affect blocker logic, enforced by verifier",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static check confirms hint-mode.ts is pure (imports only node:crypto/types); WHY: purity enforced in committed verifier",
+            "type": "cli"
+          },
+          {
+            "desc": "Adversarial: OFF arm event still contains full would-have-hinted hint set (not empty/truncated); WHY: measurement data must not be lost on OFF arm, verified in smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Adversarial: promptHash is byte-identical between ON and OFF arms in smoke (not just structurally equal); WHY: catches subtle serialization differences",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
