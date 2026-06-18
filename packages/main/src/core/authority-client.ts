@@ -83,6 +83,9 @@ import {
   readAuthorityEnv,
   DEFAULT_AUTHORITY_KEY_FILE,
   DEFAULT_AUTHORITY_TRUST_ENV_FILE,
+  DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES,
+  renderAuthorityTrustProfileClientSidecar,
+  renderAuthorityTrustProfileEnv,
   type AuthorityConfig,
   type AuthorityMdConfig,
   type AuthorityMode,
@@ -1642,6 +1645,77 @@ export function resolveAuthorityClientAuth(
 ): AuthorityClientAuth {
   const customer = resolveAuthorityCustomerApiKey(env, options);
   return customer.value ? { customerApiKey: customer.value } : {};
+}
+
+export interface AuthorityTrustProfileBundle {
+  trustFileName: string;
+  trustFileText: string;
+  clientFileName: string;
+  clientFileText: string;
+}
+
+export interface AuthorityTrustProfileBundleOptions extends AuthorityConfigLoadOptions {
+  env?: Record<string, string | undefined>;
+  outputDir?: string;
+}
+
+/**
+ * Build the default internal authority trust profile bundle.
+ *
+ * The config/material read is forced through enforce-mode resolution so the
+ * helper can load trust/env and authority.md material even when the caller's
+ * shell mode is off. This is bundle-generation only; it does not promote
+ * runtime authority policy or production completion.
+ */
+export function buildAuthorityTrustProfileBundle(
+  options: AuthorityTrustProfileBundleOptions = {},
+): AuthorityTrustProfileBundle {
+  const env = options.env ?? process.env;
+  const settings = loadAuthorityConfig(env, { authorityMode: 'enforce' }, options);
+  const customer = resolveAuthorityCustomerApiKey(env, options);
+  const outputBaseDir = options.cwd ?? process.cwd();
+  const outputDir = resolvePath(outputBaseDir, options.outputDir ?? '');
+  const trustFilePath = resolvePath(outputDir, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trust);
+  const clientFilePath = resolvePath(outputDir, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.client);
+  const baseURL = settings.baseURL?.trim();
+  if (!baseURL) {
+    throw new Error('authority trust profile bundle requires a resolved authority URL');
+  }
+  const serverPublicKey = settings.keyMaterial.serverPublicKey?.trim();
+  if (!serverPublicKey) {
+    throw new Error('authority trust profile bundle requires a server public key');
+  }
+  const serverKeyId = settings.keyMaterial.serverKeyId?.trim();
+  if (!serverKeyId) {
+    throw new Error('authority trust profile bundle requires a server key id');
+  }
+  const projectId = settings.projectId?.trim();
+  if (!projectId) {
+    throw new Error('authority trust profile bundle requires a project id');
+  }
+  if (!customer.value) {
+    throw new Error(
+      'authority trust profile bundle requires LATTICE_AUTHORITY_CUSTOMER_API_KEY or LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH',
+    );
+  }
+  return {
+    trustFileName: DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trust,
+    trustFileText: renderAuthorityTrustProfileEnv(
+      {
+        trustEnvFilePath: trustFilePath,
+        authorityURL: baseURL,
+        serverPublicKey,
+        ...(settings.keyMaterial.serverPublicKeyEncoding?.trim()
+          ? { serverPublicKeyEncoding: settings.keyMaterial.serverPublicKeyEncoding.trim() }
+          : {}),
+        serverKeyId,
+        projectId,
+        customerApiKeyPath: clientFilePath,
+      },
+    ),
+    clientFileName: DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.client,
+    clientFileText: renderAuthorityTrustProfileClientSidecar(customer.value),
+  };
 }
 
 /**

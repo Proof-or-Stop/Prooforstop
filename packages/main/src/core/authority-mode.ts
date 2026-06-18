@@ -38,6 +38,59 @@ export const DEFAULT_AUTHORITY_KEY_FILE = '.lattice/authority.md';
 /** Default Authority trust env file, relative to the project root. */
 export const DEFAULT_AUTHORITY_TRUST_ENV_FILE = 'authority_trust.env';
 
+/** Default Lattice-prefixed trust env file emitted by the bundle helper. */
+export const DEFAULT_LATTICE_AUTHORITY_TRUST_ENV_FILE = 'lattice_authority_trust.env';
+
+/** Default Lattice-prefixed customer API key sidecar emitted by the bundle helper. */
+export const DEFAULT_LATTICE_AUTHORITY_CLIENT_ENV_FILE = 'lattice_staging-client.env';
+
+/** Default senior trust env filename emitted by the bundle helper. */
+export const DEFAULT_LATTICE_SENIOR_AUTHORITY_TRUST_ENV_FILE = 'lattice_senior_authority_trust.env';
+
+/** Default senior customer API key sidecar emitted by the bundle helper. */
+export const DEFAULT_LATTICE_SENIOR_AUTHORITY_CLIENT_ENV_FILE = 'lattice_senior_staging-client.env';
+
+export type AuthorityTrustProfileTier = 'basic' | 'senior';
+
+export interface AuthorityTrustProfileFileNames {
+  trustEnvFileName: string;
+  clientEnvFileName: string;
+}
+
+export function authorityTrustProfileFileNames(
+  tier: AuthorityTrustProfileTier = 'basic',
+): AuthorityTrustProfileFileNames {
+  if (tier === 'senior') {
+    return {
+      trustEnvFileName: DEFAULT_LATTICE_SENIOR_AUTHORITY_TRUST_ENV_FILE,
+      clientEnvFileName: DEFAULT_LATTICE_SENIOR_AUTHORITY_CLIENT_ENV_FILE,
+    };
+  }
+  return {
+    trustEnvFileName: DEFAULT_LATTICE_AUTHORITY_TRUST_ENV_FILE,
+    clientEnvFileName: DEFAULT_LATTICE_AUTHORITY_CLIENT_ENV_FILE,
+  };
+}
+
+export function quoteAuthorityEnvValue(value: string): string {
+  return `'${value.replace(/'/g, `'\"'\"'`)}'`;
+}
+
+export function renderAuthorityEnvAssignment(key: string, value: string): string {
+  return `export ${key}=${quoteAuthorityEnvValue(value)}`;
+}
+
+/** Default bundle trust file emitted by the internal authority trust profile helper. */
+export const DEFAULT_AUTHORITY_TRUST_PROFILE_TRUST_FILE = 'lattice_authority_trust.env';
+
+/** Default bundle sidecar file emitted by the internal authority trust profile helper. */
+export const DEFAULT_AUTHORITY_TRUST_PROFILE_CLIENT_FILE = 'lattice_staging-client.env';
+
+export const DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES = {
+  trust: DEFAULT_AUTHORITY_TRUST_PROFILE_TRUST_FILE,
+  client: DEFAULT_AUTHORITY_TRUST_PROFILE_CLIENT_FILE,
+} as const;
+
 export interface AuthoritySettings {
   mode: AuthorityMode;
   /** Base URL of the authority server; undefined when not configured. */
@@ -111,6 +164,47 @@ export function normalizeAuthorityTimeout(value: unknown): number {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_AUTHORITY_TIMEOUT_MS;
   }
   return DEFAULT_AUTHORITY_TIMEOUT_MS;
+}
+
+/** Safe shell quoting for generated bundle values. */
+export function quoteAuthorityShellValue(value: string): string {
+  return `'${value.replace(/'/g, `'\"'\"'`)}'`;
+}
+
+export interface AuthorityTrustProfileEnvRenderInput {
+  trustEnvFilePath: string;
+  authorityURL: string;
+  serverPublicKey: string;
+  serverKeyId: string;
+  projectId: string;
+  customerApiKeyPath: string;
+  serverPublicKeyEncoding?: string;
+}
+
+/**
+ * Render the bundle trust env as sourceable shell text.
+ */
+export function renderAuthorityTrustProfileEnv(
+  input: AuthorityTrustProfileEnvRenderInput,
+): string {
+  const lines = [
+    `export LATTICE_AUTHORITY_TRUST_ENV_FILE=${quoteAuthorityShellValue(input.trustEnvFilePath)}`,
+    `export LATTICE_AUTHORITY_MODE=${quoteAuthorityShellValue('enforce')}`,
+    `export LATTICE_AUTHORITY_URL=${quoteAuthorityShellValue(input.authorityURL)}`,
+    `export LATTICE_AUTHORITY_SERVER_PUBLIC_KEY=${quoteAuthorityShellValue(input.serverPublicKey)}`,
+    ...(input.serverPublicKeyEncoding
+      ? [`export LATTICE_AUTHORITY_SERVER_PUBLIC_KEY_ENCODING=${quoteAuthorityShellValue(input.serverPublicKeyEncoding)}`]
+      : []),
+    `export LATTICE_AUTHORITY_SERVER_KEY_ID=${quoteAuthorityShellValue(input.serverKeyId)}`,
+    `export LATTICE_AUTHORITY_PROJECT_ID=${quoteAuthorityShellValue(input.projectId)}`,
+    `export LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=${quoteAuthorityShellValue(input.customerApiKeyPath)}`,
+  ];
+  return `${lines.join('\n')}\n`;
+}
+
+/** Render the raw customer API key sidecar payload. */
+export function renderAuthorityTrustProfileClientSidecar(customerApiKey: string): string {
+  return `${customerApiKey.trim()}\n`;
 }
 
 /**

@@ -1,8 +1,13 @@
-import { existsSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'fs';
 import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import { type AuthorityConfig, type AuthoritySettings } from '../core/authority-mode.js';
-import { loadAuthorityConfig, resolveAuthorityCustomerApiKey, type AuthorityConfigLoadOptions } from '../core/authority-client.js';
+import {
+  loadAuthorityConfig,
+  resolveAuthorityCustomerApiKey,
+  type AuthorityConfigLoadOptions,
+  type AuthorityTrustProfileBundle,
+} from '../core/authority-client.js';
 import {
   AUTHORITY_RUNNER_PLANNED_STEPS,
   readActorPrivateKeyFromPath,
@@ -855,6 +860,19 @@ function renderAuthorityStatusText(result: ReturnType<typeof buildAuthorityStatu
   lines.push('', result.localWorkflowNote);
   lines.push('', result.note);
   return lines.join('\n');
+}
+
+export function writeAuthorityTrustProfileBundle(
+  outputDir: string,
+  bundle: AuthorityTrustProfileBundle,
+): { trustFilePath: string; clientFilePath: string } {
+  const resolvedOutputDir = resolvePath(outputDir);
+  mkdirSync(resolvedOutputDir, { recursive: true });
+  const trustFilePath = join(resolvedOutputDir, bundle.trustFileName);
+  const clientFilePath = join(resolvedOutputDir, bundle.clientFileName);
+  writeFileSync(trustFilePath, bundle.trustFileText);
+  writeFileSync(clientFilePath, bundle.clientFileText);
+  return { trustFilePath, clientFilePath };
 }
 
 export function buildAuthorityEnforceRunnerPlan(
