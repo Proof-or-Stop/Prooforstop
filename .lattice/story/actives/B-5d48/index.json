@@ -4,7 +4,7 @@
   "title": "Experience Layer 3.2: signatureTag auto-candidate + reviewer override at finding_add",
   "description": "Make finding_add populate a signatureTag even when the reviewer does not supply one, by deriving a canonical candidate from the finding's category/files/desc through the existing signature-registry, and record whether the tag is auto-derived or reviewer-confirmed. This fixes the Baseline-A signature-degradation bottleneck for forward findings: the real-quality signal comes from confirmed tags (LLM reviewers set good ones; the later 3.5 backfill upgrades historical ones), while the auto-candidate is a non-empty fallback. signatureTag and the new source flag are audit-only: excluded from the finding _hash, every gate, and the finding signature.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "experience-layer",
@@ -28,6 +28,14 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-18T13:12:40.637Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T13:15:46.174Z",
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
