@@ -243,6 +243,16 @@
           "headHash": "aeaf8856722ef3489da324eb4f18ea174a78cc6a",
           "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
           "timestamp": "2026-06-18T19:49:34.142Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -ciE \"withMkdirLock|root cause|no longer need\" docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "docs grep = 1 — test-coverage.md retry-policy describes the root-cause fix",
+          "headHash": "f464de53a2775c7d75435341395fe6d29eb4ef08",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:35.449Z"
         }
       ]
     }
