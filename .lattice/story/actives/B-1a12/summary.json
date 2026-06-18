@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1a12",
+  "changes": "packages/main/src/handlers/worktree.ts: added resolveMainRepoRoot(cwd=root) helper that resolves the MAIN repo root via `git rev-parse --git-common-dir` (abs-resolve against cwd; dirname of the .git common dir; falls through to getRepoRoot() on throw or non-.git), mirroring removeStaleWorktreeAdminDirs; resolveBootstrapGitRoot no-configured-gitRoot path now calls resolveMainRepoRoot() instead of getRepoRoot(). getRepoRoot(), the non-bootstrap caller resolveWorktreePath, and the configured-gitRoot (resolveStorySignedWorkspace) branch are UNCHANGED. scripts/verify-nested-worktree-bootstrap.mjs: new regression smoke asserting non-nested from-worktree + byte-identical from-main bootstrap. package.json: test:nested-worktree-bootstrap wired into the chained root test before test:e2e. docs/requirements/decisions/lattice-parallel-wave.md: .koala/dev-memory -> .lattice/dev-memory and Dev-memory Boundary prose corrected to match dev-memory.ts (single canonical store, LATTICE_GLOBAL_MEMORY_DIR override, no phantom legacy fallback).",
+  "usage": "Run `lattice story_advance INIT_CHECK` for a new story from ANY cwd (even inside an existing worktree) — the new worktree is created at <main>/.worktrees/B-new, never nested. Regression guarded by `npm run test:nested-worktree-bootstrap` (also runs in root `npm test` / lattice validate).",
+  "expectedOutcome": "INIT_CHECK bootstrap for a NEW story from inside an existing worktree creates the new worktree at <main>/.worktrees/B-new (NOT nested at <main>/.worktrees/B-old/.worktrees/B-new); from main repo is byte-identical; regression smoke green in the validate battery; lattice-parallel-wave.md shows .lattice/dev-memory with no stale .koala reference.",
+  "actualTranscript": "RED (pre-fix resolver): smoke exit 1, new worktree nested at <main>/.worktrees/B-977d/.worktrees/B-4263. GREEN (fix): smoke exit 0, from-worktree-root -> <main>/.worktrees/B-e4fb (not nested), from-main -> <main>/.worktrees/B-1655. Full root npm test ALL PASS (exit 0) including test:nested-worktree-bootstrap. grep koala/dev-memory = 0 matches; .lattice/dev-memory present. This story own INIT_CHECK (run from main repo root) created /Users/jek/Documents/Work/Orchestrate/.worktrees/B-1a12 non-nested.",
+  "outcomeDiff": "No difference — actual matches expected exactly (non-nested from-worktree, byte-identical from-main, RED->GREEN battery regression, doc reference cleaned and made factually correct).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. Bare-repo / non-.git common-dir and git-throw cases intentionally fall through to getRepoRoot() (never worse than today); configured-gitRoot/wrapper-root path unchanged.",
+  "pitfalls": "(1) Run INIT_CHECK from the MAIN repo root, never from inside a worktree, or you trigger the very bug being fixed (self-avoidance). (2) The smoke must pin the handler metadata root to a linked worktree (--root <oldWorktree>) to faithfully reproduce the from-worktree-cwd incident; a naive always-main smoke false-greens. (3) Evidence-freshness churn: verification_evidence headHash goes stale after each subsequent commit (F-001 fix, metadata commits, merge main) — refresh evidence then advance; material files unchanged keeps isMaterialFresh true. (4) REVIEW docs reviewer correctly caught that the token-only swap created false prose (phantom legacy fallback + wrong env var KOALA_GLOBAL_MEMORY_DIR); fixed the prose to match dev-memory.ts. (5) worktree npm install does not fetch the workspace-local @lattice-agent/lab; copy packages/main/node_modules from the main repo (build only needs typescript+@types since src doesnt import lab).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 5662513
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 153530
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 399109
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1338001
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 783508
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 344699
+    }
+  },
+  "totalDurationMs": 8681395,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T19:58:16.385Z",
+  "updatedAt": "2026-06-18T19:58:16.385Z"
+}
