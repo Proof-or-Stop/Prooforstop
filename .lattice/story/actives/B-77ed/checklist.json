@@ -60,6 +60,16 @@
           "headHash": "ce42f4e7baf4e62da11d2ee95b35ee1990214b0e",
           "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
           "timestamp": "2026-06-18T19:49:23.149Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -E \"Date.now\\(\\) \\+ 5000\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l",
+          "result": "pass",
+          "note": "0 matches of Date.now()+5000 — the 5s<10s invariant-violating budget is gone",
+          "headHash": "64c12a36b8dcf99b9881b72d4b93bec3e6c9ad3c",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:24.445Z"
         }
       ]
     },
