@@ -69,6 +69,18 @@
           "headHash": "f0be7bfc02af27c1fbb05c6e31e8fdf258827d7e",
           "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
           "timestamp": "2026-06-18T20:48:13.008Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
+          "result": "pass",
+          "note": "The CLI does not fall back to a wider role set when the Mac-specific wording is removed.",
+          "headHash": "4bd3bd5ccf85bc95425f76e86634967674868195",
+          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
+          "timestamp": "2026-06-18T20:48:13.590Z"
         }
       ]
     },
