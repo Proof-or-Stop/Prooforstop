@@ -66,9 +66,9 @@
           "command": "node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:all\\\"]; if(!/--jobs\\\\s+\\\\d+/.test(s)) throw new Error(\\\"NO_JOBS:\\\"+s); console.log(\\\"OK\\\")\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "0dbe1c1bfe6e6c9cef2018848e416f827103f09b",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:25:45.196Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -77,9 +77,9 @@
           "command": "node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:all\\\"]; const m=s.match(/--jobs\\\\s+(\\\\d+)/); const n=parseInt(m[1]); if(n>4) throw new Error(\\\"N_TOO_HIGH:\\\"+n); console.log(\\\"N=\\\"+n)\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "743b407377e24608d542c51d6b3954d11a69016b",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:25:51.050Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -88,9 +88,9 @@
           "command": "node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:coverage\\\"]; if(!s.includes(\\\"c8 \\\")||!s.includes(\\\"--jobs 1\\\")) throw new Error(\\\"COVERAGE_CHANGED:\\\"+s); console.log(\\\"OK\\\")\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "f9b367a180b63e0956907ddbbb03fe51b1563f50",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:25:54.170Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -99,9 +99,9 @@
           "command": "npm run test:all -- --jobs 8 --select run-all-smokes 2>&1 | tail -3 | grep -c \"1/1 passed\\\\|directory-scan\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "1750df7505aedd6003ffb4b69df357838ae69e97",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:25:55.885Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -110,9 +110,9 @@
           "command": "git diff main...HEAD -- package.json | grep -E \"^[-+]\\\\s+\\\\\\\"test:\" | grep -v \"test:all\" | wc -l",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "5540048a1e2fbc293ea04abcb1c0c2adac6aaee1",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:25:57.845Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -121,9 +121,9 @@
           "command": "git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts | wc -l",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "efca65788e1e3788ef1718d4746bd2f233f624aa",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:25:59.493Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -132,9 +132,9 @@
           "command": "git diff main...HEAD -- packages/main/smoke-manifest.json | wc -l",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "98632afb19ca7419b1559bf234de2f4cb4c536db",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:01.149Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         }
       ]
     },
@@ -200,9 +200,9 @@
           "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c B-be91",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "06fe5d9d174b2524e0ff55e1f0bb9093ffa15d44",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:02.677Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -211,9 +211,9 @@
           "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"--jobs|jobs cap|worker.pool\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "32c9e46030eca7a5a6408227c45c6f504318af3f",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:04.428Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -222,9 +222,9 @@
           "command": "grep -ciE \"test:all.*--jobs|--jobs.*test:all|jobs cap\" docs/dev/test-coverage.md",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "901ad2c212b4de2b11cfd9740a695268f3a27b90",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:06.410Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -233,9 +233,9 @@
           "command": "grep -c \"test:all -- --jobs\" docs/dev/test-coverage.md",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "7ad34b963b5af17c2529b0ace466bd291367980c",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:07.665Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -244,9 +244,9 @@
           "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c \"Test infrastructure\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "abf9133e62a67cc82604319b74b70c5850cb3d01",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:08.999Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -255,9 +255,9 @@
           "command": "git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "1b8f75eccdb7b4fed0ada90bf93188f632b12e2d",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:10.456Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         }
       ]
     },
@@ -320,9 +320,9 @@
           "command": "npm run test:all > /tmp/b-be91-r1.log 2>&1; echo $?",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "4ba1436943b3b3f3147e5d5973f204c5cea85151",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:11.812Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -331,9 +331,9 @@
           "command": "npm run test:all > /tmp/b-be91-r2.log 2>&1; echo $?",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "23b04a3c857366042e708d6a688a1f3931d314c8",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:13.176Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -342,9 +342,9 @@
           "command": "npm run test:all > /tmp/b-be91-r3.log 2>&1; echo $?",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "a24feb8a1335b4dd97bab7b75d9cc94cbcb5a751",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:14.480Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -353,9 +353,9 @@
           "command": "grep -h passed /tmp/b-be91-r1.log /tmp/b-be91-r2.log /tmp/b-be91-r3.log | grep -c \"166/166 passed\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "e2e5cc1f2ae44b246bfc4dd191dfd116c5b6bc00",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:15.823Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -364,9 +364,9 @@
           "command": "cat /tmp/b-be91-r1.log /tmp/b-be91-r2.log /tmp/b-be91-r3.log | grep -E \"^FAIL |^TIMEOUT \" | awk \"{print \\$2}\" | grep -cE \"^(field-regression-cli|verification-freshness|worktree-repair|review-pass-discard)$\"",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "c36bb68104a7dad102da29295ff9b63e491961af",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:17.519Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -375,9 +375,9 @@
           "command": "git diff main...HEAD -- packages/main/smoke-manifest.json | wc -l",
           "result": "pass",
           "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
-          "headHash": "02739c799e8e86c14af4512f0a22ecd4a843fc3e",
-          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:26:18.827Z"
+          "headHash": "8a098267f1abd037d60eef95c198e44a378bf87a",
+          "materialHash": "0b99e86dcbc803f58ad3470b0876b905d0e1466e4731285dfb32d025fbb879b1",
+          "timestamp": "2026-06-18T02:33:14.717Z"
         }
       ]
     }
