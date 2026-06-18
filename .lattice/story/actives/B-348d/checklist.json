@@ -73,6 +73,16 @@
           "headHash": "5e12ca9ef8c268b9ba8c9cc302589d6ca200844c",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:41.911Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "grep -c retryOnAnyFailure packages/main/dist/tasks/run-all-smokes.js",
+          "result": "pass",
+          "note": "compiled dist has 2 hits; extended predicate lands in runtime",
+          "headHash": "7e3fae39b03f79ffff73814a6ab2c9fd3f4469a2",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:42.679Z"
         }
       ]
     },
