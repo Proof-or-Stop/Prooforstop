@@ -4,7 +4,7 @@
   "title": "Write CLI engine modularization execution plan with Authority strong verification",
   "description": "Create a decision/execution document for decomposing packages/main/src/cli-engine.ts into stable command-schema, help/flag/alias, runtime-gate, and lifecycle-special-dispatch modules. The plan must explicitly require Lattice Authority Server strong verification where available, local 3 round x 2 host review escalation for the plan, and preserve local 3x1 degraded fallback semantics as lower assurance only.",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-06-18T14:02:56.630Z",
   "startedAt": "2026-06-18T14:02:56.630Z",
@@ -30,6 +30,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-18T14:07:01.681Z",
+      "branch": "story/B-0717",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T14:11:29.244Z",
       "branch": "story/B-0717",
       "user": "Harmonygo",
       "agent": "main"

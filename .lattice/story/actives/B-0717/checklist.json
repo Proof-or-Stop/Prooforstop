@@ -9,8 +9,8 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T14:11:43.892Z",
       "endTime": null,
       "userSees": "Final response includes: \"Created docs/requirements/decisions/cli-engine-modularization-execution-plan.md with the staged cli-engine split plan; B-0717 did not refactor cli-engine.ts.\"",
       "excludes": [
@@ -160,6 +160,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-18T14:11:43.892Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start writing the CLI engine modularization execution plan document in DEV."
     }
   ]
 }
