@@ -24,7 +24,7 @@
       "desc": "type-safety / misleading-field: core/experience-effectiveness.ts:231 `precision: ratio(preWarnable, preWarnable)` always evaluates to 1 or 0 by construction (ratio of a number with itself). The PredictiveValueReport interface exposes `precision` as a meaningful metric, but it carries no information beyond `preWarnable > 0`. JSON consumers reading the output would be misled into treating it as a genuine IR precision score. The field should either be removed from the interface or its degenerate-constant nature must be made explicit in the interface name/type (e.g., rename to `precisionNote` with a string, or remove and keep only `recall`).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-18T16:00:07.125Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-c06a:RR-002",
       "_hash": "12c5a5ef0065e86d023b37c91964389a2d6108d2a977b5f0c0dd6599aaaca3e9",
       "signatureTag": "missing|unknown|type-safety-misleading",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the vacuous precision field (ratio(preWarnable,preWarnable) always 0/1, no information) from PredictiveValueReport + computation + render + json + smoke; kept recall + windowed trend (commit 93cdef4d1).",
+      "resolvedAt": "2026-06-18T16:12:26.022Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c06a:F-003",
