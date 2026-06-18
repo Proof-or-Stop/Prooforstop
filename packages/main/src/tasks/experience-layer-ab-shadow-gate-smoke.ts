@@ -243,6 +243,23 @@ check('CHK-001 edge:3 — near-collision ids both return valid arms', () => {
   assert.ok((a === 'on' || a === 'off') && (b === 'on' || b === 'off'));
 });
 
+check('CHK-001 adversarial:3 — non-string inputs coerce to a valid, deterministic arm (never corrupt)', () => {
+  // resolveHintMode is typed string, but a caller could pass garbage at runtime.
+  // String(storyId) coercion must guarantee the arm is ALWAYS a valid HintMode
+  // ('on'/'off', never undefined/garbage) AND deterministic — so a non-string
+  // input can never silently corrupt the A/B assignment.
+  const obj = { storyId: 'B-06b3' };
+  const inputs: unknown[] = [null, undefined, 123, obj];
+  for (const raw of inputs) {
+    const first = resolveHintMode(raw as any);
+    assert.ok(first === 'on' || first === 'off',
+      `non-string input ${String(raw)} must yield a valid HintMode, got ${String(first)}`);
+    // Deterministic: same input twice => same arm (no corruption / no drift).
+    assert.equal(resolveHintMode(raw as any), first,
+      `non-string input ${String(raw)} must be deterministic across calls`);
+  }
+});
+
 // ─── story_review SHADOW gate: ON shows / OFF hides, both emit event ───────────
 
 check('CHK-002 happy:0/1/2/3 + adversarial:4 — ON shows section, OFF hides it; both emit event with arm + full set', () => {
