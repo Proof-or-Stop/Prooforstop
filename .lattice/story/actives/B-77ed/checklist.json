@@ -145,7 +145,19 @@
           }
         ]
       },
-      "userSees": "Heavy concurrent --no-retry stress prints FAILS=0 across >=24 runs, and `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` shows 0 — the 4 stopgap flags are retired and the smokes are stable under load without the retry net."
+      "userSees": "Heavy concurrent --no-retry stress prints FAILS=0 across >=24 runs, and `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` shows 0 — the 4 stopgap flags are retired and the smokes are stable under load without the retry net.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -c retryOnAnyFailure packages/main/smoke-manifest.json",
+          "result": "pass",
+          "note": "grep -c retryOnAnyFailure = 0 — all 4 stopgap flags removed",
+          "headHash": "d22355cf6506fe44ce2afc544fc5c02cafb87cba",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:29.344Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
