@@ -71,6 +71,25 @@
       "_hash": "14f128b33a7e9e132c280e45d290d5110f2af99d543c2f30c5b49752e4c733e7",
       "signatureTag": "edge|unknown|reviewer-smoke-whitespace",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5d48:F-005",
+      "desc": "types.ts:592 duplicates the inline literal 'auto' | 'confirmed' for Finding.signatureTagSource instead of referencing the canonical SignatureTagSource type exported from core/experience-layer-types.ts; if the type grows a third value both copies must be updated separately",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T13:40:10.891Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-002",
+      "_hash": "590e2d87c49e37411a69ccf6c0049e517245873c9fa99ba2cfb4452f85b10465",
+      "files": [
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/experience-layer-types.ts"
+      ],
+      "signatureTag": "missing|ts|types-duplicates-inline",
+      "signatureTagSource": "auto"
     }
   ]
 }
