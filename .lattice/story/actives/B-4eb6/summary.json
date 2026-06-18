@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4eb6",
+  "changes": "Added a learning_scan CLI that derives finding-signals through the store ports and persists them to .lattice/learning/finding-signals.json — the cache the Phase 1.5 hint loader reads. This activates the previously-inert advisory review hints (no command wrote that cache before). Reuses the existing deriveFindingSignalsFromStore + writeFindingSignals machinery (finding-signals.ts / learning-store.ts unchanged); the only write is the materialHash-excluded learning cache. Registered as an L2 experience-layer (cache-writing, NOT read-only) command across cli-engine/registry/config/command-policy/process-fact-levels; kept out of READ_ONLY_COMMANDS.",
+  "usage": "Run `node bin/lattice.js learning_scan` to derive+persist the cache; `learning_scan '{\"json\":true}'` for machine-readable output; `learning_scan '{\"story\":\"<id>\"}'` to restrict to one story.",
+  "expectedOutcome": "The scan derives the finding-signals, writes .lattice/learning/finding-signals.json, and prints a summary; afterward advisory review hints can fire (they were empty before).",
+  "actualTranscript": "learning_scan derived 31 signal(s) and wrote the cache (schemaVersion 1); --json emits {written,path,signals,schemaVersion,updatedAt}; --story restricts derivation; the hermetic smoke proves the hint loader returns NO hints before the scan and NON-EMPTY hints (recurring>=1, advisory header) after — the loop activates. git status shows no tracked-source change (cache is materialHash-excluded). Full npm test passes incl. process-fact-contract.",
+  "outcomeDiff": "Matches expected: the scan activates the hint loop end-to-end (empty before -> firing after).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The scan is a faithful snapshot of ALL derived signals; referential-staleness filtering is NOT applied here (it stays at read time via B-a2e3's revalidateSignals leaf). signatureTag auto-candidate capture (story 3.2), A/B hint-mode gating (3.3), and the effectiveness metric (3.4) are separate later stories. Activating hints does NOT by itself prove the Experience Layer makes development smarter.",
+  "pitfalls": "learning_scan WRITES the advisory cache, so it is NOT read-only — it must stay out of READ_ONLY_COMMANDS and carry a non-readOnly command-policy ownershipClass, and it MUST be registered in PROCESS_FACT_LEVELS (the derive-source for the process-fact contract; omitting it fails the npm test process-fact-contract suite). The cache lives under .lattice/learning/ (materialHash-excluded) so it never perturbs a gate. The first REVIEW round surfaced 2 test-coverage findings (resolved); the degraded 3x1 review escalation was recorded per solo-operator policy.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 169913
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 38268
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 415251
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 863566
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 842167
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 282321
+    }
+  },
+  "totalDurationMs": 2611511,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T02:41:01.132Z",
+  "updatedAt": "2026-06-18T02:41:01.132Z"
+}
