@@ -235,6 +235,38 @@ function run(): void {
     }
   });
 
+  // ─── LEAF ADVERSARIAL: duplicate anchorFiles do not double-count / flip state ─
+  // CHK-002:adversarial:3 — if anchorFiles somehow carries duplicates, the
+  // present/missing partition and the rolled-up counts must stay consistent: a
+  // signal is counted ONCE and its state is duplicate-invariant.
+  check('leaf: duplicate anchorFiles => dup-invariant state + no count inflation', () => {
+    // dup present path => still one signal, state valid, counted once.
+    const live = new Set<string>(['dup.ts']);
+    const validity = revalidateSignals(
+      cacheOf([sig('s|dup|ts|review', 'dup', ['dup.ts', 'dup.ts', 'gone.ts'])]),
+      (p) => live.has(p),
+    );
+    assert.equal(validity.length, 1);
+    assert.equal(validity[0].state, 'valid', 'present dup => valid (>=1 present)');
+    const report = computeValidRate(validity);
+    assert.equal(report.anchored, 1, 'one signal, not inflated by the duplicate');
+    assert.equal(report.valid, 1);
+    assert.equal(report.stale, 0);
+    assert.equal(report.validRate, 1);
+    assert.equal(report.driftRate, 0);
+
+    // all-gone duplicates => state stale, duplicates don't change it.
+    const staleValidity = revalidateSignals(
+      cacheOf([sig('s|allgone|ts|review', 'allgone', ['gone.ts', 'gone.ts'])]),
+      () => false,
+    );
+    assert.equal(staleValidity[0].state, 'stale', 'all-gone dup => stale');
+    const staleReport = computeValidRate(staleValidity);
+    assert.equal(staleReport.anchored, 1);
+    assert.equal(staleReport.stale, 1);
+    assert.equal(staleReport.driftRate, 1);
+  });
+
   console.log(`TOTAL ${total} | PASS ${passed} | FAIL ${total - passed}`);
   if (passed !== total) {
     process.exitCode = 1;
