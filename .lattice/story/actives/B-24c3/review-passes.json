@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T00:40:43.388Z",
       "reviewRunId": "B-24c3:RR-002",
       "_hash": "6b09c2df3b482a984546708fe7ae7945619fb60ae3b0fbb6a104e7524640b348"
+    },
+    {
+      "id": "B-24c3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Config-only change: 12 timeoutMs edits in smoke-manifest.json + 1 CHANGELOG entry. No concept deleted or replaced. All 12 CHANGELOG-declared bumps verified against diff (gap-log/init-check-fallback/scope-contract/story-capsule/story-create-concurrency/story-metadata-protection/unattended-dispatch default->180s; experience-layer-digest-extract new entry 180s; lattice-baseline 240->360s; cli-json-stdout-contract/dispatch-run 180->300s; decision-doc-promotion default->180s). No doc-promise-undelivered. Zero production source touched. Concept residue check: not applicable (no deletion/replacement). No blocker found.",
+      "createdAt": "2026-06-18T00:43:59.807Z",
+      "reviewRound": "2026-06-18T00:40:43.388Z",
+      "reviewRunId": "B-24c3:RR-003",
+      "_hash": "e14ebe9cdb7532c13aa5e6392405302ac69c8264f2ad281463ea307221bfc046"
     }
   ]
 }
