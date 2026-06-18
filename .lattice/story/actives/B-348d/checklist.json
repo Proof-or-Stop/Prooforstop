@@ -60,7 +60,7 @@
       "context": "Set retryOnAnyFailure:true on the four candidates: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard. BEFORE flagging each, re-run it standalone serial (node packages/main/dist/tasks/<name>-smoke.js) and confirm exit 0 — only serial-stable smokes qualify (a serial FAIL would be a real bug, not a load flake, and must NOT be allowlisted). Each flagged entry must be self-documenting (the manifest already carries the name; add a sibling _note or rely on the CHANGELOG to record WHY each is allowlisted = known parallel-load FAIL, serial-stable, deferred root-cause). Do NOT flag any smoke that is not in the findings list + not serial-verified.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-18T16:53:18.002Z",
+      "endTime": "2026-06-18T16:58:47.315Z",
       "userSees": "manifest shows retryOnAnyFailure:true on exactly the 4 verified load-flake smokes; each still serial-PASS.",
       "files": {
         "modify": [
