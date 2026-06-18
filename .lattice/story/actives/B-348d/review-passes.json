@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-18T17:12:07.020Z",
       "reviewRunId": "B-348d:RR-006",
       "_hash": "b01a0d2bbbee0785c3b0c1f58094b07ba7d4bb8fcdd897326fafe839f040e492"
+    },
+    {
+      "id": "B-348d:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Audited run-all-smokes.ts, run-all-smokes-smoke.ts, smoke-manifest.json (cases 12-14 + fixture-hardfail-flagged-E). No dead code, no type-safety issues, no bridge violations. FAIL=terminal default preserved: unflagged FAIL stays terminal (case 13 asserts no retry), flagged both-pass FAIL still ends exit 1 (case 14). All new additions are exercised; test assertions align with updated production string.",
+      "createdAt": "2026-06-18T17:14:37.796Z",
+      "reviewRound": "2026-06-18T17:12:07.020Z",
+      "reviewRunId": "B-348d:RR-005",
+      "_hash": "ead8ac2a806c99ad0710c4a39e1ff2d65c29891792d157383238999d18dffeb1"
     }
   ]
 }
