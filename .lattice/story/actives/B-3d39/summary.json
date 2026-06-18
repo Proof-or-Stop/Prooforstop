@@ -1,18 +1,18 @@
 {
   "storyId": "B-3d39",
-  "changes": "core/main-write-lock.ts: replaced the bare process-global heldLockPaths reentrancy predicate with an AsyncLocalStorage owner-token model (lockOwnerStore + currentContextOwns + extendedOwnerSet); reentrancy now = heldLockPaths.has(lockKey) && currentContextOwns(lockKey). Added exported runWithMainWriteLockContext for the acquire/release-pair form (chosen over enterWith which leaks ownership to siblings). handlers/transition-orchestrator.ts: DONE transition wrapped in runWithMainWriteLockContext (split into wrapper + Inner). core/codex-adapter-checks.ts: added @koala-agent/core to globalCoreCandidates (the real install brand — guard never fired before). tasks/main-write-lock-smoke.ts: section 7c updated to new contract + new section 9 deterministic async-sibling regression case. CHANGELOG entry.",
-  "usage": "No new command. The fix is transparent: a story marked DONE now reliably merges to main even when another story interleaves in the same process — no more manual git merge recovery. Operators running lattice codex verify now also get the heartbeat-only warning when the global lattice resolves to main dist (was silently suppressed).",
-  "expectedOutcome": "main-write-lock-smoke.ts passes deterministically incl section 9 (concurrent sibling contends, not mis-classified as reentrant); build clean; done-effects.ts + on-disk mkdir mutex unchanged; CHANGELOG documents the fix.",
-  "actualTranscript": "main-write-lock-smoke.js exit 0 deterministic 3/3 (section 9 B-3d39 async-sibling contention passes). Build clean. 5 reviewer lanes PASS (behavior, concept RP-005, quality RP-002, test-coverage RP-004, docs). 1 finding F-001 (field-regression-cli parallel-only FAIL, out of scope, lock change verified innocent — passes standalone serial) resolved. test:all run was real-world proof: all 4 actual timeouts HEALED by Plan B retry (Pass 2: 4/4 passed). Escalation not required (0/2). Delivery PASS 4/4 + 3/3.",
-  "outcomeDiff": "No difference vs goal: the DONE-merge lost-commit race is fixed and proven by the deterministic section-9 smoke. CHK-003:edge:0 (whole-suite green) waived for a pre-existing out-of-scope field-regression-cli flake — the lock change is innocent.",
+  "changes": "core/main-write-lock.ts: AsyncLocalStorage owner-token reentrancy (lockOwnerStore + currentContextOwns + extendedOwnerSet + runWithMainWriteLockContext); predicate = heldLockPaths.has && currentContextOwns. transition-orchestrator.ts wraps DONE window. codex-adapter-checks.ts += @koala-agent/core. main-write-lock-smoke.ts section 9 deterministic async-sibling regression. CHANGELOG.",
+  "usage": "Transparent fix: DONE reliably merges to main under parallel interleaving; no manual git merge recovery. codex verify heartbeat-only warning now fires.",
+  "expectedOutcome": "section-9 smoke deterministic pass; build clean; done-effects + mkdir mutex unchanged; CHANGELOG documents fix.",
+  "actualTranscript": "smoke exit 0 3/3; 5 lanes PASS; F-001 resolved (out of scope); Plan B healed all 4 timeouts in the test:all run; escalation not required; delivery 4/4+3/3.",
+  "outcomeDiff": "No difference vs goal; race fixed + proven by section-9 smoke. edge:0 whole-suite-green waived (pre-existing field-regression-cli flake, lock innocent).",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Plan B retry covers timeouts only, not load-induced FAILs — field-regression-cli (and review-pass-discard) can still parallel-FAIL non-deterministically (filed B-3d39:F-001 + B-24c3:F-001..F-004 for the architecture follow-up). The on-disk mkdir mutex + done-effects merge order + done_recover are unchanged. Authority/production receipts NOT issued (escalation not required).",
-  "pitfalls": "(1) AsyncLocalStorage enterWith LEAKS ownership: it persists for the rest of the current async execution, so when a DONE transition is kicked off alongside siblings sharing a parent frame, the owner set propagated up into the shared parent and across to the concurrent sibling — reproducing the exact bug. Must use lockOwnerStore.run (bounded subtree), not enterWith. (2) A deterministic concurrency regression test needs TRUE siblings: two runWithMainWriteLockContext calls from the same top frame with A parked at an await — synchronous nesting would legitimately inherit ownership and NOT reproduce the race. (3) done-recover.ts acquires the pair-form lock WITHOUT a context wrapper — safe only because it does raw git with no nested re-acquire (no-context = always-really-acquire = safe direction). Any future nested re-acquire there would self-contend until wrapped.",
+  "limitations": "Plan B retries timeouts not load-FAILs (F-001 tracked). mkdir mutex + done-effects + done_recover unchanged.",
+  "pitfalls": "enterWith leaks ownership to siblings — must use bounded lockOwnerStore.run. Deterministic concurrency test needs true siblings (two runWith from one frame, A parked at await). done-recover safe w/o wrapper only because it does raw git with no nested re-acquire.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 161767
+      "durationMs": 180079
     }
   },
-  "totalDurationMs": 3257630,
+  "totalDurationMs": 3275942,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-18T15:01:56.494Z",
-  "updatedAt": "2026-06-18T15:01:56.494Z"
+  "updatedAt": "2026-06-18T15:02:14.806Z"
 }
