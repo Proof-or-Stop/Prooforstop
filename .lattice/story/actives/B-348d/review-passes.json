@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-348d:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, no any-leaks, no empty catches, no I/O isolation violations. retryOnAnyFailure typed correctly as optional boolean. noRetry guard is now consolidated into the inner filter (line 274) and correctly removed from the redundant outer .filter, preserving the same semantics. Default FAIL-terminal invariant is structurally enforced (filter returns false unless TIMEOUT or retryOnAnyFailure===true) and confirmed by the anti-masking self-smoke (case 13). The .map().filter(!!e) defensive guard is correct because byName covers all selected entries. Smoke manifest changes are pure JSON with the new field only on 4 documented load-flake entries.",
+      "createdAt": "2026-06-18T17:03:31.753Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-001",
+      "_hash": "761352b4ee3522075e0131dc5518ff16e40b127a08be6a7b195de8b9981dc05b"
+    }
+  ]
+}
