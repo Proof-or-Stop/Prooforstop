@@ -1,0 +1,45 @@
+{
+  "storyId": "B-0717",
+  "checkedAt": "2026-06-18T14:10:25.144Z",
+  "features": [
+    {
+      "feature": "Execution plan doc creation: docs/requirements/decisions/cli-engine-modularization-execution-plan.md is the allowed story output",
+      "covered_by": "CHK-001; plan_get Scope Boundary allowed output",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 creates the execution-plan decision document and plan_get limits DEV output to that doc."
+    },
+    {
+      "feature": "Current cli-engine/registry/handlers/core/package/scripts inventory is used as read-only contract reference only",
+      "covered_by": "CHK-002; plan_get CHK-002 source-inventory commands",
+      "status": "covered",
+      "excluded_by": "CHK-002 excludes packages/main/src/cli-engine.ts, packages/main/src/registry.ts, packages/main/src/handlers, packages/main/src/core, packages/main/package.json, and scripts/verify-process-fact-contract.mjs",
+      "source": "CHK-002 explicitly treats source and script touchpoints as read-only inventory/verification references, not modification targets."
+    },
+    {
+      "feature": "Authority Server receipt path, local 3x2 quorum, and degraded 3x1 fallback boundary",
+      "covered_by": "CHK-003; plan_get CHK-003; plan_get Review And Gate Path",
+      "status": "covered",
+      "excluded_by": "CHK-003 excludes claiming Authority production completion without verified gate_decision receipt and excludes treating 3x1 as equivalent to 3x2",
+      "source": "CHK-003 covers receipt-backed Authority flow, required local 3 rounds x 2 hosts, and explicitly lower-assurance 3 rounds x 1 fallback."
+    },
+    {
+      "feature": "Source refactor or CLI behavior change in B-0717",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan_get Excluded from B-0717: Refactoring cli-engine.ts or moving code; CHK-001 excludes cli-engine.ts implementation changes; CHK-002 excludes source-code move and listed source/script paths",
+      "source": "B-0717 is documentation/planning only; no source refactor is in scope."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fc3599effef2701229d9b1f9081c10716d1b2a5c7a87224d4057f2bd3737ef7e",
+  "openQuestions": []
+}

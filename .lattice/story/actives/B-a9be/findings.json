@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {
+      "id": "B-a9be:F-001",
+      "desc": "packages/main/src/verifier/serve.ts:844 still tells users to run `npm run serve`, but the repo does not define that script and `lattice serve --help` only exposes `--dev` and `--port`. This leaves a user-facing fallback message that keeps the same stale command reference the story was meant to remove.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T14:08:09.059Z",
+      "reviewRound": "2026-06-18T14:03:12.707Z",
+      "reviewRunId": "B-a9be:RR-004",
+      "_hash": "f114b71a851931f9a1057d6102c7961381c6a273488273b9519479b3debeb35f",
+      "files": [
+        "packages/main/src/verifier/serve.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|packages-main-verifier",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated packages/main/src/verifier/serve.ts fallback hint from npm run serve to lattice serve, verified by the final docs check and the corrected serve docs audit path.",
+      "resolvedAt": "2026-06-18T14:13:08.252Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

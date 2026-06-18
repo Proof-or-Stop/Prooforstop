@@ -1,20 +1,18 @@
-# Framework Audit Report — round 8 (2026-06-18)
+# Framework Audit Report — round 9 (2026-06-18)
 
 - new drift: 0
-- still-drifting: 2
-- resolved-by-nature: 0
+- still-drifting: 0
+- resolved-by-nature: 2
 - skipped: 1
 
 ## Drifts
 
-| drift-type | section-path | symbol | severity | status | firstSeenRound | lastSeenAt |
-|---|---|---|---|---|---|---|
-| missing-flag | CLAUDE.md#三种运行模式 | lattice serve --web | medium | still-drifting | 7 | 2026-06-18T10:59:00.673Z |
-| missing-flag | CLAUDE.md#三种运行模式 | lattice serve --cli | medium | still-drifting | 7 | 2026-06-18T10:59:00.674Z |
+_no drift_
 
 ## Resolved this round (drift cleared)
 
-_none_
+- B-META-framework-audit:F-012
+- B-META-framework-audit:F-013
 
 ## Skipped
 

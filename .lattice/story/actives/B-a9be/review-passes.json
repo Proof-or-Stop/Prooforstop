@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-a9be:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Story is coherent and narrowly fixes visible serve-doc drift in CLAUDE.md without expanding into serve implementation or unrelated docs.",
+      "createdAt": "2026-06-18T14:05:07.577Z",
+      "reviewRound": "2026-06-18T14:03:12.707Z",
+      "reviewRunId": "B-a9be:RR-001",
+      "_hash": "da6d4e6796dbaed0ae32bea78fcc95f283205de4b29d1ac780bab4fcfccbbb86"
+    },
+    {
+      "id": "B-a9be:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "CLAUDE.md now matches lattice serve --help, and the framework-audit report clears F-012/F-013 with no remaining md drift.",
+      "createdAt": "2026-06-18T14:05:40.634Z",
+      "reviewRound": "2026-06-18T14:03:12.707Z",
+      "reviewRunId": "B-a9be:RR-002",
+      "_hash": "acf725d220c9e0fcfc0b3b22346b2805db4afcb93b0500b6d7dbbe656cb9815d"
+    },
+    {
+      "id": "B-a9be:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed the updated CLAUDE.md and the regenerated round-9 framework audit report; verification evidence covers both the doc edits and the cleared F-012/F-013 audit output, so there is no blocker for closure.",
+      "createdAt": "2026-06-18T14:06:16.593Z",
+      "reviewRound": "2026-06-18T14:03:12.707Z",
+      "reviewRunId": "B-a9be:RR-003",
+      "_hash": "adb97fa42954fb2ba19c9fbd0c3bb8240ce070538258b78da24ff77f0d1573b1"
+    },
+    {
+      "id": "B-a9be:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "CLAUDE.md, dev-cli.ts, and serve.ts now match the actual lattice serve surface; no blocking mismatch remains.",
+      "createdAt": "2026-06-18T14:14:51.791Z",
+      "reviewRound": "2026-06-18T14:12:03.855Z",
+      "reviewRunId": "B-a9be:RR-005",
+      "_hash": "a6e6eac3b34ecf266545c1aca7c1a3394f0c7c78c6d9553aafce6f4425774e4e"
+    },
+    {
+      "id": "B-a9be:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Verified fallback now tells users to run lattice serve, and the remaining serve docs no longer reference npm run serve or unsupported --web/--cli flags.",
+      "createdAt": "2026-06-18T14:15:01.801Z",
+      "reviewRound": "2026-06-18T14:12:03.855Z",
+      "reviewRunId": "B-a9be:RR-006",
+      "_hash": "c93b79e8bfa7370e0d0cb83db9a7d9d12da28b3bccd57c2beef0cc947c4fc190"
+    }
+  ]
+}

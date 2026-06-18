@@ -1,0 +1,57 @@
+{
+  "storyId": "B-0717",
+  "checkedAt": "2026-06-18T14:25:11.972Z",
+  "reviewRound": "2026-06-18T14:19:57.285Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "promise": "Document exists and is specific: it defines purpose, non-goals, current inventory, compatibility contract, four target module rounds, verification matrix, rollback/stop conditions, and reviewer checklist for B-0717.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD -- docs/requirements/decisions/cli-engine-modularization-execution-plan.md; checklist_get CHK-001",
+      "evidence": "Doc diff adds a 350-line execution plan; CHK-001 evidence confirms the declared document exists with purpose, non-goals, inventory, target boundaries, verification matrix, and rollback/stop conditions."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "promise": "No cli-engine implementation claim: B-0717 is documentation only and does not refactor packages/main/src/cli-engine.ts, move command handlers, or claim CLI engine decomposition is complete.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD --stat; document inspection",
+      "evidence": "Product diff adds only docs/requirements/decisions/cli-engine-modularization-execution-plan.md; the Purpose and Non-Goals sections state B-0717 does not refactor packages/main/src/cli-engine.ts or move handlers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "promise": "Authority receipt boundary: local status/readiness/local verdicts cannot claim production Authority completion; production completion requires a verified production gate_decision receipt consumed by lifecycle gates.",
+      "status": "verified",
+      "verifiedBy": "authority_status --json; document inspection; checklist_get CHK-003",
+      "evidence": "authority_status reports mode=off, status=not-configured, receiptVerified=false, productionDone=false, canClaimProductionDone=false; doc requires authority_receipt_verify against production gate_decision receipts before lifecycle consumption."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "promise": "Local 3x2 and degraded 3x1 boundary: high-risk local review uses 3 rounds x 2 independent hosts; 3x1 is lower-assurance degraded fallback only and never equivalent for major architecture work.",
+      "status": "verified",
+      "verifiedBy": "authority_verdict_list requiredHosts=2 --json; document inspection",
+      "evidence": "authority_verdict_list shows 6 pass verdicts, 2 independent passing hosts, multiHostVerified=true, authorityDone=false, receiptVerified=false, fullAuthorityDone=false; Local Quorum Flow labels 3x1 as degraded lower-assurance fallback only."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Document inspection pass. git diff main...HEAD shows the new docs/requirements/decisions/cli-engine-modularization-execution-plan.md artifact; checklist_get CHK-001 records docs_check evidence for existence, specific sections, explicit documentation-only boundary, and Authority-sensitive claims tied to mechanical verification/receipts."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Build/process/command ownership/main-write-lock/json stdout verification summary pass. checklist_get CHK-002 records the source inventory transcript and successful commands: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:main-write-lock-coverage; node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Authority and local quorum pass within stated boundary. authority_status --json reports mode=off, status=not-configured, authorityReady=false, receiptVerified=false, productionDone=false, canClaimProductionDone=false. authority_verdict_list for B-0717-cli-engine-plan-local-3x2 / B-0717-local-review-2026-06-18 reports 6 local pass verdicts, 2 independent passing hosts, multiHostVerified=true, with authorityDone=false, receiptVerified=false, fullAuthorityDone=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery passes for B-0717: the product artifact is a specific execution-plan document, not a cli-engine implementation; checklist evidence covers all 11 verification intents; validation passed; Authority production completion is not claimed because local status is off/not-configured and no production gate_decision receipt is verified; local 3x2 evidence passed and 3x1 remains explicitly degraded. No delivery blockers found."
+  },
+  "_hash": "9003bb4770e8a7db2b03468a345e0d8e690f77129174a8995fdda9c07611876d"
+}
