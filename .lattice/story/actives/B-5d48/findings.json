@@ -133,7 +133,7 @@
       "desc": "CHK-003:adversarial:2 evidence command mismatch: the intent requires the verifier to detect a deliberately-broken signFinding call and report FAIL>0 (negative self-test / exclusionCheckHasTeeth). The actual negative self-test (detectSignCallExcludesTag on a synthetic BAD_SIGN_SNIPPET) lives exclusively in verify-b-5d48.mjs, yet the bound evidence record uses command=npm --prefix packages/main run test:experience-layer-signature-capture (the smoke) and a note that describes only generic 15/15 smoke checks — no mention of negSelfTestRejectsBad or exclusionCheckHasTeeth. The smoke test does not contain any negative-path assertion. The evidence command must point to the command that actually executes the negative test (the verifier), and the note must concretely describe the BAD_SIGN_SNIPPET rejection result.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T13:53:38.894Z",
@@ -145,7 +145,11 @@
         "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts"
       ],
       "signatureTag": "missing|mjs|adversarial-evidence-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-bound CHK-003:adversarial:2 evidence to the verifier (node .lattice/.../verify-b-5d48.mjs) with a note citing negSelfTestRejectsBad/negSelfTestAcceptsGood/exclusionCheckHasTeeth — the literal command where the negative self-test runs. The test itself (added for F-006) was already correct; only the evidence pointer was wrong.",
+      "resolvedAt": "2026-06-18T13:55:29.110Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
