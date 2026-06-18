@@ -55,6 +55,21 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { createStoryReviewHandlers } from '../handlers/story-review.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { resolveHintMode } from '../core/hint-mode.js';
+
+// B-06b3: the advisory experience-hint SECTION is now A/B shadow-gated by
+// resolveHintMode(storyId) — only the ON arm renders it into _reviewPrompt. The
+// checks below that assert the SECTION IS PRESENT must therefore use ON-arm
+// storyIds (the gating itself has its own dedicated smoke,
+// experience-layer-ab-shadow-gate). This helper finds the first ON-arm id with
+// the given prefix so these legacy assertions keep exercising the present-path.
+function onArmId(prefix: string): string {
+  for (let i = 0; i < 100000; i++) {
+    const id = `${prefix}${i}`;
+    if (resolveHintMode(id) === 'on') return id;
+  }
+  throw new Error(`onArmId: no ON-arm id for prefix ${prefix}`);
+}
 
 const PINNED_NOW = '2026-06-17T00:00:00.000Z';
 
@@ -365,7 +380,7 @@ check('story_review with signals => advisory section present in _reviewPrompt + 
   const root = mkTempRoot();
   writeLatticeConfig(root);
   const store = new StoryStore(root);
-  const storyId = 'B-hint1';
+  const storyId = onArmId('B-hint1-'); // ON arm so the advisory SECTION renders (B-06b3 gate)
   seedStory(store, storyId);
   seedSignals(root, [
     signal({ localSignature: 'recA', signalScore: 0.9, support: 4, counts: { resolved: 4, dismissed: 0, falsePositive: 0, acceptedRisk: 0, unclear: 0, partiallyMitigated: 0 } }),
@@ -384,7 +399,7 @@ check('advisory section mirrors grillSection placement (appears before Checklist
   const root = mkTempRoot();
   writeLatticeConfig(root);
   const store = new StoryStore(root);
-  const storyId = 'B-hint-place';
+  const storyId = onArmId('B-hint-place-'); // ON arm so the advisory SECTION renders (B-06b3 gate)
   seedStory(store, storyId);
   seedSignals(root, [
     signal({ localSignature: 'recP', signalScore: 0.9, support: 4, counts: { resolved: 4, dismissed: 0, falsePositive: 0, acceptedRisk: 0, unclear: 0, partiallyMitigated: 0 } }),
@@ -426,7 +441,7 @@ check('special-character signals render without breaking prompt structure', () =
   const root = mkTempRoot();
   writeLatticeConfig(root);
   const store = new StoryStore(root);
-  const storyId = 'B-hint-inj';
+  const storyId = onArmId('B-hint-inj-'); // ON arm so the advisory SECTION renders (B-06b3 gate)
   seedStory(store, storyId);
   seedSignals(root, [
     signal({
