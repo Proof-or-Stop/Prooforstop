@@ -81,6 +81,17 @@
           "headHash": "7de78c1971e25a7ce6c0b0a8fe8fd59d61df2743",
           "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
           "timestamp": "2026-06-18T00:40:13.553Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b24c3-self.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — runner self-smoke 9/9 PASS, dedup check confirms (preMortem D2).",
+          "headHash": "bb46cf01cf5bbb8cb9a972e270d365a2842916af",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:15.251Z"
         }
       ]
     },
