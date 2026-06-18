@@ -71,7 +71,30 @@
       "userSees": "package.json + packages/main/package.json no longer contain github.com/koala-agent/koala URLs; npm still builds; the test:koala-residue gate script remains.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -n koala-agent/koala package.json packages/main/package.json returns nothing; both files are valid JSON",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:koala-residue script entry (package.json:19) is preserved and still runnable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "npm build/test still parse package.json (no JSON syntax break from field deletion); no salt touched",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
