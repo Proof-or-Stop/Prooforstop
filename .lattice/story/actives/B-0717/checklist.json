@@ -88,9 +88,9 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T14:18:47.597Z",
-      "endTime": null,
+      "endTime": "2026-06-18T14:19:12.998Z",
       "userSees": "Final response includes: \"Verified the plan against current cli-engine.ts inventory, registry/handler split, exported compatibility surfaces, and available package verification commands.\"",
       "excludes": [
         "packages/main/src/cli-engine.ts",
@@ -137,7 +137,49 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "wc -l packages/main/src/cli-engine.ts && rg -n \"MAIN_TOOLS|parseFlags|ownerLeaseHelpBlock|resolveEffectiveOwnershipClass|enforceStoryOwnerLeaseGate|commitInitCheckMetadataAndMergeMain|runCli|story_create|story_advance|recover_evidence\" packages/main/src/cli-engine.ts && rg -n \"from ./cli-engine|cli-engine\" packages/main/src packages/main/tests scripts package.json packages/main/package.json",
+          "result": "pass",
+          "note": "Source inventory confirms cli-engine.ts is 4450 lines, owns MAIN_TOOLS/flag helpers/owner and reviewer gates/init-check sync/runCli special dispatch, and handlers are already separated through registry/handlers consumers rather than requiring handler moves first.",
+          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:13.109Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Compatibility Contract section lists MAIN_TOOLS, parseFlags, parseFlagsTest, coerce, addValue, ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, reviewer read-only helpers, and commitInitCheckMetadataAndMergeMain as preserve-or-migrate symbols.",
+          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:13.208Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:main-write-lock-coverage && node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
+          "result": "pass",
+          "note": "All executable verification matrix commands completed successfully; JSON stdout smoke was run via direct dist task because no package script is declared for it.",
+          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:13.311Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Target Module Boundaries split by responsibility rather than line count and each round has stop conditions for command disappearance, schema drift, JSON stdout changes, owner/reviewer gate weakening, and INIT_CHECK metadata regression.",
+          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
+          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
+          "timestamp": "2026-06-18T14:19:13.411Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -221,6 +263,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start verification of the plan against current cli-engine and command contracts."
+    },
+    {
+      "timestamp": "2026-06-18T14:19:12.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Plan verified against current cli-engine inventory and command contract checks."
     }
   ]
 }
