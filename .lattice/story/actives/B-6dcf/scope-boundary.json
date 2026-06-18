@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6dcf",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add root diagnostics to lattice check managed asset result and text rendering",
+    "Add wrapper-root regression coverage for check diagnostics",
+    "Update closely related docs only if the CLI contract changes"
+  ],
+  "excluded": [
+    "Change doctor/gitRoot execution behavior already covered by prior stories",
+    "Change global install or release push behavior",
+    "Move managed asset writes from metadata root into gitRoot",
+    "Run lattice check --apply in ClawCreek as part of this code story"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked to solve the remaining lattice check metadata root vs gitRoot ambiguity using the Lattice flow.",
+  "createdAt": "2026-06-18T01:31:26.112Z",
+  "updatedAt": "2026-06-18T01:31:26.112Z",
+  "_hash": "1542f974c9a69ef15b523979a53295e0472cece56bbd6fb636db87bc594b3aa4"
+}

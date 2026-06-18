@@ -1,0 +1,23 @@
+{
+  "task": "Produce a complete requirements recommendation document for the Lattice Console demo MVP and link it from requirements navigation.",
+  "outcome": "User opens docs/requirements/decisions/lattice-console-demo-mvp-requirements.md and sees explicit requirements for live Lattice data, aesthetic spacing/symmetry/minimalism, host-neutral philosophy, every clickable demo target resolving to a product-logical detail, recovery commands, authority boundaries, and acceptance criteria; NAV links to the document.",
+  "facts": [
+    "/Users/jek/Documents/lattice-console-demo.html is a static prototype with Overview, Active Stories, DONE Pre-check, Bugs and Findings, Hosts and Runtimes, Trajectory/Truth, and Authority pages.",
+    "docs/requirements/decisions/host-neutral-observability-console.md already exists as the adopted source-of-truth reference for the read-only host-neutral observability console.",
+    "The prototype currently hard-codes metrics and therefore needs a live CLI JSON data contract before implementation.",
+    "The user explicitly added three quality bars: visual aesthetics/spacing/symmetry/minimalism, Lattice core philosophy, and every clickable demo element opening according to Lattice product logic."
+  ],
+  "constraints": [
+    "Document-only story: do not implement the console or runtime adapter.",
+    "Keep workflow commands host-neutral and adapter-specific commands clearly bounded.",
+    "Do not alter Lattice authority, receipt, lifecycle, or CLI runtime behavior.",
+    "Do not directly edit docs/story/** or tests/fixtures/**.",
+    "Only fix real requirements correctness gaps; do not add arbitrary optimization."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-16T00:56:15.112Z"
+}

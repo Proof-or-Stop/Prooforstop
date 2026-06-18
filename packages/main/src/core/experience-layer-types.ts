@@ -59,6 +59,13 @@ export interface FindingSignal {
   exampleStoryIds: string[];
   /** Up to a few example finding ids contributing to this signature (deduped, sorted). */
   exampleFindingIds: string[];
+  /**
+   * Bounded union of the concrete file paths the composing findings referenced
+   * (deduped, sorted, capped). Used for referential re-validation — checking
+   * whether a signal's code anchors still exist at HEAD. Absent when no composing
+   * finding carried any files.
+   */
+  anchorFiles?: string[];
 }
 
 /** The derived-cache envelope persisted to `.lattice/learning/finding-signals.json`. */

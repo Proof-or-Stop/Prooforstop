@@ -1,0 +1,59 @@
+{
+  "storyId": "B-a2e3",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/experience-revalidation.ts",
+    "packages/main/src/handlers/learning-validate.ts",
+    "packages/main/src/tasks/experience-layer-revalidation-smoke.ts",
+    "packages/main/src/tasks/experience-layer-revalidation-cli-smoke.ts",
+    ".lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-revalidation-smoke.ts",
+    "packages/main/src/tasks/experience-layer-revalidation-cli-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/finding.ts"
+  ],
+  "scopeChangeReason": "Register learning_validate in PROCESS_FACT_LEVELS (process-fact-contract requires every MAIN_TOOLS command to have a process-fact level entry).",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "verify-result.json is the committed verifier own machine-readable output (sibling of verify-b-a2e3.mjs); intentional evidence artifact, not source expansion.",
+      "timestamp": "2026-06-18T00:41:04.956Z",
+      "paths": [
+        ".lattice/story/actives/B-a2e3/evidence/verify-result.json"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "verifier machine-readable output artifact; intentional, not source expansion.",
+      "timestamp": "2026-06-18T00:52:16.303Z",
+      "paths": [
+        ".lattice/story/actives/B-a2e3/evidence/verify-result.json"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "verifier output artifact; intentional.",
+      "timestamp": "2026-06-18T00:59:35.727Z",
+      "paths": [
+        ".lattice/story/actives/B-a2e3/evidence/verify-result.json"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-17T23:47:40.627Z",
+  "updatedAt": "2026-06-18T00:59:35.727Z"
+}

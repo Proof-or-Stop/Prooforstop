@@ -1,0 +1,305 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Map decision-doc verificationRequirements to implemented promotion coverage",
+      "context": "gap_analyze reports decision-doc-promotion-execution-plan.md:174 verificationRequirements as uncovered. Verify existing decision_doc promotion schema/handler/smoke covers preview/save/local quorum separation. If implementation exists, add or adjust only machine-readable task annotation text. If implementation does not exist, stop and record a real finding instead of annotating over the gap.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-18T02:00:32.339Z",
+      "userSees": "User sees `lattice gap_analyze --json` omit the high gap `decision-doc-promotion-execution-plan.md:174 verificationRequirements`; if the implementation proof is absent, user sees a B-5155 finding titled `verificationRequirements implementation missing` and this item is not marked done.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`lattice gap_analyze --json` no longer reports the decision-doc-promotion verificationRequirements row after a truthful @task annotation is added to the existing promotion smoke.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If inspection shows preview/save/local quorum separation is not implemented, do not add a coverage annotation; record a real finding and leave the gap visible.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Annotation wording must not claim Authority Server completion; it may only describe existing local promotion coverage and separation from receipt-backed completion.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze --json",
+          "result": "pass",
+          "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists decision-doc-promotion-execution-plan.md:174 verificationRequirements.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "node packages/main/dist/tasks/decision-doc-promotion-smoke.js",
+          "result": "pass",
+          "note": "decision doc promotion smoke passed 9 checks, confirming the implementation exists; no finding branch was needed.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "git diff main...HEAD -- packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "result": "pass",
+          "note": "diff adds local CLI coverage wording only and does not claim Authority Server receipt-backed completion.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Map runtime-owned requirementsDir project fact to existing config/asset coverage",
+      "context": "gap_analyze reports lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir as uncovered. Verify requirementsDir remains a project structure fact handled by config/truth/story review paths. If implementation exists, add or adjust only a task annotation anchor in existing smoke/code coverage. If implementation does not exist, stop and record a real finding instead of annotating over the gap.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-18T02:01:02.975Z",
+      "userSees": "User sees `lattice gap_analyze --json` omit the high gap `lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir`; if requirementsDir is not actually handled as a project structure fact, user sees a B-5155 finding titled `requirementsDir implementation missing` and this item is not marked done.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`lattice gap_analyze --json` no longer reports the runtime-owned requirementsDir row after a truthful @task annotation is added to existing runtime-owned asset smoke coverage.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A project with no prompt asset config still resolves runtime-owned assets while requirementsDir remains project config, not prompt asset ownership config.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Do not introduce project-local prompt templates or thin config into downstream projects solely to satisfy requirementsDir coverage.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze --json",
+          "result": "pass",
+          "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "runtime-owned-agent-assets-smoke passed, confirming runtime-owned prompt registry behavior while requirementsDir remains a project config fact.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "git diff main...HEAD -- packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "result": "pass",
+          "note": "diff adds only a local annotation anchor; it does not introduce project-local prompt templates or downstream thin config.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Map future-blocked key-ref boundary without implementing locked suite",
+      "context": "gap_analyze reports the third selected key-ref redacted/non-secret row as uncovered. Preserve the existing future/blocked note and bind that boundary to existing scope/status coverage. Do not implement the key-ref field or claim completion of the locked safety suite.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-18T02:01:11.623Z",
+      "userSees": "User sees `lattice gap_analyze --json` omit the high gap `customerKeyRef | Must be redacted and non-secret`, while code comments still say `customerKeyRef remains future/blocked` and no completion fields such as `receiptVerified=true` or `productionDone=true` are introduced.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`lattice gap_analyze --json` no longer reports the customerKeyRef redacted/non-secret row because an existing future/blocked boundary is truthfully anchored in code annotation text.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The row remains future/blocked; this story does not implement customerKeyRef producer, loader, verifier, receipt, or evaluator consumption.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diff must not introduce receiptVerified=true, productionDone=true, authorityDone=true, fullAuthorityDone=true, or any claim that customerKeyRef is current implemented support.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze --json",
+          "result": "pass",
+          "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists the customerKeyRef redacted/non-secret row.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "git diff main...HEAD -- packages/main/src/core/scope-anti-expansion.ts",
+          "result": "pass",
+          "note": "diff anchors customerKeyRef as future/blocked, redacted, and non-secret; it does not implement producer, loader, verifier, receipt, or evaluator consumption.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD -- packages/main/src/core/scope-anti-expansion.ts packages/main/src/tasks/authority-status-smoke.ts",
+          "result": "pass",
+          "note": "diff did not touch authority-status-smoke.ts and does not introduce receiptVerified=true, productionDone=true, authorityDone=true, or fullAuthorityDone=true.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify gap_analyze no longer reports high gaps",
+      "context": "Run build/targeted validation and lattice gap_analyze before and after. The final state must show 0 high gaps and no server-backed completion overclaim.",
+      "relatedDocs": [
+        "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-18T02:01:19.867Z",
+      "userSees": "User sees `Gaps: 0 high / 0 medium` at the top of `lattice gap_analyze --json` output and `No high-priority gaps: PASS` in `lattice convergence_check`; any remaining blockers are reported as unrelated active-story or legacy annotation issues, not these three rows.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the patch, build and targeted smoke commands pass, and `lattice gap_analyze --json` reports `Gaps: 0 high / 0 medium`.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If convergence_check has unrelated blockers, report them separately and verify the `No high-priority gaps` check passes for this story scope.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The verification transcript must not treat local gap_analyze success as Authority Server receipt-backed completion.",
+            "type": "manual"
+          }
+        ]
+      },
+      "excludes": [
+        "packages/main/src/tasks/gap-analyze.ts"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/decision-doc-promotion-smoke.js && node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && lattice gap_analyze --json",
+          "result": "pass",
+          "note": "build passed; decision-doc promotion smoke passed 9 checks; runtime-owned-agent-assets-smoke passed; gap_analyze returned Gaps: 0 high / 0 medium.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check --json",
+          "result": "pass",
+          "note": "No high-priority gaps passed. Overall convergence remains false only because of unrelated active stories and pre-existing annotation errors in english-open-source-surface-smoke.ts, lattice-only-absence-smoke.ts, and verification-intent-repair-smoke.ts.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "manual review of diff and verification transcript",
+          "result": "pass",
+          "note": "Verification is local Non-authority evidence only; no Authority Server receipt-backed completion, productionDone, authorityDone, or fullAuthorityDone is claimed.",
+          "headHash": "3d5af5613826fafa8b29659587c23e6419666a1b",
+          "materialHash": "0b9abc5675e1fce343ae5c27b62dcc715ddedb0d4dcc3b01ffd7791e8ad42fea",
+          "timestamp": "2026-06-18T02:28:35.105Z"
+        }
+      ]
+    }
+  ]
+}

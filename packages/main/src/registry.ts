@@ -64,6 +64,7 @@ import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-prom
 import { createSignatureRegistryHandlers } from './handlers/signature-registry.js';
 import { createPlaybookHandlers } from './handlers/playbook.js';
 import { createRecallHandlers } from './handlers/recall.js';
+import { createLearningValidateHandlers } from './handlers/learning-validate.js';
 import { createReviewEscalationHandlers } from './handlers/review-escalation.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
@@ -233,6 +234,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // writes only under .lattice/learning/. Approve fails closed on a stale digest.
   registry.registerBatch(createPlaybookHandlers(ctx));
   registry.registerBatch(createRecallHandlers(ctx));
+  registry.registerBatch(createLearningValidateHandlers(ctx));
   registry.registerBatch(createReviewEscalationHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));

@@ -1,0 +1,53 @@
+{
+  "storyId": "B-0414",
+  "checkedAt": "2026-06-18T01:22:32.968Z",
+  "reviewRound": "2026-06-16T01:02:08.129Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "promise": "The requirements recommendation explicitly treats aesthetics, spacing, symmetry, simplicity/minimalism, restrained hierarchy, and semantic color use as product-ready requirements.",
+      "status": "verified",
+      "verifiedBy": "manual line review plus validate coverage",
+      "evidence": "Verified in docs/requirements/decisions/lattice-console-demo-mvp-requirements.md:66-70,254-278,422-438; validate --story=B-0414 --json --forceTakeover passed CHK-002 edge coverage."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "promise": "The recommendation reflects Lattice core design philosophy: host-neutral workflow, CLI-owned truth, evidence-backed gates, recovery before analytics, read-only MVP behavior, and explicit authority boundaries.",
+      "status": "verified",
+      "verifiedBy": "manual line review plus validate coverage",
+      "evidence": "Verified in docs/requirements/decisions/lattice-console-demo-mvp-requirements.md:47-70,96-116,118-252,312-438; validate --story=B-0414 --json --forceTakeover passed CHK-001 and CHK-002 coverage."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "promise": "Every clickable demo area must resolve to a meaningful drawer, route, disabled-state explanation, or close action and must preserve Lattice product logic.",
+      "status": "verified",
+      "verifiedBy": "manual line review plus validate coverage",
+      "evidence": "Verified in docs/requirements/decisions/lattice-console-demo-mvp-requirements.md:69-70,279-311,436-438,452-453; validate --story=B-0414 --json --forceTakeover passed CHK-002 adversarial coverage."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "The requirements navigation exposes the Lattice Console Demo MVP recommendation with the correct file count and link.",
+      "status": "verified",
+      "verifiedBy": "manual line review plus focused git diff",
+      "evidence": "Verified docs/requirements/NAV.md:3 and docs/requirements/NAV.md:22; focused NAV comparison shows the 50 to 51 count update and the decisions/lattice-console-demo-mvp-requirements.md entry."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-0414-delivery",
+      "transcript": "Ran node packages/main/dist/cli.js validate --story=B-0414 --json --forceTakeover in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-0414. Result: status=pass, allPass=true, npm test passed, verification intent coverage 9/9 covered with 0 required missing."
+    },
+    {
+      "featureId": "B-0414-scope",
+      "transcript": "Reviewed git status --short, git diff --name-status main...HEAD, git diff main...HEAD -- docs/requirements/decisions/lattice-console-demo-mvp-requirements.md, and focused NAV diff. Story-scoped changes are the requirements recommendation and Lattice metadata/evidence; NAV content in the worktree has the expected count and entry."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review passes from the user perspective: the requirements document explicitly covers aesthetics/spacing/symmetry/simplicity, Lattice core philosophy, and product-logical clickable resolution; validation passed with 9/9 intent coverage; no unresolved delivery blocker found."
+  },
+  "_hash": "7171bcb9e3fd768e24d019c5425b80019ebb63c0de26a5f86112e7a821311ff8"
+}

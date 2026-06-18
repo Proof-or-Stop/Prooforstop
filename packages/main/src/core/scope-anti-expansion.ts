@@ -1,5 +1,18 @@
 /**
- * Pure INIT→INIT_CHECK scope anti-expansion evaluator.
+ * @task B-5155
+ * @checklist CHK-003
+ * @title Map future-blocked key-ref boundary without implementing locked suite
+ * @type chore
+ * @priority high
+ * @description
+ *   Pure INIT→INIT_CHECK scope anti-expansion evaluator.
+ *   The existing excluded-keyword boundary keeps `customerKeyRef` future/blocked,
+ *   `redacted`, and `non-secret`; it does not implement customerKeyRef and must
+ *   not be read as current support.
+ * @changes
+ *   - Preserve the current `DEFAULT_CORRECTNESS_FIX_EXCLUDED_KEYWORDS`
+ *     boundary and expose a truthful anchor for `customerKeyRef` as
+ *     future/blocked.
  *
  * Handlers are expected to pass a bounded projection of story title/description,
  * checklist title/context/excludes, scope boundary, execution boundary, and any

@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-5155:F-001",
+      "desc": "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts:6-16 claims the runtime-owned agent asset path already treats requirementsDir as a project fact and exposes existing requirementsDir config coverage, but this smoke only exercises prompt-registry asset resolution and Non-authority boundaries. The implementation in packages/main/src/core/agent-asset-resolution.ts:48-50,203-220 inspects .claude/agents and .lattice-codex/agents and never reads or asserts requirementsDir, so the annotation overstates the implemented coverage and can act as a false gap_analyze anchor.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-18T02:05:22.581Z",
+      "reviewRound": "2026-06-18T02:01:39.916Z",
+      "reviewRunId": "B-5155:RR-003",
+      "_hash": "c23b3d21913bcdef7957cd9fc34779fe1bfe7b03def6eaff451db4d71482545d",
+      "resolvedReason": "Fixed by commit 31682c489e0951f687e170f9a8bd5da619de397e: removed the false requirementsDir claim from runtime-owned-agent-assets-smoke.ts and added a truthful requirementsDir anchor to truth.ts where scanTruth/generateNav consume loadConfig(projectRoot).requirementsDir. Verified npm build, runtime-owned-agent-assets smoke, gap-analyze-input-hygiene smoke, and lattice gap_analyze 0 high/0 medium.",
+      "resolvedAt": "2026-06-18T02:14:04.181Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

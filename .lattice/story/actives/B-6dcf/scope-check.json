@@ -1,0 +1,59 @@
+{
+  "storyId": "B-6dcf",
+  "checkedAt": "2026-06-18T01:37:35.986Z",
+  "features": [
+    {
+      "feature": "lattice check --json exposes explicit managed asset root diagnostics: metadataRoot, assetRoot, gitRoot, and path-relativity context",
+      "covered_by": "CHK-001; understanding.outcome; decision.chosen Option A; plan CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get:CHK-001; understanding_get; decision_get; plan_get"
+    },
+    {
+      "feature": "lattice check text output renders clear metadata/asset-root path-base guidance before apply recommendations, including split-root display when metadataRoot differs from gitRoot",
+      "covered_by": "CHK-002; understanding.constraints; plan CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get:CHK-002; understanding_get; plan_get"
+    },
+    {
+      "feature": "wrapper-root regression coverage proves JSON/text diagnostics and preserves metadata-root relPath/apply semantics when metadataRoot is not gitRoot",
+      "covered_by": "CHK-003; decision.preMortem[2]; plan CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get:CHK-003; decision_get; plan_get"
+    },
+    {
+      "feature": "move managed asset writes to gitRoot",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story scope explicit exclusion; understanding.constraints[0]; decision rejected Option B; plan Boundary Do not",
+      "source": "user scope; understanding_get; decision_get; plan_get"
+    },
+    {
+      "feature": "run or apply managed assets against external ClawCreek project",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story scope explicit exclusion; understanding.constraints[4]; plan Boundary Do not",
+      "source": "user scope; understanding_get; plan_get"
+    },
+    {
+      "feature": "doctor or gitRoot execution behavior changes outside lattice check diagnostics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story scope explicit exclusion; understanding.facts[3]; plan Boundary Do not",
+      "source": "user scope; understanding_get; plan_get"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3b504454d36d709da4a6b81408f625667384e77f99e5e2d12568186417e5f598",
+  "openQuestions": []
+}

@@ -1766,6 +1766,10 @@ Behavior:
     query: z.string().optional().describe('Ad-hoc free-text query; recall ranks stories matching its keywords. Pass either --story OR --query, not both.'),
     top: z.coerce.number().int().optional().describe('Max number of ranked matches to return (default 5; <=0 returns none).'),
   }},
+  { name: 'learning_validate', description: 'Report Experience Layer referential validity: valid-rate / drift-rate of finding-signals vs HEAD (read-only; advisory; writes nothing)', schema: {
+    json: z.boolean().optional().describe('Emit the machine-readable ValidRateReport as JSON.'),
+    story: z.string().optional().describe('Restrict derivation to a single story id.'),
+  }},
 
   // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering plus manual merge/split).
   //
@@ -2950,6 +2954,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'autopilot_status',
   'autopilot_watch',
   'autopilot_review',
+  'learning_validate', // read-only Experience Layer validity instrument; writes nothing
 ]);
 
 function inferCodexEntrypoint(): string {

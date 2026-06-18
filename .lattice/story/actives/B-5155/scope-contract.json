@@ -1,0 +1,37 @@
+{
+  "storyId": "B-5155",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/src/core/scope-anti-expansion.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Concept reviewer B-5155:F-001 showed the CHK-002 requirementsDir anchor in runtime-owned-agent-assets-smoke was false; truth.ts is the minimal real requirementsDir consumer via scanTruth/generateNav.",
+      "timestamp": "2026-06-18T02:13:05.051Z",
+      "paths": [
+        "packages/main/src/tasks/truth.ts"
+      ],
+      "anchors": [
+        "requirementsDir",
+        "scanTruth",
+        "generateNav",
+        "localNonAuthorityAudit"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-18T02:01:34.488Z",
+  "updatedAt": "2026-06-18T02:13:05.051Z"
+}

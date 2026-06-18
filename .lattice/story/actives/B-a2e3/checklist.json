@@ -9,9 +9,139 @@
         "No change to localSignature key",
         "No change to signalScore/support math"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T23:54:47.067Z",
+      "endTime": "2026-06-18T00:05:59.161Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveFindingSignals with findings that have non-empty files[] -> resulting FindingSignal has anchorFiles populated as sorted union of all finding.files; WHY: confirms the core data flow from finding.files to anchorFiles",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveFindingSignals with findings that have empty/missing files[] -> resulting FindingSignal has no anchorFiles field (omitted, not empty array); WHY: confirms clean output for legacy signals",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "deriveFindingSignals with more distinct files across findings than MAX_ANCHOR_FILES -> anchorFiles is capped at MAX_ANCHOR_FILES length, sorted, no duplicates; WHY: boundary guard against unbounded growth",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveFindingSignals with a single finding whose files contains duplicates -> anchorFiles is deduplicated; WHY: ensures Set-based dedup works",
+            "type": "cli"
+          },
+          {
+            "desc": "localSignature key computation unchanged after anchorFiles addition -> signals with identical category/signatureTag/fileKind/lifecyclePhase still aggregate together; WHY: guards excludes constraint",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "deriveFindingSignals with finding.files containing non-string values (numbers, null, objects) -> anchorFiles only includes valid strings; WHY: real findings can have malformed data",
+            "type": "cli"
+          },
+          {
+            "desc": "signalScore and support values are identical before and after anchorFiles addition for same input -> no regression to scoring math; WHY: guards the excludes constraint that scoring is unchanged",
+            "type": "cli"
+          },
+          {
+            "desc": "anchorFiles contains only string-filtered entries from finding.files (same filter as toSourceFinding) -> no path traversal sequences or empty strings leak through; WHY: adversarial input sanitation",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/finding-signals.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier runs build + the leaf & CLI smokes + no-regression smokes (finding-signals/playbook/recall) and confirms localSignature/signalScore unchanged — TOTAL 44 | PASS 44 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +152,180 @@
         "No filesystem or git access in the leaf",
         "No persisted output"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T23:55:24.625Z",
+      "endTime": "2026-06-18T00:06:05.256Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "revalidateSignals with 3 signals (1 has all anchors present, 1 has all anchors gone, 1 has no anchorFiles) -> returns validity array with states valid/stale/unanchored respectively; WHY: covers all three classification branches",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate on [2 valid, 1 stale, 1 unanchored] -> total=4, anchored=3, valid=2, stale=1, unanchored=1, validRate=2/3, driftRate=1/3; WHY: confirms the ANCHORED-ONLY denominator formula and all counter fields",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals with a signal where anchorFiles has 5 files, 1 present and 4 missing -> state is valid (not stale); WHY: confirms >=1 anchor present threshold",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "computeValidRate with zero anchored signals (all unanchored) -> validRate=0, driftRate=0, never NaN; WHY: guards the zero-denominator edge case that would produce NaN without the ternary guard",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate with empty validity array -> total=0, anchored=0, validRate=0, driftRate=0; WHY: empty-input boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals with signal whose anchorFiles is empty array [] -> classified as unanchored (same as absent); WHY: empty array is a degenerate form of no-anchor",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate with all valid signals (zero stale) -> driftRate=0, validRate=1.0; WHY: confirms perfect health scenario",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no node:fs, no child_process, no node:path) -> static import analysis confirms leaf purity; WHY: the leaf must never do I/O itself, fileExists is injected",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals called with fileExists that throws on certain paths -> exception propagates (not silently swallowed); WHY: callers must handle fs errors at the handler layer, not inside the pure leaf",
+            "type": "cli"
+          },
+          {
+            "desc": "computeValidRate with a single stale signal among 100 unanchored -> anchored=1, stale=1, driftRate=1.0, not diluted by unanchored count; WHY: adversarial scenario where unanchored signals could dilute the denominator if the formula is wrong",
+            "type": "cli"
+          },
+          {
+            "desc": "revalidateSignals with duplicate file paths in anchorFiles -> present/missing partition still correct (no double-counting); WHY: if anchorFiles somehow has duplicates, classification must be consistent",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/experience-revalidation.ts"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no fs/child_process) — leaf purity (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.932Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no fs/child_process) — leaf purity (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Leaf smoke now binds this intent directly: a signal with anchorFiles [dup.ts,dup.ts,gone.ts] (present={dup.ts}) classifies valid with anchored=1/valid=1/stale=0 (duplicate inflates nothing, signal counted once), and [gone.ts,gone.ts] vs empty set classifies stale — revalidateSignals partition is duplicate-invariant. TOTAL 13 | PASS 13 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -36,9 +337,213 @@
         "No finding_add / advisory output",
         "No cache write"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T23:55:52.170Z",
+      "endTime": "2026-06-18T00:06:13.112Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice learning_validate in a repo with finding history -> prints human-readable report containing valid-rate and drift-rate lines; WHY: confirms the core user-facing output",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate --json -> outputs valid JSON with total/anchored/valid/stale/unanchored/validRate/driftRate fields; WHY: confirms machine-readable output path",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate --story B-xxxx -> restricts derivation to that story only; WHY: confirms the optional story filter works",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate registered in cli-engine.ts with schema {json?: boolean, story?: string} -> command is discoverable and schema matches; WHY: confirms CLI wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate registered in registry.ts via createLearningValidateHandlers -> handler is callable; WHY: confirms handler registration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice learning_validate in a repo with no finding history (empty store) -> prints valid-rate 0 / drift-rate 0, does not crash; WHY: empty-store boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate when git ls-tree HEAD fails (not a git repo or empty repo) -> treats file set as empty (all anchored signals become stale), does not crash; WHY: confirms the try/catch fallback in fileExists construction",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate appears in core/config.ts DEFAULT_PHASE_TOOLS wildcard list -> command is allowed in all phases; WHY: confirms phase-access registration",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate has command-policy entry with status=supported, ownershipClass=readOnly, allowedPhases=all, destructiveRisk=none -> policy metadata correct; WHY: confirms read-only classification",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "after running lattice learning_validate, no files in .lattice/ are modified (finding-signals.json not written, no gate touched, no findings added) -> verify via git diff or file stat; WHY: the handler must NOT persist anything -- deriveFindingSignalsFromStore called WITHOUT projectRoot",
+            "type": "cli"
+          },
+          {
+            "desc": "handler does NOT call finding_add, advisory_add, or any gate registration function -> static analysis of handlers/learning-validate.ts confirms no write/finding/gate imports; WHY: adversarial check that read-only contract is honored",
+            "type": "cli"
+          },
+          {
+            "desc": "handler builds its own execFileSync for git ls-tree (does NOT import or modify evidence-freshness.ts) -> static import analysis; WHY: the plan explicitly forbids modifying evidence-freshness.ts",
+            "type": "cli"
+          },
+          {
+            "desc": "lattice learning_validate with --story pointing to a nonexistent story ID -> graceful handling (empty derivation, not a crash); WHY: adversarial invalid input",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/learning-validate.ts"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke runs learning_validate and asserts the human report contains the valid-rate and drift-rate lines (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke runs learning_validate --json and asserts a parseable ValidRateReport with numeric total/anchored/valid/stale/unanchored/validRate/driftRate + staleSignals[] (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke runs learning_validate --story on a real story id and asserts it restricts derivation without crashing (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke exercises the empty-derivation path (nonexistent story) -> validRate 0 / driftRate 0, no crash (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts handlers/learning-validate.ts wraps the git ls-tree call in try/catch (handlerGitTryCatch) -> empty file set fallback, no crash (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke runs learning_validate against the live repo and asserts git status shows no .lattice/learning or activity.jsonl write before/after — read-only confirmed (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no fs/child_process) — leaf purity (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke runs learning_validate with a nonexistent story id and asserts total/validRate/driftRate=0, no crash (empty derivation) (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -49,9 +554,198 @@
         "No network",
         "No reliance on real repo state in the hermetic leaf test"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-17T23:56:50.784Z",
+      "endTime": "2026-06-18T00:06:19.585Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:experience-layer-revalidation -> exits 0 and prints smoke passed; WHY: confirms the npm script is wired and smoke passes",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs builds clean then runs all smokes -> prints TOTAL N | PASS N | FAIL 0; WHY: confirms the committed verifier covers all verification intents",
+            "type": "cli"
+          },
+          {
+            "desc": "hermetic leaf smoke creates synthetic FindingSignalsCache with known anchorFiles and injected fileExists stub -> asserts exact validRate and driftRate values; WHY: confirms deterministic pure-function testing without real fs",
+            "type": "cli"
+          },
+          {
+            "desc": "CLI smoke runs lattice learning_validate on a temp/real store -> asserts a valid-rate line is printed; WHY: confirms end-to-end CLI path works",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "hermetic leaf smoke tests that unanchored signals are excluded from the denominator -> validRate computed over anchored-only count; WHY: confirms the denominator rule that prevents unanchored dilution",
+            "type": "cli"
+          },
+          {
+            "desc": "hermetic leaf smoke tests all-gone anchors -> signal classified as stale, not valid; WHY: confirms stale classification boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "hermetic leaf smoke tests any-present anchor -> signal classified as valid, not stale; WHY: confirms the >=1 present threshold",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs runs no-regression smokes (finding-signals, playbook, recall) alongside the new smoke -> all pass; WHY: confirms no regression to existing Experience Layer functionality",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify-b-a2e3.mjs performs static check that core/experience-revalidation.ts imports ONLY experience-layer-types.js (no fs, no child_process, no store, no handler imports) -> PASS; WHY: enforces leaf purity at the verifier level",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs performs static check that handlers/learning-validate.ts has no write/finding/gate references -> PASS; WHY: enforces read-only contract at verifier level",
+            "type": "cli"
+          },
+          {
+            "desc": "verify-b-a2e3.mjs checks that learning_validate command, npm script, config phase entry, and command-policy entry all exist -> PASS for each; WHY: confirms full registration wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "CLI smoke asserts nothing is written to .lattice/ after running learning_validate -> no side effects; WHY: adversarial check that the CLI test itself validates the read-only invariant",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/experience-layer-revalidation-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier runs build + the leaf & CLI smokes + no-regression smokes (finding-signals/playbook/recall) and confirms localSignature/signalScore unchanged — TOTAL 44 | PASS 44 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier runs build + the leaf & CLI smokes + no-regression smokes (finding-signals/playbook/recall) and confirms localSignature/signalScore unchanged — TOTAL 44 | PASS 44 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no fs/child_process) — leaf purity (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke runs learning_validate end-to-end on the live store and asserts the printed valid-rate line (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no fs/child_process) — leaf purity (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation",
+          "result": "pass",
+          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier runs build + the leaf & CLI smokes + no-regression smokes (finding-signals/playbook/recall) and confirms localSignature/signalScore unchanged — TOTAL 44 | PASS 44 | FAIL 0.",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts core/experience-revalidation.ts imports ONLY ./experience-layer-types.js (no fs/child_process) — leaf purity (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs",
+          "result": "pass",
+          "note": "Verifier statically asserts the learning_validate wiring + read-only contract (cli-engine/registry/config/command-policy/READ_ONLY_COMMANDS present; handler has no write/finding/gate calls, no projectRoot, own execFileSync) (FAIL 0).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:experience-layer-revalidation-cli",
+          "result": "pass",
+          "note": "CLI smoke runs learning_validate against the live repo and asserts git status shows no .lattice/learning or activity.jsonl write before/after — read-only confirmed (cli smoke 5/5).",
+          "headHash": "f9ea8728e60cab51c12c0fbce1cf773cca8fd5cf",
+          "materialHash": "dbf2f4c454e3b147c5a687f79e72525f50e80ba52a58bddbba81a61b303c5d25",
+          "timestamp": "2026-06-18T01:21:47.933Z"
+        }
+      ]
     }
   ]
 }

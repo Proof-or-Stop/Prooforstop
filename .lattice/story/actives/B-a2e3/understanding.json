@@ -1,0 +1,30 @@
+{
+  "task": "Add a read-only referential re-validation instrument to the per-project Experience Layer so it can report the valid-rate and drift-rate of its accumulated finding-signals against the current git HEAD.",
+  "outcome": "Running `node bin/lattice.js learning_validate` prints, to the terminal, a referential-validity report the operator can read at a glance, for example:\n\n  Experience Layer — referential validity (HEAD 7a52234)\n    signals (total):           48\n    anchored (have files):     45\n    valid (>=1 anchor live):   41\n    stale (all anchors gone):   4\n    unanchored (no files):      3\n    valid-rate:  0.911\n    drift-rate:  0.089\n  Stale signals (code anchors gone at HEAD):\n    - quality||ts|review   anchors: packages/main/src/core/removed-foo.ts\n  (advisory, read-only — no gate touched, nothing written)\n\nAdding `--json` instead prints the same numbers as a machine-readable object {head, total, anchored, valid, stale, unanchored, validRate, driftRate, staleSignals[]}. The operator now has a re-runnable instrument that quantifies how much accumulated experience has gone stale.",
+  "facts": [
+    "Derived FindingSignal today keeps only coarse fileKinds (core/finding-signals.ts), not concrete anchor file paths, so per-signal staleness is currently unobservable.",
+    "deriveFindingSignalsFromStore(store, opts) reads findings through the store.readFindings port and only persists when opts.projectRoot is given; omitting projectRoot derives without writing.",
+    "core/evidence-freshness.ts currentMaterialHash already lists HEAD files via `git ls-tree -r -z HEAD`; this story uses the same git invocation in its own handler and does NOT modify that gate-critical module.",
+    "handlers/recall.ts is the established read-only handler template (store read ports only, renders text, writes nothing); registry.ts wires handlers via registry.registerBatch(createXHandlers(ctx)).",
+    "Baseline A measured 0.92 finding-level valid rate (8% drift); the signal-level valid-rate produced here is the per-signal analogue."
+  ],
+  "constraints": [
+    "The new core/experience-revalidation.ts leaf must import only ./experience-layer-types.js — no fs, no git, no other core module; fileExists is injected.",
+    "The learning_validate handler must file no findings, touch no gate, and write nothing (read-only like recall).",
+    "No change to the localSignature aggregation key or the signalScore/support math.",
+    "anchorFiles must be bounded (capped like exampleFindingIds) to keep the derived cache from growing unboundedly."
+  ],
+  "unknowns": [
+    "valid-rate denominator: whether to divide valid signals by all signals or only by anchored signals — resolved in the decision as anchored-only, reporting unanchored separately so the rate is not diluted by signals that never had a file.",
+    "how to treat a signal whose anchorFiles are all gone vs partially gone — resolved as stale only when ALL anchors are gone (>=1 live anchor keeps it valid), matching Baseline A's any-file-present rule."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/experience-revalidation.ts",
+    "packages/main/src/handlers/learning-validate.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts"
+  ],
+  "timestamp": "2026-06-17T23:45:43.705Z"
+}
