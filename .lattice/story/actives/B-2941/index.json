@@ -4,7 +4,7 @@
   "title": "Story #7 (OSS-launch fix-wave): two-pass retry in run-all-smokes runner (Plan B)",
   "description": "Add a second execution pass to the run-all-smokes runner that retries any smoke that timed out in pass 1 using --jobs 1 serial mode. Since every smoke passes individually in single-process mode (B-24c3 + B-be91 data), retry effectively converts 'timed out under load' to 'passed on retry'. Unlocks test:all as a reliable CI gate for OSS launch. Adds optional noRetry manifest field + --no-retry CLI flag for CI strict mode. Scope: run-all-smokes.ts (narrowly unfrozen for two-pass logic) + smoke-manifest schema + self-smoke fixture + CHANGELOG + docs. 0 production code change, 0 existing smoke source change, 0 manifest timeoutMs change.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "test",
@@ -32,6 +32,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T12:46:04.323Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2941",
+    "branch": "story/B-2941",
+    "createdAt": "2026-06-18T12:46:02.960Z"
+  }
 }

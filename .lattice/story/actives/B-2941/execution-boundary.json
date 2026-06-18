@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2941",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/run-all-smokes-smoke.js",
+    "node packages/main/dist/tasks/run-all-smokes.js *",
+    "npm --prefix packages/main run build",
+    "npm run test:all *",
+    "npm run test:legacy *",
+    "npm test",
+    "python3 -c *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "packages/main/src/providers/",
+    "scripts/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Plan B two-pass retry. Narrowly unfreeze run-all-smokes.ts for two-pass logic only. Production source + test:coverage + per-smoke timeoutMs all frozen.",
+  "createdAt": "2026-06-18T12:41:35.706Z",
+  "updatedAt": "2026-06-18T12:41:35.706Z",
+  "_hash": "1a03d3dad8e03c05481243b0ae57e2775e9334253b9a43b22f28db54276acbe9"
+}
