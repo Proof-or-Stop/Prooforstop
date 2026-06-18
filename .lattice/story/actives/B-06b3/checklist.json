@@ -108,13 +108,13 @@
         },
         {
           "intentRef": "CHK-001:happy:3",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
           "result": "pass",
-          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
-          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
-          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
-          "timestamp": "2026-06-18T15:12:56.185Z"
+          "note": "Verifier hmExportsSurface static check asserts core/hint-mode.ts exports only resolveHintMode + the HintMode type (no unexpected exports). This is the literal command where the export-surface check runs.",
+          "headHash": "68b4f7881a317aa025f9c6b230ba245f00fef3a8",
+          "materialHash": "d6d72dec2a18989c08af5b760c5a7042361ab786c890dd63661b7a469ce3b16c",
+          "timestamp": "2026-06-18T15:22:41.642Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
