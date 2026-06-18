@@ -4,7 +4,7 @@
   "title": "Audit rule: count @deprecated annotations and surface cleanup advisory when threshold exceeded",
   "description": "Add a @deprecated GC cadence to the existing audit trigger. When the periodic audit fires (every N stories via auditTriggerWindow), also scan packages/main/src for @deprecated JSDoc annotations. If the count exceeds a configurable threshold (deprecatedGcThreshold, default 10), append a cleanup advisory to the audit hint output. This prevents legacy long-tail accumulation by surfacing the signal at audit time rather than requiring manual grep.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "createdAt": "2026-06-18T00:31:27.046Z",
   "startedAt": "2026-06-18T00:31:27.046Z",
@@ -23,6 +23,14 @@
       "action": "advance",
       "timestamp": "2026-06-18T00:33:52.059Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-18T00:34:17.024Z",
+      "branch": "story/B-8451",
       "user": "Harmonygo",
       "agent": "main"
     }

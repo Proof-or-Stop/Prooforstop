@@ -1,0 +1,27 @@
+{
+  "task": "Add a @deprecated GC advisory rule to the Lattice audit system: scan source for @deprecated annotations at audit time, and append a cleanup advisory to the audit hint when count exceeds a configurable threshold.",
+  "outcome": "After N stories are DONE and the audit trigger fires, the user sees a new line in the audit hint: '⚠ @deprecated GC: 12 annotation(s) in 3 file(s) (guard-session.ts, types.ts, ...); consider a cleanup story (threshold: 10)'. When count is below threshold (currently 7 < 10), the advisory does not appear — audit hint is unchanged.",
+  "facts": [
+    "audit-trigger.ts fires via doneSinceLastAudit counter in .lattice/runtime/framework-audit/state.json",
+    "audit-config.ts already reads .lattice/audit-config.json for per-field overrides (auditTriggerWindow etc.)",
+    "audit-scan.ts has scanCommandDrift/scanFlagDrift/scanPathDrift as the pattern to follow",
+    "Current @deprecated count in packages/main/src: 7 lines in 2 files (guard-session.ts, types.ts)",
+    "AuditTriggerResult.hint is the additive string field for user-facing advisory text"
+  ],
+  "constraints": [
+    "Advisory is additive only — never blocks DONE, never changes triggered=false",
+    "Must not throw — wrap scanDeprecated in try/catch, return count=0 on error",
+    "deprecatedGcThreshold default: 10 (so current 7 annotations do not fire immediately)",
+    "New field deprecatedGcThreshold must follow exact same per-field override pattern as auditTriggerWindow"
+  ],
+  "unknowns": [
+    "Whether audit-trigger.ts calls audit-scan functions directly or via audit.ts handler — need to trace call path before wiring"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/audit-scan.ts",
+    "packages/main/src/core/audit-trigger.ts",
+    "packages/main/src/tasks/deprecated-gc-smoke.ts (new)"
+  ],
+  "timestamp": "2026-06-18T00:34:35.103Z"
+}
