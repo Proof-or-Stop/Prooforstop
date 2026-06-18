@@ -6,7 +6,58 @@
       "context": "Un-freeze packages/main/src/tasks/run-all-smokes.ts narrowly to add a second execution pass. After pass 1 collects results, compute the set of timeouts (status=TIMEOUT, excluding any smoke with manifest noRetry=true). If empty -> exit with pass 1 result (today behavior). Else log Pass 1 summary + retrying serially..., re-spawn the runner workers with --jobs 1 forced for the timeout subset only. Aggregate final result: smokes in passOnRetry count toward Final passed; smokes that fail BOTH passes count toward Final failed. Add --no-retry CLI flag for CI strict mode (skip pass 2 entirely; today behavior). Worker pool, manifest reader, CLI flag parser otherwise untouched.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm run test:all` output ends with 'Pass 1: ... timeouts → retrying...' 'Pass 2: ...' 'Final: 167/167 passed in N s'. `npm run test:all -- --no-retry` shows today behavior (no retry).",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runner has pass 1 collection + pass 2 retry logic -> `grep -cE \"pass.?2|retry|Pass\\\\s*1|Pass\\\\s*2\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 4; WHY: two-pass mechanism present",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "--no-retry CLI flag handled -> `grep -c \"--no-retry\\\\|noRetry\\\\|no_retry\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 2; WHY: CI strict mode flag",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "rebuilt dist contains two-pass logic -> `grep -cE \"pass.?2|retry\" packages/main/dist/tasks/run-all-smokes.js` outputs at least 2; WHY: compiled landed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "--no-retry skips pass 2 (today behavior) -> `node packages/main/dist/tasks/run-all-smokes.js --no-retry --select gitroot-cwd-contract 2>&1 | grep -cE \"Final|Pass\\\\s*2\" ` outputs 0 (no retry output); WHY: flag honored",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "pass 1 output format preserved -> `node packages/main/dist/tasks/run-all-smokes.js --select gitroot-cwd-contract 2>&1 | grep -cE \"^PASS gitroot-cwd-contract\"` outputs 1; WHY: byte-identical pass 1 lines (preMortem D3)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no production source touched -> `git diff main...HEAD --name-only -- packages/main/src/handlers packages/main/src/core packages/main/src/providers packages/main/src/cli-engine.ts packages/main/src/cli-prompts.ts | wc -l` outputs 0; WHY: production blocked",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: no package.json touched -> `git diff main...HEAD -- package.json | wc -l` outputs 0; WHY: test:all script unchanged",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
