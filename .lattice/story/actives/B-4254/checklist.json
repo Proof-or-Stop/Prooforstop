@@ -57,6 +57,28 @@
           "headHash": "7699548b098f5c8ea7ac83a5eb08b073970f847c",
           "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
           "timestamp": "2026-06-18T15:13:17.029Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/verifier.ts",
+          "command": "rg -n -- '--dev=|--port=' packages/main/src/handlers/verifier.ts packages/main/src/verifier/serve.ts",
+          "result": "pass",
+          "note": "The supported lattice serve flags are still owned by the serve handler and serve implementation, so removing the hidden dev-cli aliases does not remove the documented launcher parameters.",
+          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
+          "timestamp": "2026-06-18T15:16:04.331Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The entrypoints smoke now fails if --web or --cli reappear in packages/main/src/verifier/dev-cli.ts, so the hidden compatibility branch cannot silently return.",
+          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
+          "timestamp": "2026-06-18T15:16:04.331Z"
         }
       ]
     },
@@ -120,6 +142,28 @@
           "headHash": "8557834c449ceb53d33a2dc05514e19ff26e456b",
           "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
           "timestamp": "2026-06-18T15:13:26.172Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The entrypoints smoke passes in this worktree after a clean build, so the regression check remains usable in the symlinked node_modules workspace.",
+          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
+          "timestamp": "2026-06-18T15:16:04.331Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The smoke includes a source-level guard on packages/main/src/verifier/dev-cli.ts, so reintroducing --web or --cli makes the test fail.",
+          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
+          "timestamp": "2026-06-18T15:16:04.331Z"
         }
       ]
     }
