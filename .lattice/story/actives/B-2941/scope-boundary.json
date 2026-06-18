@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2941",
+  "mode": "feature",
+  "allowed": [
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "excluded": [
+    "package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "packages/main/src/providers/",
+    "scripts/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User picked Plan B two-pass retry on 2026-06-18 with explicit full Lattice workflow commitment. Conceptual exclusions live in background section.",
+  "createdAt": "2026-06-18T12:42:37.157Z",
+  "updatedAt": "2026-06-18T12:42:37.157Z",
+  "_hash": "8fc1d443f96e84cc162adcac23f06d1dd166cdb9a9175c2136b4420fdfa967b8"
+}
