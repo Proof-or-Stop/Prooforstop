@@ -63,6 +63,16 @@
           "headHash": "3e4926b6a8a7a0bec70990f57ac0493e9f5c84f7",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:41.057Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -cE \"FAIL.*retryOnAnyFailure|retryOnAnyFailure.*FAIL\" packages/main/src/tasks/run-all-smokes.ts",
+          "result": "pass",
+          "note": "grep shows 1 hit; FAIL retried only when retryOnAnyFailure flag set",
+          "headHash": "5e12ca9ef8c268b9ba8c9cc302589d6ca200844c",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:41.911Z"
         }
       ]
     },
