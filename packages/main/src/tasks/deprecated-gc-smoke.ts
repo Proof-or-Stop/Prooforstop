@@ -93,6 +93,18 @@ function test5AdvisoryAbsentWhenBelowThreshold(): void {
 }
 
 // ---------------------------------------------------------------------------
+// Test 6: count === threshold → advisory does NOT appear (strictly greater than)
+// ---------------------------------------------------------------------------
+function test6AdvisoryAbsentWhenExactlyAtThreshold(): void {
+  const hint = buildAdvisoryHint(10, ['foo.ts'], 10);
+  assert.ok(
+    !hint.includes('@deprecated GC'),
+    `hint should NOT contain "@deprecated GC" when count=10 === threshold=10 (strictly >), got: ${hint}`,
+  );
+  console.log('  test6 ok: advisory absent when count=10 === threshold=10 (strict >)');
+}
+
+// ---------------------------------------------------------------------------
 // Run all tests
 // ---------------------------------------------------------------------------
 console.log('deprecated-gc-smoke starting...');
@@ -101,4 +113,5 @@ test2ConfigOverride();
 test3ScanDeprecatedRealRepo();
 test4AdvisoryAppearsWhenExceeded();
 test5AdvisoryAbsentWhenBelowThreshold();
+test6AdvisoryAbsentWhenExactlyAtThreshold();
 console.log('deprecated-gc-smoke ok');

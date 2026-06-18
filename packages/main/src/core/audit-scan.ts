@@ -412,7 +412,7 @@ export function scanDeprecated(projectRoot: string): { count: number; files: str
         ).trim();
         count += parseInt(lineOut, 10) || 0;
       } catch {
-        // grep -c exits 1 when no matches; treat as 0
+        // execSync throws on unexpected errors (e.g. ENOENT, timeout); || echo 0 already handles grep-c zero-match exit
       }
     }
 
