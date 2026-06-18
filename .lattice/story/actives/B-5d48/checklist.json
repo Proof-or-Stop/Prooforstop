@@ -20,6 +20,58 @@
           "packages/main/src/core/signature-candidate.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveSignatureCandidate(\"correctness\", [\"src/handlers/finding.ts\"], \"Missing null check on input\") => returns a deterministic non-empty string containing category + fileKind + desc tokens; WHY: covers the main derivation path with all three inputs present",
+            "type": "cli"
+          },
+          {
+            "desc": "Calling deriveSignatureCandidate twice with identical args => identical output; WHY: confirms determinism contract",
+            "type": "cli"
+          },
+          {
+            "desc": "SignatureTagSource type exists and is union of exactly auto | confirmed; WHY: confirms type export is correct",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "deriveSignatureCandidate(undefined, undefined, undefined) => non-empty string (never throws, never empty); WHY: all-missing input boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate(\"bug\", [], \"x\") => non-empty string with category=bug; WHY: empty files array boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate(\"\", [\"a.ts\"], \"\") => non-empty string; WHY: empty-string category + empty desc boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate(\"cat\", [123, null, true], \"desc\") => non-empty string, tolerates non-string files; WHY: dirty input from unvalidated callers",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate with very long desc (10k chars) => returns a capped/bounded string; WHY: ensures capping works on extreme input",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "deriveSignatureCandidate does zero I/O (import graph of signature-candidate.ts references only node: builtins and local types, no fs/path/child_process/net); WHY: purity contract — I/O in the leaf would be a design violation",
+            "type": "cli"
+          },
+          {
+            "desc": "Output is fully lowercase and contains no punctuation beyond the | separator; WHY: canonical normalization contract — uppercase or stray punctuation would break dedup",
+            "type": "cli"
+          },
+          {
+            "desc": "Two different (category, files, desc) triples => two different outputs; WHY: collision resistance — if derivation collapses distinct findings, it defeats the purpose",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
