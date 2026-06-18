@@ -580,7 +580,7 @@ function assertSessionBriefGate(): void {
   assert.equal(isCommandAllowed('review_run_start', 'REVIEW'), true, 'REVIEW reviewers should be able to start signed review runs');
   assert.equal(isCommandAllowed('review_run_start', 'DEV'), false, 'review_run_start should stay REVIEW-only');
   assert.equal(
-    isCommandAllowed('finding_dispatch', 'DEV'),
+    isCommandAllowed('dispatch', 'DEV'),
     true,
     'DEV implementers should be able to dispatch finding fixes',
   );
@@ -632,7 +632,7 @@ function assertSessionBriefGate(): void {
     'custom phase tools should still reject unrelated mutation commands',
   );
   assert.equal(
-    isCommandAllowed('finding_cluster', 'DEV', { '*': ['status'], DEV: ['finding_add', 'finding_dispatch'] }),
+    isCommandAllowed('finding_cluster', 'DEV', { '*': ['status'], DEV: ['finding_add', 'dispatch'] }),
     false,
     'custom phase tools should still be able to override DEV finding_cluster availability',
   );

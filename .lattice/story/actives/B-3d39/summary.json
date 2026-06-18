@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3d39",
+  "changes": "core/main-write-lock.ts: AsyncLocalStorage owner-token reentrancy (lockOwnerStore + currentContextOwns + extendedOwnerSet + runWithMainWriteLockContext); predicate = heldLockPaths.has && currentContextOwns. transition-orchestrator.ts wraps DONE window. codex-adapter-checks.ts += @koala-agent/core. main-write-lock-smoke.ts section 9 deterministic async-sibling regression. CHANGELOG.",
+  "usage": "Transparent fix: DONE reliably merges to main under parallel interleaving; no manual git merge recovery. codex verify heartbeat-only warning now fires.",
+  "expectedOutcome": "section-9 smoke deterministic pass; build clean; done-effects + mkdir mutex unchanged; CHANGELOG documents fix.",
+  "actualTranscript": "smoke exit 0 3/3; 5 lanes PASS; F-001 resolved (out of scope); Plan B healed all 4 timeouts in the test:all run; escalation not required; delivery 4/4+3/3.",
+  "outcomeDiff": "No difference vs goal; race fixed + proven by section-9 smoke. edge:0 whole-suite-green waived (pre-existing field-regression-cli flake, lock innocent).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Plan B retries timeouts not load-FAILs (F-001 tracked). mkdir mutex + done-effects + done_recover unchanged.",
+  "pitfalls": "enterWith leaks ownership to siblings — must use bounded lockOwnerStore.run. Deterministic concurrency test needs true siblings (two runWith from one frame, A parked at await). done-recover safe w/o wrapper only because it does raw git with no nested re-acquire.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 598180
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16433
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 222736
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1831301
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 427212
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 180079
+    }
+  },
+  "totalDurationMs": 3275942,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T15:01:56.494Z",
+  "updatedAt": "2026-06-18T15:02:14.806Z"
+}

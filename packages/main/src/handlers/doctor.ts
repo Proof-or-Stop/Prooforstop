@@ -41,7 +41,7 @@ import {
   scanAuxiliaryWorktreeResidues,
   type AuxiliaryCleanupResult,
 } from '../core/auxiliary-worktree-cleanup.js';
-import { LATTICE_REPAIR_IGNORE, LEGACY_KOALA_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { LATTICE_REPAIR_IGNORE } from '../core/lattice-paths.js';
 import {
   evaluateStoryDirConfigInsideGitRoot,
   type StoryDirInsideGitRootResult,
@@ -704,8 +704,7 @@ function tryWorktreeRemove(root: string, target: string): void {
 }
 
 function isRepairIgnoredDir(target: string): boolean {
-  return existsSync(join(target, LATTICE_REPAIR_IGNORE))
-    || existsSync(join(target, LEGACY_KOALA_REPAIR_IGNORE));
+  return existsSync(join(target, LATTICE_REPAIR_IGNORE));
 }
 
 function markRepairIgnored(target: string, reason: string): void {

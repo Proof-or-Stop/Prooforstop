@@ -28,6 +28,7 @@ import {
   acquireMainWriteLockRegistered,
   isMainWriteLockHeldInProcess,
   mainWriteLockPath,
+  runWithMainWriteLockContext,
   withMainWriteLock,
   withReentrantMainWriteLock,
 } from '../core/main-write-lock.js';
@@ -190,24 +191,29 @@ try {
 
   // ── 7c. acquireMainWriteLockRegistered: explicit acquire/release shape feeds the registry ──
   // The DONE flow holds the lock via this raw acquire/release form (across an
-  // actor.send boundary); a NESTED withReentrantMainWriteLock must see it held.
+  // actor.send boundary). B-3d39: the pair form no longer establishes ownership
+  // by itself — the caller wraps the lock lifetime in runWithMainWriteLockContext
+  // (transition-orchestrator does this for the whole DONE transition). A NESTED
+  // withReentrantMainWriteLock running INSIDE that context must pass through.
   {
     const repo = join(root, 'registered');
     mkdirSync(repo, { recursive: true });
-    const outer = acquireMainWriteLockRegistered(repo, { label: 'DONE-like' });
-    assert.equal(isMainWriteLockHeldInProcess(repo), true,
-      'acquireMainWriteLockRegistered registers the lock in-process');
-    // a nested reentrant call now passes through instead of fail-fasting
-    let nestedRan = false;
-    withReentrantMainWriteLock(repo, () => { nestedRan = true; });
-    assert.equal(nestedRan, true, 'nested reentrant call passes through a registered DONE-style lock');
-    // a nested registered acquire is a no-op handle (outer still owns the lock)
-    const nestedReg = acquireMainWriteLockRegistered(repo);
-    nestedReg.release(); // no-op — must not release the outer lock
-    assert.equal(isMainWriteLockHeldInProcess(repo), true, 'no-op nested release keeps the outer lock');
-    outer.release();
-    assert.equal(isMainWriteLockHeldInProcess(repo), false, 'outer release clears the registry');
-    assert.equal(existsSync(mainWriteLockPath(repo)), false, 'on-disk lock removed after outer release');
+    runWithMainWriteLockContext(() => {
+      const outer = acquireMainWriteLockRegistered(repo, { label: 'DONE-like' });
+      assert.equal(isMainWriteLockHeldInProcess(repo), true,
+        'acquireMainWriteLockRegistered registers the lock in-process');
+      // a nested reentrant call (same context) now passes through instead of fail-fasting
+      let nestedRan = false;
+      withReentrantMainWriteLock(repo, () => { nestedRan = true; });
+      assert.equal(nestedRan, true, 'nested reentrant call passes through a registered DONE-style lock');
+      // a nested registered acquire is a no-op handle (outer still owns the lock)
+      const nestedReg = acquireMainWriteLockRegistered(repo);
+      nestedReg.release(); // no-op — must not release the outer lock
+      assert.equal(isMainWriteLockHeldInProcess(repo), true, 'no-op nested release keeps the outer lock');
+      outer.release();
+      assert.equal(isMainWriteLockHeldInProcess(repo), false, 'outer release clears the registry');
+      assert.equal(existsSync(mainWriteLockPath(repo)), false, 'on-disk lock removed after outer release');
+    });
   }
 
   // ── 8. B-f60c CHK-003: onContention 'wait' serializes instead of fail-fasting ──
@@ -238,7 +244,60 @@ try {
     rmSync(heldDir, { recursive: true, force: true });
   }
 
-  console.log('✓ main-write-lock smoke passed (acquire/release / blocking-on-held / stale-reclaim / concurrency mutex / canonical path / reentrancy / registered acquire / wait-mode)');
+  // ── 9. B-3d39: a CONCURRENT async sibling is NOT mis-classified as reentrant ──
+  // Reproduces the DONE-merge-lost-commit race deterministically. Operation A
+  // establishes its own owner context, acquires the registered lock, then PARKS
+  // at an await (mimicking the DONE merge held across actor.send). While A is
+  // parked, operation B runs in a SEPARATE owner context (a true sibling — both
+  // are children of this top-level frame, neither nested inside the other) and
+  // attempts to acquire the SAME lock. Pre-B-3d39 the bare `heldLockPaths.has`
+  // predicate let B pass through as "reentrant" and skip acquisition (then write
+  // to main mid-merge). Post-fix, B is not an owner of the key in its context,
+  // so it must CONTEND on the on-disk mkdir lock (fail-fast here) exactly as a
+  // separate process would.
+  {
+    const repo = join(root, 'async-interleave');
+    mkdirSync(repo, { recursive: true });
+    let unpark: () => void = () => {};
+    const parked = new Promise<void>((resolve) => { unpark = resolve; });
+    let aHeldDuringPark = false;
+    let bOutcome: 'contended' | 'passed-through' | 'unrun' = 'unrun';
+
+    // A: owner context that holds the lock across an await window.
+    const opA = runWithMainWriteLockContext(async () => {
+      const aLock = acquireMainWriteLockRegistered(repo, { label: 'A-DONE-like' });
+      aHeldDuringPark = isMainWriteLockHeldInProcess(repo);
+      await parked; // hold ACROSS an await — the race trigger
+      aLock.release();
+    });
+
+    // B: a SEPARATE sibling context started while A is parked + still holding.
+    // Its synchronous prefix (the acquire attempt) runs now, before A resumes.
+    const opB = runWithMainWriteLockContext(async () => {
+      try {
+        const bLock = acquireMainWriteLockRegistered(repo, { label: 'B-sibling' });
+        // Reaching here means B was allowed to proceed while A holds the lock —
+        // either a reentrant pass-through (the bug) or a real second acquire.
+        bOutcome = 'passed-through';
+        bLock.release();
+      } catch {
+        bOutcome = 'contended'; // correct: B hit the held on-disk lock and fail-fasted
+      } finally {
+        unpark(); // let A resume and release
+      }
+    });
+
+    await Promise.all([opA, opB]);
+    assert.equal(aHeldDuringPark, true, 'A holds the registered lock across its await window');
+    assert.equal(
+      bOutcome,
+      'contended',
+      'B-3d39: a concurrent sibling in a separate async context contends on the on-disk lock, NOT mis-classified as a reentrant pass-through',
+    );
+    assert.equal(isMainWriteLockHeldInProcess(repo), false, 'lock fully released after both ops complete');
+  }
+
+  console.log('✓ main-write-lock smoke passed (acquire/release / blocking-on-held / stale-reclaim / concurrency mutex / canonical path / reentrancy / registered acquire / wait-mode / B-3d39 async-sibling contention)');
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

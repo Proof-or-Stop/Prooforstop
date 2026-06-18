@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove legacy --web / --cli compatibility parsing from the dev launcher",
+      "context": "Delete the hidden compatibility branch in packages/main/src/verifier/dev-cli.ts, keep the supported launcher flow unchanged, and make sure the file only reflects the documented surface.",
+      "relatedDocs": [
+        "packages/main/src/verifier/dev-cli.ts",
+        "CLAUDE.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Legacy --web / --cli flags no longer change how serve starts; the documented lattice serve flow stays the only supported path."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a regression check for the launcher contract",
+      "context": "Cover the launcher with a small smoke or unit-style check so the removed flags do not silently return, and keep the documented serve entry points as the only supported ones.",
+      "relatedDocs": [
+        "packages/main/src/verifier/dev-cli.ts",
+        "packages/main/src/verifier/serve.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The entrypoint check still ends with entrypoints verified, and it would fail if the old aliases reappear."
+    }
+  ]
+}

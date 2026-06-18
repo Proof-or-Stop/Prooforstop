@@ -74,6 +74,7 @@ import {
   runDonePreMergeGate,
   applyDoneMergeEffects,
 } from './done-effects.js';
+import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -191,6 +192,25 @@ export function assertStoryTransitionReachedTarget(
  * wrapped in ONE try/finally spanning the whole transition.
  */
 export async function runStoryTransition(
+  ctx: HandlerContext,
+  args: StoryTransitionArgs,
+): Promise<TransitionResult> {
+  // B-3d39: a DONE transition holds the main write lock in the acquire/release
+  // PAIR form (acquireDoneMainMergeLock at the top of the try, release in the
+  // finally) ACROSS `await` boundaries (actor.send / applyDoneMergeEffects).
+  // Establish an isolated async-context owner scope around the WHOLE transition
+  // so the reentrancy registry recognizes only THIS transition's own nested
+  // calls (in-process `audit`) as reentrant — never a CONCURRENT transition for
+  // another story that interleaves while this one is parked at an await. The
+  // registered acquire records the resolved lock key into this scope. Non-DONE
+  // transitions never take the pair-form lock, so they run the body directly.
+  if (args.phase === 'DONE') {
+    return runWithMainWriteLockContext(() => runStoryTransitionInner(ctx, args));
+  }
+  return runStoryTransitionInner(ctx, args);
+}
+
+async function runStoryTransitionInner(
   ctx: HandlerContext,
   args: StoryTransitionArgs,
 ): Promise<TransitionResult> {

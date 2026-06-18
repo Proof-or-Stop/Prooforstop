@@ -643,6 +643,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     }).trim();
     const globalCoreCandidates = [
       { path: join(globalRoot, '@lattice-agent', 'core'), label: '@lattice-agent/core' },
+      { path: join(globalRoot, '@koala-agent', 'core'), label: '@koala-agent/core' },
     ];
     const globalCore = globalCoreCandidates.find(candidate => existsSync(candidate.path));
     if (existsSync(currentCore) && globalCore) {

@@ -2,9 +2,10 @@
  * Dual-source activity log module.
  *
  * Runtime logs go to <projectRoot>/.lattice/activity.jsonl.
- * Legacy logs at <projectRoot>/.koala/activity.jsonl and
- * <projectRoot>/docs/story/activity.jsonl are read-only for backward
- * compatibility. readActivityLogTail merges all sources.
+ * The migrated legacy archive at <projectRoot>/.lattice/activity.legacy-koala.jsonl
+ * and the older <projectRoot>/docs/story/activity.jsonl are read-only sources.
+ * readActivityLogTail merges all sources. The legacy `.koala/activity.jsonl`
+ * read fallback was removed (B-a4e3).
  */
 
 import { appendFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
@@ -13,7 +14,6 @@ import {
   LATTICE_ACTIVITY_LOG,
   LATTICE_LEGACY_KOALA_ACTIVITY_LOG,
   LEGACY_DOCS_ACTIVITY_LOG,
-  LEGACY_KOALA_ACTIVITY_LOG,
 } from './lattice-paths.js';
 
 /** Runtime activity log path: <projectRoot>/.lattice/activity.jsonl */
@@ -21,12 +21,7 @@ export function getRuntimeActivityLogPath(projectRoot: string): string {
   return join(projectRoot, LATTICE_ACTIVITY_LOG);
 }
 
-/** Legacy Koala runtime path (read-only compat): <projectRoot>/.koala/activity.jsonl */
-export function getLegacyKoalaActivityLogPath(projectRoot: string): string {
-  return join(projectRoot, LEGACY_KOALA_ACTIVITY_LOG);
-}
-
-/** Migrated legacy Koala activity archive: <projectRoot>/.lattice/activity.legacy-koala.jsonl */
+/** Migrated legacy activity archive (read-only): <projectRoot>/.lattice/activity.legacy-koala.jsonl */
 export function getMigratedLegacyKoalaActivityLogPath(projectRoot: string): string {
   return join(projectRoot, LATTICE_LEGACY_KOALA_ACTIVITY_LOG);
 }
@@ -50,10 +45,9 @@ export function appendActivityLog(projectRoot: string, record: Record<string, un
  */
 export function readActivityLogTail(projectRoot: string, count: number = 50): Record<string, unknown>[] {
   const entries: Record<string, unknown>[] = [];
-  const migratedKoalaLogPath = getMigratedLegacyKoalaActivityLogPath(projectRoot);
   for (const logPath of [
     getRuntimeActivityLogPath(projectRoot),
-    existsSync(migratedKoalaLogPath) ? migratedKoalaLogPath : getLegacyKoalaActivityLogPath(projectRoot),
+    getMigratedLegacyKoalaActivityLogPath(projectRoot),
     getLegacyActivityLogPath(projectRoot),
   ]) {
     if (!existsSync(logPath)) continue;

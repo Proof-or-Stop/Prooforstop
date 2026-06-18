@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Preserve genuine sync nesting pass-through; only refine the is-this-MY-lock predicate",
+    "On-disk cross-process mutex untouched",
+    "Prevention not another cure (done_recover stays as net)",
+    "Deterministic test (race bug needs orchestrated-await proof, not timing luck)"
+  ],
+  "drivers": [
+    "High-severity intermittent data-integrity bug (DONE but unmerged)",
+    "Reflog-proven root cause = bare process-global Set blind to async interleaving",
+    "Parallel multi-story dev is the target workflow"
+  ],
+  "options": [
+    {
+      "name": "(a2) process-global Set + ALS owner-token predicate (chosen)",
+      "pros": [
+        "Cross-process mkdir bookkeeping identical",
+        "Only the reentrancy predicate changes",
+        "Sync nesting inherits ALS context → same token → pass-through",
+        "Concurrent sibling in separate ALS context → contends correctly"
+      ],
+      "cons": [
+        "Must establish ALS context at the DONE merge acquire site"
+      ]
+    },
+    {
+      "name": "(a1) held-set inside ALS run-context",
+      "pros": [
+        "Conceptually simple"
+      ],
+      "cons": [
+        "Harder to reconcile with the acquire/release-pair form held across actor.send"
+      ]
+    },
+    {
+      "name": "(b) serialize parallel-wave",
+      "pros": [
+        "Few lines"
+      ],
+      "cons": [
+        "Masks defect, does not fix it"
+      ]
+    }
+  ],
+  "chosen": "(a2) process-global Set + ALS owner-token predicate (chosen)",
+  "rationale": "Picked after investigation. a2 keeps the proven on-disk mutex + cross-process contention identical and only refines the in-process reentrancy classification from key-present to key-present-AND-current-ALS-context-owns-it. Sync nesting still passes through; concurrent async siblings contend.",
+  "preMortem": [
+    {
+      "scenario": "ALS context boundary drawn wrong → genuine DONE→audit nesting loses pass-through → self-deadlock",
+      "trigger": "main-write-lock-coverage sync-nesting case fails / hangs",
+      "consequence": "Regression worse than the bug",
+      "mitigation": "Keep the existing sync-nesting smoke case + add explicit assertion that DONE→audit still passes through. Run lock-coverage smoke before advancing."
+    },
+    {
+      "scenario": "AsyncLocalStorage not propagated across an await in the DONE flow → outer frame loses its own token mid-critical-section",
+      "trigger": "DONE merge intermittently still loses commits in the new self-smoke interleave case",
+      "consequence": "Fix ineffective",
+      "mitigation": "ALS propagates across await by design; the deterministic interleave smoke (A parks at await, B tries acquire) directly proves propagation. If it fails, the boundary is wrong — fix before REVIEW."
+    },
+    {
+      "scenario": "Concurrent sibling now fail-fasts where it used to silently pass → surfaces a NEW user-facing error",
+      "trigger": "parallel stories error on lock contention instead of racing",
+      "consequence": "Changed behavior could surprise",
+      "mitigation": "This is the CORRECT behavior (contend, not corrupt). The on-disk lock options already define wait/fail-fast; ensure the sibling uses the wait path where DONE expects to retry, not a hard throw. Document in CHANGELOG."
+    }
+  ],
+  "timestamp": "2026-06-18T14:18:42.230Z"
+}

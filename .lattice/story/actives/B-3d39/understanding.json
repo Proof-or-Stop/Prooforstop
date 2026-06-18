@@ -1,0 +1,33 @@
+{
+  "task": "Make the main-write-lock in-process reentrancy registry async-context-aware so a concurrent async sibling (another story's INIT_CHECK running in the same process during a DONE-merge await window) is no longer mis-classified as a nested reentrant caller — which currently lets it skip lock acquisition and commit to main mid-merge, leaving the DONE story unmerged. Plus fix the 2-line global-fallback guard brand mismatch.",
+  "outcome": "A deterministic async-interleave self-smoke proves: when operation A holds the lock and parks at a controllable await, a concurrent operation B in a SEPARATE async context attempting to acquire is NOT treated as reentrant pass-through (it contends / fail-fasts on the on-disk lock); AND genuine synchronous nesting (DONE→audit) still passes through with no self-deadlock. The lock-coverage smoke shows N/N PASS including the new case. npm run test:all stays green. lattice codex verify shows the global-fallback warning now FIRES for the @koala-agent/core install (previously silently suppressed). Operator-visible net: a story marked DONE is reliably merged to main even when another story interleaves — no more manual git merge recovery.",
+  "facts": [
+    "main-write-lock.ts:271 heldLockPaths is a bare process-global Set; doc comment asserts the wrong invariant (only sync nesting can interleave)",
+    "withReentrantMainWriteLock reentrancy check at line 304; acquireMainWriteLockRegistered at 345-372 (same pattern)",
+    "DONE merge lock acquired at transition-orchestrator.ts:290 via acquireDoneMainMergeLock (done-effects.ts:268 wraps acquireMainWriteLockRegistered), held across orchestrator await points (runDonePreMergeGate/runPhaseChangeHooks/applyDoneMergeEffects)",
+    "B-2941 reflog proves the race: merge began no commit, foreign INIT_CHECK committed main 21s later, operator manually merged",
+    "codex-adapter-checks.ts:644 globalCoreCandidates lists only @lattice-agent/core but install is @koala-agent/core",
+    "on-disk mkdir cross-process mutex is sound — must not change",
+    "done_recover already CURES partial-DONE — this story adds PREVENTION"
+  ],
+  "constraints": [
+    "On-disk mkdir mutex behavior unchanged",
+    "Genuine synchronous nesting (DONE→audit) must still pass through (no regression to self-deadlock)",
+    "done-effects.ts merge order frozen (correct)",
+    "done-recover frozen (safety net kept)",
+    "Minimal ALS boundary in transition-orchestrator (only wrap the DONE main-merge window)",
+    "2-line guard fix touches only globalCoreCandidates list"
+  ],
+  "unknowns": [
+    "ALS implementation choice: (a1) store held-set inside ALS run-context vs (a2) process-global Set + per-acquisition owner token in ALS — pick in DEV; a2 is safer",
+    "Exact ALS boundary in transition-orchestrator for the acquire/release-pair form (vs callback form)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/main-write-lock.ts (ALS-aware reentrancy)",
+    "packages/main/src/handlers/transition-orchestrator.ts (establish ALS context around DONE merge window)",
+    "packages/main/src/core/codex-adapter-checks.ts (guard brand fix)",
+    "packages/main/src/tasks/main-write-lock-coverage.ts (deterministic async-interleave case)",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-18T14:18:41.819Z"
+}
