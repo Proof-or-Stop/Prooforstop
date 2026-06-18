@@ -233,6 +233,18 @@
           "headHash": "f296ec77d6ea417853d156b5d923195dc7ab1295",
           "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
           "timestamp": "2026-06-18T20:48:16.560Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
+          "result": "pass",
+          "note": "The regression suite prevents the old mac_ui wording from coming back in the CLI path.",
+          "headHash": "46c8987cc1be6c9c6df20ebb80dea5a97599d6b9",
+          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
+          "timestamp": "2026-06-18T20:48:17.088Z"
         }
       ]
     }
