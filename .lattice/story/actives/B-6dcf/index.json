@@ -4,7 +4,7 @@
   "title": "Make lattice check managed asset paths explicit about metadata root versus gitRoot",
   "description": "Fix the remaining wrapper-root confusion where lattice check reports managed asset relPath values such as .gitignore or .codex/hooks/... without saying those paths are relative to the Lattice metadata root, not necessarily the configured gitRoot. The fix should add explicit root diagnostics to lattice check text and JSON output, preserve current apply semantics, and add wrapper-root regression coverage. This closes the user-visible metadata root vs gitRoot ambiguity without changing gitRoot execution behavior already handled by B-1637/B-75f0.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "managed-assets",
@@ -21,6 +21,14 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-18T01:31:26.301Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T01:33:13.509Z",
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
