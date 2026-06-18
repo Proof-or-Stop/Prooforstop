@@ -1,0 +1,28 @@
+{
+  "storyId": "B-6dcf",
+  "checkedAt": "2026-06-18T02:05:21.435Z",
+  "reviewRound": "2026-06-18T01:55:20.787Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Verified live on this worktree: `node packages/main/dist/cli.js check --json` reports root-level metadataRoot, assetRoot, gitRoot, pathsRelativeTo=assetRoot, assetRootGitRootSplit=false, and manifestPath remains .lattice/managed-assets.json. Reverse-scanned diff shows ManagedAssetCheckResult gains those fields and runManagedAssetCheck spreads managedAssetRootDiagnostics(root) without changing relPath/apply roots."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Verified live on this worktree: `node packages/main/dist/cli.js check 2>&1 | sed -n '1,28p'` prints `Paths: managed asset relPath/applied/manifestPath values are relative to assetRoot.` immediately after Summary, then metadataRoot/assetRoot/gitRoot, before Drift and before the check --apply recommendation."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Verified live on this worktree: `npm run test:managed-assets-wrapper-root` passed. The regression creates a non-git metadataRoot with configured gitRoot subdir, parses check JSON/text, verifies split-root diagnostics, and asserts check --apply writes .lattice/Lattice.md and managed-assets.json under metadataRoot/assetRoot rather than gitRoot."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted: lattice check JSON/text explicitly disambiguate metadataRoot, assetRoot, and gitRoot while preserving assetRoot-relative relPath/applied/manifestPath semantics. Transcript evidence, focused wrapper-root smoke, validation evidence, and reviewer passes are present."
+  },
+  "_hash": "624fbde4b64a463c2648c427da82ea782f05e4556457b36841979fd9e10396d5"
+}
