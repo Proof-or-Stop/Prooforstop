@@ -103,6 +103,16 @@
           "headHash": "10e4e2ffe1a64d7b7dd419655cd93451acd56403",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:44.065Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/core packages/main/src/handlers | wc -l",
+          "result": "pass",
+          "note": "0 files; no core/handlers production touched, scope = runner+manifest only",
+          "headHash": "bf9c88884c58a61ae5044c8690c3da5c50e73092",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:44.733Z"
         }
       ]
     },
