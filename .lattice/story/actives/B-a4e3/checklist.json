@@ -180,6 +180,16 @@
           "headHash": "cf779cf38e30e8a01dcc93dad63987982439961b",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:39.926Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build; node JSON.parse",
+          "result": "pass",
+          "note": "Build exits 0; package.json files valid JSON after field deletion (repository.type kept, empty bugs/homepage removed); no salt touched.",
+          "headHash": "c28c9d15a234a145f287a4bfd8dec8fb8b121c10",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:40.668Z"
         }
       ]
     },
