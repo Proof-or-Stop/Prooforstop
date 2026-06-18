@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-18T13:50:17.000Z",
       "reviewRunId": "B-5d48:RR-008",
       "_hash": "8ba590fc0f23b743e7ac52cd9866479a3ac5f01163df64bbcbd02e4314a92040"
+    },
+    {
+      "id": "B-5d48:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "36/36 intents covered across CHK-001/002/003 (happy+edge+adversarial). Smoke TOTAL 15 PASS 15. Verifier TOTAL 36 PASS 36 FAIL 0 (all flags true). CHK-003:adversarial:2 now bound to the verifier (node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs, kind=integration_test) with note citing negSelfTestRejectsBad=true / negSelfTestAcceptsGood=true / exclusionCheckHasTeeth=true — the literal command where the negative self-test executes. F-006 resolved (negative self-test added). F-007 resolved (evidence pointer corrected). 0 open findings. Test coverage review passed.",
+      "createdAt": "2026-06-18T13:57:12.877Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-009",
+      "_hash": "08e6c672d22a5b68fda849dd3661692c570a4cbb8e0736026b042d4b8e3dcb71"
     }
   ]
 }
