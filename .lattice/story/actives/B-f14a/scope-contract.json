@@ -14,7 +14,16 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Project validation needs an explicit story-specific validate.commands sequence so B-f14a does not fall back to the broad npm test gate and fail on unrelated checks.",
+      "timestamp": "2026-06-18T20:58:59.695Z",
+      "paths": [
+        "lattice.config.json"
+      ]
+    }
+  ],
   "createdAt": "2026-06-18T20:48:31.742Z",
-  "updatedAt": "2026-06-18T20:48:31.742Z"
+  "updatedAt": "2026-06-18T20:58:59.695Z"
 }
