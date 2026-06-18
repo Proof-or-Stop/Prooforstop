@@ -17,7 +17,9 @@
           "docs/audits/lattice-token-cost-and-takeover-audit.md"
         ],
         "create": [],
-        "test": []
+        "test": [
+          "packages/main/src/handlers/story-query.ts"
+        ]
       },
       "verificationIntent": {
         "happy": [
@@ -29,7 +31,7 @@
         ],
         "edge": [
           {
-            "desc": "The nearby summary prose and appendix remain internally consistent after the citation correction, with no unrelated files changed.",
+            "desc": "Applying both CHK-001 and CHK-002 in one patch still leaves the summary citation, authority table, and appendix internally consistent.",
             "type": "docs",
             "priority": "must"
           }
