@@ -1,0 +1,95 @@
+{
+  "storyId": "B-a5c9",
+  "checkedAt": "2026-06-16T14:27:43.863Z",
+  "reviewRound": "2026-06-16T14:16:25.749Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "EstimatorKind type ('count_tokens'|'local_tokenizer'|'bytes_chars') with confidence map (high/medium/low) exported from estimate.ts",
+      "verifiedBy": "diff/read estimate.ts",
+      "evidence": "EstimatorKind union type and CONFIDENCE_MAP (Object.freeze) both exported from packages/main/src/core/usage-ledger/estimate.ts lines 47-72; ESTIMATOR_PRIORITY frozen array confirmed"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "TokenEstimator optionally-async interface: (model, input) -> {estimatedInputTokens, kind}",
+      "verifiedBy": "diff/read estimate.ts",
+      "evidence": "TokenEstimator type defined at estimate.ts:89-92 as (model: string, input: string) => EstimateOutput | Promise<EstimateOutput>; both async and sync confirmed by CHK-001 smoke tests"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "Deterministic offline bytes/chars estimator (not tiktoken); uses Buffer.byteLength for UTF-8 byte count",
+      "verifiedBy": "diff/read estimate.ts + smoke assertion",
+      "evidence": "bytesCharsEstimator at estimate.ts:129-136 uses Buffer.byteLength(text, 'utf8'); no tiktoken import present; comment explicitly states NOT tiktoken; CHK-002 smoke confirms determinism, monotonicity, empty->0, 1MB, unicode, offline, null->0"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "selectEstimate({model, input, countTokens?, localTokenizer?}) with strict priority count_tokens > local_tokenizer > bytes_chars; pluggable injected interface; falls back gracefully on throw/NaN/negative",
+      "verifiedBy": "diff/read estimate.ts + smoke assertions",
+      "evidence": "selectEstimate async function at estimate.ts:217-232; tryEstimator at lines 183-201 catches throws and rejects invalid counts (negative, NaN, non-integer); returns SelectedEstimate bound to exact model id; CHK-003 smoke verifies all fallback paths"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "buildEstimateRecord -> source=prompt-size-estimate, estimator{name,version,unit,confidence}, canonical.input=estimate, output/cache=null; passes validateUsageLedgerRecord; throws on invalid",
+      "verifiedBy": "diff/read estimate.ts + smoke assertions",
+      "evidence": "buildEstimateRecord at estimate.ts:317-393 assembles LedgerUsage with source='prompt-size-estimate', estimator fields, canonical.input=estimatedInputTokens, output/cacheCreation/cacheRead=null; calls validateUsageLedgerRecord and throws on failure; CHK-004 smoke confirms all fields, validation, and negative-throws"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "supersedes: re-export buildSupersedes from ids.ts; estimate-never-final guarantee; summary excludes superseded estimate from providerReportedTotal",
+      "verifiedBy": "diff/read estimate.ts + smoke assertions",
+      "evidence": "estimate.ts line 433 re-exports buildSupersedes from ./ids.js; CHK-005 smoke confirms: superseded estimate excluded (providerReportedTotal=580 final only), un-superseded in estimateSubtotal, source discriminator is sole bucket criterion, stale refs ignored, multiple estimates all superseded, highest-sequence wins"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "Smoke wired as npm test:usage-ledger-estimate; covers all CHK-001..005 + writer round-trip + zero-cross-module-import static assert; exits non-zero on failure",
+      "verifiedBy": "diff/read package.json + smoke file + live run",
+      "evidence": "packages/main/package.json: 'test:usage-ledger-estimate': 'node dist/tasks/usage-ledger-estimate-smoke.js'; smoke has 55 checks with process.exitCode=1 on failure; live run 55/55 PASS; static import-boundary assert at smoke lines 589-617"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Out-of-scope",
+      "promise": "Scope: packages/main only; no dispatch/budget/receipt/provider-HTTP wiring; record.ts unchanged; zero cross-module imports from core/usage-ledger",
+      "verifiedBy": "diff --name-only + smoke static assert + live run",
+      "evidence": "git diff shows only estimate.ts (new), usage-ledger-estimate-smoke.ts (new), package.json (script added); record.ts absent from diff; smoke STATIC assert confirms zero cross-module imports; no dispatch/budget/HTTP code introduced"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a5c9/plan.md#Approach",
+      "promise": "count_tokens is pluggable injected interface; real HTTP binding deferred; NOT wired into live dispatch",
+      "verifiedBy": "diff/read estimate.ts + smoke static assert",
+      "evidence": "estimate.ts file-level comment explicitly states count_tokens is PLUGGABLE, caller-INJECTED and 'does NOT call any network / provider HTTP client'; selectEstimate accepts optional countTokens never instantiated internally; smoke STATIC import-boundary check confirms no dispatch imports anywhere in core/usage-ledger"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "estimate smoke 55 checks: CONFIDENCE_MAP values high/medium/low, exactly 3 keys, unknown key=undefined, frozen (mutation no-effect), ESTIMATOR_PRIORITY strict order+frozen, async TokenEstimator, sync TokenEstimator. All 7 CHK-001 assertions PASS live run."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "estimate smoke 55 checks: positive count, determinism, monotonicity, empty->0, 1MB no crash, unicode/emoji byte-based, offline (no env vars), NOT tiktoken (source grep), null/undefined->0 never NaN/negative. All 9 CHK-002 assertions PASS live run."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "estimate smoke 55 checks: count_tokens priority, localTokenizer fallback, bytes_chars floor, exact model echo, both-injected picks count_tokens, 0-token stays high, empty model echoed, throw->fallback, async reject->fallback, negative->fallback, NaN->fallback, float->fallback. All 13 CHK-003 assertions PASS live run."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "estimate smoke 55 checks: source=prompt-size-estimate, estimator fields non-empty, canonical.input set+output/cache null, passes validateUsageLedgerRecord, top-level nulls, storyId=null ok, 0-token ok, supersedesRecordIds echoed, recordId llmuse_ prefix, negative throws, no masquerade as provider-reported, provider-reported rules still enforced. All 13 CHK-004 assertions PASS live run."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "estimate smoke 55 checks: superseded estimate excluded (providerReportedTotal=580 from final only), un-superseded in estimateSubtotal, buildSupersedes identity matches ids.ts, multiple estimates all superseded, all-null-dim unknown, dedup/filter falsy, never-final by source discriminator, stale ref ignored, highest-sequence final wins. All 9 CHK-005 assertions PASS live run."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "estimate smoke 55 checks PASS; writer round-trip (opt-in ON, temp dir) written+re-read+validated with integrity, idempotent rapid re-run, STATIC zero-cross-module-import all core/usage-ledger .ts files, estimate.ts imports only ./record.js+./ids.js, no repo pollution. Foundation no-regression test:usage-ledger 61/61 PASS. Adapter no-regression test:usage-ledger-adapter 50/50 PASS. Acceptance verifier verify-b-a5c9.mjs 62/62 PASS. lattice validate 62/62 ALL PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises independently verified in source code and live test runs. The estimate path is pure and self-contained: 55 new checks cover happy+edge+adversarial for every CHK-001..006 item including confidence-model tamper resistance, offline-only proof, injected-estimator fallback chains, validator enforcement, and estimate-never-final source-discriminator invariant. Three no-regression smokes (61+50) and the 62-intent verifier all green. No TODOs, no cross-module imports, no dispatch wiring. Deferral of real count_tokens HTTP binding is honestly documented and statically verified absent."
+  },
+  "_hash": "6ebf2f2e2b989fc10957faa023a3d00bf00f78986dd97b9a3d07a5574a75df77"
+}

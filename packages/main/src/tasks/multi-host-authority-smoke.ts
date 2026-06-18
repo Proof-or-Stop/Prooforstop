@@ -28,6 +28,7 @@ import {
   listAuthorityHostVerdicts,
   authorityJobVerdictStatus,
   type AuthorityFetch,
+  type AuthorityFileReader,
 } from '../core/authority-client.js';
 import {
   checkFinalHostReviewPromptDigest,
@@ -56,6 +57,14 @@ import type { PlannedStepsExecutionResult } from '../core/planned-steps-executor
 import { canonicalDigest, generateEd25519KeyPair, signCanonical, stripSignature } from '../core/authority-signing.js';
 
 const PASS = '✓ multi-host authority smoke passed';
+
+// Hermetic isolation: a no-op fileReader so every backing-resolution / config
+// load returns nothing from disk. Without this the dev's on-disk
+// authority_trust.env (LATTICE_AUTHORITY_LIVE_URL=…) leaks via process.cwd() and
+// flips E2's expected mode='local' to 'server'. fileReader is an EXISTING
+// production parameter (AuthorityVerdictBackingOptions.fileReader); threading it
+// from the test is 0 production change.
+const NO_DISK: AuthorityFileReader = () => undefined;
 
 // ── shared key material + a signed native gate_decision receipt ─────────────────
 const serverKey = generateEd25519KeyPair();
@@ -328,11 +337,11 @@ async function main(): Promise<void> {
 
   // ── E. backing resolution (server vs local; submit auth is fail-closed) ───────
   {
-    const off = resolveAuthorityVerdictBacking({ env: {} });
+    const off = resolveAuthorityVerdictBacking({ env: {}, fileReader: NO_DISK });
     assert.equal(off.mode, 'local', 'E1: no authority config → local storage');
     assert.equal(off.client, undefined, 'E1: no client instantiated (zero network)');
 
-    const defaultServer = resolveAuthorityVerdictBacking({ env: { LATTICE_AUTHORITY_MODE: 'enforce' } });
+    const defaultServer = resolveAuthorityVerdictBacking({ env: { LATTICE_AUTHORITY_MODE: 'enforce' }, fileReader: NO_DISK });
     assert.equal(defaultServer.mode, 'local', 'E2: localhost default is production-inert and cannot be server-backed final certification');
     assert.equal(defaultServer.settings.defaultUrlApplied, true, 'E2: default URL source is recorded');
     assert.ok(defaultServer.reason.includes('production-inert'), 'E2: refusal reason names production-inert material');
@@ -342,6 +351,7 @@ async function main(): Promise<void> {
     const noKeyServer = resolveAuthorityVerdictBacking({
       env: noKeyEnv,
       fetchImpl: verdictFetch({ capture }),
+      fileReader: NO_DISK,
     });
     assert.equal(noKeyServer.mode, 'server', 'E3: configured server remains server-backed even without a submit key');
     const noKeySubmit = await submitAuthorityHostVerdict(noKeyServer.client!, 'job-9', baseClaim, { env: noKeyEnv });
@@ -350,7 +360,7 @@ async function main(): Promise<void> {
     assert.ok(noKeySubmit.reason?.includes('customer_api_key_unconfigured_fails_closed'), 'E3: missing-key reason is explicit');
     assert.equal(capture.posts, 0, 'E3: missing customer key performs zero POST calls');
 
-    const server = resolveAuthorityVerdictBacking({ env: serverEnv(), fetchImpl: verdictFetch({}) });
+    const server = resolveAuthorityVerdictBacking({ env: serverEnv(), fetchImpl: verdictFetch({}), fileReader: NO_DISK });
     assert.equal(server.mode, 'server', 'E4: enforce + URL + customer key → server-backed');
     assert.ok(server.client, 'E4: server client instantiated');
   }
@@ -359,7 +369,7 @@ async function main(): Promise<void> {
   {
     const capture = { posts: 0, gets: 0 };
     const env = serverEnv();
-    const server = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ capture }) });
+    const server = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ capture }), fileReader: NO_DISK });
     const blocked = await submitAuthorityHostVerdict(server.client!, 'job-9', { ...baseClaim, checkedReceiptId: undefined }, { env });
     assert.equal(blocked.ok, false, 'F1: a verdict missing its receipt is blocked');
     assert.equal(capture.posts, 0, 'F1: NO network POST happens before the receipt exists (receipt-before-verdict)');
@@ -376,7 +386,7 @@ async function main(): Promise<void> {
       reconciliation: reconciliation({ passingIndependentHostCount: 1, independentHostCount: 1, satisfied: false }),
     };
     const env = serverEnv();
-    const server = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ submit: { status: 200, body: submitBody }, capture }) });
+    const server = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ submit: { status: 200, body: submitBody }, capture }), fileReader: NO_DISK });
     const out = await submitAuthorityHostVerdict(server.client!, 'job-9', baseClaim, { env });
     assert.equal(out.ok, true, 'G1: a fully bound verdict submits');
     assert.equal(capture.posts, 1, 'G1: exactly one POST');
@@ -390,6 +400,7 @@ async function main(): Promise<void> {
     const rejectedServer = resolveAuthorityVerdictBacking({
       env,
       fetchImpl: verdictFetch({ submit: { status: 200, body: { accepted: false, reason: 'signature rejected' } } }),
+      fileReader: NO_DISK,
     });
     const rejected = await submitAuthorityHostVerdict(rejectedServer.client!, 'job-9', baseClaim, { env });
     assert.equal(rejected.ok, false, 'G1b: a server-rejected verdict is not accepted');
@@ -397,7 +408,7 @@ async function main(): Promise<void> {
     assert.match(rejected.reason ?? '', /signature rejected|not_accepted/, 'G1b: rejected reason is explicit');
 
     const listBody = { jobId: 'job-9', runId: 'run-7', verdicts: [verdictReceipt({ verdictId: 'hv-1' }), verdictReceipt({ verdictId: 'hv-2', hostId: 'host-b' })], reconciliation: reconciliation() };
-    const listServer = resolveAuthorityVerdictBacking({ env: serverEnv(), fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }) });
+    const listServer = resolveAuthorityVerdictBacking({ env: serverEnv(), fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }), fileReader: NO_DISK });
     const listOut = await listAuthorityHostVerdicts(listServer.client!, 'job-9');
     assert.equal(listOut.ok, true, 'G2: list ok');
     assert.equal(listOut.verdicts.length, 2, 'G2: lists both server verdict records');
@@ -410,14 +421,14 @@ async function main(): Promise<void> {
     // H1: three satisfied waves + verified per-run receipt → fullAuthorityDone.
     const env = serverEnv();
     const listBody = { jobId: 'job-9', runId: 'run-7', verdicts: fullCertificationVerdicts(), reconciliation: fullCertificationReconciliation() };
-    const server = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }) });
+    const server = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }), fileReader: NO_DISK });
     const ok = await authorityJobVerdictStatus(server.client!, { jobId: 'job-9', runId: 'run-7', receipt: signedGateReceipt(), expectedProjectId: 'proj-1', expectedStoryId: 'B-auth', expectedDecisionDigest: 'sha256:decision', expectedReceiptInputDigest: RECEIPT_INPUT_DIGEST, expectedGateInputDigest: RECEIPT_INPUT_DIGEST, now: NOW }, env);
     assert.equal(ok.ok, true, 'H1: status ok');
     assert.equal(ok.certification?.fullAuthorityDone, true, 'H1: verified receipt + three satisfied waves = fullAuthorityDone');
     assert.equal(ok.certification?.authorityDone, true, 'H1: per-run receipt verified');
 
     // H2: three satisfied waves but NO receipt provided → fullAuthorityDone stays false.
-    const server2 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }) });
+    const server2 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }), fileReader: NO_DISK });
     const noReceipt = await authorityJobVerdictStatus(server2.client!, { jobId: 'job-9', runId: 'run-7', now: NOW }, env);
     assert.equal(noReceipt.certification?.fullAuthorityDone, false, 'H2: three satisfied waves alone are NOT fullAuthorityDone');
     assert.equal(noReceipt.certification?.authorityDone, false, 'H2: no per-run receipt proven');
@@ -425,14 +436,14 @@ async function main(): Promise<void> {
 
     // H3: repair minted a FRESH receipt (rcpt-gate-2) but verdicts still check the OLD
     // one → stale review wave blocks fullAuthorityDone.
-    const server3 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }) });
+    const server3 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: listBody } }), fileReader: NO_DISK });
     const stale = await authorityJobVerdictStatus(server3.client!, { jobId: 'job-9', runId: 'run-7', receipt: signedGateReceipt({ receiptId: 'rcpt-gate-2' }), expectedProjectId: 'proj-1', expectedStoryId: 'B-auth', expectedDecisionDigest: 'sha256:decision', expectedReceiptInputDigest: RECEIPT_INPUT_DIGEST, expectedGateInputDigest: RECEIPT_INPUT_DIGEST, now: NOW }, env);
     assert.equal(stale.certification?.fullAuthorityDone, false, 'H3: fresh receipt + stale verdicts blocks fullAuthorityDone');
     assert.ok(stale.certification?.blockedReason?.includes('stale_review_wave_after_repair'), 'H3: blocked on stale review wave after repair');
 
     // H4: server reconciliation reports a failing host → disagreement blocks.
     const disagreeBody = { jobId: 'job-9', runId: 'run-7', verdicts: [verdictReceipt({ decision: 'fail', checkedReceiptId: 'rcpt-gate-1' })], reconciliation: reconciliation({ failingIndependentHostCount: 1, passingIndependentHostCount: 1, satisfied: false }) };
-    const server4 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: disagreeBody } }) });
+    const server4 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: disagreeBody } }), fileReader: NO_DISK });
     const disagree = await authorityJobVerdictStatus(server4.client!, { jobId: 'job-9', runId: 'run-7', receipt: signedGateReceipt(), disagreementBehavior: 'repair_then_reverify', expectedProjectId: 'proj-1', expectedStoryId: 'B-auth', expectedDecisionDigest: 'sha256:decision', expectedReceiptInputDigest: RECEIPT_INPUT_DIGEST, expectedGateInputDigest: RECEIPT_INPUT_DIGEST, now: NOW }, env);
     assert.equal(disagree.certification?.fullAuthorityDone, false, 'H4: a failing host blocks fullAuthorityDone');
     assert.ok(disagree.certification?.blockedReason?.includes('multi_host_disagreement'), 'H4: blocked on disagreement');
@@ -452,7 +463,7 @@ async function main(): Promise<void> {
       ],
       reconciliation: fullCertificationReconciliation(),
     };
-    const server5 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: repeatedHostBody } }) });
+    const server5 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: repeatedHostBody } }), fileReader: NO_DISK });
     const repeated = await authorityJobVerdictStatus(server5.client!, { jobId: 'job-9', runId: 'run-7', receipt: signedGateReceipt(), expectedProjectId: 'proj-1', expectedStoryId: 'B-auth', expectedDecisionDigest: 'sha256:decision', expectedReceiptInputDigest: RECEIPT_INPUT_DIGEST, expectedGateInputDigest: RECEIPT_INPUT_DIGEST, now: NOW }, env);
     assert.equal(repeated.certification?.fullAuthorityDone, false, 'H5: repeated same-host verdicts do not satisfy fullAuthorityDone');
     assert.equal(repeated.certification?.multiHostVerified, false, 'H5: repeated same host does not satisfy multi-host verification');
@@ -465,7 +476,7 @@ async function main(): Promise<void> {
       verdicts: fullCertificationVerdicts().map(({ signature: _signature, ...verdict }) => verdict),
       reconciliation: fullCertificationReconciliation(),
     };
-    const server6 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: unsignedBody } }) });
+    const server6 = resolveAuthorityVerdictBacking({ env, fetchImpl: verdictFetch({ list: { status: 200, body: unsignedBody } }), fileReader: NO_DISK });
     const unsigned = await authorityJobVerdictStatus(server6.client!, { jobId: 'job-9', runId: 'run-7', receipt: signedGateReceipt(), expectedProjectId: 'proj-1', expectedStoryId: 'B-auth', expectedDecisionDigest: 'sha256:decision', expectedReceiptInputDigest: RECEIPT_INPUT_DIGEST, expectedGateInputDigest: RECEIPT_INPUT_DIGEST, now: NOW }, env);
     assert.equal(unsigned.certification?.fullAuthorityDone, false, 'H6: unsigned verdict records do not satisfy fullAuthorityDone');
     assert.equal(unsigned.certification?.satisfiedReviewWaves, 0, 'H6: unsigned verdicts do not count as satisfied waves');

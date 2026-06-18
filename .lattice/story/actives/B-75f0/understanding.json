@@ -1,0 +1,44 @@
+{
+  "task": "Burn down the B-6666 gitroot-cwd DEFERRED_ALLOWLIST: thread a git-cwd resolver into the ~16 real wrapper-root sites (incl. 3 hard failures), rename 3 lexical false-positives, and split the deferred allowlist into a permanent benign-bootstrap set + an empty pending set.",
+  "outcome": "On a wrapper-root project the operator runs `lattice dispatch` (worktree create/remove), `verification_evidence_refresh`, and `lattice doctor --repair` and they all WORK instead of crashing or running git from the non-git metadataRoot; running `node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js` prints `✓ gitroot-cwd-contract smoke passed` and exits 0 with the fixed sites no longer in the allowlist and the burndown/pending set EMPTY; on a plain repo every git call still runs from the same directory as before (byte-identical).",
+  "facts": [
+    "resolveGitCwd({store,storyId,metadataRoot,projectRoot,cwd?,config?}) is exported from core/story-signed-workspace-resolution.ts and falls back to projectRoot when no gitRoot resolves.",
+    "resolveProjectGitRoot(metadataRoot, configuredGitRoot):string|null is a PRIVATE function in the same module and must be exported (or wrapped) for the id-independent CHK-003 sites.",
+    "doctor.ts already has resolveDoctorGitCwd(root):string (id-independent, calls evaluateStoryDirConfigInsideGitRoot, never throws).",
+    "Most target call sites have ONLY root/projectRoot in scope (no store/storyId/config) — the resolver must be threaded from the CALLER where store+storyId live, or the id-independent resolveProjectGitRoot used.",
+    "lattice-dispatch.ts listedGitWorktreeRoots(root):1185 and assertRegisteredDispatchWorktreeRoot(root):1251 are the 2 genuine HARD-THROW sites (execFileSync, no catch); their callers have store+record.storyId.",
+    "checklist.ts evidenceHashes(root):188 catches and returns {} (graceful), not a hard throw as originally framed; still wrong cwd on wrapper-root.",
+    "The 3 CHK-004 sites (done-effects autoSyncMain param projectRoot, handlers/review-run + core/review-run) ALREADY receive a resolved value; renaming the param projectRoot->gitCwd is zero-behavior-change.",
+    "gitroot-cwd-contract-smoke.ts is in root npm test (B-99b6) so lattice validate runs it; its DEFERRED_ALLOWLIST_EXACT currently has 28 entries."
+  ],
+  "constraints": [
+    "Plain-repo behavior MUST be byte-identical: fall back to root/projectRoot when no gitRoot resolves.",
+    "Systematic debugging: ONE site at a time; after each, rebuild + run the gitroot-cwd-contract-smoke and confirm exit 0; remove that site from the allowlist as it is fixed.",
+    "NEVER silence the contract by re-allowlisting a real site instead of fixing it.",
+    "NEVER leave the contract red and NEVER leave a hard-failure unfixed.",
+    "Do NOT touch the P5 authority/baseline smokes (sibling story B-6745) or process-fact-registry.",
+    "No remote push; DONE merges to local main only."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/touchpoints-fallback.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/recover-evidence.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/tasks/gap-analyze.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/dashboard.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+  ],
+  "timestamp": "2026-06-17T22:27:14.245Z"
+}

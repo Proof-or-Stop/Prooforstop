@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a5c9",
+  "mode": "feature",
+  "allowed": [
+    "Implement the PURE preflight estimate path in packages/main/src/core/usage-ledger/: estimator interface + confidence model (estimate.ts), deterministic offline bytes/chars fallback, an estimate selector with a pluggable injected count_tokens, buildEstimateRecord -> validated prompt-size-estimate record, supersedes wiring, and a wired smoke"
+  ],
+  "excluded": [
+    "Budget decision and request blocking",
+    "Connecting to the live dispatch path",
+    "Edits outside packages/main/src/core/usage-ledger and its tests",
+    "Server-side signed evidence promotion",
+    "The real provider count_tokens network binding",
+    "Turning the writer on by default"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose the low-risk estimate path first (2026-06-16) and asked to keep the module decoupled. Real count_tokens binding + dispatch wiring are later slices.",
+  "createdAt": "2026-06-16T13:55:34.775Z",
+  "updatedAt": "2026-06-16T13:55:34.775Z",
+  "_hash": "016bb066c1741c1f88ec82af1b27d7733a75bd049e6d8326c050a083aef1a1b6"
+}

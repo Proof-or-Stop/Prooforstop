@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-be91",
+  "checkedAt": "2026-06-18T01:09:57.434Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "091ea076967a1615a82f2a65530e81c1707965f416348dcd5375aa2ab8f7853b",
+  "executionBoundaryHash": "59a0001b66a23c1766b750a2c4d6503b53d9dc32dd9d8964a3b4072230f75e28",
+  "freshnessHash": "af4c9fa2b54268ea3760da2f8d065d66b96b0c95e4b95647411fed9da7480a69",
+  "effectiveExcludedKeywords": [
+    "Any new manifest field / runner flag (Plan B + C scope)",
+    "packages/main/smoke-manifest.json (B-24c3 frozen — recently merged)",
+    "packages/main/src/ (production code OFF LIMITS)",
+    "packages/main/src/tasks/ (all *-smoke.ts source frozen)",
+    "packages/main/src/tasks/run-all-smokes.ts (B-6efb frozen)",
+    "Plan B two-pass retry implementation (separate follow-up story)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any new manifest field / runner flag (Plan B + C scope)",
+      "source": "scopeBoundary.excluded",
+      "text": "Any new manifest field / runner flag (Plan B + C scope)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/smoke-manifest.json (B-24c3 frozen — recently merged)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/smoke-manifest.json (B-24c3 frozen — recently merged)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/ (production code OFF LIMITS)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/ (production code OFF LIMITS)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/tasks/ (all *-smoke.ts source frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/tasks/ (all *-smoke.ts source frozen)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/tasks/run-all-smokes.ts (B-6efb frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/tasks/run-all-smokes.ts (B-6efb frozen)",
+      "excluded": true
+    },
+    {
+      "keyword": "Plan B two-pass retry implementation (separate follow-up story)",
+      "source": "scopeBoundary.excluded",
+      "text": "Plan B two-pass retry implementation (separate follow-up story)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "6a118f50b5609900f241269c5c084ae6b601da6e846bca56f99cc299974f8c54"
+}

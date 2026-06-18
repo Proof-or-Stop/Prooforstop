@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Opt-in / inert by default — the writer is a no-op until a flag enables it",
+    "Single writer choke-point: exactly one exported append path so later slices wire through one place",
+    "Mirror the spec's record shape exactly (four-field, no totalTokens, per-dimension null)",
+    "Reuse the existing runtime-artifact-registry; the ledger path is excluded from materialHash and is volatile/repairable",
+    "Foundation only — no provider/estimate/budget/authority wiring in this slice"
+  ],
+  "drivers": [
+    "Every later ledger slice depends on a correct, tamper-evident, privacy-safe writer foundation",
+    "The ledger path must never pollute evidence or gate hashes",
+    "Getting the record shape wrong here propagates to every future record"
+  ],
+  "options": [
+    {
+      "name": "A: new self-contained core/usage-ledger module + registry entry, opt-in",
+      "pros": [
+        "Isolated, testable, one write path",
+        "Easy to extend in later slices",
+        "Inert by default = low blast radius"
+      ],
+      "cons": [
+        "A few new files"
+      ]
+    },
+    {
+      "name": "B: inline writer into an existing core module",
+      "pros": [
+        "Fewer files"
+      ],
+      "cons": [
+        "Couples ledger to unrelated code; harder to keep a single choke-point — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: new self-contained core/usage-ledger module + registry entry, opt-in",
+  "rationale": "A dedicated module gives one clear append choke-point, isolated tests, and a clean extension surface for later slices, while the opt-in flag keeps it inert by default. Reusing the runtime-artifact-registry ensures the JSONL path is excluded from materialHash and treated as volatile/repairable so it never pollutes evidence.",
+  "preMortem": [
+    {
+      "scenario": "Later code writes the ledger via a second path, breaking completeness/hash-chain",
+      "trigger": "No enforced single entry point",
+      "consequence": "Records bypass validation/chaining; reconciliation impossible",
+      "mitigation": "Expose exactly ONE append function; keep file I/O private to writer.ts; smoke asserts there is a single exported write path and no other module writes the file"
+    },
+    {
+      "scenario": "Raw prompt/transcript/secret/API-key/auth-header leaks into a record",
+      "trigger": "Caller passes disallowed fields",
+      "consequence": "Privacy violation persisted to disk",
+      "mitigation": "Validator rejects raw-content fields + a key/secret denylist; writer refuses to write on rejection; injection test must be rejected"
+    },
+    {
+      "scenario": "Ledger path pollutes materialHash / evidence freshness",
+      "trigger": "Missing/incorrect runtime-artifact-registry entry",
+      "consequence": "Gate hashes churn; evidence goes stale spuriously",
+      "mitigation": "Registry entry materialHash=exclude + volatile=true + repairableTrackedArtifact=true + ignorePatterns; smoke asserts the path classifies that way"
+    },
+    {
+      "scenario": "Opt-in flag defaults ON, so the writer runs unexpectedly",
+      "trigger": "Wrong default",
+      "consequence": "Unexpected files/writes in normal runs",
+      "mitigation": "Flag default OFF; smoke asserts flag-off => no file created"
+    },
+    {
+      "scenario": "Record shape drifts from spec (stores totalTokens or wrong cache field names)",
+      "trigger": "Hand-rolled shape",
+      "consequence": "Future slices inconsistent; cost accounting wrong",
+      "mitigation": "Validator enforces the spec shape and REJECTS stored totalTokens; types name the four cache-aware fields exactly; smoke checks field names + rejection"
+    },
+    {
+      "scenario": "Hash chain miscomputed across appends",
+      "trigger": "previousRecordHash not read from last line",
+      "consequence": "Tamper detection broken",
+      "mitigation": "Writer reads the last record's recordHash and sets it as previousRecordHash; smoke appends multiple records and verifies the chain end-to-end"
+    }
+  ],
+  "timestamp": "2026-06-16T00:58:53.397Z"
+}

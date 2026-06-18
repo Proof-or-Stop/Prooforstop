@@ -75,7 +75,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       }
 
       const fallbackId = `${args.storyId}:REF-${Date.now().toString(36)}`;
-      const actor = normalizeString(args.actor) || process.env.KOALA_AGENT || process.env.USER || 'main';
+      const actor = normalizeString(args.actor) || process.env.LATTICE_AGENT || process.env.USER || 'main';
       ctx.store.appendProcessEvent(args.storyId, {
         type: 'review_escalation_fallback',
         storyId: args.storyId,

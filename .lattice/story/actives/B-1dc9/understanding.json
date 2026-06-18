@@ -1,0 +1,29 @@
+{
+  "task": "Surface derived finding-signals as advisory review-time hints (experience-hint-loader + an advisory section in story-review + usage tracking), advisory-only and excluded from the reviewRunId promptHash domain.",
+  "outcome": "Running 'npm --prefix packages/main run test:experience-layer-hint-injection' prints 'smoke passed'. The smoke: builds finding-signals, asserts the loader ranks by priority and applies the score threshold + common-false-positive bucket + top-N + progressive disclosure; asserts story_review _reviewPrompt includes a 'Project experience hints (advisory only)' section when signals exist and omits it when none; asserts an experience_hint_surfaced event is appended to the activity log; asserts resolveReviewPromptHash output is identical regardless of hint content (deterministic reviewRunId binding unaffected). Build clean; existing experience-layer smokes still pass; verifier prints TOTAL N | PASS N | FAIL 0.",
+  "facts": [
+    "finding-signals.json + learning-store exist (Phase 1a B-000c); finding-signals carry signalScore/support",
+    "handlers/story-review.ts assembles an advisory _reviewPrompt with a grillSection (~line 567) to mirror",
+    "REVIEW-phase promptHash is computed by resolveReviewPromptHash (core/review-run.ts:108) from the reviewer-supplied prompt — a separate channel from story-review _reviewPrompt",
+    "appendActivityLog (core/activity-log.ts:40) is the JSONL usage-event appender"
+  ],
+  "constraints": [
+    "Advisory-only: no gate logic changes; hints never affect the reviewRunId promptHash",
+    "experience-hint-loader: zero outward imports except learning-store (read) + types",
+    "Reuse appendActivityLog for the usage event; do not write a new appender",
+    "No Co-Authored-By trailer"
+  ],
+  "unknowns": [
+    "None blocking; ranking formula + top-N caps are fixed by the execution plan doc"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experience-hint-loader.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/activity-log.ts",
+    "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-17T13:13:38.248Z"
+}

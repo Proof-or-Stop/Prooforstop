@@ -1,0 +1,94 @@
+{
+  "storyId": "B-72df",
+  "name": "done-merge-tolerate-unrelated-dirty-main",
+  "title": "DONE merge must not be blocked by unrelated uncommitted changes in the shared main worktree",
+  "description": "story_advance DONE requires the ENTIRE main worktree clean (no dirty tracked files) before merging the story branch into main. On a shared main worktree where multiple sessions run concurrently, another session's legitimate uncommitted work (e.g. an INIT-phase decisions doc authored directly on main) blocks an unrelated story's DONE merge. Observed 2026-06-16: B-e791's DONE was blocked by B-0414's uncommitted NAV.md + decisions doc. The clean precondition is over-broad: the DONE merge only needs the paths it actually merges/touches to be clean (to avoid clobbering), not the whole tree. Fix: scope the DONE merge's main-clean precondition to the merge's affected paths so unrelated uncommitted changes do not block DONE, while still refusing (protecting) when the merge would touch a dirty path. Must never clobber any uncommitted work. This is distinct from B-e74e (DONE merge fail when the main worktree is unavailable) which is about availability, not unrelated-dirty contention.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-16T02:57:30.564Z",
+  "startedAt": "2026-06-16T02:57:30.564Z",
+  "endedAt": "2026-06-16T03:44:35.136Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T02:57:30.565Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:02:41.556Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:04:34.328Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:09:03.293Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:20:40.956Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:32:14.200Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:35:34.200Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:37:46.012Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:44:35.136Z",
+      "branch": "story/B-72df",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T03:35:34.200Z"
+}

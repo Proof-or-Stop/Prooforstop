@@ -1,0 +1,32 @@
+{
+  "storyId": "B-7365",
+  "checkedAt": "2026-06-16T01:21:08.302Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights section references \"B-804c (Bug 2, DONE)\" but \"Bug 2\" is an unexplained internal label. A reader without session history cannot infer what \"Bug 2\" means in context; a brief expansion (e.g., \"second git-conflict incident\") would make this self-contained."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-16T01:20:32.755Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-16T01:21:08.302Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights section references \"B-804c (Bug 2, DONE)\" but \"Bug 2\" is an unexplained internal label. A reader without session history cannot infer what \"Bug 2\" means in context; a brief expansion (e.g., \"second git-conflict incident\") would make this self-contained."
+        }
+      ]
+    }
+  ],
+  "_hash": "b6c11f1b39b20ac41f54590e77f2fbe50e62e9985ae72105c73078816f944c21"
+}

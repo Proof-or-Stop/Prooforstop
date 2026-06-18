@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7561",
+  "mode": "custom",
+  "allowed": [
+    "Add a smoke task and its npm script",
+    "Create core/story-recall.ts (profiles + structured similarity + recall) reusing the story_list scan",
+    "Create handlers/recall.ts read-only CLI and register it"
+  ],
+  "excluded": [
+    "Building any full-text search, BM25, or embedding index",
+    "Persisting a derived story-index file",
+    "Sharing experience across separate repositories",
+    "Writing any state or invoking a gate during recall"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 3 Story Recall (final build slice); user authorized full roadmap on 2026-06-17.",
+  "createdAt": "2026-06-17T15:34:01.394Z",
+  "updatedAt": "2026-06-17T15:34:01.394Z",
+  "_hash": "30cc262a473be69f4b476faf818831b17f4b32848e6adaa92ce73ef095861335"
+}

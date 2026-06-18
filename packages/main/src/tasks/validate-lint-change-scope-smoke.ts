@@ -268,6 +268,156 @@ try {
     );
     assert.notEqual(result.status, 'fail', 'empty-scope skips must not flip overall lint to fail');
   }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // B-0740 CHK-002: thread the resolved gitCwd into resolveChangedFiles and
+  // rebase gitRoot-relative diff paths to projectRoot-relative so the single
+  // projectRoot relativity base used downstream is preserved on wrapper-root.
+  // ════════════════════════════════════════════════════════════════════════
+
+  // A reader that asserts the threaded gitCwd, then emits gitRoot-relative paths
+  // (what real `git diff --name-only` run from the gitRoot would print).
+  const gitRootReader =
+    (expectGitCwd: string | undefined, gitRootRelPaths: string[]): ChangedFilesReader =>
+    ({ gitCwd }) => {
+      assert.equal(gitCwd, expectGitCwd, 'reader must receive the threaded gitCwd');
+      return gitRootRelPaths.join('\n');
+    };
+
+  // ── (e) happy: wrapper-root rebase — gitRoot-relative paths → projectRoot-relative ──
+  {
+    // gitRoot = /<root>, projectRoot (metadataRoot) = /<root>/wrapper.
+    // makeFixture lays backend/ + frontend/ DIRECTLY under projectRoot, so the
+    // gitRoot-relative form of those files is prefixed with "wrapper/".
+    // All changed files here are backend-only (all under projectRoot) so the
+    // out-of-scope SET is unambiguous: frontend is correctly skipped.
+    const gitRoot = join(base, 'e-wrapper-root');
+    const projectRoot = makeFixture(join('e-wrapper-root', 'wrapper'));
+    const { run, invokedFor } = recordingRunnerOk();
+    const changedFiles = resolveChangedFiles({
+      projectRoot,
+      gitCwd: gitRoot,
+      // gitRoot-relative output: both files live under projectRoot's backend/.
+      changedFilesReader: gitRootReader(gitRoot, [
+        'wrapper/backend/src/api.ts',
+        'wrapper/backend/src/util.ts',
+      ]),
+    });
+    // Rebase strips the `wrapper/` prefix → projectRoot-relative backend paths.
+    assert.deepEqual(
+      changedFiles,
+      [join('backend', 'src', 'api.ts'), join('backend', 'src', 'util.ts')],
+      'wrapper-root: gitRoot-relative paths rebased to projectRoot-relative (wrapper/ prefix stripped)',
+    );
+    const result = checkLint({ projectRoot, run, changedFiles });
+    // backend is in-scope (changed files live under it) → type-checked.
+    assert.ok(
+      invokedFor.some((p) => p.includes(join('backend', 'tsconfig.json'))),
+      'wrapper-root: in-scope backend tsconfig type-checked after rebase',
+    );
+    // frontend has NO changed file under it AND no deps → out of scope, skipped.
+    assert.ok(
+      result.details.some(
+        (d) => d.includes('frontend/tsconfig.json') && d.includes('(out of scope, deps absent)'),
+      ),
+      'wrapper-root: out-of-scope frontend skipped (correct out-of-scope set after rebase)',
+    );
+    assert.ok(
+      !invokedFor.some((p) => p.includes(join('frontend', 'tsconfig.json'))),
+      'wrapper-root: out-of-scope frontend NOT type-checked',
+    );
+    assert.equal(result.status, 'pass', 'wrapper-root scope-skip must not flip lint to fail');
+  }
+
+  // ── (e2) wrapper-root: a file OUTSIDE projectRoot rebases to a `..`-prefixed path ──
+  {
+    // A gitRoot-relative path that lives OUTSIDE projectRoot (sibling of wrapper/)
+    // must rebase to a `..`-prefixed projectRoot-relative path. isPathUnderDir
+    // then never matches it → it is correctly out-of-scope for projectRoot tsconfigs,
+    // and (per the documented fail-closed rule) a changed file mapping to NO
+    // tsconfig subtree forces everything in-scope (conservative "when in doubt").
+    const gitRoot = join(base, 'e2-outside-projectroot');
+    const projectRoot = makeFixture(join('e2-outside-projectroot', 'wrapper'));
+    const { run, invokedFor } = recordingRunnerOk();
+    const changedFiles = resolveChangedFiles({
+      projectRoot,
+      gitCwd: gitRoot,
+      changedFilesReader: gitRootReader(gitRoot, ['packages/b/y.ts']),
+    });
+    assert.deepEqual(
+      changedFiles,
+      [join('..', 'packages', 'b', 'y.ts')],
+      'wrapper-root: out-of-projectRoot path rebases to a `..`-prefixed path',
+    );
+    const result = checkLint({ projectRoot, run, changedFiles });
+    // Fail-closed: the `..` file maps to no tsconfig subtree → both tsconfigs run.
+    assert.ok(
+      invokedFor.some((p) => p.includes(join('backend', 'tsconfig.json'))) &&
+        invokedFor.some((p) => p.includes(join('frontend', 'tsconfig.json'))),
+      'wrapper-root: `..`-prefixed file (no tsconfig subtree) → fail-closed, everything in-scope',
+    );
+    assert.ok(
+      !result.details.some((d) => d.includes('(out of scope, deps absent)')),
+      'wrapper-root fail-closed must not skip any package',
+    );
+  }
+
+  // ── (f) plain-repo identity: gitCwd == projectRoot → byte-identical to gitCwd omitted ──
+  {
+    const root = makeFixture('f-identity-equal');
+    const reader = okReader(['backend/src/api.ts']);
+    const withEqualGitCwd = resolveChangedFiles({
+      projectRoot: root,
+      gitCwd: root, // equals projectRoot → identity rebase
+      changedFilesReader: reader,
+    });
+    const withoutGitCwd = resolveChangedFiles({
+      projectRoot: root,
+      changedFilesReader: reader, // gitCwd omitted → identity
+    });
+    assert.deepEqual(
+      withEqualGitCwd,
+      ['backend/src/api.ts'],
+      'gitCwd == projectRoot is the identity transform',
+    );
+    assert.deepEqual(
+      withEqualGitCwd,
+      withoutGitCwd,
+      'gitCwd == projectRoot output is byte-identical to gitCwd omitted',
+    );
+  }
+
+  // ── (g) throwing reader WITH gitCwd set → undefined (full tsc, never skip-all) ──
+  {
+    const root = join(base, 'g-throw-wrapper');
+    const projectRoot = makeFixture(join('g-throw-wrapper', 'wrapper'));
+    const changedFiles = resolveChangedFiles({
+      projectRoot,
+      gitCwd: root, // wrapper-root + throwing reader
+      changedFilesReader: throwingReader,
+    });
+    assert.equal(
+      changedFiles,
+      undefined,
+      'throwing reader must resolve to undefined even with gitCwd set (rebase never converts a throw into [])',
+    );
+  }
+
+  // ── (h) empty diff WITH gitCwd set → [] (valid empty scope; throw/empty distinction survives rebase) ──
+  {
+    const root = join(base, 'h-empty-wrapper');
+    const projectRoot = makeFixture(join('h-empty-wrapper', 'wrapper'));
+    const changedFiles = resolveChangedFiles({
+      projectRoot,
+      gitCwd: root, // wrapper-root + empty diff
+      changedFilesReader: gitRootReader(root, []), // git diff printed nothing
+    });
+    assert.deepEqual(
+      changedFiles,
+      [],
+      'empty diff resolves to [] (a real empty scope) even with gitCwd set, distinct from undefined',
+    );
+  }
 } finally {
   rmSync(base, { recursive: true, force: true });
 }

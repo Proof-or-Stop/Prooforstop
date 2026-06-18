@@ -1,0 +1,21 @@
+{
+  "task": "Delete the stray 'orphans' junk file and 2 truly-dead source modules (phase-protocol.ts + bridge-utils.ts) as OSS-prep hygiene.",
+  "outcome": "After: `git ls-files orphans` returns nothing; the 2 modules are gone; intent-coverage.ts still present (its fixture still works); `npm run build` and `npm run test:e2e` exit 0.",
+  "facts": [
+    "'orphans' is a tracked 5-byte root file (content 'NO -'), a shell-redirect mistake.",
+    "phase-protocol.ts: 0 static imports, 0 dynamic/path consumers, 0 external uses of its exported symbols (buildPhaseGateDecision, buildRollbackDecision, formatPhaseGateDecision).",
+    "bridge-utils.ts: 0 static imports, 0 dynamic/path consumers, 0 external uses of CreateBridgeOptions.",
+    "intent-coverage.ts is EXCLUDED (kept) — it is live via packages/main/tests/fixtures/fixture-preview-runner-parity.json which dynamically imports dist/core/intent-coverage.js."
+  ],
+  "constraints": [
+    "Delete only the 3 listed paths; intent-coverage.ts, dev-cli.ts, omx, .codex/.Codex, .lattice, lab, experiments untouched.",
+    "npm run build (tsc) and npm run test:e2e must stay green."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "orphans",
+    "packages/main/src/core/phase-protocol.ts",
+    "packages/main/src/verifier/bridge-utils.ts"
+  ],
+  "timestamp": "2026-06-16T18:56:16.790Z"
+}

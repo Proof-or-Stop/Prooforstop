@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8387",
+  "changes": "Phase 2: staged Process Playbook lifecycle. handlers/playbook.ts adds playbook_propose --finding (staged proposal with lineage + proposalDigest), playbook_diff (read-only render), playbook_approve (fail-closed on stale/missing expectedProposalDigest -> candidate playbook, never active), playbook_reject. learning-store.ts adds playbooks.json + proposals/ atomic store + computePlaybookProposalDigest via core/digest.js (digest excludes its own field). experience-layer-types.ts adds Playbook/PlaybookProposal/lineage/trigger types. 4 flat-underscore commands registered (registry/cli-engine/command-policy/config). Guardrail: playbook.ts never imports finding_add/advisory; proposal ids are globally unique across proposals/ + playbooks.json.",
+  "usage": "lattice playbook_propose --finding <id>; playbook_diff <pid>; playbook_approve <pid> --expectedProposalDigest <d>; playbook_reject <pid>. Proof: npm --prefix packages/main run test:experience-layer-playbook (=> 'smoke passed').",
+  "expectedOutcome": "propose builds a staged proposal with lineage+digest; diff is read-only; approve fail-closed on stale digest, matching digest -> candidate (status=candidate, lineage, not active); reject discards; no finding auto-created, no gate touched. Smoke 'smoke passed' (23/23); verifier TOTAL 38 | PASS 38 | FAIL 0; experience-layer + decision-doc smokes still green.",
+  "actualTranscript": "playbook smoke TOTAL 23 | PASS 23 | FAIL 0 'smoke passed'. verifier TOTAL 38 | PASS 38 | FAIL 0 (buildOk playbookSmoke noRegression guardrailNoFinding learningStoreIso cmdsRegistered pkgScript all true; regression sig/enum/hint/digest/dd all ok). validate 38/38 covered. Reviews round 1: quality/concept PASS; behavior F-003(dup ids)/F-004(comment); test-coverage F-001(path-traversal)/F-002(concurrency). After fix 8f94dfbd round 2: all 4 PASS. Escalation required (3/2) -> degraded 3x1 fallback recorded.",
+  "outcomeDiff": "No difference — full staged lifecycle delivered; four findings (duplicate ids real bug, path-traversal + concurrency coverage, stale comment) fixed and re-reviewed clean.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Phase 2 delivers proposed/candidate states; promotion to active (and stale/archived transitions) requires a separate explicit human step / later phase. Playbooks are not yet surfaced into reviewer prompts as playbook-sourced hints (Phase 1.5 surfaces finding-signals; wiring playbooks in is future). Cross-project sharing (Phase 4) out of scope.",
+  "pitfalls": "Proposal ids must be globally unique across BOTH proposals/ and playbooks.json — scanning only proposals/ reuses ids after approve clears them (was F-003). Import the digest helper from core/digest.js (leaf), never from the decision-doc handler. approve must fail closed on stale/missing expectedProposalDigest and yield candidate (not active). High-finding round -> escalation quorum required; degraded 3x1 must bind to DONE materialHash; DONE evidence-freshness needs re-validate (not just refresh_stale).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 165244
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 33474
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 390927
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 981611
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1129731
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 23334
+    }
+  },
+  "totalDurationMs": 2724322,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T15:26:24.134Z",
+  "updatedAt": "2026-06-17T15:26:24.134Z"
+}

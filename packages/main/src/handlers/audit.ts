@@ -1,7 +1,7 @@
 /**
- * koala audit — framework self-introspection audit (B-9bd9 CHK-001, MVP)
+ * lattice audit — framework self-introspection audit (B-9bd9 CHK-001, MVP)
  *
- * Mechanically scans CLAUDE.md / packages/koala/CLAUDE.md promises vs actual CLI behavior drift.
+ * Mechanically scans CLAUDE.md promises vs actual CLI behavior drift.
  *
  * Currently only supports `--framework` mode (future may add `--code` / `--schema` etc.).
  *
@@ -11,7 +11,7 @@
  *   3. ensureMetaStory (idempotent) + beginRound (next round)
  *   4. Run scanner → upsertDrift (new / still-drifting)
  *   5. autoResolveMissing (not seen this round → resolved-by-nature)
- *   6. Generate report.md to docs/koala/framework-audit/YYYY-MM-DD/report.md
+ *   6. Generate report.md to docs/koala/framework-audit/YYYY-MM-DD/report.md (legacy runtime output path)
  *   7. touchAuditState: only update state.json's lastAuditAt (other fields managed by CHK-003)
  *   8. Print summary line
  *
@@ -79,12 +79,12 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
   return {
     audit(args: AuditArgs = {}): string | AuditResult {
       // B-a2c4: fail-fast if ctx.root is not the repo root, otherwise audit will silently write report to
-      // subdirectory (e.g. packages/koala/docs/...) rather than the repo root docs/.... Marker: .git exists
+      // subdirectory (e.g. packages/<sub>/docs/...) rather than the repo root docs/.... Marker: .git exists
       // (under a worktree .git is a file, under the main repo it is a directory; existsSync returns true for both).
       if (!existsSync(join(root, '.git'))) {
         throw new Error(
           `audit must run from repo root (got: ${root}). ` +
-          `Set KOALA_PROJECT_ROOT or cd to the directory containing .git.`
+          `Set LATTICE_PROJECT_ROOT or cd to the directory containing .git.`
         );
       }
 
@@ -101,6 +101,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
       // 1. Locate the two CLAUDE.md entries (hardcoded, not extensible)
       const mdEntries = [
         join(root, 'CLAUDE.md'),
+        // legacy self-hosting layout path the scanner still reads if present
         join(root, 'packages', 'koala', 'CLAUDE.md'),
       ].filter(p => existsSync(p));
 

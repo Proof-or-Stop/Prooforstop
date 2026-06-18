@@ -319,9 +319,7 @@ interface PostJsonResult {
 
 function liveEnv(env: Record<string, string | undefined>, name: string): string | undefined {
   const lattice = env[`LATTICE_AUTHORITY_${name}`];
-  if (typeof lattice === 'string' && lattice.trim() !== '') return lattice.trim();
-  const legacy = env[`KOALA_AUTHORITY_${name}`];
-  return typeof legacy === 'string' && legacy.trim() !== '' ? legacy.trim() : undefined;
+  return typeof lattice === 'string' && lattice.trim() !== '' ? lattice.trim() : undefined;
 }
 
 function readLiveSecretFromPath(

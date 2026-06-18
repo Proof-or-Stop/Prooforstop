@@ -1,0 +1,65 @@
+{
+  "storyId": "B-f675",
+  "checkedAt": "2026-06-17T01:40:34.519Z",
+  "reviewRound": "2026-06-17T01:30:54.337Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#REVIEW-TEST-gate-behavior-canPassReviewGuard-incremental-review-context-B-f675",
+      "promise": "lattice review_incremental_context CLI exists, is registered, and accepts --storyId + --role parameters",
+      "verifiedBy": "live CLI execution",
+      "evidence": "node packages/main/dist/cli.js review_incremental_context --storyId=B-f675 --role=concept returned role/isFirstPass/scopeChanged/priorHeadHash/priorVerdict/changedFiles (exit 0); --help confirms storyId and role as required params; registry.ts line 185-187 registers createReviewIncrementalContextHandlers; cli-engine.ts lines 1882 and 2881 define and list the command; command-policy.ts marks it readOnly/all-phases/no-destructive-risk"
+    },
+    {
+      "docPath": "CLAUDE.md#REVIEW-TEST-gate-behavior-canPassReviewGuard-incremental-review-context-B-f675",
+      "promise": "canPassReviewGuard gate behavior documented accurately: invalid current-round binding blocks in ALL rounds; round 1 requires every opt-in reviewer plus quorum; round 2+ requires >=1 valid current-round receipt; verified open blocking finding blocks after round decay",
+      "verifiedBy": "smoke test gate-unchanged assertion (case d) + zero diff on gate files",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/machine.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/review-scope-binding.ts produced empty output (zero changes). Smoke test case d.1-d.5 proved canPassReviewGuard behavior is identical with and without the incremental helper across all branches (exit 0)"
+    },
+    {
+      "docPath": "CLAUDE.md#REVIEW-TEST-gate-behavior-canPassReviewGuard-incremental-review-context-B-f675",
+      "promise": "review_incremental_context is strictly read-only: writes nothing, changes no gate inputs (findings / review-passes / review-runs / currentReviewRound)",
+      "verifiedBy": "smoke test case d write-nothing assertion",
+      "evidence": "Smoke test case d explicitly calls the incremental helper for every reviewer role then asserts canPassReviewGuard outcome is identical before/after; output confirmed review-incremental-context-smoke: PASS. process-fact-levels.ts records level L0 / category reviewer-read"
+    },
+    {
+      "docPath": "CLAUDE.md#REVIEW-TEST-gate-behavior-canPassReviewGuard-incremental-review-context-B-f675",
+      "promise": "isFirstPass=true covers two sub-cases: (a) no prior pass, AND (b) prior verdict exists but run has unresolvable headHash; priorVerdict non-null in sub-case b; consumers must key off isFirstPass not priorVerdict",
+      "verifiedBy": "smoke test case e",
+      "evidence": "Smoke output: review-incremental-context-smoke: (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=PASS (RP-003) (non-null, informational), full diff changedFiles=[...]"
+    },
+    {
+      "docPath": "CLAUDE.md#REVIEW-TEST-gate-behavior-canPassReviewGuard-incremental-review-context-B-f675",
+      "promise": "Round 2+ advisory appended to REVIEW transition next-step output listing scope-changed reviewers; strictly append-only in try/catch, never alters transition result",
+      "verifiedBy": "diff of transition-effects.ts",
+      "evidence": "git diff shows B-f675 CHK-002 block added inside try/catch; resolveReviewRoundCount guards roundCount>=2; calls reviewIncrementalContext per active reviewer; appends advisoryLines to base string; wrapped in catch to never block transition. No changes to return value or gate logic outside advisory append"
+    },
+    {
+      "docPath": "CLAUDE.md#REVIEW-TEST-gate-behavior-canPassReviewGuard-incremental-review-context-B-f675",
+      "promise": "rename-aware git diff (--name-status -M) used so a renamed file counts as changed on both sides",
+      "verifiedBy": "smoke test case c + diff of evidence-freshness.ts",
+      "evidence": "changedFilesBetweenRenameAware added to evidence-freshness.ts; parses R/C records emitting both old and new paths. Smoke case c output: scopeChanged=true, changedFiles=[src/feature.ts, src/new-name.ts, src/old-name.ts] (both rename sides counted)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "core/review-incremental-context.ts and handlers/review-incremental-context.ts created; node packages/main/dist/cli.js review_incremental_context --storyId=B-f675 --role=concept returned role/isFirstPass/scopeChanged/priorHeadHash/priorVerdict/changedFiles (exit 0). Smoke cases a-e+d all PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/review-incremental-context-smoke.js exit 0. Covers: (a) returning reviewer scopeChanged=true, (b) first-timer isFirstPass=true full diff, (c) rename-aware both sides counted, (e) unresolvable headHash isFirstPass=true priorVerdict non-null, (d.1-d.5) gate-unchanged assertion across all canPassReviewGuard branches (round-1 full opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding). Machine-verified exit 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/review-incremental-context-smoke.js exit 0; smoke is chained into validate. Hard invariant confirmed: git diff main...HEAD on core/machine.ts + review-run.ts + review-scope-binding.ts is empty (zero diff). Transition-effects advisory is try/catch append-only verified by reading diff."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 CLAUDE.md promises verified: CLI registered and live (exit 0), gate files have zero diff (hard invariant passes), smoke test covers all 5 cases a-e plus 5 gate-unchanged branches d.1-d.5 (exit 0), rename-aware diff surfacing both sides confirmed, isFirstPass two sub-cases confirmed, transition-effects advisory is append-only in try/catch. No Chinese in new code files, no unresolved TODOs."
+  },
+  "_hash": "400928765757b81b05f788cb6f0a109aebf1beff872e5f8ef9dbe9152274de71"
+}

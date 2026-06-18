@@ -1,0 +1,205 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Confirm and extract the two inputs: REVIEW round count and per-round blocking-finding counts",
+      "context": "Round count is already derived from story events (how many times the story entered REVIEW) in core/guard-utils.ts / core/machine.ts; the DONE summary 'REVIEW: entered N times' uses it. Findings carry reviewRound and core/review-escalation.ts already groups findings by round and computes firstReviewRound. Produce a thin read-only accessor that returns { roundCount, perRoundBlockingCounts } for a story without duplicating existing logic.",
+      "userSees": "A helper returns the current story's REVIEW round count and an ordered array of blocking-finding counts per round, sourced from existing event/finding data (verified by a smoke printing e.g. roundCount=3 perRound=[2,1,0]).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T21:12:12.289Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Accessor returns the REVIEW round count (via resolveReviewRoundCount) and an ordered per-round blocking-finding count array for a real story",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story with a single round / no findings yields roundCount=1 and a per-round array with no spurious entries",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Per-round blocking counts are derived via isFindingBlocking/effectiveBlockingSeverities and resolveReviewRoundCount is reused — no duplicated round-count or blocking logic",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-convergence.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "collectReviewConvergenceInputs returns roundCount (via resolveReviewRoundCount) + dense round-aligned perRoundBlockingCounts; verified by smoke + inline asserts",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-convergence.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "Single-round / no-finding story yields roundCount=1 and zero-filled per-round counts, no spurious entries",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-convergence.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "Reuses isFindingBlocking/resolveReviewRoundCount; dense round-aligned so decay tier keys on actual round number (inline assert [1,1,0,0] with empty round 3 proves no index shift)",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement core/review-convergence.ts pure function plus threshold constants and the advisory message builder",
+      "context": "Pure function assessReviewConvergence(roundCount, perRoundBlockingCounts) returning { stalled, message? }. Trend-based heuristic (NOT a raw round ceiling): stalled = roundCount >= STALL_MIN_ROUNDS (e.g. 4) AND the last STALL_WINDOW (e.g. 3) rounds show no downward trend in blocking counts (still surfacing new blockers, not trending toward 0). No I/O. Thresholds are module constants, no CLI/config (YAGNI). Message is English-only and includes the escalation suggestion (Debugging Contract escalation plus a dismiss-don't-re-round hint).",
+      "userSees": "assessReviewConvergence returns stalled=false for a healthy decreasing series like [2,1,0] and stalled=true with an English advisory for a flat/rising series like [2,2,1] at round 4.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T21:12:12.707Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assessReviewConvergence returns stalled=true with an English advisory for a flat/rising series like [2,2,1] at round >= STALL_MIN_ROUNDS",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Returns stalled=false when roundCount is below STALL_MIN_ROUNDS regardless of counts",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Returns stalled=false for a healthy decreasing series like [2,1,0] — no false alarm on convergence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-convergence.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "assessReviewConvergence returns stalled=true with English message for [2,2,1] at round>=4 (smoke case a)",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-convergence.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "Returns stalled=false when roundCount < STALL_MIN_ROUNDS (smoke case c, 3<4)",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-convergence.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "Returns stalled=false for healthy decreasing [2,1,0] and clean-tail series (smoke case b) - no false alarm",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Wire the advisory into the story_advance REVIEW output and add a smoke covering four cases; assert it never blocks",
+      "context": "Inject the advisory into the REVIEW-entry output in handlers/transition-effects.ts (the place that prints 'Active reviewers' / 'launch in parallel'). Optionally also surface one line in session_brief REVIEW rendering. Add a smoke (packages/main/src/tasks style) covering: (a) healthy decreasing -> no advisory, (b) stalled flat/rising -> advisory, (c) below STALL_MIN_ROUNDS -> no advisory, (d) single clean round -> no advisory; AND assert that when the advisory is present, REVIEW->TEST still succeeds (advisory-only, never a gate). Wire the smoke into the validate/test chain.",
+      "userSees": "Re-entering REVIEW on a stalled story prints the English convergence-stall advisory; lattice validate stays green with the smoke; a story showing the advisory can still advance REVIEW->TEST (proving it does not block).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T21:26:21.005Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Re-entering REVIEW on a stalled story prints the English convergence-stall advisory in the story_advance output",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No advisory is printed for a healthy/below-threshold story (no noise)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With the advisory present, REVIEW->TEST still succeeds — the advisory never blocks a transition",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-convergence-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "assessReviewConvergenceAtEntry drops the empty current round and the transition-effects REVIEW-entry path appends the advisory for a stalled story (smoke case a fires; raw-dense [2,2,1,0] would be the no-op)",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-convergence-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "No advisory for healthy/below-threshold/single-clean stories (smoke cases b,c,d)",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-convergence-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
+          "result": "pass",
+          "note": "Advisory path is append-only inside try/catch; never throws, base output preserved, transition result unaffected (smoke case e non-blocking proof)",
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-ceed:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 22 must-priority intents across CHK-001 (7), CHK-002 (9), CHK-003 (6) have matching evidence commands that re-run clean. CHK-003:edge:0 (should-priority) also confirmed. scope-contract.json acknowledgements for providers/types.ts, planned-steps-executor.ts, smoke-manifest.json are mechanical consequences of adding gemini to BoundedProviderName — correctly acknowledged.",
+      "createdAt": "2026-06-17T22:16:39.028Z",
+      "reviewRound": "2026-06-17T22:13:53.080Z",
+      "reviewRunId": "B-ceed:RR-003",
+      "_hash": "220d759e2407e93cf17a3062cb522e30af29718111b25fc9d73e8b286d8f8e23"
+    },
+    {
+      "id": "B-ceed:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept check complete. F-001 fix: probeHostRuntime supportsLiveDispatch gate correctly suppresses scaffolded-only warning and two stale limitations for codex/gemini/claude-code; non-supported hosts retain old text in else branch (correct). F-002 fix: bindDispatchAutoArgsToPolicy sets allowRealHostSubprocess=true for all three real hosts; dispatchAuto no longer throws for codex/gemini; runDispatch routes codex+gemini to their real-leaf dispatch with CLI-absent fallback. Residual references to scaffolded-only in line 767/809 are else-branch text for unknown hosts (not residue). Line 1532 is a warning-filter regex referencing the phrase (correct). No concept deletion/replacement with incomplete cleanup found. Zero blockers.",
+      "createdAt": "2026-06-17T22:22:11.710Z",
+      "reviewRound": "2026-06-17T22:20:51.395Z",
+      "reviewRunId": "B-ceed:RR-004",
+      "_hash": "60adea6be85184ac87a4c4b22f91222782b465fe3201d51e66fc12d0ec3b8cff"
+    },
+    {
+      "id": "B-ceed:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review of 3 round-1 findings. F-003: isProviderName now includes gemini (planned-steps-executor.ts:325). F-004: isRealProvider now includes gemini (planned-steps-executor.ts:328). F-005: runBoundedRealLeafDispatch signature has no worktreeAbs param; runCodexRealLeafDispatch and runGeminiRealLeafDispatch wrappers also param-clean; dispatch call sites for codex/gemini do not pass worktreeAbs. Broader quality scan (dead code, type safety, I/O shell isolation) found no new issues: all imports in gemini-cli.ts, planned-steps-executor.ts, and provider-gemini-smoke.ts are used; empty catch blocks are intentional fail-closed patterns with inline comments; no as-any casts in new code; no shell-layer direct fn.ts imports. All 3 prior findings verified fixed; 0 new findings.",
+      "createdAt": "2026-06-17T22:22:45.104Z",
+      "reviewRound": "2026-06-17T22:20:51.395Z",
+      "reviewRunId": "B-ceed:RR-005",
+      "_hash": "e2d6fa0d19c2b7dac1d1e17ceb500f2e3fa47ed3c15fdbe53075e3f56cde122b"
+    }
+  ]
+}

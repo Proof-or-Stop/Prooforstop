@@ -1,11 +1,11 @@
 /**
  * @task B-9ba3
  * @checklist CHK-001
- * @title koala-lab storage keeps experiments and runs auditable
+ * @title lattice-lab storage keeps experiments and runs auditable
  * @type feature
  * @priority high
  * @description
- *   koala-lab 的实验价值在于“每次尝试都能被追溯和比较”。storage 负责把
+ *   lattice-lab 的实验价值在于“每次尝试都能被追溯和比较”。storage 负责把
  *   experiment config、run artifacts、summary 和 placeholder result 统一落到
  *   experiments/ 目录，形成后续 compare/promote 的最小数据面。
  * @changes

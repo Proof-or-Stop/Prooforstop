@@ -1,0 +1,55 @@
+{
+  "storyId": "B-cfdd",
+  "changes": "Added a SOFT, advisory-only REVIEW convergence-stall detector. New core/review-convergence.ts: collectReviewConvergenceInputs (dense round-aligned per-round blocking counts, reusing resolveReviewRoundCount + isFindingBlocking), assessReviewConvergence (trend-based: strict-decreasing OR clean-tail => not stalled, with a short-window guard), assessReviewConvergenceAtEntry (drops the just-entered empty current round), STALL_MIN_ROUNDS=4 / STALL_WINDOW=3 constants, and an English advisory message builder. Wired a try/catch append-only advisory into handlers/transition-effects.ts REVIEW-entry output (never blocks). Added review-convergence-smoke.ts (cases a-f) chained into lattice validate.",
+  "usage": "When a story re-enters REVIEW past STALL_MIN_ROUNDS and the completed rounds show no downward trend in blocking findings, the story_advance REVIEW output appends an English advisory: 'WARN review convergence stall: ...' plus two escalation hints (Debugging Contract escalation; prefer dismissing advisory findings over re-rounding). It only warns — it never blocks any transition. Healthy/below-threshold/single-clean stories print nothing.",
+  "expectedOutcome": "Advisory fires on a stalled story at REVIEW entry, stays silent on healthy/below-threshold stories, and never blocks REVIEW->TEST.",
+  "actualTranscript": "node packages/main/dist/tasks/review-convergence-smoke.js -> cases (a) STALLED fires / (b) CONVERGING [2,1,0] silent / (c) BELOW THRESHOLD silent / (d) SINGLE CLEAN silent / (e) NON-BLOCKING append-only / (f) SHORT-WINDOW [2,1],[2,2]->not stalled; PASS, exit 0. assessReviewConvergence(4,[2,2,1]) -> stalled=true with the English message. lattice validate -> ALL PASS, 9/9 verification coverage, smoke invoked in the battery.",
+  "outcomeDiff": "Match. The detector fires only on a stalled non-converging history and is silent otherwise. The key correctness point: at REVIEW-entry render time the current round is empty, so assessReviewConvergenceAtEntry drops it and assesses completed rounds (otherwise the clean-tail rule would suppress the advisory forever). The injection is append-only and never blocks. Thresholds are module constants, no CLI/config.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Soft advisory only — it warns, it does not reduce the number of review rounds. OUT OF SCOPE (deferred): any hard cap or blocking gate, auto-dismiss of findings, changing the per-round severity de-escalation rules, per-session configurable thresholds, and targeted/partial re-review (the per-round cost-reduction option B is a separate larger story). The dense round-aligned mapping uses story.events timestamps with a documented tail-anchored fallback for legacy/synthetic stores that can be conservatively false-positive there (soft + non-blocking either way).",
+  "pitfalls": "The no-op trap: at story_advance REVIEW render time the just-entered round's reviewers have not run, so its blocking count is structurally 0; feeding the raw dense array (trailing 0) to the clean-tail rule would suppress the advisory forever -- assessReviewConvergenceAtEntry must drop the current round and assess completed rounds. F-001 (medium, behavior reviewer): the exported assessReviewConvergence false-positived on a window shorter than STALL_WINDOW; fixed with a documented short-window guard (insufficient data => not stalled). Re-review loop: each finding-fix commit stales the round's review bindings and forces a fresh round (rounds 1->2 here); converge fixes into few commits before re-spawning reviewers.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 266484
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16814
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 274819
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1110029
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 664441
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 234727
+    }
+  },
+  "totalDurationMs": 2567315,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T21:42:33.973Z",
+  "updatedAt": "2026-06-16T21:42:33.973Z"
+}

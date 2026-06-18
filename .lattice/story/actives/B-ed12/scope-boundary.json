@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ed12",
+  "mode": "maintenance",
+  "allowed": [
+    "Escalate as a real bug (open bug/separate story) any smoke that on inspection reveals a genuine production regression rather than a stale assertion",
+    "Remove CJK content from packages/main/src/tasks/usage-ledger-estimate-smoke.ts (test file only)",
+    "Update the ~13 stale lifecycle/gate smoke tests in packages/main/src/tasks/*-smoke.ts to assert CURRENT correct behavior"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Test-stabilization only: update stale smoke assertions to current correct behavior; no production code change. Deferred (out of scope but excludedScope kept EMPTY to avoid keyword false-positives): P5 timeout/env family and B-6666 burndown.",
+  "createdAt": "2026-06-17T19:50:30.522Z",
+  "updatedAt": "2026-06-17T19:50:30.522Z",
+  "_hash": "a274e7ddfc5d7b581be331c186f7c4b32352b91c2728421f70899140026ed032"
+}

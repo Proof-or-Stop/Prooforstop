@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2ccc",
+  "allowedCommands": [
+    "git *",
+    "node .lattice/story/actives/B-2ccc/evidence/*.mjs",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-2ccc/",
+    "packages/main/package.json",
+    "packages/main/src/core/digest.ts",
+    "packages/main/src/handlers/decision-doc-promotion.ts",
+    "packages/main/src/tasks/experience-layer-digest-extract-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "digest-extract: leaf core/digest.ts + decision-doc import refactor + smoke.",
+  "createdAt": "2026-06-17T13:58:24.975Z",
+  "updatedAt": "2026-06-17T13:58:24.975Z",
+  "_hash": "d093530fcd9a9edd4ce32dae08f74079ddb807b2a0a8eceb42bdb1f1fc958633"
+}

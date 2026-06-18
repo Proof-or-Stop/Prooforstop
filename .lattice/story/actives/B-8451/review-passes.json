@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-8451:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. This diff only adds new concepts (deprecatedGcThreshold, scanDeprecated, @deprecated GC advisory) — no old concept words were deleted or replaced en masse. Repo-wide grep for all new concept terms confirms they appear only in the newly added files (audit-config.ts, audit-scan.ts, audit-trigger.ts, deprecated-gc-smoke.ts). No concept residue check blocker. Closing self-check: CLAUDE.md and README were not modified; no doc-promise-undelivered items found.",
+      "createdAt": "2026-06-18T00:41:43.222Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-002",
+      "_hash": "d2465e5e549aa47087838456b703e38e7ed233f05c70bb502005e1955b82d945"
+    },
+    {
+      "id": "B-8451:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Fast channel, all 4 intents are priority=should (none must). CHK-001/002/003 evidence is stale (logic_test, no runnable command) but priority=should and CHK-004 integration_test (node packages/main/dist/tasks/deprecated-gc-smoke.js, pass) concretely covers all underlying behaviors across all 4 items. No must-gap. Edge/adversarial missing is advisory-only on fast channel.",
+      "createdAt": "2026-06-18T00:42:11.545Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-003",
+      "_hash": "0dffd1d8337caa0605a7896e2cf0bef403fe6a35b65d5fd2ea0872ee8f547971"
+    },
+    {
+      "id": "B-8451:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Checked all 4 changed source files (audit-config.ts, audit-scan.ts, audit-trigger.ts, deprecated-gc-smoke.ts). No dead code, unused imports, as-any, or unhandled empty catches. No bridge.ts isolation applies (no bridge.ts in project). 2 low-severity findings registered: edge test missing at-boundary case (count===threshold), and misleading catch comment. No blockers.",
+      "createdAt": "2026-06-18T00:42:18.786Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-001",
+      "_hash": "32d450c61ae10158c4b31486ae19b0902f2b7e9b9f6d6fbac0fab2307a048e66"
+    }
+  ]
+}

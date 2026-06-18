@@ -1,0 +1,38 @@
+{
+  "findings": [
+    {
+      "id": "B-7365:F-001",
+      "desc": "edge: cli-engine.ts:3581-3583 if gitCli(['add'] or 'rm') throws inside the conflicted-paths resolution loop, the exception propagates out with no merge --abort call, leaving the story worktree in a mid-merge state (MERGE_HEAD present) indefinitely. The still-unmerged guard at 3595 and the abort at 3596 are only reachable after the loop completes cleanly; a throw inside the loop bypasses them entirely. Recovery requires manual 'git merge --abort' in the worktree.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T02:26:55.825Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-003",
+      "_hash": "08fde819a215c12161cace04bcf7e50bc785db2284e8f40289b758e326ba5fa0",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedBy": "B-7365:F-001@83445c2"
+    },
+    {
+      "id": "B-7365:F-002",
+      "desc": "edge: init-check-reconcile-conflict-smoke.ts:169-171 the worktree-dir sanity assert is a dead no-op: 'existsSync(...) || true' always evaluates to true regardless of whether the .git file exists, so this defensive check never fires. The intended property (worktree directory was created with a .git file) is never actually asserted.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T02:27:18.257Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-003",
+      "_hash": "8f55cc546c855e943f83f116f8929c8fc58097a24e35fd76b3acdcb88a22ec72",
+      "files": [
+        "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts"
+      ],
+      "resolvedBy": "B-7365:F-002@83445c2"
+    }
+  ]
+}

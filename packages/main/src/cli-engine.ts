@@ -57,6 +57,7 @@ import {
   MEMORY_BENCHMARK_DEFAULT_SEED,
 } from './core/memory-benchmark.js';
 import { LATTICE_DIR, LEGACY_KOALA_DIR } from './core/lattice-paths.js';
+import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 
 // ── Tool Registry ──
 
@@ -583,7 +584,7 @@ Behavior:
     excludedScope: z.array(z.string().min(1)).optional().describe('Scope entries the user confirmed as excluded or not to be done.'),
     userConfirmed: z.boolean().describe('Must be true: confirms this is the user-confirmed INIT scope boundary.'),
     confirmation: z.string().optional().describe('Confirmation note or source excerpt.'),
-    actor: z.string().optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'execution_boundary_set', description: 'Save INIT execution boundaries (command/tool/path allow/block) for the gate', schema: {
     storyId: z.string().min(1).describe('Story ID'),
@@ -596,20 +597,20 @@ Behavior:
     blockedPaths: z.array(z.string().min(1)).optional().describe('Explicitly blocked relative paths; rejects absolute paths and .. traversal.'),
     excludedPaths: z.array(z.string().min(1)).optional().describe('Explicitly blocked relative paths.'),
     notes: z.string().optional().describe('Additional execution-boundary notes.'),
-    actor: z.string().optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'scope_freeze_check', description: 'Write the INIT scope freeze check result (accepted extensions stale old freeze)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     status: z.enum(['PASS', 'FAIL', 'pass', 'fail']).optional().describe('Optional assertion; cannot override the core evaluateScopeFreeze result.'),
     note: z.string().optional().describe('Freeze-check note; can also serve as repeated-discard mitigation text.'),
     repeatDiscardMitigation: z.string().optional().describe('Mitigation note for repeated discarded direction.'),
-    actor: z.string().optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'scope_extension_proposal', description: 'Propose a scope extension as the INIT reviewer (proposal only)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     proposal: z.string().min(10).describe('Extension proposal narrative; cannot take effect as accepted scope.'),
     reason: z.string().optional().describe('Why the reviewer thinks an extension is needed.'),
-    reviewer: z.string().optional().describe('Proposer; defaults to KOALA_AGENT/USER/main-agent.'),
+    reviewer: z.string().optional().describe('Proposer; defaults to LATTICE_AGENT/USER/main-agent.'),
     findingId: z.string().optional().describe('Optional related finding or issue ID.'),
     evidenceRefs: z.array(z.string().min(1)).optional().describe('Optional evidence references.'),
   }},
@@ -618,7 +619,7 @@ Behavior:
     proposalId: z.string().min(1).describe('Proposal ID returned by scope_extension_proposal.'),
     decision: z.enum(['accepted', 'rejected']).describe('Explicit decision.'),
     reason: z.string().min(10, 'reason ≥ 10 characters').describe('Decision reason.'),
-    decider: z.string().optional().describe('Decider; defaults to KOALA_AGENT/USER/main-agent.'),
+    decider: z.string().optional().describe('Decider; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'light_review', description: 'Record one lightweight review (called after each batch of DEV items completes)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -627,7 +628,7 @@ Behavior:
   }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),
     lane: z.enum([
       'lattice-review-concept',
       'lattice-review-quality',
@@ -642,7 +643,7 @@ Behavior:
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
   }},
@@ -652,7 +653,7 @@ Behavior:
     reviewRound: z.string().min(1).optional().describe('Optional REVIEW round; defaults to story.currentReviewRound.'),
     trigger: reviewLoopTriggerSchema.describe('Structured source that triggered the loop.'),
     rollbackRef: reviewLoopRollbackRefSchema.describe('References required for manual rollback; recorded only, not executed.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -668,7 +669,7 @@ Behavior:
     decision: reviewLoopDecisionSchema.describe('Final decision for this iteration.'),
     decisionReason: z.string().min(1).describe('Final decision reason.'),
     nextAction: reviewLoopNextActionSchema.optional().describe('Suggested next action; recorded only, not executed.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -688,7 +689,7 @@ Behavior:
     resolvedEvidenceRefs: z.array(z.string().min(1)).optional().describe('Resolved evidence references.'),
     supersedingEvidenceRefs: z.array(z.string().min(1)).optional().describe('Superseding evidence references.'),
     closeReason: z.string().min(1).describe('Close reason.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -697,7 +698,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
 
-  // Understanding (pre-context intake snapshot, OMX-style legacy reference).
+  // Understanding (pre-context intake snapshot).
   { name: 'understanding_set', description: 'Record the PLAN task understanding snapshot (task/outcome/facts/constraints/...)', schema: {
     storyId: z.string().describe('Story ID'),
     task: z.string().describe('One-sentence description of the problem to solve.'),
@@ -710,7 +711,7 @@ Behavior:
   { name: 'understanding_get', description: 'Read the understanding snapshot', schema: {
     storyId: z.string().describe('Story ID'),
   }},
-  // Decision (RALPLAN-DR structured decision, OMX ralplan-style legacy reference).
+  // Decision (RALPLAN-DR structured decision).
   { name: 'decision_set', description: 'Record a structured PLAN decision (principles/drivers/options/chosen/preMortem)', schema: {
     storyId: z.string().describe('Story ID'),
     principles: z.array(z.string()).describe('3-5 design principles.'),
@@ -967,6 +968,9 @@ Behavior:
   { name: 'capability_probe', description: 'Probe one host-neutral Lattice capability profile and visible degradations (text/json)', schema: {
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'agent_prompt', description: 'Print the canonical Lattice agent prompt body for a role from the package prompt registry (host-neutral single source; Claude thin-shims fetch from here, Codex resolves the same registry)', schema: {
+    role: z.string().min(1).describe('Lattice agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
   }},
   { name: 'capability_claim_evaluate', description: 'Evaluate a local capability claim fail-closed from lower-layer suite reports (text/json)', schema: {
     target: z.string().optional().describe('Requested claim target, for example development, engineering, loop-engineering, or production-safety'),
@@ -1599,7 +1603,7 @@ Behavior:
     upgrade: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets to current Lattice templates; equivalent to --apply.'),
     reviewLocalEdits: z.boolean().optional().describe('Output structured manual review summary for STALE_LOCAL_EDIT.'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('Override auto-detected init profile.'),
-    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .Codex/agents, thin=use prompt registry.'),
+    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.'),
   }},
 
   // Audit (framework self-audit: scan CLAUDE.md promises across stories versus actual CLI behavior drift).
@@ -1624,7 +1628,7 @@ Behavior:
       .describe('Evidence state: default suspected; verified is allowed only when structured evidence is provided, otherwise it is forced back to suspected.'),
     uncertaintyReason: z.string().optional().describe('Suspicion reason for suspected state (optional; automatic fallback if omitted).'),
     files: z.array(z.string()).optional().describe('Related file paths.'),
-    agent: z.string().optional().describe('Caller identity (audit field, defaults from KOALA_AGENT).'),
+    agent: z.string().optional().describe('Caller identity (audit field, defaults from LATTICE_AGENT).'),
   }},
 
   // Verifier (Lattice built-in code verification).
@@ -1674,7 +1678,7 @@ Behavior:
       'doc-code-drift',
       'spec-boundary',
     ]).describe('Category (legacy category is normalized to missing).'),
-    agent: z.string().optional().describe('Caller identity (optional, defaults from KOALA_AGENT environment variable).'),
+    agent: z.string().optional().describe('Caller identity (optional, defaults from LATTICE_AGENT environment variable).'),
     reviewRunId: z.string().optional().describe('Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
     files: z.array(z.string()).optional().describe('Related file paths (for reviewer finding clustering and traceability).'),
     // B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.
@@ -1688,6 +1692,9 @@ Behavior:
       sourceRefs: z.array(z.string()).optional().describe('Source/documentation locations referenced by the refutation.'),
       reproCommand: z.string().optional().describe('Reproduction/verification command used for refutation.'),
     }).optional().describe('Required when evidenceState=disproven: refutation summary plus command plus source references.'),
+    // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only signature tag. Additive/optional; never read by any gate, excluded from the finding signature.
+    signatureTag: z.string().optional()
+      .describe('Audit-only signature tag grouping this finding into a recurring pattern family (auto-proposed to the signature-registry if new). Never read by any gate.'),
   }},
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
@@ -1697,11 +1704,67 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID, for example B-xxx:F-001.'),
     resolution: z.string().optional().describe('Optional: record specific fix or verification evidence explanation.'),
+    // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only outcome enums. Additive/optional; never read by any gate, excluded from the finding signature.
+    resolutionType: z.enum(['fixed', 'duplicate', 'superseded', 'accepted_risk', 'partially_mitigated']).optional()
+      .describe('Audit-only: how this finding was resolved. Never read by any gate.'),
+    resolveEvidenceStrength: z.enum(['strong', 'medium', 'weak']).optional()
+      .describe('Audit-only: confidence strength of the resolve evidence. Never read by any gate.'),
   }},
   { name: 'finding_dismiss', description: 'Confirm a finding will not be fixed (reason required)', schema: {
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID, for example B-xxx:F-001.'),
     reason: z.string().describe('Reason for not fixing (at least 10 characters).'),
+    // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only outcome enums. Additive/optional (dismissReasonType is NEVER required); never read by any gate, excluded from the finding signature.
+    dismissReasonType: z.enum(['false_positive', 'out_of_scope', 'duplicate', 'wontfix', 'unclear', 'already_covered']).optional()
+      .describe('Audit-only (OPTIONAL): why this finding was dismissed. Never read by any gate.'),
+    dismissEvidenceStrength: z.enum(['strong', 'medium', 'weak']).optional()
+      .describe('Audit-only: confidence strength of the dismiss evidence. Never read by any gate.'),
+  }},
+
+  // B-4f46 CHK-003: signature-registry (Experience Layer Phase 1b). AUDIT-ONLY catalog
+  // of finding signatureTags under .lattice/learning/. No gate reads it.
+  { name: 'signature_registry_list', description: 'List signature-registry tags + statuses (audit-only)', schema: {
+    storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
+  }},
+  { name: 'signature_registry_set', description: 'Mutate the signature-registry (propose/approve/alias/deprecate; audit-only)', schema: {
+    tag: z.string().describe('Signature tag.'),
+    action: z.enum(['propose', 'approve', 'alias', 'deprecate']).describe('propose -> proposed; approve -> active (active requires explicit approve); alias adds a synonym; deprecate (optionally mergedInto).'),
+    alias: z.string().optional().describe('Required when action=alias: the synonym to fold into the canonical tag.'),
+    mergedInto: z.string().optional().describe('Optional when action=deprecate: canonical tag this deprecated tag folds into.'),
+    by: z.string().optional().describe('Caller identity (audit trace; defaults from LATTICE_AGENT).'),
+    storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
+  }},
+
+  // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle. Distil a
+  // resolved finding into a human-approved candidate playbook. NEVER files findings
+  // or touches gates; writes only under .lattice/learning/. Approve fails closed on
+  // a stale --expectedProposalDigest (decision-doc pattern); status is candidate, NOT active.
+  { name: 'playbook_propose', description: 'Stage a Playbook proposal distilled from a resolved finding (audit-only; never files a finding)', schema: {
+    finding: z.string().describe('Source finding id (e.g. B-xxx:F-001) to distil into a playbook proposal.'),
+    storyId: z.string().optional().describe('Optional story id; defaults to the prefix parsed from the finding id.'),
+  }},
+  { name: 'playbook_diff', description: 'Read-only render of the candidate Playbook that approve would write (no mutation)', schema: {
+    proposalId: z.string().describe('Proposal id (PBP-NNN) to render.'),
+  }},
+  { name: 'playbook_approve', description: 'Approve a staged proposal into a candidate Playbook (fails closed on a stale digest; never active)', schema: {
+    proposalId: z.string().describe('Proposal id (PBP-NNN) to approve.'),
+    expectedProposalDigest: z.string().describe('Must byte-match the stored proposalDigest; a stale/missing digest fails closed.'),
+  }},
+  { name: 'playbook_reject', description: 'Discard a staged Playbook proposal', schema: {
+    proposalId: z.string().describe('Proposal id (PBP-NNN) to discard.'),
+  }},
+
+  // B-7561 (Experience Layer Phase 3, FINAL slice): Story Recall. Rank stories by
+  // structured-field similarity over the EXISTING story_list scan — multi-field
+  // Jaccard (keywords/fileKinds/touchpoints) + small type/phase boosts. READ-ONLY:
+  // writes nothing, creates no derived index / cache, and never touches a gate.
+  // NO FTS, NO embedding. `--story <id>` ranks similar stories; `--query "<text>"`
+  // ranks against an ad-hoc keyword profile. Default top = 5.
+  { name: 'recall', description: 'Rank stories by structured-field similarity over the story_list scan (read-only; no FTS/index)', schema: {
+    storyId: z.string().optional().describe('Target story id; recall ranks the stories most similar to it (excludes itself).'),
+    story: z.string().optional().describe('Alias of --storyId (documented short form): target story id whose similar stories to rank.'),
+    query: z.string().optional().describe('Ad-hoc free-text query; recall ranks stories matching its keywords. Pass either --story OR --query, not both.'),
+    top: z.coerce.number().int().optional().describe('Max number of ranked matches to return (default 5; <=0 returns none).'),
   }},
 
   // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering plus manual merge/split).
@@ -1874,6 +1937,13 @@ Behavior:
     forceReviewer: z.string().optional().describe('Comma-separated built-in REVIEW reviewer lane or short name to force-add; writes story.events audit (reviewer_forced).'),
   }},
 
+  // B-f675 CHK-002: read-only incremental review context (prior verdict + since-last-pass diff + scopeChanged).
+  { name: 'review_incremental_context', description: 'Read-only: a reviewer role\'s prior verdict, bound headHash, scopeChanged, and the material files changed since its last pass', schema: {
+    storyId: z.string().describe('Story ID'),
+    role: z.string().describe('Reviewer short name (concept / quality / test-coverage / behavior / docs).'),
+    json: z.boolean().optional().describe('Output structured JSON (role, isFirstPass, scopeChanged, priorHeadHash, priorVerdict, changedFiles).'),
+  }},
+
   // Workflow profile
   { name: 'workflow_set', description: 'Set project workflow profile (light/balanced/strict)', schema: {
     profile: z.string().describe('Target profile: light / balanced / strict.'),
@@ -1955,8 +2025,8 @@ Behavior:
   // B-ea92 M1: read-only authority policy discovery.
   // Alias: lattice authority enforce policy → authority_enforce_policy (resolved in runCli).
   { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: lattice authority enforce policy', schema: {
-    authorityURL: z.string().optional().describe('Authority server base URL (overrides KOALA_AUTHORITY_URL)'),
-    authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
+    authorityURL: z.string().optional().describe('Authority server base URL (overrides LATTICE_AUTHORITY_URL)'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides LATTICE_AUTHORITY_TIMEOUT_MS)'),
   }},
   { name: 'authority_receipt_verify', description: 'Verify an Authority gate_decision proof and write authority-receipt-refs.json only for production-classified receipts. Alias: lattice authority receipt verify', schema: {
     storyId: z.string().describe('Expected story id and story artifact target'),
@@ -2292,8 +2362,9 @@ interface ActiveStory { storyId: string; phase: string; }
  * Return null for non-story branches (all commands available).
  */
 function detectActiveStory(root: string): ActiveStory | null {
+  const gitCwd = root;
   try {
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     if (!branch.startsWith('story/')) return null;
     const storyId = branch.slice('story/'.length);
     if (!storyId) return null;
@@ -2748,7 +2819,6 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
-  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   // Walk upward to find lattice.config.json and determine the project root.
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
@@ -2820,6 +2890,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'aux_doc_list',
   'capability_list',
   'capability_probe',
+  'agent_prompt',
   'baseline_run',
   'baseline_suite',
   'baseline_suite_report',
@@ -2866,6 +2937,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'parallel_report',
   'grill_get',
   'reviewer_list',
+  'review_incremental_context',
   'workflow_explain',
   'help',
   'authority_enforce_policy',
@@ -2881,10 +2953,10 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
 ]);
 
 function inferCodexEntrypoint(): string {
-  if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
+  if (process.env.LATTICE_CODEX_ENTRYPOINT) return process.env.LATTICE_CODEX_ENTRYPOINT;
   const invoked = process.argv[1] || '';
   if (invoked.includes('lattice-codex')) return 'local-wrapper';
-  if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
+  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
   return 'cli';
 }
 
@@ -3012,7 +3084,7 @@ export function resolveEffectiveOwnershipClass(
  * delivery reviewer (`lattice-review-delivery`).
  *
  * The actor is resolved from the explicit `agentId` argument first, then the
- * `KOALA_AGENT` environment variable — the same precedence the
+ * `LATTICE_AGENT` environment variable — the same precedence the
  * `delivery_check_set` handler records into `delivery-check.json`. Only the
  * exact `lattice-review-delivery` lane qualifies for the reviewerWrite exemption;
  * a main agent (or any other agent id) does NOT, so it cannot borrow
@@ -3025,7 +3097,7 @@ export function resolveEffectiveOwnershipClass(
  */
 export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean {
   const explicit = typeof args.agentId === 'string' ? args.agentId.trim() : '';
-  const env = typeof process.env.KOALA_AGENT === 'string' ? process.env.KOALA_AGENT.trim() : '';
+  const env = typeof process.env.LATTICE_AGENT === 'string' ? process.env.LATTICE_AGENT.trim() : '';
   const actor = explicit || env;
   return actor === 'lattice-review-delivery';
 }
@@ -3185,7 +3257,7 @@ export function enforceStoryOwnerLeaseGate(
 // ─── B-4f15 CHK-002: read-only reviewer command guard ───────────────────────
 
 /** Environment variable name that activates read-only reviewer mode. */
-export const REVIEWER_READONLY_ENV = 'KOALA_REVIEWER_READONLY';
+export const REVIEWER_READONLY_ENV = 'LATTICE_REVIEWER_READONLY';
 
 /** Returns true when the process is running as a read-only reviewer. */
 export function isReviewerReadOnlyModeEnabled(): boolean {
@@ -3195,7 +3267,7 @@ export function isReviewerReadOnlyModeEnabled(): boolean {
 /**
  * B-4f15 CHK-002: pre-hook, pre-lease gate for read-only reviewer mode.
  *
- * When KOALA_REVIEWER_READONLY=1, only commands whose EFFECTIVE ownershipClass
+ * When LATTICE_REVIEWER_READONLY=1, only commands whose EFFECTIVE ownershipClass
  * is `readOnly` are permitted. All other classes — `reviewerWrite`,
  * `storyScopedMutating`, `mainSharedMutating`, `dangerousMutating`, and
  * unclassified (null) — are rejected fail-closed.
@@ -3235,7 +3307,7 @@ export function enforceReviewerReadOnlyCommandGate(
  */
 export function shouldWriteActivityLog(cmdName: string, args: Record<string, unknown>): boolean {
   if (READ_ONLY_COMMANDS.has(cmdName)) {
-    return process.env.KOALA_ACTIVITY_RECORD_READONLY === '1';
+    return process.env.LATTICE_ACTIVITY_RECORD_READONLY === '1';
   }
   if (args.dryRun === true) return false;
   return true;
@@ -3306,61 +3378,77 @@ function commitFromDraftMetadataOnMain(root: string, store: StoryStore, storyId:
   const draftRel = boundedMetadataPath('docs/story/drafts', draftName, 'source draft');
   const boundedPaths = [storyRel, draftRel];
 
-  for (const path of boundedPaths) {
-    stageBoundedMetadataPath(root, path);
-  }
-  const staged = gitCli(root, ['diff', '--cached', '--name-only']);
-  const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
-  if (stagedPaths.length === 0) {
-    return '';
-  }
-  const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, boundedPaths));
-  if (outOfBounds.length > 0) {
-    throw new Error(
-      `from-draft metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
-    );
-  }
+  // B-9177 CHK-002: serialize the stage→commit-on-main critical section under
+  // the unified main write lock. A concurrent main commit between staging and
+  // committing is the same B-7365-class race that corrupts story/draft metadata.
+  // Reentrant variant — the from-draft bootstrap can run inside an
+  // already-locked context; `root` is the main checkout (preflight asserts
+  // branch==main on it and every git op uses it as cwd).
+  return withReentrantMainWriteLock(root, () => {
+    for (const path of boundedPaths) {
+      stageBoundedMetadataPath(root, path);
+    }
+    const staged = gitCli(root, ['diff', '--cached', '--name-only']);
+    const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
+    if (stagedPaths.length === 0) {
+      return '';
+    }
+    const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, boundedPaths));
+    if (outOfBounds.length > 0) {
+      throw new Error(
+        `from-draft metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
+      );
+    }
 
-  const commitMessage = `lattice: from-draft metadata ${storyId}`;
-  gitCli(root, [
-    '-c', 'commit.gpgsign=false',
-    'commit',
-    '-m', commitMessage,
-  ]);
-  const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
-  const boundedStatus = gitCli(root, ['status', '--porcelain', '--', ...boundedPaths]);
-  if (boundedStatus) {
-    throw new Error(
-      `from-draft metadata committed, but bounded metadata paths are still dirty ` +
-      `(${boundedPaths.join(', ')}):\n${boundedStatus}`,
-    );
-  }
+    const commitMessage = `lattice: from-draft metadata ${storyId}`;
+    gitCli(root, [
+      '-c', 'commit.gpgsign=false',
+      'commit',
+      '-m', commitMessage,
+    ]);
+    const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
+    const boundedStatus = gitCli(root, ['status', '--porcelain', '--', ...boundedPaths]);
+    if (boundedStatus) {
+      throw new Error(
+        `from-draft metadata committed, but bounded metadata paths are still dirty ` +
+        `(${boundedPaths.join(', ')}):\n${boundedStatus}`,
+      );
+    }
 
-  return `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`;
+    return `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`;
+  }, { label: 'from-draft metadata commit' });
 }
 
 function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
-  const metadataResult = commitFromDraftMetadataOnMain(root, store, storyId, draftName);
-  const story = store.readStory(storyId);
-  const worktreePath = story.worktree?.path;
-  const storyBranch = story.worktree?.branch || `story/${storyId}`;
-  if (!worktreePath) {
-    throw new Error(`from-draft story ${storyId} has no recorded worktree path after dev_start`);
-  }
-  const repoRoot = gitCli(root, ['rev-parse', '--show-toplevel']);
-  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
-  gitCli(worktreeAbs, [
-    '-c', 'commit.gpgsign=false',
-    'merge',
-    'main',
-    '--no-edit',
-  ]);
-  gitCli(worktreeAbs, ['merge-base', '--is-ancestor', 'main', storyBranch]);
+  // B-9177 CHK-002: serialize the commit-on-main + merge-into-story-worktree
+  // critical section under one main write lock, exactly as the B-7365 sibling
+  // `commitInitCheckMetadataAndMergeMain` does. A concurrent main commit between
+  // our commit and our merge is what produces a divergent metadata state.
+  // Reentrant — the inner `commitFromDraftMetadataOnMain` (also reentrant-locked)
+  // becomes a pass-through under this outer hold; `root` is the main checkout.
+  return withReentrantMainWriteLock(root, () => {
+    const metadataResult = commitFromDraftMetadataOnMain(root, store, storyId, draftName);
+    const story = store.readStory(storyId);
+    const worktreePath = story.worktree?.path;
+    const storyBranch = story.worktree?.branch || `story/${storyId}`;
+    if (!worktreePath) {
+      throw new Error(`from-draft story ${storyId} has no recorded worktree path after dev_start`);
+    }
+    const repoRoot = gitCli(root, ['rev-parse', '--show-toplevel']);
+    const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
+    gitCli(worktreeAbs, [
+      '-c', 'commit.gpgsign=false',
+      'merge',
+      'main',
+      '--no-edit',
+    ]);
+    gitCli(worktreeAbs, ['merge-base', '--is-ancestor', 'main', storyBranch]);
 
-  return [
-    metadataResult,
-    `✓ main merged into ${storyBranch}`,
-  ].filter(Boolean).join('\n');
+    return [
+      metadataResult,
+      `✓ main merged into ${storyBranch}`,
+    ].filter(Boolean).join('\n');
+  }, { label: 'from-draft metadata commit+merge' });
 }
 
 /**
@@ -3410,7 +3498,7 @@ function resolveInitCheckGitMainRoot(root: string, store: StoryStore, storyId: s
   );
 }
 
-function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, storyId: string): string {
+export function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, storyId: string): string {
   const gitMainRoot = resolveInitCheckGitMainRoot(root, store, storyId);
   const currentBranch = gitCli(gitMainRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
   if (currentBranch.startsWith('story/')) {
@@ -3451,19 +3539,6 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
   }
 
   const commitMessage = `lattice: INIT_CHECK metadata ${storyId}`;
-  gitCli(gitMainRoot, [
-    '-c', 'commit.gpgsign=false',
-    'commit',
-    '-m', commitMessage,
-  ]);
-  const mainHead = gitCli(gitMainRoot, ['rev-parse', '--short', 'HEAD']);
-  const boundedStatus = gitCli(gitMainRoot, ['status', '--porcelain', '--', storyRel]);
-  if (boundedStatus) {
-    throw new Error(
-      `INIT_CHECK metadata committed, but bounded story path is still dirty (${storyRel}):\n${boundedStatus}`,
-    );
-  }
-
   const story = store.readStory(storyId);
   const worktreePath = story.worktree?.path;
   const storyBranch = story.worktree?.branch || `story/${storyId}`;
@@ -3471,18 +3546,187 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
     throw new Error(`INIT_CHECK story ${storyId} has no recorded worktree path after dev_start`);
   }
   const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(gitMainRoot, worktreePath);
-  gitCli(worktreeAbs, [
-    '-c', 'commit.gpgsign=false',
-    'merge',
-    currentBranch,
-    '--no-edit',
-  ]);
-  gitCli(worktreeAbs, ['merge-base', '--is-ancestor', currentBranch, storyBranch]);
 
-  return [
-    `✓ INIT_CHECK metadata committed on ${currentBranch}: ${mainHead} (${commitMessage})`,
-    `✓ ${currentBranch} merged into ${storyBranch}`,
-  ].join('\n');
+  // B-7365: serialize the commit-on-main + merge-into-story-worktree critical
+  // section under the unified main write lock. A concurrent session committing
+  // to main between our commit and our merge is exactly what produces a
+  // divergent `index.json` and the merge conflict this function must survive;
+  // holding the lock across BOTH steps closes that race. Reentrant variant:
+  // INIT_CHECK can run inside an already-locked context (the lock is released
+  // in the helper's finally even when the critical section throws).
+  return withReentrantMainWriteLock(gitMainRoot, () => {
+    gitCli(gitMainRoot, [
+      '-c', 'commit.gpgsign=false',
+      'commit',
+      '-m', commitMessage,
+    ]);
+    const mainHead = gitCli(gitMainRoot, ['rev-parse', '--short', 'HEAD']);
+    const boundedStatus = gitCli(gitMainRoot, ['status', '--porcelain', '--', storyRel]);
+    if (boundedStatus) {
+      throw new Error(
+        `INIT_CHECK metadata committed, but bounded story path is still dirty (${storyRel}):\n${boundedStatus}`,
+      );
+    }
+
+    mergeBaseBranchIntoStoryWorktreeResolvingMetadata({
+      worktreeAbs,
+      baseBranch: currentBranch,
+      storyRel,
+    });
+    gitCli(worktreeAbs, ['merge-base', '--is-ancestor', currentBranch, storyBranch]);
+
+    return [
+      `✓ INIT_CHECK metadata committed on ${currentBranch}: ${mainHead} (${commitMessage})`,
+      `✓ ${currentBranch} merged into ${storyBranch}`,
+    ].join('\n');
+  }, { label: 'INIT_CHECK reconcile' });
+}
+
+/**
+ * B-7365: merge `baseBranch` (main) into the story worktree's branch, resolving
+ * any conflict on the machine-generated story metadata deterministically to the
+ * post-advance (base/main-committed) version — NEVER leaving or committing
+ * `<<<<<<< / ======= / >>>>>>>` conflict markers in `index.json` (or any other
+ * file under `storyRel`).
+ *
+ * Rationale: the story metadata under `storyRel` is machine-owned and
+ * authoritative on the base branch right after INIT_CHECK advanced it; the
+ * story branch's copy is the pre-advance bootstrap snapshot. So on a conflict
+ * the correct, deterministic resolution is "take base/main's version" for every
+ * conflicted path under `storyRel`. Anything conflicting OUTSIDE `storyRel` is
+ * not machine-owned and cannot be silently auto-resolved — we abort the merge
+ * and throw a clear recovery error rather than guess.
+ *
+ * The clean (no-conflict) path is byte-identical to the legacy bare
+ * `git merge <base> --no-edit`: `git merge` returns 0, we return immediately.
+ */
+function mergeBaseBranchIntoStoryWorktreeResolvingMetadata(args: {
+  worktreeAbs: string;
+  baseBranch: string;
+  storyRel: string;
+}): void {
+  const { worktreeAbs, baseBranch, storyRel } = args;
+
+  // Run the merge WITHOUT throwing on a non-zero exit so a conflict can be
+  // inspected + resolved rather than surfacing as an opaque marker corruption.
+  const merge = runGitNoThrow(worktreeAbs, [
+    '-c', 'commit.gpgsign=false',
+    'merge', baseBranch, '--no-edit',
+  ]);
+  if (merge.code === 0) {
+    // Clean (no-conflict) path: byte-identical to the legacy bare merge — git
+    // has already created the merge commit. Return immediately.
+    return;
+  }
+
+  // Non-zero exit: determine whether this is a resolvable metadata conflict.
+  // `git diff --name-only --diff-filter=U` lists exactly the unmerged
+  // (conflicted) paths, repo-relative with forward slashes.
+  const conflicted = runGitNoThrow(worktreeAbs, ['diff', '--name-only', '--diff-filter=U'])
+    .stdout
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (conflicted.length === 0) {
+    // Non-zero with no unmerged paths is NOT a content conflict (e.g. the base
+    // branch is unknown, a dirty worktree blocked the merge, a hook failed).
+    // Do not pretend to resolve it: abort any half-started merge and surface the
+    // real git error for recovery.
+    runGitNoThrow(worktreeAbs, ['merge', '--abort']);
+    throw new Error(
+      `INIT_CHECK reconcile: git merge ${baseBranch} into the story worktree failed and is not a ` +
+      `metadata conflict (no unmerged paths). git said:\n${(merge.stderr || merge.stdout).trim()}`,
+    );
+  }
+
+  // Any conflicted path OUTSIDE the machine-owned story dir cannot be safely
+  // auto-resolved (it is not machine-generated metadata we own a canonical
+  // version of). Abort the merge cleanly and throw a clear recovery error —
+  // never leave/commit markers.
+  const outOfBounds = conflicted.filter((path) => !isPathUnderAny(path, [storyRel]));
+  if (outOfBounds.length > 0) {
+    runGitNoThrow(worktreeAbs, ['merge', '--abort']);
+    throw new Error(
+      `INIT_CHECK reconcile: merge of ${baseBranch} conflicted on non-metadata paths that cannot be ` +
+      `auto-resolved:\n${outOfBounds.join('\n')}\n` +
+      `Aborted the merge to avoid committing conflict markers. Resolve manually in the worktree ` +
+      `(git merge ${baseBranch}) and retry.`,
+    );
+  }
+
+  // Every conflicted path is under the machine-owned story dir. Resolve each to
+  // the post-advance (base/main) version. We merged `baseBranch` INTO the story
+  // branch, so `--theirs` is the incoming base branch's version. Stage the
+  // resolved content so no markers remain, then complete the merge commit.
+  //
+  // The throwing gitCli calls below (stage / rm / commit) can fail for reasons
+  // outside our control (locked index, hook failure, disk error). If any of
+  // them throws, the exception must NOT escape with the worktree left mid-merge
+  // (MERGE_HEAD present) — that would require manual `git merge --abort`
+  // recovery. Wrap the resolution + commit in try/catch so ANY throw aborts the
+  // half-started merge before rethrowing, mirroring the out-of-bounds and
+  // still-unmerged abort+throw handling above.
+  try {
+    for (const path of conflicted) {
+      // `git checkout --theirs` takes the base/main version for content (and
+      // add/add) conflicts. For a modify/delete conflict where base DELETED the
+      // path there is no "theirs" stage and checkout errors — in that case the
+      // deterministic "take base" resolution is to delete the path too.
+      const tookTheirs = runGitNoThrow(worktreeAbs, ['checkout', '--theirs', '--', path]);
+      if (tookTheirs.code === 0) {
+        gitCli(worktreeAbs, ['add', '--', path]);
+      } else {
+        gitCli(worktreeAbs, ['rm', '-f', '--', path]);
+      }
+    }
+
+    // Defensive: confirm no unmerged paths remain before committing so a marker
+    // can never reach a commit object. (Re-check the same invariant rather than
+    // trusting the loop above blindly — Handler coding convention.)
+    const stillUnmerged = runGitNoThrow(worktreeAbs, ['diff', '--name-only', '--diff-filter=U'])
+      .stdout
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+    if (stillUnmerged.length > 0) {
+      runGitNoThrow(worktreeAbs, ['merge', '--abort']);
+      throw new Error(
+        `INIT_CHECK reconcile: failed to fully resolve metadata conflict; unmerged paths remain:\n` +
+        `${stillUnmerged.join('\n')}\nAborted the merge to avoid committing conflict markers.`,
+      );
+    }
+
+    gitCli(worktreeAbs, ['-c', 'commit.gpgsign=false', 'commit', '--no-edit']);
+  } catch (e) {
+    // Any failure while resolving/committing the metadata conflict must leave
+    // the worktree clean rather than mid-merge. Abort the half-started merge
+    // (best-effort, no-throw) before surfacing the original error.
+    runGitNoThrow(worktreeAbs, ['merge', '--abort']);
+    throw e;
+  }
+}
+
+/**
+ * Run a git command capturing stdout/stderr/exit code WITHOUT throwing on a
+ * non-zero exit. Needed for `git merge`, whose conflict exit code (1) must be
+ * inspected and resolved rather than surfacing as an opaque thrown error.
+ */
+function runGitNoThrow(cwd: string, gitArgs: string[]): { code: number; stdout: string; stderr: string } {
+  try {
+    const stdout = execFileSync('git', gitArgs, {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { code: 0, stdout: stdout ?? '', stderr: '' };
+  } catch (e: any) {
+    return {
+      code: typeof e?.status === 'number' ? e.status : 1,
+      stdout: e?.stdout ? String(e.stdout) : '',
+      stderr: e?.stderr ? String(e.stderr) : String(e?.message ?? e),
+    };
+  }
 }
 
 // ── Main ──
@@ -3757,10 +4001,10 @@ export async function runCli(opts?: {
   } catch { /* never block */ }
 
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
-  // Can be overridden with KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS,
+  // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
-  const IDLE_TIMEOUT = Number(process.env.KOALA_IDLE_TIMEOUT_MS) || (5 * 60 * 1000);
-  const MAX_TIMEOUT = Number(process.env.KOALA_MAX_TIMEOUT_MS) || (15 * 60 * 1000);
+  const IDLE_TIMEOUT = Number(process.env.LATTICE_IDLE_TIMEOUT_MS) || (5 * 60 * 1000);
+  const MAX_TIMEOUT = Number(process.env.LATTICE_MAX_TIMEOUT_MS) || (15 * 60 * 1000);
   const startTime = Date.now();
   let lastActivity = Date.now();
   const originalLog = log;
@@ -3819,8 +4063,8 @@ export async function runCli(opts?: {
         }
       }
       const record: Record<string, unknown> = {
-        source: process.env.KOALA_ACTIVITY_SOURCE || 'cli',
-        session: process.env.KOALA_ACTIVITY_SESSION || '',
+        source: process.env.LATTICE_ACTIVITY_SOURCE || 'cli',
+        session: process.env.LATTICE_ACTIVITY_SESSION || '',
         entrypoint: inferCodexEntrypoint(),
         startTime: entry.startTime,
         endTime: entry.endTime,
@@ -3835,7 +4079,7 @@ export async function runCli(opts?: {
           projectRoot: effectiveRoot,
         }),
         phase: activeStory?.phase || null,
-        role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
+        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
       };
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
@@ -3855,7 +4099,7 @@ export async function runCli(opts?: {
     success: boolean;
     error?: string;
   }) {
-    if ((process.env.KOALA_ACTIVITY_SOURCE || '') !== 'codex') return;
+    if ((process.env.LATTICE_ACTIVITY_SOURCE || '') !== 'codex') return;
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
@@ -3869,8 +4113,8 @@ export async function runCli(opts?: {
       store.appendProcessEvent(storyId, {
         type: 'codex_cli',
         source: 'codex',
-        session: process.env.KOALA_ACTIVITY_SESSION || '',
-        role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
+        session: process.env.LATTICE_ACTIVITY_SESSION || '',
+        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
         storyId,
         phase,
         command: entry.command,
@@ -3969,7 +4213,7 @@ export async function runCli(opts?: {
       }
       if (!READ_ONLY_COMMANDS.has(cmd)) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
-          KOALA_RESULT_JSON: truncateForEnv(resultText),
+          LATTICE_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
       }
       const output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
@@ -3989,7 +4233,7 @@ export async function runCli(opts?: {
         process.stderr.write(`[lattice-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
-        KOALA_ERROR: String(e?.message || e),
+        LATTICE_ERROR: String(e?.message || e),
       }), config0, root);
       process.stderr.write(`Error: ${e.message}\n`);
       process.exitCode = 1;

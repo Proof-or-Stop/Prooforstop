@@ -544,7 +544,10 @@ async function main(): Promise<void> {
   assert.equal(liveDoneFromMd.fullAuthorityDone, false, 'multi-host certification is still required after receipt verification');
   assert.ok(mdDoneCalls.some(call => call.path.includes('/v1/gates/evaluate')), 'authority.md-backed DONE job reaches the gate evaluator');
   assert.ok(mdDoneCalls.every(call => call.path.startsWith('https://authority-md.test/')), 'authority.md-backed DONE gate uses authority.md serverUrl');
-  assert.ok(mdDoneCalls.every(call => call.headers.Authorization === 'Bearer md-customer-key'), 'authority.md-backed DONE gate uses authority.md customer key');
+  // GET /v1/authority/policy is an intentional public read-only discovery endpoint
+  // (B-ea92 M1) and carries no Authorization header. Every other (mutating) call
+  // on the DONE-gate path must still carry the authority.md customer key.
+  assert.ok(mdDoneCalls.filter(call => !call.path.includes('/v1/authority/policy')).every(call => call.headers.Authorization === 'Bearer md-customer-key'), 'authority.md-backed DONE gate uses authority.md customer key on every mutating call');
 
   // 5. Live authority+DONE without a verified receipt: blocked -> lease released.
   const doneCalls: NetCall[] = [];

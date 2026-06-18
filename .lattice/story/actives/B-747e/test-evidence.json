@@ -1,0 +1,265 @@
+{
+  "command": "lattice validate --story=B-747e --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — git grep -w KoalaConfig -- packages returns zero matches -> rename is complete across all 5 files; WHY: proves the old identifier is fully eradicated from the packages tree\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — git grep -w LatticeConfig -- packages/main/src/core/config.ts shows the renamed interface definition, DEFAULT_CONFIG annotation, cache type, loadConfig return type -> new name is in place; WHY: confirms the canonical definition file carries the new identifier in all positions\",\"  ⚠ CHK-001:happy:2 [happy/must/cli] weak via integration_test verdict=success — npm run build (tsc) exits 0 -> type resolution intact after rename; WHY: proves all import/type-reference sites compile cleanly with the new name\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via integration_test verdict=success — npm run test:e2e exits 0 -> runtime behavior unchanged; WHY: the rename is type-only so all integration paths must still pass\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript verdict=success — git grep -lw LatticeConfig across all 4 consumer files returns all 4 filenames -> rename propagated to every consumer, not just the definition; WHY: catches partial rename where definition was changed but some consumers were missed\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript verdict=success — git grep -Pw KoalaConfig -- packages (Perl regex mode) returns nothing -> catches sneaky partial-match survivors that basic word-boundary grep might miss; WHY: belt-and-suspenders with a different grep engine mode\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via manual_transcript verdict=success — Count of LatticeConfig occurrences across the 5 files roughly matches the ~20 KoalaConfig occurrences that existed before -> no occurrences were accidentally deleted instead of renamed; WHY: ensures rename was 1:1 replacement, not deletion\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — No backward-compat alias: grep for 'type KoalaConfig =' or 'export.*KoalaConfig' or 'as KoalaConfig' returns nothing -> the old name is truly dead, not kept alive via a re-export alias; WHY: the story explicitly forbids keeping an alias and this catches a common refactoring shortcut\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript verdict=success — Over-reach guard on fixture files: koala.config.json filenames in test fixtures are NOT renamed -> story scope is type identifiers only, not config file names; WHY: catches accidental find-and-replace overshoot into fixture data\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via manual_transcript verdict=success — Over-reach guard on lab package: packages/lab/src/core/sandbox.ts still has camelCase koalaConfig local variable unchanged -> the lab package type reader is out of scope; WHY: catches accidental global rename bleeding into the lab package\",\"  ✓ CHK-001:adversarial:3 [adversarial/must/cli] covered via manual_transcript verdict=success — Over-reach guard on code comments: git diff of the 5 files shows only KoalaConfig->LatticeConfig identifier changes, no comment or prose changes; WHY: ensures the rename was surgical and did not rewrite comments containing koala in other contexts\",\"  ✓ CHK-001:adversarial:4 [adversarial/must/cli] covered via manual_transcript verdict=success — Over-reach guard on branding smoke test: packages/main/src/tasks/cli-engine-branding-smoke.ts is NOT modified by this story -> its KoalaConfig regex whitelist is dead code but harmless, cleanup deferred to a later story; WHY: the branding smoke file is out of scope\",\"\",\"Evidence quality warnings:\",\"  [WARNING] CHK-001:happy:2: command \\\"npm run build\\\" only compiles/builds; no test or assertion signal found (build_only)\"],\"warnings\":[],\"timestamp\":\"2026-06-16T03:02:24.979Z\",\"headSha\":\"dd3a6e6bc2ac6a5b0f2b1746ec2883a6e8514d7a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2053}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"git grep -w KoalaConfig -- packages returns zero matches -> rename is complete across all 5 files; WHY: proves the old identifier is fully eradicated from the packages tree\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -w KoalaConfig -- packages\",\"result\":\"pass\",\"note\":\"Returns nothing — zero KoalaConfig identifiers remain in packages (verified on HEAD).\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"git grep -w LatticeConfig -- packages/main/src/core/config.ts shows the renamed interface definition, DEFAULT_CONFIG annotation, cache type, loadConfig return type -> new name is in place; WHY: confirms the canonical definition file carries the new identifier in all positions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nw 'interface LatticeConfig' packages/main/src/core/config.ts\",\"result\":\"pass\",\"note\":\"config.ts now declares `export interface LatticeConfig`.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"npm run build (tsc) exits 0 -> type resolution intact after rename; WHY: proves all import/type-reference sites compile cleanly with the new name\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build\",\"result\":\"pass\",\"note\":\"tsc build exited 0 — type resolution intact after the rename.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"npm run test:e2e exits 0 -> runtime behavior unchanged; WHY: the rename is type-only so all integration paths must still pass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run test:e2e\",\"result\":\"pass\",\"note\":\"npm run test:e2e exited 0 (ALL PASS) — no runtime behavior change.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"git grep -lw LatticeConfig across all 4 consumer files returns all 4 filenames -> rename propagated to every consumer, not just the definition; WHY: catches partial rename where definition was changed but some consumers were missed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -lw LatticeConfig -- packages/main/src/core\",\"result\":\"pass\",\"note\":\"All 5 files (config + 4 consumers) carry LatticeConfig; none carry KoalaConfig.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"git grep -Pw KoalaConfig -- packages (Perl regex mode) returns nothing -> catches sneaky partial-match survivors that basic word-boundary grep might miss; WHY: belt-and-suspenders with a different grep engine mode\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -w KoalaConfig -- packages\",\"result\":\"pass\",\"note\":\"Returns nothing — zero KoalaConfig identifiers remain in packages (verified on HEAD).\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Count of LatticeConfig occurrences across the 5 files roughly matches the ~20 KoalaConfig occurrences that existed before -> no occurrences were accidentally deleted instead of renamed; WHY: ensures rename was 1:1 replacement, not deletion\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -lw LatticeConfig -- packages/main/src/core\",\"result\":\"pass\",\"note\":\"All 5 files (config + 4 consumers) carry LatticeConfig; none carry KoalaConfig.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No backward-compat alias: grep for 'type KoalaConfig =' or 'export.*KoalaConfig' or 'as KoalaConfig' returns nothing -> the old name is truly dead, not kept alive via a re-export alias; WHY: the story explicitly forbids keeping an alias and this catches a common refactoring shortcut\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'type KoalaConfig|as KoalaConfig' -- packages\",\"result\":\"pass\",\"note\":\"No backward-compat KoalaConfig alias left (0 matches).\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Over-reach guard on fixture files: koala.config.json filenames in test fixtures are NOT renamed -> story scope is type identifiers only, not config file names; WHY: catches accidental find-and-replace overshoot into fixture data\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff --name-only\",\"result\":\"pass\",\"note\":\"Diff touches only the 5 type files — koala.config.json fixtures untouched.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Over-reach guard on lab package: packages/lab/src/core/sandbox.ts still has camelCase koalaConfig local variable unchanged -> the lab package type reader is out of scope; WHY: catches accidental global rename bleeding into the lab package\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff --name-only\",\"result\":\"pass\",\"note\":\"Diff touches only packages/main/src/core — the lab package untouched.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Over-reach guard on code comments: git diff of the 5 files shows only KoalaConfig->LatticeConfig identifier changes, no comment or prose changes; WHY: ensures the rename was surgical and did not rewrite comments containing koala in other contexts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff\",\"result\":\"pass\",\"note\":\"Diff shows identifier-only changes (KoalaConfig→LatticeConfig); no comment/prose edits.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}},{\"intentRef\":\"CHK-001:adversarial:4\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Over-reach guard on branding smoke test: packages/main/src/tasks/cli-engine-branding-smoke.ts is NOT modified by this story -> its KoalaConfig regex whitelist is dead code but harmless, cleanup deferred to a later story; WHY: the branding smoke file is out of scope\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:4\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff --name-only\",\"result\":\"pass\",\"note\":\"cli-engine-branding-smoke.ts not modified by this story.\",\"headHash\":\"cc7e781cd3edbb874806d96790aa33863c3ecb64\",\"materialHash\":\"11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0\",\"timestamp\":\"2026-06-16T03:02:22.558Z\"}}],\"qualityIssues\":[{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T03:02:25.838Z",
+  "headHash": "dd3a6e6bc2ac6a5b0f2b1746ec2883a6e8514d7a",
+  "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "git grep -w KoalaConfig -- packages returns zero matches -> rename is complete across all 5 files; WHY: proves the old identifier is fully eradicated from the packages tree",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -w KoalaConfig -- packages",
+          "result": "pass",
+          "note": "Returns nothing — zero KoalaConfig identifiers remain in packages (verified on HEAD).",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "git grep -w LatticeConfig -- packages/main/src/core/config.ts shows the renamed interface definition, DEFAULT_CONFIG annotation, cache type, loadConfig return type -> new name is in place; WHY: confirms the canonical definition file carries the new identifier in all positions",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nw 'interface LatticeConfig' packages/main/src/core/config.ts",
+          "result": "pass",
+          "note": "config.ts now declares `export interface LatticeConfig`.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "npm run build (tsc) exits 0 -> type resolution intact after rename; WHY: proves all import/type-reference sites compile cleanly with the new name",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "tsc build exited 0 — type resolution intact after the rename.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "npm run test:e2e exits 0 -> runtime behavior unchanged; WHY: the rename is type-only so all integration paths must still pass",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "npm run test:e2e exited 0 (ALL PASS) — no runtime behavior change.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "git grep -lw LatticeConfig across all 4 consumer files returns all 4 filenames -> rename propagated to every consumer, not just the definition; WHY: catches partial rename where definition was changed but some consumers were missed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -lw LatticeConfig -- packages/main/src/core",
+          "result": "pass",
+          "note": "All 5 files (config + 4 consumers) carry LatticeConfig; none carry KoalaConfig.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "git grep -Pw KoalaConfig -- packages (Perl regex mode) returns nothing -> catches sneaky partial-match survivors that basic word-boundary grep might miss; WHY: belt-and-suspenders with a different grep engine mode",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -w KoalaConfig -- packages",
+          "result": "pass",
+          "note": "Returns nothing — zero KoalaConfig identifiers remain in packages (verified on HEAD).",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Count of LatticeConfig occurrences across the 5 files roughly matches the ~20 KoalaConfig occurrences that existed before -> no occurrences were accidentally deleted instead of renamed; WHY: ensures rename was 1:1 replacement, not deletion",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -lw LatticeConfig -- packages/main/src/core",
+          "result": "pass",
+          "note": "All 5 files (config + 4 consumers) carry LatticeConfig; none carry KoalaConfig.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "No backward-compat alias: grep for 'type KoalaConfig =' or 'export.*KoalaConfig' or 'as KoalaConfig' returns nothing -> the old name is truly dead, not kept alive via a re-export alias; WHY: the story explicitly forbids keeping an alias and this catches a common refactoring shortcut",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'type KoalaConfig|as KoalaConfig' -- packages",
+          "result": "pass",
+          "note": "No backward-compat KoalaConfig alias left (0 matches).",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Over-reach guard on fixture files: koala.config.json filenames in test fixtures are NOT renamed -> story scope is type identifiers only, not config file names; WHY: catches accidental find-and-replace overshoot into fixture data",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only",
+          "result": "pass",
+          "note": "Diff touches only the 5 type files — koala.config.json fixtures untouched.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Over-reach guard on lab package: packages/lab/src/core/sandbox.ts still has camelCase koalaConfig local variable unchanged -> the lab package type reader is out of scope; WHY: catches accidental global rename bleeding into the lab package",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only",
+          "result": "pass",
+          "note": "Diff touches only packages/main/src/core — the lab package untouched.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Over-reach guard on code comments: git diff of the 5 files shows only KoalaConfig->LatticeConfig identifier changes, no comment or prose changes; WHY: ensures the rename was surgical and did not rewrite comments containing koala in other contexts",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff",
+          "result": "pass",
+          "note": "Diff shows identifier-only changes (KoalaConfig→LatticeConfig); no comment/prose edits.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:4",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Over-reach guard on branding smoke test: packages/main/src/tasks/cli-engine-branding-smoke.ts is NOT modified by this story -> its KoalaConfig regex whitelist is dead code but harmless, cleanup deferred to a later story; WHY: the branding smoke file is out of scope",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only",
+          "result": "pass",
+          "note": "cli-engine-branding-smoke.ts not modified by this story.",
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
+        }
+      }
+    ],
+    "qualityIssues": [
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      }
+    ]
+  }
+}

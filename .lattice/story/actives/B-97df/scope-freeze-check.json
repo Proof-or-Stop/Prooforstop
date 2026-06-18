@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-97df",
+  "checkedAt": "2026-06-16T14:34:11.831Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "d4dd5c1023fc4dc09ae5175eb27ec48189ec5a96513a0019adef59e2bd2d04eb",
+  "executionBoundaryHash": "6293f0f81d1ae6c5d4a3686c6cfc37ea865d448ce1143d23e8b306b3afebdae8",
+  "freshnessHash": "6d2b206d76e6cb450c213f07ac2d7e968b0034f2bab47f0d98ffce6e4b0aefc5",
+  "effectiveExcludedKeywords": [
+    "Any change to dispatch / gate / handler / other logic code outside the usage-ledger module",
+    "Budget decision and request blocking",
+    "Connecting to the live dispatch path",
+    "Registering a first-class lattice CLI command / touching the command registry or cli-engine",
+    "Server-side signed evidence promotion",
+    "Turning the writer on by default"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to dispatch / gate / handler / other logic code outside the usage-ledger module",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to dispatch / gate / handler / other logic code outside the usage-ledger module",
+      "excluded": true
+    },
+    {
+      "keyword": "Budget decision and request blocking",
+      "source": "scopeBoundary.excluded",
+      "text": "Budget decision and request blocking",
+      "excluded": true
+    },
+    {
+      "keyword": "Connecting to the live dispatch path",
+      "source": "scopeBoundary.excluded",
+      "text": "Connecting to the live dispatch path",
+      "excluded": true
+    },
+    {
+      "keyword": "Registering a first-class lattice CLI command / touching the command registry or cli-engine",
+      "source": "scopeBoundary.excluded",
+      "text": "Registering a first-class lattice CLI command / touching the command registry or cli-engine",
+      "excluded": true
+    },
+    {
+      "keyword": "Server-side signed evidence promotion",
+      "source": "scopeBoundary.excluded",
+      "text": "Server-side signed evidence promotion",
+      "excluded": true
+    },
+    {
+      "keyword": "Turning the writer on by default",
+      "source": "scopeBoundary.excluded",
+      "text": "Turning the writer on by default",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5b3033285266d3cd1497b34956758b11ec81e1330ebfe4f56efb3bbeaffa5687"
+}

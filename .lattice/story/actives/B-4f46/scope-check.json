@@ -1,0 +1,199 @@
+{
+  "storyId": "B-4f46",
+  "checkedAt": "2026-06-17T12:14:54.858Z",
+  "features": [
+    {
+      "feature": "Add optional signatureTag field to Finding type (audit-only)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Add optional resolutionType enum field to Finding type (audit-only)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Add optional dismissReasonType enum field to Finding type (audit-only, MUST NOT be required)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Add optional resolveEvidenceStrength and dismissEvidenceStrength fields to Finding type (two independent fields, audit-only)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Annotate all new audit fields with // audit-only — MUST NOT be read by any gate in types.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Exclude new audit fields from finding signature domain (finding-verify.ts unchanged)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "finding_add CLI schema accepts optional signatureTag, validates and persists it",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "finding_resolve CLI schema accepts optional resolutionType and resolveEvidenceStrength, validates and persists them",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "finding_dismiss CLI schema accepts optional dismissReasonType and dismissEvidenceStrength, validates and persists them",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Enum validation for resolutionType/dismissReasonType/evidenceStrength (reuse evidenceState pattern), reject invalid values with clear error",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Back-compat: callers omitting all new fields behave identically to pre-Phase-1b behavior",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "signature-registry.json persisted to .lattice/learning/ with tag/status/aliases/mergedInto/createdBy/approvedBy fields",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "finding_add with unregistered signatureTag auto-records tag as status=proposed in registry",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "active status requires explicit approve; cannot skip from proposed to active without approval",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "signature_registry_list CLI command",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "signature_registry_set CLI command with action=propose|approve|alias|deprecate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Determinism guardrail: advisory.ts and gate logic never read any audit field (signatureTag/resolutionType/dismissReasonType/evidenceStrength)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Smoke test file tasks/experience-layer-finding-enums-smoke.ts + package.json npm script test:experience-layer-finding-enums",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Smoke asserts legacy finding migration tolerance (old finding without new fields still verified)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Smoke asserts finding-signals produces non-zero signalScore when resolutionType present (signal enrichment from enums)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No regression in existing finding and usage-ledger smokes",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Reviewer hint injection and promptHash exclusion for hints (Phase 1.5)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: Reviewer-prompt hint injection (Phase 1.5)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Playbook lifecycle (Phase 2: playbook_propose/approve/reject, dev-memory promotion, digest extraction)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: playbook lifecycle (Phase 2)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Gate consumption of new audit fields",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: any gate consumption of the new fields",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Cross-project aggregation (Phase 4: two-layer signatures, org-level aggregation)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: cross-project aggregation",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Story Recall L2 (Phase 3: structured filtering, story_list scan)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope (Phase 3, not Phase 1b)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 26,
+    "covered": 21,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "58f6287649e41b08cc36a12b547a8df7527ce91c0d484fd63fe8326fca4b306c",
+  "openQuestions": []
+}

@@ -1,0 +1,25 @@
+{
+  "storyId": "B-0f7c",
+  "checkedAt": "2026-06-16T19:05:13.814Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-16T19:05:04.888Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "No checklist item requires a user-observable verification of real token usage output (e.g., a transcript showing actual provider-reported token counts attributed to a story after a dispatch). All 5 items are engineering-internal. The smoke test cannot exercise a live dispatch (acknowledged in CHK-005), but no integration or manual verification step fills that gap. Recommend adding a DONE-phase verification or evidence requirement so product acceptance at wrap-up has a concrete transcript to evaluate."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-16T19:05:13.814Z",
+      "issues": []
+    }
+  ],
+  "_hash": "a1f0eb1bb6724edceb84e5841bc81d0eac629bffe38754a0b45a86c23b4ef75f"
+}

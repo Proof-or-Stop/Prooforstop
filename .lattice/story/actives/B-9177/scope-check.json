@@ -1,0 +1,108 @@
+{
+  "storyId": "B-9177",
+  "checkedAt": "2026-06-16T03:56:25.273Z",
+  "features": [
+    {
+      "feature": "Audit all CLI paths that commit to or mutate the main branch or main worktree and flag any not under the main-write-lock",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Identify unlocked main-mutating paths (beyond the already-fixed B-7365 reconcile path)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wrap remaining unlocked main-mutating paths in withReentrantMainWriteLock (lock-only, no semantic change)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add a mechanical regression guard that turns red when a main-mutating commit path ships without the lock",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression guard must run inside lattice validate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Guard must include a negative fixture — an unlocked main-mutating primitive must make the guard fail red",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Guard must not false-positive on story-worktree-only paths (merging main INTO a story branch does not mutate main)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full per-session physical checkout isolation (maximalist architecture deferred Option B)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json explicitly excludes: full per-session physical checkout isolation (a separate repo checkout per session) — the larger maximalist architecture change, intentionally deferred to a future design decision",
+      "source": "description"
+    },
+    {
+      "feature": "Main write lock scope must cover the whole critical section, not just the final write (session-ownership-and-write-leases.md Main Write Lock Rule #3)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "DONE must hold the main write lock from pre-merge final check through merge and worktree cleanup (session-ownership-and-write-leases.md Main Write Lock Rule #4)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "B-META finding writes must hold the main write lock (session-ownership-and-write-leases.md Main Write Lock Rule #5)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "done_recover must also hold the main write lock (session-ownership-and-write-leases.md Storage section + story-lifecycle.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Lock acquisition failure must be blocking — Lattice must not proceed optimistically (session-ownership-and-write-leases.md Main Write Lock Rule #6)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 12,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f23681d3daf84cf75e38861e791760f999a26d413d6334e59de9a2ac51319678",
+  "openQuestions": []
+}

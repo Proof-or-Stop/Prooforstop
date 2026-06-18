@@ -1,0 +1,55 @@
+{
+  "storyId": "B-32b9",
+  "changes": "Added two node types to buildLineageGraph() in lattice-console-serve.js: (1) understanding node — reads understanding.json and renders task/outcome/facts as a plan-layer node for PLAN-phase stories; (2) pending-dispatch nodes — reads checklist.json and renders each undispatched CHK item as an agent-layer loop node with verificationIntent cases (happy/edge/adversarial). No changes to lattice-lineage.js or lattice-console-demo.html.",
+  "usage": "Open the Lattice console (port 8801), navigate to Lineage Graph, and click any story. All stories now show phase-appropriate nodes with LLM interaction data. From the Active Stories or Overview pages, click the trace button (ll-trace-btn) on any story row to open its lineage graph directly at auto-fit scale (20-40%).",
+  "expectedOutcome": "Every story shows meaningful lineage nodes for its current phase: PLAN stories show understanding node with task analysis; DEV/REVIEW/TEST stories show pending CHK nodes with verificationIntent cases; DONE stories show dispatch/result/codex/review/finding nodes. The ll-trace-btn navigates to the Lineage page and auto-fits the graph.",
+  "actualTranscript": "B-32b9 (TEST phase): 12 nodes at 27% scale including 4 pending-CHK nodes with verificationIntent cases. B-08f2 (DONE): 25 nodes including dispatch-CHK-001/002/003, result-CHK-001/002/003, rev-concept/test-coverage/quality/docs, finding-F-001 through F-006. B-2d6c (DEV): 6 nodes, no crash. Trace button from Active Stories navigated to Lineage page at 30% auto-fit scale.",
+  "outcomeDiff": "No regressions. B-08f2 25-node DONE graph unchanged. Auto-fit (20-40% range) confirmed across nav link (27%), trace button (30%), and navigate-away-and-back (27%) paths. Pending nodes appear for active stories where they previously showed empty agent layers.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "understanding node only appears when understanding.json exists and no plan-layer reviews exist yet (PLAN phase only). pending-dispatch nodes cap at 6 happy + 4 edge + 3 adversarial verificationIntent cases per CHK.",
+  "pitfalls": "lattice-console-serve.js reads from the MAIN repo branch, not worktree branches. The understanding node feature requires understanding.json to exist on main. Stories that have been advanced past PLAN will not show the understanding node even if understanding.json exists.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 272765
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 3012
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 564975
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 2475390
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1098904
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 815399
+    }
+  },
+  "totalDurationMs": 5230457,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T19:59:49.387Z",
+  "updatedAt": "2026-06-17T19:59:49.387Z"
+}

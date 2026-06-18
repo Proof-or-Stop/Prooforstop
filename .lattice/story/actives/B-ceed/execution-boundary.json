@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ceed",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/provider-*-smoke.js",
+    "node packages/main/dist/tasks/run-all-smokes.js *",
+    "npm --prefix packages/main run build",
+    "npm run test:all",
+    "npm run test:legacy *",
+    "npm test",
+    "which codex",
+    "which gemini"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/providers/gemini-cli.ts",
+    "packages/main/src/tasks/provider-gemini-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/usage-ledger/",
+    "packages/main/src/handlers/",
+    "packages/main/src/providers/codex-cli.ts",
+    "scripts/verify-koala-residue.mjs"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Live-dispatch wiring story. Modify lattice-dispatch.ts dispatch switch + add codex+gemini RealLeafDispatch + new gemini provider. Usage-ledger module + codex-cli.ts seam frozen.",
+  "createdAt": "2026-06-17T21:52:37.998Z",
+  "updatedAt": "2026-06-17T21:52:37.998Z",
+  "_hash": "aa969f551f73b13d9d568fd7933013f08603808c1d21937f374c497738c3ae51"
+}

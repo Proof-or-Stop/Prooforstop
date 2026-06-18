@@ -1,4 +1,4 @@
-import type { KoalaConfig } from './config.js';
+import type { LatticeConfig } from './config.js';
 import type { StoryInfo, WorkflowProfile, WorkflowPolicy, DecisionData, ChecklistData } from './types.js';
 import { PROFILE_ORDER, WORKFLOW_PRESETS } from './types.js';
 import { EXPRESS_VERIFICATION_EXEMPTION_MESSAGE } from './flow-fact-policy.js';
@@ -55,7 +55,7 @@ export function maxProfile(a: WorkflowProfile, b: WorkflowProfile): WorkflowProf
  *
  * Defaults to 'balanced' when config.workflow.profile is absent.
  */
-export function resolveWorkflowPolicy(config: KoalaConfig, story: StoryInfo): WorkflowPolicy {
+export function resolveWorkflowPolicy(config: LatticeConfig, story: StoryInfo): WorkflowPolicy {
   const projectProfile = sanitizeProfile(config.workflow?.profile);
   const requiredProfile = computeRequiredProfile(story);
   const effectiveProfile = maxProfile(projectProfile, requiredProfile);
@@ -72,7 +72,7 @@ export type ProfileExplanation = {
   reasons: string[];
 };
 
-export function explainProfile(config: KoalaConfig, story: StoryInfo): ProfileExplanation {
+export function explainProfile(config: LatticeConfig, story: StoryInfo): ProfileExplanation {
   const projectProfile = sanitizeProfile(config.workflow?.profile);
   const requiredProfile = computeRequiredProfile(story);
   const effectiveProfile = maxProfile(projectProfile, requiredProfile);

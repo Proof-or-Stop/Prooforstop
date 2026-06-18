@@ -15,7 +15,7 @@
  */
 import { existsSync, realpathSync } from 'fs';
 import { isAbsolute, join, relative } from 'path';
-import { loadConfig, type KoalaConfig } from './config.js';
+import { loadConfig, type LatticeConfig } from './config.js';
 import { gitProbe } from './git-probe.js';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
@@ -48,7 +48,7 @@ export interface ResolveStorySignedWorkspaceOptions {
   storyId: string;
   metadataRoot: string;
   cwd?: string;
-  config?: KoalaConfig;
+  config?: LatticeConfig;
 }
 
 interface GitRootProbe {
@@ -189,7 +189,7 @@ export interface ResolveGitCwdOptions {
   /** Returned verbatim when no gitRoot resolves (plain-repo fallback). */
   projectRoot: string;
   cwd?: string;
-  config?: KoalaConfig;
+  config?: LatticeConfig;
 }
 
 export function resolveGitCwd(opts: ResolveGitCwdOptions): string {
@@ -267,7 +267,7 @@ export interface EvaluateStoryDirInsideGitRootOptions {
   storyId: string;
   metadataRoot: string;
   cwd?: string;
-  config?: KoalaConfig;
+  config?: LatticeConfig;
 }
 
 export function evaluateStoryDirInsideGitRoot(
@@ -352,14 +352,14 @@ export function evaluateStoryDirInsideGitRoot(
  *
  * TOTAL: never throws, no console output. Its throwing internals — notably
  * loadConfig() which calls assertNoLegacyKoalaWritePath() and THROWS for a
- * legacy KOALA_DIR storyDir — are wrapped in an internal try/catch that
+ * legacy LATTICE_DIR storyDir — are wrapped in an internal try/catch that
  * degrades to the same safe non-violation (`ok: true`,
  * `reason: 'gitroot-unresolved'`) on any internal error, so the advisory
  * callers (story_create, session_brief) can rely on the guarantee.
  */
 export interface EvaluateStoryDirConfigInsideGitRootOptions {
   metadataRoot: string;
-  config?: KoalaConfig;
+  config?: LatticeConfig;
   cwd?: string;
 }
 
@@ -369,7 +369,7 @@ export function evaluateStoryDirConfigInsideGitRoot(
   const metadataRoot = canonicalPath(opts.metadataRoot);
   // Everything that can throw lives inside this try: loadConfig() calls
   // assertNoLegacyKoalaWritePath(config.storyDir) (lattice-paths.ts), which
-  // THROWS for a legacy KOALA_DIR storyDir; git probing / path math can also
+  // THROWS for a legacy LATTICE_DIR storyDir; git probing / path math can also
   // surface unexpected errors. The advisory callers (story_create stderr,
   // session_brief) treat this helper as never-throwing, so on ANY internal
   // error fall back to a safe non-violation result (the same shape an
@@ -412,7 +412,7 @@ export function evaluateStoryDirConfigInsideGitRoot(
 
     return { ok: true, storyDirAbs, gitRootAbs, rel };
   } catch {
-    // Internal error (e.g. loadConfig threw on a legacy KOALA_DIR storyDir):
+    // Internal error (e.g. loadConfig threw on a legacy LATTICE_DIR storyDir):
     // degrade to a safe non-violation. storyDirAbs falls back to metadataRoot
     // since the configured storyDir base could not be computed.
     return {
@@ -431,8 +431,15 @@ export function evaluateStoryDirConfigInsideGitRoot(
  * neither resolves. Reuses the same configured-gitRoot validation + git probe
  * the id-dependent resolver uses, so both helpers agree on what "the gitRoot"
  * is for this project.
+ *
+ * Exported (B-75f0 CHK-003) so project-level git scans that have NO storyId at
+ * the call site (gap-analyze worktree list, story-query terminal-residue status,
+ * dashboard worktree list + dirty status) can survey the REAL gitRoot on a
+ * wrapper-root layout instead of running git from the bare non-git metadataRoot.
+ * Prefer the {@link resolveProjectGitCwd} wrapper at call sites — it bakes in the
+ * `?? projectRoot` fallback so every caller stays byte-identical on plain repos.
  */
-function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: string | undefined): string | null {
+export function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: string | undefined): string | null {
   const configured = resolveConfiguredGitRoot(metadataRoot, configuredGitRoot);
   if (configured) {
     // A configured gitRoot that fails validation is a hard signal: treat it as
@@ -442,6 +449,31 @@ function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: string |
   const metadataGitRoot = probeGitRoot(metadataRoot);
   if (metadataGitRoot.ok && metadataGitRoot.topLevel) return metadataGitRoot.topLevel;
   return null;
+}
+
+/**
+ * B-75f0 CHK-003: id-independent project-level git cwd for scans that have NO
+ * storyId at the call site.
+ *
+ * Thin wrapper over {@link resolveProjectGitRoot} that bakes in the
+ * `?? projectRoot` fallback. On a wrapper-root layout (story-metadata root !=
+ * real git root) it returns the resolved REAL gitRoot so the scan surveys the
+ * actual repo; on a plain repo (projectRoot == gitRoot) — or whenever no gitRoot
+ * resolves — it returns the passed projectRoot VERBATIM, keeping those call
+ * sites byte-identical to their previous bare-projectRoot behavior by
+ * construction.
+ *
+ * cwd-only: never changes git command text or scan semantics. Loads config via
+ * the caller (pass `config` when already loaded to avoid a redundant read);
+ * `config?.gitRoot` feeds the same configured-gitRoot validation the id-keyed
+ * resolver uses.
+ */
+export function resolveProjectGitCwd(
+  metadataRoot: string,
+  projectRoot: string,
+  config?: LatticeConfig,
+): string {
+  return resolveProjectGitRoot(metadataRoot, config?.gitRoot) ?? projectRoot;
 }
 
 function resolved(

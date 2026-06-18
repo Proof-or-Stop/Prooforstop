@@ -1,0 +1,87 @@
+{
+  "storyId": "B-08a1",
+  "name": "usage-ledger-provider-adapters",
+  "title": "Implement LLM usage ledger Slice 2: provider usage adapters (anthropic/openai/gemini -> validated ledger record), pure + tested, not yet wired into dispatch",
+  "description": "Second implementation slice of the LLM usage ledger (spec docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md; foundation built by B-253e). Build the PURE provider-usage adapter layer in packages/main/src/core/usage-ledger/ that maps each provider family's reported usage into the shared canonical ledger shape, WITHOUT touching the live dispatch path (that integration is a separate later story). Lattice coordinates codex (OpenAI-family), claude (Anthropic), and gemini (Google) hosts; there is no existing usage parsing. Deliverables: (1) anthropic adapter mapping native input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens -> canonical {input,output,cacheCreation,cacheRead} + raw{providerUnits:anthropic-usage-v1}; (2) openai adapter mapping prompt_tokens->input, completion_tokens->output, prompt_tokens_details.cached_tokens->cacheRead, cacheCreation=null (not reported); raw{providerUnits:openai-usage-v1}; (3) gemini adapter mapping usageMetadata.promptTokenCount->input, candidatesTokenCount->output, cachedContentTokenCount->cacheRead, cacheCreation=null; raw{providerUnits:gemini-usage-v1}; (4) a record assembler that takes a provider response + locally-minted correlation ids (from B-253e ids.ts) + call-time attribution (storyId nullable, phase, agentType) and produces a record that passes the B-253e validator; (5) streaming/failure usage extraction that reads final usage from a terminal stream event / final message and partial usage on mid-stream error; (6) unavailable + per-dimension null semantics: no usage at all -> source=unavailable + unavailableReason; primary reported but a cache dimension absent -> canonical cache field = null (never 0); (7) a wired smoke covering all three providers + assembler + streaming + unavailable/null, asserting records validate and round-trip through the B-253e writer. Out of scope: wiring adapters into the live dispatch path (dispatch-runner / lattice-dispatch), estimate path, budget logic, signed-receipt path, default-on.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "createdAt": "2026-06-16T02:07:25.715Z",
+  "startedAt": "2026-06-16T02:07:25.715Z",
+  "endedAt": "2026-06-16T03:07:25.218Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T02:07:25.719Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:12:10.183Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:13:36.931Z",
+      "branch": "story/B-08a1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:25:02.875Z",
+      "branch": "story/B-08a1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:40:52.780Z",
+      "branch": "story/B-08a1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:50:01.380Z",
+      "branch": "story/B-08a1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:50:56.734Z",
+      "branch": "story/B-08a1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:56:52.567Z",
+      "branch": "story/B-08a1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:07:25.218Z",
+      "branch": "story/B-08a1",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T02:50:56.734Z"
+}

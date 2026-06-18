@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Naming visible to OSS users must be self-explanatory — koala/omx labels confuse contributors",
+    "Codex CLI's mandatory lowercase .codex/ is a hard contract — never rename",
+    "Decision-doc edits are first-class: they go through the same 3x2 gate as code (per existing always-on policy)",
+    "Verify rename completion with a residual-zero grep, not by inspection"
+  ],
+  "drivers": [
+    "OSS launch must not ship unexplainable koala/omx legacy names",
+    "Case-insensitive filesystem (macOS default) makes .codex vs .Codex coexistence fragile",
+    "User explicitly does not want .omx polluting the workspace"
+  ],
+  "options": [
+    {
+      "name": "Bundle all 3 (chosen)",
+      "pros": [
+        "Shares the 3x2 escalation cost across all decision-doc edits",
+        "Coupled OSS-naming theme"
+      ],
+      "cons": [
+        "Wider diff; one finding can hold up the whole story"
+      ]
+    },
+    {
+      "name": "Three separate stories",
+      "pros": [
+        "Smaller blast radius per story"
+      ],
+      "cons": [
+        "Triple the 3x2 escalation effort; lab description fix is too small to justify a story"
+      ]
+    },
+    {
+      "name": "Skip omx, do 1+2 only",
+      "pros": [
+        "Smallest scope"
+      ],
+      "cons": [
+        "Defers user-explicit omx removal request, requires another session"
+      ]
+    }
+  ],
+  "chosen": "Bundle all 3 (chosen)",
+  "rationale": "Items 2 and 3 both edit decision documents and would individually trigger 3x2 escalation; bundling shares the cost. The lab description fix is too small to justify its own story.",
+  "preMortem": [
+    {
+      "scenario": "The .Codex → .lattice-codex rename misses a reference, leaving a half-renamed system",
+      "trigger": "Relying on a single static grep for '.Codex/' which can miss variants like backticked path tokens or fixture execute strings",
+      "consequence": "Codex adapter at runtime can't find its assets; verify_codex breaks; e2e fails",
+      "mitigation": "Use two-pass scan: `git grep -nE '\\.Codex(/|\\b)'` AND search for backticks/string-template variants; residual-scan gate must hit zero; verify_codex 8/8 is required evidence"
+    },
+    {
+      "scenario": "The rename accidentally touches lowercase .codex/, breaking Codex CLI's native hook contract",
+      "trigger": "Case-insensitive grep/sed without case-sensitive guard",
+      "consequence": "Codex CLI cannot find its hooks.json, breaks Codex usage entirely",
+      "mitigation": "All rename commands must be case-sensitive; an explicit guard intent must check .codex/hooks.json + .codex/hooks/lattice-scope-pretool.cjs still exist post-rename; verify_codex 8/8 must pass (it reads .codex/hooks.json)"
+    },
+    {
+      "scenario": "omx removal leaves the disable-guard test still wired, breaking CI",
+      "trigger": "Removing verify-omx-disabled.mjs but forgetting its `test:omx-disabled` entry in root package.json",
+      "consequence": "npm run test:omx-disabled fails on every run",
+      "mitigation": "Per-item adversarial intent: `grep test:omx-disabled package.json` returns nothing AND `ls scripts/verify-omx-disabled.mjs` errors"
+    },
+    {
+      "scenario": "Decision-doc edits hit the always-on 3x2 quorum gate at DONE; without preparation we get stuck",
+      "trigger": "Forgetting that decision-doc changes are gate-consumed",
+      "consequence": "DONE blocked; story can't merge to main",
+      "mitigation": "Pre-plan to use the user-approved degraded 3x1 fallback (memory: use-degraded-3x1-review-escalation); record review_escalation_fallback_set proactively if findings count ≥ 2 during round-1 REVIEW"
+    }
+  ],
+  "timestamp": "2026-06-16T20:37:03.522Z"
+}

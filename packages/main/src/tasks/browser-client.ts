@@ -4,7 +4,7 @@
  * Receive command → execute → return result
  */
 
-const WS_PORT = (window as any).__KOALA_WS_PORT || 9876;
+const WS_PORT = (window as any).__LATTICE_WS_PORT || 9876;
 const WS_URL = `ws://${location.hostname}:${WS_PORT}`;
 
 let ws: WebSocket | null = null;
@@ -48,7 +48,7 @@ function connect() {
           break;
         case 'close':
           // Kicked out by a new client: mark + stop reconnecting + close tab
-          (window as any).__koala_kicked = true;
+          (window as any).__lattice_kicked = true;
           if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
           ws?.close();
           ws = null;
@@ -65,7 +65,7 @@ function connect() {
   };
 
   ws.onclose = () => {
-    if ((window as any).__koala_kicked) return; // Kicked-out tab does not reconnect
+    if ((window as any).__lattice_kicked) return; // Kicked-out tab does not reconnect
     console.log('[web-test] disconnected, reconnecting...');
     ws = null;
     if (!reconnectTimer) {

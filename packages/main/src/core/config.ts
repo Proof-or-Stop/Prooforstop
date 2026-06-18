@@ -10,7 +10,7 @@ import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths
  * audit-config 扩展点（B-9bd9 CHK-004）：
  *   - profile 默认值由 `resolveAuditConfig` 接管（light=10, balanced=5, strict=3）
  *   - 项目级覆盖文件为 `<projectRoot>/.koala/audit-config.json`
- *   - 详见 packages/koala/CLAUDE.md「框架自省 audit 配置」
+ *   - 详见 CLAUDE.md「框架自省 audit 配置」
  *
  * 这里以 re-export 的形式挂到 config 入口，**不**改动现有 `loadConfig` /
  * `isCommandAllowed` 等 profile 消费者的行为；没有用到 audit 的调用方无感知。
@@ -18,12 +18,12 @@ import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths
 export { _resolveAuditConfig as resolveAuditConfig };
 export type { AuditConfig };
 
-export interface KoalaFlowConfig {
+export interface LatticeFlowConfig {
   defaults: Record<string, Record<string, unknown>>;
   patterns: Array<{ field: string; regex: string }>;
 }
 
-export interface KoalaConfig {
+export interface LatticeConfig {
   scanRoot: string;
   /** 源码子目录（相对 scanRoot，对应 tsconfig rootDir，默认和 scanRoot 相同） */
   rootDir?: string;
@@ -34,7 +34,7 @@ export interface KoalaConfig {
   storyDir: string;
   requirementsDir: string;
   storyPrefix: string;
-  flows: KoalaFlowConfig;
+  flows: LatticeFlowConfig;
   wrappersDir?: string;
   /** 项目语言：js（默认）或 python */
   language?: 'js' | 'python';
@@ -83,7 +83,7 @@ export interface KoalaConfig {
     phaseStale?: number;
     /** checklist item 卡 in_progress 多久算遗忘（默认 30） */
     itemStale?: number;
-    /** 距离上次任意 koala 命令多久算 idle（默认 60） */
+    /** 距离上次任意 lattice 命令多久算 idle（默认 60） */
     idleKoala?: number;
     /** open bug 多久没修算超期（默认 1440=24h） */
     bugStale?: number;
@@ -93,7 +93,7 @@ export interface KoalaConfig {
    * 每个事件下用 commandName 或 "*" 通配匹配，value 是 shell 命令数组。
    * onPhaseChange 的 key 用 "FROM->TO" 格式（或 "*"）。
    *
-   * 失败/超时不阻塞主命令，详见 core/hooks.ts 和 packages/koala/docs/guide-hooks.md。
+   * 失败/超时不阻塞主命令，详见 core/hooks.ts 和 docs/guide-hooks.md。
    */
   hooks?: {
     preCommand?: Record<string, string[]>;
@@ -117,7 +117,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
-    'check',         // 全局：Koala 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
+    'check',         // 全局：Lattice 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
     'test_list',     // 全局：读取测试证据快照，TEST/DEV 排障都需要
     'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
     'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
@@ -128,7 +128,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
-    'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
+    'summary_set',   // 全局：DONE 前强制落总结，lattice short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets for authority-backed runs
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
@@ -144,6 +144,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
     'dispatch',      // B-9d95 CHK-004: 统一派发入口，全阶段开放（INIT_CHECK 起）
     'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
+    'review_incremental_context', // B-f675 CHK-002: read-only incremental review context, any phase
     'story_draft',   // B-9975: draft 操作全阶段可用（不分配 story id）
     'story_draft_list',
     'story_draft_discard',
@@ -157,6 +158,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'planner_*', 'story_resolve', // Natural-language planner and plannedStep context resolution surfaces
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
+    'agent_prompt', // B-097f CHK-002: read-only host-neutral agent prompt endpoint; resolves role body from package registry in any phase
     'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or production authority
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
     'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only
@@ -184,8 +186,12 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
     'review_loop_status', 'review_loop_policy_show', // B-7a34: read-only review loop projections; REVIEW-only mutators are phase-scoped below
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
+    'signature_registry_*',  // B-4f46 CHK-003: audit-only finding signatureTag registry (Experience Layer Phase 1b); list/set declared allowedPhases:all in command-policy; no gate reads it
+    'playbook_*',  // B-8387: audit-only staged Process Playbook lifecycle (Experience Layer Phase 2); propose/diff/approve/reject declared allowedPhases:all in command-policy; never files findings/touches gates; no gate reads it
+    'recall',  // B-7561: read-only structured-field Story Recall over the existing story_list scan (Experience Layer Phase 3); declared allowedPhases:all readOnly in command-policy; writes nothing / no derived index; no gate reads it
   ],
   INIT: [
+    'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set
     'story_update', 'checklist_update',
     'init_check_set', // B-e71f CHK-003: lattice-review-story-init reviewer 在 INIT 阶段写 init-check.json
     'init_check_repair', // B-95d8 CHK-001: 受控 fallback——无 subagent 环境下显式生成签名 init-check.json
@@ -214,6 +220,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
   ],
   DEV: [
+    'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',
@@ -297,7 +304,7 @@ function patternAllowedByLifecyclePolicy(pattern: string, phase: string): boolea
   ));
 }
 
-const DEFAULT_CONFIG: KoalaConfig = {
+const DEFAULT_CONFIG: LatticeConfig = {
   scanRoot: 'src',
   testsDir: 'tests',
   fixturesDir: 'tests/fixtures',
@@ -311,7 +318,7 @@ const DEFAULT_CONFIG: KoalaConfig = {
   phaseTools: DEFAULT_PHASE_TOOLS,
 };
 
-const _cache = new Map<string, KoalaConfig>();
+const _cache = new Map<string, LatticeConfig>();
 
 /**
  * Canonical project config filename.
@@ -356,11 +363,10 @@ function findProjectRootByMarker(startDir: string): string | null {
 /** Search upward from cwd for lattice.config.json, return the project root directory. */
 function resolveProjectRoot(): string {
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
-  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   return findProjectRootByMarker(process.cwd()) ?? process.cwd();
 }
 
-export function loadConfig(projectRoot?: string): KoalaConfig {
+export function loadConfig(projectRoot?: string): LatticeConfig {
   // 有参数用参数，没参数从 cwd 向上查找
   const root = projectRoot || resolveProjectRoot();
   if (_cache.has(root)) return _cache.get(root)!;
@@ -368,7 +374,7 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
   const latticePath = join(root, LATTICE_CONFIG_FILENAME);
   const latticeExists = existsSync(latticePath);
 
-  let userConfig: Partial<KoalaConfig> = {};
+  let userConfig: Partial<LatticeConfig> = {};
   let chosenPath: string | null = null;
   if (latticeExists) {
     chosenPath = latticePath;
@@ -378,7 +384,7 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
   }
   void chosenPath; // retained for future diagnostics; suppress unused warning
 
-  const _cached: KoalaConfig = {
+  const _cached: LatticeConfig = {
     ...DEFAULT_CONFIG,
     ...userConfig,
     flows: {

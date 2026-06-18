@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d7ef",
+  "changes": "Deleted 3 paths as pre-OSS hygiene: stray root junk file 'orphans' (5 bytes, 'NO -' shell-redirect mistake), packages/main/src/core/phase-protocol.ts (115 lines, 0 imports + 0 dynamic consumers + 0 external symbol uses), packages/main/src/verifier/bridge-utils.ts (33 lines, same). Recreated after discarded B-5740 — that story incorrectly bundled intent-coverage.ts which the concept reviewer found is live via dynamic fixture import; here it is explicitly kept as an over-reach guard.",
+  "usage": "No usage change — deleted modules had zero consumers; the live verification-intent-coverage and phase-gate behaviors are implemented elsewhere.",
+  "expectedOutcome": "`git ls-files orphans` empty; the 2 modules gone; intent-coverage.ts + dev-cli.ts still present; build + e2e + validate pass.",
+  "actualTranscript": "orphans empty index, files absent from disk; static+dynamic+require+dist+symbol scans all 0; phase-gate-protocol.json hit is metadata only (concept+quality+test-coverage independently confirmed); intent-coverage.ts SAFE; dev-cli.ts SAFE; lab/.codex/.Codex untouched; npm run build exit 0; test:e2e ALL PASS; lattice validate PASS 24/24; 3 review lanes PASS; 3 evidence-correspondence findings raised + resolved; delivery-check signed.",
+  "outcomeDiff": "无差距。删除完成,守卫成立。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Bounded slice. Out of scope (deferred/kept): intent-coverage.ts (live via fixture-preview-runner-parity.json), verifier/dev-cli.ts (lattice serve launcher), OMX disable guard (AGENTS.md-protected), .codex/.Codex consolidation (separate decision), .lattice gitignore (must be OSS-export step — gitignoring would break self-hosting metadata commits).",
+  "pitfalls": "The B-5740 discard lesson: a module looking unused by static .ts import scan can still be live via dynamic dist path consumers in test fixtures (intent-coverage.ts via fixture-preview-runner-parity.json). Always scan static imports + dynamic import() + dist/<path>.js path references + fixture JSON execute strings. Also: evidence helper using a generic fallback grep created 3 high-severity evidence-correspondence findings until I re-recorded with each intent's exact spec'd command.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 174631
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 34955
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 357936
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 100774
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 443457
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 247341
+    }
+  },
+  "totalDurationMs": 1359112,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T19:15:25.687Z",
+  "updatedAt": "2026-06-16T19:15:25.687Z"
+}

@@ -1,0 +1,33 @@
+{
+  "task": "让 Lattice agent prompt 内容成为 host-neutral 单一真相源(包内 prompt registry),宿主目录里只留 thin 适配:Claude=thin-shim 文件(frontmatter+tools+取指令 body),Codex=registry manifest(B-4ee0 已就位);新增 lattice agent_prompt 作为共享内容端点;lattice init 项目内零 agent 文件,已有 project-local 显式 --upgrade 迁移",
+  "outcome": "在已用 Claude Code 的项目跑 lattice init --yes:[5/6] 段输出 - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files);find . -name *.md 不含任何 .claude/agents/*.md。ls ~/.claude/agents 显示 16 个 thin-shim 实体文件;cat ~/.claude/agents/lattice-review-scope-plan.md 看到 frontmatter 保留 tools: Read, Grep, Glob, Bash,body 是 你的指令由 lattice agent_prompt --role=lattice-review-scope-plan 提供,无角色正文。lattice agent_prompt --role=lattice-implementer 打印出 registry 完整角色正文(与 Codex manifest 解析同一份)。已有 16 个 project-local 旧文件 + my-custom.md 的项目:普通 init 输出 ⚠ ... run lattice init --upgrade,不删;init --upgrade 后逐条 ↻ migrated,16 个管理文件移除、my-custom.md 保留。lattice doctor 输出 agentAssetMode: runtime-owned。Agent({subagent_type: lattice-implementer}) 仍能 spawn(shim 注册 + tools 生效)。",
+  "facts": [
+    "prompt 内容真相源 = 包内 prompt registry(prompt-registry.ts ← packages/main/templates/agents/*.md,promptRegistryManifest())——Claude 与 Codex 同一份",
+    "Codex 侧 B-4ee0 已 registry-thin:global-thin/thin 模式不物化 .Codex/agents,靠 .Codex/lattice.json (promptMode=registry) 解析(cli-init.ts:969;codex-adapter-checks.ts)",
+    "Claude Code 只从磁盘 .claude/agents/*.md 发现 subagent,读 frontmatter 注册 subagent_type + tools 沙箱;无单清单解析路径,故必须每角色一个文件(可做成 thin-shim)",
+    "Claude Code 项目级 .claude/agents shadow 用户级 ~/.claude/agents(同名项目优先)→ 迁移必须删 project-local 旧文件全局 shim 才生效",
+    "REVIEW 阶段 reviewer 的 lattice dispatch 不接受按 agentType 取角色正文(仅 INIT reviewer 可),故需新建 lattice agent_prompt --role=X 从 registry 吐正文供 shim 取",
+    "implementer 已写的 global-agents.ts/init 接线/迁移/doctor 大部分可复用,只 syncGlobalAgents 由 symlink 全量模板改为生成 thin-shim,并新增 agent_prompt 命令"
+  ],
+  "constraints": [
+    "prompt 内容绝不物化进任何宿主目录(symlink 也算暴露内容)——宿主只留 thin 适配/指针",
+    "lattice agent_prompt 必须从 promptRegistryManifest() 同一 registry 吐正文(与 Codex 同源)",
+    "thin-shim 保留 frontmatter 的 tools: 声明,reviewer 只读沙箱不得削弱",
+    "迁移只删 16 个管理 basename,禁止通配,用户自建文件保留;普通 init 不删只 warn,删除仅在 --upgrade",
+    "不取消 subagent_type spawn 调用;不改 finding/scope-check 等 gate 机制;不破坏本 dev 仓自身 reviewer 加载",
+    "全局 shim 写不进(HOME 不可写)时明确报错,不静默回退 project-local"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/global-agents.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/templates/agents/",
+    "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-06-16T18:23:35.538Z"
+}

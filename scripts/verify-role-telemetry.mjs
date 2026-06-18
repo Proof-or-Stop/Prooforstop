@@ -14,8 +14,8 @@ function run(args, opts = {}) {
   return execFileSync('node', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], ...opts });
 }
 
-run(['bin/lattice-codex.js', 'session_brief'], { env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' } });
-run(['bin/lattice-codex.js', 'session_brief'], { env: { ...process.env, KOALA_ACTIVITY_ROLE: 'intent' } });
+run(['bin/lattice-codex.js', 'session_brief'], { env: { ...process.env, LATTICE_ACTIVITY_ROLE: 'reviewer' } });
+run(['bin/lattice-codex.js', 'session_brief'], { env: { ...process.env, LATTICE_ACTIVITY_ROLE: 'intent' } });
 
 const brief = run(['bin/lattice-codex.js', 'session_brief']);
 assert(brief.includes('[codex/reviewer/ok]'), 'session_brief missing reviewer role in recent activity');

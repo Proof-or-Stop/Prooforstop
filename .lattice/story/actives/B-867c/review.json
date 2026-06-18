@@ -1,0 +1,32 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-17T16:34:08.386Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Register the 7 missing Experience-Layer/recall commands in PROCESS_FACT_REGISTRY + Reconcile DEFAULT_PHASE_TOOLS so recall/signature_registry_*/playbook_* phase drift is resolved, and confirm the whole contract is GREEN are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-867c\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether config.ts DEFAULT_PHASE_TOOLS needs ANY edit, or whether the global * placement already satisfies the contract once the registry entries exist (to be confirmed empirically by the implementer: register entries -> build -> run contract; only touch config if drift persists)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "8bbe44ae5cabd81417c7ab828575a05723fac3d6eba27c2a8a91afc947a76814"
+    }
+  ]
+}

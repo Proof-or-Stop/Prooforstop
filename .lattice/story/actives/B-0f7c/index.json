@@ -1,0 +1,93 @@
+{
+  "storyId": "B-0f7c",
+  "name": "usage-ledger-dispatch-wiring",
+  "title": "Wire the LLM usage ledger into the Claude dispatch path: preflight estimate + parse real provider usage from host JSON output (flag-gated, OFF=byte-identical)",
+  "description": "Dispatch-wiring slice of the LLM usage ledger (spec docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md; prior: B-253e foundation, B-08a1 adapters, B-a5c9 estimate, B-97df diagnostics). The user authorized relaxing the in-module-only constraint for THIS slice to touch the dispatch chain, as a THIN ONE-WAY seam (dispatch -> ledger; the usage-ledger module still imports nothing external and keeps zero cross-module imports). Finding from exploration: Lattice's real leaf dispatch runs `spawnSync('claude', ['--print', promptFile])` in runClaudeCodeRealLeafDispatch() (packages/main/src/core/lattice-dispatch.ts ~line 1862) and captures only raw stdout/stderr/exit-code — it receives NO token usage. To record REAL usage we (a) record a preflight prompt-size-estimate before the spawn, and (b) request the Claude Code CLI's JSON output (e.g. --output-format json) ONLY when the ledger is enabled, parse the result text + usage from it, and record a provider-reported record (via the existing anthropic adapter) that supersedes the estimate. CRITICAL SAFETY: when the opt-in flag (LATTICE_USAGE_LEDGER) is OFF, dispatch behavior is BYTE-IDENTICAL to today (same spawn args, same raw-text result handling); when ON, if the JSON output is missing/unparseable the seam FALLS BACK to treating stdout as raw text (dispatch never breaks) and records an 'unavailable' final; any ledger error is caught and never breaks dispatch. The estimate/final orchestration and the Claude-output parser are PURE testable functions in the usage-ledger module; the lattice-dispatch.ts edit is a minimal gated call. Scope: usage-ledger module (orchestrator + claude-output parser + smoke) + the single gated seam in lattice-dispatch.ts (the authorized core edit). Out of scope: codex/gemini hosts (scaffolded-only — they get estimate + unavailable, no invocation change), budget enforcement, signed-receipt path, default-on, any other dispatch logic change.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-16T19:03:23.732Z",
+  "startedAt": "2026-06-16T19:03:23.732Z",
+  "endedAt": "2026-06-16T19:49:38.987Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T19:03:23.733Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:06:49.511Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:06:58.821Z",
+      "branch": "story/B-0f7c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:15:34.647Z",
+      "branch": "story/B-0f7c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:34:32.280Z",
+      "branch": "story/B-0f7c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:40:59.922Z",
+      "branch": "story/B-0f7c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:41:00.483Z",
+      "branch": "story/B-0f7c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:44:23.497Z",
+      "branch": "story/B-0f7c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:49:38.987Z",
+      "branch": "story/B-0f7c",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T19:41:00.483Z"
+}

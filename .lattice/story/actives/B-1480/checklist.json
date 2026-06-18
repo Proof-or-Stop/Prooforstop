@@ -1,0 +1,784 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create the English execution-plan doc at the canonical decisions path in house format (Story header, plan-only scope note, Problem/Principles/Architecture/Roadmap sections)",
+      "context": "Match the format of lattice-llm-usage-ledger-execution-plan.md; freeform English markdown; plan only, no source code.",
+      "userSees": "File docs/requirements/decisions/lattice-experience-layer-execution-plan.md exists; opens with a Story: B-xxxx header and a scope note stating it is a future-execution plan only.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T02:14:32.480Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "File exists at docs/requirements/decisions/lattice-experience-layer-execution-plan.md -> fs.existsSync returns true; WHY: canonical path is the only deliverable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "First line of the doc is a markdown H1 title containing Experience Layer -> grep finds # ...Experience Layer...; WHY: house format requires title heading",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a Story: B-1480 header line (blockquote or heading) -> grep finds Story: B-1480; WHY: house format requires Story reference",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a scope note stating plan-only / no source code -> grep finds plan-only or future-execution-plan-only language; WHY: prevents misreading as implemented feature",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains Problem Statement, Principles, Architecture, and Roadmap section headers -> grep finds all four H2/H3 headers; WHY: house format section coverage",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Doc uses correct markdown heading levels (H1 for title, H2 for major sections) and no broken heading syntax -> regex scan for orphaned # or missing space after # finds none; WHY: rendering correctness",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Doc is non-trivial length (at least 100 lines) -> wc -l returns >= 100; WHY: an execution plan this complex cannot be shorter than 100 lines without being incomplete",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc path is exactly docs/requirements/decisions/lattice-experience-layer-execution-plan.md with no typo or variant path -> only one file matching *experience-layer*execution-plan* exists in the repo; WHY: prevents near-miss file placement",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No duplicate or stale copy of the doc exists elsewhere in the repo -> find . -name *experience-layer*execution-plan*.md returns exactly one result; WHY: prevents orphaned drafts",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the doc exists at the canonical path, all 12 house-format section headers present, the Story: B-1480 header and the plan-only scope note.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record the grounded module decomposition and the reuse-not-rebuild and cut-FTS decisions",
+      "context": "4 core + 2 handler modules under packages/main with one-way inward coupling (usage-ledger style); reuse dev-memory capture, decision-doc-promotion digest pattern, activity-log appender; cut full-text search for v1.",
+      "userSees": "The doc contains a module-decomposition section listing the new core/ and handlers/ modules, a reuse section naming dev-memory.ts / decision-doc-promotion.ts / activity-log.ts, and an explicit cut-FTS statement.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T02:14:33.668Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a module-decomposition section header (H2 or H3) -> grep -i finds module.decomposition or module.structure heading; WHY: verifies the section exists",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Module-decomposition section lists the four core modules (experience-layer-types, learning-store, finding-signals, experience-hint-loader) -> grep finds all four module names; WHY: completeness of decomposition",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Module-decomposition section lists the two handler modules (learning, playbook) -> grep finds both handler module names; WHY: completeness of decomposition",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc describes one-way inward coupling (handler -> core -> types direction) -> grep finds one-way or inward coupling language; WHY: architectural constraint is a key decision",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a reuse section naming dev-memory.ts, decision-doc-promotion.ts, and activity-log.ts -> grep finds all three filenames; WHY: reuse-not-rebuild is a core decision",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains explicit cut-FTS statement (cutting full-text search for v1) -> grep -i finds cut.*FTS or cut.*full.text.search; WHY: explicit scope cut is a key decision",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The three reuse files (dev-memory.ts, decision-doc-promotion.ts, activity-log.ts) actually exist in the codebase -> find . -name dev-memory.ts etc. each returns at least one result; WHY: reuse claims must reference real code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc mentions packages/main as the location for new modules -> grep finds packages/main; WHY: module location claim must be grounded",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc does not claim FTS is included or planned for v1 (no contradictory language) -> grep for phrases like full-text search.*v1.*include or FTS.*enabled finds no contradictions; WHY: cut-FTS must be unambiguous",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "No module is listed in both core/ and handlers/ (no category confusion) -> reviewer confirms each module appears in exactly one category; WHY: decomposition must be clean",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.666Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the module-decomposition (experience-layer-types/learning-store/finding-signals/experience-hint-loader + handlers/learning,playbook, one-way coupling), the reuse names (dev-memory/decision-doc-promotion/activity-log), and the explicit cut-FTS statement.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document the three determinism guardrails and the back-compat rules",
+      "context": "Guardrails: audit-only finding fields excluded from gates; finding-signals read via stable finding accessor (store.readFindings) not raw findings.json; hints excluded from reviewer promptHash domain. Back-compat: dismissReasonType optional; flat underscore command names.",
+      "userSees": "The doc has a determinism-guardrails section enumerating all three guardrails and a back-compat note (optional dismissReasonType, flat underscore commands).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T02:14:34.889Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a determinism-guardrails section header -> grep -i finds determinism.guardrail heading; WHY: verifies the section exists",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Guardrail 1: doc states audit-only finding fields (signatureTag, resolutionType, dismissReasonType, evidenceStrength) are excluded from gate reads -> grep finds audit-only fields excluded from gates; WHY: first guardrail completeness",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Guardrail 2: doc states finding-signals read via store.readFindings not raw findings.json -> grep finds store.readFindings and findings.json exclusion; WHY: second guardrail completeness",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Guardrail 3: doc states hints excluded from promptHash domain -> grep finds promptHash and hints exclusion; WHY: third guardrail completeness",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains back-compat note stating dismissReasonType is optional -> grep finds dismissReasonType.*optional; WHY: back-compat requirement",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains back-compat note about flat underscore command names -> grep finds underscore command names or flat.*command; WHY: back-compat requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "store.readFindings actually exists as a method in the codebase -> grep -r readFindings packages/main/src/ finds at least one match; WHY: code-grounded claim must reference real API",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "promptHash is a real concept in the codebase -> grep -r promptHash packages/main/src/ finds at least one match; WHY: guardrail references must be grounded in real code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All three guardrails are enumerated (numbered or bulleted list of exactly three) -> reviewer confirms three distinct guardrail items; WHY: prevents missing or duplicate guardrails",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc does not state that audit-only fields ARE used in gates (no contradictory language) -> grep for audit.*field.*gate.*use or gate.*read.*signatureTag finds no affirmative gate-use claims; WHY: guardrail 1 must not be contradicted",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does not claim hints affect determinism or promptHash (no contradictory language) -> reviewer confirms no statement says hints are included in hash computation; WHY: guardrail 3 must not be undermined",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the three determinism guardrails (audit-only finding fields excluded from gates / finding-signals via store.readFindings / hints excluded from promptHash) and the back-compat note (dismissReasonType optional, flat underscore command names).",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the phased roadmap with first story = verifiable finding-signals slice, and include accurate code anchors",
+      "context": "Phased rollout (Phase 1a first, then 1b/1.5/2/3/4); first story is the finding-signals vertical slice proven by an unchanged currentMaterialHash() test; code anchors are real file paths.",
+      "userSees": "The doc has a roadmap section naming Phase 1a as the first story and an appendix of real code anchors; no Co-Authored-By trailer anywhere.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T02:14:36.323Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Doc contains a roadmap section header -> grep -i finds roadmap or phased.rollout heading; WHY: verifies the section exists",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Roadmap names Phase 1a as the first story -> grep finds Phase.1a as first; WHY: phase ordering is a key plan decision",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Phase 1a is described as the verifiable finding-signals slice -> grep finds finding-signals in the Phase 1a description; WHY: first-story scope must be clear",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc references currentMaterialHash() test as the proof that Phase 1a does not break determinism -> grep finds currentMaterialHash; WHY: verifiability claim is central",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains a code-anchor appendix section -> grep finds code.anchor or appendix heading; WHY: appendix is a required section",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Code-anchor appendix lists real file paths (types.ts, finding.ts, store.ts, advisory.ts, dev-memory.ts, runtime-artifact-registry.ts, story-review.ts, activity-log.ts, decision-doc-promotion.ts) -> grep finds at least 7 of these filenames; WHY: completeness of anchors",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Every code-anchor file path listed in the appendix resolves to a real file in the repo -> verifier script checks each path with fs.existsSync; WHY: prevents dangling references that mislead implementers",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc contains no Co-Authored-By trailer anywhere -> grep -i Co-Authored-By returns no matches; WHY: explicit prohibition per user standing requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Roadmap lists all phases in order (1a, 1b, 1.5, digest-extract, 2, 3, 4) -> reviewer confirms at least 5 distinct phases mentioned; WHY: phased rollout must be complete",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "currentMaterialHash exists as a real function in the codebase -> grep -r currentMaterialHash packages/main/src/ finds at least one match; WHY: test reference must be grounded",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "runtime-artifact-registry.ts exists in the codebase -> find . -name runtime-artifact-registry.ts returns at least one result; WHY: code anchor must resolve",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No code-anchor path points to a file that was deleted or renamed -> verifier checks every anchored path and reports zero FAIL; WHY: stale anchors are worse than missing ones because they appear valid",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doc does not contain Co-Authored-By in any form (case-insensitive, including partial matches like co-authored) -> grep -i co-authored-by finds zero matches in the doc; WHY: trailer prohibition is absolute",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No phase is listed out of order or duplicated -> reviewer confirms monotonic phase numbering and no repeated phase labels; WHY: roadmap ordering must be unambiguous",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:5",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:6",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:7",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "file": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "command": "node .lattice/story/actives/B-1480/evidence/verify-b-1480.mjs",
+          "result": "pass",
+          "note": "Verifier asserts the roadmap names Phase 1a first with the currentMaterialHash test, every appendix code-anchor path resolves to a real repo file, and no Co-Authored-By trailer is present.",
+          "headHash": "4d368905e6ab895b2a6e137fdef5ad9515c88e4d",
+          "materialHash": "5bf793412aae3e1d6ad929915d275ed8c7c6b3907067f3c1c0128a6b66175445",
+          "timestamp": "2026-06-17T02:37:48.667Z"
+        }
+      ]
+    }
+  ]
+}

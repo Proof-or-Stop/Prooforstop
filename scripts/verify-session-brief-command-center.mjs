@@ -21,12 +21,12 @@ function run(cwd, args, env = {}) {
 }
 
 run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief'], {
-  KOALA_ACTIVITY_ROLE: 'reviewer',
-  KOALA_ACTIVITY_RECORD_READONLY: '1',
+  LATTICE_ACTIVITY_ROLE: 'reviewer',
+  LATTICE_ACTIVITY_RECORD_READONLY: '1',
 });
 run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief'], {
-  KOALA_ACTIVITY_ROLE: 'intent',
-  KOALA_ACTIVITY_RECORD_READONLY: '1',
+  LATTICE_ACTIVITY_ROLE: 'intent',
+  LATTICE_ACTIVITY_RECORD_READONLY: '1',
 });
 const brief = run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief']);
 

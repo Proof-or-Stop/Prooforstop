@@ -1,0 +1,73 @@
+{
+  "storyId": "B-ed12",
+  "checkedAt": "2026-06-17T20:57:23.177Z",
+  "reviewRound": "2026-06-17T20:45:31.789Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#story-lifecycle",
+      "promise": "This story makes no new docs/CLAUDE.md promises. It is pure test-maintenance: 15 stale smoke files updated to match current production behavior. CLAUDE.md is unchanged in this diff.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- CLAUDE.md produces empty output. git diff --name-only | grep -v .lattice/ | grep -v tasks/ produces empty output — confirms zero CLAUDE.md or docs changes."
+    },
+    {
+      "docPath": "packages/main/src/tasks/done-preflight-smoke.ts",
+      "promise": "B-72df scoped dirty-main DONE check is correctly represented: dirty path OUTSIDE merge-affected set no longer trips preflight, but NO BYPASS guarantee (main HEAD unchanged, phase stays TEST, worktree survives) is asserted.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows assertDoneTreatsDirtyMainOutsideMergeScopeAsNonBlockingButNeverBypasses() adds doesNotMatch uncommitted-changes-to-tracked-files, matches merge-failure message, asserts main phase=TEST and main HEAD unchanged. Assertions STRENGTHENED not weakened."
+    },
+    {
+      "docPath": "packages/main/src/tasks/worktree-repair-smoke.ts",
+      "promise": "Post-B-097f: project-local link repair is a no-op (skipped), canonical install left untouched, unmanaged legacy symlink NOT relinked.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink() asserts result.action=skipped, canonical dir untouched, legacy symlink unchanged. Two safety checks added: canonical untouched and legacy symlink left pointing where it was."
+    },
+    {
+      "docPath": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+      "promise": "INIT_CHECK scope-anti-expansion gate runs BEFORE init-check gate. Smoke seeds scope-boundary+execution-boundary+scope-freeze before advancing; fallback/missing_init_check intent preserved.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows freezeScope() helper added, called after story_create. Re-freeze called after story_update so init_check_tampered detection still works. missing_init_check and init_check_tampered assertions preserved byte-for-byte."
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-estimate-smoke.ts",
+      "promise": "CJK estimator input replaced with non-CJK multibyte (naïve café); assertion STRENGTHENED from >0 to exact ==3 proving byte-based not char-based estimate.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows: Japanese text replaced with naïve café (10 JS chars, 12 UTF-8 bytes); assert.ok(cjk > 0) replaced with assert.equal(multibyte, 3). This is a strengthening."
+    },
+    {
+      "docPath": "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+      "promise": "CHECK logic (CJK detection, scan logic, isFileAllowlisted/isAllowlistedLine/scanFile) is UNCHANGED; only allowlist arrays extended for functional-CJK fixtures and 2 pending-migration production files.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows only ALLOWLIST_TEST_GLOBS and ALLOWLIST_PENDING_SOURCE_MIGRATION arrays extended. scanFile(), isFileAllowlisted(), isAllowlistedLine(), and main scan loop are untouched. Zero production files edited."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "init-check-fallback EXIT=0, init-check-required-agents EXIT=0, done-preflight EXIT=0 standalone. B-72df no-bypass safety: main phase stays TEST, main HEAD unchanged, worktree+branch survive. verificationEvidence headHash dd23d54c. transcript-diff.md §2: all 3 PASS, done-preflight STRENGTHENED."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "worktree-repair EXIT=0 (skipped + canonical untouched + legacy symlink unchanged STRENGTHENED), story-dedup EXIT=0 (lowercase japanese-task), convergence-discarded EXIT=0 (All Stories completed / No parked backlog). transcript-diff.md §2."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "cli-argument-ergonomics EXIT=0, lattice-only-absence EXIT=0, lattice-cli-migration EXIT=0, review-loop EXIT=0 (38/38). 35 prior passing review-loop sub-assertions byte-for-byte unchanged per git diff. Argument validation failed regex narrowed not broadened. transcript-diff.md §2."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "english-open-source-surface EXIT=0 (565 files scanned), usage-ledger-estimate EXIT=0 (55/55). CHECK logic unchanged per git diff. Byte-estimation assertion tightened from >0 to exact ==3. transcript-diff.md §2."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "gap-log EXIT=0, story-create-concurrency EXIT=0, review-pass-discard EXIT=0. All 3 classified STALE (wording drift, behavior intact): dedup=1 finding, hard-block exits non-zero, fail-closed phase/branch survive. No real-bug escalations. test:all 140/162->155-156/162 (+15-16). transcript-diff.md §1+§5."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 15 smoke files pass standalone (exit 0). test:all improved from 140/162 to 155-156/162 (+15-16 vs predicted ~13). Zero production files changed confirmed independently by git diff. Dominant risk (assertion weakening) not found: done-preflight and worktree-repair safety assertions STRENGTHENED, usage-ledger tightened from >0 to exact ==3. English-open-source-surface check logic unmodified. All 6 docsPromises verified from diff."
+  },
+  "_hash": "6199215ea937376873f3effe9ca284d7f367f18ef3518ba9eb2aeae674cebf32"
+}

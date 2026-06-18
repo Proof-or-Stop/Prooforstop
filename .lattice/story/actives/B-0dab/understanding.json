@@ -1,0 +1,23 @@
+{
+  "task": "Wire the canonical koala-residue gate (scripts/verify-koala-residue.mjs, delivered by B-40eb) into the lattice validate battery, and clean the 7 residual koala-* mkdtemp prefixes on main so the gate passes green and runs on every validate.",
+  "outcome": "Running `node scripts/verify-koala-residue.mjs` on main prints `PASS koala-residue: 0 unclassified` (exit 0); `npm test` output shows a `test:koala-residue` step that runs and passes; `lattice validate` is all-green and exercises the gate. The user sees the koala-residue gate run as part of every validate, confirming koala branding cannot silently re-enter active scope.",
+  "facts": [
+    "B-40eb (DONE, merged to main) delivered scripts/verify-koala-residue.mjs (classify() + path exemptions + LEGACY_LOGIC_FILES allowlist + 5 self-tests); on main it currently reports 7 unclassified hits.",
+    "The 7 hits are koala-* mkdtemp prefixes: english-only-guards-smoke.ts lines 165/201/260/352/354 (koala-english-*) and review-incremental-context-smoke.ts lines 262/437 (koala-incremental-*).",
+    "lattice validate uses the package.json `test` script as its fallback battery (validate.ts/js/mts is not configured), so adding a test step there makes it run on every validate.",
+    "The gate scope is git-tracked/staged files only (a deliberate CI choice from B-40eb)."
+  ],
+  "constraints": [
+    "No re-sweep: do not touch documented exceptions or any other koala; B-40eb owns the full sweep.",
+    "Do not weaken the verify-koala-residue classify rules or allowlist.",
+    "After changes: both smokes still pass, npm test passes, npm run build exits 0, npm run test:e2e all pass, lattice validate all-green.",
+    "Clean the residuals (CHK-001) BEFORE wiring the gate (CHK-002) so npm test does not go red mid-story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/english-only-guards-smoke.ts, review-incremental-context-smoke.ts (mkdtemp prefixes)",
+    "package.json (test-chain wiring of the gate)",
+    "scripts/verify-koala-residue.mjs (the gate being wired; not its rules)"
+  ],
+  "timestamp": "2026-06-17T12:51:35.163Z"
+}

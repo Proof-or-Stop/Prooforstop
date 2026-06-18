@@ -203,9 +203,9 @@ for (const command of ['memory_benchmark_run', 'memory_benchmark_compare']) {
 assert.ok(DEFAULT_PHASE_TOOLS['*']?.includes('memory_benchmark_*'), 'phase tools allow memory benchmark read-only commands');
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-memory-benchmark-registry-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-benchmark-registry-'));
   try {
-    writeFileSync(join(root, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     resetConfigCache();
     const store = new StoryStore(root);
     const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -226,9 +226,9 @@ assert.ok(DEFAULT_PHASE_TOOLS['*']?.includes('memory_benchmark_*'), 'phase tools
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-memory-benchmark-cli-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-benchmark-cli-'));
   try {
-    writeFileSync(join(root, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     const here = dirname(fileURLToPath(import.meta.url));
     const cliPath = join(here, '..', 'cli.js');
 

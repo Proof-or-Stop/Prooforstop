@@ -10,7 +10,7 @@ import { resetConfigCache } from '../core/config.js';
 import type { Finding, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkConvergence } from './gap-analyze.js';
 
-const tmp = mkdtempSync(join(tmpdir(), 'koala-convergence-discarded-'));
+const tmp = mkdtempSync(join(tmpdir(), 'lattice-convergence-discarded-'));
 const auditStoryId = 'B-META-framework-audit';
 
 function story(storyId: string, phase: StoryPhase, options: { withWorktree?: boolean } = {}): StoryInfo {
@@ -65,7 +65,7 @@ function git(args: string[]): void {
 try {
   mkdirSync(join(tmp, 'packages/main/src'), { recursive: true });
   writeFileSync(join(tmp, 'packages/main/src/empty.ts'), 'export const noop = true;\n');
-  writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -73,9 +73,9 @@ try {
   }));
   resetConfigCache();
   git(['init']);
-  git(['config', 'user.email', 'koala-smoke@example.invalid']);
+  git(['config', 'user.email', 'lattice-smoke@example.invalid']);
   git(['config', 'user.name', 'Lattice Smoke']);
-  git(['add', 'koala.config.json', 'packages/main/src/empty.ts']);
+  git(['add', 'lattice.config.json', 'packages/main/src/empty.ts']);
   git(['commit', '-m', 'initial smoke project']);
 
   const store = new StoryStore(tmp);
@@ -84,18 +84,18 @@ try {
   store.writeStory(auditStoryId, story(auditStoryId, 'META'));
 
   const terminalOnly = checkConvergence(tmp, store);
-  const terminalStoryCheck = checkByName(terminalOnly, 'All stories complete');
+  const terminalStoryCheck = checkByName(terminalOnly, 'All Stories completed');
   assert.equal(terminalStoryCheck?.passed, true);
   assert.doesNotMatch(terminalStoryCheck.detail, new RegExp(auditStoryId));
   const emptyParkedBacklogCheck = checkByName(terminalOnly, 'Parked backlog');
   assert.equal(emptyParkedBacklogCheck.passed, true);
-  assert.match(emptyParkedBacklogCheck.detail, /no parked backlog/);
+  assert.match(emptyParkedBacklogCheck.detail, /No parked backlog/);
   assert.equal(terminalOnly.converged, true);
 
   store.writeStory('B-parked', story('B-parked', 'INIT'));
 
   const withParked = checkConvergence(tmp, store);
-  const parkedStoryCheck = checkByName(withParked, 'All stories complete');
+  const parkedStoryCheck = checkByName(withParked, 'All Stories completed');
   assert.equal(parkedStoryCheck.passed, true);
   assert.doesNotMatch(parkedStoryCheck.detail, /B-parked/);
   assert.doesNotMatch(parkedStoryCheck.detail, /B-discarded/);
@@ -108,7 +108,7 @@ try {
   store.writeStory('B-active-worktree', story('B-active-worktree', 'PLAN', { withWorktree: true }));
 
   const withActiveWorktree = checkConvergence(tmp, store);
-  const activeStoryCheck = checkByName(withActiveWorktree, 'All stories complete');
+  const activeStoryCheck = checkByName(withActiveWorktree, 'All Stories completed');
   assert.equal(activeStoryCheck.passed, false);
   assert.match(activeStoryCheck.detail, /B-active-worktree/);
   assert.doesNotMatch(activeStoryCheck.detail, /B-parked/);
@@ -119,7 +119,7 @@ try {
   store.writeStory('B-init-worktree', story('B-init-worktree', 'INIT', { withWorktree: true }));
 
   const withInitWorktree = checkConvergence(tmp, store);
-  const initWorktreeStoryCheck = checkByName(withInitWorktree, 'All stories complete');
+  const initWorktreeStoryCheck = checkByName(withInitWorktree, 'All Stories completed');
   assert.equal(initWorktreeStoryCheck.passed, false);
   assert.match(initWorktreeStoryCheck.detail, /B-active-worktree/);
   assert.match(initWorktreeStoryCheck.detail, /B-init-worktree/);
@@ -131,7 +131,7 @@ try {
   store.writeStory(runtimeWorktreeStoryId, story(runtimeWorktreeStoryId, 'INIT'));
 
   const withRuntimeWorktree = checkConvergence(tmp, store);
-  const runtimeWorktreeStoryCheck = checkByName(withRuntimeWorktree, 'All stories complete');
+  const runtimeWorktreeStoryCheck = checkByName(withRuntimeWorktree, 'All Stories completed');
   assert.equal(runtimeWorktreeStoryCheck.passed, false);
   assert.match(runtimeWorktreeStoryCheck.detail, new RegExp(runtimeWorktreeStoryId));
   const runtimeParkedBacklogCheck = checkByName(withRuntimeWorktree, 'Parked backlog');

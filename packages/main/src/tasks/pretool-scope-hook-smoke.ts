@@ -39,7 +39,7 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'lattice-scope-pretool.cjs');
 const codexHookPath = resolve(packageRoot, '..', '..', '..', '.codex', 'hooks', 'lattice-scope-pretool.cjs');
-const sessionEnv = { ...process.env, KOALA_SESSION_ID: 'pretool-scope-smoke', KOALA_AGENT: 'pretool-scope-smoke' };
+const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'pretool-scope-smoke', LATTICE_AGENT: 'pretool-scope-smoke' };
 
 function normalizeToRelativePaths(root: string, paths: readonly string[]): string[] {
   return paths
@@ -103,8 +103,8 @@ assert.match(
 );
 assert.doesNotMatch(
   codexPreToolEntry.hooks[0].command,
-  /\.Codex\/hooks/,
-  'Codex PreToolUse hook must not use uppercase .Codex/hooks',
+  /\.lattice-codex\/hooks/,
+  'Codex PreToolUse hook must not use uppercase .lattice-codex/hooks',
 );
 
 console.log('✓ Test 1b: getCodexHooks() includes PreToolUse');
@@ -112,7 +112,7 @@ console.log('✓ Test 1b: getCodexHooks() includes PreToolUse');
 // ─── Test 2: mergeClaudeHooks generates settings with PreToolUse ──────────────
 // Indirect: run managed asset check in a claude-profile temp dir and verify settings
 
-const settingsRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-settings-'));
+const settingsRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-settings-'));
 try {
   git(settingsRoot, ['init', '-b', 'main']);
   git(settingsRoot, ['config', 'user.email', 'hook@test']);
@@ -144,7 +144,7 @@ try {
 
 // ─── Test 2b: codex profile generates lowercase Codex hooks ──────────────────
 
-const codexInitRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-codex-init-'));
+const codexInitRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-codex-init-'));
 try {
   git(codexInitRoot, ['init', '-b', 'main']);
   git(codexInitRoot, ['config', 'user.email', 'hook@test']);
@@ -158,11 +158,11 @@ try {
   const scopeHookPath = join(codexInitRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
   assert.ok(existsSync(hooksJsonPath), 'codex profile must generate lowercase .codex/hooks.json');
   assert.ok(existsSync(scopeHookPath), 'codex profile must generate lowercase .codex/hooks/lattice-scope-pretool.cjs');
-  const upperHooksPath = join(codexInitRoot, '.Codex', 'hooks');
+  const upperHooksPath = join(codexInitRoot, '.lattice-codex', 'hooks');
   if (existsSync(upperHooksPath)) {
     const lower = statSync(join(codexInitRoot, '.codex', 'hooks'));
     const upper = statSync(upperHooksPath);
-    assert.equal(upper.ino, lower.ino, 'uppercase .Codex/hooks path must only be the case-insensitive alias of lowercase .codex/hooks');
+    assert.equal(upper.ino, lower.ino, 'uppercase .lattice-codex/hooks path must only be the case-insensitive alias of lowercase .codex/hooks');
   }
 
   const generated = JSON.parse(readFileSync(hooksJsonPath, 'utf8'));
@@ -177,7 +177,7 @@ try {
 
 // ─── Test 2c: managed asset apply migrates legacy scope-pretool names ─────────
 
-const migrationRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-migrate-'));
+const migrationRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-migrate-'));
 try {
   git(migrationRoot, ['init', '-b', 'main']);
   git(migrationRoot, ['config', 'user.email', 'hook@test']);
@@ -306,12 +306,12 @@ console.log('✓ Test 4: normalizeToRelativePaths normalizes paths correctly');
 
 // ─── Test 5: prewrite_guard_check CLI — pass when no guard session ────────────
 
-const noGuardRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-no-guard-'));
+const noGuardRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-no-guard-'));
 try {
   git(noGuardRoot, ['init', '-b', 'main']);
   git(noGuardRoot, ['config', 'user.email', 'pg@test']);
   git(noGuardRoot, ['config', 'user.name', 'PG Test']);
-  write(noGuardRoot, 'koala.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
+  write(noGuardRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
   git(noGuardRoot, ['add', '.']);
   git(noGuardRoot, ['commit', '-m', 'init']);
 
@@ -354,12 +354,12 @@ try {
 
 // ─── Test 6: prewrite_guard_check CLI — blocked when guard+contract+out-of-scope
 
-const enforceRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-enforce-'));
+const enforceRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-enforce-'));
 try {
   git(enforceRoot, ['init', '-b', 'main']);
   git(enforceRoot, ['config', 'user.email', 'pg@test']);
   git(enforceRoot, ['config', 'user.name', 'PG Test']);
-  write(enforceRoot, 'koala.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
+  write(enforceRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
   write(enforceRoot, 'src/allowed.ts', 'export const x = 1;\n');
   git(enforceRoot, ['add', '.']);
   git(enforceRoot, ['commit', '-m', 'init']);
@@ -450,7 +450,7 @@ try {
 
 // ─── Test 7: lattice-scope-pretool.cjs hook — passes through when no BLOCKED output ───
 
-const hookTestRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-hook-'));
+const hookTestRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-hook-'));
 try {
   // Simulate hook call for a non-write tool → should pass immediately (exit 0)
   const readPayload = JSON.stringify({

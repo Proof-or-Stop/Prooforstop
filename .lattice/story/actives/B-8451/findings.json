@@ -1,0 +1,34 @@
+{
+  "findings": [
+    {
+      "id": "B-8451:F-001",
+      "desc": "edge: deprecated-gc-smoke.ts:86-92 boundary condition count===threshold (count=10, threshold=10) is not tested; test5 only covers count=7 which is strictly less than threshold, leaving the strict > vs >= boundary unverified",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T00:41:59.748Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-001",
+      "_hash": "cdda12c4410b902d3ade7ec38564fe5ea41c6516d67684eade66720072aed927",
+      "resolvedReason": "Added test6 to deprecated-gc-smoke.ts: verifies count===threshold does NOT trigger advisory (strictly greater than). Build passes.",
+      "resolvedAt": "2026-06-18T00:43:44.249Z"
+    },
+    {
+      "id": "B-8451:F-002",
+      "desc": "quality-cleanup: audit-scan.ts:415 catch block comment is misleading — says grep -c exits 1 when no matches but that case is already handled by the || echo 0 in the shell command; the catch only fires on unexpected execSync errors, not on zero-match grep exit; comment should reflect the actual scenario",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T00:42:10.601Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-001",
+      "_hash": "9d7a0cc79e2ac068f175c10e967ca4315fe3ad73af3aafee4ee152bcc073193e",
+      "resolvedReason": "Updated catch block comment: corrects explanation — execSync throws on unexpected errors (ENOENT/timeout), not grep zero-match (already handled by || echo 0 in shell command).",
+      "resolvedAt": "2026-06-18T00:43:45.368Z"
+    }
+  ]
+}

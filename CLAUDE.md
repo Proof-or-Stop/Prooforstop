@@ -74,7 +74,7 @@ lattice decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":
 建议先运行 lattice session_brief 恢复现场
 ```
 
-阈值可用 `KOALA_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。Claude hook/settings 只放在 `.claude/`，不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。
+阈值可用 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。每个 host 的 hook/settings 都是框架在 `lattice init` 时按 host 生成的 managed asset：Claude host 落在 `.claude/`（如 `.claude/hooks/lattice-scope-pretool.cjs`，已纳入 git），Codex adapter 落在其各自的 adapter 目录（同样由框架生成对应的 scope-guard hook）。这些是框架管理的生成产物，不要手写或手改；要调整 hook 行为请改生成源（`init-assets` / `core/managed-assets`），而不是直接编辑产物。
 
 ## 框架自省 audit 配置
 
@@ -195,7 +195,7 @@ import { GameMachine } from './machines/game/machine.js';
 
 const app = await devHost(createApp, GameMachine);
 
-if (process.env.KOALA_SHELL === 'cli') {
+if (process.env.LATTICE_SHELL === 'cli') {
   const { startCliShell } = await import('../shells/cli/main.js');
   startCliShell(app.bridge);
 }
@@ -217,7 +217,7 @@ interface GameBridge {
 
 // createLocalBridge：在 bridge.ts 中实现，import machine.ts + fn.ts
 // createWSBridge：浏览器端使用，连接 lattice serve 提供的 WS server
-// createBridge：自动选择（检测 window.__KOALA_WS_URL）
+// createBridge：自动选择（检测 window.__LATTICE_WS_PORT）
 ```
 
 ### 三种运行模式
@@ -763,6 +763,21 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 - **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
 - **跨 story 全局意识**：修一个 feature 可能发现基础设施的 bug，一起修
 
+## Agent prompt 资产：host-neutral 单一源（B-097f）
+
+Lattice agent prompt 的**正文（body）只有一个真相源**：包内 registry 模板 `packages/main/templates/agents/*.md`（其指纹清单 = `promptRegistryManifest()`，仅元数据非正文）。**任何宿主目录都不物化正文**——每个宿主只留一层 thin 适配，正文经 `lattice agent_prompt`（内部 `readPromptTemplate` 读模板原文）现取。改模板 → 所有宿主下次取到的就是新正文，不存在陈旧快照。
+
+| 宿主 | 项目/全局里的薄适配 | 正文来源 |
+|---|---|---|
+| Claude | `.claude/agents/*.md` thin-shim（frontmatter `name`/`description`/`tools` + body 写「run `lattice agent_prompt --role=<name>`」，**无正文**） | `lattice agent_prompt`（registry） |
+| Codex | `.lattice-codex/lattice.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
+
+- **取正文命令**：`lattice agent_prompt --role=<name>`（如 `lattice-implementer` / `lattice-review-concept`），从 registry 吐角色正文；非法 role 列出可用 role。Claude shim 取它，Codex manifest 指它，两者 byte-equal 同源。
+- **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "lattice-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `lattice agent_prompt --role=<自身角色>` 取权威指令**再执行。
+- **init 行为**：`lattice init` 往**项目里写 0 个 agent 文件**；16 个 thin-shim 一次性放在全局 `~/.claude/agents`，所有项目共用。
+- **迁移显式**：已有 project-local 管理文件时，普通 `init` 只 WARN 不删；删除/迁移仅在 `lattice init --upgrade`，且只删 16 个管理 basename、保留用户自建文件。`lattice doctor` 报 `agentAssetMode: runtime-owned`。
+- 真相源：`docs/requirements/decisions/lifecycle-artifact-scope.md` →「Policy: host-neutral prompt content, thin host adapters (B-097f)」+ `lattice-runtime-owned-agent-assets-execution-plan.md` 的 Implementation Status。
+
 ## REVIEW 阶段规则（框架实现）
 
 ### Verification Intent / Evidence
@@ -802,8 +817,25 @@ lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intent
 | lint | `lattice validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 lattice 命令与 registry 对齐 | fail → block REVIEW→TEST |
 | codex-adapter | `node bin/lattice-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
+| english-artifacts | `english-artifacts` preflight (B-5f42, no standalone flag; standalone `npm run test:legacy -- english-only-guards`) | 本分支 commit + 当前 story 元数据必须英文(CJK 触发 fail) | fail → block REVIEW→TEST |
+| koala-residue | `koala-residue` preflight (B-292d, no standalone flag; standalone `npm run test:koala-residue`) | 全仓 git-tracked 源面扫描旧品牌字串残留(规则 + 允许 list 见 `scripts/verify-koala-residue.mjs`) | fail → block REVIEW→TEST |
 
 `lattice-review-channel` LLM agent 已退役（S1），由 `lattice validate --channel --story=<id>` CLI gate 接管；`lattice-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`lattice-review-quality` 假设 lint 已绿只审主观项。
+
+### REVIEW→TEST gate behavior (`canPassReviewGuard`) + incremental review context (B-f675)
+
+The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REVIEW→TEST transition) decides on reviewer evidence + findings, NOT on free text. Its accurate semantics:
+
+- **An invalid (stale / unknown-run / tampered) current-round binding blocks in ALL rounds.** `collectReviewerEvidenceState` validates every reviewer finding / review-pass against its bound `reviewRunId` (signature, lane, current round, current-latest run, fresh head/material hash, scope binding). If any current-round reviewer evidence is invalid, the gate fails closed BEFORE the round split — round 1 and round 2+ alike.
+- **Round 1 (`roundCount <= 1`): requires EVERY opt-in reviewer to have a valid current-round verdict, plus quorum.** The opt-in set is the same one `lattice reviewer_list` reports (baseline concept + quality + test-coverage, plus behavior/docs by riskSignals / `.md` touchpoints). Missing any opt-in reviewer, or failing the quorum check, blocks.
+- **Round 2+ (`roundCount >= 2`): requires only `>= 1` valid current-round receipt** (finding or review-pass). The framework still skips no reviewer; this only relaxes the gate's minimum, not the reviewer roster.
+- **A verified open blocking finding blocks** (after round decay): `status=open` AND severity in the round's effective blocking set (round 1 = profile `blockingSeverities`; round 2 = critical+high; round 3+ = critical) AND `evidenceState` verified-or-missing. `suspected` / `disproven` never block.
+
+**`lattice review_incremental_context --storyId=B-xxx --role=<reviewer>`** is a strictly read-only advisory: it returns the reviewer's prior verdict, the `headHash` that verdict was bound to, and the MATERIAL files changed since (rename-aware `git diff --name-status -M`, so a renamed file still counts as changed), plus `scopeChanged` / `isFirstPass`. A first-timer (no prior pass) gets `isFirstPass=true` and the full `main...HEAD` material diff. **It writes nothing and changes none of the gate inputs above** (findings / review-passes / review-runs / currentReviewRound); calling it does not alter `canPassReviewGuard` (proven by `test:review-incremental-context-smoke`).
+
+`isFirstPass=true` is the authoritative "no usable incremental baseline" signal and covers TWO sub-cases: (a) the reviewer never passed before, AND (b) a prior verdict exists but the run it was bound to has an unresolvable `headHash`. In sub-case (b) `priorVerdict` is non-null (informational) while `priorHeadHash` is null and `changedFiles` is the full `main...HEAD` diff — so a JSON consumer must key off `isFirstPass` (not `priorVerdict`) to decide whether an incremental baseline exists. Likewise `scopeChanged` is forced to true whenever `isFirstPass=true`, so it may be true even when `changedFiles` is empty; only when `isFirstPass=false` does `scopeChanged === (changedFiles.length > 0)`.
+
+**Round 2+ informed targeted re-review (operator judgement):** because the round-2+ gate needs only `>= 1` valid current-round receipt, when entering REVIEW for round >= 2 the next-step output appends an advisory listing the active reviewers whose scope changed since their last pass. An operator MAY then re-run only those scope-changed reviewers (`lattice review_incremental_context --role=<name>` to inspect each), rather than re-running the entire roster. This is your call — the framework skips nobody and the gate is unchanged; it is purely an operator efficiency hint.
 
 ### Reviewer opt-in 路由（按 riskSignals 挂载）
 
@@ -905,8 +937,6 @@ lattice dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implemente
 - **high 前 2 轮必须修**，第 3 轮可以 dismiss + 理由
 - **medium 第 1 轮必须修**（strict profile），第 2 轮可以 dismiss + 理由
 - **low 第 1 轮必须修**，第 2 轮可以 dismiss + 理由
-
-> REVIEW 机械化路线图（S1 已落地 / S2 / S3 规划）详见 `docs/koala/reviewer-redesign.md`。
 
 ## 合并态组合审查（流程框架并行 story）
 

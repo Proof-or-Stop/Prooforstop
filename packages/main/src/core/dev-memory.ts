@@ -8,7 +8,7 @@
  *            story    → <storyDir>/<storyId>/dev-memory-candidates.jsonl
  *            legacy   → read-only fallback from matching .koala/dev-memory files
  *   - Non-authoritative: entries CANNOT satisfy Lattice gate evidence
- *   - No .omx, no structured schema that looks like gate artifacts
+ *   - No structured schema that looks like gate artifacts
  *   - Deterministic: path resolution works without a Lattice daemon running
  */
 
@@ -181,8 +181,6 @@ export function resolveGlobalMemoryPath(): string {
 }
 
 export function resolveLegacyGlobalMemoryPath(): string {
-  const override = process.env.KOALA_GLOBAL_MEMORY_DIR;
-  if (override && !process.env.LATTICE_GLOBAL_MEMORY_DIR) return join(override, 'experience.jsonl');
   return join(homedir(), LEGACY_KOALA_DIR, 'dev-memory', 'experience.jsonl');
 }
 
@@ -204,7 +202,6 @@ export function resolveStoryCandidatePath(storyDir: string, storyId: string): st
 
 function resolveProjectRoot(): string {
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
-  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
     if (hasProjectConfigFile(dir)) return dir;

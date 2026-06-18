@@ -1,0 +1,87 @@
+{
+  "storyId": "B-db56",
+  "checkedAt": "2026-06-16T22:16:18.459Z",
+  "features": [
+    {
+      "feature": "Audit all 193 git child-process call sites (execFileSync/spawnSync/execSync of git) across packages/ and reroute the unrouted ones through resolveGitCwd",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Preserve the 3 ad-hoc helpers (lab.ts runGit, cli-engine.ts runGitNoThrow, declared-artifact-commit-check.ts runGit) with unchanged signatures, only reroute their callers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Existing smokes gitroot-cwd-routing-smoke and bare-gate-gitroot-cwd-smoke continue to pass after the reroute",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add grep-based contract smoke (gitroot-cwd-contract-smoke.ts) that fails on any new git call site passing bare projectRoot/metadataRoot cwd without going through resolveGitCwd",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register npm script test:gitroot-cwd-contract in root package.json and packages/main/package.json",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Allowlist for the 4 known-good sites (resolveGitCwd definition + 3 ad-hoc helpers) in the contract smoke",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Changing resolveGitCwd public signature or its returned value semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: Changing resolveGitCwd public signature or its returned value semantics",
+      "source": "description"
+    },
+    {
+      "feature": "Modifying how metadataRoot and gitRoot relate in lattice.config.json",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: Modifying how metadataRoot and gitRoot relate in lattice.config.json",
+      "source": "description"
+    },
+    {
+      "feature": "koala-removal residual work",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: The koala-removal residual work",
+      "source": "description"
+    },
+    {
+      "feature": "Smoke runner consolidation sub-program (proposed effort #2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: The smoke runner consolidation sub-program (separate effort)",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 6,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6d49fccc710bf74b835241a994bc239cf761492819ad25e1ce8661a491697fa7",
+  "openQuestions": []
+}

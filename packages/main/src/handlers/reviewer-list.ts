@@ -216,7 +216,7 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
       if (forced && forced.length > 0) {
         if (!story.events) story.events = [];
         const timestamp = new Date().toISOString();
-        const agent = process.env.KOALA_AGENT || 'main';
+        const agent = process.env.LATTICE_AGENT || 'main';
         // One event per forced name (compatible with StoryEvent.reviewer single-value field + convenient for querying by reviewer)
         for (const name of forced) {
           const event: StoryEvent = {

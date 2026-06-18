@@ -1,0 +1,62 @@
+{
+  "principles": [
+    "Fix the root cause (concurrent main-mutation corruption), not the symptom (one specific reconcile path).",
+    "Make safety mechanical, not by-convention: a future gap must turn a test red rather than rely on a reviewer noticing.",
+    "Lock-only changes: never alter command semantics while adding the lock.",
+    "Stay bounded: address the demonstrated risk; defer the maximalist architecture change rather than smuggling it in."
+  ],
+  "drivers": [
+    "B-7365 proved a real, long-lived unlocked main-mutating path existed and was missed by convention alone.",
+    "The shared-main-worktree fleet model means any other unlocked main-mutating path is a latent equivalent corruption.",
+    "There is currently no mechanical guard ensuring every main-mutating path is locked."
+  ],
+  "options": [
+    {
+      "name": "A: lock-coverage + regression guard",
+      "pros": [
+        "Bounded and shippable now; directly closes the corruption-race root.",
+        "Adds a regression guard so future B-7365-class gaps are caught mechanically.",
+        "Lock-only — low blast radius, no semantic change."
+      ],
+      "cons": [
+        "Keeps the shared mutable main worktree; relies on the lock being acquired (the guard mitigates the remaining risk that a path forgets).",
+        "Guard must correctly distinguish main-mutating from story-worktree-only paths or it will false-positive/negative."
+      ]
+    },
+    {
+      "name": "B: full per-session checkout isolation",
+      "pros": [
+        "Full per-session physical checkout isolation removes the shared mutable state entirely — no lock needed.",
+        "Eliminates the entire class of concurrent-main-mutation races."
+      ],
+      "cons": [
+        "Large architecture change requiring its own design decision (truth source: session-ownership-and-write-leases.md).",
+        "Out of scope here; would block the bounded corruption fix behind a big rewrite.",
+        "Higher disk/setup cost per session."
+      ]
+    }
+  ],
+  "chosen": "A: lock-coverage + regression guard",
+  "rationale": "Option A closes the actual demonstrated risk (concurrent main-mutation corruption) with a bounded, lock-only change plus a mechanical regression guard that generalizes the B-7365 fix and prevents recurrence. Option B (full per-session checkout isolation) is the maximalist alternative; it is recorded as deferred and intentionally out of scope, because it requires a separate architecture decision and would delay shipping the corruption fix.",
+  "preMortem": [
+    {
+      "scenario": "The regression guard mis-classifies a story-worktree-only merge (merging main INTO a story branch) as a main-mutating path and demands a lock it doesn't need.",
+      "trigger": "Static scan keys on the substring 'merge main' without distinguishing the cwd/direction of the merge.",
+      "consequence": "False-positive guard failure blocks unrelated work and erodes trust in the guard.",
+      "mitigation": "Classify by whether the operation writes the main ref / commits on the main checkout, not by substring; cover a story-worktree-only path as an explicit negative (must NOT require the lock) case in the guard test."
+    },
+    {
+      "scenario": "A main-mutating path is wrapped in the NON-reentrant withMainWriteLock while already running inside a locked context (e.g. DONE).",
+      "trigger": "CHK-002 wraps a nested critical section with the wrong helper.",
+      "consequence": "Self-deadlock or a thrown 'lock already held' error breaks DONE.",
+      "mitigation": "Use withReentrantMainWriteLock for any path reachable from an already-locked flow; the main-write-lock-smoke reentrancy cases plus a real validate run catch a deadlock."
+    },
+    {
+      "scenario": "The guard only checks the paths known today and silently passes when a brand-new main-mutating helper is added later.",
+      "trigger": "Guard hard-codes an allowlist of file:function pairs instead of scanning for the mutation primitive.",
+      "consequence": "The next B-7365-class gap ships unguarded — the exact failure this story exists to prevent.",
+      "mitigation": "Scan for the git-mutation primitives (commit on main / merge into main / update main ref) repo-wide and assert each enclosing path acquires the lock; a newly-added unlocked primitive then fails the guard by construction. Add a negative fixture that introduces an unlocked primitive and asserts the guard goes red."
+    }
+  ],
+  "timestamp": "2026-06-16T03:54:04.281Z"
+}

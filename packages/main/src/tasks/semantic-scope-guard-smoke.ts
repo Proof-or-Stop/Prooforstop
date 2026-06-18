@@ -295,7 +295,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   );
 }
 
-// ── 6. Disallowed changeKind is gated; story/koala metadata is never gated ───
+// ── 6. Disallowed changeKind is gated; story/lattice metadata is never gated ───
 {
   const contract = makeContract({
     mode: 'enforce',
@@ -520,9 +520,9 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 // ── 11b. B-edca: custom storyDir paths are excluded from the digest when
 //         projectRoot is provided; sibling paths outside storyDir stay material. ─
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-custom-storydir-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-custom-storydir-'));
   try {
-    writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
       storyDir: 'workflow/stories',
     }, null, 2));
     resetConfigCache();
@@ -596,7 +596,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 const BASELINE_LANES = ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'];
 
 function writeScopeStory(root: string, opts: { withContract: boolean }): { store: StoryStore; storyId: string; reviewRound: string; contract: ScopeContractData | null } {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
@@ -720,7 +720,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13a. Fresh scope binding passes the gate.
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scopebind-fresh-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-fresh-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
@@ -736,7 +736,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13b. No-scope legacy story stays backward compatible (no binding required).
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scopebind-legacy-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-legacy-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: false });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: false });
@@ -751,7 +751,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13c. Stale scope binding (scope contract changed after review) is rejected.
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scopebind-stale-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-stale-'));
   try {
     const { store, storyId, reviewRound, contract } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
@@ -775,7 +775,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13d. Natural-language-only evidence (run with no scope binding) is rejected.
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scopebind-nl-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-nl-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     // Seed runs WITHOUT a scope binding (prose-only reviewer evidence: a run was
@@ -798,7 +798,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 // ── 14. CHK-006 fail-closed: a corrupt scope-contract.json must NOT silently
 //        downgrade a scope-protected story to "no contract" (= gate bypass). ──
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scopebind-corrupt-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-corrupt-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
@@ -843,7 +843,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // ── 14b. CHK-006 backward compat: a genuinely MISSING contract → null (legacy). ──
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scopebind-missing-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-missing-'));
   try {
     const { store, storyId } = writeScopeStory(root, { withContract: false });
     assert.equal(
@@ -863,9 +863,9 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // ── 15. CHK-006: scope_contract_init_from_plan seeds a usable contract ───────
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-initplan-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-initplan-'));
   try {
-    writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',

@@ -1,0 +1,710 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add optional audit-only outcome fields to the Finding type",
+      "context": "types.ts Finding: add optional signatureTag, resolutionType (enum), dismissReasonType (enum), resolveEvidenceStrength, dismissEvidenceStrength. Each annotated // audit-only — MUST NOT be read by any gate. Additive only; excluded from the finding signature domain.",
+      "userSees": "Build is clean; the Finding type carries the new optional fields with audit-only comments; finding-verify signing is unchanged.",
+      "status": "done",
+      "startTime": "2026-06-17T12:17:54.648Z",
+      "endTime": "2026-06-17T12:29:58.454Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Create a Finding object with all new audit fields (signatureTag, resolutionType, dismissReasonType, resolveEvidenceStrength, dismissEvidenceStrength) set -> object is valid and fields are accessible; WHY: confirms type additions compile and are usable",
+            "type": "cli"
+          },
+          {
+            "desc": "Create a Finding object with NO audit fields set (all omitted) -> object is valid, fields are undefined; WHY: confirms fields are truly optional",
+            "type": "cli"
+          },
+          {
+            "desc": "Run finding-verify on a legacy finding (created before these fields existed) -> signature verification still passes; WHY: confirms new fields are excluded from signature domain",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Create a Finding with only some audit fields set (e.g. resolutionType but not resolveEvidenceStrength) -> object is valid; WHY: confirms partial population is allowed, no accidental coupling between related fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Run finding-verify on a finding WITH audit fields populated -> produces identical signature as the same finding WITHOUT audit fields; WHY: proves signature domain truly excludes audit fields",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Grep advisory.ts and all gate logic files for references to signatureTag, resolutionType, dismissReasonType, evidenceStrength -> zero matches outside type definitions and smoke tests; WHY: static guardrail proving gate code never reads audit fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Compute finding signature with signatureTag present on the Finding object vs without -> signatures are byte-identical; WHY: proves no accidental signature pollution even if field is present on the object",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "types.ts adds 5 optional audit-only Finding fields; finding-verify untouched; build clean.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "types.ts adds 5 optional audit-only Finding fields; finding-verify untouched; build clean.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "types.ts adds 5 optional audit-only Finding fields; finding-verify untouched; build clean.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "types.ts adds 5 optional audit-only Finding fields; finding-verify untouched; build clean.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "types.ts adds 5 optional audit-only Finding fields; finding-verify untouched; build clean.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "types.ts adds 5 optional audit-only Finding fields; finding-verify untouched; build clean.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "types.ts adds 5 optional audit-only Finding fields; finding-verify untouched; build clean.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Capture the fields in finding_add/resolve/dismiss with optional enums and back-compat",
+      "context": "cli-engine.ts schemas: finding_add += signatureTag?; finding_resolve += resolutionType?/resolveEvidenceStrength?; finding_dismiss += dismissReasonType?(OPTIONAL)/dismissEvidenceStrength?. finding.ts handlers: validate enums (reuse the evidenceState validation pattern) and store the fields. Legacy callers omitting the fields behave exactly as before.",
+      "userSees": "finding_resolve/dismiss/add accept the new optional flags and persist them; omitting them works unchanged (back-compat); invalid enum values are rejected with a clear error.",
+      "status": "done",
+      "startTime": "2026-06-17T12:18:19.320Z",
+      "endTime": "2026-06-17T12:30:01.002Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call finding_add with signatureTag=\"auth-bypass\" -> finding persisted with signatureTag field present; WHY: confirms capture path for finding_add",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_resolve with resolutionType=\"fixed\", resolveEvidenceStrength=\"strong\" -> finding updated with both fields; WHY: confirms capture path for finding_resolve",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with dismissReasonType=\"false_positive\", dismissEvidenceStrength=\"medium\" -> finding updated with both fields; WHY: confirms capture path for finding_dismiss",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with NO dismissReasonType (field omitted entirely) -> call succeeds, finding dismissed normally; WHY: proves dismissReasonType is truly OPTIONAL and back-compat preserved",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call finding_add with NO new fields at all (legacy caller) -> finding created identically to pre-Phase-1b behavior; WHY: back-compat regression guard",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_resolve with resolutionType=\"fixed\" but NO resolveEvidenceStrength -> succeeds, only resolutionType stored; WHY: partial field population is valid",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with dismissEvidenceStrength=\"weak\" but NO dismissReasonType -> succeeds; WHY: confirms fields are independently optional",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call finding_resolve with resolutionType=\"INVALID_VALUE\" -> rejected with clear enum validation error; WHY: proves enum boundary enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_dismiss with dismissReasonType=\"sql_injection\" -> rejected with clear error; WHY: adversarial garbage input",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_resolve with resolveEvidenceStrength=\"\" (empty string) -> rejected; WHY: empty-string edge for enum validation",
+            "type": "cli"
+          },
+          {
+            "desc": "Call finding_add with signatureTag containing special characters (spaces, slashes, unicode) -> either accepted or rejected gracefully, no crash; WHY: adversarial input for string field",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "Smoke: finding_add/resolve/dismiss capture+persist optional fields; enum validation rejects invalid AND empty-string; field-less back-compat.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Signature-registry in learning-store + minimal CLI; auto-propose on capture; gate-exclusion guardrail",
+      "context": "learning-store.ts: read/write .lattice/learning/signature-registry.json (tags: {tag,status:active|proposed|deprecated,aliases,mergedInto,createdBy,approvedBy}). finding_add with a new signatureTag auto-records it as proposed. Add a minimal CLI (signature_registry_list + signature_registry_set with action propose|approve|alias|deprecate; active requires explicit approve) via a new handler + registry/cli-engine entries. Determinism guardrail: advisory.ts and gate logic never read signatureTag/resolutionType/dismissReasonType/evidenceStrength.",
+      "userSees": "signature_registry_list shows tags; signature_registry_set --action=approve flips a proposed tag to active; a finding_add with an unregistered signatureTag leaves it status=proposed; advisory gate behavior is unchanged by any audit field.",
+      "status": "done",
+      "startTime": "2026-06-17T12:21:34.123Z",
+      "endTime": "2026-06-17T12:30:04.543Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call finding_add with signatureTag=\"new-tag\" (unregistered) -> signature-registry.json gains an entry {tag:\"new-tag\",status:\"proposed\"}; WHY: confirms auto-propose on capture",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=approve tag=\"new-tag\" -> status flips to active; WHY: confirms approve lifecycle",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_list -> returns all registered tags with status/aliases; WHY: confirms list operation",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=alias tag=\"auth-bypass\" aliasOf=\"new-tag\" -> new-tag gains alias \"auth-bypass\"; WHY: confirms alias/synonym folding",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=deprecate tag=\"old-tag\" -> status becomes deprecated; WHY: confirms deprecation lifecycle",
+            "type": "cli"
+          },
+          {
+            "desc": "Compute advisory gate decision on a finding WITH audit fields vs identical finding WITHOUT audit fields -> decisions are byte-identical; WHY: THE LOAD-BEARING GUARDRAIL proving gate logic ignores audit fields",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call finding_add with signatureTag=\"existing-tag\" (already in registry) -> no duplicate entry created, existing entry unchanged; WHY: idempotency of auto-propose",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=approve on an already-active tag -> no error, remains active; WHY: idempotent approve",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_list when registry file does not exist -> returns empty list, no crash; WHY: cold-start tolerance",
+            "type": "cli"
+          },
+          {
+            "desc": "Alias tag \"A\" to \"B\" where B has mergedInto set -> verify alias chain resolution is handled; WHY: transitive alias edge case",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call signature_registry_set action=approve on a tag that was never proposed -> rejected or auto-creates as proposed then requires re-approve; WHY: cannot skip the propose step",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set with action=\"DROP_TABLE\" (invalid action) -> rejected with clear error; WHY: adversarial action enum",
+            "type": "cli"
+          },
+          {
+            "desc": "Call signature_registry_set action=alias with tag=aliasOf (self-alias) -> rejected or no-op; WHY: adversarial circular reference",
+            "type": "cli"
+          },
+          {
+            "desc": "Concurrent finding_add calls with different signatureTags -> all tags registered without data corruption; WHY: concurrency safety of registry writes",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "signature-registry + signature_registry_list/set CLI (propose/approve[rejects never-proposed]/alias[rejects self]/deprecate); advisory.ts zero audit-field refs (gate unaffected).",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke + npm script + no regression (back-compat, gate-exclusion, migration, signal enrichment)",
+      "context": "tasks/experience-layer-finding-enums-smoke.ts + package.json test:experience-layer-finding-enums. Assert: optional capture + enum validation; legacy finding without fields unchanged (migration tolerance); audit fields NOT read by advisory.ts gate decision; signature-registry propose/approve/alias/mergedInto; finding-signals now produces non-zero signalScore when enums present. No regression in existing finding/usage-ledger smokes.",
+      "userSees": "npm run test:experience-layer-finding-enums exits 0 'smoke passed'; committed verifier prints TOTAL N | PASS N | FAIL 0; existing finding-related smokes still pass.",
+      "status": "done",
+      "startTime": "2026-06-17T12:24:48.512Z",
+      "endTime": "2026-06-17T12:30:07.910Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run test:experience-layer-finding-enums -> exits 0 with output containing smoke passed; WHY: confirms the smoke script exists and passes",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke verifier output shows TOTAL N | PASS N | FAIL 0 -> all assertions pass; WHY: confirms committed verifier reports clean",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts finding-signals produces non-zero signalScore when resolutionType=fixed is present -> signalScore > 0; WHY: confirms signal enrichment from enums",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts legacy finding without any new fields still verifies (migration tolerance) -> passes; WHY: confirms old data is not broken",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts signature-registry propose/approve/alias/mergedInto lifecycle -> all operations succeed in sequence; WHY: end-to-end registry lifecycle coverage",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run existing finding-related smokes (e.g. npm --prefix packages/main run test:finding-verify) -> still pass; WHY: no regression in pre-existing test suite",
+            "type": "cli"
+          },
+          {
+            "desc": "Run existing usage-ledger smoke -> still passes; WHY: no regression from Phase 1b changes",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts enum validation rejects invalid enum values for resolutionType/dismissReasonType/evidenceStrength -> error messages are clear; WHY: confirms enum boundary is exercised in smoke",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke computes advisory gate decision on a finding WITH all audit fields populated vs identical finding with audit fields stripped -> decisions are byte-identical; WHY: THE CRITICAL GUARDRAIL -- proves gate is never influenced by audit-only fields even when they are present",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke passes a finding through finding-verify with audit fields -> signature matches finding without audit fields; WHY: proves signature domain exclusion under real smoke conditions",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "command": "npm --prefix packages/main run test:experience-layer-finding-enums",
+          "result": "pass",
+          "note": "enums+phase-1a+usage-ledger smokes green (no regression); signalScore non-zero with enums; npm script wired.",
+          "headHash": "ed33120c4b745e67a1b2b32daa7d055d8b0e31ef",
+          "materialHash": "36677e35adf05ce91ff60a3b4bc43b2a85c0fffcfbdf318f2de51046577d393c",
+          "timestamp": "2026-06-17T13:05:25.463Z"
+        }
+      ]
+    }
+  ]
+}

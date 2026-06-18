@@ -57,18 +57,18 @@ const background = [
   'A maintainer sees the conclusion on stdout and a separate reload reminder on stderr after each checklist_update.',
 ].join('\n\n');
 
-// Pin KOALA_SESSION_ID so all child processes — including the bash -c pipeline
+// Pin LATTICE_SESSION_ID so all child processes — including the bash -c pipeline
 // in Test 3 — share one stable session and don't trip the owner-lease gate via
 // a different ppid-derived id.
-const origSessionId = process.env.KOALA_SESSION_ID;
-process.env.KOALA_SESSION_ID = 'smoke-reload-hint';
+const origSessionId = process.env.LATTICE_SESSION_ID;
+process.env.LATTICE_SESSION_ID = 'smoke-reload-hint';
 
-const root = mkdtempSync(join(tmpdir(), 'koala-reload-hint-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-reload-hint-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -138,9 +138,9 @@ try {
 } finally {
   rmSync(root, { recursive: true, force: true });
   if (origSessionId === undefined) {
-    delete process.env.KOALA_SESSION_ID;
+    delete process.env.LATTICE_SESSION_ID;
   } else {
-    process.env.KOALA_SESSION_ID = origSessionId;
+    process.env.LATTICE_SESSION_ID = origSessionId;
   }
 }
 

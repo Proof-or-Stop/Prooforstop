@@ -1,0 +1,122 @@
+{
+  "storyId": "B-6efb",
+  "checkedAt": "2026-06-17T01:56:11.971Z",
+  "features": [
+    {
+      "feature": "Create packages/main/src/tasks/run-all-smokes.ts and its dist artifact",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Scan packages/main/src/tasks/*-smoke.ts to discover smokes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Spawn smokes in parallel (default = os.cpus().length workers, overridable via --jobs N)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Read manifest file packages/main/smoke-manifest.json controlling per-smoke timeout and optional tags",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Support --tag <tag> argument filtering to run only smokes carrying that tag",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Support --select <pattern> argument filtering to run only smokes whose name matches",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Add test:all npm script at root referencing node packages/main/dist/tasks/run-all-smokes.js",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Print per-smoke PASS/FAIL lines and aggregate <n>/<m> passed in <duration>s summary",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Existing individual test:* scripts (262 entries) are left unchanged in B1",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Existing smoke source files (*-smoke.ts, 153 files) are not modified",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "c8 coverage instrumentation and test:coverage entry (B3 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred to B3 per test-runner-consolidation-plan.md Follow-up Stories B3 section; story description states NOT c8 - that is B3",
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Collapse/remove 258 individual test:* scripts into manifest entries (B2 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred to B2 per test-runner-consolidation-plan.md Follow-up Stories B2 section; story description states 262 existing test:* scripts LEFT UNCHANGED in this story",
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "UX polish: --watch, --rerun-failed, --json output mode, CONTRIBUTING.md docs (B4 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred to B4 (optional) per test-runner-consolidation-plan.md Follow-up Stories B4 section",
+      "source": "decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Runner self-smoke at packages/main/src/tasks/run-all-smokes-smoke.ts verifying runner behavior",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add test:run-all-smokes-smoke npm script to packages/main/package.json",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 10,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ec5d3d3d0450d3522d424b5d308f6f56a095b263f185d15b54161d7dbc66f348",
+  "openQuestions": []
+}

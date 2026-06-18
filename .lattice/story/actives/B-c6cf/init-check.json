@@ -1,0 +1,37 @@
+{
+  "storyId": "B-c6cf",
+  "checkedAt": "2026-06-17T13:34:02.704Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "index.json priority field is \"P2\", which is not a standard Lattice priority value (expected: low/medium/high/critical per CLAUDE.md riskSignals auto-elevation logic and story-create handler order array). Non-standard values are accepted by the z.string() schema but do not integrate with the riskSignals keyword elevation gate or the CLAUDE.md fast/normal channel rules."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T13:32:19.110Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-002 context still mentions PLAN-time decision between single-process and child-process instrumentation, but background.md already resolves this to option (a) single-process. Consider updating checklist text to reflect the resolved decision so the checklist is self-contained."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T13:34:02.704Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json priority field is \"P2\", which is not a standard Lattice priority value (expected: low/medium/high/critical per CLAUDE.md riskSignals auto-elevation logic and story-create handler order array). Non-standard values are accepted by the z.string() schema but do not integrate with the riskSignals keyword elevation gate or the CLAUDE.md fast/normal channel rules."
+        }
+      ]
+    }
+  ],
+  "_hash": "6b1e5c1c00249f335cb2b4a246f45c3677fae45fdd0383241e94ff77d08af338"
+}

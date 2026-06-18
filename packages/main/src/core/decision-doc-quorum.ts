@@ -79,9 +79,9 @@ function isDirectDecisionDoc(path: string): boolean {
   return rest.length > 0 && !rest.includes('/');
 }
 
-function git(root: string, args: string[]): string {
+function git(gitCwd: string, args: string[]): string {
   return execFileSync('git', args, {
-    cwd: root,
+    cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();

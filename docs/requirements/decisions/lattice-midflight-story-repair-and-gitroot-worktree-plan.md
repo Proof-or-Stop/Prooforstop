@@ -423,7 +423,6 @@ Not allowed:
 - `.lattice/story/**`
 - `tests/fixtures/**`
 - `packages/main/tests/fixtures/**`
-- `.omx/**`
 
 ## Verification Plan
 

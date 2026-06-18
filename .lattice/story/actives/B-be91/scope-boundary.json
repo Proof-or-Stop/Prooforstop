@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-be91",
+  "mode": "feature",
+  "allowed": [
+    "CHANGELOG.md (Unreleased entry)",
+    "docs/dev/test-coverage.md (note new test:all --jobs default)",
+    "package.json (root: edit test:all script value only)"
+  ],
+  "excluded": [
+    "Any new manifest field / runner flag (Plan B + C scope)",
+    "packages/main/smoke-manifest.json (B-24c3 frozen — recently merged)",
+    "packages/main/src/ (production code OFF LIMITS)",
+    "packages/main/src/tasks/ (all *-smoke.ts source frozen)",
+    "packages/main/src/tasks/run-all-smokes.ts (B-6efb frozen)",
+    "Plan B two-pass retry implementation (separate follow-up story)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User picked (a) Plan A on 2026-06-18: simplest viable fix is to cap test:all default --jobs. Single-line script change. Plan B (two-pass) is a separate follow-up if Plan A insufficient.",
+  "createdAt": "2026-06-18T01:05:04.214Z",
+  "updatedAt": "2026-06-18T01:05:04.214Z",
+  "_hash": "091ea076967a1615a82f2a65530e81c1707965f416348dcd5375aa2ab8f7853b"
+}

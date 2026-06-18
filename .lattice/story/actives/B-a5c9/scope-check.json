@@ -1,0 +1,199 @@
+{
+  "storyId": "B-a5c9",
+  "checkedAt": "2026-06-16T13:59:52.474Z",
+  "features": [
+    {
+      "feature": "EstimatorKind type (count_tokens | local_tokenizer | bytes_chars)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Confidence mapping: count_tokens=high, local_tokenizer=medium, bytes_chars=low",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "TokenEstimator type: (optionally async) function (model, input) -> {estimatedInputTokens, kind}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Deterministic offline bytes/chars heuristic estimator (kind=bytes_chars, confidence=low)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "bytes/chars estimator must NOT be tiktoken (tiktoken undercounts Claude); no network, no provider client",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Estimate fallback selector: count_tokens > local_tokenizer > bytes_chars strict order",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "count_tokens and localTokenizer are pluggable/injected (optional); default falls back to bytes_chars",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Estimate must bind to the exact provider.model id (token counts are model-version-specific)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "selectEstimate returns {estimatedInputTokens, kind, confidence, model}",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "buildEstimateRecord produces usage.source=prompt-size-estimate record",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "usage.estimator.name, .version, .unit, .confidence required on prompt-size-estimate records",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "canonical.input = estimatedInputTokens; output/cacheCreation/cacheRead = null (nothing generated yet)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Estimate record must pass validateUsageLedgerRecord",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "correlation fields (ledgerCallId, attemptId, sequence, supersedesRecordIds) on estimate record",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "attribution fields (storyId, phase, agentType) on estimate record",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "buildSupersedes helper: provider-reported final record lists preflight estimate recordId in supersedesRecordIds",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "prompt-size-estimate NEVER counted as final usage; excluded from providerReportedTotal in summary",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "estimateSubtotal tracks estimate separately; no double-count with provider-reported final usage",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke test suite wired into package.json as npm test:usage-ledger-estimate",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covers estimate record round-trip through B-253e writer (opt-in ON, temp dir)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Module imports zero other Lattice modules (grep assertion in smoke)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Real provider count_tokens HTTP binding (injected by later dispatch slice)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "OUT OF SCOPE: deferred to dispatch-wiring slice; count_tokens is pluggable interface only in this slice",
+      "source": "description"
+    },
+    {
+      "feature": "Live dispatch path wiring (estimate path connected to real provider dispatch)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "OUT OF SCOPE: explicitly deferred to live-dispatch slice",
+      "source": "description"
+    },
+    {
+      "feature": "Budget decision/enforcement logic",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "OUT OF SCOPE: deferred to Touchpoint 4 (budget policy slice); this slice is pure estimate path",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Signed-receipt path / Authority receipt integration",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "OUT OF SCOPE: deferred to Touchpoint 6 (Authority integration slice)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Default-on ledger write",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "OUT OF SCOPE: deferred to Rollout Phase 6",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 26,
+    "covered": 21,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "dedc226ff73ede48b09613cda83177a9badbc15224777b1221e1226f23d38175",
+  "openQuestions": []
+}

@@ -1,0 +1,87 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-15T23:52:07.145Z",
+      "issueCount": 11,
+      "blockerCount": 9,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Hard-rename every KOALA_* env var to LATTICE_* across code, JSON config, wrapper assets, and hook-contract docs (no koala fallback) + Update tests and smoke fixtures that assert KOALA_* env-var names so the suite reflects LATTICE_* only are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/utils/src is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/lab/src is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: scripts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: bin is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .Codex is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .claude is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/koala/legacy is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "ef83c4813f199acc523d5bb6146a4a97757f8b58079a69bcdac0c51071830a34"
+    },
+    {
+      "timestamp": "2026-06-15T23:58:31.307Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Hard-rename every KOALA_* env var to LATTICE_* across code, JSON config, wrapper assets, and hook-contract docs (no koala fallback) + Update tests and smoke fixtures that assert KOALA_* env-var names so the suite reflects LATTICE_* only are performed simultaneously?)"
+        }
+      ],
+      "_hash": "e9d4fb7bc75b9d96e417a37e3e623a918c51e7ae161c1674da1f2f24e7d8dcf8"
+    }
+  ]
+}

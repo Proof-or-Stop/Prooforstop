@@ -1,0 +1,35 @@
+{
+  "storyId": "B-3784",
+  "checkedAt": "2026-06-17T23:32:54.768Z",
+  "reviewRound": "2026-06-17T23:27:39.658Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-3784/evidence/transcript-diff.md",
+      "promise": "Both smokes (multi-host-authority and autopilot-authority) pass from repo root when authority_trust.env is present; isolation via fileReader:NO_DISK and cwd:root temp dir",
+      "verifiedBy": "grep source + manual_transcript evidence",
+      "evidence": "multi-host-authority-smoke.ts: 14 occurrences of fileReader: NO_DISK confirmed in source. autopilot-authority-smoke.ts: 12 occurrences of cwd: root confirmed in source. Both fixes present on main (merged via B-6745). Transcript-diff.md shows actual output matches expected output exactly."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "manual_transcript: node packages/main/dist/tasks/multi-host-authority-smoke.js exits 0 from repo root with authority_trust.env present. logic_test: E2 assertion enforced — resolveAuthorityVerdictBacking with fileReader:NO_DISK returns mode=local for enforce-only env with no URL. logic_test: diff confirms only fileReader:NO_DISK added to affected call sites; all other assertions unchanged."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "manual_transcript: node packages/main/dist/tasks/autopilot-authority-smoke.js exits 0 from repo root with authority_trust.env present. logic_test: shadow mode still returns status=warn after fix — cwd pointing to empty temp dir has no authority_trust.env, so safety property preserved. logic_test: EMPTY_AUTHORITY_ENV unchanged; only cwd:root (temp dir) added to buildAutopilotRun calls; minimal change confirmed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "manual_transcript: npm run test:all from worktree (repo root equivalent): 162/163 passed; PASS autopilot-authority and PASS multi-host-authority confirmed. manual_transcript: All 159 previously-passing smokes still pass — no regressions introduced. logic_test: rollout-check concurrency flake is pre-existing and explicitly excluded per CHK-003 scope."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 checklist items verified with machine evidence. CHK-001 and CHK-002 fixes are present in source (fileReader:NO_DISK and cwd:root isolation confirmed by grep). CHK-003 confirms 162/163 test:all pass with no regressions. The diff from main contains only Lattice story metadata — the source fixes were delivered by B-6745 and are already on main; this story tracked their verification. No unresolved TODOs found in affected source files."
+  },
+  "_hash": "34a5b6e493086eca05d4069b171727288809f332659c9da379cb6b74ce77b32e"
+}

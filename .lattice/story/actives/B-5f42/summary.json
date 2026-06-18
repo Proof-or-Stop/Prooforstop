@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5f42",
+  "changes": "Two-layer English-only-artifact enforcement: (1) a warn-only PreToolUse(Bash) hook (.claude/hooks/english-only-guard.cjs, generated via init-assets+managed-assets+cli-init HOOK_FILES) that warns on CJK in git commit / lattice story-metadata commands; (2) a diff/story-scoped english-artifacts CJK gate in the validate REVIEW->TEST preflight (handlers/english-artifact-gate.ts + review-preflight.ts) backed by a pure core/cjk-detect.ts; plus a 7-test smoke including an init-rerun regression test.",
+  "usage": "Layer 1 warns immediately when an artifact-writing command contains Chinese; Layer 2 hard-fails the validate preflight (blocking REVIEW->TEST) when the current story commits or author-controlled metadata contain CJK, while never flagging legacy files. Run npm run test:english-only-guards-smoke to exercise both.",
+  "expectedOutcome": "Hook prints an english-only warning on a CJK commit/metadata command (exit 0); validate preflight blocks REVIEW->TEST on CJK in current-story artifacts and passes on English-only.",
+  "actualTranscript": "Hook demo printed warn english-only: CJK detected ... (exit 0) on a CJK commit command and stayed silent on English; smoke all 7 green; the english-artifacts gate passed in this story own preflight (dogfood); lattice init into a temp dir installs the hook on both fresh init and init-rerun (Test 7).",
+  "outcomeDiff": "No difference; both layers behave exactly as specified (see evidence/transcript-diff.md).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Coverage is commits + lattice story metadata only (diff/story-scoped). The broad active-source/doc no-new-Chinese gate is the separate, already-implemented Phase 3 (english-open-source-surface-smoke.ts). Layer 1 is warn-only by design; Codex-host equivalent deferred. CJK ranges cover Han U+4E00-9FFF + Ext A U+3400-4DBF (matches Phase 3).",
+  "pitfalls": "The hook/gate must be generated via init-assets+managed-assets (not hand-edited); two parallel Claude-hook merge paths exist (cli-init.ts init-rerun + managed-assets.ts) and BOTH need the per-entry fix or the second hook is silently dropped on init-rerun (caught by escalation review). Source files must build CJK ranges from code points so they do not self-trip the gate.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 183488
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21363
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 794307
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1995581
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1025096
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 3942578
+    }
+  },
+  "totalDurationMs": 7962440,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-17T00:42:49.311Z",
+  "updatedAt": "2026-06-17T00:42:49.311Z"
+}

@@ -1,0 +1,103 @@
+{
+  "storyId": "B-a7b0",
+  "name": "docs-drift-gate-validates-claudemd-paths-and-managed-assets",
+  "title": "Extend the CLAUDE.md docs-drift gate to validate path and managed-asset claims, not just command names",
+  "description": "Today the docs-drift preflight gate (packages/main/src/handlers/validate-docs-drift.ts, consumed by review-preflight.ts / phase-gates.ts at REVIEW->TEST) DOES scan CLAUDE.md, but ONLY for lattice command-name references vs the registry. It does NOT validate path references or managed-asset claims. That is exactly the blind spot that let CLAUDE.md line 77 falsely state 'do not create .Codex/hooks' while the framework actually GENERATES those host hooks (the P3 contradiction). Meanwhile core/audit-scan.ts already implements scanPathDrift (and scanFlagDrift), but only the audit flow (handlers/audit.ts) uses it — it is not wired into the CLAUDE.md docs-drift gate. Outcome: extend the CLAUDE.md docs-drift gate so the main doc cannot drift/lie about (1) file paths it references that do not exist, and (2) managed assets — a 'do not create <X>' / 'X must not exist' claim for an <X> that the managed-asset registry (core/managed-assets.ts) says the framework generates must be flagged as drift. Reuse the existing scanPathDrift / managed-asset registry rather than re-implementing. Keep the existing command-name scan intact and additive (no behavior change for docs with no path/asset issues). Scope: validate-docs-drift.ts gate logic + reuse of audit-scan/managed-assets + a regression smoke wired into the validate battery. Out of scope: the actual one-line CLAUDE.md:77 wording fix (separate story B-94ae), the .Codex rename (B-ed70), and changing any hook generation behavior.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "docs-drift",
+    "gate",
+    "managed-assets",
+    "CLAUDE.md",
+    "audit-scan"
+  ],
+  "createdAt": "2026-06-16T20:53:29.246Z",
+  "startedAt": "2026-06-16T20:53:29.246Z",
+  "endedAt": "2026-06-16T21:54:17.237Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T20:53:29.254Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T20:58:08.462Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T20:59:28.929Z",
+      "branch": "story/B-a7b0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:09:50.048Z",
+      "branch": "story/B-a7b0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:28:15.259Z",
+      "branch": "story/B-a7b0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:38:05.074Z",
+      "branch": "story/B-a7b0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:38:09.638Z",
+      "branch": "story/B-a7b0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:44:37.520Z",
+      "branch": "story/B-a7b0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:54:17.237Z",
+      "branch": "story/B-a7b0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-p3gate",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T21:38:09.638Z"
+}

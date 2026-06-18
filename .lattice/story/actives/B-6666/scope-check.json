@@ -1,0 +1,136 @@
+{
+  "storyId": "B-6666",
+  "checkedAt": "2026-06-17T16:39:32.429Z",
+  "features": [
+    {
+      "feature": "Thread resolved gitCwd into the DONE-oracle git-status path (readGitStatusLines) so wrapper-root projects are not false-blocked at DONE",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Resolve gitCwd ONCE at the runDonePreMergeGate boundary using the existing doneGitCwd value from transition-orchestrator:271, not re-resolved inside the gate chain",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Plain-repo byte-identity fallback: when no distinct gitRoot resolves, behavior must be byte-identical to today (root fallback)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Thread resolved gitCwd into evidence-freshness.ts git probes (currentGitHead, currentMaterialHash, changedFilesBetween) so wrapper-root authority-receipt/done freshness hashes are not undefined",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Remove the no-op const gitCwd=projectRoot alias and confessional comment from evidence-freshness.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Fix the authority-receipt caller in phase-gates.ts (runAuthorityReceiptTransitionGate) to resolve gitCwd at its boundary",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "The DONE-path evidence-freshness call (done-oracle.ts:280 checkEvidenceFreshness) must receive the SAME resolved gitCwd as the git-status row (no split-brain)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "Strengthen gitroot-cwd-contract-smoke.ts with alias-detection rule: flag const <name>=projectRoot|root|metadataRoot used as git cwd without resolveGitCwd",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Strengthen gitroot-cwd-contract-smoke.ts with backtick-template git call scan to close the GIT_CALL_REGEX blind spot",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Alias-detection rule must be proximity-scoped (alias used as git cwd within the same git-call window) to avoid false-positives on innocent non-git aliases",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add KNOWN-GOOD and KNOWN-BAD self-test fixtures for both new rules so they are pinned in both directions",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix every confirmed bare-root site newly flagged by the strengthened contract (validate-channel.ts x2, test-runner-core.ts x2, validate-concept.ts if flagged)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npm run test:gitroot-cwd-contract must exit 0 (GREEN) after CHK-003; if backtick blast radius exceeds safe scope, fix confirmed sites + log remaining as documented follow-up, never leave contract RED",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add wrapper-root regression smoke (red->green proof for the git-working-tree done-check row)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Update package.json only if a new regression smoke script is needed",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "OUT OF SCOPE: process-fact-registry.ts / process-fact-config.ts / DEFAULT_PHASE_TOOLS changes (B-867c story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints + scope-boundary.json confirmedBy note: B-867c handles these files",
+      "source": "description"
+    },
+    {
+      "feature": "OUT OF SCOPE: wiring gitroot-cwd-contract smoke into the lattice validate battery (B-99b6 story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints + scope-boundary.json confirmedBy note: B-99b6 handles battery wiring",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 15,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3991ff6ed039f16200698ec4ec4423c84c145e6cb1df1758c5c5653dfc5743c8",
+  "openQuestions": []
+}

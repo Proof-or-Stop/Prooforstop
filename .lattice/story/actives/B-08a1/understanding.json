@@ -1,0 +1,32 @@
+{
+  "task": "Implement the PURE provider-usage adapter layer (Slice 2) in packages/main/src/core/usage-ledger/: anthropic/openai/gemini usage->canonical-record adapters, a record assembler (correlation ids from ids.ts + call-time attribution), streaming/failure usage extraction, unavailable+per-dimension-null semantics, and a wired smoke. NOT wired into live dispatch (deferred).",
+  "outcome": "Running npm --prefix packages/main run test:usage-ledger-adapter prints all-green: anthropic sample maps all four native fields to canonical; openai sample maps prompt/completion + cached_tokens->cacheRead with cacheCreation=null; gemini sample maps promptTokenCount/candidatesTokenCount/cachedContentTokenCount with cacheCreation=null; the assembler produces records that PASS the B-253e validator using minted ledgerCallId/attemptId + attribution (storyId nullable, phase, agentType); streaming terminal-event usage and mid-stream-error partial usage are extracted (provider-reported), no-usage -> unavailable with reason; per-dimension absence is null (never 0); and an assembled record round-trips through the B-253e writer (opt-in ON, temp dir) and re-validates. npm --prefix packages/main run build is clean; git diff touches only packages/main and never dispatch-runner/lattice-dispatch.",
+  "facts": [
+    "B-253e shipped core/usage-ledger/{record.ts(validator),ids.ts,writer.ts,summary.ts}; this slice reuses them",
+    "Canonical shape = {input,output,cacheCreation,cacheRead} + usage.raw{providerUnits,payloadDigest} + source enum (record.ts)",
+    "Lattice coordinates codex(OpenAI-family)/claude(Anthropic)/gemini(Google); no existing provider usage parsing",
+    "Anthropic reports all four natively; OpenAI has cached_tokens (cacheRead) but no cache-write (cacheCreation=null); Gemini has cachedContentTokenCount (cacheRead), cacheCreation=null",
+    "Per-dimension absence = null (never 0); no usage at all = source=unavailable"
+  ],
+  "constraints": [
+    "Adapters are PURE (provider response in, validated record out); reuse the B-253e validator/writer/ids — do not duplicate them",
+    "Correlation ids come from ids.ts, never the provider request id",
+    "Preserve raw provider units AND produce the canonical view",
+    "Do NOT wire into the live dispatch path (dispatch-runner / lattice-dispatch) — separate later story",
+    "Code only under packages/main/src + its tests"
+  ],
+  "unknowns": [
+    "Exact sample-payload shapes per provider to encode in tests (use documented usage objects)",
+    "Whether to place adapters under core/usage-ledger/adapters/ (preferred) vs flat (confirm by matching module conventions)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts",
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/adapters/gemini.ts",
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/core/usage-ledger/streaming.ts",
+    "packages/main/src/tasks/usage-ledger-adapter-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-16T02:14:29.040Z"
+}

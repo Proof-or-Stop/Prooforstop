@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-cfdd",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "lattice *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm --prefix packages/main test",
+    "npx tsc *",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-cfdd",
+    "packages/main/package.json",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Pure-fn convergence detector under core + advisory wiring in handlers/transition-effects.ts + a smoke under packages/main/src/tasks. Read-only git/grep for the audit; build+test for verification. English-only artifacts.",
+  "createdAt": "2026-06-16T21:04:11.753Z",
+  "updatedAt": "2026-06-16T21:04:11.753Z",
+  "_hash": "47e16c62c049b2df088af9b9fa9f0e0e9412397441e855ca717bbbb75bd72d23"
+}

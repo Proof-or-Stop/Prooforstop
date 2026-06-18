@@ -21,17 +21,18 @@ import {
   renderStoryMetadataProtectionWarning,
   type StoryMetadataProbe,
 } from '../core/story-metadata-protection.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
 
-export interface GlobalKoalaLinkRepairOptions {
+export interface GlobalLatticeLinkRepairOptions {
   globalPackagePath?: string;
   globalPackageRoot?: string;
   unlinkImpl?: typeof unlinkSync;
   symlinkImpl?: typeof symlinkSync;
 }
 
-export interface GlobalKoalaLinkRepairResult {
+export interface GlobalLatticeLinkRepairResult {
   action: 'relinked' | 'skipped';
   message: string;
 }
@@ -66,7 +67,7 @@ function entryExists(path: string): boolean {
   }
 }
 
-function resolveGlobalCorePackagePaths(options: GlobalKoalaLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
+function resolveGlobalCorePackagePaths(options: GlobalLatticeLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
   if (options.globalPackagePath) {
     return [{
       path: options.globalPackagePath,
@@ -98,8 +99,8 @@ function repairOneGlobalCoreLinkBeforeWorktreeDelete(
   worktreePath: string,
   mainRepoRoot: string,
   resolvedGlobalPackage: ResolvedGlobalCorePackagePath,
-  options: GlobalKoalaLinkRepairOptions,
-): GlobalKoalaLinkRepairResult {
+  options: GlobalLatticeLinkRepairOptions,
+): GlobalLatticeLinkRepairResult {
   const globalPackagePath = resolvedGlobalPackage.path;
   const packageDescription = describeGlobalCorePackage(resolvedGlobalPackage);
 
@@ -139,11 +140,11 @@ function repairOneGlobalCoreLinkBeforeWorktreeDelete(
   return { action: 'relinked', message: `✓ global ${packageDescription} has been relinked from story worktree to ${mainPackagePath}` };
 }
 
-export function repairGlobalKoalaLinkBeforeWorktreeDelete(
+export function repairGlobalLatticeLinkBeforeWorktreeDelete(
   worktreePath: string,
   mainRepoRoot: string,
-  options: GlobalKoalaLinkRepairOptions = {},
-): GlobalKoalaLinkRepairResult {
+  options: GlobalLatticeLinkRepairOptions = {},
+): GlobalLatticeLinkRepairResult {
   const resolvedGlobalPackages = resolveGlobalCorePackagePaths(options);
   if (resolvedGlobalPackages.length === 0) {
     return { action: 'skipped', message: `global ${CANONICAL_CORE_PACKAGE_NAME} path not found, skipping relink` };
@@ -362,8 +363,9 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   }
 
   function getRepoRoot(): string {
+    const gitCwd = root;
     try {
-      return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+      return execSync('git rev-parse --show-toplevel', { cwd: gitCwd, encoding: 'utf-8' }).trim();
     } catch {
       return root;
     }
@@ -790,9 +792,22 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         story.worktree = undefined;
       }
 
-      // Reject nesting when already inside a worktree
+      // Reject nesting when already inside a worktree.
+      //
+      // B-e791 CHK-002: keep this probe in the current cwd (process.cwd() =
+      // metadataRoot) so the rejection still reflects the directory the user is
+      // actually in — a genuine `worktree-*` checkout is still detected and
+      // thrown. The only change is `stdio: ['pipe','pipe','pipe']`, which routes
+      // git's stderr into the captured pipe instead of inheriting the terminal.
+      // On a wrapper-root metadataRoot (not itself a git repo) git exits with
+      // `fatal: not a git repository`; previously that line leaked to stderr even
+      // though the error was caught and bootstrap proceeded. Piping stderr
+      // silences the spurious fatal while preserving the catch + nesting throw.
       try {
-        const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
+        const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        }).trim();
         if (branch.startsWith('worktree-')) {
           throw new Error('Already in a worktree, do not nest. Just develop in the current directory');
         }
@@ -1068,27 +1083,36 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         results.push(unpushed.warning);
       }
 
-      // Merge into the main branch
-      try {
-        git(`merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`, gitRoot);
-        results.push(`✓ Branch ${branch} has been merged into ${mainBranch}`);
-      } catch (e: any) {
-        throw new Error(
-          `Merge conflict, please resolve manually:\ngit merge ${branch}\n${e.stderr || e.message}`
-        );
-      }
+      // B-9177 CHK-002: serialize the story→main merge + worktree cleanup +
+      // branch delete critical section under the unified main write lock, mirroring
+      // the live equivalent `applyDoneMergeEffects` (which already holds the lock
+      // across the same span). NOTE: `dev_merge` is currently DORMANT/legacy — it
+      // is NOT in the CLI command registry and is only reachable in-process — but
+      // it is wrapped here for defense-in-depth and so the CHK-003 coverage guard
+      // sees consistent locking of every main-mutating path. Reentrant variant.
+      withReentrantMainWriteLock(gitRoot, () => {
+        // Merge into the main branch
+        try {
+          git(`merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`, gitRoot);
+          results.push(`✓ Branch ${branch} has been merged into ${mainBranch}`);
+        } catch (e: any) {
+          throw new Error(
+            `Merge conflict, please resolve manually:\ngit merge ${branch}\n${e.stderr || e.message}`
+          );
+        }
 
-      // Clean up worktree (B-0975: retry transient Permission denied locks on Windows)
-      worktreeRemoveWithRetry(wtPath, { cwd: gitRoot });
-      results.push(`✓ Worktree ${wtPath} cleaned up`);
+        // Clean up worktree (B-0975: retry transient Permission denied locks on Windows)
+        worktreeRemoveWithRetry(wtPath, { cwd: gitRoot });
+        results.push(`✓ Worktree ${wtPath} cleaned up`);
 
-      // Delete branch
-      try {
-        git(`branch -d ${branch}`, gitRoot);
-        results.push(`✓ Branch ${branch} deleted`);
-      } catch {
-        results.push(`⚠ Branch ${branch} not deleted (may have unmerged commits)`);
-      }
+        // Delete branch
+        try {
+          git(`branch -d ${branch}`, gitRoot);
+          results.push(`✓ Branch ${branch} deleted`);
+        } catch {
+          results.push(`⚠ Branch ${branch} not deleted (may have unmerged commits)`);
+        }
+      }, { label: 'dev_merge (dormant/legacy)' });
 
       // Clean up story records
       story.worktree = undefined;
@@ -1314,7 +1338,17 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         const storyRel = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${args.storyId}`;
         rmSync(join(root, storyRel), { recursive: true, force: true });
         results.push(`✓ Story metadata cleaned: ${storyRel}`);
-        results.push(purgeSafeInitCommit(args.storyId, storyRelForGit(storyRel), gitRoot));
+        // B-9177 CHK-002: `purgeSafeInitCommit` runs `git reset --hard HEAD~1` on
+        // the main checkout (gitRoot) — a main-HEAD rewrite that must be
+        // serialized under the unified main write lock. Reentrant: story_discard
+        // can run inside an already-locked context.
+        results.push(
+          withReentrantMainWriteLock(
+            gitRoot,
+            () => purgeSafeInitCommit(args.storyId, storyRelForGit(storyRel), gitRoot),
+            { label: 'story_discard purge reset' },
+          ),
+        );
         return results.join('\n');
       }
 
@@ -1332,7 +1366,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const digest = recordScopeDiscardDigest(args.storyId, args.reason);
       if (digest) results.push(`✓ discard digest recorded: ${digest.slice(0, 12)}`);
       store.writeStory(args.storyId, story);
-      const metadataCommit = commitDiscardMetadata(args.storyId, storyRelForGit(storyRel), gitRoot);
+      // B-9177 CHK-002: `commitDiscardMetadata` runs `git commit` on the main
+      // checkout (gitRoot) — a main mutation that must be serialized under the
+      // unified main write lock to avoid the B-7365-class commit race. Reentrant:
+      // story_discard can run inside an already-locked context.
+      const metadataCommit = withReentrantMainWriteLock(
+        gitRoot,
+        () => commitDiscardMetadata(args.storyId, storyRelForGit(storyRel), gitRoot),
+        { label: 'story_discard metadata commit' },
+      );
       if (metadataCommit) results.push(metadataCommit);
 
       results.push(wasDiscarded

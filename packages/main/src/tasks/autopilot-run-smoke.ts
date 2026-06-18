@@ -169,7 +169,7 @@ function git(root: string, args: string[]): string {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -1220,14 +1220,14 @@ try {
     '--allowedPaths=packages/main/src/generated/owner-gate-cancel.txt',
     '--requiredCommands=node -e "process.exit(0)"',
     '--json',
-  ], { KOALA_SESSION_ID: 'sess-autopilot-owner' });
+  ], { LATTICE_SESSION_ID: 'sess-autopilot-owner' });
   assert.equal(ownerGateCancelRun.status, 'manual_review_ready');
   assert.equal(ownerGateCancelRun.storyId, 'B-owner-gate-cancel-demo');
   const ownerGateCancelRefusal = runCliFailure(root, [
     'autopilot_cancel',
     `--runId=${ownerGateCancelRun.runId}`,
     '--json',
-  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  ], { LATTICE_SESSION_ID: 'sess-autopilot-intruder' });
   assert.match(ownerGateCancelRefusal, /B-owner-gate-cancel-demo/, 'autopilot_cancel owner gate must resolve storyId from runId');
   assert.match(ownerGateCancelRefusal, /sess-autopilot-owner/, 'autopilot_cancel owner gate must reject the non-owner session');
   assert.match(ownerGateCancelRefusal, /owner-gated/, 'autopilot_cancel runId owner gate refusal must name owner-gated semantics');
@@ -1236,7 +1236,7 @@ try {
     `--runId=${ownerGateCancelRun.runId}`,
     '--forceTakeover=true',
     '--json',
-  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  ], { LATTICE_SESSION_ID: 'sess-autopilot-intruder' });
   assert.equal(ownerGateCancelTakeover.status, 'cancelled');
   assert.equal(ownerGateCancelTakeover.record.storyId, 'B-owner-gate-cancel-demo');
   assertNoCliMetaLeak(ownerGateCancelTakeover, 'ownerGateCancelTakeover');
@@ -1250,14 +1250,14 @@ try {
     '--allowedPaths=packages/main/src/generated/owner-gate-resume.txt',
     '--requiredCommands=node -e "process.exit(0)"',
     '--json',
-  ], { KOALA_SESSION_ID: 'sess-autopilot-owner' });
+  ], { LATTICE_SESSION_ID: 'sess-autopilot-owner' });
   assert.equal(ownerGateResumeRun.status, 'manual_review_ready');
   assert.equal(ownerGateResumeRun.storyId, 'B-owner-gate-resume-demo');
   const ownerGateResumeRefusal = runCliFailure(root, [
     'autopilot_resume',
     `--runId=${ownerGateResumeRun.runId}`,
     '--json',
-  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  ], { LATTICE_SESSION_ID: 'sess-autopilot-intruder' });
   assert.match(ownerGateResumeRefusal, /B-owner-gate-resume-demo/, 'autopilot_resume owner gate must resolve storyId from runId');
   assert.match(ownerGateResumeRefusal, /sess-autopilot-owner/, 'autopilot_resume owner gate must reject the non-owner session');
   assert.match(ownerGateResumeRefusal, /owner-gated/, 'autopilot_resume runId owner gate refusal must name owner-gated semantics');
@@ -1266,7 +1266,7 @@ try {
     `--runId=${ownerGateResumeRun.runId}`,
     '--forceTakeover=true',
     '--json',
-  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  ], { LATTICE_SESSION_ID: 'sess-autopilot-intruder' });
   assert.equal(ownerGateResumeTakeover.schemaVersion, 'lattice.autopilot_resume.v1');
   assert.equal(ownerGateResumeTakeover.status, 'refused');
   assertNoCliMetaLeak(ownerGateResumeTakeover, 'ownerGateResumeTakeover');

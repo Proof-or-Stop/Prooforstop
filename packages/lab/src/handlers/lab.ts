@@ -15,7 +15,7 @@ function formatCreateResult(configPath: string, config: LabExperimentConfig): st
   return [
     `Created experiment ${config.id}`,
     `Config: ${configPath}`,
-    `Next: koala lab run --config ${configPath} --dry-run`,
+    `Next: lattice lab run --config ${configPath} --dry-run`,
   ].join('\n');
 }
 
@@ -81,7 +81,7 @@ function resolveFilePath(root: string, path: string): string {
 function readCandidateContent(root: string, targetPath: string): string {
   const resolved = resolveFilePath(root, targetPath);
   if (!existsSync(resolved)) {
-    throw new Error(`koala-lab candidate target 不存在: ${targetPath}`);
+    throw new Error(`lattice-lab candidate target 不存在: ${targetPath}`);
   }
   return readFileSync(resolved, 'utf8');
 }
@@ -177,7 +177,7 @@ function evaluateCandidate(args: {
   }
 
   if (!chosenMetrics) {
-    throw new Error(`koala-lab candidate evaluation failed for ${args.targetPath}`);
+    throw new Error(`lattice-lab candidate evaluation failed for ${args.targetPath}`);
   }
 
   const stability = computeStabilityPenalty({ repeatScores, hadCrash });

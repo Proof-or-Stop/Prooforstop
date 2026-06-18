@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1b28",
+  "mode": "feature",
+  "allowed": [
+    "Flip the isUsageLedgerEnabled() default to ON in core/usage-ledger/writer.ts (unset => enabled; 0/false/off/no => disabled); update the existing usage-ledger smoke assertion + writer comment that state the default; add a default-on smoke; update any ledger doc/comment stating the default"
+  ],
+  "excluded": [
+    "Adding any new enforcement or gate",
+    "Changing the dispatch seam, budget, or authority logic",
+    "codex or gemini hosts",
+    "Editing dispatch-runner / cli-engine / handlers"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized one story per remaining ledger touchpoint (2026-06-16); scout + INIT reviewers said ship default-on now. Escape hatch (=0) restores legacy behavior; budget separately gated.",
+  "createdAt": "2026-06-16T22:07:40.986Z",
+  "updatedAt": "2026-06-16T22:07:40.986Z",
+  "_hash": "dded6f35b8666e2ba1fbe59bc9a79725f8d50415d29f98927e5e10d1e3210c49"
+}

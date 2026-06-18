@@ -1,0 +1,89 @@
+{
+  "storyId": "B-1480",
+  "checkedAt": "2026-06-17T02:35:51.611Z",
+  "reviewRound": "2026-06-17T02:27:26.580Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#module-decomposition",
+      "promise": "Module decomposition: 4 core + 2 handler modules, one-way inward coupling",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Doc section Module decomposition contains table with core/experience-layer-types.ts, core/learning-store.ts, core/finding-signals.ts, core/experience-hint-loader.ts, handlers/learning.ts, handlers/playbook.ts (4 core + 2 handler). Coupling column confirms inward-only. One-way inward direction stated explicitly."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#reuse-dont-rebuild",
+      "promise": "Reuse of dev-memory, decision-doc-promotion digest pattern, and activity-log appendActivityLog",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Section Reuse, do not rebuild names all three: extend dev-memory.ts for capture, clone decision-doc-promotion.ts proposalDigest pattern for playbook digest, reuse activity-log.ts appendActivityLog for the learning log."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#cut-full-text-search-fts-for-v1",
+      "promise": "FTS cut for v1; v1 uses structured field filtering only via existing story_list scan",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Section Cut full-text search (FTS) for v1 states explicitly: no SQLite, BM25, or inverted index; Level 2 recall = structured field filtering reusing story_list filesystem-scan path; no derived story-index in v1."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#determinism-guardrails",
+      "promise": "Exactly three determinism guardrails documented",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Section Determinism Guardrails declares exactly THREE determinism guardrails: (1) audit-only finding fields excluded from gate reads; (2) finding-signals reads through store.readFindings port, never direct JSON.parse; (3) reviewer hints excluded from promptHash domain."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#roadmap",
+      "promise": "Phased roadmap with Phase 1a (finding-signals vertical slice) as first story",
+      "status": "verified",
+      "verifiedBy": "diff/read",
+      "evidence": "Roadmap section lists Phase 1a as FIRST STORY: finding-signals vertical slice. Concludes with recommended order: do the FIRST STORY + Phase 1b + Phase 1.5 first. Phase 2+ deferred until value is proven."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#appendix-code-anchors",
+      "promise": "Code-anchor appendix with all referenced paths verified to exist in repository",
+      "status": "verified",
+      "verifiedBy": "diff/grep/ls",
+      "evidence": "Appendix table lists 12 paths. All 12 verified to exist via ls: packages/main/src/core/types.ts, handlers/finding.ts, core/finding-verify.ts, core/advisory.ts, core/store.ts, core/evidence-freshness.ts, core/scope-contract.ts, core/dev-memory.ts, handlers/decision-doc-promotion.ts, core/activity-log.ts, handlers/story-review.ts, core/runtime-artifact-registry.ts."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "promise": "No Co-Authored-By trailer in the document",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep for Co-Authored-By / Co-authored-by in the doc returned no output. Confirmed by verifier noTrailer=true check (PASS 44 / FAIL 0)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "promise": "Plan-only scope: no source code implemented by this story",
+      "status": "verified",
+      "verifiedBy": "diff/stat",
+      "evidence": "git diff --stat main...HEAD shows only .lattice/ metadata files and the one doc file changed. Zero .ts/.js source files modified outside of the evidence verifier (.mjs). Doc opens with scope note stating it does not implement source code, CLI commands, handlers, core modules, or gate behavior."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "verify-b-1480.mjs: fileExists=true, headersOk=true, storyHeader=true, planOnly=true, advisoryOnly=true. TOTAL 44 | PASS 44 | FAIL 0. Doc exists at canonical path, opens with correct Story: B-1480 header, plan-only scope note, and all required section headers present."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "verify-b-1480.mjs: moduleDecomp=true, reuse=true, cutFts=true. TOTAL 44 | PASS 44 | FAIL 0. Verifier confirmed module decomposition table, reuse-not-rebuild section, and FTS-cut section all present and contain required terms."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "verify-b-1480.mjs: guardrails=true, backCompat=true. TOTAL 44 | PASS 44 | FAIL 0. Three determinism guardrails section confirmed; back-compat rules section confirmed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "verify-b-1480.mjs: roadmapFirst=true, anchorsOk=true. TOTAL 44 | PASS 44 | FAIL 0. Roadmap section with Phase 1a as first story confirmed; code-anchor appendix confirmed present. Independent ls check verified all 12 referenced anchor paths exist in the repository."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 doc promises independently verified from source. The structural verifier (verify-b-1480.mjs) is the appropriate machine check for a plan-only doc story and passes 44/44 checks covering file existence, all content sections, plan-only scope, advisory-only framing, module decomposition, reuse decisions, FTS cut, all 3 guardrails, back-compat rules, roadmap ordering, code anchors, and no-trailer constraint. All 12 code-anchor paths were independently confirmed to exist via ls. No TODOs in non-test code. Limitations correctly disclosed in summary: plan-only with no code, and escalation display shows ordinary-review while a degraded 3x1 audit was explicitly recorded at user request."
+  },
+  "_hash": "5ef4ffa9b274aacd98cf47e8541e9e6df2a434c7174a76f4e62f18e60059866f"
+}

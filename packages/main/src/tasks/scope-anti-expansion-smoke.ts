@@ -41,8 +41,8 @@ function write(root: string, rel: string, content: string): void {
 }
 
 function createTempStore(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-scope-anti-expansion-'));
-  write(root, 'koala.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-scope-anti-expansion-'));
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -189,7 +189,7 @@ function writeGoodBoundaries(store: StoryStore): void {
     storyId: STORY_ID,
     allowedCommands: ['npm --prefix packages/main run build'],
     allowedTools: ['shell'],
-    excludedCommands: ['omx'],
+    excludedCommands: ['forbidden-cmd'],
     excludedTools: [],
     confirmedBy: 'scope-anti-expansion-smoke',
     confirmationNote: 'Synthetic execution boundary for smoke coverage.',
@@ -257,7 +257,7 @@ withTempContext('story_create persists initial scope and execution boundaries', 
       allowedCommands: ['npm --prefix packages/main run build'],
       allowedTools: ['shell'],
       allowedPaths: ['packages/main/src'],
-      excludedCommands: ['omx'],
+      excludedCommands: ['forbidden-cmd'],
       blockedPaths: ['packages/main/dist'],
     },
     forceNew: true,
@@ -267,7 +267,7 @@ withTempContext('story_create persists initial scope and execution boundaries', 
   assert.deepEqual(store.readScopeBoundary(storyId)?.allowed, ['INIT scope freeze correctness']);
   assert.deepEqual(store.readScopeBoundary(storyId)?.excluded, ['Authority expansion']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.allowedCommands, ['npm --prefix packages/main run build']);
-  assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedCommands, ['omx']);
+  assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedCommands, ['forbidden-cmd']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.allowedPaths, ['packages/main/src']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedPaths, ['packages/main/dist']);
 });
@@ -402,16 +402,16 @@ withTempContext('INIT reviewers cannot mutate checklist definitions directly', (
 withTempContext('INIT reviewers cannot mutate story-level scope fields directly', (root, store) => {
   seedStory(store);
   const handlers = createStoryQueryHandlers({ root, store, scanRoot: join(root, 'packages/main') });
-  const previousAgent = process.env.KOALA_AGENT;
-  process.env.KOALA_AGENT = 'lattice-review-story-init';
+  const previousAgent = process.env.LATTICE_AGENT;
+  process.env.LATTICE_AGENT = 'lattice-review-story-init';
   try {
     assert.throws(() => handlers.story_update({
       storyId: STORY_ID,
       title: 'Reviewer tries to add future capability',
     }), /init_reviewer_story_scope_mutation_blocked/);
   } finally {
-    if (previousAgent === undefined) delete process.env.KOALA_AGENT;
-    else process.env.KOALA_AGENT = previousAgent;
+    if (previousAgent === undefined) delete process.env.LATTICE_AGENT;
+    else process.env.LATTICE_AGENT = previousAgent;
   }
   assert.throws(() => handlers.story_update({
     storyId: STORY_ID,
@@ -699,7 +699,7 @@ withTempGitContext('real discarded story digest blocks replacement without mitig
     storyId: replacementStoryId,
     allowedCommands: ['npm --prefix packages/main run build'],
     allowedTools: ['shell'],
-    excludedCommands: ['omx'],
+    excludedCommands: ['forbidden-cmd'],
     actor: 'scope-anti-expansion-smoke',
   });
 
@@ -813,7 +813,7 @@ withTempGitContext('background-only discarded direction blocks replacement and b
     storyId: replacementStoryId,
     allowedCommands: ['npm --prefix packages/main run build'],
     allowedTools: ['shell'],
-    excludedCommands: ['omx'],
+    excludedCommands: ['forbidden-cmd'],
     actor: 'scope-anti-expansion-smoke',
   });
 

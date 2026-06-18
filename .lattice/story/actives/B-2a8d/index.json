@@ -1,0 +1,71 @@
+{
+  "storyId": "B-2a8d",
+  "name": "experience-layer-remove-phase4-cross-project",
+  "title": "Experience Layer plan: remove Phase 4 / L4 cross-project aggregation (per-project only by design)",
+  "description": "Documentation-only edit to docs/requirements/decisions/lattice-experience-layer-execution-plan.md: remove the L4 Cross-project aggregation Architecture bullet and the Phase 4 Roadmap bullet, and reword the remaining cross-project references (principle 5, the problem-statement footprint mention, the not-to-do line) to state per-project-only learning by design. The user decided cross-project aggregation must not be built: Lattice is a per-project tool, and cross-project learning would pollute single-project review and weaken the auditable local lineage. The Phase 1 'deterministic local signature' aggregation concept (distinct from the two-layer cross-project framing) is kept intact. No source code changes; the built Phases 1a-3 are already per-project.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "low",
+  "createdAt": "2026-06-17T18:04:35.967Z",
+  "startedAt": "2026-06-17T18:04:35.967Z",
+  "endedAt": "2026-06-17T18:25:06.780Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T18:04:35.968Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:06:59.698Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:07:10.471Z",
+      "branch": "story/B-2a8d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:12:44.096Z",
+      "branch": "story/B-2a8d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:14:53.140Z",
+      "branch": "story/B-2a8d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:21:27.716Z",
+      "branch": "story/B-2a8d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T18:25:06.780Z",
+      "branch": "story/B-2a8d",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-17T18:14:53.140Z"
+}

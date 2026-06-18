@@ -1,0 +1,71 @@
+{
+  "storyId": "B-d7c3",
+  "checkedAt": "2026-06-17T13:20:52.015Z",
+  "reviewRound": "2026-06-17T13:09:44.045Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "CHANGELOG documents the collapse of 139 per-smoke test:* scripts into smoke-manifest.json, packages/main now exposes 12 test:* entries (was 151), root exposes 43 (was 114), and the test:legacy shim migration path",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "CHANGELOG.md Unreleased section added with correct counts (12, 43, 139) and test:legacy usage example; grep confirms lines containing test:legacy, smoke-manifest, and collapsed"
+    },
+    {
+      "docPath": "README.md#autopilot-authority and #lifecycle-registry and #outcome-semantics and #lattice-cli-migration",
+      "promise": "README.md references to removed test:X-smoke npm scripts are updated to use test:legacy -- <name> form (5 references updated)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows 5 README.md lines changed: autopilot-authority, autopilot-execute, flow-stability, outcome-semantics, lattice-cli-migration all updated to npm run test:legacy -- <name>; grep confirms zero surviving stale test:X-smoke references outside keep-list"
+    },
+    {
+      "docPath": "packages/main/src/handlers/review-preflight.ts#ENGLISH_ARTIFACTS_GATE_LABEL",
+      "promise": "ENGLISH_ARTIFACTS_GATE_LABEL constant updated from npm run test:english-only-guards-smoke to npm run test:legacy -- english-only-guards",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows line 79 changed; grep on current source confirms new form present: test:legacy -- english-only-guards"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-hosts.ts#installStepsForHost",
+      "promise": "Editor-host commands array updated from npm --prefix packages/main run test:lattice-cli-migration-smoke to npm run test:legacy -- lattice-cli-migration",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows line 390 changed; grep confirms new form in current source file"
+    },
+    {
+      "docPath": "packages/main/src/tasks/provider-codex-smoke.ts#Run-comment",
+      "promise": "Run: comment updated from npm --prefix packages/main run test:provider-codex-smoke to npm run test:legacy -- provider-codex",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows line 19 changed; grep on current source confirms new form"
+    },
+    {
+      "docPath": "packages/main/src/tasks/reviewer-quorum-smoke.ts#Run-comment",
+      "promise": "Run: comment updated from npm --prefix packages/main run test:reviewer-quorum-smoke to npm run test:legacy -- reviewer-quorum",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows line 3 changed; grep on current source confirms new form"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "happy:0 packages/main test:*-smoke count=4 keep-list only; happy:1 total test:* count=12; happy:2 manifest 139 entries; happy:3 npm run test:all --tag fast exit 0 3/3 PASS; edge:0 keep-list ALL_PRESENT; edge:1 NO_DUPES count=139; edge:2 ALL_MAPPED; adversarial:0..4 over-reach guards return 0. Independently verified: manifest 139 entries confirmed, packages/main 12 test:* scripts, 4 -smoke in keep-list."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "happy:0 zero npm --prefix -smoke proxies remaining; happy:1 root test:* count=43; happy:2 npm test exit 0; edge:0 root keep-list TRUE; edge:1 test main chain body unchanged; edge:2 no broken proxies; adversarial:0..3 over-reach guards pass. Independently verified: root test:* count=43, test:legacy present, ROOT_KEEP_OK confirmed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "happy:0 npm run test:legacy -- gitroot-cwd-contract exit 0 PASS; happy:1 CLAUDE.md/AGENTS.md untouched only README.md and .ts files changed; happy:2 CHANGELOG diff contains test:legacy and smoke-manifest; edge:0 ZZZ_NONEXISTENT exit 0 graceful; edge:1 bare npm run test:legacy exit 0 graceful; edge:2 shim value confirmed; adversarial:0..3 over-reach guards pass. Independently verified: test:legacy=node packages/main/dist/tasks/run-all-smokes.js --select, zero stale test:X-smoke in README.md active prose."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docs promises verified in code: CHANGELOG documents the collapse with accurate counts, README.md has 5 updated references from per-smoke form to test:legacy form, and 4 .ts source files have stale Run:/label strings updated. All 3 checklist items have real integration test evidence covering happy paths, edge cases (keep-list survival, no-duplicate manifest, unknown-name graceful exit), and adversarial over-reach guards. Pre-existing stale Run: comments in unmodified task files are out of B-d7c3 scope confirmed by three-dot diff returning 0 for those files."
+  },
+  "_hash": "31325ae98714efee39bd1f0d31bbdbfb3a7a4472378945d2baa2511325c015a5"
+}

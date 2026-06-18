@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo, StoryPhase } from '../core/types.js';
-import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -170,7 +170,16 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
   }
 }
 
-function assertMixedCanonicalLegacyGlobalLinksAreRepaired(): void {
+// B-097f made agent prompt assets host-neutral single-source: the global
+// link-repair now manages ONLY the canonical @lattice-agent/core package and no
+// longer resolves or rewrites a legacy @koala-agent/core symlink. So when the
+// canonical install is a real directory (not a stale worktree symlink) and the
+// only worktree-pointing symlink is the legacy package, repair correctly returns
+// a sane 'skipped' (NOT a relink, NOT an error): the canonical install is left
+// untouched and the unmanaged legacy symlink is left exactly as-is. The safety
+// intent is unchanged — repair must not touch a canonical install it does not
+// own, and must never rewrite a package outside its single-source canonical name.
+function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-mixed-global-link-'));
   try {
     const globalRoot = join(root, 'global-node-modules');
@@ -185,15 +194,19 @@ function assertMixedCanonicalLegacyGlobalLinksAreRepaired(): void {
     mkdirSync(mainPackagePath, { recursive: true });
     symlinkSync(worktreePath, legacyPath, 'dir');
 
-    const result = repairGlobalKoalaLinkBeforeWorktreeDelete(worktreePath, root, {
+    const result = repairGlobalLatticeLinkBeforeWorktreeDelete(worktreePath, root, {
       globalPackageRoot: globalRoot,
     });
 
-    assert.equal(result.action, 'relinked');
-    assert.match(result.message, /@koala-agent\/core \(legacy fallback/);
-    assert.equal(lstatSync(canonicalPath).isDirectory(), true, 'canonical install should remain untouched when it is not the stale symlink');
-    assert.equal(lstatSync(legacyPath).isSymbolicLink(), true, 'legacy global package should remain a symlink after repair');
-    assert.equal(resolve(dirname(legacyPath), readlinkSync(legacyPath)), mainPackagePath);
+    // Post-B-097f: canonical-only resolution + canonical is a real dir → skipped,
+    // not relinked, and not an error.
+    assert.equal(result.action, 'skipped');
+    assert.match(result.message, /@lattice-agent\/core/);
+    // Safety: a real canonical install the repair does not own is left untouched.
+    assert.equal(lstatSync(canonicalPath).isDirectory(), true, 'canonical install must remain untouched when it is not the stale symlink');
+    // Safety: the unmanaged legacy symlink must NOT be rewritten/relinked to main.
+    assert.equal(lstatSync(legacyPath).isSymbolicLink(), true, 'unmanaged legacy global package symlink must remain a symlink');
+    assert.equal(resolve(dirname(legacyPath), readlinkSync(legacyPath)), worktreePath, 'unmanaged legacy symlink must be left pointing where it was (not relinked to main)');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -399,7 +412,7 @@ async function assertDoneRecoverRequiresBranchDoneState(): Promise<void> {
   }
 }
 
-assertMixedCanonicalLegacyGlobalLinksAreRepaired();
+assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink();
 await assertDoctorRepairCleansAndProtects();
 await assertStoryDiscardRepairsMissingRegistry();
 await assertDoctorDetectsPartialDoneAndRecoverRepairs();

@@ -1,0 +1,52 @@
+{
+  "storyId": "B-6666",
+  "checkedAt": "2026-06-17T16:29:20.140Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "init-reviewer-A-r7k2m9",
+      "checkedAt": "2026-06-17T16:23:55.795Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Conversational Texture references \"P-1a\" (\"runs in parallel with the process-fact-contract story P-1a\") — P-1a is not a standard B-xxxx story ID and is never expanded or defined anywhere in the text. A new reader cannot look it up, determine what scope it covers, or confirm the claimed file disjointness. At minimum one sentence explaining what P-1a refers to is needed for standalone readability."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Conversational Texture uses \"ClawCreek-class wrapper-root projects\" — ClawCreek is an unexplained proper noun (project name or codename) with no definition or parenthetical in the text. A new reader cannot infer what ClawCreek is. Consider adding a brief parenthetical such as \"(a project whose metadataRoot is a parent of its gitRoot)\" to ensure standalone readability."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "CHK-003 context states \"~15 exist, 6 with literal bare-root cwd\" for backtick-template execSync(`git ...`) call sites. Actual grep count (excluding allowlisted smoke tasks) is 15 total and 4 with bare-root cwd identifiers — the \"6\" figure is off by 2. This is approximate scoping context, not a gate condition, but the implementer may be surprised when the strengthened contract flags fewer sites than expected."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T16:25:57.091Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Conversational Texture section references the parallel story as P-1a without defining what P-1a means or giving its Lattice storyId (B-867c). A fresh-context reader cannot identify which story is meant. The parallel execution constraint (disjoint files) is important enough to name concretely."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "The out-of-scope boundary for B-99b6 and process-fact-registry/DEFAULT_PHASE_TOOLS is stated in index.json description but NOT in background.md itself. Background.md only references B-99b6 as an ordering dependency (must merge before B-99b6 wires...) rather than an explicit out-of-scope declaration. The two documents are the primary reading source for INIT reviewers, and the scope boundary should be clear from background.md alone."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T16:29:20.140Z",
+      "issues": []
+    }
+  ],
+  "_hash": "2e6113f6e7a6fa6872e6a8c63787691d2a0c423849aa0b95e0d7e03ba01af47f"
+}

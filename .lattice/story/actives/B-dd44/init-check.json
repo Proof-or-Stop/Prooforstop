@@ -1,0 +1,42 @@
+{
+  "storyId": "B-dd44",
+  "checkedAt": "2026-06-16T20:40:16.526Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insight references \"the spec\" (\"The spec is explicit: never invent a budget\") and index.json description references \"spec Touchpoint 4\" without identifying which document the spec is. A new reader cannot locate or verify this design anchor. The spec document path or title should be named."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Conversation Texture (line 11) lists B-253e/B-08a1/B-a5c9/B-97df as predecessor stories with no per-story explanation beyond \"This follows...\". B-0f7c is explained on first appearance (line 2) but the other four receive no context. A new reader cannot determine what each predecessor contributed."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-16T20:38:21.336Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-16T20:40:16.526Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insight references \"the spec\" (\"The spec is explicit: never invent a budget\") and index.json description references \"spec Touchpoint 4\" without identifying which document the spec is. A new reader cannot locate or verify this design anchor. The spec document path or title should be named."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Conversation Texture (line 11) lists B-253e/B-08a1/B-a5c9/B-97df as predecessor stories with no per-story explanation beyond \"This follows...\". B-0f7c is explained on first appearance (line 2) but the other four receive no context. A new reader cannot determine what each predecessor contributed."
+        }
+      ]
+    }
+  ],
+  "_hash": "0e829ea7f227f74d52ff295ad5756f1d9d721c3471ecdb019ca1101bd11a5b81"
+}

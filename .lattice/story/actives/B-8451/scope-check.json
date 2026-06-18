@@ -1,0 +1,94 @@
+{
+  "storyId": "B-8451",
+  "checkedAt": "2026-06-18T00:36:09.081Z",
+  "features": [
+    {
+      "feature": "Add optional deprecatedGcThreshold: number field to AuditConfig interface with default value 10",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Read deprecatedGcThreshold from .lattice/audit-config.json per-field override (same pattern as auditTriggerWindow)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add deprecatedGcThreshold to HARD_DEFAULTS in resolveAuditConfig",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add scanDeprecated(projectRoot: string): { count: number; files: string[] } function to audit-scan.ts that greps @deprecated in packages/main/src/**/*.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "scanDeprecated must not throw — wrap in try/catch and return count=0 on error",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire scanDeprecated into audit-trigger.ts hint: if count > deprecatedGcThreshold, append advisory listing count and files",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Advisory is additive only — never changes triggered=false or blocks DONE",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: resolveAuditConfig returns deprecatedGcThreshold=10 by default",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: scanDeprecated on real repo returns count>=0 without throwing",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: with mocked count > threshold, hint includes deprecated advisory",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: with count <= threshold, no advisory appended",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 11,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b5a1c859a3d030d0e9962fa7cd66d695ca5eadee5a9fa3e2f576d6cd7a1d39c2",
+  "openQuestions": []
+}

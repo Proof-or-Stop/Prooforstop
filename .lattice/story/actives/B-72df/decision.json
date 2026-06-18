@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Never clobber uncommitted work: only allow DONE when dirty paths don't overlap the merge's change set",
+    "Require only the merge's affected paths clean, not the whole tree",
+    "Minimal change to assertMainWorktreeReadyForMerge; preserve B-e74e's availability handling",
+    "Clean-tree case byte-identical"
+  ],
+  "drivers": [
+    "Shared-main-worktree contention blocks unrelated stories' DONE (B-e791 blocked by B-0414)",
+    "The clean precondition is over-broad (whole tree vs the merge's paths)"
+  ],
+  "options": [
+    {
+      "name": "A: scope the clean-check to the merge's affected paths",
+      "pros": [
+        "Targeted, minimal",
+        "Preserves clobber-protection (block on overlap)",
+        "Allows unrelated-dirty DONE"
+      ],
+      "cons": [
+        "Must correctly compute the affected path set incl. renames"
+      ]
+    },
+    {
+      "name": "B: merge via a temp index without dirtying the working tree",
+      "pros": [
+        "No working-tree dependency at all"
+      ],
+      "cons": [
+        "Bigger change to the DONE merge mechanism; higher risk"
+      ]
+    },
+    {
+      "name": "C: status quo (whole-tree clean)",
+      "pros": [
+        "No change"
+      ],
+      "cons": [
+        "Keeps the cross-session contention"
+      ]
+    }
+  ],
+  "chosen": "A: scope the clean-check to the merge's affected paths",
+  "rationale": "Option A intersects the dirty tracked paths with the merge's affected path set (git diff main...HEAD --name-only) and blocks only on overlap, so unrelated uncommitted work no longer blocks DONE while clobber-protection is preserved. It's minimal, keeps B-e74e's availability handling, and is byte-identical on a clean tree. B is a bigger merge-mechanism rewrite; C keeps the contention.",
+  "preMortem": [
+    {
+      "scenario": "Affected-path computation misses a path the merge would touch",
+      "trigger": "incomplete diff name set (e.g. renames)",
+      "consequence": "the merge clobbers a dirty file that should have blocked",
+      "mitigation": "compute affected = git diff main...HEAD --name-only including rename old+new names; block on any intersection; test overlapping-dirty still blocks"
+    },
+    {
+      "scenario": "Regression of B-e74e main-worktree-unavailable handling",
+      "trigger": "the narrowing accidentally removes the availability check",
+      "consequence": "DONE proceeds when main worktree is unavailable",
+      "mitigation": "keep the availability check intact; only scope the dirty-path test; test main-unavailable still fails"
+    },
+    {
+      "scenario": "Untracked/edge files mis-handled",
+      "trigger": "untracked or ignored files counted/uncounted wrongly",
+      "consequence": "false allow or false block",
+      "mitigation": "preserve --untracked-files=no (tracked only); test clean and ignored cases unchanged"
+    },
+    {
+      "scenario": "Concurrent merge changes the affected set mid-check",
+      "trigger": "another session merges to main between the check and the merge",
+      "consequence": "stale affected set",
+      "mitigation": "the DONE merge is under the main-write-lock (B-f60c); check + merge are serialized; B-9177 hardens lock coverage further"
+    }
+  ],
+  "timestamp": "2026-06-16T03:05:39.658Z"
+}

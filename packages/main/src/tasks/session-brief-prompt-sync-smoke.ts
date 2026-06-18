@@ -39,7 +39,7 @@ const targetDocs = [
   'packages/main/src/cli-prompts.ts',
   ...agentFiles('packages/main/templates/agents'),
   ...agentFiles('.claude/agents'),
-  ...agentFiles('.Codex/agents'),
+  ...agentFiles('.lattice-codex/agents'),
 ];
 
 const staleFirstSessionPhrases = [
@@ -103,7 +103,7 @@ function runHook(root: string, input: string): { status: number | null; output: 
   const result = spawnSync(process.execPath, [hookPath], {
     input,
     encoding: 'utf8',
-    env: { ...process.env, KOALA_SESSION_BRIEF_FRESH_MINUTES: '60' },
+    env: { ...process.env, LATTICE_SESSION_BRIEF_FRESH_MINUTES: '60' },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return {
@@ -117,7 +117,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('koala-session-brief-stale-');
+  const root = tmpRoot('lattice-session-brief-stale-');
   try {
     mkdirSync(join(root, '.lattice'), { recursive: true });
     writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
@@ -133,7 +133,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('koala-session-brief-fresh-');
+  const root = tmpRoot('lattice-session-brief-fresh-');
   try {
     mkdirSync(join(root, '.lattice'), { recursive: true });
     writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
@@ -149,7 +149,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('koala-session-brief-legacy-bash-');
+  const root = tmpRoot('lattice-session-brief-legacy-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
@@ -185,7 +185,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('koala-session-brief-story-bash-');
+  const root = tmpRoot('lattice-session-brief-story-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'actives', 'B-demo', 'activity.jsonl'), JSON.stringify({
@@ -203,7 +203,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('koala-session-brief-malformed-');
+  const root = tmpRoot('lattice-session-brief-malformed-');
   try {
     const result = runHook(root, '{bad json');
     assert.equal(result.status, 0);
@@ -214,7 +214,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('koala-session-brief-missing-');
+  const root = tmpRoot('lattice-session-brief-missing-');
   try {
     const result = runHook(root, JSON.stringify({ cwd: root }));
     assert.equal(result.status, 0);

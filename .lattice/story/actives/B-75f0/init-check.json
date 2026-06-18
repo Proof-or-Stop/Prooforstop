@@ -1,0 +1,36 @@
+{
+  "storyId": "B-75f0",
+  "checkedAt": "2026-06-17T22:22:51.198Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T22:20:30.667Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md uses the term \"wrapper-root\" from the first sentence (line 1) without any inline definition. The clarifying phrase \"(metadataRoot != gitRoot)\" appears only in index.json description, not in background.md itself. A new reader of background.md alone cannot determine what wrapper-root means without access to index.json."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "CHK-004 context says \"the CHK-003 pattern\" to describe the projectRoot->gitCwd rename, but CHK-003 in this story is about project-level scans (resolveProjectGitRoot), not parameter renames. The intended reference is apparently to B-6666 CHK-003 (validate-channel/concept rename), making this a cross-story reference that is not labeled as such. An implementer may be confused about which pattern is meant."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "CHK-003 context states the project-level scans should use \"the resolver module already exposes resolveProjectGitRoot internally\" but resolveProjectGitRoot is a non-exported internal function in story-signed-workspace-resolution.ts (no export keyword). The context does not flag that the implementer must first export this function before CHK-003 callers can import it, which is a required pre-step not made explicit."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T22:22:51.198Z",
+      "issues": []
+    }
+  ],
+  "_hash": "6ab1acfc941b59706dfb23c6c91a1ec7cccb3d5f67f2d583e925ad2353d5e28d"
+}

@@ -109,13 +109,13 @@ const ALL_LOOP_ENGINEERING_BASELINE_IDS = [
 ] as const;
 
 const EMPTY_AUTHORITY_ENV: Record<string, string | undefined> = {
-  KOALA_AUTHORITY_MODE: 'off',
-  KOALA_AUTHORITY_URL: '',
-  KOALA_AUTHORITY_TIMEOUT_MS: '',
-  KOALA_AUTHORITY_ACTOR_KEY: '',
-  KOALA_AUTHORITY_ACTOR_KEY_PATH: '',
-  KOALA_AUTHORITY_RUNNER_ID: '',
-  KOALA_AUTHORITY_SESSION_ID: '',
+  LATTICE_AUTHORITY_MODE: 'off',
+  LATTICE_AUTHORITY_URL: '',
+  LATTICE_AUTHORITY_TIMEOUT_MS: '',
+  LATTICE_AUTHORITY_ACTOR_KEY: '',
+  LATTICE_AUTHORITY_ACTOR_KEY_PATH: '',
+  LATTICE_AUTHORITY_RUNNER_ID: '',
+  LATTICE_AUTHORITY_SESSION_ID: '',
 };
 
 function parseJsonMaybe(text: string): unknown {
@@ -145,7 +145,7 @@ function runCli(root: string, args: string[], env: Record<string, string | undef
     env: {
       ...process.env,
       ...EMPTY_AUTHORITY_ENV,
-      KOALA_ACTIVITY_RECORD_READONLY: '0',
+      LATTICE_ACTIVITY_RECORD_READONLY: '0',
       ...env,
     },
     encoding: 'utf8',
@@ -1035,7 +1035,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   const root = initRepo('auth-receipt');
   try {
     const result = runCli(root, ['baseline_run', '--baselineId=AUTH-RECEIPT-1', '--format=json'], {
-      KOALA_AUTHORITY_MODE: 'off',
+      LATTICE_AUTHORITY_MODE: 'off',
     });
     const output = requireJsonObject(result, 'AUTH-RECEIPT-1 baseline_run local/off');
     assertOutcome(output, 'EXPECTED_BLOCK', 'AUTH-RECEIPT-1 CLI output');

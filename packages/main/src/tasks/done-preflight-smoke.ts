@@ -52,7 +52,7 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function runKoalaFromCwd(
+function runLatticeFromCwd(
   cwd: string,
   command: string,
   args: Record<string, unknown>,
@@ -61,7 +61,7 @@ function runKoalaFromCwd(
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
   for (const key of Object.keys(env)) {
-    if (key.startsWith('LATTICE_AUTHORITY_') || key.startsWith('KOALA_AUTHORITY_')) {
+    if (key.startsWith('LATTICE_AUTHORITY_')) {
       delete env[key];
     }
   }
@@ -77,9 +77,9 @@ function runKoalaFromCwd(
   });
 }
 
-function runKoalaFromCwdExpectFail(cwd: string, command: string, args: Record<string, unknown>): string {
+function runLatticeFromCwdExpectFail(cwd: string, command: string, args: Record<string, unknown>): string {
   try {
-    runKoalaFromCwd(cwd, command, args);
+    runLatticeFromCwd(cwd, command, args);
   } catch (e: any) {
     return [
       e?.stdout?.toString?.() ?? '',
@@ -214,7 +214,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
   workflowProfile: 'light' | 'balanced' = 'light',
   writeClosureEvidence = true,
 ): { worktreePath: string; store: StoryStore } {
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -302,12 +302,12 @@ function buildTestPassedStoryMissingClosureArtifacts(root: string, storyId: stri
  * Regression guard — the new preflight must not break the happy path.
  */
 function assertDoneSucceedsWhenMainIsCleanAndOnMain(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-preflight-happy-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-preflight-happy-'));
   try {
     const storyId = 'B-preflight-happy';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
 
-    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.ok(output.includes(`Story ${storyId} advanced to DONE`), `DONE success expected, got:\n${output}`);
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'story must be DONE on happy path');
     assert.equal(existsSync(worktreePath), false, 'worktree directory must be removed on happy path');
@@ -326,7 +326,7 @@ function assertDoneSucceedsWhenMainIsCleanAndOnMain(): void {
  * main worktree as the merge target.
  */
 function assertDoneSucceedsWhenMainBranchOwnedBySeparateWorktree(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-preflight-main-holder-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-preflight-main-holder-'));
   try {
     const storyId = 'B-preflight-main-holder';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
@@ -335,7 +335,7 @@ function assertDoneSucceedsWhenMainBranchOwnedBySeparateWorktree(): void {
     git(root, ['checkout', '-b', 'root-side-branch']);
     git(root, ['worktree', 'add', mainWorktreePath, 'main']);
 
-    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.ok(output.includes(`Story ${storyId} advanced to DONE`), `DONE success expected, got:\n${output}`);
     assert.equal(new StoryStore(mainWorktreePath).readStory(storyId).phase, 'DONE', 'story must be DONE on registered main worktree');
     assert.equal(git(mainWorktreePath, ['rev-parse', '--abbrev-ref', 'HEAD']), 'main', 'registered main worktree must remain on main');
@@ -366,7 +366,7 @@ function markStoryBranchAsPartialDone(worktreePath: string, storyId: string): vo
  * even when the repository root used to invoke done_recover is on another branch.
  */
 function assertDoneRecoverUsesSeparateRegisteredMainWorktree(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-recover-main-holder-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-recover-main-holder-'));
   try {
     const storyId = 'B-recover-main-holder';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
@@ -376,7 +376,7 @@ function assertDoneRecoverUsesSeparateRegisteredMainWorktree(): void {
     git(root, ['checkout', '-b', 'root-side-branch']);
     git(root, ['worktree', 'add', mainWorktreePath, 'main']);
 
-    const output = runKoalaFromCwd(root, 'done_recover', { storyId });
+    const output = runLatticeFromCwd(root, 'done_recover', { storyId });
     assert.ok(output.includes(`partial-DONE recovered: ${storyId}`), `done_recover success expected, got:\n${output}`);
     assert.equal(new StoryStore(mainWorktreePath).readStory(storyId).phase, 'DONE', 'recovered story must be DONE on registered main worktree');
     assert.equal(git(mainWorktreePath, ['rev-parse', '--abbrev-ref', 'HEAD']), 'main', 'registered main worktree must remain on main');
@@ -397,7 +397,7 @@ function assertDoneRecoverUsesSeparateRegisteredMainWorktree(): void {
  * survives, and the error message names the actual main worktree path.
  */
 function assertDoneRejectsWhenMainOnWrongBranch(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-preflight-wrong-branch-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-preflight-wrong-branch-'));
   try {
     const storyId = 'B-preflight-wrong-branch';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
@@ -406,7 +406,7 @@ function assertDoneRejectsWhenMainOnWrongBranch(): void {
     // Git allows this because the worktree holds the story branch, not main.
     git(root, ['checkout', '-b', 'some-other-branch']);
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'preflight failure must say "Cannot enter DONE"');
     assert.match(output, /some-other-branch/, 'error must name the offending branch');
     assert.match(output, new RegExp(resolve(root).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'error must name the actual main worktree path');
@@ -427,23 +427,49 @@ function assertDoneRejectsWhenMainOnWrongBranch(): void {
 }
 
 /**
- * phase remains TEST after failed preflight — main worktree dirty.
+ * Dirty main worktree, dirty path OUTSIDE the DONE merge-affected set — DONE
+ * must NOT silently land in main (no bypass), and main is left recoverable.
  *
- * When the main worktree has uncommitted changes, DONE must be rejected
- * BEFORE writing phase=DONE; the story stays TEST and the error message
- * names the actual main worktree path and provides cd guidance.
+ * B-72df scoped the dirty-main DONE check to merge-affected paths only
+ * (handlers/done-effects.ts assertMainWorktreeReadyForMerge): a dirty tracked
+ * path in the main worktree blocks the preflight ONLY when it OVERLAPS the set
+ * of paths the merge of story/<storyId> will touch
+ * (`git diff main...story/<storyId>`). The over-broad B-e74e check threw on ANY
+ * dirty tracked file, wrongly blocking DONE when the shared main worktree had
+ * unrelated parallel-session edits the merge never touches.
+ *
+ * Here README.md is dirty in the main worktree but the story branch only adds
+ * files under .lattice/ (delivery-check / test-evidence), so README.md is
+ * OUTSIDE the affected set and the scoped preflight correctly tolerates it.
+ * The real `git merge story/<storyId> --no-ff` then fails on git's working-tree
+ * safety check (it refuses to overwrite the dirty README.md), so the DONE merge
+ * is reported as failed AFTER the phase has been written on the story branch.
+ *
+ * The load-bearing safety property is NOT "preflight rejected" anymore — it is
+ * NO BYPASS: the merge never lands in main, so main's story phase stays TEST,
+ * main HEAD is unchanged, the story branch and worktree survive (recoverable),
+ * and the operator is told the merge failed and must be finished manually.
  */
-function assertDoneRejectsWhenMainIsDirty(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-preflight-dirty-main-'));
+function assertDoneTreatsDirtyMainOutsideMergeScopeAsNonBlockingButNeverBypasses(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-preflight-dirty-main-'));
   try {
     const storyId = 'B-preflight-dirty-main';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
+
+    // Pre-condition: README.md is OUTSIDE the merge-affected set (the story
+    // branch only adds .lattice/ artifacts). If a future change starts merging
+    // README.md, this guard fails loudly so the scenario is re-chosen rather
+    // than silently testing the overlap branch instead.
+    const affected = git(root, ['diff', `main...story/${storyId}`, '--name-status', '-M']);
+    assert.doesNotMatch(affected, /README\.md/, 'pre-condition: README.md must be OUTSIDE the DONE merge-affected set');
+
+    const mainHeadBefore = git(root, ['rev-parse', 'HEAD']);
 
     // Dirty the main checkout with a staged tracked modification AFTER worktree
     // creation. Must be a tracked-file change (not untracked) — untracked files
     // in the main repo are skipped by the preflight (runtime artifacts like
     // .lattice/locks/ would otherwise trigger a false positive).
-    writeFileSync(join(root, 'README.md'), 'dirty main content that must block DONE\n');
+    writeFileSync(join(root, 'README.md'), 'dirty main content outside the merge scope\n');
     git(root, ['add', 'README.md']);
     // Verify main is actually dirty (tracked changes).
     assert.notEqual(
@@ -452,32 +478,47 @@ function assertDoneRejectsWhenMainIsDirty(): void {
       'pre-condition: main must have staged tracked changes',
     );
 
-    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
-    assert.match(output, /Cannot enter DONE/, 'dirty main preflight failure must say "Cannot enter DONE"');
-    assert.match(output, /uncommitted changes to tracked files/, 'error must mention uncommitted changes to tracked files');
+    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    // The scoped preflight no longer blocks an out-of-scope dirty path, so the
+    // generic "Cannot enter DONE" / "uncommitted changes to tracked files"
+    // preflight message must NOT appear — the real merge is what fails.
+    assert.doesNotMatch(
+      output,
+      /uncommitted changes to tracked files/,
+      'B-72df: an out-of-scope dirty path must NOT trip the scoped preflight overlap message',
+    );
+    // The actual git merge fails because it would overwrite the dirty README.md.
+    assert.match(output, /已标记为 DONE 但自动合并失败/, 'merge failure must be reported (marked DONE but auto-merge failed)');
+    assert.match(output, /Merge with strategy ort failed|would be overwritten by merge/, 'error must surface the git merge failure');
+    assert.match(output, /git merge story\//, 'error must give the manual `git merge story/...` recovery step');
     assert.match(output, new RegExp(resolve(root).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'error must name the actual main worktree path');
-    assert.match(output, /phase was not changed/, 'error must confirm phase was not changed');
 
-    // phase=DONE must NEVER be written.
-    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'dirty main preflight must leave worktree story TEST');
-    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'dirty main preflight must leave main story TEST');
+    // NO BYPASS — the load-bearing safety assertions.
+    // The merge never landed in main, so main never sees phase=DONE and main
+    // HEAD is unchanged. (The story branch in the worktree DID get phase=DONE
+    // written before the merge attempt; that is by design — the merge is what
+    // propagates DONE into main, and it failed. The guarantee is that main is
+    // NOT silently advanced/merged.)
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'main story must NOT be advanced to DONE when the merge fails');
+    assert.equal(git(root, ['rev-parse', 'HEAD']), mainHeadBefore, 'main HEAD must be unchanged — the DONE merge must not land');
+    assert.equal(git(root, ['rev-parse', '--abbrev-ref', 'HEAD']), 'main', 'main worktree must stay on branch main');
 
-    // Worktree intact.
-    assert.equal(existsSync(worktreePath), true, 'worktree directory must survive a dirty-main preflight failure');
-    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'story branch must survive a dirty-main preflight failure');
-    console.log('  ✓ phase remains TEST after failed preflight (main worktree dirty)');
+    // Worktree and branch intact — the failed DONE remains manually recoverable.
+    assert.equal(existsSync(worktreePath), true, 'worktree directory must survive a failed DONE merge');
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'story branch must survive a failed DONE merge');
+    console.log('  ✓ dirty main outside merge scope: merge fails, no bypass into main, recoverable');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
 function assertCompletedDoneEvidenceFreshnessUsesRecordedSnapshot(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-evidence-snapshot-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-evidence-snapshot-'));
   try {
     const storyId = 'B-done-evidence-snapshot';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
 
-    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.ok(output.includes(`Story ${storyId} advanced to DONE`), `DONE success expected, got:\n${output}`);
 
     write(root, 'packages/main/src/unrelated-after-done.ts', 'export const unrelatedAfterDone = true;\n');
@@ -517,7 +558,7 @@ function assertCompletedDoneEvidenceFreshnessUsesRecordedSnapshot(): void {
 }
 
 function assertActiveTestEvidenceFreshnessStillUsesCurrentMaterialHash(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-active-evidence-stale-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-active-evidence-stale-'));
   try {
     const storyId = 'B-active-evidence-stale';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
@@ -545,7 +586,7 @@ function assertActiveTestEvidenceFreshnessStillUsesCurrentMaterialHash(): void {
 }
 
 function assertDoneClosureIsReadOnlyAndNonAuthority(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-readonly-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closure-readonly-'));
   try {
     const storyId = 'B-done-closure-readonly';
     const { worktreePath } = buildTestPassedStoryMissingClosureArtifacts(root, storyId);
@@ -559,7 +600,7 @@ function assertDoneClosureIsReadOnlyAndNonAuthority(): void {
     const beforeStatus = gitStatus(worktreePath);
     const beforeProcessEvents = readIfExists(processEventsPath);
 
-    const raw = runKoalaFromCwd(worktreePath, 'done_closure', { storyId, json: true });
+    const raw = runLatticeFromCwd(worktreePath, 'done_closure', { storyId, json: true });
     const result = JSON.parse(raw) as {
       schemaVersion: string;
       readOnly: boolean;
@@ -593,7 +634,7 @@ function assertDoneClosureIsReadOnlyAndNonAuthority(): void {
 }
 
 function assertDoneClosureAuthorityEnforceWithoutReceiptBlocksReadiness(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-authority-missing-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closure-authority-missing-'));
   try {
     const storyId = 'B-done-closure-authority-missing';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
@@ -601,7 +642,7 @@ function assertDoneClosureAuthorityEnforceWithoutReceiptBlocksReadiness(): void 
     const beforeStatus = gitStatus(worktreePath);
     const beforeProcessEvents = readIfExists(processEventsPath);
 
-    const raw = runKoalaFromCwd(worktreePath, 'done_closure', { storyId, json: true }, {
+    const raw = runLatticeFromCwd(worktreePath, 'done_closure', { storyId, json: true }, {
       LATTICE_AUTHORITY_MODE: 'enforce',
     });
     const result = JSON.parse(raw) as {
@@ -638,7 +679,7 @@ function assertDoneClosureAuthorityEnforceWithoutReceiptBlocksReadiness(): void 
 }
 
 function assertDoneClosureAuthorityEnforceEligibleReceiptReportsVerifiedReadOnly(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-authority-verified-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closure-authority-verified-'));
   try {
     const storyId = 'B-done-closure-authority-verified';
     const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
@@ -650,7 +691,7 @@ function assertDoneClosureAuthorityEnforceEligibleReceiptReportsVerifiedReadOnly
     const beforeStatus = gitStatus(worktreePath);
     const beforeProcessEvents = readIfExists(processEventsPath);
 
-    const raw = runKoalaFromCwd(worktreePath, 'done_closure', { storyId, json: true }, {
+    const raw = runLatticeFromCwd(worktreePath, 'done_closure', { storyId, json: true }, {
       LATTICE_AUTHORITY_MODE: 'enforce',
     });
     const result = JSON.parse(raw) as {
@@ -698,7 +739,7 @@ assertDoneSucceedsWhenMainIsCleanAndOnMain();
 assertDoneSucceedsWhenMainBranchOwnedBySeparateWorktree();
 assertDoneRecoverUsesSeparateRegisteredMainWorktree();
 assertDoneRejectsWhenMainOnWrongBranch();
-assertDoneRejectsWhenMainIsDirty();
+assertDoneTreatsDirtyMainOutsideMergeScopeAsNonBlockingButNeverBypasses();
 assertCompletedDoneEvidenceFreshnessUsesRecordedSnapshot();
 assertActiveTestEvidenceFreshnessStillUsesCurrentMaterialHash();
 assertDoneClosureIsReadOnlyAndNonAuthority();

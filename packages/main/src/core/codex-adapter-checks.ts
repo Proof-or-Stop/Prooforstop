@@ -16,6 +16,8 @@ import {
   summarizeAgentAssetResolution,
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
+import { loadConfig } from './config.js';
+import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
   readPromptRegistry,
@@ -53,7 +55,7 @@ export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/lattice-codex.js verify_code
 export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
 export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'lattice codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
-export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
+export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice';
 
 /**
  * Resolve the preferred verify_codex command from available local wrappers.
@@ -84,9 +86,9 @@ export function resolveCodexSessionBriefCommand(root: string): string {
 }
 
 const CODEX_MATERIAL_PATHS = [
-  '.Codex/README.md',
-  '.Codex/lattice.json',
-  '.Codex/agents',
+  '.lattice-codex/README.md',
+  '.lattice-codex/lattice.json',
+  '.lattice-codex/agents',
   '.codex/hooks.json',
   '.codex/hooks',
   '.claude/agents',
@@ -133,10 +135,16 @@ function collectMaterialFiles(root: string, rel: string): string[] {
     .flatMap((child) => collectMaterialFiles(root, join(rel, child)));
 }
 
-function readGitHead(root: string): string {
+// B-75f0 CHK-002: `gitCwd` is the resolved git working dir (the caller computes
+// it via resolveProjectGitCwd). On a wrapper-root layout it is the real gitRoot
+// subdir so the snapshot's head hash reflects the actual repo; on a plain repo
+// (or when no gitRoot resolves) it is the passed root verbatim. The `'unknown'`
+// fallback on any git failure is preserved (temporary projects / unpacked
+// packages that are not git worktrees still degrade gracefully).
+function readGitHead(gitCwd: string): string {
   try {
     return execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 2_000,
@@ -148,6 +156,18 @@ function readGitHead(root: string): string {
 }
 
 export function computeCodexAdapterMaterialSnapshot(root: string): CodexAdapterMaterialSnapshot {
+  // B-75f0 CHK-002: this snapshot is id-independent (no storyId in scope), so
+  // resolve the git cwd with the id-independent project-level resolver. On a
+  // wrapper-root layout it resolves the REAL gitRoot (configured-gitRoot subdir
+  // or metadata git toplevel — config is loaded so a configured subdir is
+  // honored) so the head hash reflects the actual repo; on a plain repo (or when
+  // no gitRoot resolves) it returns `root` verbatim, byte-identical to before.
+  let gitCwd: string;
+  try {
+    gitCwd = resolveProjectGitCwd(root, root, loadConfig(root));
+  } catch {
+    gitCwd = root;
+  }
   const files = Array.from(new Set(CODEX_MATERIAL_PATHS.flatMap((rel) => collectMaterialFiles(root, rel))))
     .sort((a, b) => a.localeCompare(b));
   const hash = createHash('sha256');
@@ -167,7 +187,7 @@ export function computeCodexAdapterMaterialSnapshot(root: string): CodexAdapterM
     hash.update('\n');
   }
   return {
-    headHash: readGitHead(root),
+    headHash: readGitHead(gitCwd),
     materialHash: hash.digest('hex'),
     files,
   };
@@ -190,7 +210,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 interface CodexManifestSelection {
-  relPath: '.Codex/lattice.json';
+  relPath: '.lattice-codex/lattice.json';
   brand: 'lattice';
 }
 
@@ -210,8 +230,8 @@ function isGlobalThinProject(root: string): boolean {
 }
 
 function resolveCodexManifest(root: string): CodexManifestSelection | null {
-  if (existsSync(join(root, '.Codex', 'lattice.json'))) {
-    return { relPath: '.Codex/lattice.json', brand: 'lattice' };
+  if (existsSync(join(root, '.lattice-codex', 'lattice.json'))) {
+    return { relPath: '.lattice-codex/lattice.json', brand: 'lattice' };
   }
   return null;
 }
@@ -240,11 +260,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
         'Codex manifest',
         'pass',
         true,
-        `runtime-owned default: .Codex/lattice.json not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
+        `runtime-owned default: .lattice-codex/lattice.json not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
       );
       return 'registry';
     }
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .lattice-codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
   const manifestPath = join(root, selection.relPath);
@@ -313,9 +333,9 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   const claudeDir = join(root, '.claude', 'agents');
-  const codexDir = join(root, '.Codex', 'agents');
+  const codexDir = join(root, '.lattice-codex', 'agents');
   if (!existsSync(claudeDir) || !existsSync(codexDir)) {
-    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .Codex/agents', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .lattice-codex/agents', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const sourceFiles = listAgentPromptFiles(claudeDir);
@@ -326,15 +346,15 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   for (const file of sourceFiles) {
     const targetPath = join(codexDir, file);
     if (!targetSet.has(file)) {
-      issues.push(`missing .Codex/agents/${file}`);
+      issues.push(`missing .lattice-codex/agents/${file}`);
       continue;
     }
     const expected = renderCodexAgentContent(readText(join(claudeDir, file))).trim();
     const actual = readText(targetPath).trim();
-    if (expected !== actual) issues.push(`drift .Codex/agents/${file}`);
+    if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
   }
   for (const file of targetFiles) {
-    if (!sourceSet.has(file)) issues.push(`stale .Codex/agents/${file}`);
+    if (!sourceSet.has(file)) issues.push(`stale .lattice-codex/agents/${file}`);
   }
   if (issues.length > 0) {
     push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, issues.slice(0, 6).join('; '), LOCAL_INIT_VERIFY_COMMAND);
@@ -365,7 +385,7 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
   const offenders = LATTICE_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
-  const upperHooks = join(root, '.Codex', 'hooks');
+  const upperHooks = join(root, '.lattice-codex', 'hooks');
   const lowerHooks = join(root, '.codex', 'hooks');
   if (existsSync(upperHooks)) {
     let isLowercaseAlias = false;
@@ -378,13 +398,13 @@ function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
     } catch {
       isLowercaseAlias = false;
     }
-    if (!isLowercaseAlias) offenders.push('.Codex/hooks');
+    if (!isLowercaseAlias) offenders.push('.lattice-codex/hooks');
   }
   if (offenders.length > 0) {
     push(checks, 'excluded-assets', 'Codex runtime exclusions', 'fail', true, `unexpected asset(s): ${offenders.join(', ')}`, `rm -rf ${offenders.join(' ')}`);
     return;
   }
-  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no uppercase-only .Codex/hooks or .Codex/settings.json');
+  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no uppercase-only .lattice-codex/hooks or .lattice-codex/settings.json');
 }
 
 function hookEntriesContainCommand(entries: unknown, commandNeedle: string): boolean {
@@ -470,10 +490,10 @@ function runHeartbeat(
       timeout: timeoutMs,
       env: {
         ...process.env,
-        KOALA_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
-        KOALA_ACTIVITY_RECORD_READONLY: '1',
-        KOALA_ACTIVITY_SESSION: session,
-        KOALA_CODEX_ENTRYPOINT: expectedEntrypoint,
+        LATTICE_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
+        LATTICE_ACTIVITY_RECORD_READONLY: '1',
+        LATTICE_ACTIVITY_SESSION: session,
+        LATTICE_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });
   } catch (e: any) {
@@ -502,7 +522,7 @@ function runHeartbeat(
 }
 
 function isPackagedDesktopRuntime(): boolean {
-  return process.env.KOALA_DESKTOP_PACKAGED_RUNTIME === '1'
+  return process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME === '1'
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
@@ -553,7 +573,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
     return;
   }
   const text = readText(wrapper);
-  const required = ['KOALA_ACTIVITY_SOURCE', 'codex', 'KOALA_ACTIVITY_RECORD_READONLY', 'KOALA_CODEX_ENTRYPOINT'];
+  const required = ['LATTICE_ACTIVITY_SOURCE', 'codex', 'LATTICE_ACTIVITY_RECORD_READONLY', 'LATTICE_CODEX_ENTRYPOINT'];
   const missing = required.filter(piece => !text.includes(piece));
   if (missing.length > 0) {
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, `wrapper missing ${missing.join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);
@@ -724,7 +744,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /\bCodex\b|\.Codex|lattice-codex|codex adapter|verify_codex/i.test(haystack);
+    return /\bCodex\b|\.lattice-codex|lattice-codex|codex adapter|verify_codex/i.test(haystack);
   } catch {
     return false;
   }

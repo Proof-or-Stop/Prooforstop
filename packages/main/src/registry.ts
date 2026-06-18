@@ -44,6 +44,7 @@ import { createPlanHandlers } from './handlers/plan.js';
 import { createAuditHandlers } from './handlers/audit.js';
 import { createClusterHandlers } from './handlers/cluster.js';
 import { createReviewerListHandlers } from './handlers/reviewer-list.js';
+import { createReviewIncrementalContextHandlers } from './handlers/review-incremental-context.js';
 import { createStoryDraftHandlers } from './handlers/story-draft.js';
 import { createDraftCheckHandlers } from './handlers/draft-check.js';
 import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
@@ -60,6 +61,9 @@ import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { createDoneClosureHandlers } from './handlers/done-closure.js';
 import { createDecisionDocQuorumHandlers } from './handlers/decision-doc-quorum.js';
 import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-promotion.js';
+import { createSignatureRegistryHandlers } from './handlers/signature-registry.js';
+import { createPlaybookHandlers } from './handlers/playbook.js';
+import { createRecallHandlers } from './handlers/recall.js';
 import { createReviewEscalationHandlers } from './handlers/review-escalation.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
@@ -70,6 +74,7 @@ import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js'
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createMemoryBenchmarkHandlers } from './handlers/memory-benchmark.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
+import { createAgentPromptHandlers } from './handlers/agent-prompt.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
 import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
 import { createLatticeDispatchHandlers } from './handlers/lattice-dispatch.js';
@@ -180,6 +185,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-fdcf CHK-001: reviewer_list CLI wire（按 riskSignals / touchpoints 实时计算）
   registry.registerBatch(createReviewerListHandlers(ctx));
 
+  // B-f675 CHK-002: review_incremental_context — read-only reviewer incremental
+  // context (prior verdict + since-last-pass diff + scopeChanged). No writes.
+  registry.registerBatch(createReviewIncrementalContextHandlers(ctx));
+
   // B-9975 CHK-001: story_draft / story_draft_list / story_draft_discard
   registry.registerBatch(createStoryDraftHandlers(ctx));
 
@@ -215,6 +224,15 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createDoneClosureHandlers(ctx));
   registry.registerBatch(createDecisionDocQuorumHandlers(ctx));
   registry.registerBatch(createDecisionDocPromotionHandlers(ctx));
+
+  // B-4f46 CHK-003: signature_registry_list / signature_registry_set — audit-only
+  // catalog of finding signatureTags (Experience Layer Phase 1b). No gate reads it.
+  registry.registerBatch(createSignatureRegistryHandlers(ctx));
+  // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle
+  // (playbook_propose/diff/approve/reject). Never files findings / touches gates;
+  // writes only under .lattice/learning/. Approve fails closed on a stale digest.
+  registry.registerBatch(createPlaybookHandlers(ctx));
+  registry.registerBatch(createRecallHandlers(ctx));
   registry.registerBatch(createReviewEscalationHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));
@@ -241,6 +259,11 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // Host-neutral capability discovery for Lattice adapters.
   registry.registerBatch(createCapabilityListHandlers());
+
+  // B-097f CHK-002: agent_prompt — host-neutral shared content endpoint. Returns
+  // the canonical role body straight from the package prompt registry (the same
+  // registry the Codex manifest resolves). Claude thin-shims fetch from here.
+  registry.registerBatch(createAgentPromptHandlers());
 
   // Lattice productized export and cross-host handoff surfaces.
   registry.registerBatch(createLatticeCliHandlers(ctx));
@@ -286,7 +309,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
  * 新代码请用 createMainRegistry。
  */
 export function createToolHandlers(store: StoryStore, projectRoot?: string, log?: (msg: string) => void) {
-  const root = projectRoot || process.env.LATTICE_PROJECT_ROOT || process.env.KOALA_PROJECT_ROOT || process.cwd();
+  const root = projectRoot || process.env.LATTICE_PROJECT_ROOT || process.cwd();
   const config = loadConfig(root);
   const scanRoot = join(root, config.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };

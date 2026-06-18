@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Reuse existing scanners/registries (scanPathDrift, managed-assets) instead of re-implementing - single source of truth.",
+    "Additive only: zero behavior change for docs with no path/asset issues; the command-name scan is untouched.",
+    "Self-gating safety: the gate this story modifies runs at REVIEW->TEST against the real CLAUDE.md, so the new checks must not false-positive on the current doc state.",
+    "Honor the Handler Encoding Convention: every consumption point re-validates constrained inputs at runtime.",
+    "Fixtures over real-file mutation: the smoke uses dependency-injected inputs, never touches the real CLAUDE.md."
+  ],
+  "drivers": [
+    "P3 incident: CLAUDE.md line 77 falsely forbids the Codex hooks dir while the framework generates those host hooks - the gate is blind to this class of drift.",
+    "scanPathDrift already exists but is only wired into the audit flow, not the docs-drift gate.",
+    "The gate is the REVIEW->TEST preflight, so a false-positive would block this very story (and every future one)."
+  ],
+  "options": [
+    {
+      "name": "A: Extend runDocsDriftGate with optional opts (repoRoot + managed-asset provider) and add two pure check functions in validate-docs-drift.ts that delegate to scanPathDrift + listManagedAssetDefinitions",
+      "pros": [
+        "Single gate entry point; review-preflight consumer change is minimal (pass projectRoot + registry-derived managed defs).",
+        "Path + asset checks live next to the existing command scan, keeping the docs-drift concern cohesive.",
+        "Optional opts keep the function backward-compatible (callers that pass nothing keep old behavior)."
+      ],
+      "cons": [
+        "validate-docs-drift.ts grows; must keep functions pure and DI-friendly for the smoke."
+      ]
+    },
+    {
+      "name": "B: Add a separate new gate (e.g. runDocsPathAssetGate) wired independently in review-preflight",
+      "pros": [
+        "Keeps runDocsDriftGate literally unchanged."
+      ],
+      "cons": [
+        "Two gate functions reading the same CLAUDE.md files = duplicated IO + two result objects to merge in the consumer.",
+        "More surface area in review-preflight; harder to keep the user-facing summary coherent.",
+        "Splits the docs-drift concept across two entry points."
+      ]
+    }
+  ],
+  "chosen": "A: Extend runDocsDriftGate with optional opts (repoRoot + managed-asset provider) and add two pure check functions in validate-docs-drift.ts that delegate to scanPathDrift + listManagedAssetDefinitions",
+  "rationale": "Option A keeps one cohesive docs-drift gate, reuses scanPathDrift and the managed-asset registry verbatim, and stays additive via optional opts so existing callers and clean docs are byte-identical. The managed-asset contradiction check only flags a forbidden-claim when the registry says the framework GENERATES that exact path (generated kinds), and respects the same allowlist seam - so the real CLAUDE.md Codex-hooks prohibition can be allowlisted until B-94ae fixes the wording, avoiding the self-gating false-positive. Option B duplicates IO and fragments the gate for no benefit.",
+  "preMortem": [
+    {
+      "scenario": "The new managed-asset check fires on the REAL CLAUDE.md (line 77 still forbids the Codex hooks dir until B-94ae merges), so the docs-drift gate FAILS at this story's own REVIEW->TEST and blocks DONE.",
+      "trigger": "runReviewCliGates runs runDocsDriftGate against the real CLAUDE.md and the managed-asset check matches a generated codex-hooks asset path.",
+      "consequence": "This story can never pass its own gate - circular block.",
+      "mitigation": "Make the managed-asset check respect the allowlist seam and seed the allowlist with the known-pending Codex-hooks claim (documented as B-94ae will fix the wording), so the real doc passes; the smoke proves the contradiction is caught via a FIXTURE that is not allowlisted. Verify by running the full REVIEW->TEST preflight against the real doc before DONE."
+    },
+    {
+      "scenario": "scanPathDrift flags legitimate example/template paths already present in CLAUDE.md as missing, turning the gate red on the real doc.",
+      "trigger": "CLAUDE.md contains illustrative paths like src/foo.ts or docs/story/actives/B-xxx/plan.md that do not exist on disk.",
+      "consequence": "Gate fails on the real doc for non-drift content; blocks REVIEW->TEST.",
+      "mitigation": "scanPathDrift already ignores docs/story/ and template placeholders and falls back to git-grep for string-literal references; additionally route path-drift hits through the same allowlist seam, and run the gate against the real CLAUDE.md during DEV to confirm zero false-positives before claiming done. If real paths are flagged, allowlist them with an explicit reason."
+    },
+    {
+      "scenario": "The smoke is added as a test:* script but lattice validate never actually runs it, so coverage is illusory.",
+      "trigger": "test:e2e (cli-e2e.js) only runs @flow flows; a bare test:* script is not chained into the npm test that lattice validate executes.",
+      "consequence": "REVIEW->TEST passes without ever exercising the new checks; regression protection is fake.",
+      "mitigation": "Chain the new test:* into the root npm test script (the exact command lattice validate runs in this repo) and confirm by running npm test and observing the smoke output line. Document the wiring in the smoke + plan Verify section."
+    }
+  ],
+  "timestamp": "2026-06-16T21:05:22.404Z"
+}

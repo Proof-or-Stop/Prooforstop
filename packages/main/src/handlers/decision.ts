@@ -1,5 +1,5 @@
 /**
- * Decision (RALPLAN-DR structured decision, OMX ralplan style).
+ * Decision (RALPLAN-DR structured decision).
  *
  * The PLAN phase produces a decision.json for each non-trivial story:
  *   - principles (3-5 items)
@@ -66,7 +66,7 @@ export function createDecisionHandlers(ctx: HandlerContext) {
         if (!opt.cons || opt.cons.length === 0) {
           throw new Error(
             'when decision.options has only 1 entry, the cons must state the invalidation rationale of "why other alternatives are excluded".' +
-            'Otherwise review treats it as "missing fair alternatives" (same requirement as OMX Critic).'
+            'Otherwise review treats it as "missing fair alternatives" (RALPLAN reviewer requirement).'
           );
         }
       }

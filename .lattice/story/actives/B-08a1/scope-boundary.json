@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-08a1",
+  "mode": "feature",
+  "allowed": [
+    "Implement the PURE LLM usage ledger provider-adapter layer in packages/main/src/core/usage-ledger/: anthropic/openai/gemini usage->canonical-record adapters, a record assembler using ids.ts + call-time attribution, streaming/failure usage extraction, unavailable+per-dimension-null semantics, and a wired smoke test"
+  ],
+  "excluded": [
+    "Budget decision logic",
+    "Connecting adapters to the live dispatch path (dispatch-runner / lattice-dispatch)",
+    "Edits outside packages/main/src or its tests",
+    "Preflight token estimation",
+    "Server-side signed evidence promotion",
+    "Turning the writer on by default"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose adapter-layer-only scope (2026-06-16). Live-dispatch wiring + remaining slices are separate future stories.",
+  "createdAt": "2026-06-16T02:11:15.330Z",
+  "updatedAt": "2026-06-16T02:11:15.330Z",
+  "_hash": "47df5cb7d2bdad038bf58ed6e5c43b62cc96c793d0760bb8e32436f5cd8d6689"
+}

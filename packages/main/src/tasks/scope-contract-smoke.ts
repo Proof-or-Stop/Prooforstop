@@ -32,7 +32,7 @@ import type { HandlerContext } from '../handlers/context.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const sessionEnv = { ...process.env, KOALA_SESSION_ID: 'scope-contract-smoke', KOALA_AGENT: 'scope-contract-smoke' };
+const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'scope-contract-smoke', LATTICE_AGENT: 'scope-contract-smoke' };
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -58,12 +58,12 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
   }
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-scope-contract-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-scope-contract-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'scope@example.test']);
   git(root, ['config', 'user.name', 'Scope Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',

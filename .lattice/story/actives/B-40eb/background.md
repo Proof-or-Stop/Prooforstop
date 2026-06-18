@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-16, story 3 "residual sweep" of the koala-removal ship-clean program. Prior stories B-08f2 (KOALA_ env vars) and B-747e (KoalaConfig type) are DONE and merged to main; B-ed70 (lab description / .Codex / omx) is concurrently in DEV. This story performs the pre-OSS code-layer de-koala cleanup.
+
+## Key Insights
+Inventory: active-scope `git grep -liI koala` excluding `.koala` paths / `koala-*-integrity-v1` salts / docs/story history / framework-audit / CHANGELOG yields 321 candidate files; after the B-3cca branding rule, 272 files / 1655 lines are unclassified real brand. Among the 255 real-brand hits there are mandatory keeps: `docs/requirements/decisions/*.md` historical decision docs (3x2 gate), and `*-smoke.ts` files that use koala as test assertions/fixtures (cli-engine-branding-smoke, lattice-only-absence-smoke, which break if changed). The real targets are: packages/lab koala-lab branding (@title/comments/errors/CLI prose), packages/main source comments and CLI prose, scripts/verify-*.mjs comments, and two root-doc prose spots (CLAUDE.md:924 docs/koala/reviewer-redesign.md path, docs/guide.md:60).
+
+## Solution Tradeoffs
+Full vs incremental: the user explicitly chose a single full story (rejecting verify-gate-first / narrow-scope). Full is most thorough but heavier review and larger collision surface. Coordination constraint: B-ed70 in DEV changes lab/package.json description (its CHK-001) and the packages/lab/src/core/config.ts .Codex refs (its CHK-002) -- this story must avoid those or handle after its DONE. Documented exceptions (explicitly preserved): .koala runtime paths (separate storage migration), signature salts, historical decision docs, CHANGELOG/git history, test-assertion fixtures, jek.md (user-owned).
+
+## Conversational Texture
+User said: "agreed, go solve story 3 and story 4 with Lattice." After the inventory exposed the true scale (255+ files, judgment-laden, originally judged too big for one story), the user explicitly chose the full single story. Story 4 (verify gate) is created after this story is DONE. The user asked to communicate in Chinese and state the current task -- but that preference applies to the conversation, not the in-repo English artifacts.

@@ -1,0 +1,63 @@
+{
+  "storyId": "B-2a8d",
+  "checkedAt": "2026-06-17T18:23:52.641Z",
+  "reviewRound": "2026-06-17T18:14:53.140Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#Architecture",
+      "promise": "No Phase 4 / L4 Cross-project aggregation bullet; three semantic levels stated",
+      "status": "verified",
+      "verifiedBy": "grep + verifier script",
+      "evidence": "grep for Phase 4|L4 Cross-project|publicSignature|four semantic levels returns empty; grep for three semantic levels returns line 66; verifier TOTAL 20 | PASS 20 | FAIL 0"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#Architecture-L1",
+      "promise": "L1 deterministic local signature sentence retained intact",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep 'deterministic local signature' returns line 69: aggregated by a deterministic local signature, producing"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#Architecture-L2-L3",
+      "promise": "L2 Story Recall and L3 Process Playbooks Architecture bullets retained",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep L2/L3 returns lines 71 and 74 with full bullet text present"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#Roadmap",
+      "promise": "Phase 1a, 1b, 1.5, 2, 3 roadmap bullets all retained; Phase 4 absent",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep Phase 1a/1b/1.5/Phase 2/Phase 3 returns lines 183,214,226,232,236,239,242,245; grep Phase 4 returns empty"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md#Principles-5",
+      "promise": "Principle 5 states per-project-only by design, not a future item",
+      "status": "verified",
+      "verifiedBy": "grep + read",
+      "evidence": "Line 57: Per-project only no cross-project learning by design; Line 261: no cross-project aggregation per-project only by design not a future item"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "promise": "No publicSignature or two-layer cross-project signature framing anywhere in doc",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep -niE publicSignature returns empty; grep -niE two-layer returns empty"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node verify-b-2a8d.mjs => TOTAL 20 | PASS 20 | FAIL 0; absencesOk=true presencesOk=true; noPhase4 noL4 noPublicSig noFourLevels threeLevels perProject localSignature all true. Independent grep spot-checks: Phase 4|L4 Cross-project|publicSignature absent; deterministic local signature present at line 69; three semantic levels present at line 66. Verifier covers happy, edge, and adversarial cases."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only story: single file lattice-experience-layer-execution-plan.md edited to remove Phase 4 and L4 Cross-project tier. All 6 doc promises independently verified via grep and verifier script returning TOTAL 20 | PASS 20 | FAIL 0. Verifier covers happy, edge, and adversarial cases including case-variant and over-deletion guards. No unresolved TODOs. No source code changed. No open findings."
+  },
+  "_hash": "6b75250bdcb3e60e4055018a9d628556870e1dc15347c316dfa734d33b93acce"
+}

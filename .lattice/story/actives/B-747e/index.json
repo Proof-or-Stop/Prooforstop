@@ -1,0 +1,78 @@
+{
+  "storyId": "B-747e",
+  "name": "rename-koalaconfig-type-to-latticeconfig",
+  "title": "Rename the KoalaConfig type to LatticeConfig (open-source ship-clean code identifier)",
+  "description": "Rename the project-config TypeScript interface KoalaConfig to LatticeConfig across its definition and all consumers. It is the only Koala* PascalCase code identifier left in the codebase (5 files, ~20 occurrences) and is a user-facing API surface (the return type of loadConfig()). Pure mechanical identifier rename, no behavior change. A bounded slice of the broader koala residual-sweep program; other residual cleanup (config sample fixtures, code comments, documentation wording, the lab config reader) is handled in later slices.",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "low",
+  "keywords": [
+    "open-source-cleanup",
+    "koala-to-lattice",
+    "type-rename",
+    "code-identifier",
+    "ship-clean"
+  ],
+  "createdAt": "2026-06-16T02:40:06.948Z",
+  "startedAt": "2026-06-16T02:40:06.948Z",
+  "endedAt": "2026-06-16T03:02:27.435Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T02:40:06.996Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:45:04.781Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:45:39.679Z",
+      "branch": "story/B-747e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:51:28.808Z",
+      "branch": "story/B-747e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:54:49.812Z",
+      "branch": "story/B-747e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T02:57:57.612Z",
+      "branch": "story/B-747e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:02:27.435Z",
+      "branch": "story/B-747e",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T02:54:49.812Z"
+}

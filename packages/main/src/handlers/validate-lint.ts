@@ -23,7 +23,7 @@
  *     }
  *   }
  *
- * See docs/koala/reviewer-redesign.md §3 S1 item 3.
+ * See docs/reviewer-redesign.md §3 S1 item 3.
  */
 
 import { execSync, spawnSync } from 'node:child_process';
@@ -142,11 +142,16 @@ export type FileExists = (filePath: string) => boolean;
  * orphan branch, git throwing) it MUST throw, and callers fall back to a full
  * recursive tsc (never skip-all). See `resolveChangedFiles`.
  */
-export type ChangedFilesReader = (args: { base: string; projectRoot: string }) => string;
+export type ChangedFilesReader = (args: { base: string; projectRoot: string; gitCwd?: string }) => string;
 
-const defaultChangedFilesReader: ChangedFilesReader = ({ base, projectRoot }) => {
+const defaultChangedFilesReader: ChangedFilesReader = ({ base, projectRoot, gitCwd }) => {
+  // B-0740 CHK-002: run `git diff` from the resolved gitRoot (gitCwd) when it is
+  // known. On wrapper-root layouts (metadataRoot != gitRoot) projectRoot is NOT a
+  // git repo → diffing from projectRoot throws → resolveChangedFiles falls back to
+  // full recursive tsc instead of scoping. Default to projectRoot (plain repos:
+  // gitCwd unset or == projectRoot → byte-identical to the prior behavior).
   return execSync(`git diff --name-only ${base}...HEAD`, {
-    cwd: projectRoot,
+    cwd: gitCwd ?? projectRoot,
     encoding: 'utf-8',
     maxBuffer: 50 * 1024 * 1024,
   });
@@ -168,6 +173,19 @@ const defaultChangedFilesReader: ChangedFilesReader = ({ base, projectRoot }) =>
  *     The default reader is wired here so the production story path resolves a
  *     real scope; tests inject a stub reader (including a throwing stub) to
  *     simulate success AND failure.
+ *
+ * B-0740 CHK-002 — gitCwd rebase (base consistency):
+ *   `git diff --name-only` emits paths relative to the git repo cwd (`gitCwd`,
+ *   the resolved gitRoot), but the whole downstream pipeline
+ *   (`computeOutOfScopeTsconfigs` / `findTsconfigs`) is `projectRoot`-relative.
+ *   On wrapper-root layouts (gitRoot != projectRoot) those two bases differ, so
+ *   the gitRoot-relative diff paths are rebased to projectRoot-relative via
+ *   `relative(projectRoot, join(gitCwd, rawPath))` to preserve the single
+ *   projectRoot relativity base. When `gitCwd` is unset OR equals `projectRoot`
+ *   (plain repo), the rebase is the IDENTITY transform → output byte-identical.
+ *   The rebase runs AFTER the throw boundary: a throwing reader still yields
+ *   `undefined` (full tsc, never skip-all) and a genuinely empty diff still
+ *   yields `[]` (valid empty scope) — a throw is NEVER converted into `[]`.
  */
 export function resolveChangedFiles(deps: {
   /** Pre-resolved repo-relative changed paths (used as-is if provided). */
@@ -175,21 +193,40 @@ export function resolveChangedFiles(deps: {
   /** Reader (default: git diff --name-only main...HEAD). Inject a throwing stub to test fallback. */
   changedFilesReader?: ChangedFilesReader;
   projectRoot: string;
+  /** Resolved gitRoot to run `git diff` from + rebase its output. Default/equal projectRoot → identity. */
+  gitCwd?: string;
   base?: string;
 }): string[] | undefined {
   if (deps.changedFiles !== undefined) {
+    // Pre-resolved array path: caller already supplied projectRoot-relative paths.
+    // gitCwd rebase only applies to the reader path (raw git-diff output).
     return normalizeChangedPaths(deps.changedFiles);
   }
   const reader = deps.changedFilesReader ?? defaultChangedFilesReader;
   let raw: string;
   try {
-    raw = reader({ base: deps.base ?? DEFAULT_BASE, projectRoot: deps.projectRoot });
+    raw = reader({ base: deps.base ?? DEFAULT_BASE, projectRoot: deps.projectRoot, gitCwd: deps.gitCwd });
   } catch {
     // git diff failed (no base / orphan / detached HEAD / git throwing):
     // do NOT skip-all — return undefined so callers run full recursive tsc.
     return undefined;
   }
-  return normalizeChangedPaths(raw.split('\n'));
+  const lines = raw.split('\n');
+  // Rebase AFTER the throw boundary. Only when gitCwd is set AND differs from
+  // projectRoot (wrapper-root); otherwise identity (plain repo, byte-identical).
+  if (deps.gitCwd && deps.gitCwd !== deps.projectRoot) {
+    const rebased: string[] = [];
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t) continue; // preserve the empty-line drop; an empty diff stays []
+      // gitRoot-relative → absolute → projectRoot-relative. Paths outside
+      // projectRoot become `..`-prefixed; isPathUnderDir simply never matches
+      // them (correctly out-of-scope for projectRoot tsconfigs).
+      rebased.push(relative(deps.projectRoot, join(deps.gitCwd, t)));
+    }
+    return normalizeChangedPaths(rebased);
+  }
+  return normalizeChangedPaths(lines);
 }
 
 /** Normalize raw changed-path lines: trim, drop empties, strip leading "./", backslash → slash. */
@@ -320,8 +357,8 @@ function resolvePackageDir(
 /**
  * B-5a28 CHK-002: recursively enumerate all tsconfig.json under projectRoot.
  *
- * Why recursive: compilation errors in monorepo sub-packages (e.g. packages/koala/packages/main/tsconfig.json)
- * were missed by single-root scanning — the entire koala package's TS2451 compilation errors were only found by an independent sonnet reviewer after the
+ * Why recursive: compilation errors in monorepo sub-packages (e.g. a nested packages/<sub>/packages/main/tsconfig.json)
+ * were missed by single-root scanning — an entire sub-package's TS2451 compilation errors were only found by an independent sonnet reviewer after the
  * two stories B-9bd9 / B-9d95 reached DONE. The root cause was that the old runTsc hardcoded
  * `<projectRoot>/tsconfig.json`, and the avalon root has no tsconfig.json → skipped → sub-package errors
  * were never visible.

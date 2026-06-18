@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-0740:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 6 must-intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial) have concrete, non-tautological logic_test evidence. Wrapper-root cases (CHK-001 lines 319-374, CHK-002 case-e/f/g/h) genuinely exercise the new gitCwd code paths. Adversarial revert proofs are credible: CHK-001 asserts repairWrote===true (would fail if cwd=root), CHK-002 case-e deepEqual strips wrapper/ prefix (would fail without rebase). validate --story=B-0740 confirms 6/6 covered, result=pass. No gaps.",
+      "createdAt": "2026-06-16T01:18:10.207Z",
+      "reviewRound": "2026-06-16T01:16:26.552Z",
+      "reviewRunId": "B-0740:RR-003",
+      "_hash": "b05aefe712b2fe6565c42d22e3658b1cfcb6b6c13cff0127568bdc2c8dc389e6"
+    },
+    {
+      "id": "B-0740:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked identity case (gitCwd unset or == projectRoot goes straight to normalizeChangedPaths(lines) — byte-identical to prior behavior). Throw boundary confirmed: rebase block is after try/catch so a throwing reader still returns undefined and empty diff stays []. Fallback safety confirmed: defaultChangedFilesReader uses `cwd: gitCwd ?? projectRoot` so cwd is never undefined. Out-of-projectRoot `..`-prefixed paths handled safely: normalizeChangedPaths strips only leading `./` not `../`, so they pass through unchanged and isPathUnderDir simply never matches them (fail-closed). No dead code, no type-safety issues, no I/O shell isolation violations. One low finding registered: duplicate comment block at validate-lint.ts:214-218.",
+      "createdAt": "2026-06-16T01:18:20.579Z",
+      "reviewRound": "2026-06-16T01:16:26.552Z",
+      "reviewRunId": "B-0740:RR-002",
+      "_hash": "22a2c9ab5dce88f60d216ecc739393663ca1eebcc4fa5b46b1ed24155837932f"
+    },
+    {
+      "id": "B-0740:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (Round 2): all 6 must-intents (CHK-001 happy/edge/adversarial + CHK-002 happy/edge/adversarial) have concrete logic_test evidence referencing distinct smoke-test files with DI seams. The 6 evidence entries are currently marked stale (headHash fca68419 vs current HEAD 6b9ade7) because commit 0d1097cff removed a duplicate comment from validate-lint.ts after evidence was recorded — a cosmetic/no-logic change. Neither test file (story-metadata-protection-smoke.ts, validate-lint-change-scope-smoke.ts) nor doctor.ts changed after evidence recording. Both smoke tests pass against the current dist (12 checks + validate-lint change-scope smoke passed, verified directly). Adversarial revert proofs in the notes confirm tests are not tautologies. DI seams confirmed: CHK-001 uses real temp git repos via createDoctorHandlers with wrapper-root fixtures; CHK-002 uses CommandRunner injection and gitRootReader stub that asserts threaded gitCwd. No coverage gaps found. Staleness is a headHash drift artefact from the comment cleanup resolving F-001, not a semantic gap. Recommend evidence refresh at next validate run.",
+      "createdAt": "2026-06-16T02:02:12.800Z",
+      "reviewRound": "2026-06-16T01:58:56.058Z",
+      "reviewRunId": "B-0740:RR-006",
+      "_hash": "af8916e20f35de0b9c488c4c1cbaf3df50c633ae82f9d612648e5e8cee67eb43"
+    },
+    {
+      "id": "B-0740:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement detected. All changed symbols (repairStoryMetadataAllowlist, ChangedFilesReader, defaultChangedFilesReader, resolveChangedFiles) retain their original names and are only extended with optional backward-compatible parameters. The duplicate comment removal (commit 0d1097cff) removed one copy of a two-copy block; the surviving copy at validate-lint.ts:215 confirms no conceptual residue. CLAUDE.md was not modified so no doc-promise-undelivered risk. Concept residue check complete, no blocker.",
+      "createdAt": "2026-06-16T02:02:21.852Z",
+      "reviewRound": "2026-06-16T01:58:56.058Z",
+      "reviewRunId": "B-0740:RR-004",
+      "_hash": "aa7459978d392ae656e840dbb591108a16c932e399b1bd39e63424bb2c2a94b9"
+    },
+    {
+      "id": "B-0740:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after 2-line duplicate-comment removal (commit 0d1097cff). Checked: (1) dead code — none found in doctor.ts, validate-lint.ts, verifier.ts, review-preflight.ts, or smoke tests; (2) type safety — as any casts in smoke test are stderr-capture monkey-patching confined to test scope, acceptable; production code is fully typed; (3) I/O isolation — no shells/ dir in this package, n/a; (4) duplicate comment confirmed removed — two remaining B-0740 CHK-002 occurrences serve distinct purposes (inline function comment vs full JSDoc block); (5) gitCwd threading is correct — resolveDoctorGitCwd/resolveGitCwd both return string (not optional), default parameter in repairStoryMetadataAllowlist is safe fallback for future callers. No blockers.",
+      "createdAt": "2026-06-16T02:02:22.448Z",
+      "reviewRound": "2026-06-16T01:58:56.058Z",
+      "reviewRunId": "B-0740:RR-005",
+      "_hash": "cf2a21d4c077dba690765ef09195073a9a8a1079c3533cf1f04d67d91a83711e"
+    }
+  ]
+}

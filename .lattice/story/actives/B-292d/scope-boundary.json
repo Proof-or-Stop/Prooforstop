@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-292d",
+  "mode": "feature",
+  "allowed": [
+    "CHANGELOG.md (Unreleased entry)",
+    "CLAUDE.md (if it enumerates preflight gates)",
+    "packages/main/src/handlers/cli-help.ts (or equivalent — update preflight gate list)",
+    "packages/main/src/handlers/review-preflight.ts (add 6th gate)"
+  ],
+  "excluded": [
+    ".koala/ runtime-dir rename (deferred storage migration)",
+    "docs/koala/framework-audit/ (B-META path)",
+    "lattice validate default battery handlers (out of scope per user decision (a))",
+    "root package.json test:koala-residue (keep two-place coverage per user decision)",
+    "scripts/verify-* other scripts",
+    "scripts/verify-koala-residue.mjs (B-40eb canonical script — byte-frozen)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose option (a) preflight-only on 2026-06-17 + sub-decision (a3) keep test:koala-residue in npm test chain (two-place coverage). Pattern-mirrors english-artifacts gate.",
+  "createdAt": "2026-06-17T17:21:54.075Z",
+  "updatedAt": "2026-06-17T17:21:54.075Z",
+  "_hash": "a86a4ccd3b14b4459a5acb7575e07e3ae0c794089763404543e99afd78ef3cfa"
+}

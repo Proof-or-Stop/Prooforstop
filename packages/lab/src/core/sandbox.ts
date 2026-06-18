@@ -1,11 +1,11 @@
 /**
  * @task B-9ba3
  * @checklist CHK-003
- * @title koala-lab sandbox creates isolated git worktrees for experiments
+ * @title lattice-lab sandbox creates isolated git worktrees for experiments
  * @type feature
  * @priority high
  * @description
- *   koala-lab 不能在当前工作区里直接做实验。sandbox 负责为每次 run 规划独立
+ *   lattice-lab 不能在当前工作区里直接做实验。sandbox 负责为每次 run 规划独立
  *   branch/worktree 路径，并在 confirm 后创建隔离 worktree，让实验和正式开发、
  *   story worktree 互不污染。
  * @changes
@@ -18,9 +18,9 @@ import { dirname, join } from 'path';
 import { loadLabProjectConfig } from './project-config.js';
 import type { LabExperimentConfig, LabSandboxPlan } from '../types.js';
 
-function git(root: string, args: string[]): string {
+function git(gitCwd: string, args: string[]): string {
   return execFileSync('git', args, {
-    cwd: root,
+    cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
@@ -40,8 +40,8 @@ function resolveRepoRoot(root: string): string {
 
 export function planSandbox(root: string, config: LabExperimentConfig, runId: string): LabSandboxPlan {
   const repoRoot = resolveRepoRoot(root);
-  const koalaConfig = loadLabProjectConfig(root);
-  const worktreeDir = koalaConfig.worktreeDir || '.worktrees';
+  const labProjectConfig = loadLabProjectConfig(root);
+  const worktreeDir = labProjectConfig.worktreeDir || '.worktrees';
   return {
     repoRootPath: repoRoot,
     worktreeDir,
@@ -52,7 +52,8 @@ export function planSandbox(root: string, config: LabExperimentConfig, runId: st
 
 export function createSandbox(root: string, plan: LabSandboxPlan): void {
   mkdirSync(dirname(plan.sandboxPath), { recursive: true });
-  const existingBranch = git(root, ['branch', '--list', '--format=%(refname:short)', plan.branch]);
+  const gitCwd = root;
+  const existingBranch = git(gitCwd, ['branch', '--list', '--format=%(refname:short)', plan.branch]);
   if (existingBranch === plan.branch) {
     throw new Error(`lab sandbox branch 已存在: ${plan.branch}`);
   }
@@ -60,7 +61,7 @@ export function createSandbox(root: string, plan: LabSandboxPlan): void {
     throw new Error(`lab sandbox 路径已存在: ${plan.sandboxPath}`);
   }
   execFileSync('git', ['worktree', 'add', '-b', plan.branch, plan.sandboxPath, 'HEAD'], {
-    cwd: root,
+    cwd: gitCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 }

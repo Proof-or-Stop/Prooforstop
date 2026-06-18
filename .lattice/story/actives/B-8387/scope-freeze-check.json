@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8387",
+  "checkedAt": "2026-06-17T14:41:21.156Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "28b0652642546067655e6853470c3ced63c5e25dea3622554668065cc8c436c8",
+  "executionBoundaryHash": "d63778da4bd4d8e6051a73e7458dc2f6de3b2f79a45b7931895dee128cfe41f2",
+  "freshnessHash": "4a5b2ea0e5eb7e301c098a8951e5bdcfc669df5ca13b7f33190cb0e9844dfdaf",
+  "effectiveExcludedKeywords": [
+    "Auto-creating findings or invoking any review gate from a playbook",
+    "Cross-project playbook sharing",
+    "Promoting a playbook to active without explicit human approval",
+    "Surfacing playbooks into reviewer prompts (that is Phase 1.5/later)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Auto-creating findings or invoking any review gate from a playbook",
+      "source": "scopeBoundary.excluded",
+      "text": "Auto-creating findings or invoking any review gate from a playbook",
+      "excluded": true
+    },
+    {
+      "keyword": "Cross-project playbook sharing",
+      "source": "scopeBoundary.excluded",
+      "text": "Cross-project playbook sharing",
+      "excluded": true
+    },
+    {
+      "keyword": "Promoting a playbook to active without explicit human approval",
+      "source": "scopeBoundary.excluded",
+      "text": "Promoting a playbook to active without explicit human approval",
+      "excluded": true
+    },
+    {
+      "keyword": "Surfacing playbooks into reviewer prompts (that is Phase 1.5/later)",
+      "source": "scopeBoundary.excluded",
+      "text": "Surfacing playbooks into reviewer prompts (that is Phase 1.5/later)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "78cde82a0abe7aeef7a1017b32e3fa47d88342fac937c855fa5790c35fd6f38b"
+}

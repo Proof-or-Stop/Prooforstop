@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-da89:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement. The only source code change is +2 additive lines in packages/main/src/core/config.ts adding literal dev_start entries to the INIT and DEV arrays of DEFAULT_PHASE_TOOLS. No existing entries were removed or renamed. Zero deleted lines in config.ts diff. No concept residue check needed.",
+      "createdAt": "2026-06-17T02:21:52.638Z",
+      "reviewRound": "2026-06-17T02:21:08.224Z",
+      "reviewRunId": "B-da89:RR-001",
+      "_hash": "1fdfb3a0f80519bc0ea5a8feeaf7c052934df916438321ebc0ea91a7bf48dfc1"
+    },
+    {
+      "id": "B-da89:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed packages/main/src/core/config.ts diff only. Two literal string additions (no wildcards): (1) dev_start added to INIT array at line 191, (2) dev_start added to DEV array at line 220. Both comments are accurate: reference B-804c as originating story and B-da89 as reconciliation story, CHK-001/CHK-002 attribution matches existing INIT_CHECK and PLAN entries, comment style is consistent with file conventions. No other phases, commands, or array contents were modified. No dead code, no type issues, no I/O shell isolation violations, no doc-promise-undelivered concerns.",
+      "createdAt": "2026-06-17T02:22:11.882Z",
+      "reviewRound": "2026-06-17T02:21:08.224Z",
+      "reviewRunId": "B-da89:RR-002",
+      "_hash": "e6f35d24aaa5d1b77048ece3dad42fc743b4f6e16884623c95220a4e6139beb4"
+    },
+    {
+      "id": "B-da89:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 must-intents (CHK-001 happy/edge/adversarial and CHK-002 happy/edge/adversarial) have valid verificationEvidence. CHK-001:happy covered by logic_test (npm run test:process-fact-contract exit 0, independently verified). CHK-001:edge covered by manual_transcript (git diff --stat main...HEAD -- packages/main/src confirms only config.ts +2 lines, independently verified). CHK-001:adversarial covered by manual_transcript (git diff on command-policy.ts and worktree.ts is empty, independently verified). CHK-002:happy covered by manual_transcript (npm run test:process-fact-contract exit 0, independently verified). CHK-002:edge covered by docs_check (assertCommandPolicyPhaseAlignment function confirmed present in verify-process-fact-contract.mjs, source-read verified). CHK-002:adversarial covered by manual_transcript: round-trip guard is credible — assertCommandPolicyPhaseAlignment iterates every command x phase with a bidirectional assert; removing dev_start from the DEV array would cause policy=true vs defaultAllows=false for dev_start:DEV, triggering the assertion. No rubber-stamp found; no blocker.",
+      "createdAt": "2026-06-17T02:22:55.304Z",
+      "reviewRound": "2026-06-17T02:21:08.224Z",
+      "reviewRunId": "B-da89:RR-003",
+      "_hash": "3ce01e734c34bd1af098c4b508a726de9875fb9f9b551fd5eb7a2ccb172b002b"
+    },
+    {
+      "id": "B-da89:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "All four correctness checks pass. (1) Authoritative-set: command-policy.ts:130 and worktree.ts:823 both declare the 4-phase set [INIT,INIT_CHECK,PLAN,DEV] and are UNCHANGED in the diff — config was widened upward to match (correct direction). (2) No over-widening: diff adds only two literal dev_start lines (INIT array and DEV array in DEFAULT_PHASE_TOOLS); no wildcards; REVIEW/TEST/DONE sections contain no dev_start. (3) isCommandAllowed effect: the commandAllowedByLifecyclePolicy ceiling from command-policy.ts still refuses dev_start for REVIEW/TEST/DONE before the config gate is consulted; owner-lease + scope-freeze gating for dev_start (ownershipClass storyScopedMutating) is unchanged. (4) npm run test:process-fact-contract exits 0 confirmed live; the assertCommandPolicyPhaseAlignment check covers the full command x phase matrix bidirectionally.",
+      "createdAt": "2026-06-17T02:23:27.987Z",
+      "reviewRound": "2026-06-17T02:21:08.224Z",
+      "reviewRunId": "B-da89:RR-004",
+      "_hash": "31ab47b960f3b779680095e5bb75c7efece638f18d6087bfc33dc16f2a47bb0c"
+    }
+  ]
+}

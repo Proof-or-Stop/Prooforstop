@@ -1,0 +1,97 @@
+{
+  "findings": [
+    {
+      "id": "B-5f42:F-001",
+      "desc": "quality-cleanup: packages/main/src/core/cjk-detect.ts:78-82 — buildCjkRegex() is called and assigned to re, and re.lastIndex is reset at line 82, but re is never used for matching; detection is done entirely by isCjkCodepoint() at line 88; both the call and the lastIndex reset are dead code",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T23:12:36.067Z",
+      "reviewRound": "2026-06-16T23:09:40.084Z",
+      "reviewRunId": "B-5f42:RR-002",
+      "_hash": "e60ac7ec7e912fd2b62c86e7701f56cbd4d6ad261f48a943b0f3faed7e62b56d",
+      "files": [
+        "packages/main/src/core/cjk-detect.ts"
+      ],
+      "resolvedReason": "Fixed in 71010e4: removed dead buildCjkRegex/cp/re in cjk-detect.ts; detection unchanged via isCjkCodepoint; keep-in-sync smoke still green.",
+      "resolvedAt": "2026-06-16T23:18:47.195Z"
+    },
+    {
+      "id": "B-5f42:F-002",
+      "desc": "doc-promise-undelivered: english-only-guard.cjs registered in getClaudeHooks() (init-assets.ts:446) as a managed PreToolUse hook but HOOK_FILES in cli-init.ts:56 does not include ENGLISH_ONLY_GUARD_HOOK_FILE — lattice init will never copy the hook to a target project; the hook also exists only in the worktree .claude/hooks/ not in the package hookSrcDir (packageRoot/../../.claude/hooks) so the source itself is missing for installation",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-16T23:12:37.413Z",
+      "reviewRound": "2026-06-16T23:09:40.084Z",
+      "reviewRunId": "B-5f42:RR-001",
+      "_hash": "ca5e82e5d0ca1655590ed7eb08e2684f013368a0e6742d9897b023c4858e2c94",
+      "files": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/init-assets.ts",
+        ".claude/hooks/english-only-guard.cjs"
+      ],
+      "resolvedReason": "Fixed in 71010e4: added ENGLISH_ONLY_GUARD_HOOK_FILE to HOOK_FILES in cli-init.ts; verified via lattice init into a temp dir with temp HOME that .claude/hooks/english-only-guard.cjs is now copied and settings.json references it.",
+      "resolvedAt": "2026-06-16T23:18:45.428Z"
+    },
+    {
+      "id": "B-5f42:F-003",
+      "desc": "All 9 verificationEvidence entries are stale (headHash mismatch after round-2 fix commits 71010e4/44e6c7c37/f262aff5). lattice validate --story=B-5f42 --json reports 0/9 covered (verificationCoverage.covered=0, missingRequired=9). The smoke test itself still passes (all 6 tests green) and the behavior under test is unchanged (round-2 fix was dead-code removal only). The main agent must re-run verification_evidence_add for all 9 intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0) against the current HEAD so the gate can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T23:20:22.521Z",
+      "reviewRound": "2026-06-16T23:18:34.507Z",
+      "reviewRunId": "B-5f42:RR-006",
+      "_hash": "d0a9db2c4d8d3a12b25b5caec941aaeb0c2126bcfd10c3b1f4a1a9d2242262c7",
+      "files": [
+        "packages/main/src/tasks/english-only-guards-smoke.ts"
+      ],
+      "resolvedReason": "Refreshed all 9 verificationEvidence entries at current HEAD via verification_evidence_refresh_stale (commit 9e03071); the staleness was caused by the F-001/F-002 fix commit advancing HEAD, not by missing tests. lattice validate --story=B-5f42 --json now reports verificationCoverage 9/9 covered, 0 missing; the english-only-guards smoke is green.",
+      "resolvedAt": "2026-06-16T23:23:04.745Z"
+    },
+    {
+      "id": "B-5f42:F-004",
+      "desc": "All 9 verificationEvidence entries are stale (headHash bd18aac vs current HEAD 8e73541). The fix commit cb19e86e8 (cli-init init-rerun merge fix + gate label) advanced HEAD beyond the last evidence refresh. validate --story=B-5f42 reports 0/9 covered. The main agent must run verification_evidence_refresh_stale to re-anchor all evidence to current HEAD before REVIEW->TEST can proceed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T00:27:10.828Z",
+      "reviewRound": "2026-06-17T00:25:53.158Z",
+      "reviewRunId": "B-5f42:RR-009",
+      "_hash": "cf21766d9a5b1ad2fba4f566a5ae4e663f7ee9709e132be7afdf37c442730105",
+      "files": [
+        "packages/main/src/tasks/english-only-guards-smoke.ts"
+      ],
+      "resolvedReason": "Refreshed all 9 verificationEvidence entries at the post-fix HEAD via verification_evidence_refresh_stale; staleness was caused by the cb19e86e8 fix commit + ea8b568c9 test commit advancing HEAD. validate --story now reports 9/9 covered, 0 missing.",
+      "resolvedAt": "2026-06-17T00:32:10.950Z"
+    },
+    {
+      "id": "B-5f42:F-005",
+      "desc": "The init-rerun merge fix (cli-init.ts cb19e86e8) has no automated regression test. The fix corrects a bug where only hooks[0] was inspected, silently dropping every hook entry after the first on init-rerun. The existing smoke test (english-only-guards-smoke.ts) covers the fresh-init path only. No test exercises: run lattice init on a settings.json that already contains the scope PreToolUse guard -> verify (a) english-only guard is added without duplicating the scope guard, and (b) both entries are present in the merged result. This rerun-merge path is the specific scenario the fix addresses and it currently has only manual before/after attestation in the commit message. A permanent regression test is warranted to prevent silent regression.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T00:27:18.321Z",
+      "reviewRound": "2026-06-17T00:25:53.158Z",
+      "reviewRunId": "B-5f42:RR-009",
+      "_hash": "c2feb93b312654eef84f53099aad717b60e9dce09f73268028623a3148918dea",
+      "files": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/tasks/english-only-guards-smoke.ts"
+      ],
+      "resolvedReason": "Added Test 7 to english-only-guards-smoke.ts (commit ea8b568c9): seeds a temp project with a scope-only PreToolUse settings.json, runs lattice init, and asserts BOTH the scope-pretool and english-only-guard hooks are present (scope not duplicated). This is durable regression coverage for the init-rerun merge path that the escalation review exposed; all 7 smoke tests green.",
+      "resolvedAt": "2026-06-17T00:32:11.373Z"
+    }
+  ]
+}

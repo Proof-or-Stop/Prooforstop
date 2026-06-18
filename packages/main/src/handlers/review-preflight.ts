@@ -16,12 +16,16 @@
  *   - lint:       status === 'pass' or 'skipped' → ok; 'fail' → block
  *   - docs-drift: status === 'pass' or 'skipped' → ok; 'fail' → block
  *
- * Express channel (checklist ≤ 2 and riskSignals empty) skips entirely — all CLI gates treated as pass,
- * symmetric with the existing "express channel REVIEW reviewer not checked".
+ * Express channel (checklist ≤ 2 and riskSignals empty) force-skips the channel/concept/lint/
+ * docs-drift/english-artifacts gates (treated as pass), symmetric with the existing "express channel
+ * REVIEW reviewer not checked". The codex-adapter gate is the one exception: it is still
+ * conditionally evaluated (when the story touches Codex adapter assets) and can block even on the
+ * express channel — so "express" skips five of the six gates, not all of them.
  *
- * See docs/koala/reviewer-redesign.md §3 S1 item 7.
+ * See docs/reviewer-redesign.md §3 S1 item 7.
  */
 
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { StoryStore } from '../core/store.js';
@@ -55,11 +59,96 @@ import {
   type DocsDriftGateResult,
 } from './validate-docs-drift.js';
 import {
+  detectManagedAssetMode,
+  detectManagedAssetProfile,
+  listManagedAssetDefinitions,
+  type ManagedAssetDefinition,
+} from '../core/managed-assets.js';
+import {
   LOCAL_CODEX_VERIFY_COMMAND,
   resolveLocalCodexVerifyCommand,
   storyRequiresCodexEvidence,
   summarizeCodexEvidence,
 } from '../core/codex-adapter-checks.js';
+import {
+  runEnglishArtifactGate,
+  renderEnglishArtifactViolations,
+} from './english-artifact-gate.js';
+
+// B-5f42: the english-artifacts gate has no standalone `validate --english-artifacts`
+// CLI option — it runs inline as part of the REVIEW→TEST preflight. Give it an
+// accurate label so a failing gate does not print a non-existent command. The
+// closest standalone re-run is the smoke task that exercises the same guard.
+const ENGLISH_ARTIFACTS_GATE_LABEL =
+  'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:legacy -- english-only-guards)';
+
+// B-292d: koala-residue gate — same shape as english-artifacts. Calls the
+// canonical script delivered by B-40eb (`scripts/verify-koala-residue.mjs`).
+// No standalone `validate --koala-residue` flag; standalone re-run is the npm
+// script that wraps the same script (kept per user sub-decision a3).
+const KOALA_RESIDUE_GATE_LABEL =
+  'koala-residue (REVIEW→TEST preflight; standalone: npm run test:koala-residue)';
+const KOALA_RESIDUE_SCRIPT_REL = 'scripts/verify-koala-residue.mjs';
+const KOALA_RESIDUE_TIMEOUT_MS = 30_000;
+
+interface KoalaResidueGateResult {
+  ok: boolean;
+  summary: string;
+  details: string[];
+}
+
+/**
+ * B-292d: Run the canonical koala-residue script as a preflight gate.
+ *
+ * Treats exit code 0 as PASS; any non-zero (including timeout / spawn failure)
+ * as FAIL. The script's stdout hit list is surfaced verbatim in the gate's
+ * `details`, so an operator can see the offending lines without re-running.
+ *
+ * Pre-mortem mitigations:
+ *   - D1 (script changes exit semantics): only exit 0 is PASS.
+ *   - D2 (subprocess hang): KOALA_RESIDUE_TIMEOUT_MS bounds the call.
+ *   - D3 (false-fail on benign rename): output prints hit lines verbatim so the
+ *     operator can extend the script's allowlist via a follow-up story.
+ */
+function runKoalaResidueGate(projectRoot: string): KoalaResidueGateResult {
+  const scriptAbs = join(projectRoot, KOALA_RESIDUE_SCRIPT_REL);
+  if (!existsSync(scriptAbs)) {
+    return {
+      ok: false,
+      summary: `koala-residue gate script missing at ${KOALA_RESIDUE_SCRIPT_REL}`,
+      details: [`expected: ${scriptAbs}`],
+    };
+  }
+  try {
+    execFileSync('node', [scriptAbs], {
+      cwd: projectRoot,
+      timeout: KOALA_RESIDUE_TIMEOUT_MS,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    });
+    return { ok: true, summary: 'No brand residue in tracked source', details: [] };
+  } catch (err) {
+    const error = err as { code?: string; signal?: string; stdout?: string; stderr?: string };
+    const stdout = (error.stdout ?? '').toString();
+    const stderr = (error.stderr ?? '').toString();
+    const hits = stdout
+      .split('\n')
+      .map((s) => s.trimEnd())
+      .filter((s) => s.length > 0);
+    if (error.code === 'ETIMEDOUT' || error.signal === 'SIGTERM') {
+      return {
+        ok: false,
+        summary: `koala-residue gate timed out after ${KOALA_RESIDUE_TIMEOUT_MS}ms`,
+        details: stderr ? [stderr.trim()] : [],
+      };
+    }
+    return {
+      ok: false,
+      summary: hits.length > 0 ? `brand residue: ${hits.length} hit(s)` : 'koala-residue gate failed',
+      details: hits.length > 0 ? hits : stderr ? [stderr.trim()] : [],
+    };
+  }
+}
 
 /** Reads CLAUDE.md file contents for docs-drift gate */
 export type MdFileReader = (projectRoot: string) => string[];
@@ -91,7 +180,7 @@ export interface PreflightDeps {
 }
 
 export interface PreflightGateEntry {
-  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter';
+  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts' | 'koala-residue';
   ok: boolean;
   status: string;
   summary: string;
@@ -102,7 +191,7 @@ export interface PreflightGateEntry {
 
 export interface PreflightResult {
   ok: boolean;
-  /** true if fast-channel story — all 4 gates forced-pass */
+  /** true if fast-channel story — channel/concept/lint/docs-drift/english-artifacts force-skipped (codex-adapter still conditionally evaluated, can block) */
   fastChannel: boolean;
   channel?: ChannelCheckResult;
   concept?: ConceptCheckResult;
@@ -186,10 +275,11 @@ function conceptReviewerHandledResiduals(
   }
 }
 
-/** Default CLAUDE.md reader: reads root CLAUDE.md + packages/koala/CLAUDE.md */
+/** Default CLAUDE.md reader: reads root CLAUDE.md + legacy packages/koala/CLAUDE.md if present */
 function defaultMdFileReader(projectRoot: string): string[] {
   const candidates = [
     join(projectRoot, 'CLAUDE.md'),
+    // legacy self-hosting layout path the reader still honors if present
     join(projectRoot, 'packages', 'koala', 'CLAUDE.md'),
   ];
   const contents: string[] = [];
@@ -203,7 +293,8 @@ function defaultMdFileReader(projectRoot: string): string[] {
 
 /**
  * Run CLI gates and aggregate into one structured result.
- * Express channel → all four gates forced-pass (channel/concept/lint/docs-drift not actually run).
+ * Express channel → channel/concept/lint/docs-drift/english-artifacts force-skipped (not actually
+ * run); the codex-adapter gate is still conditionally evaluated and can block even on express.
  */
 export function runReviewCliGates(
   storyId: string,
@@ -240,6 +331,22 @@ export function runReviewCliGates(
       status: 'skipped',
       summary: 'Express channel does not check CLI gate',
       details: [],
+    });
+    gates.push({
+      name: 'english-artifacts',
+      ok: true,
+      status: 'skipped',
+      summary: 'Express channel does not check CLI gate',
+      details: [],
+      commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
+    });
+    gates.push({
+      name: 'koala-residue',
+      ok: true,
+      status: 'skipped',
+      summary: 'Express channel does not check CLI gate',
+      details: [],
+      commandLabel: KOALA_RESIDUE_GATE_LABEL,
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
       const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
@@ -333,6 +440,7 @@ export function runReviewCliGates(
   // undefined → checkLint runs full recursive tsc (never skip-all).
   const changedFiles = resolveChangedFiles({
     projectRoot: deps.projectRoot,
+    gitCwd,
     changedFilesReader: deps.changedFilesReader,
   });
   const lint = checkLint({
@@ -358,7 +466,52 @@ export function runReviewCliGates(
   if (deps.registryNames) {
     const mdReader = deps.mdFileReader ?? defaultMdFileReader;
     const mdContents = mdReader(deps.projectRoot);
-    docsDrift = runDocsDriftGate(mdContents, deps.registryNames);
+    // B-a7b0 CHK-002: cross-reference the REAL managed-asset registry. Detect the
+    // project's profile + assetMode so listManagedAssetDefinitions returns the
+    // assets `lattice init` would actually generate for this repo. The check is
+    // provider-injected — paths are never hardcoded in the gate. A registry-
+    // resolution failure degrades to no contradiction check (never crashes the gate).
+    let managedAssetDefs: Pick<ManagedAssetDefinition, 'relPath' | 'kind'>[] | undefined;
+    // B-a7b0 F-002: registry resolution must fail SOFT (never crash the additive
+    // contradiction check), but the degrade must stay OBSERVABLE — an empty catch
+    // here would make a silent registry failure indistinguishable from a clean
+    // load. Capture the error and fold it into the gate's `details` (same in-result
+    // diagnostic convention used elsewhere in this file, e.g. the concept-reviewer
+    // read failure at conceptReviewerHandledResiduals) so a reader sees the
+    // contradiction check was skipped due to an error, not due to zero contradictions.
+    let managedAssetDegrade: string | undefined;
+    try {
+      const profile = detectManagedAssetProfile(deps.projectRoot);
+      const assetMode = detectManagedAssetMode(deps.projectRoot);
+      managedAssetDefs = listManagedAssetDefinitions(
+        profile,
+        undefined,
+        deps.projectRoot,
+        assetMode,
+      );
+    } catch (e) {
+      managedAssetDefs = undefined;
+      managedAssetDegrade = `managed-asset registry unavailable (contradiction check skipped): ${
+        e instanceof Error ? e.message : String(e)
+      }`;
+      // Also surface on stderr (advisory-warning convention, cf. checklist.ts) so
+      // the degrade is visible even though the soft-degraded gate stays ok and the
+      // renderer only prints gate `details` for failed gates.
+      process.stderr.write(`⚠ docs-drift: ${managedAssetDegrade}\n`);
+    }
+    // B-a7b0 CHK-001: pass repoRoot so the gate also runs path-reference drift
+    // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When repoRoot is absent the
+    // gate degrades to the command-only check (backward compatible).
+    // B-f882 CHK-001: repoRoot must be the resolved gitCwd (same value threaded
+    // into the channel/concept/english git-invoking gates), NOT deps.projectRoot.
+    // On wrapper-root layouts (metadataRoot != gitRoot) scanPathDrift runs
+    // fs.existsSync + `git grep` from repoRoot; using projectRoot (metadataRoot)
+    // there made existing paths look absent → false missing-path drift → false
+    // REVIEW→TEST block. Plain repos (projectRoot == gitCwd) are byte-identical.
+    docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {
+      repoRoot: gitCwd,
+      managedAssetDefs,
+    });
     const docsDriftOk = docsDrift.status === 'pass' || docsDrift.status === 'skipped';
     gates.push({
       name: 'docs-drift',
@@ -366,9 +519,14 @@ export function runReviewCliGates(
       status: docsDrift.status,
       summary: docsDrift.summary,
       details: [
+        ...(managedAssetDegrade ? [managedAssetDegrade] : []),
         ...(docsDrift.missing.length > 0
           ? [`missing: ${docsDrift.missing.join(', ')}`]
           : []),
+        ...docsDrift.missingPaths.map((p) => `missing path: ${p}`),
+        ...docsDrift.managedAssetContradictions.map(
+          (c) => `managed-asset contradiction: ${c.asset} (${c.kind})`,
+        ),
         ...(docsDrift.stale.length > 0
           ? [`stale (advisory): ${docsDrift.stale.join(', ')}`]
           : []),
@@ -384,6 +542,40 @@ export function runReviewCliGates(
       details: [],
     });
   }
+
+  // ── english-artifacts (B-5f42 CHK-002) ──
+  // Diff/story-scoped CJK gate: this branch's commit messages + the current
+  // story's author-controlled metadata must be English. Legacy Chinese outside
+  // this story / branch is never scanned. Never throws — git/fs failures degrade
+  // to notes, not a block.
+  const storyDir = deps.store.storyDirPath(storyId);
+  const englishArtifacts = runEnglishArtifactGate({ storyDir, gitCwd });
+  gates.push({
+    name: 'english-artifacts',
+    ok: englishArtifacts.ok,
+    status: englishArtifacts.ok ? 'pass' : 'fail',
+    summary: englishArtifacts.ok
+      ? 'No non-English (CJK) text in this branch\'s commits or story metadata'
+      : `Non-English (CJK) text found in ${englishArtifacts.violations.length} artifact line(s)`,
+    details: [
+      ...renderEnglishArtifactViolations(englishArtifacts.violations),
+      ...englishArtifacts.notes,
+    ],
+    commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
+  });
+
+  // ── koala-residue (B-292d) ──
+  // Run the canonical B-40eb script as a structured preflight gate.
+  // Non-zero exit BLOCKs story_advance to TEST; stdout hit list is surfaced.
+  const koalaResidue = runKoalaResidueGate(deps.projectRoot);
+  gates.push({
+    name: 'koala-residue',
+    ok: koalaResidue.ok,
+    status: koalaResidue.ok ? 'pass' : 'fail',
+    summary: koalaResidue.summary,
+    details: koalaResidue.details,
+    commandLabel: KOALA_RESIDUE_GATE_LABEL,
+  });
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {
     const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);

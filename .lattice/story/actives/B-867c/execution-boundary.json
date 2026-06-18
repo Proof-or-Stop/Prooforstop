@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-867c",
+  "allowedCommands": [
+    "lattice validate",
+    "npm --prefix packages/main run build",
+    "npm run test:process-fact-contract",
+    "npx tsc"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Edit target for command registration is process-fact-levels.ts (registry COMMAND entries derive from PROCESS_FACT_LEVELS); config.ts only if DEFAULT_PHASE_TOOLS reconciliation requires it. process-fact-registry.ts listed in case derivation helpers need touching. Do NOT touch any handler, cli-engine.ts (behavior), gitRoot code, or the validate battery wiring.",
+  "createdAt": "2026-06-17T16:28:16.685Z",
+  "updatedAt": "2026-06-17T16:28:16.685Z",
+  "_hash": "e5758664442506193e990259c2bf075e3db067c34bdb3a1e4f4c71c06fd4a765"
+}

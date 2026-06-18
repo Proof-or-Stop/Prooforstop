@@ -1,0 +1,105 @@
+{
+  "storyId": "B-08a1",
+  "checkedAt": "2026-06-16T03:04:05.586Z",
+  "reviewRound": "2026-06-16T02:50:56.734Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#approach",
+      "promise": "Anthropic adapter (adapters/anthropic.ts): native four-field usage mapping to canonical {input,output,cacheCreation,cacheRead}; raw.providerUnits='anthropic-usage-v1'; pure, no dispatch",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/adapters/anthropic.ts present in diff; adaptAnthropicUsage reads all four native fields, uses readPrimaryDimension and readReportedDimension, calls buildProviderReportedUsage with ANTHROPIC_PROVIDER_UNITS; unavailable path via buildUnavailableUsage; no fs/dispatch/Date.now()"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#approach",
+      "promise": "OpenAI adapter (adapters/openai.ts): prompt_tokens->input, completion_tokens->output, cached_tokens->cacheRead, cacheCreation=null always; raw.providerUnits='openai-usage-v1'; pure",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/adapters/openai.ts present in diff; adaptOpenAiUsage maps prompt_tokens/completion_tokens, extracts cacheRead via readOpenAiCacheRead from prompt_tokens_details, hardcodes cacheCreation as TokenDimension=null; unavailable path present; no fs/dispatch"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#approach",
+      "promise": "Gemini adapter (adapters/gemini.ts): promptTokenCount->input, candidatesTokenCount->output, cachedContentTokenCount->cacheRead, cacheCreation=null always; raw.providerUnits='gemini-usage-v1'; totalTokenCount ignored; pure",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/adapters/gemini.ts present in diff; adaptGeminiUsage maps promptTokenCount/candidatesTokenCount, reads cacheRead from cachedContentTokenCount, hardcodes cacheCreation=null; totalTokenCount absent from GeminiUsageMetadata interface by design; no fs/dispatch"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#approach",
+      "promise": "shared primitives (adapters/shared.ts): payloadDigest, readReportedDimension, readPrimaryDimension, hasBothPrimaries, buildProviderReportedUsage, buildUnavailableUsage, isUsableUsageObject; shared by all three adapters",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/adapters/shared.ts present in diff; all six exported helpers present; used by anthropic.ts, openai.ts, gemini.ts (confirmed via import statements in each file); no fs/dispatch"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#approach",
+      "promise": "canonical-json.ts extracted from writer.ts so that writer.ts and adapters/shared.ts share the same canonicalization and cannot silently diverge",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/canonical-json.ts present in diff with canonicalJson() and sortValue(); writer.ts diff shows the local canonicalJson function removed and replaced with import from ./canonical-json.js; adapters/shared.ts imports canonicalJson from ../canonical-json.js"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#approach",
+      "promise": "assembler (assemble.ts): buildProviderRecord selects the right adapter, assembles a full record, runs validateUsageLedgerRecord, throws on invalid; correlation ids come from ids.ts never from provider response; authority={mode:'local',receiptId:null,receiptVerified:false}; privacy flags mandatory",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/assemble.ts present in diff; adaptUsageFor switch dispatches to all three adapters; mintRecordId() used for recordId; correlation arg supplies ledgerCallId/attemptId; authority hardcoded as local/unverified; privacy block with promptStored:false,transcriptStored:false; validateUsageLedgerRecord called with {expectIntegrity:false} and throws on failure"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#approach",
+      "promise": "streaming.ts: extract final usage from a terminal stream event; partial usage on mid-stream error if any real count received (provider-reported); truly no counts -> unavailable with reason; last/terminal event wins",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/usage-ledger/streaming.ts present in diff; extractAnthropicStreamUsage merges message_start (input+cache) and last message_delta (output), terminal wins; extractOpenAiStreamUsage uses last chunk; extractGeminiStreamUsage uses last usageMetadata; buildPartialProviderUsage used on mid-stream failure with anyCount(); buildUnavailableUsage when no counts at all"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#out-of-scope",
+      "promise": "Deferral: adapters are NOT wired into the live dispatch path (dispatch-runner/lattice-dispatch); no estimate/budget/receipt code introduced",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff --name-only shows no dispatch-runner or dispatch-related module files changed; grep for 'dispatch-runner' and 'lattice-dispatch' in adapter layer files returned no hits; assemble.ts and streaming.ts contain no live dispatch calls; 'receipt' appears only as authority.receiptVerified:false constant (correctly expressing local-not-remote constraint)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#out-of-scope",
+      "promise": "Scope: all code changes are confined to packages/main only (no other packages or top-level files modified beyond Lattice story metadata)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff --name-only shows code changes only in packages/main/src/core/usage-ledger/ and packages/main/src/tasks/; packages/main/package.json also changed (script addition); all other changed files are under .lattice/story/actives/B-08a1/ (story metadata, not product code)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-08a1/plan.md#verification",
+      "promise": "Smoke test (usage-ledger-adapter-smoke.ts) wired as npm script test:usage-ledger-adapter covering all CHK-001 through CHK-007 adapter scenarios",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/tasks/usage-ledger-adapter-smoke.ts present in diff with 50 named checks spanning CHK-001 through CHK-007; packages/main/package.json diff includes test:usage-ledger-adapter script; smoke exits non-zero on any failure via process.exitCode=1"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-adapter PASS (50 checks). CHK-001 checks: all four native fields map to canonical; genuine zero stays 0 (not null); input/output zero is provider-reported not unavailable; very large counts without overflow; no usage -> unavailable never zeros; payloadDigest is deterministic sha256; negative count rejected by B-253e validator. All 7 CHK-001 assertions passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-adapter PASS (50 checks). CHK-002 checks: cached_tokens present -> cacheRead set, cacheCreation null; no prompt_tokens_details -> both null still provider-reported; cached_tokens=0 -> cacheRead 0 genuine; empty details {} -> cacheRead null; no usage -> unavailable; cacheCreation STRICTLY null (=== not 0/undefined); string tokens not coerced, record rejected by validator. All 7 CHK-002 assertions passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-adapter PASS (50 checks). CHK-003 checks: cachedContentTokenCount present -> cacheRead set, cacheCreation null; absent -> both null; =0 -> cacheRead genuine 0; totalTokenCount ignored in assembled record; no usageMetadata -> unavailable; cacheCreation STRICTLY null; candidatesTokenCount missing -> unavailable not inferred 0. All 7 CHK-003 assertions passed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-adapter PASS (50 checks). CHK-004 checks: anthropic record passes validator, ids match correlation, schemaVersion=1; all three providers pass validator; privacy flags mandatory; storyId=null valid; subagentId+threadId propagate; correlation ids from ids.ts NOT provider-derived; forbidden field on response does not poison record; authority mode=local + receiptVerified=false. All 8 CHK-004 assertions passed."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-adapter PASS (50 checks). CHK-005 checks: Anthropic terminal-event final usage (last message_delta wins); OpenAI final chunk only; mid-stream error with partial output preserved as provider-reported; partial with only output (input null) still provider-reported; stream error no usage at all -> unavailable + error in reason; multiple events -> last/terminal used; all-zero genuine errored stream stays provider-reported; Gemini stream terminal usageMetadata extracted. All 8 CHK-005 assertions passed."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-adapter PASS (50 checks). CHK-006 checks: Anthropic all four reported none null; OpenAI cacheCreation always null, cacheRead null/numeric by presence; Gemini same; all providers no-usage -> unavailable + reason; unavailable records all four fields null not 0; OpenAI unreported cacheCreation null not 0; source NOT downgraded for absent cache dim; cross-provider assembled records with null/non-null patterns all validate; raw providerUnits preserved on every provider. All 9 CHK-006 assertions passed."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-adapter PASS (50 checks). CHK-007: assembled record round-trips through B-253e writer; re-read validates with integrity; all three providers round-trip and chain verifies (3 records); recordHash recomputes correctly via independent sha256; temp root under OS tmpdir (no repo pollution). Foundation no-regression: npm --prefix packages/main run test:usage-ledger PASS (61 checks). Acceptance verifier: node verify-b-08a1.mjs TOTAL 51 | PASS 51 | FAIL 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 10 docsPromises verified in code via direct file reads and diff inspection. Three real machine test suites ran and passed: adapter smoke (50 checks, CHK-001 through CHK-007 including adversarial/edge paths), foundation no-regression smoke (61 checks), and acceptance verifier (51/51 intents). Scope is confined to packages/main/src/core/usage-ledger/ adapter layer; no dispatch wiring, no estimate/budget/receipt code introduced. The deferral from live dispatch is correctly stated and code-verified. No TODOs in production code."
+  },
+  "_hash": "a014d91796daef38a42704d684103a764112ce28c73325c1d6cd7a73b3af9b63"
+}

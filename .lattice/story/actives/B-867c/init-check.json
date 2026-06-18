@@ -1,0 +1,32 @@
+{
+  "storyId": "B-867c",
+  "checkedAt": "2026-06-17T16:26:53.793Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "CHK-001 context (and background ## Key Insights) say the edit target is \"PROCESS_FACT_REGISTRY array ~line 871\" in process-fact-registry.ts. In reality, line 871 is `export const PROCESS_FACT_REGISTRY` — a composed spread of COMMAND_PROCESS_FACTS, reviewer lanes, artifacts, and flow policies. COMMAND_PROCESS_FACTS is DERIVED from PROCESS_FACT_LEVELS (process-fact-levels.ts) at registry line 585: `const COMMAND_PROCESS_FACTS = PROCESS_FACT_LEVELS.filter(...).map(...)`. The real edit target for adding the 7 commands is process-fact-levels.ts (the PROCESS_FACT_LEVELS array), not the registry combiner. An implementer following the context literally would look at line 871, find only a spread, and be confused about where to add entries."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T16:26:45.335Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T16:26:53.793Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "CHK-001 context (and background ## Key Insights) say the edit target is \"PROCESS_FACT_REGISTRY array ~line 871\" in process-fact-registry.ts. In reality, line 871 is `export const PROCESS_FACT_REGISTRY` — a composed spread of COMMAND_PROCESS_FACTS, reviewer lanes, artifacts, and flow policies. COMMAND_PROCESS_FACTS is DERIVED from PROCESS_FACT_LEVELS (process-fact-levels.ts) at registry line 585: `const COMMAND_PROCESS_FACTS = PROCESS_FACT_LEVELS.filter(...).map(...)`. The real edit target for adding the 7 commands is process-fact-levels.ts (the PROCESS_FACT_LEVELS array), not the registry combiner. An implementer following the context literally would look at line 871, find only a spread, and be confused about where to add entries."
+        }
+      ]
+    }
+  ],
+  "_hash": "fb4ad3a771c07e0554fcc8bfa0ee212210acb53541effd110563144ed8d21741"
+}

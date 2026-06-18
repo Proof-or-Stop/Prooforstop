@@ -1,0 +1,64 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-16T02:24:49.824Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "7 checklist items; please check for missing combined scenarios (e.g., what happens when Anthropic usage adapter (native four-field) + OpenAI/codex usage adapter (cacheCreation=null) are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact sample-payload shapes per provider to encode in tests (use documented usage objects); Whether to place adapters under core/usage-ledger/adapters/ (preferred) vs flat (confirm by matching module conventions)"
+        }
+      ],
+      "_hash": "c998a52cdb2ce77320717113303ffe966c7091c41ef038ab00c2f52a9af8f122"
+    }
+  ]
+}

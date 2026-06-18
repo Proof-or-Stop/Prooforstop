@@ -1,0 +1,127 @@
+{
+  "storyId": "B-75f0",
+  "name": "burndown-gitroot-cwd-deferred-allowlist",
+  "title": "Burn down the B-6666 gitroot-cwd DEFERRED_ALLOWLIST: thread resolveGitCwd into the real wrapper-root sites (incl. 3 hard failures), rename lexical false-positives, split the allowlist",
+  "description": "B-6666 strengthened the gitroot-cwd contract (catches no-op `const x = projectRoot|root|metadataRoot` aliases used as a git cwd + backtick-template git calls) but deferred ~28 pre-existing sites into DEFERRED_ALLOWLIST_EXACT (per-file rationale + a TODO burndown). A triage workflow assessed all 28: ~11 are GENUINE latent wrapper-root risks (run git from the bare metadataRoot on a wrapper-root project where metadataRoot != gitRoot), 3 are lexical false-positives (an alias of a param that ALREADY receives a resolveGitCwd-resolved value — needs only a rename), and ~14 are genuinely benign (self-bootstrap discoveries / lab / rollout fleet survey / test_auto harness / aux-diagnose — no story/gitRoot context). CRITICALLY, 3 of the real sites are HARD FAILURES on wrapper-root (not graceful degradation): (a) core/lattice-dispatch.ts worktree create/remove (listedGitWorktreeRoots ~:1185 / assertRegisteredDispatchWorktreeRoot ~:1251) would FAIL dispatch on wrapper-root; (b) handlers/checklist.ts verification_evidence_refresh / evidenceHashes (~:188) HARD-THROWS on wrapper-root; (c) handlers/doctor.ts --repair worktree/branch MUTATION helpers (tryWorktreeRemove ~:688, removeStaleWorktreeAdminDirs ~:733, deleteTerminalStoryBranch) run from bare root — and the fix is one-liners since resolveDoctorGitCwd already exists in that file. The other real sites are graceful-degradation LOW (verifier.ts currentHead ~:327 drops headSha from DONE evidence; lattice-handoff.ts resolveCommitSha ~:878; codex-adapter-checks.ts readGitHead ~:137; touchpoints-fallback.ts detectMdTouchpointsFromGit ~:17 → wrong reviewer routing; validation-executor.ts readGitStatus ~:55; recover-evidence.ts readGitStatusLines ~:61; init-check.ts init_check_repair ~:289) plus the project-level scans that need an id-independent resolver (gap-analyze.ts readLinkedStoryWorktreeIds ~:173, story-query.ts scanTerminalStoryResidues ~:1011, dashboard.ts collectProject ~:67/:123 — use the resolver's internal resolveProjectGitRoot, not the story-scoped path). Outcome: thread resolveGitCwd (story-scoped where a storyId is available; resolveProjectGitRoot for the project-level scans) into the ~11 real sites — falling back to root when no gitRoot resolves so plain repos are byte-identical — PRIORITIZING the 3 hard failures with a wrapper-root regression each; rename the 3 lexical false-positives (done-effects.ts ~:74 gets doneGitCwd, handlers/review-run.ts ~:63 + core/review-run.ts ~:228 get signedWorkspaceRoot/authoritativeCwd) param projectRoot->gitCwd to be lexically honest (zero behavior change, the CHK-003 pattern already applied to validate-channel/concept); and split DEFERRED_ALLOWLIST_EXACT into two named sets — BENIGN_BOOTSTRAP_ALLOWLIST (the ~14 permanent, with rationale) and a now-EMPTY pending set — so the strengthened gitroot-cwd contract covers the fixed sites and the standing list documents only truly-benign entries. The contract (`node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js`) MUST stay GREEN throughout; the gate does not run it automatically until B-99b6's battery (it IS now in root npm test per B-99b6 — so lattice validate WILL run it), so verify green explicitly after each site. Scope: the ~11 real-site threadings + 3 renames + allowlist split + wrapper-root regressions for the 3 hard failures. If the blast radius exceeds what one story can safely absorb, the 3 HARD FAILURES + the 3 renames + the allowlist split are the must; the graceful-degradation sites may be a documented sub-follow-up — but do NOT leave the contract red and do NOT leave a hard-failure site unfixed.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "gitRoot",
+    "gitCwd",
+    "wrapper-root",
+    "gitroot-cwd-contract",
+    "burndown",
+    "resolveGitCwd",
+    "gate"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "test_auto"
+    }
+  ],
+  "createdAt": "2026-06-17T22:11:21.062Z",
+  "startedAt": "2026-06-17T22:11:21.062Z",
+  "endedAt": "2026-06-17T23:47:23.411Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T22:11:21.089Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:23:23.521Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:24:57.159Z",
+      "branch": "story/B-75f0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T22:31:35.912Z",
+      "branch": "story/B-75f0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:23:07.953Z",
+      "branch": "story/B-75f0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-17T23:23:18.001Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:31:00.882Z",
+      "branch": "story/B-75f0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:31:35.856Z",
+      "branch": "story/B-75f0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-17T23:31:44.989Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:36:30.853Z",
+      "branch": "story/B-75f0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T23:47:23.411Z",
+      "branch": "story/B-75f0",
+      "user": "Harmonygo",
+      "sessionId": "lattice-burndown",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-17T23:31:35.856Z"
+}

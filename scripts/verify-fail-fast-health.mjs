@@ -27,11 +27,11 @@ function extractJsonObject(text) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-fail-fast-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-fail-fast-'));
   mkdirSync(join(dir, 'packages', 'main', 'src'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'metadata'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -45,7 +45,7 @@ function createTempProject() {
 }
 
 const tempProject = createTempProject();
-const tempHealthDir = mkdtempSync(join(tmpdir(), 'koala-health-'));
+const tempHealthDir = mkdtempSync(join(tmpdir(), 'lattice-health-'));
 const tempHealthPath = join(tempHealthDir, 'health.jsonl');
 
 try {
@@ -110,7 +110,7 @@ export function sample() {
     'doctor',
     JSON.stringify({ format: 'json', limit: 20 }),
   ], {
-    env: { ...process.env, KOALA_HEALTH_PATH: tempHealthPath },
+    env: { ...process.env, LATTICE_HEALTH_PATH: tempHealthPath },
   });
   const doctor = extractJsonObject(doctorRaw);
   assert(doctor.total >= 1, 'doctor did not read any health issues');

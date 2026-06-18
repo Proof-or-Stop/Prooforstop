@@ -46,7 +46,7 @@ function git(cwd: string, args: string[]): string {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'koala.config.json'),
+    join(root, 'lattice.config.json'),
     JSON.stringify(
       {
         scanRoot: 'packages/main',
@@ -133,7 +133,7 @@ function assertEnvelope(result: StoryAuthorityResolveResult): void {
 }
 
 function assertHappyAndEdgeAndAdversarial(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-story-authority-resolve-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-story-authority-resolve-'));
   try {
     seedRepo(root);
     resetConfigCache();

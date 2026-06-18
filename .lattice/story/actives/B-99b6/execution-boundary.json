@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-99b6",
+  "allowedCommands": [
+    "lattice validate",
+    "node scripts/verify-*.mjs",
+    "npm --prefix packages/main run *",
+    "npm run test:*",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/handlers/validate.ts",
+    "packages/main/src/tasks",
+    "packages/main/src/validate.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Battery/aggregator wiring only. Do NOT change any contract-guard or smoke logic; do NOT touch gitRoot resolver code or process-fact-registry. Only make the gate RUN the existing guards.",
+  "createdAt": "2026-06-17T17:48:18.670Z",
+  "updatedAt": "2026-06-17T17:48:18.670Z",
+  "_hash": "a7bc6f9830119ff4c42c9b22ac3ec5d44f57ea9d275fa502f74601527af2cde0"
+}

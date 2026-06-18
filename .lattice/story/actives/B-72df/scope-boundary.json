@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-72df",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Reproduction test: DONE merge wrongly blocked by an unrelated uncommitted tracked file in main",
+    "Scope the DONE merge main-clean precondition to the merge affected paths (allow unrelated-dirty, block overlapping-dirty)",
+    "Tests: unrelated-dirty proceeds + preserved; overlapping-dirty still blocked; clean unchanged"
+  ],
+  "excluded": [
+    "Anything not explicitly enumerated in the allowed list above is out of scope for this story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized fixing the DONE-merge unrelated-dirty contention as a full story.",
+  "createdAt": "2026-06-16T03:02:37.864Z",
+  "updatedAt": "2026-06-16T03:02:37.864Z",
+  "_hash": "b129fcf316b0bab58e38c6f6239d1725297b2a70cfe16c0e519bb18671607894"
+}

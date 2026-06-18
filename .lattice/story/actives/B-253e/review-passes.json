@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-253e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review clean. (1) No leftover/dead scaffolding or duplicate concepts — only 4 new files in usage-ledger/ plus one smoke task; no TODOs or stubs. (2) totalTokens appears only in validator denylist logic and smoke rejection tests, never as a stored field in any type, interface, or computed property — four-field model (inputTokens/outputTokens/cacheCreationInputTokens/cacheReadInputTokens) used consistently throughout. (3) Scope honored: no provider-adapter, estimate-path, budget-enforcement, or Authority-receipt code added; only packages/main/src/core/usage-ledger/, tasks/usage-ledger-smoke.ts, runtime-artifact-registry.ts entry, and package.json test script. (4) The ?? 0 in summarizeRecords is safe: unknown===true items hit continue before reaching those lines, so null never becomes 0 in a total. No doc-promise-undelivered — plan.md describes exactly what the code delivers.",
+      "createdAt": "2026-06-16T01:37:07.321Z",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "reviewRunId": "B-253e:RR-005",
+      "_hash": "6593469c3632689f061498123ff6476e47e7be805849e4e12f7f3d627b31116f"
+    },
+    {
+      "id": "B-253e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Verifier 75/75 pass, smoke 61/61 pass. All key adversarial intents confirmed genuine: totalTokens deep scan (>=2 errors for dual-location attack), middle-line tamper detection throws, correlation ids not derived from requestIdHash, opt-in OFF creates no dir/file after 10 calls, null cache dims produce unknown=true/total=null never 0, superseded estimate excluded from summary, single-appender static check is a real filesystem walk, registry materialHash/volatile/repairable confirmed via real API calls, summary carries no gate field and is not imported by any gate.",
+      "createdAt": "2026-06-16T01:37:07.989Z",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "reviewRunId": "B-253e:RR-004",
+      "_hash": "03cba6129c33f15757dd420d9b801f3a6e1102a47220cb0efcdded9b9b990188"
+    },
+    {
+      "id": "B-253e:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verifier TOTAL 75 | PASS 75 | FAIL 0 on HEAD 68d30cb; smoke 61/61 checks pass; post-fix dead-code removal (ids.ts) and DerivedRecordTotal discriminated-union change (summary.ts) do not affect any checklist intent; verificationIntent-to-verificationEvidence coverage is genuine and complete, no blocker.",
+      "createdAt": "2026-06-16T01:44:28.051Z",
+      "reviewRound": "2026-06-16T01:43:12.604Z",
+      "reviewRunId": "B-253e:RR-009",
+      "_hash": "205e2e55d0b91c893855e51297886c25ad30662a79ebfe2d2505c880c9209e6e"
+    },
+    {
+      "id": "B-253e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review (head 68d30cb). (1) defaultAllocator/nextSequence: zero references remain in packages/main/src — only prior finding in findings.json; no dangling refs. (2) totalTokens: all live code references are exactly the validator denylist comment (record.ts:15,236) and smoke rejection tests (usage-ledger-smoke.ts:190-201,7); no stored usage anywhere. (3) Scope: git diff --name-only shows only packages/main/** files plus .lattice metadata; no provider/estimate/budget/Authority code touched. (4) Four-field cache-aware model: DerivedRecordTotal discriminated union on unknown (true=>total:null, false=>total:number) is correctly implemented in summary.ts — unknown is never treated as 0, null dimensions propagate to unknown:true. All four checks pass; no blocker found.",
+      "createdAt": "2026-06-16T01:44:48.153Z",
+      "reviewRound": "2026-06-16T01:43:12.604Z",
+      "reviewRunId": "B-253e:RR-008",
+      "_hash": "b8f3585b08928d48f77e6c97fb92747da184070da61ee55045e30dc506a66363"
+    },
+    {
+      "id": "B-253e:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-confirmation on HEAD 68d30cb. F-001 fix verified: defaultAllocator and nextSequence removed from ids.ts; SequenceAllocator class and all used helpers intact, no new dead code introduced. F-002 fix verified: DerivedRecordTotal is a discriminated union; after if(item.unknown) continue guard, TypeScript narrows item.total to number — the ?? 0 fallback is gone from both accumulation sites (lines 188, 192). Scope: packages/main/src/core/usage-ledger/ids.ts and summary.ts. Build exits 0, npm run test:usage-ledger passes 61 checks. No new dead code, type-safety, or I/O shell isolation issues found in changed files.",
+      "createdAt": "2026-06-16T01:44:56.409Z",
+      "reviewRound": "2026-06-16T01:43:12.604Z",
+      "reviewRunId": "B-253e:RR-007",
+      "_hash": "0431813d9397b32d13c6e89098acf09ad32556dbfc4c92b0723aa594d550d76f"
+    }
+  ]
+}

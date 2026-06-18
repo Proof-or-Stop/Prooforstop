@@ -41,6 +41,7 @@ import {
 } from '../core/authority-gate-receipts.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { execSync } from 'child_process';
 import {
   buildDoneChecklist,
@@ -346,8 +347,18 @@ export function runAuthorityReceiptTransitionGate(
 ): string {
   const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
   if (settings.mode === 'off') return '';
-  const headHash = currentGitHead(ctx.root);
-  const materialHash = currentMaterialHash(ctx.root);
+  // B-6666 CHK-002: resolve the git invocation cwd at THIS caller boundary
+  // (wrapper-root aware) so the authority-receipt TEST/DONE freshness probes run
+  // git from the real gitRoot, not a bare metadataRoot. resolveGitCwd falls back
+  // to ctx.root for plain repos (projectRoot==gitCwd, byte-identical) and never
+  // throws.
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const headHash = currentGitHead(gitCwd);
+  // B-6666 F-001 (REVIEW fix): pass ctx.root as metadataRoot so the
+  // storyDir-aware metadata exclusion loads lattice.config.json from the
+  // metadataRoot (custom storyDir), not the resolved gitCwd. Wrapper-root layouts
+  // differ; plain repos pass root==gitCwd so behavior is byte-identical.
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   if (!headHash || !materialHash) {
     const reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
     const line = renderAuthorityReceiptGateLine({
@@ -451,11 +462,23 @@ export async function runValidateGate(
 
     // 写入 test-evidence.json（DONE gate 消费）
     // B-c622 CHK-009: 记录 headHash 供 DONE gate evidence freshness 检查
+    // B-6666 CHK-002: resolve the git invocation cwd at this write boundary so
+    // the headHash/materialHash recorded here are computed from the SAME real
+    // gitRoot the DONE-path freshness check later recomputes against. On a
+    // wrapper-root layout, writing with a bare metadataRoot would record
+    // undefined hashes while the DONE read (resolved gitCwd) yields defined ones
+    // → false mismatch → false-block. resolveGitCwd falls back to ctx.root for
+    // plain repos (byte-identical) and never throws.
+    const evidenceGitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
     let evidenceHeadHash = '';
     try {
-      evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: ctx.root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: evidenceGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     } catch { /* 无法获取 HEAD，跳过 */ }
-    const evidenceMaterialHash = currentMaterialHash(ctx.root);
+    // B-6666 F-001 (REVIEW fix): pass ctx.root as metadataRoot so the recorded
+    // materialHash uses the metadataRoot's custom-storyDir exclusion — matching
+    // what the DONE-path freshness recompute does — instead of resolving config
+    // from the gitCwd. Plain repos pass root==gitCwd (byte-identical).
+    const evidenceMaterialHash = currentMaterialHash(evidenceGitCwd, 'HEAD', ctx.root);
     store.writeTestEvidence(storyId, {
       command: `lattice validate --story=${storyId} --json`,
       output: String(jsonResult),
@@ -523,8 +546,7 @@ export async function runValidateGate(
  *
  * 构建并渲染 DONE Final Checklist（consumes core/done-oracle.ts —
  * buildDoneChecklist + renderDoneChecklist）。无论 advance 成功失败都会输出
- * 这份 checklist，强制主 agent 读一遍多层验证状态。对应 OMX ralph 的
- * <Final_Checklist>。
+ * 这份 checklist，强制主 agent 读一遍多层验证状态。
  *
  * On gate failure this throws; on success it returns the rendered checklist
  * string. B-9027 (Story 3b): runDonePreMergeGate in done-effects.ts wraps this
@@ -542,8 +564,14 @@ export function runDoneOracleGate(
   store: StoryStore,
   root: string,
   _actor: { stop(): void },
+  // B-6666 CHK-001: the resolved git cwd (wrapper-root aware), threaded from
+  // runDonePreMergeGate. `root` (metadataRoot) still drives store/config reads;
+  // only the DONE-oracle git probes use gitCwd. Defaults to root for callers
+  // that have not resolved a gitCwd (plain repos / read-only projections) so
+  // behavior is byte-identical.
+  gitCwd: string = root,
 ): string {
-  const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root);
+  const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root, { gitCwd });
   const rendered = renderDoneChecklist(storyId, checkRows);
   const failed = checkRows.filter(r => r.status === 'fail');
 

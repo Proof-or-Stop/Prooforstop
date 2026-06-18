@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1dc9",
+  "allowedCommands": [
+    "git *",
+    "node .lattice/story/actives/B-1dc9/evidence/*.mjs",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-1dc9/",
+    "packages/main/package.json",
+    "packages/main/src/core/experience-hint-loader.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 1.5: hint loader + story-review advisory section + smoke; build required.",
+  "createdAt": "2026-06-17T13:10:39.350Z",
+  "updatedAt": "2026-06-17T13:10:39.350Z",
+  "_hash": "24aa0ef988ee8db86084279447beadf339087bfe7544b87103ce39bcba7145ce"
+}

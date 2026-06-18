@@ -1,0 +1,55 @@
+{
+  "storyId": "B-a7b0",
+  "changes": "Extended the CLAUDE.md docs-drift preflight gate (packages/main/src/handlers/validate-docs-drift.ts) to additionally validate (1) file-path references via reuse of scanPathDrift from core/audit-scan.ts and (2) managed-asset do-not-create contradictions cross-referenced against core/managed-assets.ts listManagedAssetDefinitions; added checkPathDrift, checkManagedAssetContradiction, DocsDriftGateOpts, missingPaths + managedAssetContradictions result fields, and DOCS_DRIFT_PATH_ALLOWLIST + DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST seams; wired repoRoot + injected managed-asset registry through review-preflight.ts; made ALL_MANAGED_ASSET_KINDS a single canonical export in managed-assets.ts with a compile-time exhaustiveness guard (F-001); surfaced an observable diagnostic on registry-resolution failure instead of an empty catch (F-002); added a DI-fixture regression smoke (docs-drift-path-drift-smoke.ts) chained into the root npm test validate battery.",
+  "usage": "The docs-drift gate runs automatically at REVIEW->TEST and via lattice validate. It now additionally fails when CLAUDE.md references a non-existent path (reported in missingPaths) or forbids a framework-generated managed asset (reported in managedAssetContradictions). To allow an intentional/pending claim, add the path token to DOCS_DRIFT_PATH_ALLOWLIST or DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST with an inline reason. Run the smoke directly via node packages/main/dist/tasks/docs-drift-path-drift-smoke.js.",
+  "expectedOutcome": "lattice validate runs test:docs-drift-smoke green; the gate flags stale paths and managed-asset contradictions while clean docs and the existing command-name scan are unaffected; the real CLAUDE.md (which still forbids .Codex/hooks until B-94ae) passes because that pending claim is allowlisted.",
+  "actualTranscript": "lattice validate --story=B-a7b0 -> 'docs-drift path+asset smoke passed', 'ALL PASS', 'Verification intent coverage: 9/9 covered (0 required missing)'. Direct gate run against the real CLAUDE.md with the full managed-asset registry -> status: pass, missing: [], missingPaths: [], managedAssetContradictions: []. Without the allowlist the check correctly flags .codex/hooks/lattice-scope-pretool.cjs (whole-file) via the forbidden-ancestor-dir rule, proving the P3 contradiction class is detectable.",
+  "outcomeDiff": "No diff: actual output matches expected for all five outcome points. The smoke is confirmed running inside the actual validate battery (test:docs-drift-smoke chained into root npm test), and the gate does not self-block on the real CLAUDE.md.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The managed-asset check allowlists the real CLAUDE.md's pending .Codex/hooks and .Codex/settings.json prohibition (with a B-94ae reason) so this story does not self-block; once B-94ae fixes the CLAUDE.md wording, that allowlist entry becomes a harmless no-op and can be removed in a follow-up. The do-not-create claim detection is keyword/path-pattern based (mention-vs-modify cannot be fully distinguished), consistent with the existing docs-drift command-name and risk-keyword scanners.",
+  "pitfalls": "The docs-drift gate this story modifies runs at the story's own REVIEW->TEST against the real CLAUDE.md, so any new check must be verified to NOT false-positive on the current doc (verified here). scanPathDrift's existing noise controls (docs/story/ ignore, uppercase-placeholder ignore, git-grep fallback) must be preserved. Adding a new ManagedAssetKind requires updating the canonical ALL_MANAGED_ASSET_KINDS array (now enforced by a compile-time exhaustiveness type error). The smoke must use DI fixtures and never read/mutate the real CLAUDE.md.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 279208
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 80467
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 621119
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1109775
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 977697
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 568030
+    }
+  },
+  "totalDurationMs": 3636304,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T21:54:05.550Z",
+  "updatedAt": "2026-06-16T21:54:05.550Z"
+}

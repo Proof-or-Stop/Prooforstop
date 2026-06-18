@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7365",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Make the reconcile merge conflict-safe: deterministic metadata resolution or clean abort + recovery, never commit markers",
+    "Reproduction test: drive the INIT_CHECK reconcile against a divergent main and assert no conflict markers get committed into index.json",
+    "Run the reconcile metadata commit + merge under the main-write-lock so concurrent main commits cannot race it"
+  ],
+  "excluded": [
+    "Anything not explicitly enumerated in the allowed list above is out of scope for this story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User directed: fix B-7365 (the recurring INIT_CHECK reconcile corruption that bit twice this session).",
+  "createdAt": "2026-06-16T01:55:37.016Z",
+  "updatedAt": "2026-06-16T01:55:37.016Z",
+  "_hash": "cb3d033ca8e1211e42d8904acd2d4f08adb1239b817474e5cd37b990bb353cae"
+}

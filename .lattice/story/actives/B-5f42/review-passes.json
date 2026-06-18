@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-5f42:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9 must-intents (3 per CHK-001/002/003, each with happy/edge/adversarial lanes) have valid non-fail evidence. CHK-001 all three covered by integration_test referencing smoke Test 6 (hook spawn behavior). CHK-002 happy+edge by integration_test (smoke Test 4 gate-block/pass), adversarial by logic_test (smoke Test 3 scope). CHK-003 all three by logic_test (smoke Test 1 detector, Test 2 keep-in-sync, Test 3 scope). Evidence recorded after implementation commits (ddd539b..c1e8e03 all follow a9b7c7e CHK-003 and ea4cca55 CHK-001 and 26006073 CHK-002). Smoke suite ran 6 tests, all pass. Deliberate-fail proof confirmed: Test 4 flips gate ok=false on CJK fixture then ok=true on English-only. verificationCoverage=9/9, 0 missing.",
+      "createdAt": "2026-06-16T23:11:07.107Z",
+      "reviewRound": "2026-06-16T23:09:40.084Z",
+      "reviewRunId": "B-5f42:RR-003",
+      "_hash": "16403c4d9c1d2225cbe9fc33521282c84c57d8405d2a49c3808c859cca9204a7"
+    },
+    {
+      "id": "B-5f42:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. Two concepts addressed by F-001 and F-002 fixes: (1) buildCjkRegex (dead code) — zero residue found across entire repo; (2) ENGLISH_ONLY_GUARD_HOOK_FILE — properly defined in init-assets.ts, imported in cli-init.ts, and added to HOOK_FILES (the F-002 fix in commit 71010e4). The mergeClaudeHooks refactor in managed-assets.ts consistently renames the migration target variable and loops over all entries. No dangling references, no concept residue. No findings.",
+      "createdAt": "2026-06-16T23:21:21.758Z",
+      "reviewRound": "2026-06-16T23:18:34.507Z",
+      "reviewRunId": "B-5f42:RR-004",
+      "_hash": "0f0d23ca1fb5382d2391eab6b4d4eccadfd2a02d1f1bdb64221476e452a6942e"
+    },
+    {
+      "id": "B-5f42:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-inspection: R1 findings F-001 (dead buildCjkRegex/re in cjk-detect.ts) and F-002 (HOOK_FILES const init) are both verified fixed in commit 71010e4. Reviewed cjk-detect.ts, english-artifact-gate.ts, english-only-guard.cjs, english-only-guards-smoke.ts, cli-init.ts, init-assets.ts, managed-assets.ts, review-preflight.ts. Dead code: none — buildCjkRegex in hook is actively called via containsCjk, PRETOOL_ENGLISH_ONLY_HOOK_MATCHER is exported following the same pattern as peer constants and is used within init-assets.ts. Type safety: no unnecessary as-any in the diff; empty catches in the .cjs hook are intentional graceful-degradation by design (documented in header). I/O isolation: english-artifact-gate.ts is a handler (not a shell file) and correctly receives I/O injections (gitLogReader, readFile); the hardwired existsSync for storyDir is in a non-blocking notes path and is low-severity. No blocker findings.",
+      "createdAt": "2026-06-16T23:22:03.384Z",
+      "reviewRound": "2026-06-16T23:18:34.507Z",
+      "reviewRunId": "B-5f42:RR-005",
+      "_hash": "d6479fe111ca58608b3231c80ca561a3ac8ebac89c4e8c08487e75fd52535a45"
+    },
+    {
+      "id": "B-5f42:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check complete. Deleted concepts: (1) singular `command = hooks[0]?.hooks?.[0]?.command` variable in both cli-init.ts and managed-assets.ts merge loops — both fully replaced by per-entry loop with `migrationTarget` for migration target + scoped `command` per entry; (2) spread-push `push(...hooks)` / `[...hooks[event], ...eventHooks]` — fully replaced by per-entry `push(entry)` / `[...hooks[event], entry]`. Grep confirms zero residue of old singular-command pattern or spread-push pattern in hook merge paths. New concepts (ENGLISH_ONLY_GUARD_HOOK_FILE, PRETOOL_ENGLISH_ONLY_HOOK_MATCHER, english-artifacts gate, ENGLISH_ARTIFACTS_GATE_LABEL) are consistently wired across init-assets.ts, cli-init.ts, managed-assets.ts, review-preflight.ts, and english-artifact-gate.ts. npm run test:english-only-guards-smoke script verified to exist in packages/main/package.json. No doc-promise-undelivered issues found. No blocker.",
+      "createdAt": "2026-06-17T00:27:46.211Z",
+      "reviewRound": "2026-06-17T00:25:53.158Z",
+      "reviewRunId": "B-5f42:RR-007",
+      "_hash": "7d18961b7ad25b0c827fc5ae510e81456178521a11a281c3fa3c6ed7b8f9276f"
+    },
+    {
+      "id": "B-5f42:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 delta (cb19e86e8) clean. cli-init.ts per-entry merge loop correctly mirrors managed-assets.ts mergeClaudeHooks: same migrationTarget from hooks[0], same per-entry dedup guard, no dropped entries. ENGLISH_ONLY_GUARD_HOOK_FILE import used in HOOK_FILES. review-preflight.ts: all three new imports (runEnglishArtifactGate, renderEnglishArtifactViolations, ENGLISH_ARTIFACTS_GATE_LABEL) are consumed; commandLabel is set on both the express-skip and normal gate entries so the non-existent validate --english-artifacts fallback is never reached. No dead code, no as-any, no empty catch, no CJK in newly added lines.",
+      "createdAt": "2026-06-17T00:27:48.093Z",
+      "reviewRound": "2026-06-17T00:25:53.158Z",
+      "reviewRunId": "B-5f42:RR-008",
+      "_hash": "63bd8f32656ba6880affe73f6d8fb71f94558c8e83fdefcab0255a488fe05d69"
+    },
+    {
+      "id": "B-5f42:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 delta (ea8b568c9) is purely additive: Test 7 block added to packages/main/src/tasks/english-only-guards-smoke.ts with zero line deletions. No concept words deleted or replaced. All three symbols imported by Test 7 (getClaudeHooks, PRETOOL_SCOPE_HOOK_MATCHER, ENGLISH_ONLY_GUARD_HOOK_FILE) are properly exported from init-assets.ts. No dangling refs, no half-wired symbols, no doc-promise-undelivered issues. Concept residue check complete — no blocker.",
+      "createdAt": "2026-06-17T00:33:19.982Z",
+      "reviewRound": "2026-06-17T00:31:53.894Z",
+      "reviewRunId": "B-5f42:RR-010",
+      "_hash": "f6659a0a3cff159760a0434a49f0546e74c8b6e22b7e7eb54d642272933b02aa"
+    },
+    {
+      "id": "B-5f42:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 9/9 must-intents covered across CHK-001/002/003 (happy/edge/adversarial). All evidence anchored to headHash ea8b568c9d0884b726505b73d84e534ad9519b0f. Test 7 (init-rerun merge regression) is a genuine integration test: seeds a git repo, installs scope-only PreToolUse, re-runs lattice init, asserts english-only-guard hook is merged in and scope hook appears exactly once. Evidence freshness confirmed by verification_evidence_refresh_stale (timestamp 2026-06-17T00:31:53.339Z). No staleness, no gaps.",
+      "createdAt": "2026-06-17T00:33:31.582Z",
+      "reviewRound": "2026-06-17T00:31:53.894Z",
+      "reviewRunId": "B-5f42:RR-011",
+      "_hash": "7b9146973559dda4f39cb186bc2386bcdd42170c688bbafeef1bbab549063a77"
+    },
+    {
+      "id": "B-5f42:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Test 7 (init-rerun hook merge regression) passes all quality checks: both PreToolUse hooks asserted present (english-only-guard merged in) + scope hook appears exactly once (no duplication); mkdtempSync for tmpRoot and tmpHome both cleaned in finally with rmSync recursive+force; no literal CJK in file (confirmed zero non-ASCII); no unused imports; any annotations at lines 392-394 are legitimate (JSON.parse returns any, immediately narrowed with typeof guards, same pattern as managed-assets.ts:383); precondition assertion guards the meaningful exactly-once check; follows existing test style (mkdtempSync/try/finally/rmSync identical to Tests 3 and 4); no flakiness risk (unique temp dirs, isolated HOME, synchronous subprocess); all 7 tests green on node packages/main/dist/tasks/english-only-guards-smoke.js.",
+      "createdAt": "2026-06-17T00:34:59.588Z",
+      "reviewRound": "2026-06-17T00:31:53.894Z",
+      "reviewRunId": "B-5f42:RR-012",
+      "_hash": "bfc9dacd6d23a490e0a6481cf18f99af08c75c4033afedab91a8073c53e67aac"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  rmSync,
   statSync,
   unlinkSync,
   writeFileSync,
@@ -39,10 +40,11 @@ import {
   type InitProfile,
 } from '../init-assets.js';
 import {
-  KOALA_RUNTIME_IGNORE_BLOCK_END,
-  KOALA_RUNTIME_IGNORE_BLOCK_START,
+  LATTICE_RUNTIME_IGNORE_BLOCK_END,
+  LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './runtime-artifact-registry.js';
+import { listManagedAgentBasenames, resolveAgentTemplateDir } from './global-agents.js';
 
 export type ManagedAssetStatus =
   | 'OK'
@@ -60,6 +62,37 @@ export type ManagedAssetKind =
   | 'codex-hooks'
   | 'excluded-path'
   | 'remove-extra';
+
+/**
+ * Canonical runtime list of every `ManagedAssetKind`. Single source of truth for
+ * any consumer that must re-validate kinds at runtime (Handler Encoding
+ * Convention) — e.g. validate-docs-drift's managed-asset contradiction guard.
+ *
+ * Two compile-time guards keep this list honest:
+ *   1. `as const satisfies readonly ManagedAssetKind[]` — every LISTED value must
+ *      be a valid kind (rejects typos / removed kinds).
+ *   2. `_AssertAllKinds` below — every UNION member must appear here, so adding a
+ *      new `ManagedAssetKind` without listing it is a TYPE ERROR (no silent drift).
+ */
+export const ALL_MANAGED_ASSET_KINDS = [
+  'managed-block',
+  'whole-file',
+  'gitignore-runtime',
+  'claude-settings',
+  'codex-hooks',
+  'excluded-path',
+  'remove-extra',
+] as const satisfies readonly ManagedAssetKind[];
+
+// Compile-time exhaustiveness: if a new ManagedAssetKind is added to the union
+// but NOT to ALL_MANAGED_ASSET_KINDS above, `Exclude<...>` is the missing kind
+// (not `never`), so this type resolves to the error tuple and the assignment
+// below fails to compile. Adding the kind to the array restores it to `never`.
+type _AssertAllKinds = Exclude<ManagedAssetKind, typeof ALL_MANAGED_ASSET_KINDS[number]> extends never
+  ? true
+  : ['MISSING_KIND', Exclude<ManagedAssetKind, typeof ALL_MANAGED_ASSET_KINDS[number]>];
+const _allKindsCovered: _AssertAllKinds = true;
+void _allKindsCovered;
 
 export interface ManagedAssetCheckOptions {
   apply?: boolean;
@@ -108,7 +141,7 @@ export interface ManagedAssetLocalEditReview {
   recommendation: string;
 }
 
-interface ManagedAssetDefinition {
+export interface ManagedAssetDefinition {
   id: string;
   relPath: string;
   kind: ManagedAssetKind;
@@ -214,7 +247,7 @@ function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKi
 }
 
 function isCodexCaseInsensitiveAlias(root: string, relPath: string, actualRelPath?: string): boolean {
-  if (!relPath.startsWith('.codex/') || !actualRelPath?.startsWith('.Codex/')) return false;
+  if (!relPath.startsWith('.codex/') || !actualRelPath?.startsWith('.lattice-codex/')) return false;
   try {
     const lower = statSync(join(root, relPath));
     const upper = statSync(join(root, actualRelPath));
@@ -292,10 +325,10 @@ function safeJsonParse(text: string): unknown {
   try { return JSON.parse(text); } catch { /* PROBE: malformed JSON means this asset cannot prove managed ownership. */ return null; }
 }
 
-function gitLines(root: string, args: string[]): string[] {
+function gitLines(gitCwd: string, args: string[]): string[] {
   try {
     return execFileSync('git', args, {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -360,7 +393,12 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
   let changed = !updated.hooks;
 
   for (const [event, eventHooks] of Object.entries(claudeHooks)) {
-    const command = eventHooks[0]?.hooks?.[0]?.command;
+    // The legacy scope-pretool command migrates onto the FIRST managed entry's
+    // command (the scope guard). B-5f42: an event can now declare MULTIPLE
+    // managed entries (e.g. PreToolUse has both the scope guard and the
+    // english-only guard), so each entry must be merged independently — only
+    // checking eventHooks[0] would silently drop every entry after the first.
+    const migrationTarget = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
       changed = true;
@@ -373,15 +411,18 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
     const migrated = migrateHookCommandEntries(
       hooks[event],
       hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
-      command || '',
+      migrationTarget || '',
     );
     if (migrated.changed) {
       hooks[event] = migrated.entries;
       changed = true;
     }
-    if (command && !hasHookCommand(hooks[event], command)) {
-      hooks[event] = [...hooks[event], ...eventHooks];
-      changed = true;
+    for (const entry of eventHooks) {
+      const command = entry?.hooks?.[0]?.command;
+      if (command && !hasHookCommand(hooks[event], command)) {
+        hooks[event] = [...hooks[event], entry];
+        changed = true;
+      }
     }
   }
   updated.hooks = hooks;
@@ -434,9 +475,9 @@ function runtimeIgnoreMissing(existing: string | null): string[] {
 
 function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   return [
-    KOALA_RUNTIME_IGNORE_BLOCK_START,
+    LATTICE_RUNTIME_IGNORE_BLOCK_START,
     ...lines,
-    KOALA_RUNTIME_IGNORE_BLOCK_END,
+    LATTICE_RUNTIME_IGNORE_BLOCK_END,
   ].join('\n');
 }
 
@@ -461,8 +502,8 @@ export function detectManagedAssetProfile(root: string): InitProfile {
   const claude = readText(root, 'CLAUDE.md');
   const hasCodex = Boolean(
     (agents && hasManagedMarkers(agents))
-      || existsSync(join(root, '.Codex', 'lattice.json'))
-      || existsSync(join(root, '.Codex', 'agents'))
+      || existsSync(join(root, '.lattice-codex', 'lattice.json'))
+      || existsSync(join(root, '.lattice-codex', 'agents'))
       || existsSync(join(root, 'bin', 'lattice-codex.js'))
   );
   const hasClaude = Boolean(
@@ -484,7 +525,7 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
     const text = readText(root, globalThinConfig);
     if (text?.includes('global-thin')) return 'global-thin';
   }
-  if (existsSync(join(root, '.Codex', 'lattice.json')) || existsSync(join(root, '.Codex', 'agents'))) {
+  if (existsSync(join(root, '.lattice-codex', 'lattice.json')) || existsSync(join(root, '.lattice-codex', 'agents'))) {
     return 'full';
   }
   if (existsSync(join(root, 'bin', 'lattice.js'))) {
@@ -590,10 +631,15 @@ function isExpandedLatticeClaudeGuide(actual: string): boolean {
 }
 
 function appendLegacyRuntimeExclusions(defs: ManagedAssetDefinition[]): void {
+  // Legacy denylist: these are the OLD koala-era filenames that the
+  // koala-removal program is enforcing as NOT-allowed in the runtime tree.
+  // The literal `koala*` tokens here are intentional and must remain — they
+  // are the names being denied, not paths being created. Renaming them would
+  // silently disable the denylist for projects that still have these files.
   defs.push(
     { id: 'excluded:bin/koala.js', relPath: 'bin/koala.js', kind: 'excluded-path' },
     { id: 'excluded:bin/koala-codex.js', relPath: 'bin/koala-codex.js', kind: 'excluded-path' },
-    { id: 'excluded:.Codex/koala.json', relPath: '.Codex/koala.json', kind: 'excluded-path' },
+    { id: 'excluded:.lattice-codex/koala.json', relPath: '.lattice-codex/koala.json', kind: 'excluded-path' },
     { id: 'excluded:.codex/koala.json', relPath: '.codex/koala.json', kind: 'excluded-path' },
   );
 }
@@ -710,18 +756,18 @@ export function listManagedAssetDefinitions(
         'bin:lattice-codex.js',
         'bin/lattice-codex.js',
         renderLatticeCodexWrapperScript(),
-        actual => actual.includes('KOALA_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
+        actual => actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
       wholeFile(
-        '.Codex:README.md',
-        '.Codex/README.md',
+        '.lattice-codex:README.md',
+        '.lattice-codex/README.md',
         renderCodexReadmeTemplate(assetMode, 'lattice'),
         actual => actual.includes('Codex + Koala') || actual.includes('Codex + Lattice'),
       ),
       wholeFile(
-        '.Codex:lattice.json',
-        '.Codex/lattice.json',
+        '.lattice-codex:lattice.json',
+        '.lattice-codex/lattice.json',
         renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
@@ -733,15 +779,15 @@ export function listManagedAssetDefinitions(
         actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
         true,
       ),
-      { id: 'excluded:.Codex/settings.json', relPath: '.Codex/settings.json', kind: 'excluded-path' },
+      { id: 'excluded:.lattice-codex/settings.json', relPath: '.lattice-codex/settings.json', kind: 'excluded-path' },
     );
     if (assetMode === 'full' && templates) {
       const files = listAgentPromptFiles(templates);
       for (const file of files) {
         const content = readFileSync(join(templates, file), 'utf-8');
         defs.push(wholeFile(
-          `.Codex/agents:${file}`,
-          `.Codex/agents/${file}`,
+          `.lattice-codex/agents:${file}`,
+          `.lattice-codex/agents/${file}`,
           renderCodexAgentContent(content),
           actual => isManagedPrompt(actual, file),
         ));
@@ -797,11 +843,11 @@ export function listManagedAssetDefinitions(
     }
   }
 
-  if (wantsCodex && assetMode === 'full' && templates && existsSync(join(projectRoot, '.Codex', 'agents'))) {
+  if (wantsCodex && assetMode === 'full' && templates && existsSync(join(projectRoot, '.lattice-codex', 'agents'))) {
     const expected = new Set(listAgentPromptFiles(templates));
-    for (const file of listAgentPromptFiles(join(projectRoot, '.Codex', 'agents'))) {
+    for (const file of listAgentPromptFiles(join(projectRoot, '.lattice-codex', 'agents'))) {
       if (!expected.has(file)) {
-        defs.push({ id: `.Codex/agents:extra:${file}`, relPath: `.Codex/agents/${file}`, kind: 'remove-extra' });
+        defs.push({ id: `.lattice-codex/agents:extra:${file}`, relPath: `.lattice-codex/agents/${file}`, kind: 'remove-extra' });
       }
     }
   }
@@ -1175,4 +1221,108 @@ export function managedAssetNextAction(result: ManagedAssetCheckResult): string 
   if (safe > 0) return 'run lattice check --apply to sync MISSING/STALE_SAFE assets';
   if (result.applied.length > 0) return 'safe managed asset drift repaired';
   return 'no managed asset drift';
+}
+
+// B-097f: Claude agent prompts are runtime-owned and resolve from the global
+// ~/.claude/agents single source. The observable mode string surfaced by
+// `lattice doctor` and the init migration flow.
+export const AGENT_ASSET_MODE_RUNTIME_OWNED = 'runtime-owned' as const;
+
+export interface ProjectLocalAgentScan {
+  /** Absolute project .claude/agents dir scanned. */
+  agentsDir: string;
+  /** The managed template basename set used for the exact-match comparison. */
+  managedBasenames: string[];
+  /** Project-local *.md files whose basename exactly matches a managed template. */
+  managedFiles: string[];
+  /** Project-local *.md files NOT in the managed set (user-authored — preserved). */
+  userFiles: string[];
+}
+
+/**
+ * Scan a project's `.claude/agents` for project-local managed agent files.
+ *
+ * "Managed" = basename exactly matches one of the running CLI package's
+ * `templates/agents/*.md`. This is the precise set the explicit `--upgrade`
+ * migration is allowed to delete; everything else is user-authored and
+ * preserved. Returns empty sets when the dir or template source is absent.
+ */
+export function scanProjectLocalManagedAgents(
+  projectRoot: string,
+  templateDir: string | null = resolveAgentTemplateDir(),
+): ProjectLocalAgentScan {
+  const agentsDir = join(projectRoot, '.claude', 'agents');
+  const managedBasenames = templateDir && existsSync(templateDir)
+    ? listManagedAgentBasenames(templateDir)
+    : [];
+  const managedSet = new Set(managedBasenames);
+  const managedFiles: string[] = [];
+  const userFiles: string[] = [];
+  if (existsSync(agentsDir)) {
+    let entries: string[] = [];
+    try {
+      entries = readdirSync(agentsDir).filter(file => file.endsWith('.md')).sort((a, b) => a.localeCompare(b));
+    } catch {
+      // PROBE: unreadable dir reports as empty; next run re-scans.
+      entries = [];
+    }
+    for (const file of entries) {
+      if (managedSet.has(file)) managedFiles.push(file);
+      else userFiles.push(file);
+    }
+  }
+  return { agentsDir, managedBasenames, managedFiles, userFiles };
+}
+
+export interface MigrateProjectLocalAgentsResult {
+  agentsDir: string;
+  removed: string[];
+  preserved: string[];
+  dirRemoved: boolean;
+}
+
+/**
+ * Migrate (delete) ONLY the exact managed agent basenames from a project's
+ * `.claude/agents`. NEVER wildcard-deletes; user-authored files are preserved.
+ * Removes the dir only if it becomes empty. Idempotent: no managed files → no-op.
+ *
+ * This is the explicit `--upgrade` migration. Callers must ensure the global
+ * single source is ready first (see syncGlobalAgents).
+ */
+export function migrateProjectLocalManagedAgents(
+  projectRoot: string,
+  templateDir: string | null = resolveAgentTemplateDir(),
+  log: (relPath: string) => void = () => {},
+): MigrateProjectLocalAgentsResult {
+  const scan = scanProjectLocalManagedAgents(projectRoot, templateDir);
+  const removed: string[] = [];
+  for (const file of scan.managedFiles) {
+    const full = join(scan.agentsDir, file);
+    try {
+      unlinkSync(full);
+      removed.push(file);
+      log(`.claude/agents/${file}`);
+    } catch {
+      // PROBE: a concurrent removal leaves nothing to migrate; treat as done.
+    }
+  }
+  // Remove the dir only if it is now empty (no user files, nothing left).
+  let dirRemoved = false;
+  if (existsSync(scan.agentsDir)) {
+    let remaining: string[] = [];
+    try {
+      remaining = readdirSync(scan.agentsDir);
+    } catch {
+      remaining = [];
+    }
+    if (remaining.length === 0) {
+      try {
+        rmSync(scan.agentsDir, { recursive: false, force: true });
+        dirRemoved = true;
+      } catch {
+        // PROBE: best-effort empty-dir cleanup.
+      }
+    }
+  }
+  return { agentsDir: scan.agentsDir, removed, preserved: scan.userFiles, dirRemoved };
 }

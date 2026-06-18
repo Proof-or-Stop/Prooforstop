@@ -1,0 +1,87 @@
+{
+  "storyId": "B-75f0",
+  "checkedAt": "2026-06-17T23:42:02.027Z",
+  "reviewRound": "2026-06-17T23:31:35.856Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts#DEFERRED_ALLOWLIST_EXACT",
+      "promise": "DEFERRED_ALLOWLIST_EXACT is EMPTY after B-75f0 burns down the B-6666 follow-up",
+      "verifiedBy": "diff + run-output",
+      "evidence": "diff confirms DEFERRED_ALLOWLIST_EXACT = new Set<string>([]); contract smoke exits 0 with repo scan clean: 523 .ts files inspected, 0 bare-cwd violations"
+    },
+    {
+      "docPath": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts#BENIGN_BOOTSTRAP_ALLOWLIST",
+      "promise": "Old DEFERRED_ALLOWLIST_EXACT split into BENIGN_BOOTSTRAP_ALLOWLIST (12 permanent self-bootstrap entries with rationale) + empty DEFERRED_ALLOWLIST_EXACT",
+      "verifiedBy": "diff + grep",
+      "evidence": "diff shows BENIGN_BOOTSTRAP_ALLOWLIST with 12 entries each carrying a one-line rationale; isDeferredFromNewRules() covers both sets; DEFERRED set is explicitly empty"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-dispatch.ts#listedGitWorktreeRoots+assertRegisteredDispatchWorktreeRoot",
+      "promise": "dispatch worktree create/remove threads resolveGitCwd (CHK-001 hard-failure site 1)",
+      "verifiedBy": "diff + run-output",
+      "evidence": "diff: import resolveGitCwd, helpers take gitCwd param, callers resolve at boundary; smoke: git worktree list succeeds from inner gitRoot, throws from bare metadataRoot"
+    },
+    {
+      "docPath": "packages/main/src/handlers/checklist.ts#evidenceHashes+verification_evidence_refresh",
+      "promise": "checklist verification_evidence_refresh threads resolveGitCwd (CHK-001 hard-failure site 2)",
+      "verifiedBy": "diff + run-output",
+      "evidence": "diff: evidenceHashes(gitCwd, metadataRoot) + normalizeEvidence threading resolveGitCwd at handler boundary; smoke: freshness probes undefined from bare metadataRoot, defined from resolved gitCwd"
+    },
+    {
+      "docPath": "packages/main/src/handlers/doctor.ts#tryWorktreeRemove+removeStaleWorktreeAdminDirs+deleteTerminalStoryBranch",
+      "promise": "doctor --repair threads resolveDoctorGitCwd (CHK-001 hard-failure site 3)",
+      "verifiedBy": "diff + run-output",
+      "evidence": "diff: 3 const gitCwd = root replaced with const gitCwd = resolveDoctorGitCwd(root); smoke: repair git commands run from inner gitRoot, throw from bare metadataRoot"
+    },
+    {
+      "docPath": "packages/main/src/handlers/verifier.ts+packages/main/src/core/touchpoints-fallback.ts+packages/main/src/handlers/init-check.ts",
+      "promise": "7 graceful-degradation sites threaded with resolveGitCwd (CHK-002)",
+      "verifiedBy": "diff + run-output",
+      "evidence": "diff: verifier currentHead threaded via 3 callsites; touchpoints-fallback resolveProjectGitCwd id-independently; init-check audit resolveGitCwd; graceful smoke exits 0: real values from gitRoot, undefined fallback preserved from non-git dir"
+    },
+    {
+      "docPath": "packages/main/src/tasks/gap-analyze.ts+packages/main/src/handlers/story-query.ts+packages/main/src/dashboard.ts",
+      "promise": "3 project-level scans threaded via exported resolveProjectGitRoot/resolveProjectGitCwd (CHK-003)",
+      "verifiedBy": "diff + run-output",
+      "evidence": "diff: all 3 import resolveProjectGitCwd; resolveProjectGitRoot exported; project-gitroot-cwd-smoke exits 0: wrapper-root resolves gitRoot subdir, plain-repo byte-identical, null-gitRoot falls back to projectRoot"
+    },
+    {
+      "docPath": "packages/main/src/handlers/done-effects.ts+packages/main/src/handlers/review-run.ts+packages/main/src/core/review-run.ts",
+      "promise": "3 lexical false-positives renamed projectRoot->gitCwd (CHK-004 PART A, zero behavior change)",
+      "verifiedBy": "diff",
+      "evidence": "diff: autoSyncMain(gitCwd), resolveGitTopLevel(gitCwd), isGitRepository(gitCwd) param names corrected, implementation unchanged; none appear in any allowlist"
+    },
+    {
+      "docPath": "CLAUDE.md",
+      "promise": "No CLAUDE.md production changes (internal contract burndown, no user-facing doc promise added)",
+      "verifiedBy": "diff",
+      "evidence": "git diff main...HEAD -- CLAUDE.md produces no output; only plan.md (story metadata) changed among .md files"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/dispatch-checklist-doctor-wrapper-root-smoke.js: 4 assertions pass (dispatch git worktree list from gitRoot succeeds/throws from metadataRoot; checklist freshness probes defined/undefined; doctor repair runs from gitRoot/throws from metadataRoot; plain-repo byte-identical). EXIT=0. Independently run in this delivery review session."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/graceful-sites-gitroot-cwd-wrapper-root-smoke.js: 3 assertions pass (verifier head + init-check audit resolveGitCwd inner gitRoot, undefined preserved from non-git dir; touchpoints detectMdTouchpointsFromGit resolves gitRoot, undefined preserved; plain-repo byte-identical). EXIT=0. Independently run."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/project-gitroot-cwd-smoke.js: 3 assertions pass (wrapper-root resolveProjectGitRoot/Cwd resolves gitRoot subdir != non-git metadataRoot; plain-repo projectRoot verbatim; null gitRoot falls back to projectRoot verbatim). EXIT=0. Independently run."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js: 11 assertions pass (9 detection self-tests + repo scan clean 523 .ts files 0 violations + docs-drift gate wires repoRoot:gitCwd). DEFERRED_ALLOWLIST_EXACT=empty, BENIGN_BOOTSTRAP_ALLOWLIST=12 entries. EXIT=0. Independently run."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises verified by diff+grep+run-output. All 4 CHK smokes independently built and run in this delivery review session: each exits 0. Edge cases covered: wrapper-root bug shown red (throws from bare metadataRoot) and green (resolves inner gitRoot) with plain-repo byte-identical fallback. DEFERRED_ALLOWLIST_EXACT verifiably empty; 9 detection self-tests intact. No CLAUDE.md production changes; no unresolved TODOs in changed production files."
+  },
+  "_hash": "4a69699b171fc12c2260ca0369cb1190ab085e9a4979d04a0f11868b7d045408"
+}

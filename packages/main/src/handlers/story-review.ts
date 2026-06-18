@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   Requirement completeness has no silver bullet; Koala lowers omission risk
+ *   Requirement completeness has no silver bullet; Lattice lowers omission risk
  *   through multiple defenses: understanding, decision, scope check, related
  *   docs, checklist quality, verificationIntent lanes, and reviewer prompts.
  *   Agent A is responsible for decomposing requirements and implementing code,
@@ -26,6 +26,8 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
+import { loadExperienceHints, formatExperienceHintsSection, hasExperienceHints, experienceHintIds } from '../core/experience-hint-loader.js';
+import { appendActivityLog, readActivityLogTail } from '../core/activity-log.js';
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -146,7 +148,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         });
       }
 
-      // 2.4. High-risk signal hint (OMX style, story_create auto-tags)
+      // 2.4. High-risk signal hint (story_create auto-tags)
       // B-5010 CHK-004: filter out signals explicitly dismissed by main agent (false-positive whitelist)
       const dismissedCats = new Set((story.riskSignalsDismissed || []).map((d: any) => d.category));
       const activeRiskSignals = (story.riskSignals || []).filter((r: any) => !dismissedCats.has(r.category));
@@ -173,7 +175,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         });
       }
 
-      // 2.45. RALPLAN-DR decision.json check (OMX ralplan style)
+      // 2.45. RALPLAN-DR decision.json check
       // Respect workflow policy: skip check when policy says 'never', only check high_risk stories when 'high_risk'
       const policy = resolveWorkflowPolicy(config, story);
 
@@ -213,7 +215,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               issues.push({
                 type: 'missing_alternatives',
                 severity: 'blocker',
-                message: 'decision.options has only 1 entry with empty cons. OMX Critic equivalent requirement: must have fair alternatives or explicit invalidation rationale',
+                message: 'decision.options has only 1 entry with empty cons. RALPLAN reviewer requirement: must have fair alternatives or explicit invalidation rationale',
               });
             }
           }
@@ -274,7 +276,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         }
       }
 
-      // 2.5. Pre-context Intake snapshot check (OMX style, soft introduction)
+      // 2.5. Pre-context Intake snapshot check (soft introduction)
       // Respect workflow policy: skip check when policy says 'never', only check high_risk stories when 'high_risk'
       const shouldCheckUnderstanding = (() => {
         if (policy.plan.requireUnderstanding === 'never') return false;
@@ -523,6 +525,58 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
 
       const planReviewRound = reviewData.reviews.length;
 
+      // B-1dc9 CHK-002/CHK-003: ADVISORY-ONLY experience hints.
+      //
+      // Derived from past finding-signals; surfaced as a clearly-labelled advisory
+      // section in the `_reviewPrompt` output (mirrors grillSection). These hints
+      // are nudges, never gates: nothing in the issues/blocker computation reads
+      // them, and — CRITICAL GUARDRAIL — they live ONLY in this story-review
+      // advisory `_reviewPrompt` channel, which is SEPARATE from the REVIEW-phase
+      // reviewer prompt that feeds resolveReviewPromptHash (core/review-run.ts).
+      // Hint content must NEVER enter any reviewRunId/promptHash computation.
+      //
+      // Compute once here so the usage-tracking event fires (at most) once per
+      // story_review call that surfaces hints (the `_reviewPrompt` getter below is
+      // an IIFE; building the section out here keeps surfacing single-shot).
+      //
+      // B-1dc9 CHK-003:edge:0 — DEDUP: usage tracking is exactly-once-PER-REVIEW-ROUND,
+      // not per-call. The stable round key is `story.currentReviewRound` (an ISO
+      // stamp set when a REVIEW round opens and unchanged across repeated calls in
+      // that round). PLAN-phase stories have no currentReviewRound, so we fall back
+      // to the stable `plan:<phase>` key (stable across repeated calls; note
+      // `planReviewRound` increments every call and is deliberately NOT used here).
+      // The `_reviewPrompt` section still renders on every call — only the EVENT is
+      // deduped — so a NEW round (or a different story) yields a new event.
+      const hintRoundKey = story.currentReviewRound || `plan:${story.phase}`;
+      let experienceHintsSection = '';
+      try {
+        const experienceHints = loadExperienceHints(ctx.root);
+        experienceHintsSection = formatExperienceHintsSection(experienceHints);
+        if (hasExperienceHints(experienceHints)) {
+          // Skip the append if an experience_hint_surfaced event already exists for
+          // this (storyId, hintRoundKey) — repeated calls in the same round => one event.
+          const alreadySurfaced = readActivityLogTail(ctx.root, 1000).some(
+            (e) => e.event === 'experience_hint_surfaced'
+              && e.storyId === args.storyId
+              && e.reviewRound === hintRoundKey,
+          );
+          if (!alreadySurfaced) {
+            // USAGE TRACKING: exactly one event per (storyId, review round).
+            appendActivityLog(ctx.root, {
+              timestamp: new Date().toISOString(),
+              event: 'experience_hint_surfaced',
+              storyId: args.storyId,
+              reviewRound: hintRoundKey,
+              hintIds: experienceHintIds(experienceHints),
+            });
+          }
+        }
+      } catch (e) {
+        // Advisory-only: never let hint loading/tracking break story_review.
+        console.warn(`[experience-hints] surface failed for ${args.storyId}:`, (e as Error).message);
+        experienceHintsSection = '';
+      }
+
       return {
         storyId: args.storyId,
         title: story.title,
@@ -584,8 +638,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const truthSection = truthDocs.length > 0
             ? `\n---\nTruth Source (${truthDocs.length} docs):\n${truthDocs.join('\n---\n')}`
             : '';
-          // When there are no truth docs + no understanding + no decision, still return the base prompt rather than undefined
-          if (truthDocs.length === 0 && !understanding && !decision && !grill) return undefined;
+          // When there are no truth docs + no understanding + no decision + no
+          // grill + no experience hints, still return undefined (prompt absent).
+          // experienceHintsSection alone keeps the advisory prompt present so the
+          // hints are surfaced even in a bare PLAN. It is '' when no hints exist,
+          // so the prompt is byte-unchanged from the prior behavior in that case.
+          if (truthDocs.length === 0 && !understanding && !decision && !grill && experienceHintsSection === '') return undefined;
           return `Please review the PLAN-phase artifacts of the following story. Focus on:\n` +
             `  1. Whether understanding is genuine (whether unknowns contradict facts, whether touchpoints are real)\n` +
             `  2. Whether the decision choice is reasonable (why other options were not chosen, whether rationale echoes drivers)\n` +
@@ -595,7 +653,9 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             (story.riskSignals && story.riskSignals.length > 0
               ? ` (riskSignals: ${story.riskSignals.map((r: any) => r.category).join(', ')})`
               : '') +
-            understandingSection + decisionSection + grillSection + checklistSection + truthSection;
+            // experienceHintsSection mirrors grillSection (advisory channel),
+            // placed right after it. ADVISORY-ONLY: never fed to resolveReviewPromptHash.
+            understandingSection + decisionSection + grillSection + experienceHintsSection + checklistSection + truthSection;
         })(),
       };
     },

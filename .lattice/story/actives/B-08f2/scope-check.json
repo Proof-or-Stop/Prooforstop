@@ -1,0 +1,239 @@
+{
+  "storyId": "B-08f2",
+  "checkedAt": "2026-06-15T23:57:27.604Z",
+  "features": [
+    {
+      "feature": "Drop the || process.env.KOALA_X fallback for 17 LATTICE_* dual-read twins in production source",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename 38 KOALA-only env vars to LATTICE_X across reads and setters in production source code",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename KOALA_* env vars in JSON config files (.Codex/lattice.json)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename KOALA_* env vars in .Codex/ and .claude/ wrapper assets",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename KOALA_COMMAND/KOALA_NEW_PHASE/KOALA_OLD_PHASE/KOALA_PHASE/KOALA_STAGE in hook-contract docs (docs/guide-hooks.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npm run build must pass after all CHK-001 renames",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "LEGACY_KOALA_* path constants in core/lattice-paths.ts must NOT be touched (kept as over-reach guard)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": ".koala runtime directory references in lattice-paths.ts must NOT be touched (kept)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update 30 test/smoke files that set or assert KOALA_* env-var names to LATTICE_*",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npm run test:e2e and affected smoke suites must pass after CHK-002 updates",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Historical fixtures containing KOALA_ as past data are left untouched (out of scope for CHK-002)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 context explicitly states recorded historical fixtures that legitimately contain KOALA_ as past data are out of scope",
+      "source": "description"
+    },
+    {
+      "feature": "Drop docs/koala/legacy/ archive (12 files via git rm -r)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Residual KOALA_[A-Z] scan over packages/ scripts/ bin/ .Codex/ .claude/ must return zero after all three items",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "docs/koala/framework-audit/ directory must be KEPT (not deleted)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B-ffa2 Non-Goal: env var rename was deferred by role-naming story; B-08f2 is the deliberate follow-up",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "B-ffa2 Non-Goal: do not rename .koala/ runtime directories (still deferred)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 explicitly preserves LEGACY_KOALA_* and .koala dir refs; CHK-003 keeps docs/koala/framework-audit/",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "B-ffa2 Non-Goal: do not remove legacy koala:start/end managed-block parsing (deferred)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This story renames env vars only; managed-block parsing is unrelated and not targeted",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "KOALA_AUTHORITY_MODE KOALA_AUTHORITY_URL KOALA_AUTHORITY_ACTOR_KEY KOALA_AUTHORITY_RUNNER_ID KOALA_AUTHORITY_SESSION_ID diagnostic env vars (authority-client-role.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "KOALA_ROLE env var for role-separation telemetry and permission checks (role-separation.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/role-separation.md"
+    },
+    {
+      "feature": "KOALA_REVIEWER_READONLY=1 advisory reviewer guard (role-separation.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/role-separation.md"
+    },
+    {
+      "feature": "Hook env vars KOALA_STORY_ID KOALA_PHASE KOALA_COMMAND KOALA_ERROR KOALA_RESULT_JSON (cc-learnings.md Story 6)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cc-learnings.md"
+    },
+    {
+      "feature": "KOALA_IDLE_TIMEOUT_MS KOALA_MAX_TIMEOUT_MS override vars (cli-engine-english-open-source-execution-plan.md M735)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "KOALA_AGENT env var default actor/recorder identity in cli-engine.ts schema fields",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "cli-engine-english Non-Goal: do not hide KOALA_* compatibility terms when still runtime facts (applies to B-8448 not B-08f2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This non-goal applies to B-8448 CLI English translation story. B-08f2 renames vars so they cease to be runtime facts.",
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "KOALA_GLOBAL_MEMORY_DIR legacy fallback override in dev-memory storage (lattice-parallel-wave.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-parallel-wave.md"
+    },
+    {
+      "feature": "KOALA_LIFECYCLE_ARTIFACT_FILENAMES KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS TypeScript constant names (lifecycle-artifact-scope.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "These are TypeScript constant identifiers not env var names; outside scope of env-var rename story",
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "KOALA_SESSION_ID sessionId resolution (session-ownership-and-write-leases.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "docs/koala/legacy/root-markdown/ archive deletion (root-document-migration-guide.md)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/root-document-migration-guide.md"
+    },
+    {
+      "feature": "docs/koala/framework-audit/ active path kept per root-document-migration-guide.md",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/root-document-migration-guide.md"
+    },
+    {
+      "feature": "Legacy KOALA_AUTHORITY_* client variables remain aliases for compatibility per lattice-authority-live-integration.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-authority-live-integration.md"
+    }
+  ],
+  "summary": {
+    "total": 30,
+    "covered": 25,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e688b3ae45c77448f5cfc6b430a43d4d6744b944fc84cdbe24e9cb56ce660dde",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "KOALA_AUTHORITY_* alias compatibility versus rename scope",
+      "evidence": "lattice-authority-live-integration.md line 668 states: Legacy KOALA_AUTHORITY_* client variables remain aliases for compatibility. CHK-001 targets all KOALA_* env vars for rename including KOALA_AUTHORITY_MODE etc. The question is whether CHK-001 renames these to LATTICE_AUTHORITY_* (fully eliminating KOALA_) or preserves them as compatibility aliases while adding LATTICE_AUTHORITY_* twins. The story description says eliminate the KOALA_* env-var layer for OSS launch; but the live-integration spec calls them compatibility aliases. Must the OSS launch intent override the compatibility-alias spec?",
+      "sourcePointers": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "CHK-001"
+      ],
+      "resolution": "User's explicit OSS-launch directive (2026-06-16) requires NO KOALA_ token to remain, and they chose the ship-clean depth accepting that external KOALA_* exporters must switch to LATTICE_*. This overrides the compatibility-alias note at lattice-authority-live-integration.md:668. The KOALA_AUTHORITY_* vars are among the 17 twins whose LATTICE_AUTHORITY_* equivalents already exist and are the primary read, so dropping the KOALA_AUTHORITY_* fallback only requires operators to set the LATTICE_AUTHORITY_* names. The decision-doc line 668 should be updated to drop the alias claim in the later active-docs sweep (out of scope for this env-var code story; editing decision docs trips the 3x2 gate).",
+      "resolvedAt": "2026-06-15T23:58:30.751Z"
+    }
+  ]
+}

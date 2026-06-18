@@ -1,0 +1,42 @@
+{
+  "storyId": "B-a2e3",
+  "checkedAt": "2026-06-17T23:42:01.588Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md uses the term pure leaf three times (Key Insights, Solution Tradeoffs, CHK-002 context) without defining it. A new reader has no definition anchor in background.md or CLAUDE.md. Suggest adding a one-sentence definition on first use."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "priority=high was auto-elevated because the command name contains validate (riskSignal: Validation Framework). Background confirms this is a false positive: learning_validate is read-only and does not modify the validation framework. Advisory: run story_review_dismiss to reset priority to medium."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T23:40:37.637Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T23:42:01.588Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md uses the term pure leaf three times (Key Insights, Solution Tradeoffs, CHK-002 context) without defining it. A new reader has no definition anchor in background.md or CLAUDE.md. Suggest adding a one-sentence definition on first use."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "priority=high was auto-elevated because the command name contains validate (riskSignal: Validation Framework). Background confirms this is a false positive: learning_validate is read-only and does not modify the validation framework. Advisory: run story_review_dismiss to reset priority to medium."
+        }
+      ]
+    }
+  ],
+  "_hash": "2987cb667ff511bb0266e725029118089b8c56138ad2b3f49fa9c6e2256cec6b"
+}

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0f7c",
+  "changes": "Wired the LLM usage ledger into the Claude leaf dispatch path (runClaudeCodeRealLeafDispatch in lattice-dispatch.ts) as a THIN flag-gated one-way seam, plus a pure in-module orchestrator+parser (core/usage-ledger/dispatch-usage.ts). When the opt-in flag (LATTICE_USAGE_LEDGER) is ON: before spawn it records a prompt-size preflight estimate (sync bytes/chars) attributed to the active storyId/phase; it runs the host with --output-format json, parses the result text + real token usage + served model from the JSON envelope, and records a provider-reported record (via the existing anthropic adapter) that SUPERSEDES the estimate (real per-story/per-model token counts). When the flag is OFF, dispatch is BYTE-IDENTICAL to before (spawn args [--print, promptFile], raw stdout, zero ledger code). JSON-parse failure falls back to raw stdout text + an unavailable final; all ledger work is in try/catch so dispatch never breaks. The usage-ledger module still imports zero other modules (one-way: dispatch -> ledger). Added usage-ledger-dispatch-smoke.ts (38 checks incl. a simulated end-to-end) wired as npm test:usage-ledger-dispatch.",
+  "usage": "Set LATTICE_USAGE_LEDGER=1 and run a real claude leaf dispatch: the ledger now records a preflight estimate then a provider-reported record with the REAL token counts + served model the host used, attributed to the story. Then read them with the diagnostics reporter (npm usage-ledger-report) to see per-story / per-model token usage. Flag unset => dispatch behaves exactly as before.",
+  "expectedOutcome": "With the flag ON, a (real or simulated) claude dispatch records real provider-reported token counts attributed to the story, superseding the preflight estimate; the diagnostics report shows that story/model real total. With the flag OFF, dispatch is byte-identical. Parse-failure/ledger-error never breaks dispatch.",
+  "actualTranscript": "verify-b-0f7c: TOTAL 44 | PASS 44 | FAIL 0 (offByteIdentical seamGated zeroImport modelHandled noForbidden scopeClean all true). dispatch smoke 38/38 incl. simulated end-to-end (envelope input 1500/output 400 + model claude-opus-4-8 -> providerReportedTotal 1900, served model bound, estimate superseded not double-counted). No regression (usage-ledger 61, adapter 50, estimate 55, diagnostics 34). codex verify green. validate ALL PASS 44/44. 4 reviewers (concept/quality/test-coverage/behavior) passed; round-1 low finding F-001 (misleading comment) fixed + resolved; escalation not required (0/2).",
+  "outcomeDiff": "Expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Real usage is claude-host-only (codex/gemini hosts are scaffolded-only and get estimate + unavailable, no invocation change). Depends on the Claude Code CLI --output-format json envelope shape; if it differs the seam falls back to raw text + unavailable (no real counts, dispatch unaffected). Opt-in: nothing changes unless LATTICE_USAGE_LEDGER is set. No budget enforcement, no receipt path, no default-on.",
+  "pitfalls": "NEVER change the OFF branch — it must stay byte-identical (buildClaudeSpawnArgs(file,false)===[--print,file]). Keep all ledger work in try/catch so dispatch never breaks. The provider-reported final must supersede the preflight estimate (no double count). Keep dispatch->ledger one-way (usage-ledger imports zero other modules). When extending to codex/gemini, parse their own output formats; do not assume the claude envelope shape.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 205778
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9310
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 515826
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1138194
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 590656
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 41880
+    }
+  },
+  "totalDurationMs": 2501645,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T19:45:05.377Z",
+  "updatedAt": "2026-06-16T19:45:05.377Z"
+}

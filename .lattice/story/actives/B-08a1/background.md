@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-16, after story B-253e shipped the LLM usage ledger writer foundation (record schema + validator + append-only hash-chained writer + correlation ids + runtime-artifact registration + opt-in flag), the user approved the next slice. Recon confirmed Lattice coordinates codex (OpenAI-family), claude (Anthropic), and gemini (Google) hosts, and that no provider usage parsing exists anywhere in packages/main/src yet. This story builds the pure provider-usage adapter layer.
+
+## Key Insight
+Each provider reports token usage in a different shape, and they must be mapped into the one canonical four-field shape the B-253e record defines (input, output, cacheCreation, cacheRead) while preserving the raw provider units. Anthropic reports all four natively. OpenAI reports prompt/completion tokens plus a cached-tokens count (cache read) but has no cache-write count, so cacheCreation maps to null (never 0). Gemini reports prompt/candidates/cachedContent token counts, so cacheCreation likewise maps to null. The adapter must attach the locally-minted ledgerCallId/attemptId (never the provider request id), set source=provider-reported when any count exists and unavailable (with a reason) when none does, and read streaming usage from the terminal event. Keeping the adapter PURE (provider response in, validated record out) makes it unit-testable against sample payloads and isolates the risky live-dispatch wiring into a separate later story.
+
+## Tradeoff
+Building only the pure mapping layer (no wiring into the live dispatch path) keeps this story testable and low-risk, at the cost of the ledger still recording nothing from real runs until the wiring story lands. We accept a tested-but-not-yet-connected adapter over a larger change that edits the core call chain. The mapping rules are derived from each provider's documented usage object; sample payloads in the tests stand in for live responses.
+
+## Conversation Texture
+The user said '下一步吧' and, when asked, chose the adapter-layer-only scope (recommended) over also wiring it into the live dispatch path in this story. This follows B-1477 (plan), B-4bf8 (accuracy fixes), and B-253e (writer foundation). The live-dispatch wiring and the remaining ledger slices are separate future stories.

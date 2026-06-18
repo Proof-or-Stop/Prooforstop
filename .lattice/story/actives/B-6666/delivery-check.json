@@ -1,0 +1,53 @@
+{
+  "storyId": "B-6666",
+  "checkedAt": "2026-06-17T17:38:18.264Z",
+  "reviewRound": "2026-06-17T17:30:17.505Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-6666/background.md#done-oracle-false-block",
+      "promise": "done-oracle git-status path uses resolved gitCwd (wrapper-root false-block fixed): buildDoneChecklist threads options.gitCwd ?? root into readGitStatusLines and all other git calls; transition-orchestrator passes doneGitCwd into runDonePreMergeGate",
+      "verifiedBy": "diff/grep",
+      "evidence": "done-oracle.ts: const gitCwd = options.gitCwd ?? root at ~246, readGitStatusLines(gitCwd) at ~368, gitRefExists/gitRefContainsMain/checkMainDivergence all take gitCwd. transition-orchestrator.ts: doneGitCwd hoisted to function scope, resolved ONCE via resolveGitCwd, threaded into runDonePreMergeGate at ~368. done-effects.ts: gitCwd param added and forwarded. phase-gates.ts: runDoneOracleGate passes {gitCwd} to buildDoneChecklist."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6666/background.md#evidence-freshness-aliases",
+      "promise": "evidence-freshness no-op aliases (const gitCwd = projectRoot) and confessional comment (makes the contract pass without changing behavior) removed; probes route through resolved gitCwd",
+      "verifiedBy": "grep",
+      "evidence": "grep -n const gitCwd = projectRoot packages/main/src/core/evidence-freshness.ts: empty. grep -n makes the contract pass without changing behavior packages/main/src/core/evidence-freshness.ts: empty. All five functions take gitCwd as direct parameter with no local alias."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6666/background.md#contract-strengthened",
+      "promise": "gitroot-cwd-contract strengthened to catch alias and backtick blind spots, stays GREEN; live red->green witness (inject d93b69b8f shape -> exit 1 -> revert -> exit 0) documented in transcript-diff.md",
+      "verifiedBy": "test",
+      "evidence": "npm run test:gitroot-cwd-contract in worktree: exit 0. 11 self-tests pass including ALIAS KNOWN-BAD (1 violation), ALIAS KNOWN-GOOD (0 violations), BACKTICK KNOWN-BAD (1 violation), BACKTICK KNOWN-GOOD (0 violations). repo scan 520 .ts files 0 bare-cwd violations. transcript-diff.md Step 3 documents injection causing WITNESS_CONTRACT_EXIT=1, Step 4 revert restores exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6666/background.md#deferred-allowlist",
+      "promise": "DEFERRED_ALLOWLIST_EXACT documents deferred backtick sites with rationale and B-99b6 burndown follow-up; deferred files retain original B-db56 coverage via isOldRegexVisible (not silently widened)",
+      "verifiedBy": "diff/grep",
+      "evidence": "gitroot-cwd-contract-smoke.ts line 142: DEFERRED_ALLOWLIST_EXACT as Set<string>. Line 137: TODO B-6666 -> B-99b6 burndown. Line 266: isOldRegexVisible function. Line 288: detectViolations skips NEW alias+backtick rules for deferred files but preserves isOldRegexVisible check so original B-db56 literal-git coverage still applies."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js -> exit 0. Asserts: RED baseline bare metadataRoot -> git-working-tree row status=fail; GREEN fix resolved gitCwd -> status=pass detail=clean; assert.notEqual passes; evidence-freshness probes undefined on bare root, defined hashes on resolved gitCwd; plain-repo byte-identity deepEqual; F-001 regression: metadataRoot threaded into currentMaterialHash excludes custom-storyDir file."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "done-oracle-wrapper-root-smoke.js exit 0 (same run). Evidence-freshness probes asserted: currentGitHead undefined on bare metadataRoot, defined SHA on resolved gitCwd. currentMaterialHash undefined on bare root, defined on resolved gitCwd. F-001: metadataRoot param ensures storyDir-aware exclusion loads config from metadataRoot not gitCwd."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run test:gitroot-cwd-contract -> exit 0. 11 self-tests pass. repo scan 520 .ts files 0 bare-cwd violations. Live witness transcript-diff.md Step 3/4: injected const witnessGitCwd=root + backtick git status -> contract exit 1 (d93b69b8f shape caught); revert -> contract exit 0. lattice validate --story=B-6666 --json: ALL PASS 9/9 coverage 0 stale."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified from diff and live test runs. Two real-machine smokes ran to exit 0 in this reviewer session: done-oracle-wrapper-root-smoke.js (red-baseline+green-fix+plain-repo byte-identity+F-001 metadataRoot regression) and gitroot-cwd-contract-smoke.js (11 self-tests+520-file scan clean+live red->green witness). lattice validate --story=B-6666 --json: 9/9 intent coverage all PASS. DEFERRED_ALLOWLIST_EXACT is honest with B-99b6 follow-up and isOldRegexVisible preservation. No unresolved TODOs in non-test code."
+  },
+  "_hash": "ae66c701ef4a9f5f3c5edc5acbde43f8b7223b51689c1b9af7825e762e6b88be"
+}

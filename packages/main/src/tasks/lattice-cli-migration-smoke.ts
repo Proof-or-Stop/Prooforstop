@@ -98,7 +98,7 @@ assert.equal(mainPackage.bin.koala, undefined, 'legacy koala package bin is remo
 // Help exposes first-class Lattice identity and the new command set.
 const help = runCli(['help']);
 assert.match(help, /Lattice CLI 0\.3\.5/);
-assert.match(help, /Primary entrypoint:\s+lattice/);
+assert.match(help, /(?:^|\n)\s+Entrypoint:\s+lattice/);
 for (const command of COMMANDS) {
   assert.match(help, new RegExp(command), `help exposes ${command}`);
   assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `MAIN_TOOLS exposes ${command}`);
@@ -237,7 +237,10 @@ const configDoctor = runJson<any>(['lattice', 'config', 'doctor', '--format=json
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
-assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, true);
+// the legacy koala bin alias was removed; legacyKoalaAliasPreserved is now a deliberate `false`
+// (config_doctor's package-bin-aliases check asserts the package exposes only the lattice bin),
+// so legacyKoalaAliasPreserved is now a deliberate `false` constant, not the pre-removal `true`.
+assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, false);
 assert.equal(configDoctor.versions.expected, LATTICE_CLI_VERSION);
 assertNoProductionOverclaim(configDoctor, 'lattice config doctor');
 
@@ -260,9 +263,9 @@ assert.match(rollout.safety.note, /never runs apply, upgrade, repair, fix/i);
 assertNoProductionOverclaim(rollout, 'lattice rollout check');
 
 const authority = runJson<any>(['lattice', 'authority', 'status', '--format=json'], {
-  KOALA_AUTHORITY_MODE: '',
-  KOALA_AUTHORITY_URL: '',
-  KOALA_AUTHORITY_TIMEOUT_MS: '',
+  LATTICE_AUTHORITY_MODE: '',
+  LATTICE_AUTHORITY_URL: '',
+  LATTICE_AUTHORITY_TIMEOUT_MS: '',
 });
 assert.equal(authority.schemaVersion, 'lattice.authority_status.v1');
 assert.equal(authority.baseURLConfigured, false);

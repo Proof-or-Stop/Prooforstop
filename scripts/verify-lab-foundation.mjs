@@ -26,10 +26,10 @@ function parseCliJson(text) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-lab-foundation-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-lab-foundation-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -42,8 +42,8 @@ function createTempProject() {
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# temp project\n');
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Koala Lab Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'koala-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'Lattice Lab Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'lattice-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   return dir;
@@ -100,7 +100,7 @@ try {
     'eval',
     JSON.stringify({
       config: 'experiments/configs/lab-reviewer-reviewer-quality-v1.json',
-      files: ['.Codex/agents/test-case-reviewer.md'],
+      files: ['.lattice-codex/agents/test-case-reviewer.md'],
     }),
   ]);
   assert(parseCliJson(allowedEval).ok === true, 'lab eval should allow editableFiles');

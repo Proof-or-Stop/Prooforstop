@@ -114,7 +114,7 @@ function coverageStatusWithMaterialHash(afterPath: string): string {
 }
 
 function mkdtempRoot(): string {
-  return mkdtempSync(join(tmpdir(), 'koala-freshness-'));
+  return mkdtempSync(join(tmpdir(), 'lattice-freshness-'));
 }
 
 const metadataOnly = [

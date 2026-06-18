@@ -1,0 +1,132 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register the 7 missing Experience-Layer/recall commands in PROCESS_FACT_REGISTRY",
+      "context": "In packages/main/src/core/process-fact-registry.ts (PROCESS_FACT_REGISTRY array ~line 871), add entries for playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set. Mirror the existing entry shape (name/level/category/owner/rationale, plus gateConsumer where a gate reads the fact) seen in process-fact-levels.ts (~lines 47-49) and the existing registry entries. Read each command's handler to classify accurately: read-only queries (signature_registry_list, playbook_diff, recall if read-only) get low levels (L0/L1, category reflecting their domain); mutating commands (playbook_approve/reject/propose, signature_registry_set) get the level/category matching how they mutate + any gateConsumer. Do NOT change command behavior. Verify: `npm run test:process-fact-contract` no longer reports 'MAIN_TOOLS command missing from PROCESS_FACT_REGISTRY' for these 7.",
+      "userSees": "`npm run test:process-fact-contract` no longer lists playbook_*/signature_registry_*/recall as missing from PROCESS_FACT_REGISTRY; each appears with an accurate level/category/owner.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T16:36:46.707Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After registering the 7 commands in PROCESS_FACT_LEVELS and rebuilding, npm run test:process-fact-contract reports NO `MAIN_TOOLS command ... missing from PROCESS_FACT_REGISTRY` lines and NO `MAIN_TOOLS command(s) missing from registry` line for the 7 commands",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each of the 7 commands appears in the registry dump with an accurate level/category/owner matching its handler behavior (3 read-only L0, 4 mutating L2, none gate-consumed) — verified by inspecting the contract registry dump output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command behavior change: git diff touches only process-fact-levels.ts (and not handlers/cli-engine.ts); a mutating command is not falsely registered as read-only and vice versa",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "After adding 7 entries to PROCESS_FACT_LEVELS + npm --prefix packages/main run build (BUILD_EXIT=0), node scripts/verify-process-fact-contract.mjs exits 0; grep -E \"MAIN_TOOLS command|missing from registry\" /tmp/pfc-chk001.log returns rc=1 (no matches) — no missing-command line mentions playbook_*/signature_registry_*/recall.",
+          "headHash": "3ded509e9b420e5986117a967d6317ad6cc7d213",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:36:29.268Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Registry dump lists all 7 with accurate levels/owners: signature_registry_list [L0] handlers/signature-registry, playbook_diff [L0] handlers/playbook, recall [L0] handlers/recall (3 read-only); signature_registry_set [L2] handlers/signature-registry, playbook_propose/playbook_approve/playbook_reject [L2] handlers/playbook (4 mutating). None has gateConsumer — verified against each handler (lists/renders are read-only; .lattice/learning writes have no gate reader).",
+          "headHash": "27fc5b1121e8bf87253ef1cb40bedd66e980ec58",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:36:36.065Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "git show --stat HEAD",
+          "result": "pass",
+          "note": "No command behavior change: commit 3ded509e9 git show --stat shows ONLY packages/main/src/core/process-fact-levels.ts (1 file, +7 lines); no handlers/* or cli-engine.ts change. Levels match handler reality (read-only listers/renders/recall = L0; .lattice/learning mutators = L2); no read-only command falsely registered as mutating or vice versa.",
+          "headHash": "5c017faab5487774b40efca1dfe453a4965cc3e4",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:36:42.329Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reconcile DEFAULT_PHASE_TOOLS so recall/signature_registry_*/playbook_* phase drift is resolved, and confirm the whole contract is GREEN",
+      "context": "The contract also reports DEFAULT_PHASE_TOOLS phase allowlist drift for patterns recall / signature_registry_* / playbook_* across PLAN/REVIEW/TEST. In config.ts (DEFAULT_PHASE_TOOLS), reconcile the phase allowlists so they agree with the registry/command-policy for these commands (add them to the phases where they are legitimately allowed; the contract enforces DEFAULT_PHASE_TOOLS ⊆ command-policy allowedPhases — keep that safe direction). Honor the Handler Encoding Convention if any consumed field has constraints. Then run `npm run test:process-fact-contract` and confirm it EXITS 0 (green) end-to-end — the gate does not run this guard today, so this explicit run is the verification of record. Capture the green output as evidence.",
+      "userSees": "`npm run test:process-fact-contract` exits 0 with no drift/missing lines — the process-fact invariant is green on the story branch; the green transcript is the real-machine evidence.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T16:39:20.912Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:process-fact-contract exits 0 end-to-end — NO `Process fact contract failed:` block, NO `DEFAULT_PHASE_TOOLS phase allowlist drift` lines (the 21 drift lines from baseline are gone)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DEFAULT_PHASE_TOOLS stays a subset of command-policy allowedPhases (safe direction preserved); if config.ts was edited at all, no phase allowlist was widened beyond what policy permits",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The contract guard is satisfied honestly (entries registered), not by relaxing/ignoring the 7 commands; npx tsc still exits 0 (no type regression)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract GREEN: node scripts/verify-process-fact-contract.mjs EXIT=0; grep -cE for failure/drift lines (Process fact contract failed|DEFAULT_PHASE_TOOLS phase allowlist drift|MAIN_TOOLS command|missing from registry) = 0; log tail prints Process fact contract verified. tsc -p packages/main --noEmit EXIT=0 (no type regression). config.ts was NOT edited (git diff --name-only -- packages/main/src/core/config.ts is empty); the 7 registrations from CHK-001 cleared the DEFAULT_PHASE_TOOLS drift automatically.",
+          "headHash": "11bfba1b7649f49ac3e07a31def00490fa8bcdd2",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:38:47.398Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "read packages/main/src/core/config.ts:189-191 + packages/main/src/core/command-policy.ts:205-216",
+          "result": "pass",
+          "note": "Subset invariant holds: DEFAULT_PHASE_TOOLS all-phases bucket at config.ts:189-191 lists signature_registry_(star) / playbook_(star) / recall; all 7 commands (signature_registry_list/set, playbook_propose/diff/approve/reject, recall) declare allowedPhases:all in command-policy.ts:205-216. DEFAULT_PHASE_TOOLS is therefore a subset of policy allowedPhases (the safe direction) — phaseTools never widen a phase beyond what command-policy permits. Contract drift check (verify-process-fact-contract.mjs:2672-2679) matches a registry command per pattern with the phase in allowedPhases, so the all-phases declarations satisfy it with no config widening.",
+          "headHash": "3a19903746673f1282902844c3bd05d69099c273",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:39:05.235Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npx tsc -p packages/main --noEmit",
+          "result": "pass",
+          "note": "Adversarial guard: the fix is honest registration, not gate relaxation. tsc -p packages/main --noEmit EXIT=0 proves no type regression was introduced to slip past the contract. No DEFAULT_PHASE_TOOLS phase was widened (config.ts unchanged), so no phase allowlist was loosened beyond command-policy allowedPhases; the contract passes solely because CHK-001 registered the 7 real commands in PROCESS_FACT_LEVELS, not because any check was weakened. verify-process-fact-contract.mjs (which lattice validate does NOT run) is the verification-of-record and prints Process fact contract verified at EXIT=0 with 0 failure/drift lines.",
+          "headHash": "255c70ba1ddb7e09ee2a9107af8125a545a2d4d6",
+          "materialHash": "996f9415e10bd48181fb400deb2ed0930bca12405acdfe2bfca689c9906aea27",
+          "timestamp": "2026-06-17T16:39:16.285Z"
+        }
+      ]
+    }
+  ]
+}

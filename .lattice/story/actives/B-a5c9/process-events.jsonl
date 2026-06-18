@@ -1,0 +1,14 @@
+{"type":"dispatch","storyId":"B-a5c9","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"lattice-review-story-init","timestamp":"2026-06-16T13:51:57.685Z"}
+{"type":"dispatch","storyId":"B-a5c9","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-16T13:52:00.928Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":0,"issueCount":9,"timestamp":"2026-06-16T14:01:56.459Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-16T14:03:45.914Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-16T14:15:55.629Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-16T14:15:56.726Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-16T14:15:57.779Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-16T14:15:58.854Z"}
+{"type":"subagent_result","checklistId":"CHK-005","success":true,"timestamp":"2026-06-16T14:15:59.902Z"}
+{"type":"subagent_result","checklistId":"CHK-006","success":true,"timestamp":"2026-06-16T14:16:01.302Z"}
+{"type":"review_pass","storyId":"B-a5c9","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-a5c9:RP-001","timestamp":"2026-06-16T14:19:46.798Z"}
+{"type":"review_pass","storyId":"B-a5c9","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-a5c9:RP-002","timestamp":"2026-06-16T14:20:06.693Z"}
+{"type":"review_pass","storyId":"B-a5c9","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-a5c9:RP-003","timestamp":"2026-06-16T14:21:26.013Z"}
+{"type":"dirty_gate_audit","storyId":"B-a5c9","gate":"done-gate","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-a5c9/owner-lease.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-16T14:28:25.178Z"}

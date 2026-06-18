@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-000c",
+  "mode": "custom",
+  "allowed": [
+    "Add a runtime-artifact-registry entry for the derived cache and learning log",
+    "Add a smoke task and its npm script",
+    "Create the experience-layer types, learning-store, and finding-signals modules under packages/main/src/core"
+  ],
+  "excluded": [
+    "Adding user-facing subcommands or request handlers",
+    "Implementing the staged playbook proposal lifecycle",
+    "Modifying review-gate enforcement code paths",
+    "Wiring hints into any reviewer prompt assembly"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 1a finding-signals slice; user authorized full roadmap implementation on 2026-06-17.",
+  "createdAt": "2026-06-17T11:23:18.769Z",
+  "updatedAt": "2026-06-17T11:23:18.769Z",
+  "_hash": "201cafe863d37d35acd0e36f3902ba209643fb62fba0d975e17991e182b8b464"
+}

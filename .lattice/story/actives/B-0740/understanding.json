@@ -1,0 +1,29 @@
+{
+  "task": "Thread the already-resolved gitRoot into two remaining wrapper-root blind spots: doctor --repair (repairStoryMetadataAllowlist runs git rev-parse with cwd:metadataRoot) and the lint change-scope git diff (resolveChangedFiles runs git diff with cwd:projectRoot), so both work on wrapper-root projects where metadataRoot != gitRoot.",
+  "outcome": "On a wrapper-root project, `lattice doctor --repair` now prints the story-metadata-protection block as `✓ ... allowlist installed` and a second run is a no-op, instead of the prior `wrote:false` / leading `fatal: not a git repository`. And `lattice validate --lint --story=B-xxxx` prints `tsc: skipped N out-of-scope tsconfig(s)` for packages outside the change-scope instead of silently running full recursive tsc because the change-scope git diff failed.",
+  "facts": [
+    "B-1637 threaded gitProbeCwd (resolved at doctor.ts:63 via resolveDoctorGitCwd) into the three scan fns (scanTrackedRuntimeArtifacts:532, scanOrphanWorktrees:572, scanStoryMetadataProtection:833) but NOT into repairStoryMetadataAllowlist (942), whose git rev-parse at 945 still uses cwd:root.",
+    "B-2856 resolved gitCwd at verifier.ts:604 and review-preflight.ts:262 and threaded it into channel/concept readers, but resolveChangedFiles is still called without gitCwd at verifier.ts:630 and review-preflight.ts:334; defaultChangedFilesReader (validate-lint.ts:147) runs git diff with cwd:projectRoot.",
+    "resolveDoctorGitCwd(root) = evaluateStoryDirConfigInsideGitRoot({metadataRoot:root}).gitRootAbs ?? root — never throws, falls back to root for plain repos (byte-identical).",
+    "computeOutOfScopeTsconfigs (validate-lint.ts:226) computes each tsconfig dir as relative(projectRoot, tsconfigDir) and prefix-matches against the changed-file paths; findTsconfigs enumerates under projectRoot. The changed-file paths come from git diff --name-only which emits paths relative to the git repo cwd.",
+    "Today git diff runs with cwd:projectRoot, so in the PLAIN case (projectRoot==gitRoot) diff paths and tsconfig relDir share the same base; the prefix match is correct.",
+    "scanStoryMetadataProtection (the scan that decides needsRepair) ALREADY uses gitProbeCwd; only the repair write-path lags, so on wrapper-root the scan reports needsRepair:true but the repair returns wrote:false — repair never actually installs the allowlist."
+  ],
+  "constraints": [
+    "Do NOT touch INIT git-readiness / dev_start nesting-check code (separate concurrent story B-e791).",
+    "Do NOT modify gitRoot sites already fixed by B-2856/B-1637 except to CONSUME their already-resolved gitCwd.",
+    "Fall back to root/projectRoot when gitRoot is unresolved — plain-repo behavior must stay byte-identical.",
+    "Keep the git-diff base and the tsconfig-relativity base consistent: if the change-scope diff runs from gitRoot, the changed-file paths (gitRoot-relative) must be rebased to projectRoot-relative before computeOutOfScopeTsconfigs, OR the tsconfig relativity base must match. Mismatched bases would silently misclassify every tsconfig as out-of-scope (skip-all) or in-scope.",
+    "Handler encoding convention: any runtime consumer of gitCwd must fall back safely; no new Zod-only guarantees.",
+    "Use DI seams for regression tests (gitCwd param + injectable readers); do not spawn real git where injection exists."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/validate-lint.ts",
+    "packages/main/tests/"
+  ],
+  "timestamp": "2026-06-16T00:51:52.171Z"
+}

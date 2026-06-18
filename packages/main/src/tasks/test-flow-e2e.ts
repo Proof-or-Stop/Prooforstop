@@ -30,7 +30,7 @@ function defaultBackground(): string {
     'This validates the public CLI flow and also surfaces issues early when background schema drifts in the future.',
     '',
     '## Conversational Texture',
-    'What the user cares about is whether the latest Koala can be reliably used by projects, so this regression should provide clear motivation, constraints, and acceptance context like a real session.',
+    'What the user cares about is whether the latest Lattice can be reliably used by projects, so this regression should provide clear motivation, constraints, and acceptance context like a real session.',
     'Test content stays concise, but does not sacrifice basic respect for the product flow.',
   ].join('\n');
 }
@@ -76,7 +76,7 @@ function autoDefaults(
     if (/^checklist$/i.test(field)) auto[field] = [
       {
         title: 'Verify current story lifecycle e2e path',
-        context: 'E2E regression needs a concrete checklist item with context so current Koala truth-source gates exercise the real path.',
+        context: 'E2E regression needs a concrete checklist item with context so current Lattice truth-source gates exercise the real path.',
       },
     ];
     else if (/^background$/i.test(field)) auto[field] = defaultBackground();
@@ -138,7 +138,7 @@ export interface Sandbox {
 }
 
 export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-e2e-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-e2e-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(dir, 'packages', 'main', 'src'), { recursive: true });
@@ -477,7 +477,7 @@ export async function runFlowE2E(flowName: string, scanRoot: string): Promise<Fl
 
   // projectRoot is intentionally isolated: flow e2e must not write story
   // artifacts or worktree metadata into the developer's real checkout.
-  const projectRoot = process.env.KOALA_E2E_PROJECT_ROOT;
+  const projectRoot = process.env.LATTICE_E2E_PROJECT_ROOT;
   const sandbox = await createSandbox(projectRoot);
   const steps: FlowE2EStepResult[] = [];
   const context: Record<string, unknown> = {};

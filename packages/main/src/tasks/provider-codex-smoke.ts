@@ -16,7 +16,7 @@
  *   - through the executor: provider success is gated, redacted, and NEVER equals
  *     validation success or authority DONE; disabled/unavailable fail closed.
  *
- * Run: npm --prefix packages/main run test:provider-codex-smoke
+ * Run: npm run test:legacy -- provider-codex
  */
 
 import assert from 'node:assert/strict';

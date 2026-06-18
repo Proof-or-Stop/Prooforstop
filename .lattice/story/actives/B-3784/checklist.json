@@ -1,0 +1,177 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix multi-host-authority-smoke E2 assertion: add fileReader isolation to resolveAuthorityVerdictBacking call",
+      "context": "resolveAuthorityVerdictBacking({env:{LATTICE_AUTHORITY_MODE:enforce}}) at line 336 reads authority_trust.env from process.cwd(). Add fileReader: () => empty string to this call so it does not pick up machine-local config.",
+      "userSees": "node packages/main/dist/tasks/multi-host-authority-smoke.js exits 0 from the repo root directory",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "multi-host-authority-smoke passes when run from repo root with authority_trust.env present",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "E2 assertion still verifies: enforce-only env with no URL = production-inert = local mode",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No other assertions in multi-host-authority-smoke.ts are changed or weakened",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T23:27:34.879Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/multi-host-authority-smoke.js",
+          "result": "pass",
+          "note": "Smoke passes from repo root with authority_trust.env present; fix (fileReader:NO_DISK) already delivered by B-6745 merge",
+          "headHash": "ad81000fa488a03a751e5953a33d051532938d10",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:19:42.687Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "note": "E2 assertion enforced: resolveAuthorityVerdictBacking({env:{LATTICE_AUTHORITY_MODE:enforce}, fileReader:NO_DISK}) returns mode=local because fileReader blocks authority_trust.env read; no URL + enforce-only = production-inert = local",
+          "headHash": "66318238a900738c9d0d9b27f8a6fbafdb66638e",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:19:52.146Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "note": "Diffed B-6745 changes: only fileReader:NO_DISK added to affected call sites in multi-host-authority-smoke.ts; all other assertions unchanged",
+          "headHash": "525efb61e3197a1b96a3e0e0e5d7241904aaa29b",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:19:54.187Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fix autopilot-authority-smoke shadow mode: trace and isolate the authority_trust.env read path",
+      "context": "buildAutopilotRun(store, {mode:shadow}, EMPTY_AUTHORITY_ENV) returns status=pass instead of warn. Trace through buildAutopilotRun to find which call site reads authority_trust.env without fileReader isolation, and add the stub there.",
+      "userSees": "node packages/main/dist/tasks/autopilot-authority-smoke.js exits 0 from the repo root directory",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "autopilot-authority-smoke passes when run from repo root with authority_trust.env present",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "shadow mode still returns status=warn after fix - the safety property is preserved",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "EMPTY_AUTHORITY_ENV is not broadened unnecessarily; minimal change only",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T23:27:35.786Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/autopilot-authority-smoke.js",
+          "result": "pass",
+          "note": "Smoke passes from repo root with authority_trust.env present; fix (cwd:root temp dir) already delivered by B-6745 merge",
+          "headHash": "97bad5334d985beafd6ce2e3b3fc2705ab4b459a",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:20:00.536Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "note": "shadow mode returns status=warn after fix: buildAutopilotRun with cwd pointing to empty temp dir has no authority_trust.env, so mode=local and shadow=warn safety property preserved",
+          "headHash": "25b399f54a5e1426729129901b12cc9e276ad46e",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:20:01.285Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "note": "EMPTY_AUTHORITY_ENV unchanged; only cwd:root (temp dir) added to buildAutopilotRun calls in autopilot-authority-smoke.ts; minimal change, no broadening",
+          "headHash": "199afb9570c03fb0c5f0496a4acb0e7645625411",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:20:02.027Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "npm run test:all exits with 160+/162 from repo root",
+      "context": "After fixing CHK-001 and CHK-002, run npm run test:all from the repo root and confirm autopilot-authority and multi-host-authority are no longer in the FAIL list. rollout-check flake is out of scope.",
+      "userSees": "npm run test:all shows PASS autopilot-authority and PASS multi-host-authority; total 160+/162 passed",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:all from repo root: 160+/162 passed, no FAIL for the two fixed smokes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All 159 previously-passing smokes still pass (no regressions)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rollout-check concurrency flake not counted as a regression",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-17T23:27:36.560Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:all",
+          "result": "pass",
+          "note": "npm run test:all from worktree (repo root equivalent): 162/163 passed; PASS autopilot-authority and PASS multi-host-authority confirmed; 1 remaining failure is an unrelated flake (rollout-check)",
+          "headHash": "963fe360e61502c3221060b68d9e72b249881640",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:27:19.853Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:all",
+          "result": "pass",
+          "note": "All 159 previously-passing smokes confirmed still passing; no regressions introduced",
+          "headHash": "47c07a4cf30819d79d49605bc47d869a6d48cf57",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:27:25.368Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "note": "rollout-check flake is a pre-existing concurrency flake unrelated to authority_trust.env isolation; explicitly excluded per checklist scope",
+          "headHash": "8bd71b39e4bfb5f5ce3ba70fd8e3e4ae0cb1748b",
+          "materialHash": "a7e8f06e5f0ed8eeb47a22ab514879f8059f0005b649469db4bd26dc3c87fb89",
+          "timestamp": "2026-06-17T23:27:25.909Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "task": "Add a soft, advisory-only convergence-stall detector for REVIEW rounds: when the story has re-entered REVIEW past a threshold and recent rounds show no downward trend in blocking findings, emit an English advisory plus an escalation hint in the story_advance REVIEW output. It must never block any transition.",
+  "outcome": "Re-entering REVIEW on a non-converging story prints an English advisory and the story can still advance:\n$ lattice story_advance '{\"storyId\":\"B-xxxx\",\"phase\":\"REVIEW\"}'\n  -> Active reviewers: concept, quality, test-coverage\n  ...\n  WARN review convergence stall: entered REVIEW 4 times; recent blocking-finding counts [2,2,1] show no downward trend.\n    -> Debugging Contract: 3+ fix attempts that keep surfacing new problems usually means an architecture/design issue - consider escalating instead of patching.\n    -> Or dismiss advisory-level findings (finding_dismiss + reason) rather than re-rounding; every fix-commit forces a fresh REVIEW round.\nand `lattice validate` stays green; a story showing the advisory still passes REVIEW->TEST (advisory never blocks).",
+  "facts": [
+    "core/advisory.ts already exports resolveReviewRoundCount(store, storyId): number — round count from story.events (phase==='REVIEW' && action==='advance'), defaulting to 1. Reuse it; do not reimplement.",
+    "core/advisory.ts also exports isFindingBlocking(finding, effectiveBlockingSeverities, round) and isAdvisoryThisRound(severity, round) — the round-based blocking decision, shared by finding.ts and machine.ts.",
+    "core/guard-utils.ts resolveEffectiveBlockingSeverities(store, storyId, policy) returns { effectiveBlockingSeverities, roundCount } and applies round de-escalation; it is the canonical blocking-severity source per round.",
+    "Findings carry reviewRound (ISO string); they can be grouped by reviewRound to compute per-round blocking counts. core/review-escalation.ts already groups findings by round.",
+    "handlers/transition-effects.ts emits the REVIEW-entry output (Active reviewers / launch in parallel) — the advisory injection point.",
+    "Staleness is content-aware (core/evidence-freshness.ts): metadata-only commits do not force a new round, only source changes do — so a fresh clean round sticks and the loop converges once code stops changing."
+  ],
+  "constraints": [
+    "SOFT only: the advisory is stdout text appended to the REVIEW-entry output; it MUST NOT block any transition (no gate, no guard change).",
+    "Reuse existing helpers (resolveReviewRoundCount, isFindingBlocking, effectiveBlockingSeverities) — do not duplicate round-count or blocking logic.",
+    "Thresholds are module constants (STALL_MIN_ROUNDS, STALL_WINDOW); no CLI, no config (YAGNI).",
+    "Trend-based heuristic, not a raw round ceiling — must stay silent on a healthy decreasing series to avoid false alarms.",
+    "Keep distinct from the existing review-escalation-quorum gate (review-escalation.ts): that requires multi-host quorum on >=2 first-round findings; this is an unrelated soft stall signal.",
+    "All artifacts and the advisory string are English-only (user directive 2026-06-16)."
+  ],
+  "unknowns": [
+    "Exact placement of the per-round blocking-count accessor and assessReviewConvergence (new core/review-convergence.ts importing from advisory.ts, vs extending advisory.ts) — resolved in CHK-001/CHK-002; either is acceptable as long as existing helpers are reused, not duplicated."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/core/review-convergence.ts (new, or extend advisory.ts)",
+    "packages/main/src/tasks (new convergence-stall smoke)"
+  ],
+  "timestamp": "2026-06-16T21:06:14.344Z"
+}

@@ -1,0 +1,26 @@
+{
+  "task": "Reconcile the dev_start phase-policy drift so command-policy.ts allowedPhases and config.ts DEFAULT_PHASE_TOOLS agree, making npm run test:process-fact-contract pass without changing dev_start's behavior.",
+  "outcome": "The process-fact contract is green and the documented dev_start recovery is actually runnable:\n$ npm run test:process-fact-contract\n  ... (no 'dev_start INIT/DEV policy/default phase drift')\n  exit 0\nand a manual recovery call is no longer refused by the phase-tools gate in DEV:\n$ lattice dev_start '{\"storyId\":\"B-xxx\"}'   # story in DEV with a missing/broken worktree\n  (re-bootstraps the worktree; previously refused because DEFAULT_PHASE_TOOLS omitted dev_start in DEV)",
+  "facts": [
+    "The dev_start HANDLER itself (handlers/worktree.ts:823) enforces allowedPhases = ['INIT','INIT_CHECK','PLAN','DEV'] and throws otherwise; INIT is REQUIRED because the atomic story_advance INIT_CHECK flow runs dev_start while the story is still at INIT (B-804c CHK-001).",
+    "core/command-policy.ts:130 also declares dev_start allowedPhases = ['INIT','INIT_CHECK','PLAN','DEV'] (B-804c bootstrap/recovery window, refused in REVIEW/TEST/DONE).",
+    "core/config.ts DEFAULT_PHASE_TOOLS lists dev_start only under INIT_CHECK and PLAN — missing INIT and DEV. It is the only one of the three sources with the narrower set.",
+    "isCommandAllowed (config.ts:406) IS a runtime enforcement gate (cli-engine.ts filters/refuses top-level commands by phase via it). So omitting dev_start from INIT/DEV in DEFAULT_PHASE_TOOLS means a MANUAL `lattice dev_start` is refused there, even though the handler + command-policy permit it. Internal co-invocation by story_advance bypasses this gate (config.ts:199 comment).",
+    "scripts/verify-process-fact-contract.mjs assertCommandPolicyPhaseAlignment requires, for every command x every phase, command-policy.allowedPhases.includes(phase) === isCommandAllowed-from-DEFAULT_PHASE_TOOLS. dev_start INIT + DEV are the only reported drifts.",
+    "The reverse direction is also asserted: every DEFAULT_PHASE_TOOLS pattern must map to a policy-approved command."
+  ],
+  "constraints": [
+    "Do NOT change dev_start's behavior, the worktree bootstrap flow, or any other command's policy/phase set.",
+    "Add the exact literal 'dev_start' to the INIT and DEV arrays of DEFAULT_PHASE_TOOLS (not a wildcard that could widen other commands).",
+    "After the change npm run test:process-fact-contract must exit 0 (no remaining drift); lattice validate must stay green.",
+    "All artifacts and emitted strings are English-only."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/config.ts (DEFAULT_PHASE_TOOLS: add dev_start under INIT and DEV)",
+    "packages/main/src/core/command-policy.ts (read-only confirmation of the authoritative set)",
+    "scripts/verify-process-fact-contract.mjs (the regression guard — already asserts the invariant)",
+    "packages/main/src/handlers/worktree.ts (read-only: dev_start handler allowedPhases, the third corroborating source)"
+  ],
+  "timestamp": "2026-06-17T02:11:57.619Z"
+}

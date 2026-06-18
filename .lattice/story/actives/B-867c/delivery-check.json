@@ -1,0 +1,37 @@
+{
+  "storyId": "B-867c",
+  "checkedAt": "2026-06-17T16:44:56.818Z",
+  "reviewRound": "2026-06-17T16:39:54.245Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#流程事实双层契约",
+      "promise": "Every MAIN_TOOLS command registered in PROCESS_FACT_REGISTRY has a corresponding entry in PROCESS_FACT_LEVELS. The process-fact double-contract invariant is satisfied so that npm run test:process-fact-contract exits 0 with no MAIN_TOOLS command missing lines and no DEFAULT_PHASE_TOOLS drift lines.",
+      "verifiedBy": "direct guard run: node scripts/verify-process-fact-contract.mjs exited 0; final output line is Process fact contract verified; zero failure or drift lines; all 7 commands appear in registry dump at correct levels",
+      "evidence": "Independent re-run from worktree EXIT=0, no Process fact contract failed block, grep for missing/drift lines returned only prompt drift scan (0 failures). Registry dump confirms playbook_approve[L2], playbook_diff[L0], playbook_propose[L2], playbook_reject[L2], recall[L0], signature_registry_list[L0], signature_registry_set[L2]. npm --prefix packages/main run build exits 0."
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-levels.ts",
+      "promise": "The 7 commands playbook_approve, playbook_diff, playbook_propose, playbook_reject, recall, signature_registry_list, signature_registry_set are added to PROCESS_FACT_LEVELS with handler-accurate levels and no gate consumer.",
+      "verifiedBy": "git diff main...HEAD: exactly 7 entries added in process-fact-levels.ts only (commit 3ded509e9, +7 lines). No handler, cli-engine.ts, config.ts, or gitRoot code changed. tsc exit 0 confirms type correctness.",
+      "evidence": "Diff verified: +7 lines in process-fact-levels.ts, zero other source files changed. Level assignments: L0 for read-only (playbook_diff, recall, signature_registry_list), L2 for experience-layer mutation (playbook_approve, playbook_propose, playbook_reject, signature_registry_set). Each rationale states no gate reads it."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent re-run of node scripts/verify-process-fact-contract.mjs from .worktrees/B-867c: EXIT=0. Registry dump shows all 7 commands present at correct levels. Zero MAIN_TOOLS command missing lines. Transcript-diff.md RED baseline confirms EXIT=1 with 28 failure lines before fix. npm --prefix packages/main run build: BUILD_EXIT=0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent guard run cleared all 21 DEFAULT_PHASE_TOOLS phase drift lines (7 phases x 3 patterns). Zero drift lines in output. Root cause confirmed: patterns were already in DEFAULT_PHASE_TOOLS[*] with allowedPhases:all; registering the 7 commands in PROCESS_FACT_LEVELS made patternHasRegistryApprovedCommand find a match per phase, clearing every drift line without any config.ts edit. Guard exit 0 is definitive evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both docsPromises verified by independent guard run (EXIT=0, 285-entry registry dump, zero failure/drift lines). CHK-001 and CHK-002 both tested: 7 commands at correct L0/L2 levels, 21 drift lines cleared across all 7 phases. Build passes (tsc exit 0). No TODOs or FIXMEs in the +7-line diff. Story scope is pure registry registration with no handler, gate, or config change."
+  },
+  "_hash": "bae098b44b9fb90b8fdbd5b6e10e0b871ce7a4ccd59e355cccd5032bfacdb988"
+}

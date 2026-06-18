@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-e791:F-001",
+      "desc": "quality-cleanup: gitroot-init-guidance-quiet-nesting-smoke.ts:241 assigns `fixedRun` from execSync but the variable is never read — the run was intended as a dry-run for the fixed-form probe but its return value (stdout string) goes unused; the actual assertion uses a separate re-run with `2>&1` at line 249. Dead variable should be replaced with `void execSync(...)` or the variable removed.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:40:25.181Z",
+      "reviewRound": "2026-06-16T00:38:44.682Z",
+      "reviewRunId": "B-e791:RR-002",
+      "_hash": "b7a5507d8e8a03189046ed1530df5ee1f86047f675e38292ad18d640d3858951",
+      "files": [
+        "packages/main/src/tasks/gitroot-init-guidance-quiet-nesting-smoke.ts"
+      ],
+      "resolvedBy": "B-e791:F-001@ed2b305"
+    }
+  ]
+}

@@ -79,7 +79,7 @@ function buildEnvelope(material: AuthorityEvidenceMaterial): EvidenceEnvelopeCon
     evidenceId: `${material.storyId}:${material.itemId}:${material.intentRef}`,
     projectId: material.storyId,
     storyId: material.storyId,
-    producerActorId: process.env.KOALA_AGENT || 'main',
+    producerActorId: process.env.LATTICE_AGENT || 'main',
     itemId: material.itemId,
     intentRef: material.intentRef,
     kind: material.kind,

@@ -1,0 +1,31 @@
+{
+  "task": "Make every story in the Lineage Graph show its complete lifecycle nodes plus per-node LLM interaction data (intent, evidence, codex calls, reviewer notes) across all phases and dispatch runtimes",
+  "outcome": "User opens the Lattice Console at http://localhost:8800, clicks any story in the Lineage Graph — a PLAN story, a DEV story, a REVIEW story, or a DONE story. The graph auto-fits immediately (20-40% scale) showing all lifecycle nodes appropriate for that phase. Clicking a dispatch node reveals verificationIntent cases (happy/edge/adversarial color-coded); for Codex stories also the LLM calls breakdown by role; for Claude Code stories just the intent cases without a LLM calls header. Clicking a review node shows the reviewer agent note text. Clicking a finding node shows the finding description and severity. No empty graphs, no scale stuck at 10%, no JS errors.",
+  "facts": [
+    "process-events.jsonl for B-32b9 has 4 dispatch events (INIT phase, no checklistId) → these show as plan-layer init-review nodes",
+    "B-2d6c (DEV) has 1 INIT dispatch event; B-0414 (REVIEW) has 2 INIT dispatch events — both have sparse events because DEV/REVIEW dispatch events with checklistId have not been written to process-events.jsonl yet",
+    "serve.js buildLineageGraph always generates: root, input-req, evidence-gate, done nodes regardless of phase — minimum 4 nodes guaranteed",
+    "serve.js review-passes.json is already read: rpNoteById maps reviewPassId→note; review node meta.note set from rpNoteById[latestPassId]",
+    "serve.js findings.json is already read: findingDescById maps findingId→desc; finding node meta.findingDesc set from findingDescById[fid]",
+    "lineage.js renderDetail already renders noteHtml (Review Note section) and findingDescHtml (Finding section) when meta fields are non-empty",
+    "lineage.js renderDetail correctly skips LLM calls section when meta.codexCalls is empty array (checks .length)",
+    "codexCalls are already attached to dispatch nodes from serve.js; verificationIntent intentAllCases also already populated from checklist.json",
+    "PLAN-phase stories currently show no plan-layer artifact beyond INIT dispatch nodes (understanding.json not yet rendered as a node)",
+    "understanding.json for B-32b9 has: task, outcome, facts[], constraints[], unknowns[], touchpoints[] from understanding_set"
+  ],
+  "constraints": [
+    "Dashboard is strictly read-only — no mutations via serve.js",
+    "Files are outside Orchestrate repo: /Users/jek/Documents/lattice-{console-serve,lineage,console-demo}.{js,html}",
+    "lattice-lineage.js is a self-contained IIFE browser module exposing window.LatticeLineage",
+    "Server runs at port 8800 (not 8801)",
+    "No changes to Orchestrate packages/ or src/"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "/Users/jek/Documents/lattice-console-serve.js: buildLineageGraph() lines 344-653 — node construction and meta population, add understanding node (reading understanding.json), add pending-dispatch nodes for undispatched CHK items",
+    "/Users/jek/Documents/lattice-lineage.js: renderDetail() lines 385-620 — detail panel HTML generation, verify noteHtml and findingDescHtml render for review/finding nodes",
+    "/Users/jek/Documents/lattice-lineage.js: fitView() + onVisible() — auto-fit logic verification",
+    "/Users/jek/Documents/lattice-console-demo.html: nav click handlers that trigger onVisible()"
+  ],
+  "timestamp": "2026-06-17T18:42:46.880Z"
+}

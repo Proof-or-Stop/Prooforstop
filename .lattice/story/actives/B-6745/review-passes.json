@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-6745:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. git diff main HEAD shows only 3 non-metadata files changed: CHANGELOG.md (removes one B-ceed entry already merged to main), autopilot-authority-smoke.ts, and multi-host-authority-smoke.ts. The broader git diff main...HEAD three-dot diff includes B-ceed commits but those are already in main (merged via commit 747f90af7). Gemini provider confirmed present: grep finds gemini in types.ts BoundedProviderName. No production symbol deleted: gemini-cli.ts, lattice-dispatch.ts, planned-steps-executor.ts, provider-gemini-smoke.ts are all in main and untouched by this branch. The two smoke file changes add only hermetic isolation parameters (cwd:root + fileReader:NO_DISK) — no assert lines were deleted, no assertions weakened. Concept-residue check: no concept deletion or replacement detected. No blocker.",
+      "createdAt": "2026-06-17T23:03:55.657Z",
+      "reviewRound": "2026-06-17T23:02:40.347Z",
+      "reviewRunId": "B-6745:RR-003",
+      "_hash": "d94d68083ba70fd11eb21fdb9dda092e9c5b32aece6e79d34cac9a54a3b4c144"
+    },
+    {
+      "id": "B-6745:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 8 must-intents satisfied. CHK-001 (5 intents): authority-job-loop-live exits 0 with 0 diff from main (no source edit, stale-dist only); autopilot-authority and multi-host-authority exit 0 standalone with hermetic fileReader/cwd isolation; planted authority_trust.env hermeticity verified by evidence; shadow.status===warn, readinessWarnings.length>0, localWorkflowUsable===true, authorityRequired===false, multi-host E2 mode===local all preserved in source (no assertion weakened). CHK-002 (3 intents): 5 timeout values finite and confirmed (180000-240000ms, no Infinity); integration_test evidence records 163/163 green at headHash e7370def; standalone wall times all within manifest ceilings with ample headroom. provider-gemini-smoke.ts restored and exits 0. 7 of 8 intents show stale headHash in validate (evidence recorded during DEV before revert/REVIEW metadata commits) — staleness is an artifact, not a coverage gap: post-evidence commits only touch story metadata, the revert restores out-of-scope gemini files byte-for-byte to main (git diff main HEAD on those files = 0 lines), and direct smoke execution confirms all intents satisfied at current HEAD.",
+      "createdAt": "2026-06-17T23:05:54.354Z",
+      "reviewRound": "2026-06-17T23:02:40.347Z",
+      "reviewRunId": "B-6745:RR-002",
+      "_hash": "e54c753a6b768f4bc6dbeb0705e79fa376c41859a8d9a8b6e2affb6cdfd1bbfa"
+    },
+    {
+      "id": "B-6745:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "round 2: net diff is only the 2 hermetic smoke fixes (autopilot-authority-smoke.ts + multi-host-authority-smoke.ts); gemini provider intact (BoundedProviderName still includes gemini); no concept deletion or replacement found; two-dot and three-dot diffs agree on exactly these 2 files; no production file changed, no test deleted, no assertion weakened",
+      "createdAt": "2026-06-17T23:09:12.496Z",
+      "reviewRound": "2026-06-17T23:08:16.789Z",
+      "reviewRunId": "B-6745:RR-004",
+      "_hash": "767f4dc2de0ceb5457d9816d7e72ae37a01bf77f87b4311244ddc1456bd5d774"
+    },
+    {
+      "id": "B-6745:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "round 2: two-dot==three-dot = only 2 hermetic smoke fixes; F-001 three-dot artifact resolved; zero production change; shadow.status===warn intact; tsc build exit 0; gemini provider smoke exit 0; no dead code, no unsafe any, no shell/fn.ts isolation violations in changed files",
+      "createdAt": "2026-06-17T23:09:42.629Z",
+      "reviewRound": "2026-06-17T23:08:16.789Z",
+      "reviewRunId": "B-6745:RR-005",
+      "_hash": "b74b32ed0a0cc1490f0c97125b0961b63979dc8d24a83ae526a80d87d4dcc1e0"
+    },
+    {
+      "id": "B-6745:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 2: coverage restored (gemini smoke back), 2 fixes preserve assertions, test:all 163/163",
+      "createdAt": "2026-06-17T23:09:47.912Z",
+      "reviewRound": "2026-06-17T23:08:16.789Z",
+      "reviewRunId": "B-6745:RR-006",
+      "_hash": "83361d68d37c36132921db5ff7b63190dde6ee26f6a6f832122bc2dcaf2c640c"
+    }
+  ]
+}

@@ -1,0 +1,360 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the test runner consolidation decision document and commit it to docs/requirements/decisions/",
+      "context": "Create docs/requirements/decisions/test-runner-consolidation-plan.md. Required sections: (1) Current state pinned with numbers (151 *-smoke.ts files, ~70,280 lines total, 258 test:* npm scripts (111 in root package.json + 147 in packages/main/package.json), 49 scripts/verify-*.mjs, the dist-standalone-executable pattern via `node packages/main/dist/tasks/<name>-smoke.js` consistent with testing-infra.md's general-black-box-command validation entry); (2) The three paths considered (A vitest migration, B in-house runner + manifest + c8, C B minus c8) with concrete pros/cons referencing the existing testing-infra.md project-native validation policy; (3) The chosen path (B) with explicit rationale: smokes are spawn-CLI integration scenarios not unit tests, the dist-standalone-executable pattern aligns with testing-infra.md's project-native validation policy, vitest migration would conflict with that policy, an in-house manifest+runner wraps the existing 70k lines without rewriting them and delivers CI speedup (parallel) + coverage (c8) + newcomer ergonomics (single test:all entry + selectable smokes) simultaneously; (4) The follow-up Lattice story decomposition: B1 in-house runner skeleton + manifest format + test:all entry, B2 collapse 258 test:* scripts into manifest entries (mechanical), B3 c8 coverage instrumentation + test:coverage entry, optional B4 tag/select UX improvements. Each follow-up story spec must include a one-paragraph scope sketch so future story_create calls can quote it verbatim. After: the file exists; `git log -- docs/requirements/decisions/test-runner-consolidation-plan.md` shows a commit; `grep -c '## ' docs/requirements/decisions/test-runner-consolidation-plan.md` >= 4 (the required sections).",
+      "userSees": "`ls docs/requirements/decisions/test-runner-consolidation-plan.md` succeeds; opening the file shows the 4 sections (current state / paths considered / chosen path with rationale / follow-up B1-B4 stories) populated with concrete content.",
+      "status": "done",
+      "startTime": "2026-06-16T23:50:08.377Z",
+      "endTime": "2026-06-16T23:52:13.681Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ls docs/requirements/decisions/test-runner-consolidation-plan.md exits 0 -> file exists; WHY: primary deliverable existence check",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -c \"^## \" docs/requirements/decisions/test-runner-consolidation-plan.md >= 4 -> doc has at least 4 H2 sections; WHY: enforces the 4 required sections contract (current state, paths considered, chosen path, follow-up)",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -q 151 the doc exits 0 -> pinned smoke count present; WHY: current-state section must contain the audited 151 smoke file count",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qE 70[,.]?280 the doc exits 0 -> pinned line count present (allowing comma or period separator); WHY: current-state section must contain ~70,280 lines figure",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -q 258 the doc exits 0 -> pinned test:* script count present; WHY: current-state section must contain 258 test:* npm scripts",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -q 49 the doc exits 0 -> pinned verify script count present; WHY: current-state section must contain 49 verify scripts",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qiE (path.*A|option.*A|vitest) the doc exits 0 -> Path A (vitest) is named; WHY: paths-considered section must discuss vitest migration",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qi in-house the doc exits 0 -> Path B (in-house runner) is named; WHY: paths-considered section must discuss the in-house runner option",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qi testing-infra the doc exits 0 -> rationale references testing-infra.md; WHY: chosen-path rationale must explicitly reference the existing project-native validation policy",
+            "type": "cli"
+          },
+          {
+            "desc": "for B1 B2 B3 B4 grep each in the doc -> all four follow-up story IDs present; WHY: follow-up section must decompose into B1 B2 B3 B4",
+            "type": "cli"
+          },
+          {
+            "desc": "git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md produces at least 1 line -> file is committed; WHY: story requires a commit touching this path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "section count boundary: grep -c ^## returns exactly 4 or more, never 3 -> catch off-by-one where a heading is missing or malformed (missing space after ##); WHY: boundary check on minimum section count",
+            "type": "cli"
+          },
+          {
+            "desc": "B4 is present even if marked optional -> grep -qi B4 exits 0; WHY: spec says B4 may be noted as optional but must still appear in the decomposition",
+            "type": "cli"
+          },
+          {
+            "desc": "wc -l > 30 -> doc has substantive content not a stub; WHY: catch degenerate case where sections exist as headings but bodies are empty",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qi c8 the doc exits 0 -> c8 coverage tool is mentioned; WHY: Path B and C both involve c8; its absence means paths-considered is incomplete",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff main -- docs/requirements/decisions/testing-infra.md | wc -l returns 0 -> testing-infra.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff main -- docs/requirements/decisions/testing-completeness.md | wc -l returns 0 -> testing-completeness.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- packages/ | wc -l returns 0 -> no code files in packages/ touched; WHY: over-reach guard (c) ZERO code change story",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- package.json | wc -l returns 0 -> root package.json untouched; WHY: over-reach guard (c) no package.json edits allowed",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- scripts/ | wc -l returns 0 -> no scripts/ edits; WHY: over-reach guard (c) no scripts changes in a doc-only story",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- docs/requirements/decisions/ | grep -v test-runner-consolidation-plan.md | wc -l returns 0 -> only the target file changed in decisions/; WHY: generalized over-reach guard catches edits to ANY other decision doc",
+            "type": "cli"
+          },
+          {
+            "desc": "4-section minimum is a hard gate: count=$(grep -c ^## ...) test >= 4 -> ENFORCED; WHY: adversarial guard (d) if any section heading is deleted or renamed to H3 the contract must fail",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "ls docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "File exists.",
+          "headHash": "72ab6bbbd3cc87c2aa91748d73a3ebf22ff07c6c",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:51:56.944Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "6 H2 sections (>= 4 required).",
+          "headHash": "4370d7a65422a4bc14920b1aac2ebce664fe6b7f",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:51:57.627Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '151' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'151' appears 2 times in the doc (smokes count pinned).",
+          "headHash": "cf053941bb4145c8822eff5413a1e0507919827a",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:12.138Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '70,280' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'70,280' appears 1 time (total lines pinned).",
+          "headHash": "94b4f46a9bc22cb879233ca87e2d975df530c2ad",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:12.801Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '258' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'258' appears 4 times (test:* script count pinned).",
+          "headHash": "16d4791354fa804b62234bf8687a7ac821f40083",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:13.456Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '49' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "'49' appears 1 time (verify-*.mjs count pinned).",
+          "headHash": "42104a435725ff185d2c0d26b5086d1dab62d8d8",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:14.097Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Path A — Vitest' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Path A (Vitest migration) named in section header.",
+          "headHash": "26bb0e5c485a61bc089f4ebbecaa17cb7fb7b361",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:01.004Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:7",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Path B — In-house' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Path B (In-house runner + manifest + c8) named as chosen path.",
+          "headHash": "c1b2202ba168d85185fda3073f71e0aa7c78255f",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:01.663Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:8",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'testing-infra' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "testing-infra.md referenced 6 times in rationale.",
+          "headHash": "835343fc46ef6480ef78fce20a344fe974b47be5",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:02.303Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:9",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE '^### B[1-4] ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "4 follow-up section headers found: B1/B2/B3/B4.",
+          "headHash": "d048ffdbb81034f5e078d8efb562103bd35bd0da",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:14.755Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:10",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Doc has a commit in this branch (72ab6bbbd).",
+          "headHash": "1139fdcd73d16d8a22ea9db3ba7823f1d981afde",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:03.767Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "6 H2 sections (>= 4 required).",
+          "headHash": "d5f381fc8a0e2f99737a4c5cb925006f55bf98ac",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:05.406Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'B4.*(optional)' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "B4 present and marked optional.",
+          "headHash": "c3f82e3f47fa84dbb3ee40d3f9fe3d38f4840e6c",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:06.533Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "wc -l docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Doc is substantive (>30 lines; actual size ~200 lines).",
+          "headHash": "9c870661ab01970149e2aa90bb9b75185e5063e3",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:07.705Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Path B — In-house' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Path B (In-house runner + manifest + c8) named as chosen path.",
+          "headHash": "0691a1fb1e511b06a228e72eedb23d00f28d0948",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:08.374Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- docs/requirements/decisions/testing-infra.md | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — testing-infra.md byte-identical to main (over-reach guard).",
+          "headHash": "109538554304a97bfcc4b8f0a82a02a6cece1a75",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:57:15.417Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- docs/requirements/decisions/testing-completeness.md",
+          "result": "pass",
+          "note": "Empty diff — testing-completeness.md byte-identical to main.",
+          "headHash": "89ad3a7271aa8a6062340835f98c4b4d6c1f2fc7",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:09.677Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- packages",
+          "result": "pass",
+          "note": "Empty — no packages/ changes.",
+          "headHash": "7076683eb977637f862a3cadc16cf1a0619e7aa3",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:10.320Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- 'package.json' 'packages/*/package.json'",
+          "result": "pass",
+          "note": "Empty — no package.json edits.",
+          "headHash": "c140f6a32526e7b0028c6c489d6ce9aea74912e6",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:10.963Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- scripts",
+          "result": "pass",
+          "note": "Empty — no scripts/ edits.",
+          "headHash": "8c86f32981a0313622d337ec03f55de2637a39f4",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:11.629Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only main -- docs/requirements/decisions | grep -v test-runner-consolidation-plan",
+          "result": "pass",
+          "note": "Empty — only the new doc; no other decisions/ files modified.",
+          "headHash": "26be68b867d54b469f1c98c8a527783e97570c79",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:12.314Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "6 H2 sections (>= 4 required).",
+          "headHash": "f8c1afc0d953f8133535ae3a093c43c051913793",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:12.984Z"
+        }
+      ]
+    }
+  ]
+}

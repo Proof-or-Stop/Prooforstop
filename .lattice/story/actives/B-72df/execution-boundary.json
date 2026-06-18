@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-72df",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-72df/",
+    "packages/main/src/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Scope the DONE merge clean precondition (assertMainWorktreeReadyForMerge in done-effects.ts) to the merge affected paths; preserve clobber protection.",
+  "createdAt": "2026-06-16T03:02:38.353Z",
+  "updatedAt": "2026-06-16T03:02:38.353Z",
+  "_hash": "e1f70eda7ba7c951f38052c62ca5689b25834d3074dea2732040cf96dc224538"
+}

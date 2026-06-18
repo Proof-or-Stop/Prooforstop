@@ -46,11 +46,17 @@ import {
 
 // B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
-/** Check how many commits main has that the current branch doesn't. */
-export function checkMainDivergence(projectRoot: string): { behind: number; needsSync: boolean } {
+/**
+ * Check how many commits main has that the current branch doesn't.
+ *
+ * B-6666 CHK-001: the parameter is the resolved git cwd (wrapper-root aware),
+ * not the bare metadataRoot. Callers thread `resolveGitCwd(...)` here; plain
+ * repos pass projectRoot==gitCwd so behavior is byte-identical.
+ */
+export function checkMainDivergence(gitCwd: string): { behind: number; needsSync: boolean } {
   try {
     const result = execSync('git rev-list --count HEAD..main', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const behind = parseInt(result, 10) || 0;
     return { behind, needsSync: behind > 0 };
@@ -59,10 +65,13 @@ export function checkMainDivergence(projectRoot: string): { behind: number; need
   }
 }
 
-function readGitStatusLines(projectRoot: string): { ok: true; lines: string[] } | { ok: false; error: string } {
+// B-6666 CHK-001: gitCwd is the resolved git cwd (wrapper-root aware). On a
+// wrapper-root layout the bare metadataRoot is not a git repo, so reading
+// `git status` from it errors -> the git-working-tree DONE row falsely blocks.
+function readGitStatusLines(gitCwd: string): { ok: true; lines: string[] } | { ok: false; error: string } {
   try {
     const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -117,10 +126,10 @@ function evaluateDirtyGitStatus(
   return { classification, result };
 }
 
-function gitRefExists(projectRoot: string, ref: string): boolean {
+function gitRefExists(gitCwd: string, ref: string): boolean {
   try {
     execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -130,18 +139,28 @@ function gitRefExists(projectRoot: string, ref: string): boolean {
   }
 }
 
-function gitRefContainsMain(projectRoot: string, ref: string): boolean {
+function gitRefContainsMain(gitCwd: string, ref: string): boolean {
   execFileSync('git', ['merge-base', '--is-ancestor', 'main', ref], {
-    cwd: projectRoot,
+    cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return true;
 }
 
+// B-6666 CHK-002: gitCwd is the resolved git invocation cwd forwarded from
+// checkEvidenceFreshness (which threads buildDoneChecklist's resolved gitCwd).
+// Plain repos pass projectRoot==gitCwd so behavior is byte-identical.
+//
+// B-6666 F-001 (REVIEW fix): metadataRoot is forwarded into currentMaterialHash
+// so its storyDir-aware metadata exclusion loads lattice.config.json from the
+// metadataRoot (where a custom storyDir is declared), NOT the gitCwd. On a
+// wrapper-root layout with a non-default storyDir, loading config from gitCwd
+// would miss the custom storyDir and wrongly include those paths in the hash.
 function checkCompletedEvidenceSnapshotFreshness(
-  projectRoot: string,
+  gitCwd: string,
   evidence: TestEvidenceData,
+  metadataRoot: string,
 ): { fresh: boolean; message: string } {
   if (!evidence.headHash) {
     return { fresh: false, message: 'DONE test-evidence is missing headHash; cannot inspect recorded evidence snapshot' };
@@ -150,7 +169,7 @@ function checkCompletedEvidenceSnapshotFreshness(
     return { fresh: false, message: 'DONE test-evidence is missing materialHash; cannot validate recorded evidence snapshot' };
   }
 
-  const recordedMaterialHash = currentMaterialHash(projectRoot, evidence.headHash);
+  const recordedMaterialHash = currentMaterialHash(gitCwd, evidence.headHash, metadataRoot);
   if (!recordedMaterialHash) {
     return {
       fresh: false,
@@ -171,20 +190,28 @@ function checkCompletedEvidenceSnapshotFreshness(
 }
 
 // B-c622 CHK-009: active DONE-entry verifies current HEAD; completed DONE projections verify recorded snapshot.
-function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string, phase?: StoryPhase): { fresh: boolean; message: string } {
+// B-6666 CHK-002: gitCwd is the resolved git invocation cwd threaded from
+// buildDoneChecklist (the SAME resolved value the git-status row uses — no
+// split-brain between the two done-oracle git reads). Forwarded verbatim into
+// every git probe below; plain repos pass projectRoot==gitCwd (byte-identical).
+// B-6666 F-001 (REVIEW fix): metadataRoot (buildDoneChecklist's `root`) is
+// threaded into both freshness paths so their storyDir-aware metadata exclusion
+// loads lattice.config.json from the metadataRoot — where a custom storyDir is
+// declared — instead of the gitCwd. Defaults differ from gitCwd only on
+// wrapper-root layouts; plain repos pass metadataRoot==gitCwd (byte-identical).
+function checkEvidenceFreshness(store: StoryStore, storyId: string, gitCwd: string, metadataRoot: string, phase?: StoryPhase): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json does not exist' };
   if (phase === 'DONE') {
-    return checkCompletedEvidenceSnapshotFreshness(projectRoot, evidence);
+    return checkCompletedEvidenceSnapshotFreshness(gitCwd, evidence, metadataRoot);
   }
-  const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash, evidence.materialHash);
+  const freshness = checkEvidenceFreshnessForGit(gitCwd, evidence.headHash, evidence.materialHash, metadataRoot);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
 
 /**
  * DONE Final Checklist: gather all DONE phase verification items into an explicit checklist.
  * Print regardless of whether advance succeeds or fails, forcing main agent to read multi-layer verification status.
- * Corresponds to OMX ralph's <Final_Checklist>.
  */
 export type DoneCheckRow = OracleRow;
 
@@ -195,6 +222,15 @@ export interface BuildDoneChecklistOptions {
    * default so audit-write failures still block completion.
    */
   auditWriter?: AuditWriter | null;
+  /**
+   * B-6666 CHK-001: the resolved git invocation cwd (wrapper-root aware),
+   * threaded from the DONE pre-merge gate boundary (transition-orchestrator.ts
+   * resolveGitCwd, resolved ONCE). ONLY the git probes (status / refs /
+   * divergence / diff) use this; `root` (metadataRoot) still drives every
+   * config/store/audit read. When absent it falls back to `root`, so plain
+   * repos (projectRoot==gitCwd) and read-only projections stay byte-identical.
+   */
+  gitCwd?: string;
 }
 
 function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean }): DoneCheckRow {
@@ -206,6 +242,12 @@ function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean
 
 export function buildDoneChecklist(storyId: string, store: StoryStore, root: string, options: BuildDoneChecklistOptions = {}): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
+
+  // B-6666 CHK-001: the cwd for every git probe below. Falls back to `root`
+  // (metadataRoot) when no resolved gitCwd is threaded, so plain repos and
+  // read-only projections stay byte-identical. `root` is still used for all
+  // config/store/audit reads — ONLY git invocation cwd changes.
+  const gitCwd = options.gitCwd ?? root;
 
   // Resolve workflow policy for policy-aware gates
   const config = loadConfig(root);
@@ -274,7 +316,15 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 1b. evidence freshness (B-c622 CHK-009)
-  const freshness = checkEvidenceFreshness(store, storyId, root, storyForPolicy.phase);
+  // B-6666 CHK-001: pass the resolved gitCwd at this boundary so the DONE-path
+  // freshness git probe shares the same gitRoot as the git-status row (no
+  // split-brain). The evidence-freshness.ts internals (its own no-op gitCwd
+  // alias) are CHK-002; this only routes the resolved cwd to the call boundary.
+  // B-6666 F-001 (REVIEW fix): also pass `root` as metadataRoot so the
+  // storyDir-aware metadata exclusion loads config from the metadataRoot (custom
+  // storyDir), not gitCwd. On a wrapper-root layout these differ; plain repos
+  // pass root==gitCwd so behavior is byte-identical.
+  const freshness = checkEvidenceFreshness(store, storyId, gitCwd, root, storyForPolicy.phase);
   if (!freshness.fresh) {
     rows.push(doneCheckRow({
       id: 'evidence-freshness',
@@ -318,7 +368,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 3. git working tree clean (B-4b22: category-aware via dirty-gate-policy)
-  const gitStatus = readGitStatusLines(root);
+  // B-6666 CHK-001: read git status from the resolved gitCwd, not bare root.
+  const gitStatus = readGitStatusLines(gitCwd);
   if (gitStatus.ok && gitStatus.lines.length === 0) {
     rows.push(doneCheckRow({
       id: 'git-working-tree',
@@ -353,7 +404,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     ];
     if (!result.allPass) {
-      hintLines.push('If these files come from lattice validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. KOALA_WRITE_*_REPORT=1) to explicitly enable report writing.');
+      hintLines.push('If these files come from lattice validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. LATTICE_WRITE_*_REPORT=1) to explicitly enable report writing.');
     }
     const hint = hintLines.join('\n');
     rows.push(doneCheckRow({
@@ -380,7 +431,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     const story = store.readStory(storyId);
     if (story.worktree?.branch) {
       const branch = story.worktree.branch;
-      if (!gitRefExists(root, branch)) {
+      if (!gitRefExists(gitCwd, branch)) {
         rows.push({
           id: 'branch-synced-main',
           status: 'warn',
@@ -392,7 +443,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         });
       } else {
         try {
-          gitRefContainsMain(root, branch);
+          gitRefContainsMain(gitCwd, branch);
           rows.push(doneCheckRow({
             id: 'branch-synced-main',
             status: 'pass',
@@ -401,7 +452,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
             source: 'git merge-base --is-ancestor main',
           }));
         } catch {
-          const divergence = checkMainDivergence(root);
+          const divergence = checkMainDivergence(gitCwd);
           rows.push(doneCheckRow({
             id: 'branch-synced-main',
             status: 'fail',
@@ -416,7 +467,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       }
     } else {
       // No worktree branch recorded — detect from git directly
-      const divergence = checkMainDivergence(root);
+      const divergence = checkMainDivergence(gitCwd);
       if (divergence.needsSync) {
         rows.push(doneCheckRow({
           id: 'branch-synced-main',
@@ -453,9 +504,12 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }
     if (allDocs.size > 0) {
       let changedFiles = new Set<string>();
+      // B-6666 CHK-001: use the resolved gitCwd threaded into buildDoneChecklist
+      // (no inner no-op `const gitCwd = root` alias) so wrapper-root layouts
+      // resolve the diff against the real gitRoot.
       try {
         const out = execSync('git diff main...HEAD --name-only', {
-          cwd: root,
+          cwd: gitCwd,
           encoding: 'utf8',
           timeout: 5000,
           stdio: ['pipe', 'pipe', 'pipe'],

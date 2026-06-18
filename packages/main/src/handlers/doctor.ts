@@ -18,7 +18,12 @@ import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/
 import { loadConfig } from '../core/config.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { findRuntimeArtifactEntry, isRepairableTrackedRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
-import { mergeRuntimeGitignore, runtimeIgnoreMissing } from '../core/managed-assets.js';
+import {
+  AGENT_ASSET_MODE_RUNTIME_OWNED,
+  mergeRuntimeGitignore,
+  runtimeIgnoreMissing,
+  scanProjectLocalManagedAgents,
+} from '../core/managed-assets.js';
 import {
   evaluateStoryMetadataProtection,
   type StoryMetadataProbe,
@@ -56,6 +61,15 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       });
       const validation = scanValidationSetup(root);
       const runtime = runRuntimeEnvironmentChecks(root);
+      // B-097f: Claude agent prompts are runtime-owned (single source =
+      // global ~/.claude/agents). Surface the mode + any stale project-local
+      // managed agent files so historical projects are diagnosable.
+      const projectAgentScan = scanProjectLocalManagedAgents(root);
+      const agentAssets = {
+        agentAssetMode: AGENT_ASSET_MODE_RUNTIME_OWNED,
+        projectLocalManagedFiles: projectAgentScan.managedFiles,
+        hasStaleProjectLocal: projectAgentScan.managedFiles.length > 0,
+      };
       // B-1637: resolve the gitRoot ONCE and thread it as the cwd into every git
       // probe below, so wrapper-root projects (metadataRoot != gitRoot) no longer
       // print leading `fatal: not a git repository` lines. Falls back to `root`
@@ -124,7 +138,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         }
         try {
           execFileSync('git', ['worktree', 'prune', '--expire', 'now'], {
-            cwd: root,
+            cwd: gitProbeCwd,
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'pipe'],
           });
@@ -147,7 +161,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           if (!artifact.repairable) continue;
           try {
             execFileSync('git', ['rm', '--cached', '--', artifact.path], {
-              cwd: root,
+              cwd: gitProbeCwd,
               encoding: 'utf-8',
               stdio: ['pipe', 'pipe', 'pipe'],
             });
@@ -163,7 +177,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // allowlist (reusing managed-assets mergeRuntimeGitignore — idempotent), then
       // re-scans so a safe project reports clear after repair and a second run is a no-op.
       if (args?.repair && storyMetadataProtection.evaluated && storyMetadataProtection.needsRepair) {
-        const result = repairStoryMetadataAllowlist(root);
+        const result = repairStoryMetadataAllowlist(root, gitProbeCwd);
         storyMetadataRepair = { requested: true, wrote: result.wrote, error: result.error };
         storyMetadataProtection = scanStoryMetadataProtection(root, store, gitProbeCwd);
       }
@@ -250,12 +264,22 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             repairFailed: runtimeArtifactsRepairFailed,
             repairRequested: !!args?.repair,
           },
+          agentAssets,
         };
       }
 
       // text output
       const lines: string[] = [];
       lines.push(renderRuntimeFootprintSummary(runtime.runtimeMode));
+      lines.push('');
+      lines.push(`agentAssetMode: ${agentAssets.agentAssetMode}`);
+      if (agentAssets.hasStaleProjectLocal) {
+        lines.push(
+          `  ⚠ ${agentAssets.projectLocalManagedFiles.length} managed agent file(s) in .claude/agents shadow the global ~/.claude/agents source; run lattice init --upgrade to migrate`,
+        );
+      } else {
+        lines.push('  ✓ agent prompts resolve from the global ~/.claude/agents single source');
+      }
       lines.push('');
       lines.push(`lattice doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);
@@ -661,9 +685,14 @@ function collectWorktreeCleanupTargets(scan: {
 }
 
 function tryWorktreeRemove(root: string, target: string): void {
+  // B-75f0 CHK-001: run `git worktree remove` from the resolved gitRoot, not the
+  // bare metadataRoot. On a wrapper-root layout (metadataRoot != gitRoot) the
+  // bare root is not a git repo, so the remove silently no-ops. resolveDoctorGitCwd
+  // returns `root` for plain repos (metadataRoot == gitRoot) → byte-identical.
+  const gitCwd = resolveDoctorGitCwd(root);
   try {
     execFileSync('git', ['worktree', 'remove', '--force', target], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 5000,
@@ -705,17 +734,23 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
   const branch = `story/${storyId}`;
   const branchRef = `refs/heads/${branch}`;
   const expectedPath = resolve(target).replace(/\\/g, '/');
+  // B-75f0 CHK-001: probe `--git-common-dir` from the resolved gitRoot, not the
+  // bare metadataRoot. On a wrapper-root layout (metadataRoot != gitRoot) the
+  // bare root is not a git repo, so the probe throws and stale admin dirs are
+  // never pruned. resolveDoctorGitCwd returns `root` for plain repos → identical.
+  const gitCwd = resolveDoctorGitCwd(root);
   let commonDir: string;
   try {
     commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch {
     return removed;
   }
-  const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(root, commonDir, 'worktrees');
+  // A relative --git-common-dir is relative to the gitCwd it was probed from.
+  const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(gitCwd, commonDir, 'worktrees');
   let names: string[] = [];
   try {
     names = readdirSync(adminBase);
@@ -746,9 +781,14 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
 function deleteTerminalStoryBranch(root: string, store: HandlerContext['store'], storyId: string): void {
   if (!isTerminalStory(store, storyId)) return;
   const branch = `story/${storyId}`;
+  // B-75f0 CHK-001: delete the terminal story branch from the resolved gitRoot,
+  // not the bare metadataRoot. On a wrapper-root layout (metadataRoot != gitRoot)
+  // the bare root is not a git repo, so the branch -D silently no-ops and leaves
+  // a stale branch. resolveDoctorGitCwd returns `root` for plain repos → identical.
+  const gitCwd = resolveDoctorGitCwd(root);
   try {
     execFileSync('git', ['branch', '-D', branch], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -939,10 +979,10 @@ function neutralizeConflictingLatticeDirIgnore(content: string): { content: stri
  *      BLOCK_START/END markers, dedupes) to add the allowlist.
  * Writes only when content changes, so a second --repair run is a no-op.
  */
-function repairStoryMetadataAllowlist(root: string): { wrote: boolean; repoRoot: string | null; error?: string } {
+function repairStoryMetadataAllowlist(root: string, gitCwd: string = root): { wrote: boolean; repoRoot: string | null; error?: string } {
   let repoRoot: string;
   try {
-    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: gitCwd, encoding: 'utf-8' }).trim();
   } catch (e: any) {
     return { wrote: false, repoRoot: null, error: e?.message || String(e) };
   }

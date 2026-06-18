@@ -65,7 +65,7 @@ export interface LiveContext {
 export function envValue(env: Env, suffix: string): string | undefined {
   const canonical = env[`LATTICE_AUTHORITY_${suffix}`];
   if (typeof canonical === 'string' && canonical.trim()) return canonical.trim();
-  const legacy = env[`KOALA_AUTHORITY_${suffix}`];
+  const legacy = env[`LATTICE_AUTHORITY_${suffix}`];
   return typeof legacy === 'string' && legacy.trim() ? legacy.trim() : undefined;
 }
 
@@ -917,7 +917,7 @@ export function buildLiveJobPlan(ctx: LiveContext): JobPlan {
 
 export function buildLocalStore(ctx: LiveContext): { root: string; store: StoryStore } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-authority-live-e2e-'));
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
     outDir: 'dist',

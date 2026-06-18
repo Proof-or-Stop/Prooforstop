@@ -2,7 +2,7 @@
  * B-c55d CHK-001: story owner lease core (local session ownership).
  *
  * session-ownership-and-write-leases.md rollout step 2b — "story owner lease".
- * Implements local Koala session ownership coordination so that, when multiple
+ * Implements local Lattice session ownership coordination so that, when multiple
  * agent sessions run in parallel, "one story has one mutating owner" is a
  * mechanically-enforced fact rather than something humans negotiate in chat.
  *
@@ -88,7 +88,7 @@ export interface StoryOwnerLease {
   pid: number;
   /** Working directory of the owning session at acquire time. */
   cwd: string;
-  /** The koala command that first acquired the lease (audit context). */
+  /** The lattice command that first acquired the lease (audit context). */
   command: string;
   /** ISO 8601 timestamp of the initial acquire. */
   acquiredAt: string;
@@ -103,15 +103,15 @@ export interface StoryOwnerLease {
  * supersedes the earlier ppid-anchor design).
  *
  *   sessionId =
- *     KOALA_SESSION_ID                                       (sessionSource: koala-env)
+ *     LATTICE_SESSION_ID                                       (sessionSource: koala-env)
  *     ?? CLAUDE_CODE_SESSION_ID                              (sessionSource: claude-code-env)
  *     ?? deriveLocalSessionId(hostname, root, process.ppid)  (sessionSource: derived-ppid)
  *
  * WHY ppid is NOT the primary anchor. An earlier revision anchored the derived
  * id on `process.ppid` (the parent shell), on the assumption the shell is
- * stable across `koala` invocations. That assumption is FALSE in the Claude
+ * stable across `lattice` invocations. That assumption is FALSE in the Claude
  * Code environment: each Bash tool call spawns a FRESH shell, so `process.ppid`
- * changes on every `koala` command (empirically observed 89439 -> 89466 ->
+ * changes on every `lattice` command (empirically observed 89439 -> 89466 ->
  * 89513 -> 89529 across 4 consecutive calls). A ppid-anchored id therefore
  * changes every command, so an agent's 2nd mutating command self-rejects its
  * own lease as "foreign" — the lease bricks the session. ppid is consequently
@@ -119,13 +119,13 @@ export interface StoryOwnerLease {
  * non-Claude environments where the parent shell genuinely IS persistent.
  *
  * PRIMARY sources are env vars that are stable per real session:
- *   1. `KOALA_SESSION_ID` — canonical Koala override; the future Koala
+ *   1. `LATTICE_SESSION_ID` — canonical Lattice override; the future Lattice
  *      adapter / server injection entry point. Highest priority.
  *   2. `CLAUDE_CODE_SESSION_ID` — already present in the Claude Code
  *      environment and verified stable for the lifetime of a Claude Code
  *      session. Used verbatim.
  *
- * Claude Code env is a KNOWN ADAPTER ENVIRONMENT — it is NOT a Koala strong
+ * Claude Code env is a KNOWN ADAPTER ENVIRONMENT — it is NOT a Lattice strong
  * identity and provides NO anti-spoofing. This is LOCAL session coordination
  * only (hard boundary 1): no keys, no signatures, no server authority. A
  * session could trivially set either env var to any value; the lease relies on
@@ -154,7 +154,7 @@ export interface SessionIdentity {
 
 /** The subset of environment variables `resolveSessionIdentity` consults. */
 export interface SessionEnv {
-  KOALA_SESSION_ID?: string | undefined;
+  LATTICE_SESSION_ID?: string | undefined;
   CLAUDE_CODE_SESSION_ID?: string | undefined;
 }
 
@@ -196,7 +196,7 @@ export function resolveSessionIdentity(
   env: SessionEnv,
   inputs: SessionDerivationInputs,
 ): SessionIdentity {
-  const koala = trimToNull(env.KOALA_SESSION_ID);
+  const koala = trimToNull(env.LATTICE_SESSION_ID);
   if (koala !== null) return { sessionId: koala, sessionSource: 'koala-env' };
 
   const claude = trimToNull(env.CLAUDE_CODE_SESSION_ID);
@@ -249,7 +249,7 @@ export function getSessionIdentity(): SessionIdentity {
   if (cachedSessionIdentity !== null) return cachedSessionIdentity;
   cachedSessionIdentity = resolveSessionIdentity(
     {
-      KOALA_SESSION_ID: process.env.KOALA_SESSION_ID,
+      LATTICE_SESSION_ID: process.env.LATTICE_SESSION_ID,
       CLAUDE_CODE_SESSION_ID: process.env.CLAUDE_CODE_SESSION_ID,
     },
     { hostname: hostname(), root: resolveSessionRoot(), ppid: process.ppid },
@@ -394,7 +394,7 @@ function ownerCwdMatchesCurrent(ownerCwd: unknown, currentCwd: unknown): boolean
 
 /** Options shared by `acquireOwnerLease` / `refreshOwnerLease`. */
 export interface OwnerLeaseWriteOptions {
-  /** koala command label recorded in the lease (audit context). */
+  /** lattice command label recorded in the lease (audit context). */
   command: string;
   /** Working directory of the owning session. Defaults to `process.cwd()`. */
   cwd?: string;
@@ -659,7 +659,7 @@ export interface TakeoverEvent {
   fromHeartbeatAt: string;
   /** Whether the taken-over lease was stale at transfer time. */
   fromWasStale: boolean;
-  /** The koala command that triggered the takeover. */
+  /** The lattice command that triggered the takeover. */
   command: string;
 }
 
@@ -710,7 +710,7 @@ export interface TakeoverEvent {
 export interface NonOwnerErrorContext {
   /** The story whose lease is owned by another session. */
   storyId: string;
-  /** The koala command that was rejected (audit / message context). */
+  /** The lattice command that was rejected (audit / message context). */
   command: string;
   /** The owner-gated ownership class of `command` (`storyScopedMutating` / `dangerousMutating`). */
   ownershipClass: string;
@@ -781,7 +781,7 @@ export function formatNonOwnerError(
     ? `Use read-only commands, wait for the owner, or rerun with --takeover to transfer the stale lease.`
     : `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;
   return (
-    `${ctx.storyId} is owned by Koala session ${lease.sessionId}, heartbeat ${ageStr} ` +
+    `${ctx.storyId} is owned by Lattice session ${lease.sessionId}, heartbeat ${ageStr} ` +
     `(owner cwd: ${lease.cwd}). "${ctx.command}" is an owner-gated ${ctx.ownershipClass} command, ` +
     `so this session (${ctx.currentSessionId}) cannot run it. ${staleStr}${sameWorktreeGuidance} ${nextAction}`
   );

@@ -110,10 +110,10 @@ function worstStatus(statuses: RolloutStatus[]): RolloutStatus {
     statusRank(status) > statusRank(worst) ? status : worst, 'pass');
 }
 
-function gitLines(root: string, args: string[]): string[] {
+function gitLines(gitCwd: string, args: string[]): string[] {
   try {
     return execFileSync('git', args, {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -122,15 +122,16 @@ function gitLines(root: string, args: string[]): string[] {
   }
 }
 
-function gitText(root: string, args: string[]): string | null {
-  const lines = gitLines(root, args);
+function gitText(gitCwd: string, args: string[]): string | null {
+  const lines = gitLines(gitCwd, args);
   return lines.length > 0 ? lines.join('\n') : null;
 }
 
 function isGitRepo(root: string): boolean {
+  const gitCwd = root;
   try {
     execFileSync('git', ['rev-parse', '--is-inside-work-tree'], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -383,13 +384,13 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
 
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
-  const hasKoalaGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
+  const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
   const hasStoryRoot = existsSync(join(projectRoot, LATTICE_DIR, 'story')) ||
     existsSync(join(projectRoot, LEGACY_KOALA_DIR, 'story'));
-  const status: RolloutStatus = hasAgentGuide && hasKoalaGuide && hasStoryRoot ? 'pass' : 'warn';
+  const status: RolloutStatus = hasAgentGuide && hasLatticeGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,
-    `LATTICE/KOALA/CLAUDE guide=${hasKoalaGuide}`,
+    `LATTICE/KOALA/CLAUDE guide=${hasLatticeGuide}`,
     `.lattice/story=${hasStoryRoot}`,
     `activeStories=${story.activeStoryCount}`,
   ];

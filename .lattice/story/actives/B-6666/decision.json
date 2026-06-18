@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Resolve gitCwd ONCE at a single choke-point boundary, not scattered re-resolution per git call (single source of truth for the resolution).",
+    "Fall back to root when no gitRoot resolves so plain repos are byte-identical (zero behavior change for the common case is the safety floor).",
+    "The contract must FAIL on the actual defect shape it claims to guard — a green contract over a live defect is worse than no contract (close the blind spots, do not just add sites).",
+    "Stay within the confirmed wrapper-root blast radius; explicitly LOG deferred backtick sites rather than silently leave the contract red or balloon scope."
+  ],
+  "drivers": [
+    "A wrapper-root project (metadataRoot != gitRoot) is currently HARD-BLOCKED from DONE — the highest-severity, operator-facing symptom.",
+    "The defect recurred precisely because the B-db56 contract could be silenced by a trivial alias; without closing both blind spots it recurs a 4th time.",
+    "B-99b6 will wire this contract into the validate gate; it must be green at DONE or it blocks B-99b6.",
+    "NORMAL channel + gate/guard riskSignal: changes touch DONE-gate and authority-receipt semantics — high blast radius if wrong."
+  ],
+  "options": [
+    {
+      "name": "A-thread-and-strengthen",
+      "pros": [
+        "Reuses the existing resolveGitCwd choke-point (transition-orchestrator already resolves doneGitCwd at :271).",
+        "Byte-identical for plain repos via root fallback.",
+        "Closes the recurrence path (alias + backtick detection) without a full rewrite.",
+        "Bounded blast radius: fix confirmed wrapper-root sites, log the rest."
+      ],
+      "cons": [
+        "Touches several call-chain files (transition-orchestrator/done-effects/phase-gates).",
+        "Must carefully not leave the contract red if many backtick sites flagged."
+      ]
+    },
+    {
+      "name": "B-done-oracle-only",
+      "pros": [
+        "Smallest diff."
+      ],
+      "cons": [
+        "Defect class recurs (the whole point is the contract was silenced); rejected by background.",
+        "evidence-freshness wrapper-root undefined-hash bug remains."
+      ]
+    },
+    {
+      "name": "C-single-helper-rewrite",
+      "pros": [
+        "Ideal end-state; structurally impossible to bypass."
+      ],
+      "cons": [
+        "Far too large for one story (~14+ backtick sites + all literal sites); high regression risk; rejected as out of scope."
+      ]
+    }
+  ],
+  "chosen": "A-thread-and-strengthen",
+  "rationale": "Approach A reuses the real choke-point resolveGitCwd, keeps plain repos byte-identical via root fallback, fixes the confirmed wrapper-root false-block (done-oracle) and undefined-hash (evidence-freshness) defects, and closes BOTH contract blind spots (alias + backtick) so the class cannot recur — while bounding scope by fixing confirmed bare-root sites and logging any oversized backtick blast radius as a documented follow-up. B (only fix done-oracle, leave contract gameable) is rejected (recurrence). C (full shared-helper rewrite) is rejected (too large for one story).",
+  "preMortem": [
+    {
+      "scenario": "The done-oracle git-status fix changes behavior for plain (non-wrapper) repos",
+      "trigger": "resolveGitCwd returns something other than root in a plain repo, or the fallback is not wired so a null/undefined cwd is passed",
+      "consequence": "DONE gate breaks for the common case (every normal story), a far worse regression than the wrapper-root edge case",
+      "mitigation": "Explicit fallback to root when resolveGitCwd does not resolve a distinct gitRoot; add a plain-repo regression asserting the git-working-tree row is byte-identical before/after; resolveGitCwd already falls back to projectRoot by contract."
+    },
+    {
+      "scenario": "The strengthened contract flags far more backtick sites than this story can safely fix, and the implementer leaves it RED to ship",
+      "trigger": "backtick scan flags ~14 sites; fixing all threads gitCwd through many unrelated handlers; time/scope pressure",
+      "consequence": "DONE with a red contract blocks B-99b6 (which wires it into the gate) and re-opens the very gap this story closes",
+      "mitigation": "Bounded policy: fix the CONFIRMED wrapper-root bare-root sites (done path, authority-receipt, the 4 INIT-measured sites if reachable) + ship the alias-detection rule; for any oversized remainder, add them to a documented allowlist with a scoped follow-up note so the contract stays GREEN; verify exit 0 explicitly before TEST."
+    },
+    {
+      "scenario": "The alias-detection regex is too broad and false-positives on legitimate non-git aliases",
+      "trigger": "a const x = projectRoot that is NOT used as a git cwd gets flagged",
+      "consequence": "contract goes red on innocent code; either the implementer weakens the rule back to uselessness or churns unrelated files",
+      "mitigation": "Scope the alias detection to aliases that are subsequently used as a cwd in a git call window (same proximity model as the existing GIT_CALL_REGEX window); add KNOWN-GOOD self-test fixtures (alias not used as git cwd = 0 violations) AND KNOWN-BAD (alias used as git cwd without resolveGitCwd = 1 violation) so the rule is pinned both ways."
+    },
+    {
+      "scenario": "Resolving gitCwd inside the DONE merge path interacts badly with the main-write-lock / autoSync already using doneGitCwd",
+      "trigger": "double resolution or a different resolved value between :271 (autoSync) and the gate call leads to divergent cwd for divergence-check vs status-check",
+      "consequence": "DONE gate and autoSync operate on different working trees → inconsistent dirty/divergence verdicts",
+      "mitigation": "Pass the SAME doneGitCwd already resolved at :271 into runDonePreMergeGate (do not re-resolve); single resolution point feeds both autoSync and the oracle gate."
+    }
+  ],
+  "timestamp": "2026-06-17T16:36:29.875Z"
+}

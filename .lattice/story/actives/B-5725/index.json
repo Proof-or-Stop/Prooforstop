@@ -1,0 +1,38 @@
+{
+  "storyId": "B-5725",
+  "name": "review-incremental-context",
+  "title": "Make REVIEW re-review rounds cheaper via per-reviewer incremental context (zero skip, gate unchanged)",
+  "description": "Each REVIEW re-review round re-runs every active reviewer, and each reviewer re-analyzes the entire git diff main...HEAD from scratch even though only a small part changed since it last passed. This makes re-review rounds expensive. Scope (the B-incremental variant, deliberately chosen over the skip/carry-forward variant to keep ZERO under-review risk): add a read-only helper that, for a given (storyId, reviewer role), returns that reviewer's most recent prior verdict plus the incremental diff since the headHash that verdict was bound to (falling back to the full diff main...HEAD when the reviewer has no prior pass). Surface a hint in the round>=2 story_advance REVIEW output telling each reviewer to pull its incremental context and re-confirm only what changed since it last looked. CRITICAL INVARIANT: no reviewer is ever skipped and the REVIEW->TEST gate is UNCHANGED -- every active reviewer still produces a fresh current-round verdict whose binding is validated exactly as today. This change only makes each reviewer's WORK cheaper (smaller, targeted input), never reduces the set of reviewers, so it cannot cause under-review. EXPLICITLY OUT OF SCOPE: skipping or carrying-forward any reviewer (the rejected B-skip variant); any change to the gate / binding / materialHash / staleness logic; changing what each reviewer reviews; the convergence-stall advisory (B-cfdd, already done). All artifacts and any emitted strings are English-only.",
+  "type": "feature",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-17T00:15:43.267Z",
+  "startedAt": "2026-06-17T00:15:43.267Z",
+  "endedAt": "2026-06-17T00:36:21.243Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T00:15:43.267Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-17T00:36:21.243Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "Superseded: INIT review (INIT-001) revealed the REVIEW->TEST gate is more lenient than this story assumed (Round 1 requires all opt-in reviewers + quorum; Round 2+ requires only >=1 valid current-round receipt). Recreating with the corrected merged option-2 scope: incremental-context helper PLUS round-2+ informed targeted re-review guidance, gate unchanged."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-17, the digest-extract refactor (B-2ccc) landed core/digest.ts, the last prerequisite for Phase 2. Per docs/requirements/decisions/lattice-experience-layer-execution-plan.md (Phase 2 / section 9), the Experience Layer now needs the staged Process Playbook lifecycle: distil a resolved finding into a reusable, human-approved review-check playbook.
+
+## Key Insight
+A new handlers/playbook.ts provides the staged CLI lifecycle: playbook_propose --finding <id> (creates a staged proposal in .lattice/learning/proposals/<id>.json with lineage sourceStoryId/sourceFindingId/sourceSignature), playbook_diff <proposalId> (read-only render of what would be written), playbook_approve <proposalId> (human approval -> a candidate entry in .lattice/learning/playbooks.json), and playbook_reject <proposalId>. Integrity clones the decision-doc pattern by importing digestCanonicalJson from core/digest.js (a leaf, from B-2ccc): each proposal carries a proposalDigest and approve requires a matching expectedProposalDigest so a stale proposal fails closed. Lifecycle status is stored in playbooks.json (proposed -> candidate -> active -> stale -> archived); Phase 2 delivers proposed/candidate (approve -> candidate). The hard guardrail: a playbook NEVER auto-calls finding_add or any gate; it only becomes review-prompt context later; every playbook must have lineage traceable to a source finding/story.
+
+## Tradeoff
+We store the playbook lifecycle in a dedicated .lattice/learning/playbooks.json + proposals/ (source-of-truth, under the already-excluded .lattice/learning/ prefix) rather than overloading dev-memory, avoiding the dev-memory content-sha7 id-hash hazard. We clone the decision-doc digest-integrity pattern instead of inventing a new scheme. Cost: a new CLI surface (4 commands) needing command-policy/config/registry wiring. We accept that surface as the minimal staged closed-loop the plan mandates.
+
+## Conversation Texture
+The user asked to implement the whole execution plan phase by phase via the Lattice workflow until the document is fully realized. This is Phase 2, following the digest-extract refactor (B-2ccc) and Phase 1.5 (B-1dc9). Phase 3 (Story Recall) follows. All work goes through the Lattice story lifecycle; no Co-Authored-By trailer.

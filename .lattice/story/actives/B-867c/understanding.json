@@ -1,0 +1,30 @@
+{
+  "task": "npm run test:process-fact-contract is RED on main: 7 MAIN_TOOLS commands (playbook_approve/diff/propose/reject, recall, signature_registry_list/set) are unregistered in the process-fact registry, and DEFAULT_PHASE_TOOLS shows phase-allowlist drift for patterns recall/signature_registry_*/playbook_* across all 7 phases.",
+  "outcome": "Operator runs `npm run test:process-fact-contract` and sees it exit 0 — the final lines read like the existing healthy run (e.g. `Prompt drift scan: 33 reviewer prompt files checked` and NO `Process fact contract failed:` block, NO `MAIN_TOOLS command ... missing from PROCESS_FACT_REGISTRY` lines, NO `DEFAULT_PHASE_TOOLS phase allowlist drift` lines). The 7 commands now appear in the registry dump with accurate level/category/owner.",
+  "facts": [
+    "RED confirmed in worktree: EXIT=1, 7 missing-command lines + 21 drift lines (7 phases x 3 patterns recall/signature_registry_*/playbook_*).",
+    "The registry COMMAND entries (COMMAND_PROCESS_FACTS) are DERIVED from PROCESS_FACT_LEVELS in process-fact-levels.ts (process-fact-registry.ts:585 maps over PROCESS_FACT_LEVELS). So the single edit target for command registration is process-fact-levels.ts, NOT line 871 (which is just the spread combiner). This is INIT-001 (medium advisory from INIT review).",
+    "COMMAND_PROCESS_FACTS pulls allowedPhases directly from COMMAND_POLICIES[name].allowedPhases (process-fact-registry.ts:597). All 7 commands already have allowedPhases:all in command-policy.ts (lines 205-215).",
+    "Classification from handlers: signature_registry_list (read-only, handlers/signature-registry), playbook_diff (read-only, handlers/playbook), recall (read-only, handlers/recall) => L0; signature_registry_set / playbook_propose / playbook_approve / playbook_reject (mutating .lattice/learning, NO gate reads them) => L2. None are gate-consumed, so none get gateConsumer.",
+    "The contract drift check (verify-process-fact-contract.mjs:2672-2679) requires: for each DEFAULT_PHASE_TOOLS pattern x phase, a registry command entry matching the pattern whose allowedPhases includes that phase. Registering the 7 with allowedPhases=all (from policy) satisfies this in every phase.",
+    "DEFAULT_PHASE_TOOLS already lists signature_registry_*/playbook_*/recall in the global * array (config.ts:189-191), which applies to all phases. The subset invariant DEFAULT_PHASE_TOOLS subset of policy allowedPhases=all already holds, so config.ts likely needs NO change once the registry side exists."
+  ],
+  "constraints": [
+    "No command behavior change — only registry registration + (if needed) DEFAULT_PHASE_TOOLS reconciliation.",
+    "Do NOT wire the guard into lattice validate battery (B-99b6 owns that).",
+    "Do NOT touch any gitRoot code (B-6666 owns that).",
+    "Do NOT edit the 7 commands handlers except to READ for classification.",
+    "Honor Handler Encoding Convention for any constrained consumed field.",
+    "Verification of record is an explicit `npm run test:process-fact-contract` run (lattice validate does NOT run this guard)."
+  ],
+  "unknowns": [
+    "Whether config.ts DEFAULT_PHASE_TOOLS needs ANY edit, or whether the global * placement already satisfies the contract once the registry entries exist (to be confirmed empirically by the implementer: register entries -> build -> run contract; only touch config if drift persists)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-17T16:29:26.879Z"
+}

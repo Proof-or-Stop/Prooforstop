@@ -53,11 +53,11 @@ lattice rollout_check --projects "$(pwd)" --json
 
 ### Authority modes: off / shadow / enforce
 
-`KOALA_AUTHORITY_MODE` controls whether the CLI interacts with the Python authority. **None of the three modes block the local Story workflow**: local lifecycle gates (`story_advance`, `verification_evidence_add`, DONE) do not read server receipts, so `authority_status` always reports `localWorkflowUsable: true`; missing enforce prerequisites only feed `readinessWarnings` / `nextActions` and never become a global blocker.
+`LATTICE_AUTHORITY_MODE` controls whether the CLI interacts with the Python authority. **None of the three modes block the local Story workflow**: local lifecycle gates (`story_advance`, `verification_evidence_add`, DONE) do not read server receipts, so `authority_status` always reports `localWorkflowUsable: true`; missing enforce prerequisites only feed `readinessWarnings` / `nextActions` and never become a global blocker.
 
 | Mode | When to use | CLI behavior | Production authority? |
 |------|----------|----------|------------------------|
-| `off` (default) | Normal local Koala/Lattice story development, **free and purely local**. | No network requests at all; local evidence and DONE gate behavior are unchanged. | No: `productionDone=false`, `receiptVerified=false`. |
+| `off` (default) | Normal local Lattice story development, **free and purely local**. | No network requests at all; local evidence and DONE gate behavior are unchanged. | No: `productionDone=false`, `receiptVerified=false`. |
 | `shadow` | You want to observe the Python authority's responses while keeping local behavior. | Best-effort observational POST; on failure, only a stderr warning, with no effect on the local write. | No: the transport's `accepted: true` is `thin-client-transport-accepted`, not a signed receipt. |
 | `enforce` | Isolated headless runner / Authority job path, which **requires** a Python authority server + customer API key + a registered actor key + runner identity + project id + pinned server key. | `authority enforce runner --dry-run` projects readiness; `--live` signs the native envelope, registers/heartbeats the runner, and claims jobs. Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and then completes or releases the lease according to policy. | Only a signature-verified native `gate_decision` receipt can support per-run `authorityDone`; `fullAuthorityDone` also requires final multi-host certification. Runner heartbeat/claim alone is not production authority. |
 
@@ -68,8 +68,8 @@ Inspect the authority surface the local CLI sees:
 lattice authority status --json
 
 # With shadow / enforce missing prerequisites you will see readinessWarnings + nextActions
-KOALA_AUTHORITY_MODE=shadow lattice authority status --json
-KOALA_AUTHORITY_MODE=enforce lattice authority status --json
+LATTICE_AUTHORITY_MODE=shadow lattice authority status --json
+LATTICE_AUTHORITY_MODE=enforce lattice authority status --json
 
 # The Conduit view mirrors the same readiness fields
 lattice conduit status --json
@@ -80,7 +80,7 @@ lattice conduit explain --json
 
 - `mode` — `off` | `shadow` | `enforce`
 - `localWorkflowUsable: true` — the local story workflow is never blocked by authority
-- `authorityUrlConfigured` — whether `LATTICE_AUTHORITY_URL` / `KOALA_AUTHORITY_URL` is set
+- `authorityUrlConfigured` — whether `LATTICE_AUTHORITY_URL` is set
 - `customerApiKeyConfigured` — whether `LATTICE_AUTHORITY_CUSTOMER_API_KEY` / `_PATH` is set
 - `customerApiKeySource` — `env` | `path` | `authority_md` | `missing`
 - `customerApiKeyValid` — unknown until a live probe; presence alone does not imply validity
@@ -92,7 +92,7 @@ lattice conduit explain --json
 - `nextActions: string[]` — the corresponding env / command suggestions
 - `productionDone: false`, `receiptVerified: false`, `canClaimProductionDone: false`
 
-**Important boundary**: this local JSON or text output is **not** authority evidence. Only an `AuthorityReceipt` issued by the Python authority and signature-verified by the runner / client counts as signed production authority. Even with `KOALA_AUTHORITY_URL`, `KOALA_AUTHORITY_ACTOR_KEY`, and `KOALA_AUTHORITY_RUNNER_ID` all set, `productionDone` stays `false` until a signed native Lattice Authority `gate_decision` receipt is signature-verified. Full `fullAuthorityDone` additionally requires final multi-host certification. For the PD-1 / PD-2 trust boundary, see [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md).
+**Important boundary**: this local JSON or text output is **not** authority evidence. Only an `AuthorityReceipt` issued by the Python authority and signature-verified by the runner / client counts as signed production authority. Even with `LATTICE_AUTHORITY_URL`, `LATTICE_AUTHORITY_ACTOR_KEY`, and `LATTICE_AUTHORITY_RUNNER_ID` all set, `productionDone` stays `false` until a signed native Lattice Authority `gate_decision` receipt is signature-verified. Full `fullAuthorityDone` additionally requires final multi-host certification. For the PD-1 / PD-2 trust boundary, see [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md).
 
 ### Autopilot modes: local / shadow / authority
 

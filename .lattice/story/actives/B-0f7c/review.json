@@ -1,0 +1,57 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-16T19:15:25.420Z",
+      "issueCount": 8,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when In-module dispatch-usage orchestrator (estimate + final, pure) + Pure Claude Code JSON output parser (with raw-text fallback) are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Security/Credentials. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-0f7c\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact Claude Code CLI JSON envelope shape/flag (--output-format json vs other) and where result text + usage live — parse defensively with raw fallback; Best phase/agentType/model values available at the dispatch seam (read the DispatchRecord/HandoffPack/runtime types)"
+        }
+      ],
+      "_hash": "6a386c81e77fc7f51134b245a856fe0905cd80c96f1e9dda507a6553e754ec9c"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:edge:2": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:edge:3": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:edge:4": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-001:adversarial:2": {
+  "pass": true,
+  "note": "story-recall.ts pure (imports only experience-layer-types); smoke asserts overlapping>disjoint, symmetric+deterministic, multi-field, Jaccard(empty)=0"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:edge:2": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:edge:3": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:edge:4": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-002:adversarial:2": {
+  "pass": true,
+  "note": "smoke: recallSimilarStories most-similar-first, top-N, zero-score dropped, self excluded, empty candidates -> [] (over the story_list scan; no derived index)"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:edge:2": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:edge:3": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-003:adversarial:2": {
+  "pass": true,
+  "note": "recall CLI registered (recall --story/--query/--top); READ-ONLY (no write/finding refs in recall.ts/story-recall.ts); smoke asserts nothing written"
+ },
+ "CHK-004:happy:0": {
+  "pass": true,
+  "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired"
+ },
+ "CHK-004:happy:1": {
+  "pass": true,
+  "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired"
+ },
+ "CHK-004:happy:2": {
+  "pass": true,
+  "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired"
+ },
+ "CHK-004:edge:0": {
+  "pass": true,
+  "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired"
+ },
+ "CHK-004:edge:1": {
+  "pass": true,
+  "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired"
+ },
+ "CHK-004:adversarial:0": {
+  "pass": true,
+  "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired"
+ },
+ "CHK-004:adversarial:1": {
+  "pass": true,
+  "note": "recall smoke + no-regression (finding-signals/playbook/hint) + build clean + read-only; npm script wired"
+ }
+}

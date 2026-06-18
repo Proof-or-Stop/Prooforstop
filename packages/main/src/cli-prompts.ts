@@ -271,6 +271,8 @@ REVIEW→TEST PREFLIGHT (CLI gates)
   3. --lint: tsc/ruff/import-graph — fail blocks advance
   4. docs-drift: CLAUDE.md command references must match registry
   5. codex-adapter: required only when Codex adapter surfaces changed
+  6. english-artifacts: branch commits + story metadata must be English (B-5f42)
+  7. koala-residue: scan tracked source for un-rebranded brand residue (B-292d)
 
 EXAMPLES
 

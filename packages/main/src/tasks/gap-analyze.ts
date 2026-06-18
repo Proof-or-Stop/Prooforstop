@@ -15,6 +15,7 @@ import type { TaskAnnotation, FlowChain } from './types.js';
 import { StoryStore } from '../core/store.js';
 import { join, relative } from 'path';
 import { loadConfig } from '../core/config.js';
+import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { isEvidenceStateBlocking } from '../core/advisory.js';
 import type { Finding, StoryInfo, StoryPhase } from '../core/types.js';
 import { existsSync, readFileSync } from 'fs';
@@ -170,9 +171,13 @@ function hasRecordedWorktreePath(story: StoryInfo): boolean {
 }
 
 function readLinkedStoryWorktreeIds(projectRoot: string): Set<string> {
+  // B-75f0 CHK-003: survey the REAL gitRoot on wrapper-root layouts (story
+  // metadata root != git root); falls back to projectRoot verbatim on plain
+  // repos / when no gitRoot resolves (byte-identical).
+  const gitCwd = resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
   try {
     const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'ignore'],
     });

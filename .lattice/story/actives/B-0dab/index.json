@@ -1,0 +1,85 @@
+{
+  "storyId": "B-0dab",
+  "name": "koala-verify-gate-wireup",
+  "title": "Wire the koala-residue gate into the lattice validate battery + clean 7 residual koala-* mkdtemp prefixes on main",
+  "description": "ship-clean program story 4 (verify gate). Make the canonical koala-residue gate (scripts/verify-koala-residue.mjs, delivered in B-40eb) a permanent part of the lattice validate battery so new koala branding cannot silently re-enter active scope. Also clean the 7 residual koala-* mkdtemp prefixes currently on main (english-only-guards-smoke.ts x5, review-incremental-context-smoke.ts x2) so the gate passes green on main. No re-sweep: B-40eb already did the full brand sweep; this story only wires the gate and clears the temp-prefix residue.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "ship-clean",
+    "oss",
+    "verify-gate",
+    "ci"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-17T12:41:58.441Z",
+  "startedAt": "2026-06-17T12:41:58.441Z",
+  "endedAt": "2026-06-17T13:14:43.597Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T12:41:58.450Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:49:55.220Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:50:07.480Z",
+      "branch": "story/B-0dab",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:55:36.450Z",
+      "branch": "story/B-0dab",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:03:14.291Z",
+      "branch": "story/B-0dab",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:09:32.907Z",
+      "branch": "story/B-0dab",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:14:43.597Z",
+      "branch": "story/B-0dab",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-17T13:03:14.291Z"
+}

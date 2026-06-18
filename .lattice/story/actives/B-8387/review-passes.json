@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-8387:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 2 playbook lifecycle; no concept deletion/rename detected in diff; residual scan N/A.",
+      "createdAt": "2026-06-17T15:07:55.988Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-002",
+      "_hash": "5985c74983b49734fd73adb67dedaa73a35e1d43861f8a7e0c92e3475433afcf"
+    },
+    {
+      "id": "B-8387:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All invariants verified. grep -niE 'finding_add|advisory' handlers/playbook.ts => empty (EXIT 1). All imports in playbook.ts are limited to experience-layer-types.js, learning-store.js, core/types.js (Finding type-only), and handlers/context.js (read port). learning-store.ts new imports are node:fs (readdirSync addition), ./digest.js, and ./experience-layer-types.js — no outward ../ coupling. proposalDigestDomain correctly excludes proposalDigest via destructuring before digest computation. playbook_approve sets status=candidate (via candidateFromProposal), never active — confirmed by code read and smoke. All four commands correctly gated in command-policy: playbook_diff=readOnly, the other three=mainSharedMutating. Catch blocks in readPlaybooks/readProposal are deliberate fail-closed graceful degradation matching pre-existing pattern. No dead code: all exported learning-store symbols are consumed by playbook.ts handler or the smoke test. Smoke 20/20 PASS.",
+      "createdAt": "2026-06-17T15:09:39.258Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-001",
+      "_hash": "2aa2eb6906571a9b224eca46de1cab8832dd04c486075b43110e4a315fb08656"
+    },
+    {
+      "id": "B-8387:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 2 playbook lifecycle; no concept deletion/rename; residual scan N/A.",
+      "createdAt": "2026-06-17T15:23:04.631Z",
+      "reviewRound": "2026-06-17T15:22:26.306Z",
+      "reviewRunId": "B-8387:RR-005",
+      "_hash": "684202d04d1522d2c78825984dda0e3ddb358503738e488bfbc1879dd6cb19f3"
+    },
+    {
+      "id": "B-8387:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All three quality checks passed cleanly. Dead code: FindingData is imported as a type-only import in the smoke file (line 58) but never used in the body — this is a minor dead import, but it is a type import in a test helper and has zero runtime effect; below the bar for a finding. No commented-out code blocks found. Type safety: no `as any` in the changed files; the single empty catch in atomicWriteJson (pre-existing) is outside the diff scope; new empty catches in readPlaybooks/readProposal/listProposals are graceful-degradation patterns explicitly documented in the function comments (same convention as the pre-existing findingSignals cache reader). I/O shell isolation: handlers/playbook.ts imports only ../core/learning-store.js, ../core/experience-layer-types.js, ../core/types.js, and ./context.js — no direct fn.ts import; learning-store.ts imports only node: builtins, ./digest.js, and ./experience-layer-types.js. Static grep confirms no finding_add/advisory in playbook.ts. nextProposalId global-max logic: empty arrays yield max=0 -> PBP-001, correct; scanning both proposals[] and playbooks[] prevents id reuse after approve empties proposals/; no off-by-one. safeProposalId: rejects empty, slash, backslash, NUL, dot, dotdot, and any string containing ..; covers all hostile cases tested in the smoke. approve -> status=candidate not active: candidateFromProposal hardcodes status: candidate and the smoke asserts notEqual(status, active). Concurrency smoke: uses Promise.resolve().then() microtask interleaving of synchronous fs calls on a single Node.js thread — this correctly exercises the rename-atomicity contract visible to a single-threaded reader and is not flaky. No blockers found.",
+      "createdAt": "2026-06-17T15:23:53.517Z",
+      "reviewRound": "2026-06-17T15:22:26.306Z",
+      "reviewRunId": "B-8387:RR-006",
+      "_hash": "f7837703fa7bcf301170a1867cf2d14d9f73f8dffb1513807936ea84043ab2fa"
+    },
+    {
+      "id": "B-8387:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "F-003 resolved: nextProposalId (playbook.ts:65-70) now folds both proposals/ and playbooks.json into a global max via idSuffix(), so a second propose->approve cycle correctly mints PBP-002 not a duplicate PBP-001. Smoke check CHK-001:edge:2 (unique ids across cycles) passes. F-004 resolved: learning-store.ts module header (line 12) now explicitly lists ./digest.js. Full smoke suite 23/23 PASS. Lifecycle verified: propose writes lineage+digest; diff is read-only; approve fails-closed on stale/missing digest, writes status=candidate, lineage carried; reject clears proposal. No finding_add or gate call in handlers/playbook.ts confirmed by static scan (guardrail check passed). findings.json byte-identical after full lifecycle confirmed by smoke.",
+      "createdAt": "2026-06-17T15:23:58.461Z",
+      "reviewRound": "2026-06-17T15:22:26.306Z",
+      "reviewRunId": "B-8387:RR-007",
+      "_hash": "873b7ab93aa444d4263ae727d68a55b1505e862dce7294053750f77ddf9c8ca2"
+    },
+    {
+      "id": "B-8387:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-001 (path-traversal coverage) and F-002 (concurrency coverage) are both resolved at commit 8f94dfbd3. CHK-001:edge:1 now carries a specifically-bound evidence note naming the check and the hostile id set tested; the smoke emits the named check 'CHK-001:edge:1 path-traversal proposalId rejected' which passes. CHK-001:adversarial:1 now carries a specifically-bound evidence note naming the check and the 24-concurrent-write + interleaved-read scenario; the smoke emits the named async check 'CHK-001:adversarial:1 concurrent proposal writes' which passes. All 38 verificationIntent entries (must priority, normal channel) have valid manual_transcript evidence with result=pass and no failing result. The verifier confirms TOTAL 38 | PASS 38 | FAIL 0. No blocker found.",
+      "createdAt": "2026-06-17T15:25:17.703Z",
+      "reviewRound": "2026-06-17T15:22:26.306Z",
+      "reviewRunId": "B-8387:RR-008",
+      "_hash": "660e82d41889e80a588ec2e6be5353fe08193647472d43549f6de77f987b9fc1"
+    }
+  ]
+}

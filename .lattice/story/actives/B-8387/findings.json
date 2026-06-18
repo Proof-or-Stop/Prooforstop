@@ -1,0 +1,70 @@
+{
+  "findings": [
+    {
+      "id": "B-8387:F-001",
+      "desc": "CHK-001:edge:1 lacks a concrete bound check: the intent requires writeProposal to be tested with a path-traversal id (e.g. ../etc/passwd) to confirm it is sanitized or rejected without writing outside proposals/. The safeProposalId guard exists in learning-store.ts but the smoke contains no check that invokes writeProposal (or the handler) with such an id and asserts the expected rejection. The evidence note is a generic-fallback description that covers all 9 CHK-001 intents identically; it does not state that this specific adversarial boundary was exercised.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T15:10:50.651Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-004",
+      "_hash": "8e02674a119a9b644bec493022e1b7f7ac91537f742dd6b08278038e782a9ec0",
+      "files": [
+        "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 8f94dfbd: F-003 nextProposalId now global-max across proposals/ + playbooks.json (unique ids across cycles, tested); F-001 path-traversal proposalId rejection smoke; F-002 concurrent writeProposal atomicity smoke; F-004 learning-store header comment updated. Smoke 23/23.",
+      "resolvedAt": "2026-06-17T15:21:45.000Z"
+    },
+    {
+      "id": "B-8387:F-002",
+      "desc": "CHK-001:adversarial:1 has no verificationEvidence binding to any concurrent-write test: the intent requires writeProposal called concurrently with the same id to produce last-write-wins or an atomic error, never corrupted JSON. The smoke contains zero concurrency checks and the evidence record reuses the identical generic note and command as the happy-path entries (all 9 CHK-001 evidence records share the same note: 'playbook+proposal types; learning-store round-trips playbooks.json+proposals/...'). There is no waiver explaining why this must-intent is exempted from automation. This is an uncovered must-intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-17T15:10:57.695Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-004",
+      "_hash": "0b83f8a6f4ea11dd1ac6cf51fb813c2ec700cbf9d2a89719caa7a4b330b34c69",
+      "files": [
+        "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 8f94dfbd: F-003 nextProposalId now global-max across proposals/ + playbooks.json (unique ids across cycles, tested); F-001 path-traversal proposalId rejection smoke; F-002 concurrent writeProposal atomicity smoke; F-004 learning-store header comment updated. Smoke 23/23.",
+      "resolvedAt": "2026-06-17T15:21:45.574Z"
+    },
+    {
+      "id": "B-8387:F-003",
+      "desc": "handlers/playbook.ts:46-52 nextProposalId reads only proposals/ directory (listProposals) and does NOT consult playbooks.json; after a full lifecycle round (propose->approve->proposal deleted), the proposals/ dir is empty and the counter resets to PBP-001; a second propose then mints another PBP-001, and approving it produces two entries with identical id in playbooks.json. Reproducible with: propose F-001 (PBP-001), approve, then propose F-002 -> also PBP-001, approve -> readPlaybooks() returns [{id:'PBP-001',...},{id:'PBP-001',...}]. Fix: read both proposals/ and existing playbooks.json in nextProposalId to derive the global max; or assign IDs from playbooks.json length+1.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T15:14:50.869Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-003",
+      "_hash": "9357e1cddd0eb656a101909893d98d7ad8b19a7efeb3aaf83307c86154d19c99",
+      "resolvedReason": "Fixed in commit 8f94dfbd: F-003 nextProposalId now global-max across proposals/ + playbooks.json (unique ids across cycles, tested); F-001 path-traversal proposalId rejection smoke; F-002 concurrent writeProposal atomicity smoke; F-004 learning-store header comment updated. Smoke 23/23.",
+      "resolvedAt": "2026-06-17T15:21:46.119Z"
+    },
+    {
+      "id": "B-8387:F-004",
+      "desc": "doc-promise-undelivered: learning-store.ts lines 9-10 header comment says 'imports ONLY node: builtins and the leaf ./experience-layer-types.js. NO outward imports' but the module now also imports './digest.js' (added by B-8387 at line 16). The B-8387 section comment at line 393 correctly states the full set ('node: builtins, ./digest.js, and the leaf ./experience-layer-types.js'), but the top-of-file module-level isolation-bar comment was not updated. This is misleading for future readers of the module header. Fix: update lines 9-10 to include './digest.js' in the isolation bar description.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-17T15:14:59.426Z",
+      "reviewRound": "2026-06-17T15:07:10.454Z",
+      "reviewRunId": "B-8387:RR-003",
+      "_hash": "81b16868fb76494d27633d3d228329e119a4842f4e65b676a2eef5e5eb7509d8",
+      "resolvedReason": "Fixed in commit 8f94dfbd: F-003 nextProposalId now global-max across proposals/ + playbooks.json (unique ids across cycles, tested); F-001 path-traversal proposalId rejection smoke; F-002 concurrent writeProposal atomicity smoke; F-004 learning-store header comment updated. Smoke 23/23.",
+      "resolvedAt": "2026-06-17T15:21:46.670Z"
+    }
+  ]
+}

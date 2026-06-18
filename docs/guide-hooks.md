@@ -30,7 +30,7 @@ This hook is only a soft reminder: it locates the repository from the hook JSON'
 Run lattice session_brief first to restore context
 ```
 
-The threshold can be adjusted with `KOALA_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Lattice init does not create `.Codex/hooks` or `.Codex/settings.json`.
+The threshold can be adjusted with `LATTICE_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Lattice init does not create `.lattice-codex/hooks` or `.lattice-codex/settings.json`.
 
 ## When to Use
 
@@ -83,21 +83,21 @@ Each stage is a `Record<string, string[]>`: the key is the match condition, and 
 
 ## Environment Variables
 
-Each hook command receives the full `process.env` through `child_process.spawn`, plus the injected legacy `KOALA_*` environment variable names listed below:
+Each hook command receives the full `process.env` through `child_process.spawn`, plus the injected `LATTICE_*` environment variable names listed below:
 
 | Variable | Stages it appears in | Meaning |
 |---|---|---|
-| `KOALA_STAGE` | all | legacy env var; the current Lattice stage name (`preCommand`/`postCommand`/`onError`/`onPhaseChange`) |
-| `KOALA_COMMAND` | all | legacy env var; the current Lattice command name (e.g. `story_advance`) |
-| `KOALA_CWD` | all | legacy env var; the process cwd when the hook fired |
-| `KOALA_ROOT` | all | legacy env var; the current Lattice project root (after `--root` resolution) |
-| `KOALA_ARGS_JSON` | preCommand / postCommand / onError | legacy env var; the argument JSON passed to the handler (truncated to 8KB) |
-| `KOALA_RESULT_JSON` | postCommand | legacy env var; the handler return value JSON (truncated to 8KB) |
-| `KOALA_ERROR` | onError | legacy env var; the error.message string |
-| `KOALA_STORY_ID` | onPhaseChange + any stage when an active story exists | legacy env var; the current Lattice story id (`B-xxxx`) |
-| `KOALA_PHASE` | any stage when an active story exists | legacy env var; the current phase (at the time the hook runs) |
-| `KOALA_OLD_PHASE` | onPhaseChange | legacy env var; the phase before the transition |
-| `KOALA_NEW_PHASE` | onPhaseChange | legacy env var; the phase after the transition |
+| `LATTICE_STAGE` | all | legacy env var; the current Lattice stage name (`preCommand`/`postCommand`/`onError`/`onPhaseChange`) |
+| `LATTICE_COMMAND` | all | legacy env var; the current Lattice command name (e.g. `story_advance`) |
+| `LATTICE_CWD` | all | legacy env var; the process cwd when the hook fired |
+| `LATTICE_ROOT` | all | legacy env var; the current Lattice project root (after `--root` resolution) |
+| `LATTICE_ARGS_JSON` | preCommand / postCommand / onError | legacy env var; the argument JSON passed to the handler (truncated to 8KB) |
+| `LATTICE_RESULT_JSON` | postCommand | legacy env var; the handler return value JSON (truncated to 8KB) |
+| `LATTICE_ERROR` | onError | legacy env var; the error.message string |
+| `LATTICE_STORY_ID` | onPhaseChange + any stage when an active story exists | legacy env var; the current Lattice story id (`B-xxxx`) |
+| `LATTICE_PHASE` | any stage when an active story exists | legacy env var; the current phase (at the time the hook runs) |
+| `LATTICE_OLD_PHASE` | onPhaseChange | legacy env var; the phase before the transition |
+| `LATTICE_NEW_PHASE` | onPhaseChange | legacy env var; the phase after the transition |
 
 ## Behavior Contract
 
@@ -106,7 +106,7 @@ Each hook command receives the full `process.env` through `child_process.spawn`,
 3. **stdout limit**: a hook's stdout is echoed to stderr only for the first 200 characters, to avoid polluting the main command's JSON output (this matters most for postCommand: an agent piping into jq does not want hook notes mixed into the JSON).
 4. **Sequential execution**: commands within the same stage are awaited serially in array order, each one waiting for the previous to finish. preCommand fully completes before the handler runs; postCommand fully completes before `process.exit(0)`.
 5. **Concurrency**: exact-match + wildcard commands also run in order—the exact match runs to completion first, then the wildcard.
-6. **Environment variable truncation**: both `KOALA_RESULT_JSON` and `KOALA_ARGS_JSON` are truncated to 8KB to prevent blowing up the env (the default ARG_MAX on macOS / Linux is roughly 256KB; Windows is far stricter).
+6. **Environment variable truncation**: both `LATTICE_RESULT_JSON` and `LATTICE_ARGS_JSON` are truncated to 8KB to prevent blowing up the env (the default ARG_MAX on macOS / Linux is roughly 256KB; Windows is far stricter).
 7. **stage validation**: an invalid stage key under `hooks` is silently ignored (PROBE class, no health written).
 
 ## Examples
@@ -134,7 +134,7 @@ This is hooked into preCommand rather than postCommand because merging after the
   "hooks": {
     "onPhaseChange": {
       "*": [
-        "curl -s -XPOST \"https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage\" -d chat_id=$TG_CHAT_ID -d text=\"lattice $KOALA_STORY_ID: $KOALA_OLD_PHASE→$KOALA_NEW_PHASE\""
+        "curl -s -XPOST \"https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage\" -d chat_id=$TG_CHAT_ID -d text=\"lattice $LATTICE_STORY_ID: $LATTICE_OLD_PHASE→$LATTICE_NEW_PHASE\""
       ]
     }
   }
@@ -150,7 +150,7 @@ This is hooked into preCommand rather than postCommand because merging after the
   "hooks": {
     "onPhaseChange": {
       "TEST_CASE_REVIEW->TEST": [
-        "tar czf /tmp/lattice-fixtures-$KOALA_STORY_ID.tgz tests/fixtures/"
+        "tar czf /tmp/lattice-fixtures-$LATTICE_STORY_ID.tgz tests/fixtures/"
       ]
     }
   }
@@ -166,7 +166,7 @@ When `test_auto` finishes, it runs `git restore + git clean -fd` on the fixtures
   "hooks": {
     "onError": {
       "*": [
-        "curl -s -XPOST $WEBHOOK_URL -H 'Content-Type: application/json' -d \"{\\\"command\\\":\\\"$KOALA_COMMAND\\\",\\\"error\\\":\\\"$(echo $KOALA_ERROR | head -c 200)\\\"}\""
+        "curl -s -XPOST $WEBHOOK_URL -H 'Content-Type: application/json' -d \"{\\\"command\\\":\\\"$LATTICE_COMMAND\\\",\\\"error\\\":\\\"$(echo $LATTICE_ERROR | head -c 200)\\\"}\""
       ]
     }
   }

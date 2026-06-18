@@ -20,7 +20,10 @@
  *   3. Doctor (real handler) — broad-ignore-untracked fixture → predicate flags
  *      unsafe + remediation text + JSON unsafe; --repair writes the managed
  *      allowlist → re-scan safe; second --repair no-op; safe project → no false
- *      positive.
+ *      positive. B-0740 CHK-001 adds the WRAPPER-ROOT case (metadataRoot !=
+ *      gitRoot): --repair must install the allowlist (wrote:true, no leading
+ *      `fatal: not a git repository`) and a second run is a no-op — the prior
+ *      cwd=root probe ran in the non-git wrapper and silently returned wrote:false.
  *   4. Bootstrap never silently leaves metadata in the neither-tracked-
  *      nor-protected state (force-add yields a tracked leaf even when ignored).
  */
@@ -105,6 +108,59 @@ function writeStoryIndex(root: string, phase = 'DEV'): void {
 /** Stub probe: classify by a fixed (tracked, ignored) pair, bypassing real git. */
 function stubRunner(probe: StoryMetadataProbe): (leaf: string) => StoryMetadataProbe {
   return () => probe;
+}
+
+/**
+ * B-0740 CHK-001: build a WRAPPER-ROOT fixture (metadataRoot != gitRoot).
+ *
+ *   <wrapper>/                       ← metadataRoot, NOT a git repo
+ *     lattice.config.json            ← storyDir under repo/, gitRoot=repo
+ *     repo/                          ← the real git repo (gitRoot)
+ *       .gitignore (.lattice/)       ← broad ignore → leaf unsafe → needsRepair
+ *       lattice.config.json          ← also present at gitRoot for store reads
+ *       .lattice/story/actives/<id>/index.json
+ *
+ * `repairStoryMetadataAllowlist` ran `git rev-parse --show-toplevel` in cwd=root
+ * (the non-git wrapper) → threw `fatal: not a git repository` → wrote:false. The
+ * fix threads the resolved gitProbeCwd so the probe runs in repo/.
+ */
+function buildWrapperRootFixture(wrapper: string): { wrapper: string; repo: string } {
+  const repo = join(wrapper, 'repo');
+  const storyDirRel = `repo/${STORY_DIR_REL}`;
+  mkdirSync(wrapper, { recursive: true });
+  initGitRepo(repo);
+  // Broad `.lattice/` ignore → the leaf is ignored + untracked = the unsafe state.
+  writeFileSync(join(repo, '.gitignore'), '.lattice/\n');
+  // The store reads lattice.config.json from the metadataRoot (wrapper); the
+  // configured gitRoot subdir + storyDir-inside-gitRoot makes resolveDoctorGitCwd
+  // resolve to repo/ (the wrapper-root layout under test).
+  writeFileSync(
+    join(wrapper, 'lattice.config.json'),
+    JSON.stringify({ storyDir: storyDirRel, gitRoot: 'repo' }, null, 2),
+  );
+  // Story leaf lives inside the gitRoot (lifecycle requirement) but is ignored.
+  const storyDir = join(wrapper, storyDirRel, STORY_ID);
+  mkdirSync(storyDir, { recursive: true });
+  writeFileSync(
+    join(storyDir, 'index.json'),
+    JSON.stringify(
+      {
+        storyId: STORY_ID,
+        name: 'smoke',
+        title: 'smoke',
+        description: 'smoke story',
+        phase: 'DEV',
+        type: 'feature',
+        priority: 'low',
+        createdAt: new Date().toISOString(),
+      },
+      null,
+      2,
+    ),
+  );
+  git(repo, ['add', '.gitignore']);
+  git(repo, ['commit', '-m', 'base']);
+  return { wrapper, repo };
 }
 
 const base = mkdtempSync(join(tmpdir(), 'lattice-metadata-protection-smoke-'));
@@ -253,6 +309,67 @@ try {
       readFileSync(join(root, '.gitignore'), 'utf-8'),
       gitignoreAfter,
       '.gitignore must be byte-for-byte unchanged on the second --repair',
+    );
+  });
+
+  // ── B-0740 CHK-001: WRAPPER-ROOT --repair (metadataRoot != gitRoot) ─────────
+  // Before the fix repairStoryMetadataAllowlist ran the git probe in cwd=root
+  // (the non-git wrapper) → `fatal: not a git repository` → wrote:false, the
+  // protective allowlist was never installed on exactly the layout it protects.
+  check('doctor: WRAPPER-ROOT --repair installs allowlist (wrote:true, no fatal) → re-scan safe', () => {
+    const { wrapper, repo } = buildWrapperRootFixture(join(base, 'doctor-repair-wrapper'));
+    const handlers = createDoctorHandlers({ store: new StoryStore(wrapper), root: wrapper, scanRoot: wrapper });
+
+    // Capture live stdout/stderr too: a leaked `fatal:` line came from the
+    // unpiped git probe inheriting the parent stderr, not the return value.
+    const chunks: string[] = [];
+    const origErr = process.stderr.write.bind(process.stderr);
+    (process.stderr.write as any) = (buf: any): boolean => {
+      chunks.push(typeof buf === 'string' ? buf : String(buf));
+      return true;
+    };
+    let repair1: Record<string, any>;
+    try {
+      repair1 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+    } finally {
+      (process.stderr.write as any) = origErr;
+    }
+    const block1 = repair1.storyMetadataProtection;
+    assert.equal(block1.evaluated, true, 'wrapper-root: scan must evaluate (probe runs in gitRoot)');
+    assert.equal(block1.repairRequested, true, 'wrapper-root: --repair requested');
+    assert.equal(
+      block1.repairWrote,
+      true,
+      'wrapper-root: --repair MUST install the allowlist (the prior wrote:false failure is gone)',
+    );
+    assert.equal(block1.repairError, null, 'wrapper-root: repair must not error (no fatal: not a git repository)');
+    assert.doesNotMatch(
+      chunks.join(''),
+      /fatal: not a git repository/i,
+      'wrapper-root: the git probe must NOT leak "fatal: not a git repository"',
+    );
+    // The allowlist landed in the GITROOT's .gitignore, not the wrapper's.
+    const gitignoreAfter = readFileSync(join(repo, '.gitignore'), 'utf-8');
+    assert.match(gitignoreAfter, /lattice runtime artifacts \(managed\)/, 'managed block markers present in gitRoot/.gitignore');
+    assert.ok(gitignoreAfter.includes('!.lattice/story/actives/**'), 'negation allowlist installed in gitRoot/.gitignore');
+    assert.equal(block1.unsafe, false, 'wrapper-root: re-scan after repair must be safe');
+  });
+
+  check('doctor: WRAPPER-ROOT second --repair is a no-op (wrote:false, .gitignore byte-identical)', () => {
+    const { wrapper, repo } = buildWrapperRootFixture(join(base, 'doctor-repair-wrapper-noop'));
+    const handlers = createDoctorHandlers({ store: new StoryStore(wrapper), root: wrapper, scanRoot: wrapper });
+
+    const repair1 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+    assert.equal(repair1.storyMetadataProtection.repairWrote, true, 'first wrapper-root --repair installs the allowlist');
+    const gitignoreAfter = readFileSync(join(repo, '.gitignore'), 'utf-8');
+
+    const repair2 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+    assert.equal(repair2.storyMetadataProtection.repairWrote, false, 'second wrapper-root --repair must be a no-op');
+    assert.equal(repair2.storyMetadataProtection.repairError, null, 'second wrapper-root --repair must not error');
+    assert.equal(
+      readFileSync(join(repo, '.gitignore'), 'utf-8'),
+      gitignoreAfter,
+      'gitRoot/.gitignore must be byte-for-byte unchanged on the second wrapper-root --repair',
     );
   });
 

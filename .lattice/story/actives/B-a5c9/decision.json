@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "count_tokens is a pluggable injected interface — the module stays decoupled (zero cross-module imports)",
+    "Local fallback is a coarse bytes/chars heuristic, never tiktoken, clearly low-confidence",
+    "Reuse assemble/record/ids in-module; estimate is source=prompt-size-estimate and NEVER final usage",
+    "Bind every estimate to the exact model id (counts are model-version-specific)"
+  ],
+  "drivers": [
+    "User asked to keep the module independent and chose the low-risk estimate path first",
+    "Estimates guard preflight budget decisions but must never be mistaken for billing truth",
+    "A pluggable count_tokens keeps the high-confidence path correct without coupling to a provider client now"
+  ],
+  "options": [
+    {
+      "name": "A: estimate.ts with an injected count_tokens + concrete bytes/chars fallback",
+      "pros": [
+        "Decoupled + offline-testable",
+        "High-confidence path correct once injected later",
+        "Reuses existing assemble/record/ids"
+      ],
+      "cons": [
+        "High-confidence path inert until injection"
+      ]
+    },
+    {
+      "name": "B: call a real provider count_tokens here",
+      "pros": [
+        "High-confidence now"
+      ],
+      "cons": [
+        "Couples the ledger to a provider HTTP client; not testable offline; higher risk — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: estimate.ts with an injected count_tokens + concrete bytes/chars fallback",
+  "rationale": "An injected count_tokens keeps the module decoupled and unit-testable while making the high-confidence path correct-by-contract for the later dispatch slice to plug in; the always-available bytes/chars fallback makes the estimate path usable (coarsely) from day one.",
+  "preMortem": [
+    {
+      "scenario": "count_tokens hardcoded to a provider client, coupling the module",
+      "trigger": "Convenience",
+      "consequence": "Ledger loses its zero-cross-module-import property",
+      "mitigation": "count_tokens injected only; smoke greps that the module imports zero other Lattice modules; only concrete estimator is local bytes/chars"
+    },
+    {
+      "scenario": "bytes/chars estimate mistaken for billing truth",
+      "trigger": "No clear labelling",
+      "consequence": "A coarse guess treated as real usage",
+      "mitigation": "confidence='low', source='prompt-size-estimate'; summary excludes it from final totals; smoke asserts it never counts as provider-reported"
+    },
+    {
+      "scenario": "estimate double-counted as final usage",
+      "trigger": "Missing supersedes/summary handling",
+      "consequence": "Inflated token/cost totals",
+      "mitigation": "buildSupersedes wiring + summary exclusion; smoke asserts a superseded estimate is not in providerReportedTotal"
+    },
+    {
+      "scenario": "estimate record rejected by the validator",
+      "trigger": "Wrong shape (e.g. missing estimator fields)",
+      "consequence": "Estimates can't be written",
+      "mitigation": "buildEstimateRecord sets estimator{name,version,unit,confidence}; output=null is already allowed for prompt-size-estimate; smoke asserts validates"
+    },
+    {
+      "scenario": "tiktoken pulled in for local counting",
+      "trigger": "Habit",
+      "consequence": "Wrong counts for Claude + a new dependency",
+      "mitigation": "Explicit bytes/chars heuristic, no tokenizer dependency; documented why"
+    }
+  ],
+  "timestamp": "2026-06-16T13:56:55.930Z"
+}

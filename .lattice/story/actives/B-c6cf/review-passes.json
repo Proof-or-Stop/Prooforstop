@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-c6cf:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "All three quality checks pass. (1) Dead code: no .ts source changes — nothing to check. (2) Type safety: no .ts source changes — no as-any or empty catch to check. (3) I/O shell isolation: no shell file imports changed. Config files: .c8rc.json is well-formed JSON with correct schema (reporter array, reports-dir string, include/exclude arrays, boolean flags). package.json test:coverage script is minimal with no shell-escaping issues. docs/dev/test-coverage.md has correct markdown structure. CHANGELOG Unreleased entry is accurate. Decision doc B3 marker correctly shows DONE+B-c6cf+date. No doc-promise-undelivered issues found — all documented behavior (HTML report, LCOV, .gitignore, .c8rc.json, --jobs 1) is delivered in the diff.",
+      "createdAt": "2026-06-17T14:10:27.628Z",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "reviewRunId": "B-c6cf:RR-002",
+      "_hash": "eaeba6d622fe99a536bbe8c475dcf369b377ebfaf4f6ca371cb5a728162202ff"
+    },
+    {
+      "id": "B-c6cf:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Story is purely additive (c8 coverage instrumentation). No concept deleted or replaced — residue check N/A. Scope checks: (1) test:coverage script exists only at root package.json, no conflicting script in any sub-package. (2) docs/dev/test-coverage.md is referenced in both the CHANGELOG Unreleased entry and the decision doc (test-runner-consolidation-plan.md line 196). (3) Closing self-check: all doc promises delivered — .c8rc.json present with html+lcov+text reporters, reports-dir packages/main/coverage, all:true, clean:true; c8 ^11.0.0 in root devDependencies; packages/main/coverage/ in .gitignore; test:coverage script in root package.json uses c8 with --jobs 1. No promised-but-undelivered items found. No blocker.",
+      "createdAt": "2026-06-17T14:11:05.285Z",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "reviewRunId": "B-c6cf:RR-001",
+      "_hash": "767532b8e5cfdc86d2ec9575d5de80009ba6f8889deefb9d3723a3de92fbe92a"
+    },
+    {
+      "id": "B-c6cf:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 25 intents across 4 checklist items. CHK-001 7/7 intents pass (happy:0-2, edge:0-1, adversarial:0-1). CHK-002 6/7 success, 1 waiver (CHK-002:happy:2): exit-0 plan-time miscalibration; 17 preexisting failures confirmed on main (16 exit-1 smokes + 1 timeout: lattice-baseline), none caused by B-c6cf (purely additive changes to .c8rc.json/.gitignore/package.json/CHANGELOG.md/docs/); A0 acceptance is met (HTML 8994 bytes, LCOV 1135582 bytes, 140/157 smokes under c8). CHK-003 6/6 intents pass. CHK-004 5/5 intents pass. All 24 success-verdict evidence commands bind to literal intent CLIs and produce the expected output. Waiver rationale is sound and honest. No blocker.",
+      "createdAt": "2026-06-17T14:15:45.753Z",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "reviewRunId": "B-c6cf:RR-004",
+      "_hash": "d0119c764f894c2944890815fed38487b06cfa4e6646d9cd08363306640716e0"
+    },
+    {
+      "id": "B-c6cf:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Re-bind to fresh diff_pack hash after metadata commits invalidated prior RR-001/RR-002 bindings. Original round-1 review verdict: PASS / 0 findings (concept verified no residue + cross-refs; quality verified .c8rc.json + script + docs + CHANGELOG). No code changed between original review and this re-bind — only metadata churn.",
+      "createdAt": "2026-06-17T14:16:52.564Z",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "reviewRunId": "B-c6cf:RR-007",
+      "_hash": "6abdbebbcc824fcdb03cdbe39b8d0c03e2c45d35e581b3875811408c2c329ae1"
+    },
+    {
+      "id": "B-c6cf:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind to fresh diff_pack hash after metadata commits invalidated prior RR-001/RR-002 bindings. Original round-1 review verdict: PASS / 0 findings (concept verified no residue + cross-refs; quality verified .c8rc.json + script + docs + CHANGELOG). No code changed between original review and this re-bind — only metadata churn.",
+      "createdAt": "2026-06-17T14:16:54.129Z",
+      "reviewRound": "2026-06-17T14:09:10.877Z",
+      "reviewRunId": "B-c6cf:RR-008",
+      "_hash": "0ecf7835914ad171a72a4fefb4edb6d915025f3eb4f05b8353f8f0d82f8dad64"
+    }
+  ]
+}

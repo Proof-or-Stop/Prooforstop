@@ -1,0 +1,29 @@
+{
+  "task": "Eliminate the KOALA_* env-var layer with no koala fallback: drop the `|| KOALA_X` for 17 LATTICE_* twins; rename 38 KOALA-only vars to LATTICE_X across code, config, wrapper assets, hook docs, and tests; drop docs/koala/legacy/.",
+  "outcome": "After the change: a scan `git grep -E 'KOALA_[A-Z]' -- packages scripts bin .Codex .claude docs/guide-hooks.md` returns nothing; `docs/koala/legacy/` is gone; `npm run build` and `npm run test:e2e` both exit 0. An operator who used to `export KOALA_AGENT=...` now exports `LATTICE_AGENT=...`.",
+  "facts": [
+    "98 tracked files carry KOALA_ env tokens (81 in packages/main/src; rest in scripts/bin/.Codex/.claude/docs/guide-hooks.md); 30 are test/smoke files.",
+    "17 vars have a LATTICE_* dual-read twin (drop `|| process.env.KOALA_X`); 38 are KOALA-only (rename to LATTICE_X).",
+    "Some vars are SET by code as subprocess/hook contracts (bin/lattice-codex.js sets KOALA_ACTIVITY_SOURCE; docs/guide-hooks.md documents KOALA_COMMAND etc.).",
+    "LEGACY_KOALA_* path constants in core/lattice-paths.ts and .koala/ runtime dirs are OUT of scope.",
+    "docs/koala/legacy/ has 12 files, 0 code refs (droppable); docs/koala/framework-audit/ is active and KEPT."
+  ],
+  "constraints": [
+    "No koala fallback retained (intentional breaking change; external KOALA_* exporters must switch to LATTICE_*).",
+    "Do not touch LEGACY_KOALA_* path constants, .koala/ dirs, docs/koala/framework-audit, experiments/, koala.config.json/markers, or CHANGELOG.",
+    "build + e2e must stay green; KOALA_ env scan over code/config/wrappers must end at zero."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "bin/lattice-codex.js",
+    "docs/guide-hooks.md",
+    "scripts/verify-dev-memory.mjs",
+    ".Codex/README.md",
+    ".claude/agents/lattice-evaluator.md",
+    "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+    "docs/koala/legacy/root-markdown/KOALA.md"
+  ],
+  "timestamp": "2026-06-15T23:52:48.146Z"
+}

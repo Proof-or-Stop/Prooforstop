@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-ceed",
+  "checkedAt": "2026-06-17T21:58:51.935Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "922853de0e8795544bd31590f138c8effe70d7ebf1279ca6eb6f20806a01c051",
+  "executionBoundaryHash": "aa969f551f73b13d9d568fd7933013f08603808c1d21937f374c497738c3ae51",
+  "freshnessHash": "80db5c85db8bc29022ace11c6934e30f9f5769264657f91d1acc548261b91797",
+  "effectiveExcludedKeywords": [
+    "Authority receipt-backed signing path (future per memory)",
+    "Modifying runBoundedCodexProvider signature (frozen seam)",
+    "Modifying runClaudeCodeRealLeafDispatch (existing implementation untouched, only called from new fallback path)",
+    "packages/main/src/core/usage-ledger/ (NO usage-parsing changes — separate follow-up)",
+    "packages/main/src/core/usage-ledger/adapters/ (NO new adapter files; usage parsing follow-up)",
+    "packages/main/src/providers/codex-cli.ts (B-1550 contract-frozen)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority receipt-backed signing path (future per memory)",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority receipt-backed signing path (future per memory)",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying runBoundedCodexProvider signature (frozen seam)",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying runBoundedCodexProvider signature (frozen seam)",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying runClaudeCodeRealLeafDispatch (existing implementation untouched, only called from new fallback path)",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying runClaudeCodeRealLeafDispatch (existing implementation untouched, only called from new fallback path)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/usage-ledger/ (NO usage-parsing changes — separate follow-up)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/usage-ledger/ (NO usage-parsing changes — separate follow-up)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/usage-ledger/adapters/ (NO new adapter files; usage parsing follow-up)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/usage-ledger/adapters/ (NO new adapter files; usage parsing follow-up)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/providers/codex-cli.ts (B-1550 contract-frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/providers/codex-cli.ts (B-1550 contract-frozen)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "d59cc9d09b8a77f7a6dc5a9e5442ca92fb5a9ad62da4fff85db8a1e84feb16fd"
+}

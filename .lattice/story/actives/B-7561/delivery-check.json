@@ -1,0 +1,68 @@
+{
+  "storyId": "B-7561",
+  "checkedAt": "2026-06-17T16:12:14.266Z",
+  "reviewRound": "2026-06-17T16:06:28.119Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/experience-layer-types.ts#B-7561-section",
+      "promise": "StoryProfile interface added with storyId/title/type/phase/priority/keywords/fileKinds/touchpoints/riskSignals/notableFindings/notableDecisions/outcome fields",
+      "status": "verified",
+      "verifiedBy": "diff read",
+      "evidence": "StoryProfile exported at line 181, RecallMatch at line 211 in experience-layer-types.ts, confirmed in diff"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7561/plan.md#CHK-001",
+      "promise": "buildStoryProfile(meta) pure, defensive, imports only experience-layer-types + node:; scoreSimilarity multi-field Jaccard over keyword/fileKind/touchpoint sets + type/phase boosts; symmetric and deterministic",
+      "status": "verified",
+      "verifiedBy": "source read + import-fence smoke test",
+      "evidence": "story-recall.ts lines 1-357; import-fence verified by smoke check 23-24 (PASS); scoreSimilarity at line 279"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7561/plan.md#CHK-002",
+      "promise": "recallSimilarStories(target,candidates,topN) ranks candidates excluding self, drops zero-score, stable tiebreak by storyId, returns top-N with reasons; no derived index",
+      "status": "verified",
+      "verifiedBy": "source read + smoke test",
+      "evidence": "recallSimilarStories at story-recall.ts line 325; self-exclusion at line 339; zero-score drop at line 341; smoke checks 12-15 (PASS); no FTS/index created"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7561/plan.md#CHK-003",
+      "promise": "handlers/recall.ts with --story <id> and --query modes; read-only (no writes, no derived index); registered in command-policy(readOnly)/config/registry/cli-engine; --story alias works",
+      "status": "verified",
+      "verifiedBy": "source read + CLI run + smoke tests",
+      "evidence": "handlers/recall.ts 128-180; recall.ts args.story alias at line 136; registry.ts line 235 registerBatch; cli-engine.ts line 1763 schema; command-policy.ts line 215 readOnly; config.ts line 191; CLI run with --story B-1480 --top 3 produced ranked output"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7561/plan.md#CHK-004",
+      "promise": "tasks/experience-layer-recall-smoke.ts + package.json test:experience-layer-recall script; hermetic; asserts profile building, ranking, no writes, zero coupling; existing experience-layer smokes still pass",
+      "status": "verified",
+      "verifiedBy": "npm script run + verifier run",
+      "evidence": "package.json line 32 test:experience-layer-recall; TOTAL 24 | PASS 24 | FAIL 0; verifier TOTAL 38 | PASS 38 | FAIL 0; finding-signals TOTAL 21 | PASS 21 | FAIL 0; playbook TOTAL 23 | PASS 23 | FAIL 0"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Smoke 24/24: buildStoryProfile covers full metadata population, minimal/empty metadata, forward-compat extra fields, deduped+sorted arrays; scoreSimilarity: overlapping>disjoint, symmetric (score(a,b)===score(b,a)), deterministic (same inputs same score), multi-field (one shared keyword does NOT outrank multi-field overlap), single shared dimension=>low non-zero, Jaccard(empty,empty)=>0 no NaN, duplicate keywords no inflation"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke 24/24: recallSimilarStories: most-similar first reasons present, top-N respected zero-score dropped, self-exclusion confirmed, empty candidates => [] topN=0 => [], large candidate set ranking (CHK-002:adversarial:0), malformed/partial profiles no crash (CHK-002:adversarial:2)"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke 24/24: handler recall --story returns ranked results writes NOTHING (tree snapshot equal), handler creates NO derived-index/cache file anywhere, handler recall --query returns keyword-matched stories, usage/unknown-id/top-0/injection-query no crash; CLI live run: recall --story B-1480 --top 3 returned 3 ranked results; import-fence: story-recall.ts imports ONLY ./experience-layer-types.js+node: (non-vacuous check)"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm test:experience-layer-recall: TOTAL 24 | PASS 24 | FAIL 0 (smoke passed); verifier: TOTAL 38 | PASS 38 | FAIL 0; no-regression: finding-signals TOTAL 21 | PASS 21 | FAIL 0, playbook TOTAL 23 | PASS 23 | FAIL 0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from source+tests. 4 CHK items each have real machine tests with both happy-path and adversarial/edge coverage. story-recall.ts and handlers/recall.ts contain zero write/finding refs (grep clean). Import isolation fence verified by non-vacuous smoke check. CLI alias --story confirmed live. Verifier 38/38 pass. No TODOs in new non-test code."
+  },
+  "_hash": "7f1d21aa9531fb207a2f0485ce4fc2885c0de41c99ad05ac5dae15361a3c3334"
+}

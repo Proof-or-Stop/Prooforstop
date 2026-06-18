@@ -4,7 +4,7 @@
   "title": "Implement LLM usage ledger Slice 1: JSONL schema + validator + append-only writer + runtime-artifact registration (opt-in, no provider/budget wiring)",
   "description": "First implementation slice of the LLM usage ledger specified in docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md (spec corrected by B-4bf8). Build ONLY the self-contained writer foundation in packages/main/src, behind an opt-in flag, with NO provider adapters, NO budget enforcement, NO estimate path, and NO Authority receipt path (all deferred to later slices per the spec's rollout). Deliverables: (1) TypeScript record types + a schema validator for the JSONL record — four-field cache-aware usage (inputTokens=uncached remainder, outputTokens, cacheCreationInputTokens, cacheReadInputTokens; NO stored totalTokens), usage.source discriminator (provider-reported|prompt-size-estimate|unavailable), correlation fields (ledgerCallId, attemptId, sequence, supersedesRecordIds), story/role attribution (storyId nullable, phase, agentType, optional subagentId/threadId), privacy flags, authority fields fixed to mode=local/receiptVerified=false, and integrity (previousRecordHash, recordHash); per-dimension cache absence encoded as null (never 0, never via usage.source). (2) An append-only writer to .lattice/usage/llm-usage.jsonl that hash-chains previousRecordHash->recordHash and is a no-op unless the opt-in flag is set. (3) Correlation-id generation helpers that mint ledgerCallId/attemptId/sequence/supersedesRecordIds locally before any provider dispatch. (4) Runtime-time rejection of raw prompt/transcript/secret/API-key/authorization-header material. (5) Registration of .lattice/usage/llm-usage.jsonl in packages/main/src/core/runtime-artifact-registry.ts (id=llm-usage-ledger, matchers, ignorePatterns, materialHash=exclude, volatile=true, repairableTrackedArtifact=true) + gitignore behaviour. (6) An informational summary reader (no gates) that derives totals via total=input+output+cacheCreation+cacheRead and treats unavailable as unknown (never zero). (7) A smoke/test suite. Out of scope: provider extraction, count_tokens estimate path, budget policy/fail-closed enforcement, Authority receipt path, default-on rollout.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -15,7 +15,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-16T00:45:51.553Z",
   "startedAt": "2026-06-16T00:45:51.553Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T01:51:04.156Z",
   "events": [
     {
       "phase": "INIT",
@@ -24,6 +24,71 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:57:16.783Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:57:42.819Z",
+      "branch": "story/B-253e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:05:14.351Z",
+      "branch": "story/B-253e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:20:30.602Z",
+      "branch": "story/B-253e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:43:12.108Z",
+      "branch": "story/B-253e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:43:12.604Z",
+      "branch": "story/B-253e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:45:40.858Z",
+      "branch": "story/B-253e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:51:04.156Z",
+      "branch": "story/B-253e",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "currentReviewRound": "2026-06-16T01:43:12.604Z"
 }

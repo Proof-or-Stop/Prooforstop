@@ -54,7 +54,7 @@ function createBranchCommit(
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: 'Docs/story/actives',
@@ -67,7 +67,7 @@ function initRepo(root: string): void {
   writeFileSync(join(root, 'README.md'), '# host overflow fixture\n');
   writeConfig(root);
   git(root, ['init']);
-  git(root, ['config', 'user.email', 'koala@example.com']);
+  git(root, ['config', 'user.email', 'lattice@example.com']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
@@ -169,7 +169,7 @@ function assertPack(pack: HandoffPack, head: string): void {
   assert.ok(pack.executionInstructions.some(step => /Do not auto-merge/i.test(step)));
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-host-overflow-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-host-overflow-'));
 try {
   initRepo(root);
   resetConfigCache();

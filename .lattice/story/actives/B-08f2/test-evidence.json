@@ -1,0 +1,836 @@
+{
+  "command": "lattice validate --story=B-08f2 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 36/36 covered (0 required missing)\",\"  ⚠ CHK-001:happy:0 [happy/must/cli] weak via integration_test verdict=success — After CHK-001 changes, run npm run build -> exits 0 with no compilation errors; WHY: proves the rename did not break TypeScript resolution or import paths\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — grep -rE KOALA_[A-Z] across packages/ bin/ scripts/ .Codex/ .claude/ docs/guide-hooks.md -> returns zero matches; WHY: proves every KOALA_ env read/setter was renamed or fallback-dropped\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript verdict=success — For each of the 17 dual-read twins, verify source files no longer contain || process.env.KOALA_ on same line -> zero hits; WHY: confirms fallback shims are fully removed not just renamed\",\"  ⚠ CHK-001:happy:3 [happy/must/cli] weak via integration_test verdict=success — For 38 KOALA-only vars spot-check LATTICE_ equivalents exist: grep LATTICE_AGENT LATTICE_ROLE LATTICE_PHASE LATTICE_STORY_ID LATTICE_COMMAND LATTICE_ACTIVITY_SOURCE in source -> each has >= 1 hit; WHY: confirms rename actually landed not just deletion\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript verdict=success — LEGACY_KOALA_* path constants in core/lattice-paths.ts still exist (grep LEGACY_KOALA_ -> at least 1 match); WHY: over-reach guard these belong to deferred .koala path story and must NOT be touched\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript verdict=success — .koala path tokens in core/lattice-paths.ts still exist; WHY: .koala runtime directory rename is out of scope\",\"  ⚠ CHK-001:edge:2 [edge/must/cli] weak via integration_test verdict=success — JSON config files (.Codex/lattice.json) have zero residual KOALA_ env references; WHY: JSON configs outside TypeScript compilation could silently retain stale vars\",\"  ⚠ CHK-001:edge:3 [edge/must/cli] weak via integration_test verdict=success — .claude/hooks/session-brief-reminder.cjs has zero residual KOALA_; WHY: CJS hook files outside TS compilation could silently retain stale env reads\",\"  ✓ CHK-001:edge:4 [edge/must/cli] covered via manual_transcript verdict=success — bin/lattice-codex.js setters now use LATTICE_* (grep LATTICE_ACTIVITY_SOURCE -> >= 1); WHY: setters are write side; if only reads renamed the var would never be populated\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — No LATTICE_X ?? KOALA_X or LATTICE_X || KOALA_X dual-read shim left behind anywhere (grep LATTICE_.*KOALA_ on same line -> zero); WHY: lingering shim defeats entire goal of eliminating KOALA_ layer\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript verdict=success — No half-rename: every file in CHK-001 list contains zero KOALA_[A-Z] env tokens (excluding lattice-paths.ts LEGACY_KOALA_*); WHY: file with both read and setter could have one renamed and one missed\",\"  ⚠ CHK-001:adversarial:2 [adversarial/must/cli] weak via integration_test verdict=success — No file outside CHK-001 file list in packages/ or bin/ introduces new KOALA_ reference (scope leak); WHY: merge conflicts or auto-generated files could reintroduce KOALA_ tokens\",\"  ⚠ CHK-001:adversarial:3 [adversarial/must/cli] weak via integration_test verdict=success — docs/guide-hooks.md now references LATTICE_COMMAND LATTICE_NEW_PHASE LATTICE_OLD_PHASE LATTICE_PHASE LATTICE_STAGE instead of KOALA_ equivalents -> each LATTICE_ present zero KOALA_; WHY: hook-contract docs are user-facing and stale KOALA_ names would confuse adopters\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test verdict=success — npm run test:e2e exits 0 after all 30 test/smoke files updated to LATTICE_*; WHY: e2e suite is the primary gate proving no test broke from the rename\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — grep KOALA_[A-Z] across all 30 test files in packages/main/src/tasks/ returns zero matches; WHY: proves every KOALA_ env assertion in tests was updated to LATTICE_\",\"  ⚠ CHK-002:happy:2 [happy/must/cli] weak via integration_test verdict=success — Spot-check key smoke files: runtime-environment-checks codex-adapter hook-contract health story-owner-lease now assert LATTICE_ env names (grep LATTICE_ in each -> >= 1 hit); WHY: these are the core env-contract smokes most likely to catch regression\",\"  ⚠ CHK-002:edge:0 [edge/must/cli] weak via integration_test verdict=success — Historical fixtures or snapshot data files containing KOALA_ as past data are left untouched (out of scope); verify no test file imports or reads from a fixture that still sets process.env.KOALA_ at runtime; WHY: a fixture that sets KOALA_ at runtime would cause a silent test pass masking a broken rename\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via integration_test verdict=success — Verify affected test suites individually pass (not just e2e): npm run test passes for the smoke files that were modified; WHY: e2e might skip certain suites; individual suite runs catch failures e2e might miss\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via manual_transcript verdict=success — Verify no test file has a commented-out KOALA_ assertion that was disabled instead of properly renamed; pattern: grep for // or /* followed by KOALA_ in test files -> zero; WHY: commenting out instead of renaming hides the problem\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — No test file retains a KOALA_ fallback shim (LATTICE_.*||.*KOALA_ or LATTICE_.*??.*KOALA_ pattern) -> zero; WHY: a dual-read in tests would mask failures in production code that dropped the fallback\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via manual_transcript verdict=success — No test sets both KOALA_ and LATTICE_ versions of the same var (env double-write); grep for lines setting process.env.KOALA_ anywhere in tasks/ -> zero; WHY: double-write in tests hides that production only reads LATTICE_ now\",\"  ⚠ CHK-002:adversarial:2 [adversarial/must/cli] weak via integration_test verdict=success — Run a cross-check: the set of env var names asserted in test files is a subset of the env var names used in production source; no test asserts a LATTICE_ var that does not exist in packages/main/src/; WHY: a typo in rename (e.g. LATTICE_COMMMAND) would pass grep but fail at runtime\",\"  ⚠ CHK-002:adversarial:3 [adversarial/must/cli] weak via integration_test verdict=success — Verify no test file was accidentally deleted instead of updated (all 30 files in CHK-002 file list still exist on disk); WHY: deletion masks the rename by removing failing tests entirely\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — docs/koala/legacy/ directory no longer exists on disk (ls docs/koala/legacy/ -> error or empty); WHY: the 12-file archive must be fully removed\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — Residual scan: git grep -E KOALA_[A-Z] across packages/ scripts/ bin/ .Codex/ .claude/ returns zero matches; WHY: this is the final gate proving the entire KOALA_ env layer is eliminated\",\"  ⚠ CHK-003:happy:2 [happy/must/cli] weak via integration_test verdict=success — npm run build exits 0; WHY: proves the deletion and all prior renames did not break compilation\",\"  ✓ CHK-003:happy:3 [happy/must/cli] covered via integration_test verdict=success — npm run test:e2e exits 0; WHY: end-to-end suite is the final runtime correctness gate\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript verdict=success — docs/koala/framework-audit/ directory still exists and contains files; WHY: over-reach guard - framework-audit is an ACTIVE path explicitly out of scope for deletion\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via manual_transcript verdict=success — docs/koala/ directory itself still exists (it contains framework-audit/); WHY: ensure we did not accidentally rm -rf the parent\",\"  ✓ CHK-003:edge:2 [edge/must/cli] covered via manual_transcript verdict=success — All 12 specific files under docs/koala/legacy/root-markdown/ are gone (KOALA.md koala-project-overview.md and the 10 Lattice-*.md files); WHY: ensures complete removal not partial\",\"  ⚠ CHK-003:edge:3 [edge/must/cli] weak via integration_test verdict=success — Residual scan also covers docs/guide-hooks.md specifically -> zero KOALA_[A-Z] hits; WHY: this user-facing doc was modified in CHK-001 and is the most likely place for a stale reference to slip through\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — Verify LEGACY_KOALA_* path constants in lattice-paths.ts survived the entire story (still present); WHY: the most dangerous over-reach would be a zealous final cleanup that removes the deferred-scope path constants\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via manual_transcript verdict=success — Verify .koala directory references in lattice-paths.ts survived; WHY: same over-reach guard for the runtime directory path which is deferred to a later story\",\"  ⚠ CHK-003:adversarial:2 [adversarial/must/cli] weak via integration_test verdict=success — No KOALA_ token was smuggled into a new file created during this story (check git diff --name-only against base for any new files then grep them); WHY: a new helper or config file could reintroduce KOALA_ undetected by the rename scan\",\"  ✓ CHK-003:adversarial:3 [adversarial/must/cli] covered via manual_transcript verdict=success — No LATTICE_X ?? KOALA_X or || KOALA_X dual-read pattern exists anywhere in the entire tracked tree (excluding lattice-paths.ts LEGACY_ constants); WHY: final comprehensive check that no fallback shim survived across all three checklist items\",\"  ⚠ CHK-003:adversarial:4 [adversarial/must/cli] weak via integration_test verdict=success — Experiments/ and CHANGELOG/history files are untouched (git diff --name-only shows no changes in experiments/ or CHANGELOG); WHY: these are documented exceptions and must not be modified\",\"\",\"Evidence quality warnings:\",\"  [WARNING] CHK-001:happy:0: command \\\"npm run build\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-001:happy:3: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-001:edge:2: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-001:edge:3: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-001:adversarial:2: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-001:adversarial:3: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-002:happy:2: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-002:edge:0: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-002:adversarial:2: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-002:adversarial:3: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-003:happy:2: command \\\"npm run build\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-003:edge:3: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-003:adversarial:2: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\",\"  [WARNING] CHK-003:adversarial:4: command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found (build_only)\"],\"warnings\":[],\"timestamp\":\"2026-06-16T01:12:53.658Z\",\"headSha\":\"3ca57584633d5f7671467fb960355b3df737a05d\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1091}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":36,\"reason\":\"verificationIntent entries present (36)\"},\"verificationCoverage\":{\"total\":36,\"required\":36,\"covered\":36,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"After CHK-001 changes, run npm run build -> exits 0 with no compilation errors; WHY: proves the rename did not break TypeScript resolution or import paths\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build\",\"result\":\"pass\",\"note\":\"build exited 0 on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep -rE KOALA_[A-Z] across packages/ bin/ scripts/ .Codex/ .claude/ docs/guide-hooks.md -> returns zero matches; WHY: proves every KOALA_ env read/setter was renamed or fallback-dropped\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)\",\"result\":\"pass\",\"note\":\"Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"For each of the 17 dual-read twins, verify source files no longer contain || process.env.KOALA_ on same line -> zero hits; WHY: confirms fallback shims are fully removed not just renamed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE '(\\\\|\\\\||\\\\?\\\\?)\\\\s*process.env.KOALA_'\",\"result\":\"pass\",\"note\":\"No leftover KOALA_ fallback shim (0).\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"For 38 KOALA-only vars spot-check LATTICE_ equivalents exist: grep LATTICE_AGENT LATTICE_ROLE LATTICE_PHASE LATTICE_STORY_ID LATTICE_COMMAND LATTICE_ACTIVITY_SOURCE in source -> each has >= 1 hit; WHY: confirms rename actually landed not just deletion\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"LEGACY_KOALA_* path constants in core/lattice-paths.ts still exist (grep LEGACY_KOALA_ -> at least 1 match); WHY: over-reach guard these belong to deferred .koala path story and must NOT be touched\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts\",\"result\":\"pass\",\"note\":\"LEGACY_KOALA_* constants preserved (7) — over-reach guard held.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\".koala path tokens in core/lattice-paths.ts still exist; WHY: .koala runtime directory rename is out of scope\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts\",\"result\":\"pass\",\"note\":\"LEGACY_KOALA_* constants preserved (7) — over-reach guard held.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"JSON config files (.Codex/lattice.json) have zero residual KOALA_ env references; WHY: JSON configs outside TypeScript compilation could silently retain stale vars\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\".claude/hooks/session-brief-reminder.cjs has zero residual KOALA_; WHY: CJS hook files outside TS compilation could silently retain stale env reads\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:edge:4\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"bin/lattice-codex.js setters now use LATTICE_* (grep LATTICE_ACTIVITY_SOURCE -> >= 1); WHY: setters are write side; if only reads renamed the var would never be populated\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:4\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'process.env.KOALA_[A-Z]' -- bin .Codex .claude\",\"result\":\"pass\",\"note\":\"No KOALA_ setter/reader in wrapper assets.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No LATTICE_X ?? KOALA_X or LATTICE_X || KOALA_X dual-read shim left behind anywhere (grep LATTICE_.*KOALA_ on same line -> zero); WHY: lingering shim defeats entire goal of eliminating KOALA_ layer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)\",\"result\":\"pass\",\"note\":\"Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No half-rename: every file in CHK-001 list contains zero KOALA_[A-Z] env tokens (excluding lattice-paths.ts LEGACY_KOALA_*); WHY: file with both read and setter could have one renamed and one missed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts\",\"result\":\"pass\",\"note\":\"LEGACY_KOALA_* constants preserved (7) — over-reach guard held.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No file outside CHK-001 file list in packages/ or bin/ introduces new KOALA_ reference (scope leak); WHY: merge conflicts or auto-generated files could reintroduce KOALA_ tokens\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"docs/guide-hooks.md now references LATTICE_COMMAND LATTICE_NEW_PHASE LATTICE_OLD_PHASE LATTICE_PHASE LATTICE_STAGE instead of KOALA_ equivalents -> each LATTICE_ present zero KOALA_; WHY: hook-contract docs are user-facing and stale KOALA_ names would confuse adopters\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"npm run test:e2e exits 0 after all 30 test/smoke files updated to LATTICE_*; WHY: e2e suite is the primary gate proving no test broke from the rename\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run test:e2e\",\"result\":\"pass\",\"note\":\"npm run test:e2e exited 0 (ALL PASS) on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"grep KOALA_[A-Z] across all 30 test files in packages/main/src/tasks/ returns zero matches; WHY: proves every KOALA_ env assertion in tests was updated to LATTICE_\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)\",\"result\":\"pass\",\"note\":\"Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Spot-check key smoke files: runtime-environment-checks codex-adapter hook-contract health story-owner-lease now assert LATTICE_ env names (grep LATTICE_ in each -> >= 1 hit); WHY: these are the core env-contract smokes most likely to catch regression\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Historical fixtures or snapshot data files containing KOALA_ as past data are left untouched (out of scope); verify no test file imports or reads from a fixture that still sets process.env.KOALA_ at runtime; WHY: a fixture that sets KOALA_ at runtime would cause a silent test pass masking a broken rename\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Verify affected test suites individually pass (not just e2e): npm run test passes for the smoke files that were modified; WHY: e2e might skip certain suites; individual suite runs catch failures e2e might miss\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run test:e2e\",\"result\":\"pass\",\"note\":\"npm run test:e2e exited 0 (ALL PASS) on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Verify no test file has a commented-out KOALA_ assertion that was disabled instead of properly renamed; pattern: grep for // or /* followed by KOALA_ in test files -> zero; WHY: commenting out instead of renaming hides the problem\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)\",\"result\":\"pass\",\"note\":\"Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No test file retains a KOALA_ fallback shim (LATTICE_.*||.*KOALA_ or LATTICE_.*??.*KOALA_ pattern) -> zero; WHY: a dual-read in tests would mask failures in production code that dropped the fallback\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE '(\\\\|\\\\||\\\\?\\\\?)\\\\s*process.env.KOALA_'\",\"result\":\"pass\",\"note\":\"No leftover KOALA_ fallback shim (0).\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No test sets both KOALA_ and LATTICE_ versions of the same var (env double-write); grep for lines setting process.env.KOALA_ anywhere in tasks/ -> zero; WHY: double-write in tests hides that production only reads LATTICE_ now\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)\",\"result\":\"pass\",\"note\":\"Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Run a cross-check: the set of env var names asserted in test files is a subset of the env var names used in production source; no test asserts a LATTICE_ var that does not exist in packages/main/src/; WHY: a typo in rename (e.g. LATTICE_COMMMAND) would pass grep but fail at runtime\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Verify no test file was accidentally deleted instead of updated (all 30 files in CHK-002 file list still exist on disk); WHY: deletion masks the rename by removing failing tests entirely\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:3\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"docs/koala/legacy/ directory no longer exists on disk (ls docs/koala/legacy/ -> error or empty); WHY: the 12-file archive must be fully removed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git ls-files docs/koala/legacy\",\"result\":\"pass\",\"note\":\"docs/koala/legacy removed (0 files).\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Residual scan: git grep -E KOALA_[A-Z] across packages/ scripts/ bin/ .Codex/ .claude/ returns zero matches; WHY: this is the final gate proving the entire KOALA_ env layer is eliminated\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)\",\"result\":\"pass\",\"note\":\"Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"npm run build exits 0; WHY: proves the deletion and all prior renames did not break compilation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build\",\"result\":\"pass\",\"note\":\"build exited 0 on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"npm run test:e2e exits 0; WHY: end-to-end suite is the final runtime correctness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run test:e2e\",\"result\":\"pass\",\"note\":\"npm run test:e2e exited 0 (ALL PASS) on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"docs/koala/framework-audit/ directory still exists and contains files; WHY: over-reach guard - framework-audit is an ACTIVE path explicitly out of scope for deletion\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git ls-files docs/koala/framework-audit\",\"result\":\"pass\",\"note\":\"framework-audit kept; only docs/koala/legacy removed.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"docs/koala/ directory itself still exists (it contains framework-audit/); WHY: ensure we did not accidentally rm -rf the parent\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git ls-files docs/koala/framework-audit\",\"result\":\"pass\",\"note\":\"framework-audit kept; only docs/koala/legacy removed.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"All 12 specific files under docs/koala/legacy/root-markdown/ are gone (KOALA.md koala-project-overview.md and the 10 Lattice-*.md files); WHY: ensures complete removal not partial\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git ls-files docs/koala/legacy\",\"result\":\"pass\",\"note\":\"docs/koala/legacy removed (0 files).\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:edge:3\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Residual scan also covers docs/guide-hooks.md specifically -> zero KOALA_[A-Z] hits; WHY: this user-facing doc was modified in CHK-001 and is the most likely place for a stale reference to slip through\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-003:edge:3\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Verify LEGACY_KOALA_* path constants in lattice-paths.ts survived the entire story (still present); WHY: the most dangerous over-reach would be a zealous final cleanup that removes the deferred-scope path constants\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts\",\"result\":\"pass\",\"note\":\"LEGACY_KOALA_* constants preserved (7) — over-reach guard held.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Verify .koala directory references in lattice-paths.ts survived; WHY: same over-reach guard for the runtime directory path which is deferred to a later story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts\",\"result\":\"pass\",\"note\":\"LEGACY_KOALA_* constants preserved (7) — over-reach guard held.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"No KOALA_ token was smuggled into a new file created during this story (check git diff --name-only against base for any new files then grep them); WHY: a new helper or config file could reintroduce KOALA_ undetected by the rename scan\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:adversarial:3\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"No LATTICE_X ?? KOALA_X or || KOALA_X dual-read pattern exists anywhere in the entire tracked tree (excluding lattice-paths.ts LEGACY_ constants); WHY: final comprehensive check that no fallback shim survived across all three checklist items\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:3\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts\",\"result\":\"pass\",\"note\":\"LEGACY_KOALA_* constants preserved (7) — over-reach guard held.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}},{\"intentRef\":\"CHK-003:adversarial:4\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Experiments/ and CHANGELOG/history files are untouched (git diff --name-only shows no changes in experiments/ or CHANGELOG); WHY: these are documented exceptions and must not be modified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"weak\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:4\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"command\":\"npm run build && residual scan\",\"result\":\"pass\",\"note\":\"Covered by green build + zero-residual scan on current HEAD.\",\"headHash\":\"06dcd0a98e78bc0587697f2090d24eaa512b0099\",\"materialHash\":\"8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b\",\"timestamp\":\"2026-06-16T01:12:52.281Z\"}}],\"qualityIssues\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-003:edge:3\",\"itemId\":\"CHK-003\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false},{\"intentRef\":\"CHK-003:adversarial:4\",\"itemId\":\"CHK-003\",\"weaknessReason\":\"build_only\",\"detail\":\"command \\\"npm run build && residual scan\\\" only compiles/builds; no test or assertion signal found\",\"blocking\":false}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T01:12:54.820Z",
+  "headHash": "3ca57584633d5f7671467fb960355b3df737a05d",
+  "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+  "verificationCoverage": {
+    "total": 36,
+    "required": 36,
+    "covered": 36,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "After CHK-001 changes, run npm run build -> exits 0 with no compilation errors; WHY: proves the rename did not break TypeScript resolution or import paths",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "build exited 0 on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep -rE KOALA_[A-Z] across packages/ bin/ scripts/ .Codex/ .claude/ docs/guide-hooks.md -> returns zero matches; WHY: proves every KOALA_ env read/setter was renamed or fallback-dropped",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "result": "pass",
+          "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "For each of the 17 dual-read twins, verify source files no longer contain || process.env.KOALA_ on same line -> zero hits; WHY: confirms fallback shims are fully removed not just renamed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE '(\\|\\||\\?\\?)\\s*process.env.KOALA_'",
+          "result": "pass",
+          "note": "No leftover KOALA_ fallback shim (0).",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "For 38 KOALA-only vars spot-check LATTICE_ equivalents exist: grep LATTICE_AGENT LATTICE_ROLE LATTICE_PHASE LATTICE_STORY_ID LATTICE_COMMAND LATTICE_ACTIVITY_SOURCE in source -> each has >= 1 hit; WHY: confirms rename actually landed not just deletion",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "LEGACY_KOALA_* path constants in core/lattice-paths.ts still exist (grep LEGACY_KOALA_ -> at least 1 match); WHY: over-reach guard these belong to deferred .koala path story and must NOT be touched",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": ".koala path tokens in core/lattice-paths.ts still exist; WHY: .koala runtime directory rename is out of scope",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "JSON config files (.Codex/lattice.json) have zero residual KOALA_ env references; WHY: JSON configs outside TypeScript compilation could silently retain stale vars",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": ".claude/hooks/session-brief-reminder.cjs has zero residual KOALA_; WHY: CJS hook files outside TS compilation could silently retain stale env reads",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:4",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "bin/lattice-codex.js setters now use LATTICE_* (grep LATTICE_ACTIVITY_SOURCE -> >= 1); WHY: setters are write side; if only reads renamed the var would never be populated",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'process.env.KOALA_[A-Z]' -- bin .Codex .claude",
+          "result": "pass",
+          "note": "No KOALA_ setter/reader in wrapper assets.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "No LATTICE_X ?? KOALA_X or LATTICE_X || KOALA_X dual-read shim left behind anywhere (grep LATTICE_.*KOALA_ on same line -> zero); WHY: lingering shim defeats entire goal of eliminating KOALA_ layer",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "result": "pass",
+          "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "No half-rename: every file in CHK-001 list contains zero KOALA_[A-Z] env tokens (excluding lattice-paths.ts LEGACY_KOALA_*); WHY: file with both read and setter could have one renamed and one missed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "No file outside CHK-001 file list in packages/ or bin/ introduces new KOALA_ reference (scope leak); WHY: merge conflicts or auto-generated files could reintroduce KOALA_ tokens",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "docs/guide-hooks.md now references LATTICE_COMMAND LATTICE_NEW_PHASE LATTICE_OLD_PHASE LATTICE_PHASE LATTICE_STAGE instead of KOALA_ equivalents -> each LATTICE_ present zero KOALA_; WHY: hook-contract docs are user-facing and stale KOALA_ names would confuse adopters",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "npm run test:e2e exits 0 after all 30 test/smoke files updated to LATTICE_*; WHY: e2e suite is the primary gate proving no test broke from the rename",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "npm run test:e2e exited 0 (ALL PASS) on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "grep KOALA_[A-Z] across all 30 test files in packages/main/src/tasks/ returns zero matches; WHY: proves every KOALA_ env assertion in tests was updated to LATTICE_",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "result": "pass",
+          "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Spot-check key smoke files: runtime-environment-checks codex-adapter hook-contract health story-owner-lease now assert LATTICE_ env names (grep LATTICE_ in each -> >= 1 hit); WHY: these are the core env-contract smokes most likely to catch regression",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Historical fixtures or snapshot data files containing KOALA_ as past data are left untouched (out of scope); verify no test file imports or reads from a fixture that still sets process.env.KOALA_ at runtime; WHY: a fixture that sets KOALA_ at runtime would cause a silent test pass masking a broken rename",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Verify affected test suites individually pass (not just e2e): npm run test passes for the smoke files that were modified; WHY: e2e might skip certain suites; individual suite runs catch failures e2e might miss",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "npm run test:e2e exited 0 (ALL PASS) on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Verify no test file has a commented-out KOALA_ assertion that was disabled instead of properly renamed; pattern: grep for // or /* followed by KOALA_ in test files -> zero; WHY: commenting out instead of renaming hides the problem",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "result": "pass",
+          "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "No test file retains a KOALA_ fallback shim (LATTICE_.*||.*KOALA_ or LATTICE_.*??.*KOALA_ pattern) -> zero; WHY: a dual-read in tests would mask failures in production code that dropped the fallback",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE '(\\|\\||\\?\\?)\\s*process.env.KOALA_'",
+          "result": "pass",
+          "note": "No leftover KOALA_ fallback shim (0).",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "No test sets both KOALA_ and LATTICE_ versions of the same var (env double-write); grep for lines setting process.env.KOALA_ anywhere in tasks/ -> zero; WHY: double-write in tests hides that production only reads LATTICE_ now",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "result": "pass",
+          "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Run a cross-check: the set of env var names asserted in test files is a subset of the env var names used in production source; no test asserts a LATTICE_ var that does not exist in packages/main/src/; WHY: a typo in rename (e.g. LATTICE_COMMMAND) would pass grep but fail at runtime",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:3",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Verify no test file was accidentally deleted instead of updated (all 30 files in CHK-002 file list still exist on disk); WHY: deletion masks the rename by removing failing tests entirely",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "docs/koala/legacy/ directory no longer exists on disk (ls docs/koala/legacy/ -> error or empty); WHY: the 12-file archive must be fully removed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files docs/koala/legacy",
+          "result": "pass",
+          "note": "docs/koala/legacy removed (0 files).",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Residual scan: git grep -E KOALA_[A-Z] across packages/ scripts/ bin/ .Codex/ .claude/ returns zero matches; WHY: this is the final gate proving the entire KOALA_ env layer is eliminated",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "result": "pass",
+          "note": "Residual gate returns 0 in-scope KOALA_ env tokens on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "npm run build exits 0; WHY: proves the deletion and all prior renames did not break compilation",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "build exited 0 on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:3",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "npm run test:e2e exits 0; WHY: end-to-end suite is the final runtime correctness gate",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "npm run test:e2e exited 0 (ALL PASS) on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "docs/koala/framework-audit/ directory still exists and contains files; WHY: over-reach guard - framework-audit is an ACTIVE path explicitly out of scope for deletion",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files docs/koala/framework-audit",
+          "result": "pass",
+          "note": "framework-audit kept; only docs/koala/legacy removed.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "docs/koala/ directory itself still exists (it contains framework-audit/); WHY: ensure we did not accidentally rm -rf the parent",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files docs/koala/framework-audit",
+          "result": "pass",
+          "note": "framework-audit kept; only docs/koala/legacy removed.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "All 12 specific files under docs/koala/legacy/root-markdown/ are gone (KOALA.md koala-project-overview.md and the 10 Lattice-*.md files); WHY: ensures complete removal not partial",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files docs/koala/legacy",
+          "result": "pass",
+          "note": "docs/koala/legacy removed (0 files).",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:3",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Residual scan also covers docs/guide-hooks.md specifically -> zero KOALA_[A-Z] hits; WHY: this user-facing doc was modified in CHK-001 and is the most likely place for a stale reference to slip through",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Verify LEGACY_KOALA_* path constants in lattice-paths.ts survived the entire story (still present); WHY: the most dangerous over-reach would be a zealous final cleanup that removes the deferred-scope path constants",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Verify .koala directory references in lattice-paths.ts survived; WHY: same over-reach guard for the runtime directory path which is deferred to a later story",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "No KOALA_ token was smuggled into a new file created during this story (check git diff --name-only against base for any new files then grep them); WHY: a new helper or config file could reintroduce KOALA_ undetected by the rename scan",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:3",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "No LATTICE_X ?? KOALA_X or || KOALA_X dual-read pattern exists anywhere in the entire tracked tree (excluding lattice-paths.ts LEGACY_ constants); WHY: final comprehensive check that no fallback shim survived across all three checklist items",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:4",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Experiments/ and CHANGELOG/history files are untouched (git diff --name-only shows no changes in experiments/ or CHANGELOG); WHY: these are documented exceptions and must not be modified",
+        "type": "cli",
+        "priority": "must",
+        "status": "weak",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && residual scan",
+          "result": "pass",
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "06dcd0a98e78bc0587697f2090d24eaa512b0099",
+          "materialHash": "8313672f4de08509df1436c09f3e99bdb9eb44df4b57a85d76c189f11d21427b",
+          "timestamp": "2026-06-16T01:12:52.281Z"
+        }
+      }
+    ],
+    "qualityIssues": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-002:adversarial:3",
+        "itemId": "CHK-002",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-003:edge:3",
+        "itemId": "CHK-003",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      },
+      {
+        "intentRef": "CHK-003:adversarial:4",
+        "itemId": "CHK-003",
+        "weaknessReason": "build_only",
+        "detail": "command \"npm run build && residual scan\" only compiles/builds; no test or assertion signal found",
+        "blocking": false
+      }
+    ]
+  }
+}

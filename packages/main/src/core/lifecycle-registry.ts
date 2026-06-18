@@ -581,7 +581,7 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // `docs/story/.../<storyId>/...` still resolves for back-compat outside active
 // story prefixes (returns kind 'legacy-metadata').
 
-export const KOALA_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
+export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
   ...LIFECYCLE_ARTIFACTS.filter((artifact) => !artifact.includes('/')),
   'plan.md',
   'background.md',
@@ -608,7 +608,7 @@ export const KOALA_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
   'exp.json',
 ]);
 
-export const KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
+export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
   ...LIFECYCLE_ARTIFACTS.filter((artifact) => artifact.includes('/')),
 ]);
 
@@ -676,10 +676,10 @@ export function classifyLifecycleArtifact(
     const fileName = segments[segments.length - 1];
     const relativePath = segments.slice(1).join('/');
     const isTopLevelArtifact = segments.length === 2;
-    if (isTopLevelArtifact && !KOALA_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
+    if (isTopLevelArtifact && !LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
       return null;
     }
-    if (!isTopLevelArtifact && !KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
+    if (!isTopLevelArtifact && !LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
       return null;
     }
     return {
@@ -720,7 +720,7 @@ export function classifyLifecycleArtifact(
   return null;
 }
 
-export function isKoalaLifecycleArtifactPath(
+export function isLatticeLifecycleArtifactPath(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
 ): boolean {
@@ -728,7 +728,7 @@ export function isKoalaLifecycleArtifactPath(
   return result?.kind === 'lifecycle';
 }
 
-export function isAnyKoalaStoryMetadataPath(
+export function isAnyLatticeStoryMetadataPath(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
 ): boolean {

@@ -117,12 +117,13 @@ function renderActivityLine(a: { timestamp: string; tool: string; status: string
 function readGitStatus(root: string): { porcelain: string[]; recentLog: string[] } {
   const porcelain: string[] = [];
   const recentLog: string[] = [];
+  const gitCwd = root;
   try {
-    const status = execSync('git status --porcelain', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const status = execSync('git status --porcelain', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     if (status) porcelain.push(...status.split('\n').slice(0, 20));
   } catch { /* not a git repo */ }
   try {
-    const log = execSync('git log -3 --oneline', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const log = execSync('git log -3 --oneline', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     if (log) recentLog.push(...log.split('\n'));
   } catch { /* no commits */ }
   return { porcelain, recentLog };
@@ -401,7 +402,7 @@ function summarizeChecklist(cl: ChecklistData | null): ChecklistSummary | null {
   return summary;
 }
 
-interface NextStepCtx {
+export interface NextStepCtx {
   storyId: string;
   phase: string;
   checklist: ChecklistSummary | null;
@@ -412,6 +413,17 @@ interface NextStepCtx {
   hasPassingTestEvidence: boolean;
   testPassedAt: string | null;
   gitReady: boolean;
+  /**
+   * B-e791 CHK-001: true when the metadata root is not itself a git repo BUT a
+   * configured gitRoot resolves to a signed workspace (mirrors the
+   * `!gitReady && configuredGitRootStatus?.signedWorkspaceRoot` pattern used in
+   * the main-branch next-step render ~918). When set, INIT/INIT_CHECK guidance
+   * must NOT tell the user to git init the metadata root — the workspace is
+   * already git-backed via the configured gitRoot, so the story is ready to
+   * proceed. Plain non-git projects with no configured gitRoot leave this false
+   * and keep the existing git-init message byte-identical.
+   */
+  configuredGitRootResolved: boolean;
   donePrecheck: DonePrecheckSummary | null;
   reviewerStatus: ReviewerStatusSummary | null;
   /**
@@ -537,7 +549,7 @@ function normalizeSessionCommandHints(text: string): string {
     .replace(/(\]\s+)(finding_list|reviewer_list|review_run_start|review_pass_set|story_advance|checklist_get)\b/g, '$1lattice $2');
 }
 
-function computeNextStep(c: NextStepCtx): string {
+export function computeNextStep(c: NextStepCtx): string {
   const sid = c.storyId;
   if (isMetaContainer(sid, c.phase)) return metaContainerNextStep(sid);
   const openBugs = c.bugs?.bugs.filter(b => b.status === 'open') ?? [];
@@ -546,12 +558,12 @@ function computeNextStep(c: NextStepCtx): string {
     case 'IDEA':
       return `Story is in IDEA phase with no checklist. After discussing the checklist with the user, append it via lattice checklist_add, or re-run lattice story_create with the checklist field`;
     case 'INIT':
-      if (!c.gitReady) {
+      if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in INIT phase, but the current project is not a git repository. You can continue recording metadata; to enter the INIT_CHECK/worktree flow, first run git init && git add . && git commit -m "init"`;
       }
       return `Story is in INIT phase. Next step: lattice story_advance --storyId=${sid} --phase=INIT_CHECK to create the worktree, then cd into it`;
     case 'INIT_CHECK':
-      if (!c.gitReady) {
+      if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in the pre-INIT_CHECK phase, but the current project is not a git repository. Run git init + initial commit first, then continue with worktree / PLAN flow`;
       }
       return `Story is at INIT_CHECK, worktree created. Next: cd into .worktrees/${sid}/ then lattice story_advance --phase=PLAN`;
@@ -695,7 +707,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
             lines.push('');
             lines.push(renderNonGitProjectNotice(
               configuredGitRootStatus,
-              '⚠ Non-git project: Koala can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.',
+              '⚠ Non-git project: Lattice can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.',
             ));
           }
           const gitNew = readGitStatus(ctx.root);
@@ -1313,6 +1325,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         hasPassingTestEvidence,
         testPassedAt,
         gitReady,
+        configuredGitRootResolved: !gitReady && !!configuredGitRootStatus?.signedWorkspaceRoot,
         donePrecheck,
         reviewerStatus,
         scopeBlocking,

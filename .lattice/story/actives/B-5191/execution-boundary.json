@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5191",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "lattice *",
+    "node *",
+    "npm *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/handlers/review-preflight.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Comments-only docstring correction; no logic change.",
+  "createdAt": "2026-06-17T12:42:40.870Z",
+  "updatedAt": "2026-06-17T12:42:40.870Z",
+  "_hash": "8e9e9f0b6cfe72651befd40f15b0ccb68a15a996d281405e0c1aa24d09c080ff"
+}

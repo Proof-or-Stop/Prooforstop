@@ -1,0 +1,29 @@
+{
+  "task": "Wire the LLM usage ledger into the Claude dispatch path as a THIN flag-gated one-way seam: a pure in-module orchestrator (preflight estimate + provider-reported/unavailable final) + a pure Claude-CLI-output parser in usage-ledger/, and a minimal gated edit to runClaudeCodeRealLeafDispatch() in lattice-dispatch.ts. OFF=byte-identical; parse-failure falls back to raw text; ledger errors never break dispatch; usage-ledger keeps zero cross-module imports.",
+  "outcome": "npm --prefix packages/main run test:usage-ledger-dispatch is all-green, including a SIMULATED end-to-end: a sample Claude Code CLI JSON envelope is parsed -> a provider-reported record carrying real token counts (input/output/cacheCreation/cacheRead) is written to a temp ledger and SUPERSEDES the preflight estimate -> the diagnostics reporter then shows 'story X = N real tokens' (estimate not double-counted). It also proves the safety invariants: with the ledger flag OFF the dispatch host invocation (spawn args ['--print', promptFile]) and the raw-stdout result handling are byte-identical to today; with the flag ON but host output not JSON-parseable, the parser returns the raw text and the final record is 'unavailable' (dispatch still yields the raw result, never throws). Build clean; the only edit outside usage-ledger is the gated seam in lattice-dispatch.ts; usage-ledger still imports zero other modules; the full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics) passes with no regression.",
+  "facts": [
+    "runClaudeCodeRealLeafDispatch() in lattice-dispatch.ts (~line 1862) does spawnSync('claude', ['--print', promptFile]) capturing only raw stdout/stderr/exit-code; Lattice gets NO token usage today",
+    "Real usage requires asking the Claude Code CLI for structured output (--output-format json) and parsing the result text + usage object from the envelope",
+    "usage-ledger already has appendUsageRecord, buildProviderRecord (+ anthropic adapter), buildEstimateRecord/bytesCharsEstimator, ids.ts mint helpers, summary/diagnostics; reuse them",
+    "record.storyId is available at the seam; promptFile is readable; nowIso/command/host context available; phase/agentType/model are derived/defaulted",
+    "codex/gemini hosts are scaffolded-only — out of scope for real-usage; they get estimate + unavailable"
+  ],
+  "constraints": [
+    "Flag OFF => dispatch behavior byte-identical to today (same spawn args, same raw-text handling)",
+    "Flag ON + unparseable host output => fall back to raw stdout text (dispatch never breaks) + record unavailable",
+    "All ledger work wrapped in try/catch; recordDispatch* never throw to the dispatch caller",
+    "One-way dependency: dispatch imports usage-ledger; usage-ledger keeps zero cross-module imports (orchestrator/parser take plain inputs)",
+    "Only edit outside usage-ledger is the single gated seam in lattice-dispatch.ts; provider-reported final supersedes the preflight estimate (no double count)"
+  ],
+  "unknowns": [
+    "Exact Claude Code CLI JSON envelope shape/flag (--output-format json vs other) and where result text + usage live — parse defensively with raw fallback",
+    "Best phase/agentType/model values available at the dispatch seam (read the DispatchRecord/HandoffPack/runtime types)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-16T19:08:01.710Z"
+}

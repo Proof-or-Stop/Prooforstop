@@ -52,8 +52,8 @@ However, older projects may already contain materialized prompt assets such as:
 
 ```text
 .claude/agents/*.md
-.Codex/agents/*.md
-.Codex/lattice.json
+.lattice-codex/agents/*.md
+.lattice-codex/lattice.json
 .lattice/lattice.json with assetMode prompt settings
 ```
 
@@ -66,7 +66,7 @@ Project-local agent prompt copies cause three real correctness and cost issues.
 
 ### 1. Stale Prompt Copies
 
-If a project has materialized `.claude/agents/*.md` or `.Codex/agents/*.md`, the
+If a project has materialized `.claude/agents/*.md` or `.lattice-codex/agents/*.md`, the
 host may read those files instead of the current package registry. That can
 reintroduce:
 
@@ -122,8 +122,8 @@ No default requirement for:
 
 ```text
 .claude/agents/*.md
-.Codex/agents/*.md
-.Codex/lattice.json
+.lattice-codex/agents/*.md
+.lattice-codex/lattice.json
 .lattice/lattice.json only to say assetMode=global-thin
 ```
 
@@ -215,7 +215,7 @@ Questions to answer mechanically:
 
 - When does Lattice read package registry prompts?
 - When does Lattice materialize `.claude/agents`?
-- When does Lattice materialize `.Codex/agents`?
+- When does Lattice materialize `.lattice-codex/agents`?
 - Which config file forces `global-thin` today?
 - Which commands currently write prompt assets?
 - Which commands merely inspect prompt assets?
@@ -237,7 +237,7 @@ config means:
 use local Lattice CLI package prompt registry
 ```
 
-Do not require `.lattice/lattice.json` or `.Codex/lattice.json` solely to say
+Do not require `.lattice/lattice.json` or `.lattice-codex/lattice.json` solely to say
 `assetMode=global-thin`.
 
 Project config remains valid for project structure facts such as:
@@ -254,7 +254,7 @@ Those are project facts, not prompt asset ownership facts.
 
 Acceptance:
 
-- A project with no `.claude/agents`, no `.Codex/agents`, and no prompt asset
+- A project with no `.claude/agents`, no `.lattice-codex/agents`, and no prompt asset
   config still runs Lattice host/reviewer commands through the runtime registry.
 - `lattice doctor` or the relevant adapter doctor reports
   `mode=runtime-owned`.
@@ -279,7 +279,7 @@ Detection rules:
 
 - If `.claude/agents/*.md` exists and the project is not explicitly in
   full-asset/debug mode, warn or fail with a clear migration path.
-- If `.Codex/agents/*.md` exists and the project is not explicitly in
+- If `.lattice-codex/agents/*.md` exists and the project is not explicitly in
   full-asset/debug mode, warn or fail with a clear migration path.
 - If project-local prompt assets exist but hashes differ from the runtime
   registry, report `stale`.
@@ -321,8 +321,8 @@ Deletion candidates:
 
 ```text
 .claude/agents/*.md
-.Codex/agents/*.md
-.Codex/lattice.json when it only expresses runtime-owned default
+.lattice-codex/agents/*.md
+.lattice-codex/lattice.json when it only expresses runtime-owned default
 .lattice/lattice.json prompt asset fields when they only express runtime-owned default
 ```
 
@@ -394,7 +394,7 @@ business project by default.
 
 Acceptance:
 
-- `verify_codex` still passes without `.Codex/agents/*.md`.
+- `verify_codex` still passes without `.lattice-codex/agents/*.md`.
 - Claude/Codex adapters can explain where prompts were resolved from.
 - The report does not claim Authority Server completion.
 
@@ -405,7 +405,7 @@ Add or extend smokes to cover:
 ```text
 runtime-owned project with no project prompt assets
 stale project-local .claude/agents detection
-stale project-local .Codex/agents detection
+stale project-local .lattice-codex/agents detection
 explicit full-asset mode remains supported
 repair migration is idempotent
 verify_codex passes in runtime-owned mode
@@ -605,3 +605,27 @@ Suggested stories:
 
 Each story must carry its own verificationIntent and should avoid broad
 template/adapter rewrites outside its declared scope.
+
+## Implementation Status
+
+- **Codex side — landed (B-4ee0).** Global-thin default; Codex resolves prompts
+  from the package registry via the `.lattice-codex/lattice.json` manifest
+  (`promptMode: 'registry'`). No `.lattice-codex/agents` materialization in global-thin/thin
+  mode.
+- **Claude side — landed (B-097f), host-neutral.** Claude Code cannot resolve a
+  subagent from a single manifest (it discovers subagents only from on-disk
+  `.claude/agents/*.md` and reads each file's frontmatter to register the
+  `subagent_type` + `tools` sandbox). So Claude keeps one file per role, but the
+  file is a **content-free thin shim**: frontmatter (`name`/`description`/`tools`)
+  plus a body that instructs the agent to run `lattice agent_prompt --role=<name>`.
+  The role **body** is never copied or symlinked onto disk; it is served by the
+  new `lattice agent_prompt` command, which reads the canonical registry template
+  (`templates/agents/<role>.md`) — the same template set the prompt registry
+  manifest (`promptRegistryManifest()`) is built from and that the Codex manifest
+  resolves against (byte-for-byte one source). `lattice init` writes zero project `.claude/agents` files; the 16 shims
+  live once in global `~/.claude/agents`. Migration of pre-existing project-local
+  managed files is explicit (`lattice init --upgrade` only; normal init merely
+  WARNs), deletes only managed basenames, preserves user files. `lattice doctor`
+  reports `agentAssetMode: runtime-owned`. See
+  `lifecycle-artifact-scope.md` → "Policy: host-neutral prompt content, thin host
+  adapters (B-097f)".

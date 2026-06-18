@@ -1,0 +1,27 @@
+{
+  "storyId": "B-5191",
+  "checkedAt": "2026-06-17T12:52:49.540Z",
+  "reviewRound": "2026-06-17T12:49:47.620Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/handlers/review-preflight.ts#express-channel-comments",
+      "promise": "Three express-channel docstrings accurately describe: five gates force-skipped (channel/concept/lint/docs-drift/english-artifacts), codex-adapter still conditionally evaluated and can block, and correct gate count of six not four",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "git diff confirms only comment lines changed in review-preflight.ts (12 lines, 3 comment blocks). Cross-check against runReviewCliGates lines 237-286: lines 237-273 push 5 gates with ok:true/status:skipped; lines 274-285 conditionally push codex-adapter with ok=(codex.status===passing); line 286 returns gates.every(g=>g.ok) which can be false. PreflightGateEntry.name union lists 6 gate names. All three new comments accurately reflect this logic."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "comments-only assertion: all 12 changed source lines are comment lines (JSDoc/block-comment) in review-preflight.ts — no logic, no type, no runtime path changed. tsc exit 0 confirmed via npm --prefix packages/main run build (transcript-diff.md). No behavior change to test; correctness verified by comment-vs-code cross-check against runReviewCliGates lines 237-286."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 corrected comment blocks verified accurate against the actual runReviewCliGates express branch (lines 237-286). Diff is comments-only confirmed by line-by-line inspection. tsc exit 0. No unresolved TODOs. Express-channel story with no logic change — delivery complete."
+  },
+  "_hash": "29bb3b59e2f0dc467372962313a6a1ab7f250d99bfcafe43147fe298fc98dd4d"
+}

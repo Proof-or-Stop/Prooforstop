@@ -1,0 +1,53 @@
+{
+  "storyId": "B-a7b0",
+  "checkedAt": "2026-06-16T21:47:51.661Z",
+  "reviewRound": "2026-06-16T21:38:09.638Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-a7b0/plan.md#CHK-001",
+      "promise": "docs-drift gate extended to run path-reference drift check (delegating to scanPathDrift) when repoRoot is supplied; missingPaths added to DocsDriftGateResult; additive / backward-compatible",
+      "verifiedBy": "diff/grep",
+      "evidence": "validate-docs-drift.ts: checkPathDrift() function added, DocsDriftGateResult.missingPaths field added, runDocsDriftGate() opts.repoRoot branch added; review-preflight.ts passes deps.projectRoot as repoRoot; DOCS_DRIFT_PATH_ALLOWLIST seam exported"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a7b0/plan.md#CHK-002",
+      "promise": "docs-drift gate extended to detect managed-asset contradiction (CLAUDE.md do-not-create claim vs framework-generated managed asset); managedAssetContradictions added to DocsDriftGateResult; provider-injected registry, never hardcoded",
+      "verifiedBy": "diff/grep",
+      "evidence": "validate-docs-drift.ts: checkManagedAssetContradiction(), extractForbiddenPathClaims(), forbidsAssetOrAncestor(), normalizeAssetPath() added; DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST exported with .codex/hooks and .codex/settings.json allowlisted (B-94ae pending); review-preflight.ts injects real managed-asset registry; F-002 observable degrade wired"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a7b0/plan.md#F-001",
+      "promise": "ALL_MANAGED_ASSET_KINDS canonical export in managed-assets.ts with compile-time exhaustiveness guard so a missing union member is a type error",
+      "verifiedBy": "diff/grep",
+      "evidence": "managed-assets.ts: ALL_MANAGED_ASSET_KINDS added as const satisfies readonly ManagedAssetKind[]; _AssertAllKinds type guard present; ManagedAssetDefinition interface exported; validate-docs-drift.ts imports ALL_MANAGED_ASSET_KINDS as single source of truth"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a7b0/plan.md#CHK-003",
+      "promise": "Regression smoke docs-drift-path-drift-smoke.ts created and wired into validate battery (root npm test chained as test:docs-drift-smoke)",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts created (440 lines, four-behavior acceptance block); root package.json test script now chains test:docs-drift-smoke; compiled dist/tasks/docs-drift-path-drift-smoke.js confirmed on disk"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "smoke CHK-001: (a) stale-path fixture: pathExists=false,grepLiteral=false -> status fail, path in missingPaths; (b) existing path: pathExists=true -> pass, missingPaths empty; (c) grep fallback: pathExists=false,grepLiteral=true -> pass; (d) noise controls: docs/story/ ignored, uppercase-PLACEHOLDER ignored, allowlisted path suppressed; command-name result byte-identical with vs without repoRoot. Real CLAUDE.md run2 (transcript-diff.md): status pass, missingPaths=[], zero false-positive missing paths with registry 229 commands, 12 defs."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "smoke CHK-002: happy: forbids .codex/hooks/lattice-scope-pretool.cjs (codex-hooks, empty allowlist) -> fail, asset in contradictions; edge: excluded-path kind -> pass; edge: no do-not-create claim -> pass; edge: ancestor-dir .Codex/hooks matches child generated asset -> fail; adversarial: allowlisted pending claim suppressed (pass); adversarial: flipping injected kind generated<>excluded changes outcome (registry-driven proof). F-002 observable degrade confirmed in review-preflight.ts catch block."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "four-behavior acceptance block: (a) stale-path -> fail; (b) managed-asset-contradiction (non-allowlisted generated kind) -> fail; (c) clean fixture -> pass both arrays empty; (d) command-name missing/stale/status byte-identical with vs without opts. lattice validate --story=B-a7b0 (transcript-diff.md run1): test:docs-drift-smoke PASS, verification intent coverage 9/9 covered, ALL PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified in code via diff/grep; smoke covers happy, edge (existing-path, grep-fallback, excluded-path-kind, ancestor-dir, no-claim), and adversarial (noise controls, allowlist seam, registry-driven proof, byte-identical command scan) cases; no TODO/FIXME in any added lines; smoke chained into validate battery and confirmed green in transcript."
+  },
+  "_hash": "910897ddfb4b8b6b598e50fe95433185926df20f4960955c4764bdd8cd3799b7"
+}

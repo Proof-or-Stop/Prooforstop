@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "No koala token a user would set/read may remain in the env layer",
+    "Rename setters and readers together to keep the runtime contract whole",
+    "Touch only env vars — not LEGACY_KOALA_* path constants or recorded history",
+    "Prove completion with a residual scan reaching zero, not by inspection"
+  ],
+  "drivers": [
+    "Open-source launch must not ship unexplainable KOALA_* env vars",
+    "No external users yet, so a hard break with no fallback is acceptable",
+    "build + e2e must stay green throughout"
+  ],
+  "options": [
+    {
+      "name": "Hard eliminate (chosen)",
+      "pros": [
+        "Zero KOALA_ remains",
+        "No dead compat shipped"
+      ],
+      "cons": [
+        "Breaking for any external KOALA_ exporter",
+        "Large mechanical diff"
+      ]
+    },
+    {
+      "name": "Transitional dual-read",
+      "pros": [
+        "Non-breaking"
+      ],
+      "cons": [
+        "Leaves KOALA_ tokens in code — violates the goal"
+      ]
+    },
+    {
+      "name": "Rename user-facing subset only",
+      "pros": [
+        "Smaller diff"
+      ],
+      "cons": [
+        "Residual KOALA_ still hard to explain"
+      ]
+    }
+  ],
+  "chosen": "Hard eliminate (chosen)",
+  "rationale": "A dual-read shim would leave KOALA_ in code, defeating the no-KOALA_ OSS goal; with no external users a clean break is safe and avoids carrying dead compat into the public release.",
+  "preMortem": [
+    {
+      "scenario": "A KOALA_ env SETTER (Codex/hook/subprocess wrapper) is missed while its reader is renamed",
+      "trigger": "Rename driven only by process.env reads, ignoring assignment sites and string literals in .Codex/.claude/bin/docs",
+      "consequence": "The renamed reader sees undefined at runtime; hooks/subprocess context silently loses its value",
+      "mitigation": "Rename setters and readers per-var together; grep assignments and bare 'KOALA_X' literals across assets+docs; residual scan over .Codex/.claude/bin/docs must hit zero"
+    },
+    {
+      "scenario": "Dropping a twin's `|| KOALA_X` fallback breaks a path that relied on KOALA_X being exported (no LATTICE_X set)",
+      "trigger": "Assuming every twin's LATTICE_X is always populated",
+      "consequence": "A code path that only had KOALA_PROJECT_ROOT/etc. now resolves to a wrong default",
+      "mitigation": "For each of the 17 twins confirm the LATTICE_X read is the tested path; run full e2e + affected smokes after the drop"
+    },
+    {
+      "scenario": "A blanket sed rewrites LEGACY_KOALA_* path constants or .koala tokens",
+      "trigger": "Global koala->lattice replace without excluding the deferred path-compat layer",
+      "consequence": "Corrupts the .koala path-compat constants and the legacy activity-log path",
+      "mitigation": "Exclude core/lattice-paths.ts LEGACY_KOALA_* and any '.koala' token; concept reviewer greps for over-reach; build must pass"
+    },
+    {
+      "scenario": "A recorded historical fixture gating a smoke test gets its KOALA_ rewritten",
+      "trigger": "Treating recorded past-run data the same as current-name assertions",
+      "consequence": "Falsifies replayed history or breaks the gate",
+      "mitigation": "Update only current-name test assertions, not recorded historical fixtures; run the gated smokes"
+    }
+  ],
+  "timestamp": "2026-06-15T23:48:18.626Z"
+}

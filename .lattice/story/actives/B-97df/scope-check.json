@@ -1,0 +1,192 @@
+{
+  "storyId": "B-97df",
+  "checkedAt": "2026-06-16T14:37:59.700Z",
+  "features": [
+    {
+      "feature": "Read ledger summaries without changing gates (Touchpoint 5 preamble)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Derive totals via the summary identity (inputTokens+outputTokens+cacheCreationInputTokens+cacheReadInputTokens), not from a stored total",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Grouped aggregation by storyId, phase, agentType/role, model, provider",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Provider-reported vs prompt-size-estimate vs unavailable kept separate in aggregation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Unknown/unavailable stays unknown (never 0) in aggregation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Superseded estimates excluded from final usage totals",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Cost derived only in a layer that pins model+date to a versioned price table via pricingRef (no absolute dollar amount on record)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Cost projection uses an INJECTED price table (per-model $/MTok including cache multipliers); no hardcoded prices",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Cost is null/omitted when no price table is supplied (not 0)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "pricingRef/pricingVersion recorded when a price table is supplied",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Unknown token dimensions -> cost unknown (never treated as 0)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Surface unknown or unavailable usage as unknown (not zero) in the report",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Read-only report builder that feeds no gate (no gate/verdict/decision/blocker field; not imported by any handler/gate)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Avoid model-routing or optimization advice in the first diagnostics slice",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Runnable reporter entry-point (reads ledger JSONL path, optional price table, prints report, human + JSON mode)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Reporter wired as an npm script, NOT a registered lattice CLI command",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke/test suite covering grouped aggregation, cost projection, report shape (no gate field), reporter task runs, build green, zero-cross-module-import assert",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "No regression in the other usage-ledger smokes",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Ledger schema and writer (Touchpoint 1: JSONL schema, writer choke-point, runtime artifact registry, hash chaining)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: story description and plan.md explicitly defer writer/dispatch/choke-point changes to prior slices (B-253e). decision.json and execution-boundary.json restrict to core/usage-ledger + tasks + package.json.",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Provider adapter extraction (Touchpoint 2: multi-provider normalization, canonical view, cache-field mapping)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: deferred to B-08a1 (adapters story). Story description and plan.md exclude all dispatch/adapter changes.",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Estimate path (Touchpoint 3: preflight estimates, estimator confidence, count_tokens endpoint)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: deferred to B-a5c9 (estimate path story). Story description and plan.md exclude estimate-path implementation.",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Budget policy (Touchpoint 4: fail-closed budget, over-budget refusal, shadow/Authority-required modes)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: story description explicitly defers budget enforcement. decision.json Option B rejected.",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Authority integration (Touchpoint 6: evidence envelope, receipt signature verification, receipt-backed code path)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: story description explicitly defers signed-receipt path. decision.json and background.md confirm.",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Default-on local ledger (Rollout Phase 6)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: story description explicitly defers default-on. plan.md Out of scope section confirms.",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Registering a first-class lattice CLI command for usage",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json explicitly chose Option A over Option B (CLI command registration rejected as violating no-other-logic constraint). Confirmed in plan.md Out of scope.",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 25,
+    "covered": 18,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0e941db91cc4061497df7fda9ee56b8b48cbd4d53377657c5656b1f1a64a62a1",
+  "openQuestions": []
+}

@@ -15,19 +15,9 @@ export interface RuntimeArtifactRegistryEntry {
 
 export const LATTICE_RUNTIME_IGNORE_BLOCK_START = '# lattice runtime artifacts (managed)';
 export const LATTICE_RUNTIME_IGNORE_BLOCK_END = '# /lattice runtime artifacts (managed)';
-export const KOALA_RUNTIME_IGNORE_BLOCK_START = LATTICE_RUNTIME_IGNORE_BLOCK_START;
-export const KOALA_RUNTIME_IGNORE_BLOCK_END = LATTICE_RUNTIME_IGNORE_BLOCK_END;
 
 function rx(value: string): RegExp {
   return new RegExp(value);
-}
-
-export function isForbiddenOmxPath(path: string): boolean {
-  const normalized = normalizeRuntimeArtifactPath(path);
-  return normalized === '.omx' ||
-    normalized.startsWith('.omx/') ||
-    normalized.includes('/.omx/') ||
-    normalized.endsWith('/.omx');
 }
 
 export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
@@ -113,6 +103,46 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
       { kind: 'prefix', value: '.lattice/locks/' },
     ],
     ignorePatterns: ['.lattice/locks/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
+    // B-253e CHK-005: the local LLM usage ledger (.lattice/usage/llm-usage.jsonl)
+    // is a mutable runtime diagnostic — budget accounting and operator
+    // diagnostics, NOT story evidence, validation evidence, or gate-consumed
+    // proof. doctor / material-hash / runtime-artifact repair / gitignore must
+    // treat it like other mutable runtime diagnostics under .lattice/. The
+    // prefix matcher also covers future adjacent usage-runtime files under
+    // .lattice/usage/ without catching unrelated paths (e.g. story evidence).
+    id: 'llm-usage-ledger',
+    description: 'local LLM usage diagnostic ledger',
+    matchers: [
+      { kind: 'exact', value: '.lattice/usage/llm-usage.jsonl' },
+      { kind: 'prefix', value: '.lattice/usage/' },
+    ],
+    ignorePatterns: ['.lattice/usage/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
+    // B-000c CHK-003: the Experience Layer derived caches under
+    // .lattice/learning/ (finding-signals.json + learning-log.jsonl) are mutable
+    // runtime diagnostics derived from existing findings — NOT story evidence,
+    // validation evidence, or gate-consumed proof. They MUST be materialHash-
+    // excluded so deriving/refreshing the cache never perturbs currentMaterialHash
+    // and thus never invalidates a gate's evidence freshness. Mirrors the
+    // llm-usage-ledger entry above; the prefix matcher also covers future
+    // adjacent learning-runtime files under .lattice/learning/.
+    id: 'experience-layer-learning-cache',
+    description: 'Experience Layer derived finding-signals cache and learning log under .lattice/learning/.',
+    matchers: [
+      { kind: 'exact', value: '.lattice/learning/finding-signals.json' },
+      { kind: 'exact', value: '.lattice/learning/learning-log.jsonl' },
+      { kind: 'prefix', value: '.lattice/learning/' },
+    ],
+    ignorePatterns: ['.lattice/learning/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,

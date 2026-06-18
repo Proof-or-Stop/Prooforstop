@@ -112,7 +112,7 @@ function startProxy(
 
         if (contentType.includes('text/html')) {
           let html = await resp.text();
-          const injection = `<script>window.__KOALA_WS_PORT=${wsPort};${clientScript}</script>`;
+          const injection = `<script>window.__LATTICE_WS_PORT=${wsPort};${clientScript}</script>`;
           if (html.includes('</head>')) {
             html = html.replace('</head>', `${injection}</head>`);
           } else {

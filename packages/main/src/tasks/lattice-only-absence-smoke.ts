@@ -53,11 +53,11 @@ assertNotContains(codexWrapper, 'bin/koala.js', 'generated lattice Codex wrapper
 
 for (const template of [CODEX_README_TEMPLATE, renderCodexReadmeTemplate('full'), renderCodexReadmeTemplate('thin')]) {
   assertNotContains(template, 'node bin/koala-codex.js', 'Codex README template');
-  assertNotContains(template, '.Codex/koala.json', 'Codex README template');
+  assertNotContains(template, '.lattice-codex/koala.json', 'Codex README template');
 }
 const manifest = renderLatticeCodexAdapterManifest();
 assertNotContains(manifest, 'koala-codex', 'Codex manifest template');
-assertNotContains(manifest, '.Codex/koala.json', 'Codex manifest template');
+assertNotContains(manifest, '.lattice-codex/koala.json', 'Codex manifest template');
 
 const legacyConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-config-legacy-absent-'));
 try {
@@ -85,7 +85,7 @@ try {
 
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-legacy-absent-'));
 try {
-  writeText(legacyOnlyRoot, '.Codex/koala.json', JSON.stringify({
+  writeText(legacyOnlyRoot, '.lattice-codex/koala.json', JSON.stringify({
     adapterOwner: 'koala',
     adapterKind: 'codex',
     activitySource: 'codex',
@@ -97,12 +97,20 @@ try {
 
   const codex = runCodexAdapterChecks(legacyOnlyRoot, { executeHeartbeats: false });
   assert.equal(codex.ok, false, `legacy-only Codex assets must not pass:\n${renderCodexAdapterChecks(codex)}`);
-  assert.equal(codex.checks.find(check => check.id === 'manifest')?.status, 'fail', 'legacy-only manifest should fail');
+  // B-097f host-neutral runtime-owned model: a canonical .lattice-codex/lattice.json is no
+  // longer required; the prompt body resolves from the package registry. The legacy
+  // .lattice-codex/koala.json is simply ignored (never loaded as an active manifest), so the
+  // manifest check reports the runtime-owned default `pass` rather than the pre-B-097f `fail`.
+  // The legacy-only rejection is still proven by codex.ok===false above plus the local-wrapper
+  // fail and the INCOMPATIBLE managed-asset checks below — the legacy assets are NOT accepted.
+  const manifestCheck = codex.checks.find(check => check.id === 'manifest');
+  assert.equal(manifestCheck?.status, 'pass', 'absent canonical manifest resolves to runtime-owned default (legacy koala.json ignored)');
+  assert.match(manifestCheck?.detail ?? '', /runtime-owned default/, 'manifest pass must be the runtime-owned default, not legacy acceptance');
   assert.equal(codex.checks.find(check => check.id === 'local-wrapper')?.status, 'fail', 'legacy-only wrapper should fail');
 
   const managed = runManagedAssetCheck(legacyOnlyRoot, { profile: 'codex', assetMode: 'full' });
   assert.equal(managed.ok, false, `legacy active assets must be incompatible:\n${renderManagedAssetCheck(managed)}`);
-  for (const relPath of ['bin/koala.js', 'bin/koala-codex.js', '.Codex/koala.json']) {
+  for (const relPath of ['bin/koala.js', 'bin/koala-codex.js', '.lattice-codex/koala.json']) {
     const item = managed.items.find(candidate => candidate.relPath === relPath);
     assert.equal(item?.status, 'INCOMPATIBLE', `${relPath} should be an excluded active runtime asset`);
   }

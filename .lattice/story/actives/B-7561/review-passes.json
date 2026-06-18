@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-7561:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 3 Story Recall; no concept deletion/rename detected; residual scan N/A — nothing to grep.",
+      "createdAt": "2026-06-17T15:57:58.231Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-001",
+      "_hash": "e85b0420636d6b8c606e689aef05485dfae34debceb33e786d643ee2d37dd71c"
+    },
+    {
+      "id": "B-7561:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All three quality axes clean. (1) Dead code: no unused imports, no unreachable functions, no commented-out blocks; the union===0 guard in jaccard is provably unreachable after the dual-empty-set early return but is defensive, not harmful, and not dead in spirit — it is a correctness belt-and-suspenders idiom. The story alias field (RecallArgs.story) is referenced in the live expression args.storyId??args.story??, so it is not an unused declaration. (2) Type safety: zero `as any` casts; the two `as {category:...}` narrowing casts in story-recall.ts are each preceded by a typeof runtime guard making them safe; the `as unknown as StoryProfileInput` cast in the smoke is appropriate for adversarial forward-compat testing; the catch block in readProfileInput silently returns null with an explicit comment — intentional skip-on-error pattern for store enumeration, not silent swallowing. (3) I/O shell isolation: story-recall.ts imports ONLY ./experience-layer-types.js (one import, confirmed by grep); grep -niE writeFileSync|appendFileSync|writeFindings|finding_add on both recall.ts and story-recall.ts returned empty (exit 1 = no match); no FTS/BM25/embedding library imports (grep hits were comments only); command-policy classifies recall as ownershipClass:readOnly, destructiveRisk:none. No blockers found.",
+      "createdAt": "2026-06-17T15:59:37.486Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-003",
+      "_hash": "610c9e5ada2e14abdedfb07d083115ab8a8fa53b269035f9fa67255071b69f11"
+    },
+    {
+      "id": "B-7561:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Checked all 4 checklist items against the code diff and ran the full smoke suite (22/22 PASS). scoreSimilarity is symmetric, deterministic, multi-field (Jaccard blend over keywords+fileKinds+touchpoints + small type/phase boosts), and never NaN (Jaccard(empty,empty)=0). recallSimilarStories respects top-N, excludes self (when storyId non-empty), drops zero-score, and applies stable storyId tiebreak. READ-ONLY contract is met: treeSnapshot before/after recall is byte-identical. Import fence verified by static scan + mutation check. CLI registered in command-policy (readOnly), config.ts, registry.ts, and cli-engine.ts. One high finding (B-7561:F-001) raised: the CLI schema exposes --storyId not --story, so `lattice recall --story <id>` silently falls through to the usage message, contradicting CHK-003 userSees. The remaining behavioral invariants (multi-field scoring, read-only, ranking, import fence, empty candidates, NaN guard, tiebreak) are all correct. No FTS, no derived index.",
+      "createdAt": "2026-06-17T16:01:12.419Z",
+      "reviewRound": "2026-06-17T15:57:14.871Z",
+      "reviewRunId": "B-7561:RR-002",
+      "_hash": "b3d143d3e7c8130101128b1fc246dc3f7fe602537c9b60f6ff4d317f18a86ddd"
+    },
+    {
+      "id": "B-7561:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Additive Phase 3 Story Recall; no concept deletion/rename; residual scan N/A. git diff --stat main...HEAD shows 3921 insertions and only 14 deletions confined to .lattice/ story metadata files. All new source files (story-recall.ts, recall.ts, experience-layer-types.ts, experience-layer-recall-smoke.ts) are net-new additions. No previously-existing concept words were removed or replaced; concept-residue scan does not apply.",
+      "createdAt": "2026-06-17T16:07:15.451Z",
+      "reviewRound": "2026-06-17T16:06:28.119Z",
+      "reviewRunId": "B-7561:RR-005",
+      "_hash": "153357dfb27a10112a7ec4d28fb2132001520257011727dac6a3947102b22975"
+    },
+    {
+      "id": "B-7561:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "F-001 resolved: cli-engine.ts line 1765 now declares `story` as a named optional schema field (alias of --storyId); `node bin/lattice.js recall --story B-7561 --top 3` runs recall correctly with ranked output and no usage-error. All lifecycle invariants verified in code and confirmed live: scoreSimilarity overlapping>disjoint (PASS), symmetric (PASS), deterministic (PASS), multi-field (PASS), Jaccard(empty)=0/no-NaN (PASS); recallSimilarStories most-similar-first (PASS), top-N (PASS), zero-score dropped (PASS), self excluded (PASS), empty->[] (PASS); large candidate set 121 profiles ranked correctly (PASS); malformed/partial profiles no crash (PASS); read-only: tree-snapshot byte-identical before/after recall (PASS); no derived-index/cache file created (PASS); import fence non-vacuous (PASS). npm run test:experience-layer-recall from worktree: TOTAL 24 | PASS 24 | FAIL 0, smoke passed.",
+      "createdAt": "2026-06-17T16:07:56.307Z",
+      "reviewRound": "2026-06-17T16:06:28.119Z",
+      "reviewRunId": "B-7561:RR-007",
+      "_hash": "7d087a13809ad0cb3dfd3e3a4dfb65012e59b98a3d66ceba99094f10449d42e7"
+    },
+    {
+      "id": "B-7561:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "All three invariant checks pass. (1) Dead code: no unused imports — all five names from story-recall and both types from experience-layer-types are exercised in the handler body. (2) Type safety: no `as any`, no empty catch (the one catch in readProfileInput returns null with a comment explaining intent). (3) I/O shell isolation: recall.ts is a handler file (handlers/ layer), not a shell; it does not import fn.ts and the write-mutation grep is empty — confirmed read-only. New `story` alias is a clean `??` fallback at line 136 with no ambiguity. The two new smoke checks (large-set 121-candidate ranking at CHK-002:adversarial:0, malformed-profile no-crash at CHK-002:adversarial:2) are deterministic, self-contained in a mkdtempSync root, exercising the correct invariants without flakiness risk. The `story` alias is not directly exercised by a h.recall({story:...}) call in the smoke suite (only storyId= is used), but the alias path is a one-liner `??` that is trivially covered by the CLI parsing layer; this is below the threshold for a blocking finding. No dead code, no type-safety issue, no shell-isolation breach found.",
+      "createdAt": "2026-06-17T16:07:58.906Z",
+      "reviewRound": "2026-06-17T16:06:28.119Z",
+      "reviewRunId": "B-7561:RR-006",
+      "_hash": "1daf6958f5628efe206da90da254482f5d93d45802ab566ebf00daa9c4283413"
+    },
+    {
+      "id": "B-7561:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 38 intents (CHK-001: 11, CHK-002: 10, CHK-003: 10, CHK-004: 7) have valid manual_transcript evidence with result=pass. F-002 (CHK-002:adversarial:0 large candidate set ranking) confirmed resolved: named check in smoke verifies 121 candidates with best-match ranked #1. F-003 (CHK-002:adversarial:2 malformed/partial profiles no crash) confirmed resolved: named check verifies 10 malformed inputs with buildStoryProfile never throwing and recallSimilarStories returning well-formed array. Both evidence notes are now specifically bound to their intents, not generic. Smoke: 24/24 PASS. Verifier: TOTAL 38 | PASS 38 | FAIL 0.",
+      "createdAt": "2026-06-17T16:08:20.673Z",
+      "reviewRound": "2026-06-17T16:06:28.119Z",
+      "reviewRunId": "B-7561:RR-008",
+      "_hash": "d597821ed533b47a8b4e97018a126e5c57bbfc75aedcc945e991bdf1b894ff03"
+    }
+  ]
+}

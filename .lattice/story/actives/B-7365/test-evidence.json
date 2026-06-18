@@ -1,0 +1,196 @@
+{
+  "command": "lattice validate --story=B-7365 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — repro drives the reconcile against a divergent main and asserts no git conflict markers end up committed in index.json\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — single-session reconcile (no divergence) produces clean metadata, byte-identical to today\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — multi-file metadata conflict leaves no markers in any story-metadata file\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — on a merge conflict the reconcile resolves story metadata to the post-advance state and completes (no markers)\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — no-conflict reconcile path unchanged\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — conflict spanning multiple metadata paths under storyDir is fully resolved deterministically\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — reconcile wrapped in withReentrantMainWriteLock; serialized so concurrent advance cannot race\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — single-session advance does not deadlock (reentrant lock)\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts) — reconcile throw releases the lock (no stuck lock)\"],\"warnings\":[],\"timestamp\":\"2026-06-16T02:45:16.231Z\",\"headSha\":\"663400c9a7ea068382ae35fbdee1c31ac2607574\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1733}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"repro drives the reconcile against a divergent main and asserts no git conflict markers end up committed in index.json\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"repro drives the real reconcile into a conflict; fails pre-fix (markers/abort), passes post-fix (clean index.json)\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"single-session reconcile (no divergence) produces clean metadata, byte-identical to today\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"single-session reconcile path unchanged (init-check-atomicity-smoke still green)\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"multi-file metadata conflict leaves no markers in any story-metadata file\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"3-way conflict on index.json + checklist.json (multi-file) leaves no markers in any file\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"on a merge conflict the reconcile resolves story metadata to the post-advance state and completes (no markers)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"on conflict, storyRel paths resolved to main (checkout --theirs/add) and merge completes; no markers\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"no-conflict reconcile path unchanged\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"clean (no-conflict) merge stays byte-identical via runGitNoThrow happy path\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"conflict spanning multiple metadata paths under storyDir is fully resolved deterministically\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"multi-file conflict under storyRel fully resolved; a conflict OUTSIDE storyRel aborts + throws (never commits markers)\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"reconcile wrapped in withReentrantMainWriteLock; serialized so concurrent advance cannot race\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"reconcile metadata commit + merge wrapped in withReentrantMainWriteLock(gitMainRoot, fn, label)\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"single-session advance does not deadlock (reentrant lock)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"reentrant variant nests safely; single-session advance does not deadlock (main-write-lock-smoke green)\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"reconcile throw releases the lock (no stuck lock)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts\",\"command\":\"npm run test:init-check-reconcile-conflict-smoke\",\"result\":\"pass\",\"note\":\"throw in the reconcile releases the lock via the helper finally (no stuck lock)\",\"headHash\":\"a9f6044f71645c13f73a52141ef0a23aeb56bb9c\",\"materialHash\":\"524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f\",\"timestamp\":\"2026-06-16T02:38:27.056Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T02:45:16.880Z",
+  "headHash": "663400c9a7ea068382ae35fbdee1c31ac2607574",
+  "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "repro drives the reconcile against a divergent main and asserts no git conflict markers end up committed in index.json",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "repro drives the real reconcile into a conflict; fails pre-fix (markers/abort), passes post-fix (clean index.json)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "single-session reconcile (no divergence) produces clean metadata, byte-identical to today",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "single-session reconcile path unchanged (init-check-atomicity-smoke still green)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "multi-file metadata conflict leaves no markers in any story-metadata file",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "3-way conflict on index.json + checklist.json (multi-file) leaves no markers in any file",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "on a merge conflict the reconcile resolves story metadata to the post-advance state and completes (no markers)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "on conflict, storyRel paths resolved to main (checkout --theirs/add) and merge completes; no markers",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "no-conflict reconcile path unchanged",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "clean (no-conflict) merge stays byte-identical via runGitNoThrow happy path",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "conflict spanning multiple metadata paths under storyDir is fully resolved deterministically",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "multi-file conflict under storyRel fully resolved; a conflict OUTSIDE storyRel aborts + throws (never commits markers)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "reconcile wrapped in withReentrantMainWriteLock; serialized so concurrent advance cannot race",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "reconcile metadata commit + merge wrapped in withReentrantMainWriteLock(gitMainRoot, fn, label)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "single-session advance does not deadlock (reentrant lock)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "reentrant variant nests safely; single-session advance does not deadlock (main-write-lock-smoke green)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "reconcile throw releases the lock (no stuck lock)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-reconcile-conflict-smoke.ts",
+          "command": "npm run test:init-check-reconcile-conflict-smoke",
+          "result": "pass",
+          "note": "throw in the reconcile releases the lock via the helper finally (no stuck lock)",
+          "headHash": "a9f6044f71645c13f73a52141ef0a23aeb56bb9c",
+          "materialHash": "524e35badd487b3305691f27721bf8f203f4a485d644a5f9598bf9be286a8f4f",
+          "timestamp": "2026-06-16T02:38:27.056Z"
+        }
+      }
+    ]
+  }
+}

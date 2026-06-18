@@ -69,7 +69,7 @@ type ScopeExtensionDecideArgs = {
 function actorFrom(value: string | undefined): string {
   const explicit = value?.trim();
   if (explicit) return explicit;
-  return process.env.KOALA_AGENT || process.env.USER || 'main-agent';
+  return process.env.LATTICE_AGENT || process.env.USER || 'main-agent';
 }
 
 function ensureInitStory(ctx: HandlerContext, storyId: string, command: string): void {

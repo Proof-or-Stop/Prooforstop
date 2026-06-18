@@ -1,0 +1,72 @@
+{
+  "storyId": "B-ed70",
+  "checkedAt": "2026-06-16T20:34:21.660Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights and Solution Tradeoffs use jargon terms \"3x2 escalation\" and \"3x1 fallback\" without expanding them on first appearance. A new reader cannot tell whether 3x2 means 3-reviewer×2-pass quorum or something else. These should be defined inline or in a short parenthetical."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Key Insights states .Codex/ has 18 files inside it (\"18 files inside .Codex/ itself need git mv\"), but find counts 20 actual tracked files in .Codex/. The undercount may lead the implementer to miss 2 files. (Verified: find .Codex -type f | wc -l = 20.)"
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "background.md Key Insights states \"32 tracked files reference .Codex/\" outside the directory, but git grep -l counts approximately 48–49 files referencing .Codex outside .lattice/.Codex/.codex. CHK-002 context lists only ~20 specific filenames to update. The ~16-file gap is material scope risk. The checklist grep-based verification command (git grep -nE) will catch residuals at done-time, but the mismatch is a factual inaccuracy in the background. (Verified: git grep -l .Codex -- . :(exclude).lattice :(exclude).Codex :(exclude).codex | wc -l = 48.)"
+    },
+    {
+      "id": "INIT-004",
+      "severity": "medium",
+      "desc": "background.md states omx removal touches \"23 files\" (\"13 + 10 decision docs\"), but git grep -l -i omx (excluding .lattice and CHANGELOG) counts 35 distinct files. The 12-file scope gap may cause incomplete removal. CHK-003 has a post-condition grep to catch residuals, which mitigates the risk, but the stated count is factually inaccurate."
+    },
+    {
+      "id": "INIT-005",
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs refers to \"(memory)\" as a shorthand for the user-approved degraded 3x1 fallback policy, but \"memory\" as a system concept (Claude memory store / MEMORY.md) is not defined inline. A reader without access to the memory file cannot verify this approval was actually granted. Consider citing the specific memory key (e.g., \\\"use-degraded-3x1-review-escalation.md\\\") directly in the background."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-16T20:33:07.340Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-16T20:34:21.660Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights and Solution Tradeoffs use jargon terms \"3x2 escalation\" and \"3x1 fallback\" without expanding them on first appearance. A new reader cannot tell whether 3x2 means 3-reviewer×2-pass quorum or something else. These should be defined inline or in a short parenthetical."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Key Insights states .Codex/ has 18 files inside it (\"18 files inside .Codex/ itself need git mv\"), but find counts 20 actual tracked files in .Codex/. The undercount may lead the implementer to miss 2 files. (Verified: find .Codex -type f | wc -l = 20.)"
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "background.md Key Insights states \"32 tracked files reference .Codex/\" outside the directory, but git grep -l counts approximately 48–49 files referencing .Codex outside .lattice/.Codex/.codex. CHK-002 context lists only ~20 specific filenames to update. The ~16-file gap is material scope risk. The checklist grep-based verification command (git grep -nE) will catch residuals at done-time, but the mismatch is a factual inaccuracy in the background. (Verified: git grep -l .Codex -- . :(exclude).lattice :(exclude).Codex :(exclude).codex | wc -l = 48.)"
+        },
+        {
+          "id": "INIT-004",
+          "severity": "medium",
+          "desc": "background.md states omx removal touches \"23 files\" (\"13 + 10 decision docs\"), but git grep -l -i omx (excluding .lattice and CHANGELOG) counts 35 distinct files. The 12-file scope gap may cause incomplete removal. CHK-003 has a post-condition grep to catch residuals, which mitigates the risk, but the stated count is factually inaccurate."
+        },
+        {
+          "id": "INIT-005",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs refers to \"(memory)\" as a shorthand for the user-approved degraded 3x1 fallback policy, but \"memory\" as a system concept (Claude memory store / MEMORY.md) is not defined inline. A reader without access to the memory file cannot verify this approval was actually granted. Consider citing the specific memory key (e.g., \\\"use-degraded-3x1-review-escalation.md\\\") directly in the background."
+        }
+      ]
+    }
+  ],
+  "_hash": "7622d0cae463468e9d0627886de3d4a6bbb0de33d9d6fd4b28476f86631917d0"
+}

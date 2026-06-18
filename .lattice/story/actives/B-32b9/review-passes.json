@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-32b9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement detected in this diff. The changes are: (1) Lattice story metadata updates (checklist status/verificationEvidence for CHK-001 through CHK-004, phase advancement from INIT_CHECK, scope-check, understanding.json, decision.json additions); (2) the code changes to lattice-console-serve.js (two feature additions to buildLineageGraph: understanding node from understanding.json, and pending-dispatch nodes for undispatched CHK items) are outside the Orchestrate repo and not present in this diff. No concept words were deleted or replaced en masse. Concept residue check completed — no blocker.",
+      "createdAt": "2026-06-17T19:29:18.955Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-001",
+      "_hash": "5cb497ad155287de193e6945ba8ee703a964dcfff4a8f346811ae061f21ee1a5"
+    },
+    {
+      "id": "B-32b9:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed lattice-console-serve.js (lines 432-443 understanding node insertion, lines 544-563 pending-dispatch nodes, lines 578-618 review/finding nodes, lines 620-688 conclusion/gate/done) and lattice-lineage.js (full file for context). No blockers. Two low findings registered: dead destructured variable `title` in renderList (lineage.js:623) and empty catch swallowing parse errors in process-events.jsonl loop (serve.js:389). Neither blocks correctness of the delivered functionality. lattice-lineage.js has no code changes relative to main (confirmed: only .lattice story metadata files changed in git diff main...HEAD). Dead code check, type safety check, and bridge isolation check complete.",
+      "createdAt": "2026-06-17T19:30:58.816Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-003",
+      "_hash": "00e6b325dae04c0a5c9009f45e01eac5148cede7b5dbca8ec85557e7a3e84944"
+    },
+    {
+      "id": "B-32b9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. CHK-001:happy:1 resolved — B-08f2 supplemental evidence confirms DISPATCH/RESULT/REVIEW/FINDING node types all present and rendering with LLM data (25 nodes, 7 dispatch events). CHK-004:happy:0 resolved — ll-trace-btn[data-ll-open=B-2d6c] clicked from Active Stories page; graph auto-fit at 30% confirmed via trace-button code path. CHK-004:edge:0 dismissed (no INIT-phase 2-node stories exist). All must-priority intents covered by valid non-fail evidence across CHK-001 through CHK-004.",
+      "createdAt": "2026-06-17T19:44:48.196Z",
+      "reviewRound": "2026-06-17T19:27:55.084Z",
+      "reviewRunId": "B-32b9:RR-004",
+      "_hash": "758fdb6c22cd55b1ccfe3d6ae80f7ec9f8dc40333fbd19f6e397222e198c11d2"
+    }
+  ]
+}

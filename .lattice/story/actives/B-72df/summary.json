@@ -1,0 +1,55 @@
+{
+  "storyId": "B-72df",
+  "changes": "Scoped assertMainWorktreeReadyForMerge (done-effects.ts) so the DONE merge blocks only when a dirty tracked path overlaps the merge affected set (git diff main...story --name-status -M, both rename names, non-ASCII via core.quotePath=false), instead of on any dirty tracked file. Unrelated uncommitted work no longer blocks DONE; clobber-protection and B-e74e main-worktree-unavailable handling preserved; diff-uncomputable fails closed (block-all).",
+  "usage": "On a shared main worktree, lattice story_advance DONE proceeds even when another session has unrelated uncommitted tracked files; it still refuses if a dirty file is one the merge would overwrite.",
+  "expectedOutcome": "DONE allowed with unrelated dirty main (file untouched); blocked when a dirty path overlaps the merge; clean unchanged; main-worktree-unavailable still blocked.",
+  "actualTranscript": "node packages/main/dist/tasks/done-merge-scope-smoke.js -> 6/6: unrelated passes + byte-identical, overlapping (edit/rename-source/non-ASCII) blocks, clean passes, unavailable throws (exit 0). See evidence/transcript-diff.md; lattice validate GREEN.",
+  "outcomeDiff": "Match - unrelated-dirty allowed, overlapping/non-ASCII blocked, availability preserved, clean unchanged.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scoped to the done-effects.ts clean-check. The smoke is not in the default validate battery (backlog B-99b6). A pre-existing done-preflight-smoke summary.json fixture-drift was observed (verified not introduced by this story).",
+  "pitfalls": "F-001: git core.quotePath default octal-escapes non-ASCII paths in porcelain, which would not match the -z diff set -> fixed with core.quotePath=false on git status. The affected-path diff fails closed (conservative block-all) when uncomputable, never silently clobbering.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 310991
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 112772
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 268965
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 897663
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 825056
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 192508
+    }
+  },
+  "totalDurationMs": 2607956,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T03:40:58.521Z",
+  "updatedAt": "2026-06-16T03:40:58.521Z"
+}

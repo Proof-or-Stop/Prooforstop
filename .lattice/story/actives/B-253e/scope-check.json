@@ -1,0 +1,185 @@
+{
+  "storyId": "B-253e",
+  "checkedAt": "2026-06-16T01:01:54.448Z",
+  "features": [
+    {
+      "feature": "JSONL record type: four cache-aware token fields (inputTokens=uncached remainder, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) with NO stored totalTokens",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "usage.source discriminator enum (provider-reported | prompt-size-estimate | unavailable) on each record",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Per-dimension cache absence encoded as null (never 0, never expressed via usage.source overloading)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Schema validator: rejects stored totalTokens, enforces required fields, rejects malformed records",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Correlation fields: ledgerCallId, attemptId, sequence (monotonic), supersedesRecordIds (required, may be empty array)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Correlation ids minted locally BEFORE any provider dispatch; must NOT derive from provider.requestIdHash",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "supersedesRecordIds wiring: a later record for the same attempt can supersede an earlier one",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Append-only writer to .lattice/usage/llm-usage.jsonl (exactly one JSON line per append, never rewrites prior lines)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Hash chain: previousRecordHash read from last line, recordHash computed per record",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Writer is a complete no-op when opt-in flag is OFF (default OFF per Rollout Phase 2)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Runtime rejection of raw prompt, raw completion, raw transcript, raw tool arguments, provider secrets, customer API keys, actor keys, authorization headers",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Registration of .lattice/usage/llm-usage.jsonl in runtime-artifact-registry.ts (id=llm-usage-ledger, matchers, ignorePatterns, materialHash=exclude, volatile=true, repairableTrackedArtifact=true)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Opt-in flag gating with default OFF so writer is fully inert by default",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Informational summary reader: derives total=inputTokens+outputTokens+cacheCreationInputTokens+cacheReadInputTokens, selects latest non-superseded record per ledgerCallId+attemptId, keeps estimates out of provider-reported totals, reports unavailable/null as unknown (never zero), feeds NO gate",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke/test suite wired into package.json covering all foundation behaviors",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Provider adapter extraction and multi-provider normalization (Slice 2 per spec)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description: NO provider adapters; plan.md: Out of scope — Provider adapters / live dispatch",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Estimate path (count_tokens endpoint, local tokenizer, bytes/chars heuristic, estimator confidence/version/unit fields) — Slice 3 per spec",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description: NO count_tokens estimate path; plan.md: Out of scope — count_tokens estimate path",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Budget policy and fail-closed enforcement (blocked refusals, preflight hard-budget decisions) — Slice 4 per spec",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description: NO budget enforcement; plan.md: Out of scope — budget policy and fail-closed blocking",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Authority Server receipt-backed path (evidence envelope, receipt signature verification, subject binding) — Slice 6 per spec",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description: NO Authority receipt path; plan.md: Out of scope — signed-receipt/server promotion",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Default-on local ledger rollout (Rollout Phase 6 per spec)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description: NO default-on rollout; plan.md: Out of scope — default-on rollout",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Streaming usage capture from terminal stream event and mid-stream error/timeout partial usage — Slice 2/4 territory",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No provider dispatch in this slice; streaming is a provider-adapter concern",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Cost derivability via pricingRef/pricingVersion snapshot (no absolute dollar amounts on records)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Cost derivation requires provider and pricing data layers deferred to later slices",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Periodic reconciliation check (dispatch events vs ledger final records per ledgerCallId+attemptId) — Completeness Guarantee",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reconciliation requires live provider dispatch wiring; deferred to later slices",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Story/role attribution capture at call-time from active lease/session context (live storyId/phase/agentType capture during dispatch)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Live attribution requires provider dispatch integration; the schema includes the fields (CHK-001) but live capture is a later-slice concern",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 15,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "03815b4e257d15556af55c8f317042ab6f4cc4de2ebc962a9fff7322202cfdad",
+  "openQuestions": []
+}

@@ -1,0 +1,36 @@
+{
+  "storyId": "B-253e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/core/usage-ledger/ids.ts",
+    "packages/main/src/core/usage-ledger/summary.ts",
+    "packages/main/src/tasks/usage-ledger-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/usage-ledger-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Story acceptance verifier (75 intents) + result; story evidence, not a deliverable.",
+      "timestamp": "2026-06-16T01:20:30.021Z",
+      "paths": [
+        ".lattice/story/actives/B-253e/evidence/verify-b-253e.mjs",
+        ".lattice/story/actives/B-253e/evidence/verify-result.json"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-16T01:20:21.368Z",
+  "updatedAt": "2026-06-16T01:20:30.021Z"
+}

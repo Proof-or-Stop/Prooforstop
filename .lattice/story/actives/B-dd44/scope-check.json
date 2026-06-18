@@ -1,0 +1,157 @@
+{
+  "storyId": "B-dd44",
+  "checkedAt": "2026-06-16T20:45:33.807Z",
+  "features": [
+    {
+      "feature": "Pre-call hard-budget block: when preflight estimate exceeds hard budget, block the request (skip provider spawn)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Write decision.kind=blocked ledger entry when blocking a request",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Budget-policy resolution reads LATTICE_HARD_BUDGET_TOKENS (fallback KOALA_HARD_BUDGET_TOKENS), returns null when unset/invalid (no enforcement)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Pure isOverHardBudget predicate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do not invent a budget when local mode has no budget policy configured; record decision.kind=allowed with budgetPolicyId=null",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Budget-check error must NOT wrongly block (on error, proceed as today / fail-open on budget-check exception)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Budget UNSET or ledger flag OFF => dispatch byte-identical to current (no new code path triggered)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Block triggers ONLY when flag ON + hard budget configured + estimate exceeds budget (4-quadrant regression safety)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "buildBlockedBudgetRecord pure builder: must pass validateUsageLedgerRecord, never throws, decision.kind=blocked, supersedesRecordIds=[estimateRecordId]",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Zero cross-module imports for usage-ledger module (one-way seam preserved)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test suite wired as npm test:usage-ledger-budget + no regression in full ledger suite",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Blocked record is not counted as provider-reported usage in summaries",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Fail closed when budget state cannot be read in Authority-required mode",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: Authority-required budget modes",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Mark policy failure when provider-reported usage is required by policy but unavailable after a call (postflight overage handling)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: postflight overage handling beyond recording",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Rerun estimate or block in strict modes when estimate is stale relative to prompt construction",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: Authority-required budget modes / strict modes are part of Authority path",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Never treat unavailable usage as zero to pass a budget",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Authority-required mode fails closed when receipt-backed evidence is absent, stale, unverifiable, or bound to different subject",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: Authority-required budget modes",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Ordinary local mode reports warnings rather than global blockers when no budget configured",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Define local, shadow, and Authority-required budget modes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: Authority-required budget modes; shadow and Authority modes deferred",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Make postflight provider-reported overages visible and auditable",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope: postflight overage handling beyond recording",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 12,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fd335646bade1bcbec1a5a4a7c229987725722ff783a487d27c50cf2d5b44bb4",
+  "openQuestions": []
+}

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7365",
+  "changes": "Made commitInitCheckMetadataAndMergeMain (cli-engine.ts) conflict-safe: wrapped the on-main metadata commit + merge in withReentrantMainWriteLock, and on a merge conflict it resolves all conflicted storyDir paths deterministically to the post-advance (main) version then completes the merge (aborting cleanly on a secondary error), so the INIT_CHECK reconcile never commits or leaves git conflict markers in machine-generated story metadata.",
+  "usage": "Concurrent INIT_CHECK advances (or main churn during the reconcile) no longer corrupt the story index.json with conflict markers; lattice commands keep parsing the story.",
+  "expectedOutcome": "the reconcile resolves a metadata conflict to the post-advance state with no markers; single-session path unchanged.",
+  "actualTranscript": "node packages/main/dist/tasks/init-check-reconcile-conflict-smoke.js -> reconcile resolved a 3-way metadata conflict to the post-advance state with no markers; smoke passed (exit 0). Fails pre-fix (CONFLICT / Automatic merge failed). Existing init-check-atomicity-smoke + main-write-lock-smoke still pass. See evidence/transcript-diff.md.",
+  "outcomeDiff": "Match - the reconcile is conflict-safe + lock-serialized; never leaves markers; the clean single-session path is byte-identical.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scoped to the INIT_CHECK reconcile (cli-engine.ts). The conflict smoke is not yet in the default validate battery (backlog B-99b6).",
+  "pitfalls": "This is the durable fix for the reconcile corruption that recurred twice this session (B-3990, B-e791 each needed manual repair). The DONE-sync git merge main is a different path (not the INIT_CHECK reconcile) and is not in scope here.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 7388453
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11791
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 293925
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1494443
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 499259
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 258874
+    }
+  },
+  "totalDurationMs": 9946745,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T02:38:17.310Z",
+  "updatedAt": "2026-06-16T02:38:17.310Z"
+}

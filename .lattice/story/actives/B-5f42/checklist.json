@@ -1,0 +1,248 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a warn-only PreToolUse hook that detects CJK in git commit and lattice story-metadata commands",
+      "context": "Model after the existing UserPromptSubmit hook in .claude/settings.json. Hook reads tool_input.command from stdin JSON; when the command matches git commit or lattice story_create/checklist_add/checklist_update/decision_set/understanding_set/summary_set, scan for CJK codepoints (U+4E00-9FFF plus common CJK ranges). On match, print a warning to stderr and exit 0 (non-blocking). Hook must be self-contained (no dependency on dist) per the pre-push external-defense principle.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "After a commit or lattice-metadata command containing Chinese, the terminal shows a warning like: warn: artifact contains non-English (CJK) text; Lattice artifacts must be English. The command still proceeds.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T23:00:21.197Z",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/managed-assets.ts",
+          ".claude/settings.json"
+        ],
+        "create": [
+          ".claude/hooks/english-only-guard.cjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A git commit or lattice story-metadata Bash command containing CJK triggers the hook to print an english-only warning to stderr",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "English-only commands and non-matching Bash commands produce no warning and exit 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed/empty stdin or missing tool_input does not crash the hook; it exits 0 (never blocks)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 6 spawns english-only-guard.cjs with a CJK git-commit and lattice metadata command; hook prints the english-only warning on stderr and exits 0",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 6: English-only command and non-matching (unguarded) Bash produce no output and exit 0",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 6: empty/malformed stdin makes the hook exit 0 without crashing (warn-only, never blocks)",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a diff/story-scoped CJK gate to lattice validate that hard-blocks REVIEW to TEST on non-English commits or story metadata",
+      "context": "Add a CJK scan to the validate preflight alongside --lint. Scope strictly to the current story/branch: scan git log main..HEAD commit subjects and bodies and the current story author-controlled metadata (background.md, index.json title/description, checklist.json text fields, decision.json, understanding.json, plan.md, summary.json). Exclude framework/reviewer-generated or pure-runtime files to limit false positives. Fail (non-zero) when CJK is found so REVIEW to TEST is blocked; pass on English-only.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "lattice validate fails with: CJK detected in artifact(s): <file/commit> line N; Lattice artifacts must be English, so REVIEW to TEST is blocked. On English-only artifacts validate stays green.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T22:53:32.325Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-preflight.ts"
+        ],
+        "create": [
+          "packages/main/src/core/cjk-detect.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With a CJK commit message or current-story metadata, the validate preflight english-artifacts gate fails non-zero and names the offending file/commit, blocking REVIEW to TEST",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On English-only commits and metadata the gate passes and validate stays green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A legacy Chinese file outside the current story (e.g. another story dir or CLAUDE.md) is NOT flagged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 4 + standalone proof: a CJK fixture commit/metadata flips english-artifact-gate ok=false naming source+line, blocking REVIEW to TEST",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 4: English-only commits+metadata return ok=true; lattice validate green on this story (gate passes)",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 3: legacy Chinese in a path outside the current story dir is NOT flagged by english-artifact-gate (diff/story-scoped)",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Tests: unit-test the CJK detector (positive/negative/scope) and prove the validate gate blocks a CJK fixture and passes English-only",
+      "context": "Unit test the detector: Chinese string is detected; pure ASCII/English is not detected; mixed allowed ranges. Scope test: a legacy file outside the current story is not flagged. Integration: a fixture commit message or story metadata with CJK makes the validate gate fail; English-only passes. Keep tests fast (no real subprocess where a stubbed input suffices).",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "lattice validate runs the new CJK detector tests green; a deliberate CJK fixture flips the gate to fail, confirming the block is real and not silent.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T23:07:21.475Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cjk-detect unit cases: a Chinese string is detected; pure ASCII/English is not",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Scope test: a fixture path outside the current story is not flagged by the gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Keep-in-sync test: the self-contained hook CJK range matches the core detector range",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 1: detectCjk detects a code-point-built Chinese string with positions and ignores ASCII/English",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 3 (scope) + Test 5 (real defaultGitLogReader parses git log main..HEAD with 0 notes, proving the %x1f/%x1e delimiter fix)",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 2: keep-in-sync — the self-contained hook CJK range is byte-for-byte equal to core/cjk-detect.ts ranges",
+          "headHash": "b4368a76109f2f6e1731a5cf0d80dbde5c80972f",
+          "materialHash": "3758e5fe2a276a1d4a60522daa7c356fc269aedb17b08eae97a9bd0acfc54b67",
+          "timestamp": "2026-06-17T00:43:01.563Z"
+        }
+      ]
+    }
+  ]
+}

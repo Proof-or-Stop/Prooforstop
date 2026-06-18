@@ -1,0 +1,133 @@
+{
+  "storyId": "B-40eb",
+  "name": "koala-residual-sweep",
+  "title": "koala residual full sweep: remove koala branding from active source/scripts/docs, keeping runtime-paths/salts/historical-decisions/test-intent as documented exceptions",
+  "description": "ship-clean program story 3 (residual sweep). Pre-OSS removal of residual koala branding in the active code layer. Acceptance: git grep -i koala in active code/scripts/docs leaves only the documented-exceptions whitelist.",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "ship-clean",
+    "oss",
+    "rename",
+    "residual-sweep"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-16T21:32:01.527Z",
+  "startedAt": "2026-06-16T21:32:01.527Z",
+  "endedAt": "2026-06-17T12:25:28.478Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T21:32:01.545Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:37:42.392Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T21:38:15.534Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T22:12:16.377Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:16:07.737Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:29:36.252Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:41:55.130Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T02:50:18.508Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T11:30:30.070Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:06:06.952Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:06:45.973Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:10:01.327Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:25:28.478Z",
+      "branch": "story/B-40eb",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-17T12:06:45.973Z"
+}

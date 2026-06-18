@@ -23,7 +23,6 @@
 9. 用户指令始终覆盖此文件
 10. **禁止直接读写 `docs/story/` 和 `tests/fixtures/` 目录下的文件**。所有 story 操作走 `lattice story_*`/`lattice checklist_*`/`lattice bug_*` 命令，所有 fixture 操作走 `lattice fixture_*` 命令。直接 Read/Edit 这些 JSON 文件会绕过流程校验
 11. **工程完成 ≠ 任务完成**。一个 story 真正完成的标志是用户能从产品视角说"好了"，不是事件链路打通 / 测试通过 / 函数返回正确这些工程指标。详见底部「用户价值验收（优先于技术链路验证）」段。开发者必须既有程序思维又有产品思维，两边都完整才叫完成。
-12. **本机禁用 OMX**：不要运行 `omx` 命令，不要读写 `.omx/`，也不要把 `.omx/` 当作 Lattice runtime artifact、baseline artifact 或证据目录。只有在用户明确要求检查/移除这个禁用 guard 时，才可以触碰相关禁用配置本身。
 
 ## 项目配置（lattice.config.json）
 
@@ -64,7 +63,7 @@
 - gate 只能消费签名、hash、evidence、check artifact 等结构化事实，不能靠“检查通过”之类文本当证据。
 - `packages/main/src/core/process-fact-registry.ts` 是流程事实 registry：它从 `COMMAND_POLICIES` + `PROCESS_FACT_LEVELS` 组装 command facts，并显式登记 reviewer lane、artifact、required semantics。新增/修改 gate evidence、review lane、signed artifact、validation/review-pass/finding 语义时，必须同时更新 registry 和 `scripts/verify-process-fact-contract.mjs`，不能只改 prompt 或文档。
 - runtime / environment facts 不混入 process registry。`packages/main/src/core/runtime-fact-registry.ts` 只登记 CLI entrypoint、global core realpath、project-local bin、Node/package version、validate source、external-reference-policy 等运行环境事实；`doctor` 通过 `Runtime scan:` 展示，`scripts/verify-runtime-fact-contract.mjs` 负责防回退。外部项目对 Orchestrate 本地 symlink/realpath 期望只能 warn/advisory，不能 hard fail。`external-reference-policy` 是 bounded docs/config policy scan，不代表联网探活；localhost / 127.0.0.1 / ::1 视为 internal example。
-- runtime artifact paths 也有独立 registry。`packages/main/src/core/runtime-artifact-registry.ts` 只登记 CLI 运行时文件/日志/缓存（activity log、legacy activity log、runtime cache、trace cache、serve metadata、debug/browser logs）及其 gitignore/materialHash/repair 语义；`currentMaterialHash`、baseline risk、`story_sync_main`、`init` 和 `doctor` 必须消费这张表，不能各自硬编码 activity log 路径。story evidence path 是流程证据，不属于 runtime artifact。本机禁用 OMX 后，`.omx/` 不允许重新登记为 runtime artifact 或 baseline 输出目录。
+- runtime artifact paths 也有独立 registry。`packages/main/src/core/runtime-artifact-registry.ts` 只登记 CLI 运行时文件/日志/缓存（activity log、legacy activity log、runtime cache、trace cache、serve metadata、debug/browser logs）及其 gitignore/materialHash/repair 语义；`currentMaterialHash`、baseline risk、`story_sync_main`、`init` 和 `doctor` 必须消费这张表，不能各自硬编码 activity log 路径。story evidence path 是流程证据，不属于 runtime artifact。
 
 ## Story 阶段流转
 
@@ -118,9 +117,9 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 
 **远端写入纪律**：Lattice 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `lattice release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
-**Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.Codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
+**Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.lattice-codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.lattice-codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
 
-**Codex adapter 验证**：改动 `.Codex/`、`.claude/agents/`、Codex manifest / wrapper / telemetry / gate 相关代码后，必须运行 `node bin/lattice.js verify_codex`。该命令复用 doctor 的共享检查，验证 manifest drift、agent mirror、Codex native hook、local wrapper heartbeat、global fallback heartbeat、`.Codex/settings.json` 排除项，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 写入 process-events。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会消费这条硬证据；缺失或 stale 时按提示运行本地 wrapper 命令。诊断 Codex adapter 时运行 `node bin/lattice.js doctor`。
+**Codex adapter 验证**：改动 `.lattice-codex/`、`.claude/agents/`、Codex manifest / wrapper / telemetry / gate 相关代码后，必须运行 `node bin/lattice.js verify_codex`。该命令复用 doctor 的共享检查，验证 manifest drift、agent mirror、Codex native hook、local wrapper heartbeat、global fallback heartbeat、`.lattice-codex/settings.json` 排除项，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 写入 process-events。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会消费这条硬证据；缺失或 stale 时按提示运行本地 wrapper 命令。诊断 Codex adapter 时运行 `node bin/lattice.js doctor`。
 
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor main story/B-xxx`），避免遗漏 main 的更新。如有冲突，在 worktree 里 `git merge main` 解决。
 
@@ -189,7 +188,7 @@ lattice gap_log '{"category":"missing","severity":"medium","evidence":"<gap 描�
 
 ### Subagent 定义
 
-Codex subagent prompt 是 **Lattice adapter 约定**，由 Lattice tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.Codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.Codex/lattice.json` 的 package prompt registry 解析。legacy Codex adapter manifest 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件；Codex native PreToolUse hook 使用小写 `.codex/hooks.json` / `.codex/hooks/`，在大小写不敏感文件系统上可能显示为 `.Codex/hooks` alias。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.Codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
+Codex subagent prompt 是 **Lattice adapter 约定**，由 Lattice tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.lattice-codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.lattice-codex/lattice.json` 的 package prompt registry 解析。legacy Codex adapter manifest 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件；Codex native PreToolUse hook 使用小写 `.codex/hooks.json` / `.codex/hooks/`，在大小写不敏感文件系统上可能显示为 `.lattice-codex/hooks` alias。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.lattice-codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
 
 ```markdown
 ---

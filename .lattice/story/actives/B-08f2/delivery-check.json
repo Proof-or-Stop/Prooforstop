@@ -1,0 +1,107 @@
+{
+  "storyId": "B-08f2",
+  "checkedAt": "2026-06-16T01:05:30.758Z",
+  "reviewRound": "2026-06-16T00:47:50.642Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#session-brief-hook",
+      "promise": "Session-brief threshold configurable via LATTICE_SESSION_BRIEF_FRESH_MINUTES (not KOALA_SESSION_BRIEF_FRESH_MINUTES)",
+      "verifiedBy": "diff + grep",
+      "evidence": ".claude/hooks/session-brief-reminder.cjs: KOALA_SESSION_BRIEF_FRESH_MINUTES -> LATTICE_SESSION_BRIEF_FRESH_MINUTES; session-brief-prompt-sync-smoke.ts tests LATTICE_SESSION_BRIEF_FRESH_MINUTES=60"
+    },
+    {
+      "docPath": "CLAUDE.md#shell-detection",
+      "promise": "process.env.LATTICE_SHELL === cli used for CLI shell launch (not KOALA_SHELL)",
+      "verifiedBy": "diff + grep",
+      "evidence": "verifier/dev-cli.ts: coreEnv.LATTICE_SHELL = cli; cli-init.ts comment references LATTICE_SHELL"
+    },
+    {
+      "docPath": "CLAUDE.md#ws-bridge",
+      "promise": "Bridge auto-selects via window.__LATTICE_WS_PORT (not __KOALA_WS_URL/__KOALA_WS_PORT)",
+      "verifiedBy": "diff + grep",
+      "evidence": "verifier/browser-client.ts and browser-executor.ts: __KOALA_WS_PORT -> __LATTICE_WS_PORT at both injection and read site; KOALA_SERVE_PORT -> LATTICE_SERVE_PORT"
+    },
+    {
+      "docPath": "README.md#authority-modes",
+      "promise": "LATTICE_AUTHORITY_MODE documented for shadow/enforce authority mode control (not KOALA_AUTHORITY_MODE)",
+      "verifiedBy": "diff",
+      "evidence": "README.md diff: 3 occurrences of KOALA_AUTHORITY_MODE -> LATTICE_AUTHORITY_MODE; authority-mode.ts implementation also renamed"
+    },
+    {
+      "docPath": "README.md#authority-required-vars",
+      "promise": "LATTICE_AUTHORITY_URL, LATTICE_AUTHORITY_ACTOR_KEY, LATTICE_AUTHORITY_RUNNER_ID documented (no KOALA_ variants)",
+      "verifiedBy": "diff + grep",
+      "evidence": "README.md diff removes KOALA_AUTHORITY_URL/ACTOR_KEY/RUNNER_ID; authority-client.ts drops legacy KOALA_AUTHORITY_* fallback reads entirely"
+    },
+    {
+      "docPath": "README.md#codex-session-brief",
+      "promise": "LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback usage documented",
+      "verifiedBy": "diff",
+      "evidence": "README.md diff: env prefix line renamed from KOALA_ACTIVITY_SOURCE/RECORD_READONLY/CODEX_ENTRYPOINT to LATTICE_* equivalents"
+    },
+    {
+      "docPath": "docs/guide.md#authority-mode-config",
+      "promise": "LATTICE_AUTHORITY_MODE documented for all authority mode CLI examples and important-boundary section",
+      "verifiedBy": "diff",
+      "evidence": "docs/guide.md diff: KOALA_AUTHORITY_MODE -> LATTICE_AUTHORITY_MODE in table intro, shadow/enforce examples, and important-boundary paragraph"
+    },
+    {
+      "docPath": "docs/guide.md#authority-url-configured",
+      "promise": "authorityUrlConfigured field doc references LATTICE_AUTHORITY_URL only (KOALA_AUTHORITY_URL fallback removed from prose)",
+      "verifiedBy": "diff",
+      "evidence": "docs/guide.md diff: line changed from LATTICE_AUTHORITY_URL / KOALA_AUTHORITY_URL to LATTICE_AUTHORITY_URL only"
+    },
+    {
+      "docPath": "docs/guide-hooks.md#hook-env-vars",
+      "promise": "Hook env vars table lists LATTICE_STAGE/COMMAND/CWD/ROOT/ARGS_JSON/RESULT_JSON/ERROR/STORY_ID/PHASE/OLD_PHASE/NEW_PHASE (all formerly KOALA_*)",
+      "verifiedBy": "diff + grep",
+      "evidence": "docs/guide-hooks.md diff: all 11 KOALA_* table rows renamed to LATTICE_*; hooks.ts buildHookEnv() emits matching LATTICE_STAGE/COMMAND/CWD/ROOT/ARGS_JSON/STORY_ID/PHASE vars"
+    },
+    {
+      "docPath": "docs/guide-hooks.md#session-brief-threshold",
+      "promise": "LATTICE_SESSION_BRIEF_FRESH_MINUTES documented for hook freshness threshold",
+      "verifiedBy": "diff",
+      "evidence": "docs/guide-hooks.md diff: KOALA_SESSION_BRIEF_FRESH_MINUTES -> LATTICE_SESSION_BRIEF_FRESH_MINUTES in threshold config paragraph"
+    },
+    {
+      "docPath": "docs/guide-hooks.md#hook-examples",
+      "promise": "Hook code examples use LATTICE_STORY_ID/OLD_PHASE/NEW_PHASE/COMMAND/ERROR (not KOALA_* variants)",
+      "verifiedBy": "diff",
+      "evidence": "docs/guide-hooks.md diff: all 3 example blocks updated (telegram STORY_ID/OLD_PHASE/NEW_PHASE, tar fixture STORY_ID, webhook COMMAND/ERROR)"
+    },
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md#session-id",
+      "promise": "sessionId source documented as LATTICE_SESSION_ID (not KOALA_SESSION_ID)",
+      "verifiedBy": "diff",
+      "evidence": "audits doc diff: KOALA_SESSION_ID -> LATTICE_SESSION_ID in sessionId derivation description"
+    },
+    {
+      "docPath": "docs/koala/legacy/ (deleted)",
+      "promise": "12 legacy docs/koala/legacy/root-markdown/ files dropped from the repo",
+      "verifiedBy": "diff --name-status",
+      "evidence": "git diff main...HEAD --name-status shows D for all 12 files; directory absent from worktree; docs/koala/framework-audit/ untouched (no diff)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "13/13 verification intents passing. lattice-cli-migration-smoke.ts passes LATTICE_AUTHORITY_MODE/URL/TIMEOUT_MS. story-owner-lease-smoke.ts tests LATTICE_SESSION_ID priority over CLAUDE_CODE_SESSION_ID (happy), whitespace-only LATTICE_SESSION_ID treated as absent (edge), LATTICE_SESSION_ID wins combined env (adversarial). KOALA_[A-Z] grep on dist/ returns empty confirming compiled output matches rename."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "10/10 verification intents passing. 6 fixture JSON files updated with LATTICE_* env var names in execute strings: KOALA_ACTIVITY_SOURCE->LATTICE_, KOALA_HEALTH_PATH->LATTICE_, KOALA_PHASE->LATTICE_, KOALA_ACTIVITY_ROLE->LATTICE_. KOALA_ACTIVITY_SESSION->LATTICE_ACTIVITY_SESSION in checklist smoke. Fixtures verify CLI behavior under renamed env vars at runtime."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "13/13 verification intents passing. docs/koala/legacy/ absent from worktree. docs/koala/framework-audit/ has no diff (untouched). LEGACY_KOALA_DIR/STORY_DIR/REPAIR_IGNORE constants preserved in lattice-paths.ts. Residual KOALA_[A-Z] grep across active files excluding protected paths returns empty — complete rename with zero over-reach confirmed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 13 documentation promises verified in implementation: hooks.ts buildHookEnv() emits LATTICE_* vars, authority-client.ts drops KOALA_AUTHORITY_* fallbacks, story-owner-lease uses LATTICE_SESSION_ID, verifier injects __LATTICE_WS_PORT, session-brief hook reads LATTICE_SESSION_BRIEF_FRESH_MINUTES. Tests cover happy, edge, and adversarial paths across all 3 checklist items (36 total intents, 36 passing). Protected areas confirmed intact: LEGACY_KOALA_* in lattice-paths.ts, docs/koala/framework-audit untouched. Zero residual KOALA_[A-Z] in compiled dist."
+  },
+  "_hash": "2d4072f36878109dc09056a432692dad02136be393ebfaf9363e38611293fbc4"
+}

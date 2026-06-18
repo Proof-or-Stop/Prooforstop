@@ -1,0 +1,757 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "In-module dispatch-usage orchestrator (estimate + final, pure)",
+      "context": "Add packages/main/src/core/usage-ledger/dispatch-usage.ts exporting pure helpers: recordDispatchPreflight(root, ctx{storyId|null,phase,agentType,model?}, promptText, opts{recordedAt,projectRootHash,command,host}) -> mints correlation (ids.ts), builds a prompt-size-estimate via the SYNCHRONOUS bytes/chars estimator + buildEstimateRecord, appends it (opt-in gated; no-op when off), returns {correlation, estimateRecordId} | null; and recordDispatchFinal(root, ctx, correlation, estimateRecordId, anthropicUsage|null, model) -> when usage present builds a provider-reported record via the existing anthropic adapter + assemble (supersedesRecordIds=[estimateRecordId]) and appends; when null appends an 'unavailable' final (supersedes estimate); opt-in gated; never throws to the caller (internal try/catch). MUST NOT import dispatch or any non-usage-ledger module — keep zero cross-module imports. Unit-tested: estimate then provider-reported supersede; estimate then unavailable; flag off => no-op.",
+      "status": "done",
+      "startTime": "2026-06-16T19:18:01.622Z",
+      "endTime": "2026-06-16T19:34:07.240Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "recordDispatchPreflight(root, ctx{storyId:S-test, phase:dev, agentType:leaf}, 'Hello world prompt', opts) with flag ON -> returns {correlation, estimateRecordId} where correlation has llmcall_/llmatt_ prefixed ids; ledger file contains exactly 1 line with source=prompt-size-estimate, estimator.confidence=low, inputTokens>0, outputTokens=null, storyId=S-test; WHY: covers main happy path - preflight estimate written and correlation handle returned",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal(root, ctx, correlation, estimateRecordId, anthropicUsage{input_tokens:500, output_tokens:200, cache_creation:10, cache_read:50}, model) with flag ON -> ledger gains 2nd line with source=provider-reported, inputTokens=500, outputTokens=200, supersedesRecordIds=[estimateRecordId]; summarizeRecords providerReportedTotal counts ONLY the final (no double-count with estimate); WHY: covers supersede path and critical no-double-count invariant",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal(root, ctx, correlation, estimateRecordId, null, model) with flag ON -> ledger gains line with source=unavailable, supersedesRecordIds=[estimateRecordId], unavailableReason non-empty; summary counts it as unknown (not provider-reported, not estimate); WHY: covers unavailable-usage path when CLI returns no usage",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "recordDispatchPreflight with empty string promptText -> returns correlation with estimateRecordId; estimate record has inputTokens=0 (bytesCharsEstimator on empty yields 0); never throws; WHY: boundary - zero-length prompt must not produce NaN or negative",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchPreflight with 1MB promptText -> returns correlation; inputTokens is large positive integer (~250000); completes in <500ms; WHY: sync bytes/chars estimator must handle large input without blocking",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal with anthropicUsage missing cache fields entirely ({input_tokens:100, output_tokens:50}) -> adapts gracefully; cache dimensions are null on record (not 0); WHY: real Claude responses may omit cache fields when caching not used",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchPreflight with storyId=null (non-story call) -> record written with storyId:null (present, not omitted, not undefined); WHY: non-story dispatches must record usage with explicit null storyId per record spec",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recordDispatchPreflight when appendUsageRecord throws (corrupt last line in existing ledger) -> returns null (never throws); WHY: never-throws invariant is critical safety contract - ledger failures must not propagate to dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal when buildProviderRecord throws (negative token count in anthropicUsage) -> does not throw to caller; WHY: adversarial provider response must not crash dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchPreflight with flag OFF (LATTICE_USAGE_LEDGER unset) -> returns null; no file created; no directory created (.lattice/usage/ must not exist); WHY: flag-off invariant means ZERO side effects",
+            "type": "cli"
+          },
+          {
+            "desc": "Two concurrent recordDispatchPreflight calls with same storyId -> each gets DISTINCT correlation (different ledgerCallId, attemptId, recordId); ledger has 2 lines with distinct recordIds; WHY: id minting must be collision-resistant under concurrency",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op)",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Pure Claude Code JSON output parser (with raw-text fallback)",
+      "context": "Add a pure parser (in dispatch-usage.ts or usage-ledger/host-output.ts): parseClaudeCliOutput(stdout) -> {resultText, anthropicUsage|null}. When stdout is the Claude Code CLI JSON envelope, extract the human result text (e.g. .result) and the usage object (input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens). When stdout is NOT valid JSON or lacks the expected shape, return {resultText: <raw stdout>, anthropicUsage: null} (graceful fallback — never throw). Tested with a sample JSON envelope (usage extracted), a plain-text stdout (raw fallback, usage null), and malformed JSON (raw fallback).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T19:34:07.973Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parseClaudeCliOutput(validJsonEnvelope) where envelope has .result='Hello from Claude' and .usage={input_tokens:1000, output_tokens:300, cache_creation_input_tokens:5, cache_read_input_tokens:200} -> returns {resultText:'Hello from Claude', anthropicUsage:{input_tokens:1000, output_tokens:300, cache_creation_input_tokens:5, cache_read_input_tokens:200}}; WHY: covers the primary extraction path from a well-formed Claude Code JSON envelope",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(plainTextStdout) where input is 'Just some text output' (not JSON) -> returns {resultText:'Just some text output', anthropicUsage:null}; WHY: covers the raw-text fallback path for non-JSON CLI output",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parseClaudeCliOutput(malformedJson) where input is '{not valid json' -> returns {resultText:'{not valid json', anthropicUsage:null}; never throws; WHY: truncated/corrupt JSON must degrade gracefully to raw text",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithoutUsage) where input is valid JSON but lacks usage field {\"result\":\"hi\"} -> returns {resultText:'hi', anthropicUsage:null}; WHY: JSON envelope without usage block must not crash, usage is null",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithoutResult) where input is valid JSON but lacks result field {\"usage\":{\"input_tokens\":10,\"output_tokens\":5}} -> returns {resultText: raw stdout string, anthropicUsage: extracted or null depending on shape}; WHY: edge case where result text is missing but usage is present",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(emptyString) where input is '' -> returns {resultText:'', anthropicUsage:null}; never throws; WHY: empty stdout must not crash the parser",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithUsagePartialFields) where usage has only input_tokens and output_tokens but no cache fields -> returns anthropicUsage with those two fields and cache fields absent/undefined; WHY: Claude may not always report cache dimensions",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "parseClaudeCliOutput(jsonWithNestedResult) where stdout is deeply nested JSON (result inside result inside result, 50 levels) -> returns {resultText: raw stdout, anthropicUsage: null} or correctly extracts top-level; never throws, never stack-overflows; WHY: adversarial input shape must not crash parser with recursion",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(jsonWithUsageTokensAsStrings) where usage.input_tokens='not a number' -> returns {resultText: extracted, anthropicUsage: null} (usage rejected because tokens are not numbers); WHY: adversarial type confusion in usage field must not produce bad numbers",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput(veryLargeStdout) where input is 5MB of valid text -> returns {resultText: the full 5MB text, anthropicUsage: null}; does not OOM; WHY: Claude output can be arbitrarily large; parser must handle it",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); parser extracts result+usage+served",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Gated seam in lattice-dispatch.ts (flag OFF = byte-identical)",
+      "context": "Edit runClaudeCodeRealLeafDispatch() in packages/main/src/core/lattice-dispatch.ts as a MINIMAL one-way seam, all under isUsageLedgerEnabled(): (1) before spawn, read the prompt text and call recordDispatchPreflight; (2) when enabled, run the host with JSON output (add --output-format json or equivalent) and after spawn call parseClaudeCliOutput(stdout) -> use resultText as the downstream text result (preserving existing behavior) and call recordDispatchFinal with the parsed usage (provider-reported when present, else unavailable, superseding the estimate). When the flag is OFF, the spawn args and result handling are EXACTLY as today (byte-identical) — verify by keeping the original code path unchanged in the else/disabled branch. Derive storyId from record.storyId, phase/agentType from available dispatch context (or documented constants), model from the parsed JSON (for the final) and a best-effort default (for the estimate). Wrap all ledger work in try/catch so dispatch never breaks; on JSON-parse failure fall back to raw stdout text.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T19:34:08.495Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Structural assertion: with isUsageLedgerEnabled()=true, the dispatch seam calls recordDispatchPreflight before spawn AND calls recordDispatchFinal after spawn with the parsed anthropicUsage; spawn args include --output-format json (or equivalent structured-output flag); WHY: verifies the gated seam wiring is present in the enabled branch",
+            "type": "cli"
+          },
+          {
+            "desc": "Structural assertion: with isUsageLedgerEnabled()=true, parseClaudeCliOutput is called on stdout and its resultText is used as the downstream result text (not raw stdout); WHY: verifies result text flows through the parser when enabled",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Structural assertion: the seam derives storyId from record.storyId (not hardcoded); phase/agentType from dispatch context or documented constants; model from parsed JSON for the final and a best-effort default for the estimate; WHY: attribution must be contextually correct, not placeholder",
+            "type": "cli"
+          },
+          {
+            "desc": "Structural assertion: all ledger calls (recordDispatchPreflight, recordDispatchFinal, parseClaudeCliOutput) are wrapped in try/catch so dispatch never breaks from a ledger error; WHY: the seam must be fault-isolated from dispatch",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Structural assertion: with isUsageLedgerEnabled()=false (the disabled branch), spawn args are exactly ['--print', promptFile] (no --output-format json); stdout is used as-is (raw text, no parseClaudeCliOutput call); no recordDispatchPreflight or recordDispatchFinal calls; WHY: the byte-identical invariant for flag OFF - the disabled path must be EXACTLY the pre-change code",
+            "type": "cli"
+          },
+          {
+            "desc": "Simulated: with flag ON but Claude CLI returning plain text (not JSON) as stdout -> parseClaudeCliOutput returns {resultText: raw text, anthropicUsage: null}; seam uses raw text as result; recordDispatchFinal records unavailable (not throws); dispatch yields the raw text to caller; WHY: parse-failure fallback must preserve dispatch output and record unavailable",
+            "type": "cli"
+          },
+          {
+            "desc": "Structural assertion: dispatch-usage.ts is the ONLY import from usage-ledger in lattice-dispatch.ts (no direct import of writer/record/ids/summary); WHY: the one-way seam mandate requires a single thin import surface",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); seam gated by isUsageLedgerEnabled",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); seam gated by isUsageLedgerEnabled",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); seam gated by isUsageLedgerEnabled",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); seam gated by isUsageLedgerEnabled",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); seam gated by isUsageLedgerEnabled",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); seam gated by isUsageLedgerEnabled",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-dispatch smoke (38 checks: orchestrator/parser/model/simulated-e2e/off-no-op); seam gated by isUsageLedgerEnabled",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression safety: OFF byte-identical + parse-failure fallback",
+      "context": "Add tests/assertions proving the safety invariants: (a) with the ledger flag OFF, the host invocation (spawn args) and the result text the dispatch produces are identical to the pre-change behavior (e.g. unit-test the arg-builder / a structural assertion that the disabled path uses ['--print', promptFile] and raw stdout); (b) with the flag ON but the host output not JSON-parseable, parseClaudeCliOutput returns the raw text and recordDispatchFinal records 'unavailable' — dispatch still yields the raw result and does not throw. These guard the two risk invariants.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T19:34:09.011Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "OFF byte-identical: with LATTICE_USAGE_LEDGER unset/off, assert the spawn args produced by the dispatch are exactly ['--print', promptFile] (no --output-format, no json flag); assert the result text is raw stdout.trimEnd() with no parseClaudeCliOutput transformation; WHY: the primary safety invariant - flag OFF must produce identical behavior to the pre-change dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Parse-failure fallback: with flag ON, feed parseClaudeCliOutput plain text (not JSON) -> returns {resultText: raw text, anthropicUsage: null}; then recordDispatchFinal is called with null usage -> records unavailable; dispatch yields the raw text; WHY: the secondary safety invariant - unparseable output must not break dispatch",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "OFF byte-identical with LATTICE_USAGE_LEDGER='false' (string false) -> treated as OFF; spawn args identical to pre-change; no ledger dir created; WHY: edge - various falsy string values must all be treated as OFF",
+            "type": "cli"
+          },
+          {
+            "desc": "OFF byte-identical with LATTICE_USAGE_LEDGER='0' -> treated as OFF; WHY: numeric zero string must be OFF",
+            "type": "cli"
+          },
+          {
+            "desc": "Parse-failure fallback with truncated JSON (first half of valid JSON envelope) -> parseClaudeCliOutput returns raw text + null usage; dispatch continues with raw text; WHY: network-truncated output is a real failure mode",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Ledger write throws during preflight (e.g. disk full / permissions) with flag ON -> dispatch still proceeds; spawn still runs; result still returned; WHY: ledger errors must never break dispatch even when the flag is ON",
+            "type": "cli"
+          },
+          {
+            "desc": "Ledger write throws during final (corrupt chain) with flag ON -> dispatch still yields the parsed/raw result text to caller; WHY: a corrupt ledger state must not prevent dispatch from returning its result",
+            "type": "cli"
+          },
+          {
+            "desc": "Flag ON with valid JSON envelope but usage has negative tokens {input_tokens: -999} -> parseClaudeCliOutput extracts the usage; recordDispatchFinal catches the validation error from buildProviderRecord and does not throw; dispatch yields resultText normally; WHY: adversarial token values must not crash the dispatch path",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "INV-1: OFF returns literal [--print, promptFile] (byte-identical); parse-failure fallback in smoke",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Smoke/test suite wired + no regression",
+      "context": "Add packages/main/src/tasks/usage-ledger-dispatch-smoke.ts (follow existing *-smoke.ts pattern; print ✓/✗, non-zero exit; temp dir, no repo pollution), wired as npm test:usage-ledger-dispatch. Cover: orchestrator (preflight estimate appended; provider-reported final supersedes the estimate so summary counts only the final; unavailable final when no usage; flag off => nothing written); the JSON parser (usage extracted from a sample envelope; raw-text + malformed fallback to usage=null); end-to-end record-chain round-trip through the writer (opt-in ON, temp dir) re-validates. Assert the usage-ledger module STILL imports zero other modules (dispatch-usage.ts imports only ./ siblings + node). Build green; run the full ledger suite (usage-ledger / -adapter / -estimate / -diagnostics) with NO regression; `node bin/lattice.js validate` builds. The lattice-dispatch.ts seam itself is covered structurally (gated + minimal) since a live dispatch can't run in the smoke.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T19:34:09.589Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test file exists at packages/main/src/tasks/usage-ledger-dispatch-smoke.ts and is wired as npm test:usage-ledger-dispatch in package.json; running it exits 0 with all checks passing (prints only checkmarks, no X marks); WHY: smoke suite must be wired and green",
+            "type": "cli"
+          },
+          {
+            "desc": "Simulated end-to-end round-trip: sample Claude JSON envelope -> parseClaudeCliOutput extracts usage -> recordDispatchPreflight writes estimate -> recordDispatchFinal writes provider-reported record with REAL token counts (input_tokens:1500, output_tokens:400) attributed to storyId=S-e2e -> diagnostics buildUsageReport shows S-e2e group with provider-reported known.input=1500, known.output=400; estimate is NOT double-counted (superseded, excluded from provider total); WHY: end-to-end verification that the full record chain produces correct diagnostics output",
+            "type": "cli"
+          },
+          {
+            "desc": "Full ledger suite no regression: run all existing usage-ledger smoke tests (usage-ledger-smoke, usage-ledger-adapter-smoke, usage-ledger-estimate-smoke, usage-ledger-diagnostics-smoke) -> all exit 0; WHY: new dispatch-usage code must not break any prior ledger tests",
+            "type": "cli"
+          },
+          {
+            "desc": "Build clean: node bin/lattice.js validate completes with exit 0 (TypeScript compilation succeeds with the new dispatch-usage.ts and the lattice-dispatch.ts edit); WHY: compilation must be green",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Module isolation assertion: dispatch-usage.ts imports only ./ siblings (record, ids, estimate, assemble, adapters/anthropic, writer) and node builtins; grep/static-analysis confirms no import of lattice-dispatch, cli-engine, handler, or any module outside core/usage-ledger/; WHY: the zero-cross-module-import invariant must hold after adding the new file",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers orchestrator flag-off no-op: with LATTICE_USAGE_LEDGER unset, recordDispatchPreflight returns null and no ledger file is created in tmpDir; WHY: flag-off path must be tested in the smoke",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke covers unavailable final: recordDispatchFinal with null anthropicUsage -> records unavailable (superseding estimate); summary shows unknownCount incremented; estimate not double-counted; WHY: the unavailable path must be tested since it is the fallback for parse failures in the dispatch seam",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers parser malformed fallback: parseClaudeCliOutput with malformed JSON string -> returns {resultText: raw, anthropicUsage: null}; never throws; WHY: malformed output is the adversarial scenario for the parser and must be smoke-tested",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-0f7c/evidence/verify-b-0f7c.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); no-regression=true; zeroImport=true; scopeClean=true; build=true",
+          "headHash": "db693a165f65fd7eaf1801a7bddad4a17d9a5b62",
+          "materialHash": "8ab7e3a1a65d6ecdfbc622ba3943e1eefbcb11b6af34a1d8bb27c0a4913cc1ba",
+          "timestamp": "2026-06-16T19:45:10.438Z"
+        }
+      ]
+    }
+  ]
+}

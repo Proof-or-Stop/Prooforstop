@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-7365:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed. The change deletes the bare gitCli(worktreeAbs,[...merge,currentBranch,--no-edit]) call and replaces it with mergeBaseBranchIntoStoryWorktreeResolvingMetadata + runGitNoThrow, and wraps the critical section in withReentrantMainWriteLock. All three new symbols (mergeBaseBranchIntoStoryWorktreeResolvingMetadata, runGitNoThrow, withReentrantMainWriteLock) are defined and consumed only in cli-engine.ts. The deleted bare-merge pattern has zero residual references in *.ts files. commitInitCheckMetadataAndMergeMain is now exported and correctly imported by the new smoke task. isPathUnderAny pre-existed in cli-engine.ts and is properly reused. No orphaned references or concept residue found.",
+      "createdAt": "2026-06-16T02:24:43.782Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-001",
+      "_hash": "c97c086bb0b659fb724ba3ff4fcf56b8256ee7c4c380e561242151b897167699"
+    },
+    {
+      "id": "B-7365:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9 must intents have valid logic_test evidence. Repro (CHK-001:happy:0) constructs a genuine 3-way git conflict (same line PLAN→INIT vs PLAN→INIT_CHECK) and calls the real commitInitCheckMetadataAndMergeMain; assertions check both working-tree and committed content are marker-free and parse as JSON. Multi-file adversarial case (CHK-001:adversarial:0, CHK-002:adversarial:0) explicitly loops over index.json + checklist.json with distinct conflicting note values, asserting deterministic resolution to main version. CHK-003 lock intents rely on structural fact (withReentrantMainWriteLock wraps both commit+merge) confirmed by live call through real function; release-on-throw property belongs to main-write-lock-smoke (B-f60c infrastructure). Edge/clean-path intents reference init-check-atomicity-smoke as backup; file pointer is slightly indirect but behavior is genuinely covered. Known systemic gap: smoke not in default validate battery (B-99b6 backlog) is not a B-7365-specific hollow test issue.",
+      "createdAt": "2026-06-16T02:26:00.918Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-002",
+      "_hash": "8c72f7a2b18710267bff4f159b2da1b2f6e85bcbef268c26fdf44c705ff2e63c"
+    },
+    {
+      "id": "B-7365:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed git diff main...HEAD for dead code, type safety, and I/O shell isolation. No dead code or unused imports introduced. No shell-imports-fn.ts violations. Two medium findings registered: F-001 (production: missing merge --abort cleanup on gitCli throw inside resolution loop) and F-002 (test: dead no-op assert in smoke). All other scrutinized properties are sound: conflict-direction is correct (--theirs = incoming base/main version), the clean path is byte-identical to legacy bare merge, the lock wraps the full commit+merge critical section with proper reentrant variant, runGitNoThrow uses try/catch without swallowing real failures, and the abort calls on the three error paths (non-conflict failure, out-of-storyRel conflict, stillUnmerged defensive check) properly use runGitNoThrow to handle the case where no merge is in progress.",
+      "createdAt": "2026-06-16T02:28:04.936Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-003",
+      "_hash": "250536cd8dab050d8dc1a516985f45f35493749b478dbe2c828232c954ccd821"
+    },
+    {
+      "id": "B-7365:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage review passed: all 9 must intents (CHK-001/002/003 happy+edge+adversarial) remain covered by init-check-reconcile-conflict-smoke.ts. Commit 83445c2 only (a) wrapped resolution+commit in try/catch to abort-on-secondary-error (additive production guard, no assertion removed) and (b) fixed the no-op worktree sanity assertion (|| true removed, now a genuine existsSync check with message). No evidence was weakened. The smoke deterministically reproduces the 3-way conflict and preserves the fail-pre/pass-post property on assertions 1, 3+4, 5. Validate-battery gap remains B-99b6 scope.",
+      "createdAt": "2026-06-16T02:32:30.739Z",
+      "reviewRound": "2026-06-16T02:31:11.041Z",
+      "reviewRunId": "B-7365:RR-004",
+      "_hash": "1bbc6c9ee586b41ded726584140d4f07115d7d5b971502baa7cc826ffa4bbc79"
+    },
+    {
+      "id": "B-7365:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-001 fix verified: try/catch correctly wraps the resolve+commit loop in mergeBaseBranchIntoStoryWorktreeResolvingMetadata. Success path returns before the try block (no accidental wrap). Out-of-bounds and non-conflict-failure paths abort+throw before the try block. The catch aborts (best-effort no-throw via runGitNoThrow) then rethrows the original error — the worktree is left clean in all failure scenarios. The inner stillUnmerged abort+throw path causes a benign double-abort (second merge --abort is a no-op against a clean worktree), which is correct behavior. F-002 fix verified: existsSync(...) || true replaced with real assert.equal(existsSync(...), true, message) — assertion now actually enforces the worktree .git file presence. No new dead code, unused imports, empty catches, or type-unsafe patterns introduced.",
+      "createdAt": "2026-06-16T02:33:06.599Z",
+      "reviewRound": "2026-06-16T02:31:11.041Z",
+      "reviewRunId": "B-7365:RR-006",
+      "_hash": "8d4ba4c8ca8a55076d174a2da9aa3a7ef579593c85a8abe5ae99e0bd78ad6fe7"
+    },
+    {
+      "id": "B-7365:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check completed. Commit 83445c2 added try/catch around the conflict-resolution loop and fixed a no-op smoke assertion — no symbols introduced or deleted. Full residue scan: mergeBaseBranchIntoStoryWorktreeResolvingMetadata defined+called only in cli-engine.ts (zero orphaned refs); runGitNoThrow same; withReentrantMainWriteLock pre-existing with clean references including the new cli-engine.ts call site; isPathUnderAny pre-existing reused at three call sites; commitInitCheckMetadataAndMergeMain correctly exported and imported by smoke; the bare gitCli merge pattern is gone with zero .ts residue. No deleted concept has remaining references. No doc-promise-undelivered patterns found. 0 findings.",
+      "createdAt": "2026-06-16T02:33:10.585Z",
+      "reviewRound": "2026-06-16T02:31:11.041Z",
+      "reviewRunId": "B-7365:RR-005",
+      "_hash": "632b4cbcc40d29bd91d4d6fcf217745546be568f094872289f93aeff66cbcaff"
+    }
+  ]
+}

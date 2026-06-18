@@ -7,6 +7,7 @@ import type { StoryPhase, StoryInfo } from '../core/types.js';
 import { StoryStore } from '../core/store.js';
 import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
+import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { isVolatileRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 import {
@@ -157,7 +158,7 @@ function removeEmptyDir(path: string): boolean {
 function storyUpdateActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
-  return process.env.KOALA_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+  return process.env.LATTICE_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
 }
 
 function isInitReviewerStoryUpdateActor(actor: string): boolean {
@@ -205,10 +206,10 @@ function gitSucceeds(cwd: string, args: string): boolean {
   }
 }
 
-function gitSafe(projectRoot: string, args: string[]): string {
+function gitSafe(gitCwd: string, args: string[]): string {
   try {
     return execFileSync('git', args, {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -999,6 +1000,11 @@ function listStoryDirs(base: string): string[] {
 function scanTerminalStoryResidues(store: StoryStore, root: string): StoryResidueInfo[] {
   const cfg = loadConfig(root);
   const base = join(root, cfg.storyDir);
+  // B-75f0 CHK-003: survey the REAL gitRoot on wrapper-root layouts (story
+  // metadata root != git root); falls back to root verbatim on plain repos /
+  // when no gitRoot resolves (byte-identical). Project-level: the same gitRoot
+  // for every story, so resolve once before the loop.
+  const gitCwd = resolveProjectGitCwd(root, root, cfg);
   const residues: StoryResidueInfo[] = [];
   let ids: string[] = [];
   try { ids = store.listStoryIds(); } catch { return []; }
@@ -1010,7 +1016,7 @@ function scanTerminalStoryResidues(store: StoryStore, root: string): StoryResidu
     let status = '';
     try {
       status = execSync(`git status --porcelain -uall -- ${JSON.stringify(rel)}`, {
-        cwd: root,
+        cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       }).trim();

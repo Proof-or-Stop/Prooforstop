@@ -8,7 +8,7 @@
  *
  * All scanners are pure functions (input md text + repo root); the top-level `runMechanicalAudit`
  * aggregates and returns `{drifts, skipped}`. skipped records commands that couldn't be run (ENOENT / timeout /
- * permissions), not counted as drift, to avoid treating koala itself not being installed as a doc error.
+ * permissions), not counted as drift, to avoid treating lattice itself not being installed as a doc error.
  */
 
 import { execFileSync, execSync } from 'node:child_process';
@@ -20,7 +20,7 @@ import {
 } from '../handlers/validate-docs-drift.js';
 
 export interface DriftCandidate {
-  sectionPath: string; // e.g., "CLAUDE.md#koala CLI quick reference"
+  sectionPath: string; // e.g., "CLAUDE.md#lattice CLI quick reference"
   symbol: string;      // e.g., "lattice finding_cluster" / "--channel" / "foo/bar.json"
   driftType: 'missing-command' | 'missing-flag' | 'missing-path';
   severity: 'medium' | 'low';
@@ -71,7 +71,7 @@ const COMMAND_SCAN_IGNORE = new Set<string>([
 /**
  * Explicit YAGNI command whitelist — commands for which CLAUDE.md text explicitly explains "why this CLI is not provided".
  * Don't report missing-command drift when these are scanned (it's a false positive); record in skipped with reason=explicit-yagni-whitelist.
- * Example: `koala audit_config_set` (packages/koala/CLAUDE.md explicitly states editing JSON is enough, no command created).
+ * Example: `lattice audit_config_set` (CLAUDE.md explicitly states editing JSON is enough, no command created).
  */
 const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
   'audit_config_set',
@@ -81,8 +81,8 @@ const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
  * scanCommandDrift: extract command names of the form `lattice <cmd>` from md;
  * for each one not in the ignore list, run `lattice <cmd> --help`, exit≠0 → drift.
  *
- * Regex: \bkoala\s+([a-z][a-z0-9_]*)\b
- * Bare koala (without arguments) is not extracted; expressions like $(koala) are also not falsely extracted (the prefix is not $ directly followed by a letter).
+ * Regex: \blattice\s+([a-z][a-z0-9_]*)\b
+ * Bare lattice (without arguments) is not extracted; expressions like $(lattice) are also not falsely extracted (the prefix is not $ directly followed by a letter).
  */
 export function scanCommandDrift(
   md: string,
@@ -97,7 +97,7 @@ export function scanCommandDrift(
   const skipped: SkippedEntry[] = [];
 
   // Commands must end with a letter or digit; bare prefixes like `story_` / `checklist_` are not allowed as wildcard matches
-  const re = /\bkoala\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b/g;
+  const re = /\blattice\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b/g;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     let m: RegExpExecArray | null;
@@ -108,7 +108,7 @@ export function scanCommandDrift(
       if (seen.has(cmd)) continue;
       seen.add(cmd);
       const sectionPath = `${mdPath}#${headingFor(i, headings)}`;
-      const symbol = `koala ${cmd}`;
+      const symbol = `lattice ${cmd}`;
       // Commands explicitly marked YAGNI (CLAUDE.md itself explains why this CLI is not provided) → record as skipped, do not report drift
       if (EXPLICIT_YAGNI_COMMANDS.has(cmd)) {
         skipped.push({ sectionPath, symbol, driftType: 'missing-command', reason: 'explicit-yagni-whitelist' });
@@ -126,7 +126,7 @@ export function scanCommandDrift(
         symbol,
         driftType: 'missing-command',
         severity: 'medium',
-        desc: `CLAUDE.md references command \`koala ${cmd}\`, but \`koala ${cmd} --help\` exited non-zero (command not registered or removed)`,
+        desc: `CLAUDE.md references command \`lattice ${cmd}\`, but \`lattice ${cmd} --help\` exited non-zero (command not registered or removed)`,
         evidence: (r.output || '').slice(0, 400),
       });
     }
@@ -155,7 +155,7 @@ export function scanFlagDrift(
   const helpCache = new Map<string, { ok: boolean; reason?: string; output?: string }>();
 
   // Multiple flags may appear on a single line: `lattice validate --full --json`
-  const cmdRe = /\bkoala\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b([^\n`]*)/g;
+  const cmdRe = /\blattice\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b([^\n`]*)/g;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     let cm: RegExpExecArray | null;
@@ -172,7 +172,7 @@ export function scanFlagDrift(
         if (seen.has(key)) continue;
         seen.add(key);
         const sectionPath = `${mdPath}#${headingFor(i, headings)}`;
-        const symbol = `koala ${cmd} --${flag}`;
+        const symbol = `lattice ${cmd} --${flag}`;
         let r = helpCache.get(cmd);
         if (!r) {
           r = runHelp(cmd);
@@ -192,7 +192,7 @@ export function scanFlagDrift(
           symbol,
           driftType: 'missing-flag',
           severity: 'medium',
-          desc: `CLAUDE.md references \`koala ${cmd} --${flag}\`, but help output does not contain the \`--${flag}\` parameter`,
+          desc: `CLAUDE.md references \`lattice ${cmd} --${flag}\`, but help output does not contain the \`--${flag}\` parameter`,
           evidence: output.slice(0, 400),
         });
       }
@@ -326,14 +326,14 @@ export function runMechanicalAudit(
     }).join('\n');
     const result = checkDocsDrift(allMd, opts.registryNames, DOCS_DRIFT_ALLOWLIST);
     for (const cmd of result.missing) {
-      const alreadyCaught = drifts.some(d => d.symbol === `koala ${cmd}` && d.driftType === 'missing-command');
+      const alreadyCaught = drifts.some(d => d.symbol === `lattice ${cmd}` && d.driftType === 'missing-command');
       if (!alreadyCaught) {
         drifts.push({
           sectionPath: 'docs-drift-registry',
-          symbol: `koala ${cmd}`,
+          symbol: `lattice ${cmd}`,
           driftType: 'missing-command',
           severity: 'low',
-          desc: `CLAUDE.md references \`koala ${cmd}\` but registry has no such command (docs-drift advisory)`,
+          desc: `CLAUDE.md references \`lattice ${cmd}\` but registry has no such command (docs-drift advisory)`,
           evidence: 'registry.list() does not contain this command',
         });
       }
@@ -346,7 +346,7 @@ export function runMechanicalAudit(
 /** Default runHelp: invokes `lattice <cmd> --help` with a 2-second timeout. */
 function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: string } {
   try {
-    const out = execFileSync('koala', [cmd, '--help'], {
+    const out = execFileSync('lattice', [cmd, '--help'], {
       encoding: 'utf-8',
       timeout: 5000,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -356,7 +356,7 @@ function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: s
     const err = e as { code?: string; signal?: string; killed?: boolean; status?: number; stdout?: Buffer | string; stderr?: Buffer | string };
     if (err?.code === 'ENOENT') return { ok: false, reason: 'ENOENT' };
     if (err?.signal === 'SIGTERM' || err?.killed) return { ok: false, reason: 'timeout' };
-    // The koala main entry typically uses stderr for help output
+    // The lattice main entry typically uses stderr for help output
     const merged = (err?.stdout?.toString?.() || '') + (err?.stderr?.toString?.() || '');
     if (err?.status === 0) return { ok: true, output: merged };
     return { ok: false, reason: 'exit-nonzero', output: merged };
@@ -386,4 +386,39 @@ function relPath(abs: string, repoRoot: string): string {
   if (abs.startsWith(repoRoot + '/')) return abs.slice(repoRoot.length + 1);
   if (abs === repoRoot) return '.';
   return abs;
+}
+
+/**
+ * scanDeprecated — count @deprecated annotations in packages/main/src/**\/*.ts (B-8451 CHK-002).
+ *
+ * Uses grep to find all lines containing @deprecated, counts matches, and returns
+ * unique file basenames. Wrap in try/catch — returns { count: 0, files: [] } on any error.
+ */
+export function scanDeprecated(projectRoot: string): { count: number; files: string[] } {
+  try {
+    const out = execSync(
+      `grep -rl "@deprecated" "${projectRoot}/packages/main/src" --include="*.ts" 2>/dev/null || true`,
+      { encoding: 'utf-8', timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] },
+    ).trim();
+
+    const matchingFiles = out.length > 0 ? out.split('\n').filter(Boolean) : [];
+
+    let count = 0;
+    for (const file of matchingFiles) {
+      try {
+        const lineOut = execSync(
+          `grep -c "@deprecated" "${file}" 2>/dev/null || echo 0`,
+          { encoding: 'utf-8', timeout: 5000, stdio: ['ignore', 'pipe', 'pipe'] },
+        ).trim();
+        count += parseInt(lineOut, 10) || 0;
+      } catch {
+        // execSync throws on unexpected errors (e.g. ENOENT, timeout); || echo 0 already handles grep-c zero-match exit
+      }
+    }
+
+    const files = matchingFiles.map((f) => f.split('/').pop() ?? f);
+    return { count, files };
+  } catch {
+    return { count: 0, files: [] };
+  }
 }

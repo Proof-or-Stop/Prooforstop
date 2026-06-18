@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record anchor files on derived finding-signals",
+      "context": "Add optional anchorFiles?: string[] to FindingSignal in core/experience-layer-types.ts (forward-compat, capped) and populate it in core/finding-signals.ts by accumulating finding.files (union, sorted, capped by a new MAX_ANCHOR_FILES constant mirroring MAX_EXAMPLES). Pure-leaf discipline unchanged.",
+      "userSees": "Derived signals now carry the concrete file paths their composing findings referenced.",
+      "excludes": [
+        "No change to localSignature key",
+        "No change to signalScore/support math"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Pure re-validation leaf (revalidateSignals + computeValidRate)",
+      "context": "New core/experience-revalidation.ts importing only ./experience-layer-types.js. revalidateSignals(cache, fileExists) classifies each signal valid(>=1 anchor present)/stale(all anchors gone)/unanchored(no anchorFiles); computeValidRate aggregates total/anchored/valid/stale/unanchored + validRate + driftRate. fileExists is injected (no fs/git in the leaf).",
+      "userSees": "A deterministic, fs-free function that turns signals + a HEAD predicate into a valid-rate report.",
+      "excludes": [
+        "No filesystem or git access in the leaf",
+        "No persisted output"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Read-only learning_validate handler + CLI command",
+      "context": "New handlers/learning-validate.ts: build fileExists from `git ls-tree -r --name-only -z HEAD` (own execFileSync, do NOT modify evidence-freshness.ts), derive signals via deriveFindingSignalsFromStore(ctx.store) WITHOUT projectRoot (no persist), run the leaf, render a human report and --json. Optional --story to restrict. Register in registry.ts + cli-engine.ts. Files no findings, touches no gate, writes nothing.",
+      "userSees": "Running `lattice learning_validate` prints valid-rate and drift-rate over the live finding history; `--json` emits the machine-readable report.",
+      "excludes": [
+        "No gate registration",
+        "No finding_add / advisory output",
+        "No cache write"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke test + npm script + verifier",
+      "context": "Hermetic smoke for the pure leaf (synthetic signals + injected fileExists asserting validRate/driftRate) plus a CLI smoke that runs learning_validate on a temp store and asserts a valid-rate line. Wire an npm script and a committed verify-*.mjs that builds + runs the smokes and prints TOTAL/PASS/FAIL.",
+      "userSees": "npm smoke passes and the verifier prints PASS for the re-validation metric.",
+      "excludes": [
+        "No network",
+        "No reliance on real repo state in the hermetic leaf test"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

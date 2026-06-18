@@ -1,0 +1,192 @@
+{
+  "storyId": "B-ed12",
+  "checkedAt": "2026-06-17T20:00:18.614Z",
+  "features": [
+    {
+      "feature": "Fix gate-semantics-drift smokes: init-check-fallback and init-check-required-agents must set up scope-boundary.json (and execution-boundary/scope-freeze) to pass the INIT_CHECK gate before asserting",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix gate-semantics-drift smoke: done-preflight assertDoneRejectsWhenMainIsDirty must be updated to B-72df semantics (scoped dirty-main check: unrelated dirty files tolerated, real merge-affecting conflict still blocks, story NOT advanced to DONE)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No safety assertion weakened or deleted in any updated smoke (adversarial guardrail: each smoke confirms current production behavior before updating)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix worktree-repair smoke: assertMixedCanonicalLegacyGlobalLinksAreRepaired updated to expect post-B-097f host-neutral skip (no-op link repair is now correct behavior)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix story-dedup smoke: slug casing expectation updated from Japanese-task to japanese-task (current casing normalization)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix convergence-discarded smoke: All stories complete convergence message drifted, update assertion to current correct message",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix cli-argument-ergonomics smoke: error-message regex drifted (Argument validation failed), update to current text",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix lattice-only-absence smoke: assertion drift, confirm current behavior and update",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix lattice-cli-migration smoke: drift from koala->lattice rename completion, update to current migrated state",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix review-loop smoke: 3 of 38 sub-assertions drifted, fix those 3 and keep the other 35",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Content fix: remove/translate CJK in usage-ledger-estimate-smoke.ts so english-open-source-surface smoke passes (the smoke correctly flags CJK per the English-only policy)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Out-of-scope CJK in other smokes (docs-drift-path-drift-smoke.ts, prompt-token-cost-smoke.ts — functional CJK fixtures) handled via documented allowlist (ALLOWLIST_TEST_GLOBS), not removed",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Production files with CJK (agent-prompt.ts, validate-docs-drift.ts) not touched — pending-migration allowlist (ALLOWLIST_PENDING_SOURCE_MIGRATION), no production code change",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Triage and fix (or escalate) gap-log smoke: classify STALE vs REAL-REGRESSION before any edit",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Triage and fix (or escalate) story-create-concurrency smoke: classify STALE vs REAL-REGRESSION before any edit",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Triage and fix (or escalate) review-pass-discard smoke: classify STALE vs REAL-REGRESSION before any edit",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CRITICAL GUARDRAIL: for each smoke, confirm production is correct FIRST by reading production code, then update the test; if smoke reveals real production bug, escalate instead of papering over",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Zero production code change across all 5 CHKs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "P5 authority/baseline/autopilot TIMEOUT/ENV family smokes (authority-job-loop-live, autopilot-authority, multi-host-authority, lattice-baseline, dispatch-run, planner-unattended, experience-layer-playbook, cli-json-stdout-contract) are out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly lists these as OUT OF SCOPE; separate later assessment",
+      "source": "description"
+    },
+    {
+      "feature": "B-6666 deferred backtick/alias burndown is out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly lists B-6666 as OUT OF SCOPE",
+      "source": "description"
+    },
+    {
+      "feature": "English-only policy gate (english-open-source-surface smoke) must not be weakened or have its check logic changed",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Smoke test pattern: dist-standalone-executable (each smoke is black-box command invoked as node dist/tasks/<name>-smoke.js), no runner architecture change",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "CHK-004 userSees claims english-open-source-surface PASSES standalone with no CJK flagged — but 4 other CJK sources still exist (2 production files in pending-migration allowlist, 2 functional-CJK test fixtures in test allowlist); the userSees wording could be misread as a blanket no-CJK-anywhere claim",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 21,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "320f9aa6ee4d28ca7552370a78c370a1ff4442b9ebf2edae7e747db2d42b6e4d",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "CHK-004 userSees says \"english-open-source-surface PASSES standalone (no CJK flagged)\", but the main agents own investigation confirmed 4 CJK sources remain intentionally unfixed: (a) packages/main/src/handlers/agent-prompt.ts and (b) packages/main/src/handlers/validate-docs-drift.ts are production files in ALLOWLIST_PENDING_SOURCE_MIGRATION (pending translation, not yet translated), and (c) packages/main/src/tasks/docs-drift-path-drift-smoke.ts and (d) packages/main/src/tasks/prompt-token-cost-smoke.ts are test files with functional CJK fixtures in ALLOWLIST_TEST_GLOBS. If the implementer reads userSees literally (\"no CJK flagged\") they may conclude the smoke must pass with zero CJK hits anywhere, and then either (i) extend the content fix beyond usage-ledger-estimate-smoke.ts (scope creep into production files) or (ii) weaken/remove the allowlist to make it pass cleanly — either of which violates the guardrail. The question is: does the CHK-004 acceptance criterion require the implementer to verify only that the smoke PASSES (i.e., the allowlist correctly handles the 4 out-of-scope CJK sources so the smoke does not fail on them) — or does it also require that no CJK is reported/flagged in any allowlisted file? If the allowlist mechanism makes the smoke pass despite those 4 files being allowlisted, is that sufficient, or must the implementer translate/remove those files too?",
+      "evidence": "CHK-004 userSees: english-open-source-surface PASSES standalone (no CJK flagged). Story description: other 4 are (a) packages/main/src/handlers/agent-prompt.ts + (b) packages/main/src/handlers/validate-docs-drift.ts = PRODUCTION code (out of scope, must not touch), and (c) packages/main/src/tasks/docs-drift-path-drift-smoke.ts + (d) packages/main/src/tasks/prompt-token-cost-smoke.ts = other smokes with FUNCTIONAL CJK fixtures. The english-open-source-surface smoke has a documented allowlist (ALLOWLIST_TEST_GLOBS for test files asserting legacy Chinese; ALLOWLIST_PENDING_SOURCE_MIGRATION for production files pending translation).. CHK-004 edge verificationIntent: CJK at usage-ledger-estimate-smoke.ts:229 replaced with English/ASCII without changing what the byte/char estimator test verifies; out-of-scope functional-CJK test fixtures handled via the documented smoke allowlist, production CJK left untouched (pending-migration).",
+      "sourcePointers": [
+        "packages/main/src/tasks/english-open-source-surface-smoke.ts#ALLOWLIST_TEST_GLOBS",
+        "packages/main/src/tasks/english-open-source-surface-smoke.ts#ALLOWLIST_PENDING_SOURCE_MIGRATION",
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "CHK-004"
+      ],
+      "resolution": "CHK-004 acceptance = the english-open-source-surface smoke EXITS 0 (passes), NOT literally zero CJK bytes anywhere in the repo. The smoke is BY DESIGN an allowlist gate (see its header comment: ALLOWLIST_TEST_GLOBS = test files that deliberately assert legacy Chinese output; ALLOWLIST_PENDING_SOURCE_MIGRATION = source files carrying pre-existing Chinese tracked for a follow-up source-translation story). A PASS means every CJK occurrence is either removed or on the audited allowlist. Resolution for the 5 flagged files: (1) usage-ledger-estimate-smoke.ts:229 the CJK is an estimator INPUT string irrelevant to the byte/char assertion -> REMOVE/replace with English-or-non-CJK (the real in-scope content fix). (2) docs-drift-path-drift-smoke.ts + prompt-token-cost-smoke.ts have FUNCTIONAL CJK fixtures (Chinese-prose parsing / Chinese caveat matching) that MUST keep their CJK to test what they test -> ADD to ALLOWLIST_TEST_GLOBS (the documented mechanism, editing only the smoke test file, in scope). (3) agent-prompt.ts (CJK comment) + validate-docs-drift.ts (functional Chinese regex /禁止创建/ etc., behavior-sensitive) are PRODUCTION files -> they are NOT yet on any allowlist (verified by grep), so ADD them to ALLOWLIST_PENDING_SOURCE_MIGRATION (deferred translation, the exact category the comment describes) WITHOUT touching the production files themselves. Hard limits: do NOT modify the check logic to weaken it, do NOT edit any production file, do NOT remove functional CJK. Each allowlist addition is an auditable deferral entry, consistent with how cli-init.ts/registry.ts/etc. are already listed. Net effect: smoke exits 0 with the safety check intact and all deferrals explicit.",
+      "resolvedAt": "2026-06-17T20:01:15.087Z"
+    }
+  ]
+}

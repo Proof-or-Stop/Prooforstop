@@ -1,0 +1,38 @@
+{
+  "findings": [
+    {
+      "id": "B-253e:F-001",
+      "desc": "dead-code: ids.ts:92-97 — `defaultAllocator` (module-level const) and `nextSequence` (exported function) are defined but never called anywhere in the codebase. The smoke test does not import or exercise `nextSequence`. Per dead-code policy, unexported internal state that is only reachable via an exported symbol that is itself never called counts as dead code. Both should be removed or the smoke should exercise `nextSequence` to validate the default-allocator path.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T01:39:33.698Z",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "reviewRunId": "B-253e:RR-006",
+      "_hash": "02a86e31772eae0f7b2ba182453ad8bd9d22bfb221ddd690605c1fe551ae6fb5",
+      "files": [
+        "packages/main/src/core/usage-ledger/ids.ts"
+      ],
+      "resolvedAt": "2026-06-16T01:44:38.645Z"
+    },
+    {
+      "id": "B-253e:F-002",
+      "desc": "type-safety: summary.ts:165,169 — after the `if (item.unknown) continue` guard, TypeScript still types `item.total` as `number | null` (no type-level narrowing), so the code uses `item.total ?? 0` to satisfy the compiler. This ?? 0 silently coerces a null total to 0 if `deriveRecordTotal` ever returns `{unknown:false, total:null}` (a contract violation). The spec explicitly states unknown dimensions must NEVER be coerced to 0. The fix is a discriminated union: `{ unknown: true; total: null } | { unknown: false; total: number }` so TypeScript narrows total to `number` after the guard and the `?? 0` is removed entirely.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T01:39:42.273Z",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "reviewRunId": "B-253e:RR-006",
+      "_hash": "12e2171b1c9d4edd807fae7530bda0039a8b90453c5ac18d0bf3be1a76883233",
+      "files": [
+        "packages/main/src/core/usage-ledger/summary.ts"
+      ],
+      "resolvedAt": "2026-06-16T01:44:47.634Z"
+    }
+  ]
+}

@@ -20,6 +20,15 @@
             "command": "node \"$(git -C \"$CLAUDE_PROJECT_DIR\" rev-parse --show-toplevel 2>/dev/null || echo \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/lattice-scope-pretool.cjs\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git -C \"$CLAUDE_PROJECT_DIR\" rev-parse --show-toplevel 2>/dev/null || echo \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/english-only-guard.cjs\""
+          }
+        ]
       }
     ],
     "PostToolUse": [

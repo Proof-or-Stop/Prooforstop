@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-9177:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-intents (3 items x 3 lanes) have genuine verificationEvidence — guard exits 0 on real tree, exits 1 on --negative-demo, in-process negative fixture bites confirmed, guard chains into npm test inside lattice validate; no coverage gaps found.",
+      "createdAt": "2026-06-16T04:27:07.830Z",
+      "reviewRound": "2026-06-16T04:25:01.891Z",
+      "reviewRunId": "B-9177:RR-004",
+      "_hash": "70e7bdcabfddfe27ffa3f545905843716d2bab7b3d55e4f259b69de555175b24"
+    },
+    {
+      "id": "B-9177:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or renaming found. The diff is purely additive: (1) wraps existing code blocks in withReentrantMainWriteLock calls in cli-engine.ts and handlers/worktree.ts — no symbols removed, no functions renamed; (2) adds a new task file main-write-lock-coverage.ts whose exports are self-contained; (3) wires test:main-write-lock-coverage into the npm test chain. All referenced symbols (withReentrantMainWriteLock, withMainWriteLock, acquireMainWriteLockRegistered, acquireDoneMainMergeLock, purgeSafeInitCommit, isPathUnderAny, stageBoundedMetadataPath) exist in the codebase. All EXCEPTIONS registry entries in the new task file point to real code lines. No residue from any deleted/replaced concept. Doc-promise check: the plan.md promise to wire the guard into lattice validate is fulfilled via the npm test script chain.",
+      "createdAt": "2026-06-16T04:29:34.247Z",
+      "reviewRound": "2026-06-16T04:25:01.891Z",
+      "reviewRunId": "B-9177:RR-001",
+      "_hash": "064f39b05a15a8cc74b141366c5bd74841f9d0265402700ba406c1c6c1080b0f"
+    },
+    {
+      "id": "B-9177:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Lock wrapping is lock-ONLY with no semantic change in cli-engine.ts and worktree.ts. withReentrantMainWriteLock is the correct variant (prevents self-deadlock when nested). gitRoot in worktree.ts is resolved via resolveStorySignedWorkspace (consistent with sibling paths). The wrapper-root gap in from-draft functions (using plain root instead of resolveInitCheckGitMainRoot) is pre-existing on main and not introduced by this diff. The new main-write-lock-coverage.ts guard: no dead imports, properly typed (no unnecessary as-any), I/O isolated (pure scanMainMutationCoverage with injectable deps, I/O only in runGuard), EXCEPTIONS registry has 5 well-justified entries, fail-closed default, negative fixture proves the scanner bites.",
+      "createdAt": "2026-06-16T04:30:27.084Z",
+      "reviewRound": "2026-06-16T04:25:01.891Z",
+      "reviewRunId": "B-9177:RR-002",
+      "_hash": "3262724c36fd6694cef8b81d5926419f37fd4c7013e66799109ff4ef1675db11"
+    },
+    {
+      "id": "B-9177:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 9/9 must-intents covered (3 items × 3 lanes); F-001 fix confirmed — gitFile added to GIT_CALL_OPENERS and negative fixture exercises gitFile-on-main VIOLATION cases; guard exits 0 on real tree and exits 1 on --negative-demo; no blocker.",
+      "createdAt": "2026-06-16T04:39:26.827Z",
+      "reviewRound": "2026-06-16T04:38:12.090Z",
+      "reviewRunId": "B-9177:RR-006",
+      "_hash": "d5a90340dfac38b9402e8fd91a6aa48b4e88fe9b18f44137ddaaf5ef6dd192e5"
+    },
+    {
+      "id": "B-9177:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept-deletion check complete. No symbols were deleted or renamed in this change. The diff is purely additive: (1) cli-engine.ts commitFromDraftMetadataOnMain and commitFromDraftMetadataAndMergeMain had their bodies wrapped in withReentrantMainWriteLock — all local variable names and the function signatures are unchanged; (2) handlers/worktree.ts story_discard and dev_merge paths had calls to purgeSafeInitCommit and commitDiscardMetadata wrapped in withReentrantMainWriteLock at the callsite — all functions still exist; (3) a new tasks/main-write-lock-coverage.ts was added with its own exports (COVERAGE_MARKER, MutationSite, CoverageReport, SiteClass, scanMainMutationCoverage). The F-001 fix added gitFile wrapper recognition (GIT_CALL_OPENERS updated, updatesStoryBranchRef helper, WORKTREE_CWD_SYMBOLS set) and corresponding negative-fixture tests — all purely additive. Grepped the full src tree: zero dangling references, zero unused imports from deleted symbols. No concept residue found.",
+      "createdAt": "2026-06-16T04:40:07.417Z",
+      "reviewRound": "2026-06-16T04:38:12.090Z",
+      "reviewRunId": "B-9177:RR-007",
+      "_hash": "f62902b8e2f9d041ce83182441f8b960357b862ff02042bb8bb03c9987d3c88e"
+    },
+    {
+      "id": "B-9177:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review. F-001 fix (gitFile recognition + updatesStoryBranchRef) is clean and fail-closed: regex correctly handles backtick template literals, rejects refs/heads/main and unknown variables, returns true only for explicitly recognized story-branch ref patterns. Lock-wrapping in cli-engine.ts (from-draft commit, from-draft commit+merge) and worktree.ts (story_discard purge reset, story_discard metadata commit, dev_merge) is purely additive and uses the correct reentrant variant. No semantic changes. EXCEPTIONS registry entries for cross-function-locked worktree.ts sites correctly reflect the callsite lock pattern. The guard overall is maintainable: no dead code, no unsafe type casts, no empty-catch swallowing. One low-severity doc imprecision registered as F-002 (write-tree listed in header comment as guarded but not in MAIN_MUTATION_VERBS — by design, since write-tree cannot update refs, but the comment implies otherwise).",
+      "createdAt": "2026-06-16T04:41:41.831Z",
+      "reviewRound": "2026-06-16T04:38:12.090Z",
+      "reviewRunId": "B-9177:RR-005",
+      "_hash": "de89b7079a57d0b5abd028a0e81d272045a3031c99fcfdef9478fed81847c250"
+    },
+    {
+      "id": "B-9177:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-review of F-001 fix: gitFile wrapper blind spot is closed. Verified: (1) A future gitFile([commit|merge|reset], root) would be caught by matchMutationVerb + default fail-closed branch. (2) updatesStoryBranchRef is fail-closed: refs/heads/main, HEAD, and unknown-var templates all return false (main-mutation). --no-deref flag case also fail-closed. (3) The two new bootstrap sites (worktree.ts:358 commit-tree, worktree.ts:359 update-ref refs/heads/story) correctly classify as worktree-only (commit-tree = dangling object no ref write; update-ref = story-branch ref via branch variable which is always story/storyId). Total main-mutating count remains 7 (unchanged). (4) Original 4 lock-wrapping sites verified intact in cli-engine.ts, done-effects.ts, done-recover.ts, worktree.ts. guard exits 0 on production tree, exits 1 on negative demo. lattice validate passes all 17 sites, all 9 intents covered, all PASS.",
+      "createdAt": "2026-06-16T04:42:09.189Z",
+      "reviewRound": "2026-06-16T04:38:12.090Z",
+      "reviewRunId": "B-9177:RR-008",
+      "_hash": "99687df9e404e8ceed6755a134e88849cd6b9bc821777a4318122ca9daa73705"
+    },
+    {
+      "id": "B-9177:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9/9 must-intents have valid logic_test evidence (result=pass, headHash pinned to current HEAD); guard exits 0 positive and 1 negative; no coverage gaps.",
+      "createdAt": "2026-06-16T04:46:42.187Z",
+      "reviewRound": "2026-06-16T04:45:45.806Z",
+      "reviewRunId": "B-9177:RR-010",
+      "_hash": "2176b331e3c0b51afb360b2262e32911a10b0e549519a5e2b748d8e9f277b31a"
+    },
+    {
+      "id": "B-9177:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-review (comment-only F-002 delta). Full diff examined: no symbols deleted or renamed in cli-engine.ts or worktree.ts — only existing code wrapped in withReentrantMainWriteLock callbacks. main-write-lock-coverage.ts is a net-new file (no deletions). No concept deletion or replacement identified; residue check not triggered.",
+      "createdAt": "2026-06-16T04:46:44.313Z",
+      "reviewRound": "2026-06-16T04:45:45.806Z",
+      "reviewRunId": "B-9177:RR-009",
+      "_hash": "b78f2772abe45a8f02fee6131c5a3d647a62cd0cf7599513c08eb40799364501"
+    },
+    {
+      "id": "B-9177:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "F-002 fix confirmed: WHAT IT GUARDS comment now enumerates exactly MAIN_MUTATION_VERBS (commit/merge/reset/commit-tree/update-ref) and explicitly states write-tree is intentionally not scanned with justification. No other comment/code mismatches found in the changed files.",
+      "createdAt": "2026-06-16T04:46:58.631Z",
+      "reviewRound": "2026-06-16T04:45:45.806Z",
+      "reviewRunId": "B-9177:RR-011",
+      "_hash": "675f9fb2ea726ce3aa4a32091620580da1fd6f0d761ed5a69fb22e5c53c45678"
+    }
+  ]
+}

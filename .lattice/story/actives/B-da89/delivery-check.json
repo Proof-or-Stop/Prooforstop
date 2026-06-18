@@ -1,0 +1,57 @@
+{
+  "storyId": "B-da89",
+  "checkedAt": "2026-06-17T02:27:00.577Z",
+  "reviewRound": "2026-06-17T02:21:08.224Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/config.ts#DEFAULT_PHASE_TOOLS-INIT",
+      "promise": "dev_start is listed in DEFAULT_PHASE_TOOLS INIT array, aligning config with command-policy.ts:130 allowedPhases",
+      "verifiedBy": "git diff",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/config.ts shows +    'dev_start', // B-804c CHK-001 / B-da89 at line 191 inside INIT array"
+    },
+    {
+      "docPath": "packages/main/src/core/config.ts#DEFAULT_PHASE_TOOLS-DEV",
+      "promise": "dev_start is listed in DEFAULT_PHASE_TOOLS DEV array, aligning config with command-policy.ts:130 allowedPhases",
+      "verifiedBy": "git diff",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/config.ts shows +    'dev_start', // B-804c CHK-002 / B-da89 at line 220 inside DEV array"
+    },
+    {
+      "docPath": "packages/main/src/core/config.ts#DEFAULT_PHASE_TOOLS-REVIEW-TEST-DONE",
+      "promise": "dev_start is NOT added to REVIEW, TEST, or DONE arrays — no over-widening beyond the pre-REVIEW bootstrap window",
+      "verifiedBy": "grep",
+      "evidence": "grep of REVIEW/TEST/DONE sections in config.ts (lines 235-263) shows no dev_start entry; command-policy.ts:130 allowedPhases stays unchanged at [INIT,INIT_CHECK,PLAN,DEV]"
+    },
+    {
+      "docPath": "packages/main/src/core/command-policy.ts",
+      "promise": "command-policy.ts is NOT modified — it remains the enforcement ceiling; behavior is unchanged",
+      "verifiedBy": "git diff",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/command-policy.ts produces empty output; no change to allowedPhases or any policy"
+    },
+    {
+      "docPath": "packages/main/src/handlers/worktree.ts",
+      "promise": "worktree.ts handler is NOT modified — dev_start behavior is unchanged",
+      "verifiedBy": "git diff",
+      "evidence": "git diff main...HEAD -- packages/main/src/handlers/worktree.ts produces empty output"
+    },
+    {
+      "docPath": "scripts/verify-process-fact-contract.mjs#assertCommandPolicyPhaseAlignment",
+      "promise": "npm run test:process-fact-contract exits 0 after the fix, confirming no dev_start INIT/DEV drift remains",
+      "verifiedBy": "real-machine test run",
+      "evidence": "npm run test:process-fact-contract run in worktree exits 0 with 'Process fact contract verified'; transcript in .lattice/story/actives/B-da89/evidence/transcript-diff.md records remove->exit1, restore->exit0 round-trip"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:process-fact-contract exits 0: 'Process fact contract verified'. Transcript-diff.md records: (1) happy: contract green after +2 lines in config.ts; (2) edge: removing the DEV entry causes contract to exit 1 with 'dev_start DEV policy/default phase drift'; (3) adversarial: restoring it returns to exit 0 — regression guard assertCommandPolicyPhaseAlignment covers all phases bidirectionally for all commands including dev_start."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified: only config.ts changed (+2 lines), command-policy.ts and worktree.ts untouched, dev_start absent from REVIEW/TEST/DONE, and the process-fact contract test exits 0 both in fresh run and as confirmed by transcript round-trip evidence."
+  },
+  "_hash": "e150c4ebf8c458c9367b8264a9271fb22c8de86f97f464f5f90261323a416046"
+}

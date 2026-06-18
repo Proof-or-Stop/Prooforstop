@@ -8,13 +8,12 @@
  * @description
  *   End-to-end smoke coverage for Story Capsule commands and the anti-forgery
  *   boundary: configured storyDir storage, graceful no-capsule reads, rebuild,
- *   run records, missing-ref diagnostics, and the no-.omx-import boundary.
+ *   run records, and missing-ref diagnostics.
  * @changes
  *   - [CHK-001] Verify capsule storage honors configured storyDir
  *   - [CHK-002] Verify run summaries are persisted under capsule/runs
  *   - [CHK-003] Verify rebuild recreates capsule.json and appends process events
  *   - [CHK-005] Verify forged/missing evidence refs are rejected in strict mode
- *   - [CHK-006] Verify .omx is not a capsule application/import surface
  *   - [CHK-007] Verify capsule projection stays bounded instead of duplicating story history
  */
 import { strict as assert } from 'node:assert';
@@ -57,12 +56,12 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
 }
 
-const root = mkdtempSync(join(tmpdir(), 'koala-story-capsule-'));
+const root = mkdtempSync(join(tmpdir(), 'lattice-story-capsule-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -211,19 +210,14 @@ try {
   const nonStrictBadRef = run(root, 'capsule_show', { storyId: 'B-caps' });
   assert.match(nonStrictBadRef, /missing evidence path/, 'non-strict capsule_show shows ref issues without crashing');
 
-  write(root, '.omx/context.md', 'OMX context summary\n');
-  write(root, '.omx/metrics.json', '{"tokens":10}\n');
-  const removedImport = run(root, 'capsule_import_omx', { storyId: 'B-caps' }, true);
-  assert.match(removedImport, /Unknown command|Unknown command/, 'capsule_import_omx should not be available as a capsule command');
   run(root, 'capsule_update', {
     storyId: 'B-caps',
-    summary: 'capsule remains independent of local .omx runtime data',
+    summary: 'capsule projection remains bounded and does not retain import refs',
     evidenceRefs: [],
     processEventRefs: [{ line: 1, type: 'dispatch' }],
   });
   capsule = readJson<any>(join(root, '.lattice/story/actives/B-caps/capsule/capsule.json'));
   assert.equal('importRefs' in capsule, false, 'capsule projection should not retain importRefs');
-  assert.equal(existsSync(join(root, '.lattice/story/actives/B-caps/capsule/imports')), false, 'capsule should not create imports from .omx');
 
   const forged = {
     ...capsule,

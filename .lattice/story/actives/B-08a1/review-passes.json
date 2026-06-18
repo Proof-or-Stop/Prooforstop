@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-08a1:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Verifier 51/51 pass (build+adapterSmoke+foundationSmoke+static checks). Adapter smoke 50/50 pass with concrete assertions: anthropic four-field mapping; openai cacheCreation===null strict (not 0/undefined/omitted); openai cacheRead null when prompt_tokens_details absent; gemini cacheCreation===null strict; gemini cacheRead null when cachedContentTokenCount absent; no-usage->unavailable (not zeros) for all providers; assembled records pass B-253e validateUsageLedgerRecord; correlation ids ids.ts-minted (never provider-derived); streaming terminal-event + mid-stream-error partial; writer round-trip chain-verified in temp dir. Static checks confirm cacheCreationNull-from-source, noDispatch, assemblerValidates, idsFromIds.",
+      "createdAt": "2026-06-16T02:42:52.868Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-001",
+      "_hash": "3a5a9c4b96da251b39c5b4ae72adb53bab1e262b9f8eb6a6571a311b98d79063"
+    },
+    {
+      "id": "B-08a1:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete — no issues found. (1) No duplicate record/validator/writer concepts: shared.ts imports LedgerUsage/TokenDimension/UsageCanonical from ../record.js and mintRecordId from ./ids.js; assemble.ts imports validateUsageLedgerRecord from record.js and mintRecordId from ids.js — B-253e foundations are reused, not re-implemented. payloadDigest in shared.ts is a new payload-level primitive distinct from writer.ts record-level hashing — two separate concerns, no duplication. (2) Four-field model (input/output/cacheCreation/cacheRead) is used consistently across all three adapters and assemble.ts. totalTokenCount from Gemini is explicitly ignored: the GeminiUsageMetadata interface intentionally omits it, the comment calls it out, and the smoke test asserts it never reaches the stored record. No stored totalTokens field anywhere in new code. (3) Scope honored: git diff --name-only shows only packages/main/** and .lattice/story/actives/B-08a1/**; no dispatch-runner, lattice-dispatch, estimate/budget/receipt code added. (4) Null-never-0 semantics consistent: readReportedDimension returns null for absent/null/undefined fields; no ?? 0, || 0, or default-zero coercion patterns anywhere in new files. cacheCreation is null (TypeScript typed TokenDimension = null, never 0) for both OpenAI and Gemini. buildUnavailableUsage always emits four null token fields. No concept deletions or replacements detected this round.",
+      "createdAt": "2026-06-16T02:43:48.385Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-003",
+      "_hash": "22448860def66b86c096e34307d023361bbc7a5bc64f2ced38d899d7fd3b3bf6"
+    },
+    {
+      "id": "B-08a1:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "No blockers. Provider mappings are correct (anthropic: 4-field native; openai/gemini: cacheCreation=null always; cacheRead null-vs-0 preserved correctly). The 0-vs-null distinction is maintained throughout — readReportedDimension returns the genuine number for present values and null only for absent/null/undefined. The assembler uses validateUsageLedgerRecord and mintRecordId from ids.ts (never provider-derived ids). unavailable is set only when there is truly no usage (never zeros). payloadDigest hashes only the usage sub-object (extractRawUsage extracts before hashing). Streaming handles terminal-event, partial-on-error, and no-usage correctly. Scope is clean: only packages/main/** changed (no dispatch-runner, estimate, budget, or receipt code). Two non-blocking findings registered: F-001 (medium) unsound `as TokenDimension` cast in shared.ts:72 that is caught by runtime validator but silences TS; F-002 (low) canonicalJson/sortValue duplication between shared.ts and writer.ts that could diverge silently.",
+      "createdAt": "2026-06-16T02:46:17.418Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-002",
+      "_hash": "75f42bbb420ae2b2fcc95ebef796de75cf02ee65bf0a5525e5e18e66b7daef6b"
+    },
+    {
+      "id": "B-08a1:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Four concept checks passed. (1) No duplicate canonicalJson/sortValue in usage-ledger: both writer.ts and adapters/shared.ts import from the single canonical-json.ts; the other canonicalJson definitions in authority-signing.ts, authority-contracts.ts, decision-doc-promotion.ts all pre-exist on main and are unrelated to this story. (2) Canonical four-field model (input/output/cacheCreation/cacheRead) is consistent throughout; totalTokenCount is explicitly ignored in gemini.ts and forbidden by the record.ts denylist. (3) Scope honored: only packages/main/** and .lattice story metadata changed; no dispatch/estimate/budget/receipt implementations introduced. (4) Unavailable semantics consistent: buildUnavailableUsage sets all four token fields to null never 0; per-dimension absence returns null never 0 in readReportedDimension; no zero-coercion patterns found in adapters. No dead/duplicate concepts found.",
+      "createdAt": "2026-06-16T02:53:17.336Z",
+      "reviewRound": "2026-06-16T02:50:56.734Z",
+      "reviewRunId": "B-08a1:RR-004",
+      "_hash": "1d4c6820f8bd9b3598db73ee751b684f205447a5cd38059c9af756b4e56cf80b"
+    },
+    {
+      "id": "B-08a1:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review clean. F-001: readReportedDimension malformed-value branch now uses `value as unknown as TokenDimension` with explicit comment naming B-253e as the rejection point — documented deliberate unsoundness, not silent coercion. F-002: standalone canonical-json.ts file exports canonicalJson/sortValue as single source; both writer.ts and adapters/shared.ts import it; no duplicate copies remain. Build exit 0, adapter suite 50/50, foundation suite 61/61 (chain-verification and round-trip tests confirm byte-identical hashing across both consumers). No new dead code, type-safety, or I/O-isolation issues found in the changed files.",
+      "createdAt": "2026-06-16T02:53:56.875Z",
+      "reviewRound": "2026-06-16T02:50:56.734Z",
+      "reviewRunId": "B-08a1:RR-005",
+      "_hash": "d4ea54713fadb7ceffd74076a88fec92c380470769d8587205e5f8771afe9afc"
+    },
+    {
+      "id": "B-08a1:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verifier TOTAL 51 | PASS 51 | FAIL 0 on current HEAD (7c3ecf0); adapter smoke 50/50, foundation smoke 61/61; all 51 verificationEvidence entries map concretely to checked behaviors; no intent gap found.",
+      "createdAt": "2026-06-16T02:54:02.319Z",
+      "reviewRound": "2026-06-16T02:50:56.734Z",
+      "reviewRunId": "B-08a1:RR-006",
+      "_hash": "afeaf60f92e5d9f8aaee8e0a00956691c7996a0056dfed01855693d7ddb73503"
+    }
+  ]
+}

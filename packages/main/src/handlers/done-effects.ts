@@ -46,7 +46,7 @@ import { execFileSync, execSync, spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
-import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
+import { repairGlobalLatticeLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
@@ -64,23 +64,30 @@ import {
 // DONE-only helper.
 
 /** Auto-sync main into the current branch. Returns success/failure + message. */
-export function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
+export function autoSyncMain(gitCwd: string): { ok: boolean; message: string } {
+  // B-75f0: the parameter is named `gitCwd` because it ALREADY receives the
+  // resolved gitCwd — the sole caller (transition-orchestrator.ts
+  // runStoryTransition DONE branch) routes ctx.root through resolveGitCwd ONCE
+  // at the entry of the DONE pre-check block (doneGitCwd) and passes the
+  // resolved value here. In a wrapper-root layout that is the configured
+  // gitRoot subdir, not the metadataRoot. Plain-repo fallback is also handled
+  // by resolveGitCwd, so this stays byte-identical (pure rename, B-75f0 CHK-004).
   // Try to fetch origin main first (fails silently for local-only repos)
   try {
     execSync('git fetch origin main:main', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
   } catch { /* local-only repo or no remote — skip fetch */ }
   try {
     execSync('git merge main --no-edit', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
     return { ok: true, message: 'main 已自动同步到当前分支' };
   } catch {
     // conflict — abort merge to keep branch clean
     try {
       execSync('git merge --abort', {
-        cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
       });
     } catch { /* abort failed — already clean */ }
     return { ok: false, message: 'merge main 有冲突（已 abort 保持分支干净）。\n→ 执�� git merge main，解决冲突后 git add + git commit，然后重跑 story_advance DONE' };
@@ -261,7 +268,7 @@ export function acquireDoneMainMergeLock(
   return acquireMainWriteLockRegistered(mainRepoRoot, {
     label: 'DONE main merge',
     heldMessage:
-      `DONE main merge lock is held by another Koala operation; story ${storyId} phase was not changed. ` +
+      `DONE main merge lock is held by another Lattice operation; story ${storyId} phase was not changed. ` +
       `Retry after the active DONE merge finishes.`,
   });
 }
@@ -334,7 +341,7 @@ function assertSafeResidualWorktreeRm(ctx: DoneWorktreeContext, target: string, 
  * Explicitly names the main worktree path in error messages so recovery
  * instructions point at the right directory.
  */
-function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string): string {
+export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string): string {
   const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot);
   let mainBranch: string;
   try {
@@ -361,18 +368,40 @@ function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string):
     );
   }
 
-  // Check for staged or modified tracked files only. Untracked files in the
-  // main worktree are not checked here — they only block the merge if the
-  // story branch would overwrite them, which the merge-tree dry-run already
-  // catches. Runtime artifacts (e.g. .koala/locks/ created by the merge lock)
-  // must not block the preflight.
+  // B-72df: Check for staged or modified tracked files, but block ONLY when a
+  // dirty tracked path OVERLAPS the set of paths this DONE merge will actually
+  // touch. The over-broad B-e74e check threw on ANY dirty tracked file, which
+  // wrongly blocked DONE when the shared main worktree had unrelated
+  // uncommitted work (parallel-session edits the merge never touches). The
+  // merge applies story/<storyId> into main, so the affected set is
+  // `git diff main...story/<storyId>` (both rename endpoints included). A dirty
+  // tracked path outside that set cannot be clobbered by the merge and must not
+  // block it; a dirty path inside it still blocks (clobber protection).
+  //
+  // Untracked files in the main worktree are still not checked here
+  // (--untracked-files=no) — they only block the merge if the story branch
+  // would overwrite them, which the merge-tree dry-run already catches. Runtime
+  // artifacts (e.g. .koala/locks/ created by the merge lock) must not block the
+  // preflight.
+  //
+  // NOTE: do NOT trim the leading whitespace of the porcelain output. The
+  // porcelain v1 XY status field is exactly two characters and either may be a
+  // space (e.g. " M path" for an unstaged modification); a global trim would
+  // strip the first line's leading status space and corrupt path parsing.
   let status: string;
   try {
-    status = execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], {
+    // `-c core.quotePath=false` forces porcelain to emit RAW UTF-8 paths. With
+    // git's default core.quotePath=true, non-ASCII paths are octal-escaped and
+    // double-quoted (e.g. `"src/caf\303\251.ts"`), which does NOT match the raw
+    // UTF-8 paths returned by `git diff ... -z` in listDoneMergeAffectedPaths().
+    // A mismatch there would let a dirty non-ASCII-named file that IS in the
+    // merge's affected set silently slip past the overlap check (clobber).
+    // Disabling quotePath makes both encodings identical so they intersect.
+    status = execFileSync('git', ['-c', 'core.quotePath=false', 'status', '--porcelain', '--untracked-files=no'], {
       cwd: mainMergeRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    });
   } catch (e: any) {
     throw new Error(
       `Cannot enter DONE: cannot inspect git status at main worktree "${mainMergeRoot}".\n` +
@@ -381,17 +410,121 @@ function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string):
     );
   }
 
-  if (status) {
-    throw new Error(
-      `Cannot enter DONE: main worktree at "${mainMergeRoot}" has uncommitted changes to tracked files.\n` +
-      `${status}\n\n` +
-      `→ Commit or stash these changes in the main worktree before retrying DONE:\n` +
-      `→ cd "${mainMergeRoot}" && git status\n` +
-      `Story ${storyId} phase was not changed.`,
-    );
+  const dirtyPaths = parsePorcelainDirtyPaths(status);
+  if (dirtyPaths.length > 0) {
+    const affectedPaths = listDoneMergeAffectedPaths(mainMergeRoot, storyId);
+    // If the affected set could not be computed (e.g. the story branch ref is
+    // missing), fall back to the conservative B-e74e behavior and treat every
+    // dirty tracked path as blocking — never silently allow a merge whose
+    // clobber surface is unknown.
+    const overlapping = affectedPaths === null
+      ? dirtyPaths
+      : dirtyPaths.filter(path => affectedPaths.has(path));
+
+    if (overlapping.length > 0) {
+      throw new Error(
+        `Cannot enter DONE: main worktree at "${mainMergeRoot}" has uncommitted changes to tracked files ` +
+        `that overlap the DONE merge of story/${storyId}.\n` +
+        `${overlapping.join('\n')}\n\n` +
+        `→ Commit or stash these changes in the main worktree before retrying DONE:\n` +
+        `→ cd "${mainMergeRoot}" && git status\n` +
+        `Story ${storyId} phase was not changed.`,
+      );
+    }
   }
 
   return mainMergeRoot;
+}
+
+/**
+ * B-72df: parse `git status --porcelain --untracked-files=no` output into the
+ * set of dirty tracked paths. Handles renamed-in-worktree entries
+ * (`XY old -> new`) by returning BOTH endpoints so neither side can silently
+ * collide with the merge's affected set.
+ */
+function parsePorcelainDirtyPaths(status: string): string[] {
+  const paths = new Set<string>();
+  for (const rawLine of status.split(/\r?\n/)) {
+    const line = rawLine.trimEnd();
+    if (!line) continue;
+    // Porcelain v1: 2 status chars + a space, then the path(s).
+    const body = line.slice(3);
+    const arrowIdx = body.indexOf(' -> ');
+    if (arrowIdx >= 0) {
+      paths.add(normalizeGitPath(unquoteGitPath(body.slice(0, arrowIdx))));
+      paths.add(normalizeGitPath(unquoteGitPath(body.slice(arrowIdx + 4))));
+    } else {
+      paths.add(normalizeGitPath(unquoteGitPath(body)));
+    }
+  }
+  return [...paths].filter(Boolean);
+}
+
+/**
+ * B-72df: compute the set of repo-relative paths the DONE merge of
+ * story/<storyId> into main will touch, via
+ * `git diff main...story/<storyId> --name-status -M`. The triple-dot form
+ * diffs from the merge-base, matching exactly what `git merge story/<storyId>`
+ * applies. For renames (`R<score>\told\tnew`) BOTH endpoints are included so a
+ * dirty rename source OR target is caught. Returns null when the affected set
+ * cannot be computed (e.g. missing story branch ref) so the caller can fall
+ * back to the conservative block-all behavior.
+ */
+function listDoneMergeAffectedPaths(mainMergeRoot: string, storyId: string): Set<string> | null {
+  const storyBranch = `story/${storyId}`;
+  let raw: string;
+  try {
+    raw = execFileSync(
+      'git',
+      ['diff', `main...${storyBranch}`, '--name-status', '-M', '-z'],
+      {
+        cwd: mainMergeRoot,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    );
+  } catch {
+    return null;
+  }
+
+  // `-z` output is NUL-separated. A rename/copy record is three fields:
+  //   status\0oldPath\0newPath\0 ; every other record is two: status\0path\0.
+  const fields = raw.split('\0').filter(field => field.length > 0);
+  const affected = new Set<string>();
+  let i = 0;
+  while (i < fields.length) {
+    const code = fields[i];
+    const statusLetter = code.charAt(0);
+    if ((statusLetter === 'R' || statusLetter === 'C') && i + 2 < fields.length) {
+      affected.add(normalizeGitPath(fields[i + 1]));
+      affected.add(normalizeGitPath(fields[i + 2]));
+      i += 3;
+    } else if (i + 1 < fields.length) {
+      affected.add(normalizeGitPath(fields[i + 1]));
+      i += 2;
+    } else {
+      // Malformed trailing record — stop defensively.
+      break;
+    }
+  }
+  return affected;
+}
+
+/**
+ * B-72df: un-quote a git path that git emits with surrounding double quotes
+ * when it contains "unusual" characters (default core.quotePath=true). The
+ * `-z`/NUL diff output is never quoted, but porcelain status lines can be, so
+ * dirty-path parsing normalizes them before intersecting with the affected set.
+ */
+function unquoteGitPath(path: string): string {
+  if (path.length >= 2 && path.startsWith('"') && path.endsWith('"')) {
+    try {
+      return JSON.parse(path) as string;
+    } catch {
+      return path.slice(1, -1);
+    }
+  }
+  return path;
 }
 
 function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePath: string, mainRepoRoot: string): void {
@@ -436,16 +569,22 @@ export async function runDonePreMergeGate(
   store: StoryStore,
   root: string,
   actor: ReturnType<typeof import('../core/machine.js').createStoryActor>,
+  // B-6666 CHK-001: the resolved git cwd (wrapper-root aware), resolved ONCE at
+  // the transition-orchestrator DONE boundary and threaded down. `root`
+  // (metadataRoot) is still used for store/metadata reads; only the DONE-oracle
+  // git probes use gitCwd. Defaults to root so callers that have not resolved a
+  // gitCwd stay byte-identical (plain repos: projectRoot==gitCwd).
+  gitCwd: string = root,
 ): Promise<string> {
   // B-c622 CL-006: autoSyncMain moved before actor.can() to fix TOCTOU.
 
-  const rendered = runDoneOracleGate(storyId, store, root, actor);
+  const rendered = runDoneOracleGate(storyId, store, root, actor, gitCwd);
 
   // F-020 (B-9d95 Round 1 review): stray-file 检测提前到 phase=DONE 落盘
   // 之前。原实现（Step 2.5，line 632 附近）在 story.phase=DONE +
   // story.worktree=undefined 已 writeStory 之后才跑，若 throw（非白名单
   // 未追踪文件）story 会卡 DONE（merge 未发生、worktree 还活着、没有
-  // koala 自愈路径）。这里预检查：dry-run detection，发现 offender 立刻
+  // lattice 自愈路径）。这里预检查：dry-run detection，发现 offender 立刻
   // throw，保留 phase=TEST 状态让 main agent 按错误提示修复后重跑。
   //
   // whitelist 文件在此**不删除**——只负责早期拦截。真正的 rm 延后到
@@ -648,7 +787,7 @@ export async function applyDoneMergeEffects(
       // state or genuine leakage we want to erase.
       if (existsSync(wtPathAbs) || isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
         const wasRegisteredWorktree = isRegisteredWorktree(mainRepoRoot, wtPathAbs);
-        const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
+        const repair = repairGlobalLatticeLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
         if (repair.action === 'relinked') mergeLines.push(repair.message);
         let removeFailure: string | null = null;
         try {

@@ -1,0 +1,29 @@
+{
+  "task": "Implement a READ-ONLY diagnostics/report layer strictly inside packages/main/src/core/usage-ledger/: grouped aggregation (by storyId/phase/role/model/provider), pure cost projection with an INJECTED price table, a read-only report builder, a runnable reporter task, and a smoke. No CLI command registration, no dispatch/gate/handler/cli-engine changes; preserve zero cross-module imports.",
+  "outcome": "npm --prefix packages/main run test:usage-ledger-diagnostics prints all-green, and running the reporter task (npm usage-ledger-report) over a sample ledger JSONL prints a grouped report: overall totals by source, per-group breakdowns by storyId/phase/agentType/model/provider, counts (provider-reported/estimate/unavailable), unknown count, and cost per group ONLY when an injected price table is supplied (else cost is null/omitted). unknown/unavailable stays unknown (never 0); prompt-size-estimate excluded from provider-reported totals; superseded records excluded. Build clean; the usage-ledger module still imports zero other Lattice modules; git diff touches only core/usage-ledger + tasks + package.json (never dispatch/cli-engine/handlers).",
+  "facts": [
+    "summary.ts already selects the latest non-superseded record per ledgerCallId+attemptId and buckets by source with unknown never coerced to 0; this slice layers grouped aggregation on top (reuse it)",
+    "record.ts records carry storyId, phase, agentType, provider.name, provider.model, canonical{input,output,cacheCreation,cacheRead}, source",
+    "The module currently imports zero other Lattice modules; three npm smoke scripts already exist (test:usage-ledger / -adapter / -estimate)",
+    "Per user direction this slice must NOT modify other logic code (no dispatch/gate/handler/cli-engine/command-registry)",
+    "Cost must be derived only from an injected price table (no hardcoded prices)"
+  ],
+  "constraints": [
+    "Strictly in-module: only core/usage-ledger + tasks + package.json; preserve zero cross-module imports",
+    "Read-only: feeds NO gate (no gate/verdict/decision/blocker field; not imported by any handler/gate)",
+    "Reporter is a runnable TASK, NOT a registered lattice CLI command (registering one would touch the command registry / other logic)",
+    "Cost via injected price table only — no hardcoded prices; cost null when no table; unknown stays unknown",
+    "Reuse summary.ts selection/bucketing; do not re-implement it"
+  ],
+  "unknowns": [
+    "Exact price-table shape to standardize (per-model input/output/cacheRead/cacheCreation $/MTok)",
+    "Report output format details (human-readable + JSON mode)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/diagnostics.ts",
+    "packages/main/src/tasks/usage-ledger-report.ts",
+    "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-16T14:35:30.446Z"
+}

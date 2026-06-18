@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-2d6c:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "All 5 quality concerns verified clean. (a) Spot-checked all 17 *-smoke.ts diffs: every assertion change preserves test intent (text/regex updated to match renamed production messages, removed CLI variants replaced with programmatic equivalents, stub fields added to satisfy new store API requirements). (b) smoke-manifest.json is valid JSON; 7 timeout edits touch only timeoutMs key — name/skip/tags are preserved where pre-existing (field-regression-cli tags intact); experience-layer-playbook is a new manifest entry (smoke file already existed on both branches). (c) package.json: exactly one line changed in test:coverage, no scripts added or removed. (d) CHANGELOG Unreleased entry under correct section, factually accurate (17 files, 7 timeout bumps, NODE_OPTIONS=--max-old-space-size=8192, 162/162 result). (e) Zero production source files under packages/main/src/{handlers,core,cli-engine.ts,cli-prompts.ts} touched — confirmed by git diff --name-only. Minor cosmetic: story-dedup-smoke.ts line 69 has one extra leading space in comment, non-blocking style issue only.",
+      "createdAt": "2026-06-17T21:07:48.010Z",
+      "reviewRound": "2026-06-17T21:05:23.729Z",
+      "reviewRunId": "B-2d6c:RR-002",
+      "_hash": "6195b3f8b188a1ecc35e2624442a55762f7cf1d6b5b9a4149cd81c9b0c233d26"
+    },
+    {
+      "id": "B-2d6c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check: F-002 fix verified — CHANGELOG B-2d6c entry now correctly reads 8 slow smokes, matching the 8 manifest entries (lattice-baseline, field-regression-cli, dispatch-run, experience-layer-playbook, planner-unattended, worktree-authority, cli-json-stdout-contract, autopilot-run). No concept deletion or mass replacement detected in non-metadata diff; no residue to grep. No blocker.",
+      "createdAt": "2026-06-17T21:11:19.876Z",
+      "reviewRound": "2026-06-17T21:10:13.973Z",
+      "reviewRunId": "B-2d6c:RR-004",
+      "_hash": "1b9d52a0f0f55f1f212ad051db4f183c4e6fb474b57c52a0781d7a505935331a"
+    },
+    {
+      "id": "B-2d6c:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): F-001 rebound verified — CHK-002:adversarial:0 evidence now carries verdict=waived with the literal intent command present, scope-contract.json contains 2 valid scope_contract_acknowledge entries (smoke-manifest.json 8-smoke expansion + package.json heap fix), manifest diff confirms only timeoutMs additions to 8 named smokes, no production source touched. All must-priority intents covered by non-fail evidence or documented waiver. No new blockers.",
+      "createdAt": "2026-06-17T21:11:27.115Z",
+      "reviewRound": "2026-06-17T21:10:13.973Z",
+      "reviewRunId": "B-2d6c:RR-005",
+      "_hash": "e14553c3d2a35e238926e7e96e38bec69e95ab594ccc62d5c675f7da6403007d"
+    }
+  ]
+}

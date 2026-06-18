@@ -1,0 +1,57 @@
+{
+  "storyId": "B-08a1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/adapters/gemini.ts",
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/usage-ledger/adapters/anthropic.ts",
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/adapters/gemini.ts",
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/core/usage-ledger/streaming.ts",
+    "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "evidence/* = story acceptance verifier (51 intents) + result; adapters/shared.ts = shared mapping primitives (readReportedDimension, payloadDigest, unavailable helper) factored out of the 3 provider adapters — in-scope part of the adapter layer.",
+      "timestamp": "2026-06-16T02:40:51.570Z",
+      "paths": [
+        ".lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+        ".lattice/story/actives/B-08a1/evidence/verify-result.json",
+        "packages/main/src/core/usage-ledger/adapters/shared.ts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "canonical-json.ts = shared canonicalization (canonicalJson/sortValue) extracted from writer.ts + adapters/shared.ts to fix review finding F-002 (prevent payloadDigest/recordHash divergence); evidence/* = acceptance verifier; shared.ts = adapter primitives. All in-scope adapter-layer code.",
+      "timestamp": "2026-06-16T02:50:30.749Z",
+      "paths": [
+        "packages/main/src/core/usage-ledger/canonical-json.ts",
+        ".lattice/story/actives/B-08a1/evidence/verify-b-08a1.mjs",
+        ".lattice/story/actives/B-08a1/evidence/verify-result.json",
+        "packages/main/src/core/usage-ledger/adapters/shared.ts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "writer.ts edited only to import the extracted canonical-json module (review finding F-002 dedup); canonicalization byte-identical, hash chain unchanged (foundation smoke 61/61 still green).",
+      "timestamp": "2026-06-16T02:50:55.434Z",
+      "paths": [
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-16T02:40:37.061Z",
+  "updatedAt": "2026-06-16T02:50:55.434Z"
+}

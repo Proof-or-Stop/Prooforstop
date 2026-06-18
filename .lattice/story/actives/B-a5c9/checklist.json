@@ -1,0 +1,1036 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Estimator interface + confidence model",
+      "context": "In core/usage-ledger/estimate.ts (new), define EstimatorKind ('count_tokens'|'local_tokenizer'|'bytes_chars') with a confidence mapping (count_tokens->'high', local_tokenizer->'medium', bytes_chars->'low'), and a TokenEstimator type: an (optionally async) function (model: string, input: string | promptParts) -> { estimatedInputTokens: number, kind: EstimatorKind }. Export the kind->confidence map. Unit-tested: each kind maps to the right confidence.",
+      "status": "done",
+      "startTime": "2026-06-16T14:03:45.912Z",
+      "endTime": "2026-06-16T14:15:55.628Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/estimate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CONFIDENCE_MAP[count_tokens] === high; WHY: validates the highest-fidelity estimator maps to high confidence",
+            "type": "cli"
+          },
+          {
+            "desc": "CONFIDENCE_MAP[local_tokenizer] === medium; WHY: validates the mid-tier fallback maps to medium confidence",
+            "type": "cli"
+          },
+          {
+            "desc": "CONFIDENCE_MAP[bytes_chars] === low; WHY: validates the coarsest offline fallback maps to low confidence",
+            "type": "cli"
+          },
+          {
+            "desc": "TokenEstimator type accepts an async function (model,input)->{ estimatedInputTokens, kind } and returns a valid result; WHY: confirms the interface works with async estimators as documented",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CONFIDENCE_MAP has exactly 3 keys (count_tokens, local_tokenizer, bytes_chars) and no others; WHY: ensures no undocumented EstimatorKind values leak into the confidence model",
+            "type": "cli"
+          },
+          {
+            "desc": "TokenEstimator sync function (non-async) also works as the type permits optionally async; WHY: ensures sync estimators are not broken by await wrapping",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Accessing CONFIDENCE_MAP with an invalid key (e.g. unknown_kind) returns undefined, not a fallback confidence; WHY: prevents a typo or injection from silently getting a valid confidence",
+            "type": "cli"
+          },
+          {
+            "desc": "CONFIDENCE_MAP is frozen/readonly -- mutating it throws or has no effect; WHY: prevents runtime tampering with the confidence model",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Deterministic offline bytes/chars fallback estimator",
+      "context": "Provide a pure, deterministic bytes/chars heuristic estimator (kind='bytes_chars', confidence low) that needs no network and no provider client. Document that it is a coarse guard, NOT tiktoken (tiktoken is OpenAI's and undercounts Claude). Tested: deterministic output for the same input; reasonable monotonicity (more text -> more estimated tokens).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T14:15:56.725Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/estimate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "bytesCharsEstimator(model, \"hello world\") returns { estimatedInputTokens: N, kind: bytes_chars } where N > 0; WHY: basic smoke that the offline estimator produces a positive token count",
+            "type": "cli"
+          },
+          {
+            "desc": "bytesCharsEstimator called twice with identical input returns identical estimatedInputTokens; WHY: determinism -- same input must yield same output with no randomness",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Monotonicity: bytesCharsEstimator(model, shortText) <= bytesCharsEstimator(model, shortText + moreText); WHY: more text must produce >= estimated tokens (coarse monotonicity)",
+            "type": "cli"
+          },
+          {
+            "desc": "Empty string input returns estimatedInputTokens === 0 or a minimal baseline; WHY: edge case for zero-length prompt",
+            "type": "cli"
+          },
+          {
+            "desc": "Very large input (1MB of repeated text) returns a proportionally large estimate without crashing; WHY: ensures no overflow or OOM on large prompts",
+            "type": "cli"
+          },
+          {
+            "desc": "Unicode/multi-byte input (CJK characters, emoji) produces a reasonable estimate; WHY: bytes-based heuristic must handle multi-byte correctly",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "bytesCharsEstimator requires NO network and NO provider client -- calling it with no env vars, no API keys, offline, still succeeds; WHY: it is a pure offline fallback; any network dependency is a design violation",
+            "type": "cli"
+          },
+          {
+            "desc": "bytesCharsEstimator is NOT tiktoken -- the source code or module name does not import/require tiktoken; WHY: tiktoken is OpenAI-specific and undercounts Claude tokens; the spec explicitly forbids it",
+            "type": "cli"
+          },
+          {
+            "desc": "bytesCharsEstimator with null/undefined input throws or returns 0, never returns NaN or negative; WHY: defensive against malformed caller input",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); bytes/chars heuristic, no tiktoken d",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Estimate selector (count_tokens > local_tokenizer > bytes_chars)",
+      "context": "selectEstimate({model, input, countTokens?: TokenEstimator, localTokenizer?: TokenEstimator}) picks the highest-available estimator in order count_tokens > local_tokenizer > bytes_chars, returns {estimatedInputTokens, kind, confidence, model}. The estimate is bound to the exact model id passed. count_tokens/localTokenizer are injected (optional); when neither is provided, falls back to bytes_chars. Tested: with count_tokens injected -> high; only localTokenizer -> medium; neither -> bytes_chars/low; model id echoed back.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T14:15:57.778Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/estimate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "selectEstimate({model, input, countTokens: stub}) -> kind=count_tokens, confidence=high; WHY: when count_tokens is injected it must be selected as the highest-fidelity estimator",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate({model, input, localTokenizer: stub}) with NO countTokens -> kind=local_tokenizer, confidence=medium; WHY: without count_tokens, local_tokenizer is the next fallback",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate({model, input}) with neither countTokens nor localTokenizer -> kind=bytes_chars, confidence=low; WHY: falls back to the offline heuristic when no injected estimators exist",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate returns the EXACT model id passed, not a normalized or aliased version; WHY: estimate must be bound to the exact model id per the spec",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "selectEstimate with BOTH countTokens AND localTokenizer injected -> picks countTokens (highest priority), ignores localTokenizer; WHY: strict priority ordering count_tokens > local_tokenizer > bytes_chars",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with countTokens returning 0 tokens still reports kind=count_tokens with confidence=high; WHY: a zero-token estimate from count_tokens is still a valid high-confidence result",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with empty-string model id still returns that exact model id; WHY: the selector does not validate model names -- it echoes what was passed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "selectEstimate with countTokens that THROWS -> falls back to localTokenizer or bytes_chars gracefully; WHY: a failing count_tokens endpoint must not crash the whole estimate path -- degrade to next tier",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with countTokens that returns negative tokens -> either throws validation error or falls back; WHY: a rogue/corrupted count_tokens must not produce a negative estimate that passes downstream",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with countTokens that returns NaN -> either throws or falls back; WHY: NaN from a buggy estimator must not propagate to the record",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip)",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "buildEstimateRecord -> validated prompt-size-estimate record",
+      "context": "buildEstimateRecord(model, estimateResult, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds}, attribution{storyId|null,phase,agentType}) assembles a usage.source='prompt-size-estimate' record (reuse assemble.ts/record.ts/ids.ts) with estimator{name,version,unit,confidence}, canonical.input = estimatedInputTokens, and output/cacheCreation/cacheRead = null (unknown — nothing generated yet, per the per-dimension null rule). It MUST pass validateUsageLedgerRecord. If the B-253e validator currently rejects a prompt-size-estimate with null output, make the minimal record.ts adjustment so estimates legitimately allow unknown output (estimates are preflight) — with a test — but do NOT relax provider-reported rules. Tested: assembled estimate record validates; source is prompt-size-estimate; estimator fields present.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T14:15:58.853Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/estimate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildEstimateRecord produces a record with usage.source === prompt-size-estimate; WHY: the record type discriminator must be prompt-size-estimate, never provider-reported",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has usage.estimator with name, version, unit, confidence all present as non-empty strings; WHY: spec requires estimator metadata on every estimate record",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has canonical.input === estimatedInputTokens and canonical.output === null, canonical.cacheCreation === null, canonical.cacheRead === null; WHY: an estimate is preflight -- only input is estimated, output/cache are unknown (null, not 0)",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record PASSES validateUsageLedgerRecord({expectIntegrity:false}); WHY: the assembled record must be valid per the B-253e schema before the writer touches it",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has usage.outputTokens === null, usage.cacheCreationInputTokens === null, usage.cacheReadInputTokens === null; WHY: top-level token fields for unknown dimensions must be null (per the per-dimension null rule), not 0 or undefined",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildEstimateRecord with storyId=null (non-story call) still validates; WHY: non-story estimates are legitimate and must not be rejected",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord with estimatedInputTokens=0 (zero-token estimate) validates; WHY: a zero-token estimate from count_tokens on an empty prompt is valid",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord sets supersedesRecordIds from the correlation arg (possibly empty []); WHY: a fresh estimate supersedes nothing; the field must be present and match what was passed",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has recordId starting with llmuse_ prefix; WHY: recordId is minted via ids.ts and must follow the prefix convention",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "buildEstimateRecord with a forbidden field injected into extra args (e.g. totalTokens) -> the record either excludes it or fails validation; WHY: privacy/stored-total denylist must reject any attempt to sneak forbidden fields into an estimate record",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord with negative estimatedInputTokens -> throws or produces a record that fails validateUsageLedgerRecord; WHY: negative token counts are invalid and must not pass validation",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record does NOT have usage.raw or usage.canonical with all four dimensions filled (no output/cache) -- it must not masquerade as provider-reported; WHY: an estimate pretending to be provider-reported would bypass the estimate-never-final guarantee",
+            "type": "cli"
+          },
+          {
+            "desc": "Provider-reported validation rules (non-null outputTokens, required canonical+raw) still enforced for source=provider-reported records even after any record.ts adjustments for estimates; WHY: relaxing null-output for estimates must NOT relax provider-reported rules",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); buildEstimateRecord output passes th",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Supersedes wiring + estimate-never-final guarantee",
+      "context": "Provide/confirm the helper so a later provider-reported final record lists the preflight estimate's recordId in supersedesRecordIds (buildSupersedes from ids.ts). Confirm via summary.ts that a superseded estimate is excluded from provider-reported totals and that prompt-size-estimate is NEVER counted as final usage (it may appear only in a separate estimate view). Tested: an estimate followed by a superseding provider-reported record -> summary providerReportedTotal counts only the final; estimateSubtotal tracks the estimate separately; no double count.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T14:15:59.901Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/estimate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An estimate record (source=prompt-size-estimate, inputTokens=500) followed by a provider-reported final record (inputTokens=480, outputTokens=100) with supersedesRecordIds=[estimateRecordId] -> summarizeRecords().providerReportedTotal === 580 (480+100+0+0), estimateSubtotal === 0, estimate excluded from provider total; WHY: the superseded estimate must be dropped from all totals, provider-reported counts only the final",
+            "type": "cli"
+          },
+          {
+            "desc": "An estimate record that is NOT superseded (no final record follows) -> summarizeRecords().estimateSubtotal includes the estimate and providerReportedTotal === 0; WHY: an un-superseded estimate lives in estimateSubtotal, never in providerReportedTotal",
+            "type": "cli"
+          },
+          {
+            "desc": "buildSupersedes(estimateRecordId) returns [estimateRecordId]; WHY: confirms the helper correctly builds the supersedes array for the final record to reference the estimate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Multiple estimates for the same call+attempt, final supersedes ALL of them -> providerReportedTotal counts only the final, estimateSubtotal === 0; WHY: even if multiple estimates were recorded (e.g. re-estimation), all must be excluded once a final exists",
+            "type": "cli"
+          },
+          {
+            "desc": "Estimate with all-null token dimensions (unknown estimate) -> summary treats it as unknown, not as 0 contribution; WHY: a null-dimension estimate must not silently become 0 in any subtotal",
+            "type": "cli"
+          },
+          {
+            "desc": "buildSupersedes(null, undefined, estimateRecordId, estimateRecordId) deduplicates and filters falsy -> returns [estimateRecordId]; WHY: defensive filtering prevents duplicate or null ids in supersedes",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A prompt-size-estimate record is NEVER counted in providerReportedTotal even when it has non-null inputTokens and outputTokens is somehow set -- source discriminator alone determines bucket; WHY: the estimate-never-final invariant depends on source, not on which fields are populated",
+            "type": "cli"
+          },
+          {
+            "desc": "A provider-reported record that lists a nonexistent recordId in supersedesRecordIds does not crash summary and does not affect totals; WHY: stale or garbage supersedes references must be silently ignored, not cause exceptions",
+            "type": "cli"
+          },
+          {
+            "desc": "Two provider-reported final records for the same call+attempt with different sequences -> only the highest-sequence record is selected; WHY: prevents double-counting when a retry produces two finals for the same attempt",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-estimate smoke (55 checks: confidence/selector/record/supersedes/round-trip); summary excludes superseded estimate",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Smoke/test suite wired into package.json",
+      "context": "Add packages/main/src/tasks/usage-ledger-estimate-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-estimate. Cover: confidence mapping; bytes/chars determinism; selector ordering (count_tokens>tokenizer>bytes_chars) with injected stubs; model binding; estimate record validates + is prompt-size-estimate with estimator fields + null output; supersedes interplay with summary (no double count, estimate never final); and an estimate record round-trips through the B-253e writer (opt-in ON, temp dir). Build green; module still imports zero other Lattice modules (grep assert in the smoke).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T14:16:01.301Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run test:usage-ledger-estimate exits 0 (green); WHY: the smoke script must be wired into package.json and pass all assertions",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers confidence mapping (count_tokens->high, local_tokenizer->medium, bytes_chars->low) with explicit assertions; WHY: CHK-001 confidence model must be exercised in the smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers bytes/chars determinism (same input -> same output, called twice); WHY: CHK-002 determinism guarantee must be tested",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers selector ordering with injected stubs (count_tokens > localTokenizer > bytes_chars); WHY: CHK-003 priority chain must be exercised",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers estimate record validation (passes validateUsageLedgerRecord, source=prompt-size-estimate, estimator fields present, null output); WHY: CHK-004 record shape must be asserted",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers supersedes interplay (estimate + final -> providerReportedTotal excludes estimate, estimate never counted as final); WHY: CHK-005 double-count prevention must be tested",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers estimate record round-trip through appendUsageRecord (opt-in ON, temp dir) -> written record can be read back via verifyLedgerChain and matches; WHY: confirms end-to-end write+read integrity for estimate records through the B-253e writer",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke asserts usage-ledger module (estimate.ts) imports ZERO other Lattice modules outside core/usage-ledger -- grep for non-usage-ledger imports; WHY: the usage-ledger must remain a self-contained module with no coupling to other Lattice subsystems",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke uses temp dir for writer round-trip and cleans up afterward -- no files left in the repo; WHY: smoke must not pollute the repo with .lattice/usage/ artifacts",
+            "type": "cli"
+          },
+          {
+            "desc": "tsc build completes without errors after estimate.ts is added; WHY: new types must be compatible with the existing TypeScript compilation",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke script exits non-zero when any single assertion fails (not just logs a warning); WHY: a smoke that swallows failures is worse than no smoke -- must fail-fast with process.exit(1)",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke runs in isolation (no dependency on prior ledger state, no shared temp dir with other tests); WHY: test pollution from a prior smoke run must not cause false passes or failures",
+            "type": "cli"
+          },
+          {
+            "desc": "Running the smoke twice in rapid succession both pass (no stale state, no port conflicts, no file locks); WHY: idempotency -- CI may run the smoke multiple times",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:6",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a5c9/evidence/verify-b-a5c9.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); estimate.ts zero cross-module imports=true; noDispatch=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "75871c2b3a2de521ed2a64b74f25c7d0c1d1fe29",
+          "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+          "timestamp": "2026-06-16T14:15:54.410Z"
+        }
+      ]
+    }
+  ]
+}

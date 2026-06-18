@@ -1,0 +1,83 @@
+{
+  "principles": [
+    "Make the existing invariant TRUE again; never relax or special-case the contract to hide drift.",
+    "Single source of truth: register commands where the registry actually derives from (PROCESS_FACT_LEVELS), not where the spread combiner lives.",
+    "Classify each command from its handler behavior (read-only vs mutating, gate-consumed or not), never guess.",
+    "Minimal diff in the safe direction: keep DEFAULT_PHASE_TOOLS a subset of command-policy allowedPhases; change config only if the contract still drifts after registration.",
+    "Verification of record is an explicit green npm run test:process-fact-contract run, since the gate does not run this guard."
+  ],
+  "drivers": [
+    "Live broken framework invariant (RED on main) blocking dependent story B-99b6.",
+    "Must not collide with parallel stories B-99b6 (battery wiring) and B-6666 (gitRoot).",
+    "Accuracy of level/category/owner matters: a wrong classification registers a misleading process fact."
+  ],
+  "options": [
+    {
+      "name": "register-at-source",
+      "pros": [
+        "Satisfies both contract checks (MAIN_TOOLS membership + phase-allowlist drift) at the true source",
+        "No behavior change",
+        "Smallest correct diff; entries flow automatically into the derived registry and pull allowedPhases from existing policy"
+      ],
+      "cons": [
+        "Requires reading 3 handlers to classify accurately",
+        "Must verify empirically whether config.ts needs any edit"
+      ]
+    },
+    {
+      "name": "relax-contract",
+      "pros": [
+        "Fastest to green"
+      ],
+      "cons": [
+        "Hides the invariant instead of satisfying it",
+        "Defeats the purpose of the double-contract; rejected by background"
+      ]
+    },
+    {
+      "name": "register-and-wire-battery",
+      "pros": [
+        "Would make the gate enforce the contract"
+      ],
+      "cons": [
+        "Collides with B-99b6 which owns battery coupling",
+        "Scope creep; rejected"
+      ]
+    }
+  ],
+  "chosen": "register-at-source",
+  "rationale": "register-at-source satisfies the invariant at the real source of truth (process-fact-levels.ts, from which the registry derives), reads each handler to classify the 7 commands accurately (3 read-only L0, 4 mutating L2, none gate-consumed), and keeps config in the safe subset direction — touching config.ts only if the contract still drifts after registration. relax-contract hides the problem; register-and-wire-battery collides with B-99b6. This is the minimal correct fix with no behavior change.",
+  "preMortem": [
+    {
+      "scenario": "Implementer edits process-fact-registry.ts line 871 (spread combiner) instead of process-fact-levels.ts",
+      "trigger": "Following CHK-001 context literally (INIT-001 advisory)",
+      "consequence": "Edit has no effect; contract stays RED; or duplicate/broken array",
+      "mitigation": "plan.md and the implementer prompt explicitly state the edit target is process-fact-levels.ts; verify with a green contract run after build"
+    },
+    {
+      "scenario": "A command is misclassified (signature_registry_set given a gateConsumer it does not have, or a mutating command marked L0)",
+      "trigger": "Guessing level/category instead of reading the handler",
+      "consequence": "Registry registers a false process fact; contract may pass but the audit record is wrong",
+      "mitigation": "Classification table derived from reading each handler (signature-registry.ts/playbook.ts/recall.ts) and confirmed in plan.md: read-only=>L0, mutating-no-gate=>L2, none gate-consumed; reviewer cross-checks"
+    },
+    {
+      "scenario": "Implementer also edits config.ts unnecessarily and breaks the subset invariant or another phase allowlist",
+      "trigger": "Assuming config must change without first testing",
+      "consequence": "New drift introduced; possibly widens a phase allowlist beyond policy",
+      "mitigation": "plan.md mandates: register entries first, build, run contract; only edit config.ts if drift persists, and only in the safe subset direction"
+    },
+    {
+      "scenario": "Edit accidentally touches a handler / cli-engine.ts / gitRoot code",
+      "trigger": "Broad edits or auto-formatting",
+      "consequence": "Behavior change or collision with B-6666",
+      "mitigation": "execution_boundary allowedPaths restricts to process-fact-levels.ts/process-fact-registry.ts/config.ts/package.json; git diff reviewed; reviewer checks scope"
+    },
+    {
+      "scenario": "tsc breaks because a new entry violates the ProcessFactLevelEntry type",
+      "trigger": "Typo in level/category field or wrong shape",
+      "consequence": "build fails",
+      "mitigation": "npm --prefix packages/main run build must pass (exit 0) before declaring done; mirror existing entry shape exactly"
+    }
+  ],
+  "timestamp": "2026-06-17T16:30:35.695Z"
+}

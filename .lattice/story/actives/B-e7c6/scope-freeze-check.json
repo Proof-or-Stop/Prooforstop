@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-e7c6",
+  "checkedAt": "2026-06-17T17:46:45.001Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "87ea23be7c1862e6ec4c73eb411043e927ecf3c5c324f5d757cd188c17ad432d",
+  "executionBoundaryHash": "165f24395471c7b90b022c37fce067587250531fd70eb4fa667eaf5b19df321c",
+  "freshnessHash": "f9b3c398d52addb919338c227c449c714c229ee5b39d1a4419a2eb91a0320a62",
+  "effectiveExcludedKeywords": [
+    "experiments/ historical prose (out of scope, not validated by loader)",
+    "No dual-accept/migration (lab does not validate incoming $schema)",
+    "No schema version bump (stays .v1)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "experiments/ historical prose (out of scope, not validated by loader)",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/ historical prose (out of scope, not validated by loader)",
+      "excluded": true
+    },
+    {
+      "keyword": "No dual-accept/migration (lab does not validate incoming $schema)",
+      "source": "scopeBoundary.excluded",
+      "text": "No dual-accept/migration (lab does not validate incoming $schema)",
+      "excluded": true
+    },
+    {
+      "keyword": "No schema version bump (stays .v1)",
+      "source": "scopeBoundary.excluded",
+      "text": "No schema version bump (stays .v1)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8e53d69905186d790a19fcf4cb92c183b835ac95c91f2eaec83a95cd5b7b0085"
+}

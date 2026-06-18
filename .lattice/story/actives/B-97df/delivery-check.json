@@ -1,0 +1,79 @@
+{
+  "storyId": "B-97df",
+  "checkedAt": "2026-06-16T18:04:23.357Z",
+  "reviewRound": "2026-06-16T14:55:32.024Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/usage-ledger/diagnostics.ts (new file)",
+      "promise": "Grouped aggregation by story/phase/role/model/provider reusing summary.ts selectLatestRecords, with per-source buckets keeping provider-reported separate from estimates, and unknown never silently zeroed.",
+      "verifiedBy": "diff/read",
+      "evidence": "diagnostics.ts lines 203-235: aggregateByGroup calls selectLatestRecords from ./summary.js; per-source buckets in emptyBySource(); partial-null dims treated as unknownCount, never added to knownCount."
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/diagnostics.ts (new file)",
+      "promise": "Injected-price cost projection with no hardcoded dollar literals; no table yields cost=null (not 0); missing model yields cost unknown (fail-safe).",
+      "verifiedBy": "diff/read",
+      "evidence": "diagnostics.ts lines 313-357: computeCost takes a PriceTable param; no hardcoded numeric rates in code; returns unknown=true reason=no-price-table or model-not-in-table. Static smoke CHK-005 confirms no dollar literal in source."
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/diagnostics.ts (new file)",
+      "promise": "Read-only report builder (buildUsageReport) carries NO gate/verdict/decision/blocker/pass field at any depth.",
+      "verifiedBy": "diff/read + smoke deep-scan",
+      "evidence": "UsageReport interface (lines 398-410) has no gate fields. CHK-003 smoke findBannedKeys deep-scans report object against banned-key set and asserts empty hits. Smoke passed 34/34."
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-report.ts (new file)",
+      "promise": "Reporter is a runnable task (npm script), NOT a registered lattice CLI command; does not touch cli-engine/handlers/command-registry.",
+      "verifiedBy": "diff/read + grep",
+      "evidence": "usage-ledger-report.ts does not import cli-engine/handlers/registry. Grep of src/cli-engine and src/handlers for usage-ledger-report returns zero results. package.json adds usage-ledger-report as npm script only. git diff --name-only: no cli-engine/handlers/dispatch/command-registry files touched."
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/ (module scope)",
+      "promise": "The usage-ledger module maintains zero cross-module imports: only sibling ./ files and node: builtins.",
+      "verifiedBy": "diff/read + static smoke check",
+      "evidence": "diagnostics.ts imports only ./summary.js and ./record.js. Static smoke CHK-005 walkTs+importRe verifies every .ts in the module; all imports are relative and resolve within usage-ledger tree. Smoke passed 34/34."
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts (new file)",
+      "promise": "Diagnostics smoke suite wired as test:usage-ledger-diagnostics npm script, covering CHK-001 through CHK-005 (34 checks).",
+      "verifiedBy": "diff/run",
+      "evidence": "package.json diff adds test:usage-ledger-diagnostics script. npm run test:usage-ledger-diagnostics: 34 checks passed, exit 0. Covers grouped aggregation, cost projection, report shape, reporter task E2E, and static invariants."
+    },
+    {
+      "docPath": "Scope constraint (plan/scope-contract: no other logic modified)",
+      "promise": "Deferrals (CLI command, dispatch wiring, budget, receipt, default-on) are honestly stated and no out-of-scope files are touched.",
+      "verifiedBy": "diff/name-only",
+      "evidence": "git diff main...HEAD --name-only: ONLY story metadata + packages/main/package.json + diagnostics.ts + usage-ledger-diagnostics-smoke.ts + usage-ledger-report.ts. Zero cli-engine/handlers/dispatch/gate files. Scope is clean."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:usage-ledger-diagnostics: 9 checks. Multi-dim rollup correct sums, source separation (estimate not in provider bucket), unavailable->unknownCount>0 not 0, superseded excluded, partial-null->unknown, null-storyId distinct group, dedup by highest sequence, empty input safe, 100+ record scale cross-check vs summarizeRecords. All 9 passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:usage-ledger-diagnostics: 7 checks. 4-dim cost formula with cache multipliers verified numerically, no-table->unknown reason=no-price-table, null dims->unknown reason=unknown-token-dimensions, all-zero->real 0.0, pricingRef/pricingVersion recorded, missing model->unknown reason=model-not-in-table, MAX_SAFE_INTEGER->finite no NaN. All 7 passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run test:usage-ledger-diagnostics: 8 checks. Report shape (overall+per-group+counts+unknownCount), cost present with table, cost null without table, deterministic identical output, empty-safe, deep banned-key scan (no gate/verdict/decision/blocker/pass/fail fields), missing provider->unknown sentinel, missing model with table->cost unknown. All 8 passed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run test:usage-ledger-diagnostics: 6 E2E checks executing built usage-ledger-report.js. Prints header+story groups exits 0, --json mode valid JSON recordCount=2, price-table path cost data present, nonexistent ledger exits non-zero stderr includes not found, empty ledger valid empty report exits 0, corrupt JSONL exits non-zero stderr includes json. All 6 passed."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm run test:usage-ledger-diagnostics: 4 static checks (no dollar literal in diagnostics.ts, zero cross-module imports in usage-ledger dir, no forbidden imports in diagnostics.ts, static import-isolation assert in smoke). 34/34 total passed. No-regression smokes: test:usage-ledger 61 PASS, test:usage-ledger-adapter 50 PASS, test:usage-ledger-estimate 55 PASS. Acceptance verifier verify-b-97df.mjs: 42/42 PASS (buildOk diagSmoke noRegression pkgScript reporterTask noHardcodedPrice zeroImport noForbidden scopeClean all true)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 documented promises independently verified in source. The 4 in-module files (diagnostics.ts, usage-ledger-report.ts, smoke, package.json) are the complete scope with no cross-module leakage confirmed by both static grep and real-machine smoke. Diagnostics smoke 34/34, no-regression smokes 61+50+55, acceptance verifier 42/42 all passed with zero failures. Reporter-as-task design verified: zero registry/cli-engine/handler files touched."
+  },
+  "_hash": "d84e0314917a5d9ef0b6ea177593dfcc54262f8412a1db0bce6c4a74be6f2091"
+}

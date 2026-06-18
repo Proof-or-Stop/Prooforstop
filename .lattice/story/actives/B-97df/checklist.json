@@ -1,0 +1,731 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Grouped aggregation by story/phase/role/model/provider",
+      "context": "In a new core/usage-ledger/diagnostics.ts (or report.ts), add aggregation that consumes summary.ts's selection (latest non-superseded per ledgerCallId+attemptId) and rolls up canonical token dimensions by storyId, phase, agentType/role, model, and provider. Reuse summary.ts; do NOT re-implement selection/bucketing. Provider-reported vs prompt-size-estimate vs unavailable kept separate; unknown/unavailable stays unknown (never 0); superseded estimates excluded from final totals. Unit-tested across groups.",
+      "status": "done",
+      "startTime": "2026-06-16T14:43:50.935Z",
+      "endTime": "2026-06-16T14:55:08.126Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/diagnostics.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "aggregateByGroup with 3 records (2 stories, 2 models, 2 providers) -> returns groups keyed by storyId/phase/agentType/model/provider with correct per-group token sums; WHY: validates multi-dimensional rollup correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with provider-reported + prompt-size-estimate records -> estimate records appear in their own source bucket and are NOT mixed into provider-reported totals; WHY: validates source separation invariant",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "aggregateByGroup with record where source=unavailable -> group for that record shows unknown=true, total=null, NOT 0; WHY: unknown/unavailable must never silently become 0",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with a superseded record -> superseded record excluded from all group totals; WHY: validates summary.ts selectLatestRecords integration",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with record having one null dimension (e.g. cacheCreation=null) -> that records total is unknown/null, not partially summed; WHY: partial-null must not silently produce a numeric total",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with storyId=null (non-story call) -> groups by storyId=null as a distinct group key, not dropped; WHY: non-story calls are valid and must not be silently lost",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "aggregateByGroup with duplicate ledgerCallId+attemptId at different sequences -> only highest-sequence record selected per attempt, lower-sequence excluded from totals; WHY: validates dedup-by-sequence under data race",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with empty records array -> returns empty groups, no crash, no NaN; WHY: edge-of-empty must be safe",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with 100+ records across 10 stories, 5 models, 3 providers -> groups partition correctly and sum to the same grand total as summarizeRecords; WHY: scale cross-check prevents off-by-one or double-count",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import)",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Pure cost projection with an INJECTED price table",
+      "context": "Add a pure cost function that takes an injected price table (per-model rates for input/output/cacheRead/cacheCreation $/MTok, including the cache multipliers) and a group's token totals -> cost. NO hardcoded prices anywhere. When no price table is supplied, cost is null/omitted (not 0). Record a pricingRef/pricingVersion when a table is supplied. Unknown token dimensions -> cost unknown (never treated as 0). Tested: cost computed with a sample table; null when no table; unknown stays unknown.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T14:55:09.111Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/diagnostics.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "computeCost with injected price table (input=$3/MTok, output=$15/MTok, cacheRead=$0.30/MTok, cacheCreation=$3.75/MTok) and known token group (input=1000, output=500, cacheRead=2000, cacheCreation=100) -> returns correct dollar amount ($3*1000/1e6 + $15*500/1e6 + $0.30*2000/1e6 + $3.75*100/1e6); WHY: validates the core cost formula with all 4 dimensions including cache multipliers",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with NO price table supplied -> returns null/omitted cost (not 0); WHY: cost must be null when no pricing available, never a false zero",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "computeCost with unknown token dimension (e.g. cacheCreation=null in group totals) -> cost is unknown/null, not partially computed; WHY: unknown dims must propagate to cost, never silently treated as 0",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with all token dimensions = 0 (legitimate zeros, not nulls) -> cost is 0.0 (a real zero); WHY: true provider-reported zeros are valid and distinct from unknown",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost records pricingRef/pricingVersion from the supplied price table in the output; WHY: traceability requirement — operator must know which price table produced the cost",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep diagnostics.ts source for hardcoded dollar amounts or price constants (regex: /\\$\\d|\\d+\\.\\d+.*per|price\\s*=\\s*\\d/) -> zero matches; WHY: NO hardcoded prices allowed anywhere in the module source",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with a model not present in the price table -> cost is null/unknown for that model, not a crash or fallback to 0; WHY: missing model in price table must fail safe, not silently zero",
+            "type": "cli"
+          },
+          {
+            "desc": "computeCost with extremely large token counts (Number.MAX_SAFE_INTEGER) -> no overflow, no NaN, returns a finite number or handles gracefully; WHY: prevents silent numeric corruption on high-volume ledgers",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); cost from injected price table only — n",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Read-only diagnostics report builder (feeds no gate)",
+      "context": "Add a buildUsageReport(records, {priceTable?}) that assembles a structured report object: overall totals (by source), per-group breakdowns (story/model/role/...), counts (provider-reported/estimate/unavailable), unknown count, and optional cost when a price table is given. It MUST be read-only and feed NO gate (no gate/verdict/decision/blocker field; not imported by any handler/gate). Tested: report shape correct; no gate-consumable field; deterministic.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T14:55:10.118Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/diagnostics.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildUsageReport(records, {}) with mixed source records -> report object contains: overall totals by source (providerReported, estimate, unavailable counts), per-group breakdowns (by story, model, role, provider), and unknownCount; WHY: validates report shape completeness",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport(records, {priceTable}) with price table -> report includes cost field in totals and per-group breakdowns; WHY: validates optional cost integration in report shape",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildUsageReport(records, {}) without price table -> report.cost is null/absent, not 0; WHY: cost field must not appear as a false zero when no pricing given",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport called twice with same records -> produces identical output (deterministic); WHY: report must be pure/deterministic for reproducible diagnostics",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport with empty records -> report has zero counts, empty groups, no crash; WHY: empty ledger must produce a valid empty report",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "report object keys checked: none of gate/verdict/decision/blocker/pass/fail/allowed/blocked fields exist at any nesting depth; WHY: the report MUST feed no gate — any gate-consumable field would violate the read-only constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "grep all files that import from diagnostics.ts -> none is a handler, gate, or cli-engine file; WHY: validates the module is not consumed by gate infrastructure (static import analysis)",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageReport with records containing provider.model=undefined or provider=undefined -> gracefully groups under an unknown key, does not crash with TypeError; WHY: real ledger data may have missing provider metadata",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); report deep-scanned for no gate/verdict",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Runnable reporter task (npm script, not a CLI command)",
+      "context": "Add packages/main/src/tasks/usage-ledger-report.ts that reads a ledger JSONL path (arg/env) and an optional price-table path, builds the report, and prints it (human-readable + a JSON mode). Wire it as an npm script (e.g. usage-ledger-report). Do NOT register a lattice CLI command and do NOT touch the command registry / cli-engine / handlers — the entry point stays a task to honor the no-other-logic constraint. Tested: running it over a sample ledger prints a correct report and exits 0.",
+      "status": "done",
+      "startTime": "2026-06-16T14:46:18.321Z",
+      "endTime": "2026-06-16T14:55:11.076Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-report.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run the npm script (npm run usage-ledger-report) over a sample JSONL ledger file -> prints a human-readable report to stdout and exits 0; WHY: validates the primary use case end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with --json flag over a sample ledger -> prints valid JSON to stdout; WHY: validates machine-readable output mode",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with a price-table JSON file path -> output includes cost data; WHY: validates price table injection via CLI arg",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "run the reporter task with a nonexistent ledger path -> exits non-zero or prints a clear error; WHY: missing file must not silently produce empty output without indication",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with an empty JSONL file (0 records) -> prints a valid empty report and exits 0; WHY: empty ledger is valid (no usage recorded)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "diff of this story never touches cli-engine, command-registry, or handlers directories -> git diff --name-only shows NO files in those paths; WHY: the reporter must be a task, not a registered CLI command, per the no-other-logic constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "the string usage-ledger-report does NOT appear in any command registry or handler file -> grep across src/cli-engine and src/handlers for the task name; WHY: validates the task is not accidentally registered as a CLI command",
+            "type": "cli"
+          },
+          {
+            "desc": "run the reporter task with a corrupt JSONL file (one line is invalid JSON) -> exits non-zero with a clear parse error; WHY: corrupt ledger must not silently produce partial output",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "exercised by committed usage-ledger-diagnostics smoke (34 checks: grouping/cost/no-gate/reporter/zero-import); reporter is a task (not a CLI command);",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Smoke/test suite wired into package.json",
+      "context": "Add packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-diagnostics. Cover: grouped aggregation correctness (by story/model/role/provider; unknown!=0; estimate excluded from provider totals; superseded excluded); cost projection with/without injected price table (null when absent; unknown stays unknown); report builder feeds no gate (no gate/verdict/decision field); the reporter task runs over a sample ledger and prints correctly; build green; and a static assert that the usage-ledger module still imports ZERO other Lattice modules. No regression in the other usage-ledger smokes.",
+      "status": "done",
+      "startTime": "2026-06-16T14:48:17.706Z",
+      "endTime": "2026-06-16T14:55:12.029Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:usage-ledger-diagnostics -> all checks pass, exits 0, prints summary with pass count; WHY: validates the smoke suite itself is wired and green",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build -> succeeds with no TypeScript errors in the new diagnostics.ts / usage-ledger-report.ts files; WHY: build must stay green after the new code lands",
+            "type": "cli"
+          },
+          {
+            "desc": "existing usage-ledger smokes still pass (npm run test:usage-ledger, npm run test:usage-ledger-adapter, npm run test:usage-ledger-estimate) -> no regression; WHY: new diagnostics layer must not break existing usage-ledger functionality",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke runs entirely in an OS temp dir -> after execution, no files left in the repo working tree (ls -la to check for pollution); WHY: follows existing smoke pattern of no repo pollution",
+            "type": "cli"
+          },
+          {
+            "desc": "package.json contains test:usage-ledger-diagnostics script entry -> npm run test:usage-ledger-diagnostics is a valid npm script; WHY: validates wiring in package.json",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "static grep assert: no file in packages/main/src/core/usage-ledger/ imports from outside the module (grep for from ../ patterns) -> zero matches; WHY: the zero-cross-module-import invariant must hold after adding diagnostics.ts",
+            "type": "cli"
+          },
+          {
+            "desc": "static grep assert: diagnostics.ts does not import from cli-engine, handlers, dispatch, gate, or any other Lattice module outside usage-ledger; WHY: ensures the new file maintains module isolation",
+            "type": "cli"
+          },
+          {
+            "desc": "the smoke file (usage-ledger-diagnostics-smoke.ts) includes at least one check that deep-scans the report object for gate/verdict/decision/blocker fields -> that check is present in the source; WHY: the smoke must mechanically enforce the no-gate invariant, not just assert shape",
+            "type": "cli"
+          },
+          {
+            "desc": "the smoke file includes a static-import-isolation check (grep for cross-module imports in usage-ledger dir) -> that check is present; WHY: the smoke must mechanically assert zero-cross-module imports at test time",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.676Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.677Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.677Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.677Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-97df/evidence/verify-b-97df.mjs",
+          "result": "pass",
+          "note": "smoke wired (pkgScript=true); zeroImport=true; noForbidden=true; scopeClean=true; build=true; no-regression=true",
+          "headHash": "9fd02d7f0f43215d2053aaf4f21faae535f98894",
+          "materialHash": "e6c882c3359218b37487eba35ec4386bd15209c03c653b4173c7cc45586f6272",
+          "timestamp": "2026-06-16T14:55:06.677Z"
+        }
+      ]
+    }
+  ]
+}

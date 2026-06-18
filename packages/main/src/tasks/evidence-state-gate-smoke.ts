@@ -59,8 +59,8 @@ const REVIEWERS = ['lattice-review-concept', 'lattice-review-quality', 'lattice-
  * Returns the store + worktree path; callers seed findings then run the TEST gate.
  */
 function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<string, string> } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-evst-'));
-  write(root, 'koala.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'lattice-evst-'));
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',

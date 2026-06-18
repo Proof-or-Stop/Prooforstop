@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-097f",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "npm --prefix packages/main run *",
+    "npm run build",
+    "npx tsc *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "packages/main/src",
+    "packages/main/src/tasks",
+    "packages/main/templates"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "lattice release_approve_push *",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story",
+    "docs/story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "实现层只改 packages/main/src(主要 cli-init.ts + 新 global-agents 同步模块)、模板目录、决策文档与 CLAUDE.md、smoke 任务。运行时写入 ~/.claude/agents 属 init 运行行为,不在仓内路径范围。禁止任何远端 push。",
+  "createdAt": "2026-06-16T14:12:30.722Z",
+  "updatedAt": "2026-06-16T14:12:30.722Z",
+  "_hash": "1dc3072b85923619d82d00bad31c30d5907acffad314b5f815592fe2aa88cb7a"
+}

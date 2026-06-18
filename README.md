@@ -257,7 +257,7 @@ Architecture and non-goals:
 
 ### Authority modes (off / shadow / enforce)
 
-Lattice CLI 0.3.5 exposes three authority modes through `KOALA_AUTHORITY_MODE`.
+Lattice CLI 0.3.5 exposes three authority modes through `LATTICE_AUTHORITY_MODE`.
 All three keep ordinary local story development free, local, and unblocked —
 `authority_status` will always report `localWorkflowUsable: true`. Local
 lifecycle gates (`story_advance`, `verification_evidence_add`, DONE) do **not**
@@ -277,8 +277,8 @@ Inspect what the local CLI thinks the authority surface looks like:
 lattice authority status --json
 
 # Probe what's missing if you try shadow / enforce
-KOALA_AUTHORITY_MODE=shadow lattice authority status --json
-KOALA_AUTHORITY_MODE=enforce lattice authority status --json
+LATTICE_AUTHORITY_MODE=shadow lattice authority status --json
+LATTICE_AUTHORITY_MODE=enforce lattice authority status --json
 
 # Conduit-side mirror of the same readiness fields
 lattice conduit status --json
@@ -303,8 +303,8 @@ lattice conduit explain --json
 
 **Important boundary**: this local JSON output (or `lattice` text output) is
 **not** authority evidence. The Python authority is the only source of a
-verified `AuthorityReceipt`. Even with `KOALA_AUTHORITY_URL`,
-`KOALA_AUTHORITY_ACTOR_KEY`, and `KOALA_AUTHORITY_RUNNER_ID` all set,
+verified `AuthorityReceipt`. Even with `LATTICE_AUTHORITY_URL`,
+`LATTICE_AUTHORITY_ACTOR_KEY`, and `LATTICE_AUTHORITY_RUNNER_ID` all set,
 `productionDone` stays `false` until a signed receipt is verified by a future
 receipt-backed runner path. See
 [`docs/requirements/decisions/authority-client-role.md`](docs/requirements/decisions/authority-client-role.md)
@@ -361,8 +361,8 @@ default and every repaired step is re-run before the executor continues.
 Regression coverage:
 
 ```bash
-npm --prefix packages/main run test:autopilot-authority-smoke
-npm --prefix packages/main run test:autopilot-execute-smoke
+npm run test:legacy -- autopilot-authority
+npm run test:legacy -- autopilot-execute
 ```
 
 ### Planner (natural language → Story + plan)
@@ -574,16 +574,16 @@ The canonical and only active project config file is `lattice.config.json`. `lat
 
 Lattice runtime artifacts are a separate table: `packages/main/src/core/runtime-artifact-registry.ts` defines the ignore, materialHash, and repair semantics for runtime files such as `.koala/activity.jsonl`, legacy `docs/story/activity.jsonl`, `.koala/runtime/`, `.koala/traces/`, `.koala-serve.json`, and debug/browser logs. `lattice init` merges missing runtime ignore rules into the existing `.gitignore`; `lattice doctor` reports runtime artifacts already tracked by git, and on `--repair` runs `git rm --cached` only for paths the registry marks as repairable. These files do not make materialHash-backed verification evidence stale; `.koala/story/` is still process evidence and is not treated as a runtime artifact.
 
-Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and `test:flow-stability-smoke` must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
+Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and the `flow-stability-smoke` (run via `npm run test:legacy -- flow-stability`) must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
 
 The Dashboard and `session_brief` display lifecycle progress and terminal outcome separately: `Lifecycle DONE: N/M (...)` only indicates that the story has entered DONE; `DONE-success/default`, `DONE-blocked`, and `DONE-audit-only` come from `summary_set.outcomeKind`, and an old summary missing that field falls into the success/default compatibility bucket. Run the related regression with:
 
 ```bash
 npm --prefix packages/main run build
-npm --prefix packages/main run test:outcome-semantics-smoke
+npm run test:legacy -- outcome-semantics
 ```
 
-A story worktree created via `lattice story_advance ... INIT_CHECK` does not need a manual copy of `.Codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.Codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
+A story worktree created via `lattice story_advance ... INIT_CHECK` does not need a manual copy of `.lattice-codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.lattice-codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
 
 ### 3. The first step of a new session
 
@@ -614,7 +614,7 @@ This validates the current worktree's repo-local entrypoints / generated local w
 - repo-local default init generates only Lattice management assets, not the starter `src/core` / `src/shells` / `tests`
 - repo-local `init --starter` / `init --with-template` generates the legacy starter template and uses `scanRoot: "src"`
 - a Python no-src project's default init does not create `src/` and uses `scanRoot: "."`
-- whether `.Codex/README.md` contains the correct fallback entry-point notes
+- whether `.lattice-codex/README.md` contains the correct fallback entry-point notes
 
 ### 6. Verify that the Codex assets have not drifted
 
@@ -625,11 +625,11 @@ node bin/lattice-codex.js verify_codex
 
 This checks:
 
-- in legacy/full prompt mode, whether `.Codex/agents/*.md` still equals the controlled transform result of `.claude/agents/*.md`
-- in legacy/full prompt mode, whether `.Codex/agents` is missing any prompt newly added to `.claude/agents`
-- in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.Codex/lattice.json` matches the package registry and Codex prompt renderability is fine
-- whether `.Codex/lattice.json` declares the Lattice-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
-- whether `.Codex/README.md` retains the correct Codex fallback entry point
+- in legacy/full prompt mode, whether `.lattice-codex/agents/*.md` still equals the controlled transform result of `.claude/agents/*.md`
+- in legacy/full prompt mode, whether `.lattice-codex/agents` is missing any prompt newly added to `.claude/agents`
+- in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.lattice-codex/lattice.json` matches the package registry and Codex prompt renderability is fine
+- whether `.lattice-codex/lattice.json` declares the Lattice-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
+- whether `.lattice-codex/README.md` retains the correct Codex fallback entry point
 - whether `README.md` / `AGENTS.md` still contain the key Codex integration notes
 
 `node bin/lattice-codex.js verify_codex` (the general local entry point is `node bin/lattice.js verify_codex`) reuses the same shared checks and additionally runs the local wrapper and global fallback heartbeat: it confirms that the activity record contains `source=codex`, session, and entrypoint, and appends a `codex_adapter_verification` carrying the current HEAD/material hash to the current story's `process-events.jsonl`. A story that touches the Codex adapter has this evidence distinguished as missing / failing / stale / passing at the REVIEW/DONE gate, with a directly re-runnable local wrapper command provided.
@@ -651,7 +651,7 @@ lattice init --verify-codex
 If a project has only the global CLI and no `bin/lattice-codex.js`, you can run it like this:
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
+LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief
 ```
 
 This ensures the activity is still accounted for under `source=codex` / `entrypoint=global-fallback` and that read-only entry points such as `session_brief` still leave a heartbeat; but without a bootstrap entry point, the `aux_*` commands may be unavailable. **Global CLI is heartbeat-only, not current-worktree gate/status evidence**; do not use its `status` / `validate` output as gate authority for the active story worktree.
@@ -685,7 +685,7 @@ Before releasing `0.3.5`, it is recommended to run:
 ```bash
 npm --prefix packages/main run build
 npm --prefix packages/lab run build
-npm run test:lattice-cli-migration-smoke
+npm run test:legacy -- lattice-cli-migration
 npm run test:global-lab-entrypoint
 ```
 
@@ -696,7 +696,7 @@ npm run test:global-lab-entrypoint
 ```bash
 node bin/lattice.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 node bin/lattice.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --dry-run
-node bin/lattice.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".Codex/agents/test-case-reviewer.md"]}'
+node bin/lattice.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".lattice-codex/agents/test-case-reviewer.md"]}'
 ```
 
 By default, the first version supports only offline, safe experiment configs:
@@ -736,11 +736,11 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.Codex/settings.json`. What Lattice generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.Codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.Codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.Codex/hooks` alias. `.Codex/lattice.json` also records the Lattice-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
+The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.lattice-codex/settings.json`. What Lattice generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.lattice-codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.lattice-codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.lattice-codex/hooks` alias. `.lattice-codex/lattice.json` also records the Lattice-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
-- [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- `.lattice/lattice.json` (global-thin default init primary; full/thin mode projects may use `.Codex/lattice.json` instead)
-- [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1) (full mode materialization; can be omitted in thin mode)
+- [.lattice-codex/README.md](/Users/jek/Documents/Work/Orchestrate/.lattice-codex/README.md:1)
+- `.lattice/lattice.json` (global-thin default init primary; full/thin mode projects may use `.lattice-codex/lattice.json` instead)
+- [.lattice-codex/agents/](/Users/jek/Documents/Work/Orchestrate/.lattice-codex/agents:1) (full mode materialization; can be omitted in thin mode)
 
-In a full-mode repository, `.Codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/lattice-codex.js verify_codex` validates the registry manifest/hash/renderability.
+In a full-mode repository, `.lattice-codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/lattice-codex.js verify_codex` validates the registry manifest/hash/renderability.

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-747e",
+  "mode": "maintenance",
+  "allowed": [
+    "Rename the KoalaConfig interface to LatticeConfig across its definition and all type references in the 5 listed core files."
+  ],
+  "excluded": [
+    "Any Markdown file",
+    "Changing the lab package",
+    "Editing source comments or temp-dir name strings",
+    "Renaming any project config sample/fixture file",
+    "The runtime path constants and .koala directory"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "OSS-prep code-identifier rename, user driving the koala-removal program (2026-06-16).",
+  "createdAt": "2026-06-16T02:43:19.072Z",
+  "updatedAt": "2026-06-16T02:43:19.072Z",
+  "_hash": "3cd88fffaacce02e1d1957df5e57047a61ba4944ec1af50e6569c9cdb1160d0a"
+}

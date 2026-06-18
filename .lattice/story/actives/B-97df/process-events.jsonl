@@ -1,0 +1,16 @@
+{"type":"dispatch","storyId":"B-97df","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-16T14:32:03.732Z"}
+{"type":"dispatch","storyId":"B-97df","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"lattice-review-story-init","timestamp":"2026-06-16T14:32:30.645Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":0,"issueCount":8,"timestamp":"2026-06-16T14:41:51.446Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-16T14:43:50.936Z"}
+{"type":"dispatch","checklistId":"CHK-004","timestamp":"2026-06-16T14:46:18.322Z"}
+{"type":"dispatch","checklistId":"CHK-005","timestamp":"2026-06-16T14:48:17.707Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-16T14:55:08.128Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-16T14:55:09.112Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-16T14:55:10.119Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-16T14:55:11.077Z"}
+{"type":"subagent_result","checklistId":"CHK-005","success":true,"timestamp":"2026-06-16T14:55:12.030Z"}
+{"type":"review_pass","storyId":"B-97df","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-97df:RP-001","timestamp":"2026-06-16T14:57:44.156Z"}
+{"type":"review_pass","storyId":"B-97df","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-97df:RP-002","timestamp":"2026-06-16T14:59:04.842Z"}
+{"type":"review_pass","storyId":"B-97df","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-97df:RP-003","timestamp":"2026-06-16T15:00:26.970Z"}
+{"type":"dirty_gate_audit","storyId":"B-97df","gate":"done-gate","category":"lattice_metadata_changes","pathCount":4,"paths":[".lattice/story/actives/B-97df/index.json",".lattice/story/actives/B-97df/owner-lease.json",".lattice/story/actives/B-97df/process-metrics.json",".lattice/story/actives/B-97df/test-evidence.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-16T15:01:32.105Z"}
+{"type":"dirty_gate_audit","storyId":"B-97df","gate":"done-gate","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-97df/owner-lease.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-16T18:04:50.846Z"}

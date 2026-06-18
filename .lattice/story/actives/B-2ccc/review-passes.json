@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-2ccc:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "All three quality checks pass. (1) Dead code: none — all exports from digest.ts are consumed (digestCanonicalJson/digestText in decision-doc-promotion.ts, canonicalJson/digestCanonicalJson/digestText in the smoke); the Digestable type is exported for future consumers; no commented-out blocks. (2) Type safety: no new `as any`; the sole `as Record<string,unknown>` cast is VERBATIM from the original; no empty catch blocks. (3) I/O shell isolation: digest.ts is a core leaf with zero handler/shell imports; no violation. The extraction is byte-identical: normalizeJson/canonicalJson/digestCanonicalJson/digestText bodies match the removed defs character-for-character; the smoke pins exact pre-refactor sha256 outputs and includes a non-vacuous import-fence test. Verdict: PASS, no blockers.",
+      "createdAt": "2026-06-17T14:18:13.037Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-001",
+      "_hash": "b9f594550ab3b2f9283f44597a31647b6e3ea0a1504f3904f01990758f94a472"
+    },
+    {
+      "id": "B-2ccc:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Digest primitives (canonicalJson, digestCanonicalJson, digestText, normalizeJson) relocated verbatim from handlers/decision-doc-promotion.ts to core/digest.ts. decision-doc-promotion.ts now imports from ../core/digest.js with no local definitions remaining. All other canonicalJson occurrences in the repo (authority-contracts.ts, usage-ledger/canonical-json.ts, authority-signing.ts) are independent pre-existing copies in their own modules with distinct import paths; none import from decision-doc-promotion. TypeScript build is clean (tsc --noEmit exits 0). No dangling local refs, no broken imports, no residue.",
+      "createdAt": "2026-06-17T14:18:56.280Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-002",
+      "_hash": "daa536ab5b3c3a8fe58f49397d45f01a2dd1800982963afcad6d8ad071f4384f"
+    },
+    {
+      "id": "B-2ccc:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 5 behavior verifications pass. (1) digestCanonicalJson/canonicalJson/digestText are pinned against pre-refactor sha256 values in the smoke — equality asserted, not merely exercised (checks pinned:*). (2) Order-independence is directly asserted (digestCanonicalJson({a,b}) === digestCanonicalJson({b,a})). Distinct-functions check confirms digestText(x) != digestCanonicalJson(x) for a string. (3) computeDecisionDocProposalDigest on PINNED_PROPOSAL returns the exact pinned proposalDigest hex — existing decision-doc proposals stay valid. (4) No-regression: decision-doc-promotion + decision-doc-quorum + 3 experience-layer smokes all print smoke passed; TOTAL 16 | PASS 16 | FAIL 0. TypeScript build exits cleanly. (5) Import-fence check confirms core/digest.ts imports only node:crypto; no-local-defs check confirms decision-doc-promotion.ts has no inline canonicalJson/digestCanonicalJson/digestText/normalizeJson definitions and no createHash reference. No downstream consumer imports the removed exports from decision-doc-promotion.ts, so the removal causes no regression.",
+      "createdAt": "2026-06-17T14:20:13.357Z",
+      "reviewRound": "2026-06-17T14:17:18.545Z",
+      "reviewRunId": "B-2ccc:RR-004",
+      "_hash": "a9891c2be43b1a6a9c40c672a54cd9a79751b9b60ac2a4c9956ef2a6acfb8b4e"
+    },
+    {
+      "id": "B-2ccc:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed decision-doc-promotion.ts (re-exports block + import cleanup), core/digest.ts (new leaf), and experience-layer-digest-extract-smoke.ts. digest.ts is a strict leaf: imports only node:crypto, no dead code, no unsafe casts. decision-doc-promotion.ts correctly removes all local definitions (Digestable type, normalizeJson, canonicalJson, digestCanonicalJson, digestText) and the createHash import; the backward-compat re-export block is present and correctly typed. The smoke file uses all imported names; the dynamic CHK-002 check correctly validates re-exports from compiled dist. No dead code, no empty catch blocks, no as-any misuse found in any of the three changed source files.",
+      "createdAt": "2026-06-17T14:30:16.719Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-005",
+      "_hash": "852ada22718aa97512f07ddf71a9cfa4a5528be879bec715ac78b422a075a682"
+    },
+    {
+      "id": "B-2ccc:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. Inline defs of normalizeJson, Digestable, canonicalJson, digestCanonicalJson, digestText fully removed from decision-doc-promotion.ts. All symbols now live in core/digest.ts (canonical home) with backward-compat re-exports from decision-doc-promotion.ts. No stale createHash reference remains in that file. Other occurrences of normalizeJson/canonicalJson in authority-contracts.ts and usage-ledger/canonical-json.ts are independent pre-existing symbols, not residue of this deletion. Smoke test file references are expected (they test the moved symbols). Build confirmed clean: no broken references.",
+      "createdAt": "2026-06-17T14:31:01.475Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-006",
+      "_hash": "fcf3119f76409953e727419c675ad0401e89486a8b5b62523c74d912072171d1"
+    },
+    {
+      "id": "B-2ccc:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-001..F-004 are fully resolved. CHK-001:edge:2 (undefined-key omission), CHK-001:edge:3 (empty-object digest), CHK-001:edge:4 (digestText empty string), CHK-001:adversarial:1 (100-level nesting no crash), CHK-002:edge:0 (decision-doc re-exports 3 digest fns), CHK-002:edge:1 (no local Digestable definition) — all six previously-uncovered intents now have named checks with concrete assertions; evidence notes are bound to the specific named check, not generic fallback text. Smoke 22/22 PASS; verifier TOTAL 28 | PASS 28 | FAIL 0. No blocker found.",
+      "createdAt": "2026-06-17T14:31:24.221Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-008",
+      "_hash": "36f2f4b219cb18573f37cf48549811e8d1487c75a8b7ba44520df214997cc871"
+    },
+    {
+      "id": "B-2ccc:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "All 3 checklist items verified against diff and live smoke output. CHK-001: core/digest.ts exists, exports exactly Digestable/canonicalJson/digestCanonicalJson/digestText, normalizeJson private, only node:crypto imported — all 5 pinned sha256 hashes match. CHK-002: decision-doc-promotion.ts removes all four inline defs, imports from ../core/digest.js, re-exports backward-compat symbols; computeDecisionDocProposalDigest pinned value unchanged. CHK-003: npm run test:experience-layer-digest-extract exits 0, TOTAL 22 | PASS 22, smoke passed; decision-doc-promotion-smoke.js 9/9 passed; all 5 regression sub-smokes passed. Boundary conditions (undefined keys, empty obj, empty string, deep nesting, import-fence non-vacuousness, dynamic re-export import, createHash absence) all covered by named checks and confirmed PASS. No spec boundary cases from decision-doc-promotion-execution-plan.md are in scope for this extraction-only refactor story. No findings.",
+      "createdAt": "2026-06-17T14:31:25.330Z",
+      "reviewRound": "2026-06-17T14:29:15.897Z",
+      "reviewRunId": "B-2ccc:RR-007",
+      "_hash": "83666c5a64be2d64973503d918f94ae81d619aad95ec158ca9737c4546865047"
+    }
+  ]
+}

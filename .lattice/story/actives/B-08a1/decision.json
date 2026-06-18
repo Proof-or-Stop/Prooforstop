@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Pure adapters: provider response in, validated ledger record out",
+    "Reuse the B-253e validator/writer/ids — never duplicate the record logic",
+    "Preserve raw provider units AND emit the canonical four-field view",
+    "Per-dimension absence = null (never 0); no usage = source=unavailable",
+    "Do not touch the live dispatch path in this slice"
+  ],
+  "drivers": [
+    "Each provider reports usage differently; one canonical shape is required for cross-provider accounting",
+    "Keeping adapters pure makes them unit-testable and isolates the risky dispatch wiring to a later story",
+    "Getting cache mapping wrong (0 vs null) propagates to cost accounting"
+  ],
+  "options": [
+    {
+      "name": "A: per-provider adapter modules + a shared assembler",
+      "pros": [
+        "Isolated, testable per provider",
+        "One assembler validates + attaches ids/attribution",
+        "Easy to extend with more providers"
+      ],
+      "cons": [
+        "A few files"
+      ]
+    },
+    {
+      "name": "B: one monolithic mapping function with provider switch",
+      "pros": [
+        "One file"
+      ],
+      "cons": [
+        "Harder to test per provider; mixes concerns — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: per-provider adapter modules + a shared assembler",
+  "rationale": "Per-provider modules keep each mapping independently testable against sample payloads, and a single assembler centralizes id/attribution attachment + validation so every adapter's output is guaranteed to pass the B-253e validator. The dispatch wiring stays out, isolating risk.",
+  "preMortem": [
+    {
+      "scenario": "An adapter produces a record the B-253e validator rejects (shape drift)",
+      "trigger": "Field name/shape mismatch",
+      "consequence": "Future wiring emits invalid records",
+      "mitigation": "Assembler runs the B-253e validator; smoke asserts assembled records for all 3 providers validate clean"
+    },
+    {
+      "scenario": "cacheCreation set to 0 instead of null for openai/gemini",
+      "trigger": "Default-zero mapping",
+      "consequence": "Cost accounting treats unreported cache as real 0",
+      "mitigation": "Explicit null mapping for unreported dimensions; smoke asserts cacheCreation===null (not 0) for openai+gemini"
+    },
+    {
+      "scenario": "Correlation ids taken from the provider response/request id",
+      "trigger": "Convenience mapping",
+      "consequence": "Correlation/supersedes break; preflight records can't correlate",
+      "mitigation": "Assembler takes correlation only from ids.ts args; smoke asserts ids are the minted ones, not from the response"
+    },
+    {
+      "scenario": "Scope creep into the live dispatch path",
+      "trigger": "Wiring temptation",
+      "consequence": "Risky core change outside slice",
+      "mitigation": "Execution boundary excludes dispatch-runner/lattice-dispatch; verifier asserts the diff never touches them"
+    },
+    {
+      "scenario": "Streaming partial usage dropped, recorded as unavailable",
+      "trigger": "Only non-streaming path handled",
+      "consequence": "Real consumed tokens lost",
+      "mitigation": "Streaming extractor reads terminal event + partial-on-error; smoke covers both samples"
+    }
+  ],
+  "timestamp": "2026-06-16T02:14:31.872Z"
+}

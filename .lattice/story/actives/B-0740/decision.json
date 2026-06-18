@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Consume already-resolved gitRoot resolvers (resolveDoctorGitCwd / resolveGitCwd); never add a new gitRoot resolution path.",
+    "Plain-repo behavior must stay byte-identical: gitCwd defaults to root/projectRoot, and the rebase is identity when gitCwd==projectRoot.",
+    "Keep the git-diff base and the tsconfig-relativity base consistent: rebase gitRoot-relative diff paths to projectRoot-relative so computeOutOfScopeTsconfigs matches on a single base.",
+    "Mirror the existing scan-function param style (optional gitCwd defaulting to root) for minimal surface.",
+    "Use DI seams for tests; never spawn real git where a reader/cwd injection already exists."
+  ],
+  "drivers": [
+    "doctor --repair on wrapper-root currently returns wrote:false because repairStoryMetadataAllowlist git rev-parse runs in metadataRoot (not a git repo).",
+    "lint change-scope on wrapper-root silently falls back to full recursive tsc because git diff runs in metadataRoot and throws -> resolveChangedFiles returns undefined.",
+    "The two fixes are the last B-1637/B-2856 stacking gaps confirmed by combination review."
+  ],
+  "options": [
+    {
+      "name": "A-thread-and-rebase",
+      "pros": [
+        "repairStoryMetadataAllowlist gets an optional gitCwd (mirrors the 3 scan fns); call site passes the gitProbeCwd already resolved at doctor.ts:63.",
+        "resolveChangedFiles/defaultChangedFilesReader get an optional gitCwd; call sites pass the gitCwd already resolved at verifier.ts:604 / review-preflight.ts:262.",
+        "Rebasing gitRoot-relative paths to projectRoot-relative keeps computeOutOfScopeTsconfigs on a single consistent base (no skip-all misclassification).",
+        "Identity rebase when gitCwd==projectRoot -> plain repos byte-identical.",
+        "Fully testable via DI (gitCwd param + injectable changedFilesReader)."
+      ],
+      "cons": [
+        "Touches 4 files + adds a rebase step that must be carefully proven identity in the plain case."
+      ]
+    },
+    {
+      "name": "B-switch-tsconfig-base",
+      "pros": [
+        "Avoids per-path rebase; one base switch."
+      ],
+      "cons": [
+        "Would require changing findTsconfigs + computeOutOfScopeTsconfigs relativity base from projectRoot to gitRoot — a far larger blast radius touching code B-1637/B-2856 already stabilized.",
+        "Risks regressing plain-repo + every other consumer of those fns; violates the do-not-touch-already-fixed-sites constraint."
+      ]
+    }
+  ],
+  "chosen": "A-thread-and-rebase",
+  "rationale": "Option A is the minimal, consistency-preserving change: it only consumes the already-resolved gitCwd at the two lagging call sites and rebases diff paths so the single projectRoot relativity base in computeOutOfScopeTsconfigs is preserved. Option B would enlarge the blast radius into already-stabilized B-1637/B-2856 code and risk plain-repo regressions, violating the do-not-touch constraint.",
+  "preMortem": [
+    {
+      "scenario": "Base mismatch: git diff switched to gitRoot but diff paths NOT rebased",
+      "trigger": "Implementer threads gitCwd into the reader but forgets to rebase the emitted paths to projectRoot-relative.",
+      "consequence": "On wrapper-root, every changed file maps to zero projectRoot tsconfig subtrees -> fail-closed branch treats all as in-scope (full tsc) or misclassifies the skip set.",
+      "mitigation": "resolveChangedFiles rebases each gitRoot-relative path via relative(projectRoot, join(gitCwd, path)); add a wrapper-root regression test asserting the out-of-scope set, plus a plain-repo test asserting identical output to today."
+    },
+    {
+      "scenario": "doctor --repair regression on plain repo",
+      "trigger": "gitCwd param defaulting wrong (undefined instead of root) makes git rev-parse run in cwd:undefined.",
+      "consequence": "repairStoryMetadataAllowlist throws or runs in process cwd, breaking the allowlist install on every plain repo.",
+      "mitigation": "Default the new param to root (gitCwd: string = root), exactly like the 3 scan fns; add a plain-repo --repair test asserting wrote-then-noop behavior is unchanged."
+    },
+    {
+      "scenario": "gitCwd unresolved -> undefined passed downstream",
+      "trigger": "A future refactor returns null/undefined from the resolver.",
+      "consequence": "git commands run in an undefined cwd and throw, turning a graceful fallback into a hard failure.",
+      "mitigation": "Both call sites pass the already-coalesced value; inside resolveChangedFiles/repair, coalesce gitCwd ?? projectRoot/root before use; tests inject undefined gitCwd and assert fallback."
+    },
+    {
+      "scenario": "Empty change-scope vs failed change-scope confusion after rebase",
+      "trigger": "Rebase or normalization accidentally drops all paths, producing [] instead of undefined.",
+      "consequence": "[] is a VALID scope (nothing changed) -> computeOutOfScopeTsconfigs marks ALL tsconfigs out-of-scope and skips everything (skip-all) — the exact failure the undefined sentinel prevents.",
+      "mitigation": "Preserve the contract: reader throw -> undefined (full tsc); only a genuinely empty diff yields []. Rebase happens after the throw/normalize boundary and never converts a thrown read into []. Add a test: throwing reader -> undefined, empty-diff reader -> [] unchanged."
+    }
+  ],
+  "timestamp": "2026-06-16T00:53:13.843Z"
+}

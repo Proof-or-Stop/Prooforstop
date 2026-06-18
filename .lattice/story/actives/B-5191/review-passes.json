@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-5191:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff is comments-only: three JSDoc/block-comment strings in review-preflight.ts updated. No code symbols deleted or replaced; no concept residue to grep. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-17T12:50:19.069Z",
+      "reviewRound": "2026-06-17T12:49:47.620Z",
+      "reviewRunId": "B-5191:RR-001",
+      "_hash": "6fecd1d3409e10d3b3716156bf01e670d6bedffe1d8c1bdcbd0e912a719e6b08"
+    },
+    {
+      "id": "B-5191:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-channel story (1 checklist item, no riskSignals) — verificationIntent intentionally skipped at PLAN per express policy (flow-policy:express-verification-policy / express-exempt). git diff main...HEAD is comments-only (three JSDoc/block-comment strings in review-preflight.ts); no code path was added or changed, so no must-intent coverage gap exists. No verificationEvidence required; no blocker.",
+      "createdAt": "2026-06-17T12:50:36.288Z",
+      "reviewRound": "2026-06-17T12:49:47.620Z",
+      "reviewRunId": "B-5191:RR-002",
+      "_hash": "6c3c5cb0c8b1b96a4ba366e3e2224af2c2f284afcd5bceecb2d676f89c6da6f2"
+    },
+    {
+      "id": "B-5191:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Comments-only diff verified: (a) the three new docstrings accurately describe the express branch — channel/concept/lint/docs-drift/english-artifacts are force-skipped with ok:true, codex-adapter is conditionally evaluated via storyRequiresCodexEvidence and ok = (codex.status===passing), gates.every(g=>g.ok) means it can block; (b) git diff shows only comment lines changed in review-preflight.ts, no logic/gate/signature altered; (c) npm --prefix packages/main run build exits 0 (tsc clean). No dead code, no type safety issues, no shell isolation issues found.",
+      "createdAt": "2026-06-17T12:50:42.415Z",
+      "reviewRound": "2026-06-17T12:49:47.620Z",
+      "reviewRunId": "B-5191:RR-003",
+      "_hash": "07dd1bdc33224a9af8390781901a360c23084eb46f62574b54c3362bc8c91c75"
+    }
+  ]
+}

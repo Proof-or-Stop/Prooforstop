@@ -1,7 +1,7 @@
 /**
  * B-3fad CHK-002: gap_log — manual archival entry for framework gaps.
  *
- * Trigger background (background.md): When wrapping up B-a370, the main agent wanted to archive discovered koala framework gaps into
+ * Trigger background (background.md): When wrapping up B-a370, the main agent wanted to archive discovered lattice framework gaps into
  * the framework-audit backlog, but found (1) the B-META-framework-audit container did not exist, (2) the existing
  * finding_add is reviewer-finding shaped (requires reviewRunId / REVIEW-phase semantics), using it to stuff
  * manual framework gaps is abuse. gap_log fills this hole: a manual archival entry that does not depend on reviewer / review round /
@@ -198,7 +198,7 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           ...(ev.reproCommand ? { reproCommand: ev.reproCommand } : {}),
           ...(ev.observedOutput ? { observedOutput: ev.observedOutput } : {}),
           ...(ev.analysisNote ? { analysisNote: ev.analysisNote } : {}),
-          agent: args.agent || process.env.KOALA_AGENT || 'koala-gap-log',
+          agent: args.agent || process.env.LATTICE_AGENT || 'koala-gap-log',
         });
         return { created: ensured.created, result: appended };
       }, {

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-292d",
+  "checkedAt": "2026-06-17T17:29:24.960Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "a86a4ccd3b14b4459a5acb7575e07e3ae0c794089763404543e99afd78ef3cfa",
+  "executionBoundaryHash": "06fb42d6e5b2aae2d3352b82e5e30ad705f4d40569e506d3f731d8b6afffc27d",
+  "freshnessHash": "6ec7b0fd29115681324ee685082e3f38505dc89234a88ab5afa49da00b6b36a3",
+  "effectiveExcludedKeywords": [
+    ".koala/ runtime-dir rename (deferred storage migration)",
+    "docs/koala/framework-audit/ (B-META path)",
+    "lattice validate default battery handlers (out of scope per user decision (a))",
+    "root package.json test:koala-residue (keep two-place coverage per user decision)",
+    "scripts/verify-* other scripts",
+    "scripts/verify-koala-residue.mjs (B-40eb canonical script — byte-frozen)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": ".koala/ runtime-dir rename (deferred storage migration)",
+      "source": "scopeBoundary.excluded",
+      "text": ".koala/ runtime-dir rename (deferred storage migration)",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/koala/framework-audit/ (B-META path)",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/koala/framework-audit/ (B-META path)",
+      "excluded": true
+    },
+    {
+      "keyword": "lattice validate default battery handlers (out of scope per user decision (a))",
+      "source": "scopeBoundary.excluded",
+      "text": "lattice validate default battery handlers (out of scope per user decision (a))",
+      "excluded": true
+    },
+    {
+      "keyword": "root package.json test:koala-residue (keep two-place coverage per user decision)",
+      "source": "scopeBoundary.excluded",
+      "text": "root package.json test:koala-residue (keep two-place coverage per user decision)",
+      "excluded": true
+    },
+    {
+      "keyword": "scripts/verify-* other scripts",
+      "source": "scopeBoundary.excluded",
+      "text": "scripts/verify-* other scripts",
+      "excluded": true
+    },
+    {
+      "keyword": "scripts/verify-koala-residue.mjs (B-40eb canonical script — byte-frozen)",
+      "source": "scopeBoundary.excluded",
+      "text": "scripts/verify-koala-residue.mjs (B-40eb canonical script — byte-frozen)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "4ea1b212e7d6565ce3cbf6c868b309d8e358629b8c35bb946f83183451bbcedf"
+}

@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "No FTS/derived-index (cut-FTS decision); structured overlap only",
+    "Read-only: writes nothing, no gate",
+    "Reuse the existing story_list scan",
+    "story-recall module zero outward coupling except types (+ store read port in handler)",
+    "Explainable structured match reasons"
+  ],
+  "drivers": [
+    "The plan cut FTS for v1; no engine exists",
+    "Recall must stay read-only advisory",
+    "Avoid new persisted index state"
+  ],
+  "options": [
+    {
+      "name": "structured-overlap-over-story_list-scan",
+      "pros": [
+        "No FTS engine / no derived index (the plan's cut-FTS decision)",
+        "Reuses the proven story_list scan; explainable structured match reasons",
+        "Read-only, zero new persisted state"
+      ],
+      "cons": [
+        "Linear scan (fine at current counts)",
+        "Heuristic ranking, not semantic"
+      ]
+    },
+    {
+      "name": "build-derived-index-or-fts",
+      "pros": [
+        "Faster at large scale"
+      ],
+      "cons": [
+        "No FTS engine exists; building one is the plan's explicit anti-goal for v1; adds a persisted index to maintain/invalidate"
+      ]
+    }
+  ],
+  "chosen": "structured-overlap-over-story_list-scan",
+  "rationale": "The plan explicitly cut FTS; structured overlap over the existing story_list scan is read-only, dependency-free, explainable, and adequate at current story counts. A derived index/embedding is a future optimization, not v1.",
+  "preMortem": [
+    {
+      "scenario": "Recall builds an FTS engine or derived index",
+      "trigger": "Reaching for a search index for ranking",
+      "consequence": "Violates the cut-FTS decision; new state to invalidate",
+      "mitigation": "Use structured-field overlap over the story_list scan only; smoke asserts no derived-index file is created"
+    },
+    {
+      "scenario": "Recall writes state or touches a gate",
+      "trigger": "Caching results / logging into gate paths",
+      "consequence": "Recall stops being read-only advisory",
+      "mitigation": "handler is read-only; smoke asserts no files written + no gate invoked"
+    },
+    {
+      "scenario": "story-recall couples outward into core",
+      "trigger": "Importing gate/review internals for profiling",
+      "consequence": "Breaks the isolation bar",
+      "mitigation": "core/story-recall.ts imports only experience-layer-types + node:; the store read port lives in the handler; smoke static-scans imports"
+    },
+    {
+      "scenario": "A one-field coincidence dominates ranking",
+      "trigger": "Scoring by a single overlapping keyword",
+      "consequence": "Irrelevant stories rank high",
+      "mitigation": "Combine multiple structured fields (keywords+fileKinds+touchpoints+type/phase); smoke asserts an overlapping profile outranks a disjoint one and ranking is deterministic"
+    }
+  ],
+  "timestamp": "2026-06-17T15:37:44.989Z"
+}

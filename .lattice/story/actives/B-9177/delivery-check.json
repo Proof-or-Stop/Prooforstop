@@ -1,0 +1,53 @@
+{
+  "storyId": "B-9177",
+  "checkedAt": "2026-06-16T04:50:28.438Z",
+  "reviewRound": "2026-06-16T04:45:45.806Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "The regression guard is wired into the lattice validate battery so it runs by default",
+      "verifiedBy": "diff+live-run",
+      "evidence": "Root package.json diff: test script chain changed from npm run test:e2e to npm run test:main-write-lock-coverage && npm run test:e2e. packages/main/package.json adds test:main-write-lock-coverage = node dist/tasks/main-write-lock-coverage.js. Live: lattice validate ran the guard and printed main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock followed by ALL PASS."
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "Every previously-unlocked main-mutating path is wrapped in withReentrantMainWriteLock with no semantic change",
+      "verifiedBy": "diff",
+      "evidence": "cli-engine.ts diff wraps commitFromDraftMetadataOnMain and commitFromDraftMetadataAndMergeMain in withReentrantMainWriteLock. worktree.ts diff wraps purgeSafeInitCommit (git reset --hard) and commitDiscardMetadata (git commit on main) in withReentrantMainWriteLock. All four gaps from CHK-001 audit are now locked. dev_merge (dormant) also wrapped for defense-in-depth. Comments confirm reentrant-only, no semantic change."
+    },
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "Negative fixture demonstrates guard goes red on an unlocked primitive",
+      "verifiedBy": "live-run",
+      "evidence": "node packages/main/dist/tasks/main-write-lock-coverage.js --negative-demo printed: VIOLATION for core/__negative_fixture__.ts:3 [commit] mutates-main=YES locked=NO, exited 1. The positive run exited 0 with all 7 paths locked."
+    },
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "Audit artifact .lattice/story/actives/B-9177/evidence/lock-coverage-audit.md enumerates main-mutating paths and flags unlocked gaps",
+      "verifiedBy": "diff+read",
+      "evidence": "File exists in diff as new artifact. Contains a coverage table with path/git-op/mutates-main/inside-lock/gap columns. Identifies four GAPs: commitFromDraftMetadataOnMain, commitFromDraftMetadataAndMergeMain, story_discard commitDiscardMetadata, story_discard purgeSafeInitCommit — exactly the paths wrapped in CHK-002."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-003",
+      "transcript": "Positive run: node packages/main/dist/tasks/main-write-lock-coverage.js → scanned 277 source files, 17 git mutation-verb sites, all 7 main-mutating paths locked, exit 0. Negative demo: --negative-demo flag → VIOLATION on core/__negative_fixture__.ts:3 [commit] mutates-main=YES locked=NO, exit 1. Validate integration: lattice validate ran the guard as part of the test battery and printed ALL PASS with main-write-lock-coverage: PASS visible in output. All confirmed live."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Coverage guard positive run confirms all 7 main-mutating paths now hold the lock including the four CHK-002 targets: cli-engine.ts:3332 [commit] locked=YES, cli-engine.ts:3486 [commit] locked=YES, worktree.ts:620 [reset] locked=YES, worktree.ts:631 [commit] locked=YES. worktree.ts:1095 [merge] (dev_merge dormant) also locked=YES. Exit 0."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "lock-coverage-audit.md committed as evidence artifact. Coverage table covers all git mutation sites, classifies 4 gaps. Guard confirms enumeration is complete: scanned 277 source files, 17 git mutation-verb sites, 7 identified as main-mutating, all 7 locked after CHK-002 fixes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified from diff plus live execution. Coverage guard passes on the real tree (exit 0), bites on negative fixture (exit 1), and runs inside lattice validate as part of the test chain. CHK-002 locking confirmed by guard showing all 7 main-mutating paths locked. Edge coverage includes: story-worktree-only merges not flagged (no false positives), unrecognized cwd treated as main (fail-closed), gitFile commit on main flagged as violation."
+  },
+  "_hash": "08927b4aa42f009365ffc3a1274a0966a2f04258f24dcbb4b3881e5ee30ca66e"
+}

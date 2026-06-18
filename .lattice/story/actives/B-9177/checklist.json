@@ -1,0 +1,205 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Audit: enumerate CLI paths that commit to / mutate the main branch or worktree and flag any not under the main-write-lock",
+      "context": "Grep for git commit / merge / update-ref / branch ops and metadata-on-main writes across packages/main/src (handlers + cli-engine + core); cross-reference against withMainWriteLock/withReentrantMainWriteLock usage. Produce the list of main-mutating paths and which are NOT locked (B-7365's reconcile is now locked; find any others).",
+      "userSees": "The audit output lists every main-mutating CLI path and marks which hold the main-write-lock and which (if any) still do not.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T04:01:41.243Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit enumerates every main-mutating commit/merge/ref path across packages/main/src and marks each as locked or unlocked",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A path that only merges main INTO a story worktree (does not mutate main) is classified as NOT main-mutating, not a gap",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The B-7365 reconcile path shows up as LOCKED and no main-mutating git primitive is omitted from the enumeration",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard scanned 277 files, enumerated 15 git-mutation sites (7 main-mutating, 8 worktree-only), each marked locked vs unlocked; corroborated by evidence/lock-coverage-audit.md",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard classifies merge-main-into-story-worktree + autoSyncMain + worktree/branch cleanup as mutates-main=no (worktree-only), not flagged as gaps",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard shows commitInitCheckMetadataAndMergeMain (B-7365) locked=YES; unrecognized git cwd is treated as main (fail-closed), so no main-mutating primitive can be silently omitted",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Close the gaps: wrap any remaining unlocked main-mutating path in withReentrantMainWriteLock",
+      "context": "For each unlocked main-mutating path found in the audit, wrap its main commit/merge/ref-update critical section in withReentrantMainWriteLock (reentrant, since some run within already-locked contexts). If the audit finds none remaining, record that and proceed to the guard. Do not change command semantics; lock-only.",
+      "userSees": "Each previously-unlocked main-mutating path now acquires the main-write-lock; concurrent sessions are serialized on those paths (no race corruption).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T04:06:03.079Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Each previously-unlocked main-mutating path now acquires the main-write-lock (verified by the coverage guard going green)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Paths reachable from an already-locked flow (DONE/reconcile) use withReentrantMainWriteLock — no self-deadlock; validate + DONE still complete",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Lock-only change: command semantics unchanged — existing main-write-lock-smoke + e2e still pass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard PASS — all 7 main-mutating paths hold the lock: the 4 newly-wrapped (from-draft commit, from-draft commit+merge, story_discard reset+commit, dev_merge) plus B-7365 reconcile and DONE/done_recover",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "npm --prefix packages/main run test:main-write-lock-smoke",
+          "result": "pass",
+          "note": "main-write-lock-smoke reentrancy cases green (no self-deadlock); lattice validate ALL PASS confirms DONE/draft/discard flows still complete with the reentrant lock",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "npm --prefix packages/main run test:main-write-lock-smoke",
+          "result": "pass",
+          "note": "Lock-only: git diff is lock-wrapping + one dormant-note comment, no semantic change; main-write-lock-smoke + e2e (story-lifecycle + gap-convergence) ALL PASS",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regression guard + tests: mechanically flag any main-mutating commit path not under the lock",
+      "context": "Add a test/guard (e.g. a static scan or a runtime assertion test) that fails if a CLI path commits to main without holding the lock, so a future B-7365-class gap is caught mechanically rather than by convention. Cover the gaps found and a negative case.",
+      "userSees": "lattice validate green with a regression guard that turns red if a new main-mutating path is added without the main-write-lock.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-16T04:22:58.392Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The coverage guard passes green when all main-mutating paths are locked, and runs inside lattice validate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Guard does not false-positive on story-worktree-only paths (merging main into a story branch needs no lock)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative fixture: an unlocked main-mutating primitive makes the guard go RED (proves it bites)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard exits 0 PASS on the real tree and is invoked under lattice validate (npm test chains test:main-write-lock-coverage before test:e2e — marker line present in validate output)",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "No false-positive: guard marks story-worktree-only sites mutates-main=no/locked=n/a and does not require a lock for them",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Negative fixture bites: --negative-demo exits 1 with VIOLATION on an unlocked main commit; the in-process negative fixture is also asserted during the normal green run",
+          "headHash": "ab1d9771ab52c88c6786dd8c51c65dee46c983c0",
+          "materialHash": "0ec04a63977bb764b65a522ffb151724da33ea0070e804db1bb141129c85f922",
+          "timestamp": "2026-06-16T04:45:45.379Z"
+        }
+      ]
+    }
+  ]
+}

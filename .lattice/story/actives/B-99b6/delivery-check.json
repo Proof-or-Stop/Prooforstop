@@ -1,0 +1,24 @@
+{
+  "storyId": "B-99b6",
+  "checkedAt": "2026-06-17T18:15:56.085Z",
+  "reviewRound": "2026-06-17T18:10:26.494Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-99b6 GREEN with all 8 newly-gated guard steps listed (process-fact-contract, runtime-fact-contract, evidence-quality, anti-stall, storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, done-oracle-wrapper-root). Root npm test chain runs all 8 new guards; gitroot-cwd-contract appears exactly once. Edge: storydir-inside-gitroot-suite and test:all are NOT in fast gate, reachable via test:smokes-full alias. Adversarial: breaking test:anti-stall alias flipped validate to status=fail proving each guard is actually executed in chain (npm && short-circuit). Transcripts: /tmp/b99b6-validate-green.log, /tmp/b99b6-validate-red.json, /tmp/b99b6-validate-nostory.json. Evidence via verificationEvidence on CHK-001 (5 must/should intents all covered: happy:0, happy:1, edge:0, edge:1, adversarial:0)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice validate --json (no --story) reports status=pass allPass=true commands[].code=0. Fast-gate delta ~8s total (per-guard breakdown: process-fact 2.0s, runtime-fact 2.6s, evidence-quality 0.1s, anti-stall 0.2s, storydir-smoke 0.5s, gitroot-routing 1.4s, bare-gate 0.4s, done-oracle 0.8s). Adversarial REGRESSION-BLOCKS PROOF: broke test:anti-stall alias -> lattice validate --json reported status=fail allPass=false with failing step named in output (no silent skip); git restore package.json -> validate restored to status=pass allPass=true. Break NOT committed. Transcripts: /tmp/b99b6-validate-red.json (fail) and /tmp/b99b6-validate-nostory.json (pass). Evidence via verificationEvidence on CHK-002 (3 intents all covered: happy:0, edge:0, adversarial:0)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Diff is package.json scripts-only; no doc promises to verify. Both CHK-001 and CHK-002 have full manual_transcript evidence: GREEN validate run listing all 8 wired guards, timing proof of fast-gate split, and adversarial RED/revert regression-blocks proof with named failing step. No unresolved TODOs."
+  },
+  "_hash": "3179d3e59797c79ba0d6763008f72504270baf1f827a59e1ce42e907c95b85d0"
+}

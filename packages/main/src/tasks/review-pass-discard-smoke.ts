@@ -34,7 +34,7 @@ function initRepo(prefix: string): string {
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -115,7 +115,7 @@ function writeChecklistConcurrencyStory(root: string, storyId: string, phase: St
   });
 }
 
-async function runKoala(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runLattice(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
@@ -141,10 +141,10 @@ function extractReviewRunId(output: string): string {
 }
 
 async function startReviewRun(root: string, storyId: string, agent: string): Promise<string> {
-  return extractReviewRunId(await runKoala(root, 'review_run_start', { storyId, agent }));
+  return extractReviewRunId(await runLattice(root, 'review_run_start', { storyId, agent }));
 }
 
-async function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runLatticeFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const env = { ...process.env };
     delete env.LATTICE_PROJECT_ROOT;
@@ -172,7 +172,7 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
     writeReviewStory(root, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `lattice-review-${name}`);
     const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
-    await Promise.all(agents.map(agent => runKoala(root, 'review_pass_set', {
+    await Promise.all(agents.map(agent => runLattice(root, 'review_pass_set', {
       storyId,
       agent,
       reviewRunId: runIds.get(agent),
@@ -188,11 +188,11 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
 }
 
 async function assertChecklistConcurrentUpdates(): Promise<void> {
-  const root = initRepo('koala-checklist-concurrent-');
+  const root = initRepo('lattice-checklist-concurrent-');
   try {
     const storyId = 'B-check';
     writeChecklistConcurrencyStory(root, storyId, 'DEV');
-    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runKoala(root, 'checklist_update', {
+    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runLattice(root, 'checklist_update', {
       storyId,
       itemId,
       status: 'done',
@@ -208,11 +208,11 @@ async function assertChecklistConcurrentUpdates(): Promise<void> {
 }
 
 async function assertChecklistConcurrentVerificationIntentUpdates(): Promise<void> {
-  const root = initRepo('koala-checklist-intent-concurrent-');
+  const root = initRepo('lattice-checklist-intent-concurrent-');
   try {
     const storyId = 'B-intent';
     writeChecklistConcurrencyStory(root, storyId, 'PLAN');
-    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runKoala(root, 'checklist_update', {
+    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runLattice(root, 'checklist_update', {
       storyId,
       itemId,
       verificationIntent: {
@@ -232,7 +232,7 @@ async function assertChecklistConcurrentVerificationIntentUpdates(): Promise<voi
 }
 
 async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
-  const root = initRepo('koala-discard-worktree-');
+  const root = initRepo('lattice-discard-worktree-');
   try {
     const storyId = 'B-drop';
     const store = new StoryStore(root);
@@ -253,7 +253,7 @@ async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
 
-    const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke cleanup' });
+    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke cleanup' });
 
     assert.doesNotMatch(output, /worktree and branch have been cleaned up/, 'discard hint must not claim blanket cleanup');
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
@@ -266,7 +266,7 @@ async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
 }
 
 async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
-  const root = initRepo('koala-discard-residue-');
+  const root = initRepo('lattice-discard-residue-');
   try {
     const storyId = 'B-residue';
     const store = new StoryStore(root);
@@ -287,9 +287,9 @@ async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
 
-    const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke residue cleanup' });
+    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke residue cleanup' });
 
-    assert.match(output, /Already DISCARDED; residue checked\/cleaned/);
+    assert.match(output, /is already DISCARDED; residuals checked\/cleaned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -300,7 +300,7 @@ async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
 }
 
 async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
-  const root = initRepo('koala-discard-prunable-');
+  const root = initRepo('lattice-discard-prunable-');
   try {
     const storyId = 'B-prunedrop';
     const store = new StoryStore(root);
@@ -327,9 +327,9 @@ async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
     git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
     rmSync(join(root, '.worktrees', storyId), { recursive: true, force: true });
 
-    const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke prunable cleanup' });
+    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke prunable cleanup' });
 
-    assert.match(output, /stale worktree metadata has been pruned/);
+    assert.match(output, /stale worktree metadata pruned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(existsSync(join(root, '.worktrees', storyId)), false, 'missing worktree dir should stay gone');
@@ -341,7 +341,7 @@ async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
 }
 
 async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
-  const root = initRepo('koala-discard-invalid-pointer-');
+  const root = initRepo('lattice-discard-invalid-pointer-');
   try {
     const storyId = 'B-badptr';
     const store = new StoryStore(root);
@@ -372,7 +372,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
 
     let refusedWithoutForce = false;
     try {
-      await runKoala(root, 'story_discard', { storyId, reason: 'smoke invalid pointer cleanup' });
+      await runLattice(root, 'story_discard', { storyId, reason: 'smoke invalid pointer cleanup' });
     } catch (error) {
       refusedWithoutForce = String((error as Error).message).includes('Worktree git metadata is corrupted');
     }
@@ -380,9 +380,9 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
     assert.equal(existsSync(worktreePath), true, 'non-forced invalid pointer cleanup should keep the residue dir');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'INIT_CHECK', 'non-forced invalid pointer cleanup must not discard');
 
-    const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke invalid pointer cleanup' });
+    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke invalid pointer cleanup' });
 
-    assert.match(output, /invalid worktree residue has been cleaned up/);
+    assert.match(output, /invalid worktree residue cleaned up/);
     assert.equal(existsSync(worktreePath), false, 'forced invalid pointer cleanup should remove the physical residue dir');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -393,7 +393,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
 }
 
 async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
-  const root = initRepo('koala-discard-invalid-cwd-');
+  const root = initRepo('lattice-discard-invalid-cwd-');
   try {
     const storyId = 'B-badcwd';
     const store = new StoryStore(root);
@@ -425,13 +425,13 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
     rmSync(join(root, '.git', 'worktrees', storyId), { recursive: true, force: true });
     writeFileSync(join(worktreePath, 'runtime.log'), 'stale residue\n');
 
-    const output = await runKoalaFromCwd(worktreePath, 'story_discard', {
+    const output = await runLatticeFromCwd(worktreePath, 'story_discard', {
       storyId,
       force: true,
       reason: 'smoke invalid cwd cleanup',
     });
 
-    assert.match(output, /invalid worktree residue has been cleaned up|Worktree .* has been cleaned up/);
+    assert.match(output, /invalid worktree residue cleaned up|Worktree .* cleaned up/);
     assert.equal(existsSync(worktreePath), false, 'forced discard from broken worktree cwd should remove the physical residue dir');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -441,7 +441,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
 }
 
 async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
-  const root = initRepo('koala-discard-fail-closed-');
+  const root = initRepo('lattice-discard-fail-closed-');
   const storyId = 'B-stuck';
   try {
     const store = new StoryStore(root);
@@ -466,9 +466,9 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
 
     let failed = false;
     try {
-      await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke fail closed' });
+      await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke fail closed' });
     } catch (error) {
-      failed = String((error as Error).message).includes('discard has been stopped');
+      failed = String((error as Error).message).includes('discard stopped');
     }
     assert.equal(failed, true, 'story_discard should fail closed when worktree metadata cannot be removed');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'INIT_CHECK', 'failed discard must not mark story DISCARDED');
@@ -482,7 +482,7 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
 }
 
 async function assertPurgeDropsSafeInitCommit(): Promise<void> {
-  const root = initRepo('koala-discard-purge-');
+  const root = initRepo('lattice-discard-purge-');
   try {
     const before = git(root, ['rev-parse', 'HEAD']);
     const storyId = 'B-purge';
@@ -490,9 +490,9 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
     git(root, ['add', '.lattice/story/actives/B-purge']);
     git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
 
-    const output = await runKoala(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
+    const output = await runLattice(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
-    assert.match(output, /main init commit has been safely rolled back/, 'purge should report a safe reset');
+    assert.match(output, /main init commit safely rolled back/, 'purge should report a safe reset');
     assert.equal(git(root, ['rev-parse', 'HEAD']), before, 'safe init commit should be reset');
     assert.equal(existsSync(join(root, '.lattice', 'story', 'actives', storyId)), false);
   } finally {
@@ -574,7 +574,7 @@ function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
 }
 
 async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
-  const root = initRepo('koala-init-dispatch-timeout-');
+  const root = initRepo('lattice-init-dispatch-timeout-');
   try {
     const storyId = 'B-init';
     const now = '2026-04-30T10:00:00.000Z';
@@ -592,7 +592,7 @@ async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
       events: [],
     });
 
-    const output = await runKoala(root, 'dispatch', { storyId, agentType: 'lattice-review-story-init' });
+    const output = await runLattice(root, 'dispatch', { storyId, agentType: 'lattice-review-story-init' });
     assert.match(output, /INIT_REVIEW_START/, 'init dispatch should ask reviewer to emit start heartbeat');
     assert.match(output, /INIT_REVIEW_READ_DONE/, 'init dispatch should ask reviewer to emit read heartbeat');
     assert.match(output, /5 minutes/, 'init dispatch should include an upper time bound');
@@ -609,12 +609,12 @@ async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
 }
 
 async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
-  const root = initRepo('koala-item-dispatch-event-');
+  const root = initRepo('lattice-item-dispatch-event-');
   try {
     const storyId = 'B-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'DEV');
 
-    const output = await runKoala(root, 'dispatch', {
+    const output = await runLattice(root, 'dispatch', {
       storyId,
       itemId: 'CHK-001',
       agentType: 'lattice-implementer',
@@ -642,13 +642,13 @@ async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
     const storyId = 'B-review-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'REVIEW');
 
-    const output = await runKoala(root, 'dispatch', {
+    const output = await runLattice(root, 'dispatch', {
       storyId,
       itemId: 'CHK-001',
       agentType: 'lattice-review-quality',
     });
-    assert.match(output, /as lattice-review-quality reviewer/, 'reviewer item dispatch should identify reviewer role');
-    assert.match(output, /only review/, 'reviewer item dispatch should constrain the role to review only');
+    assert.match(output, /As lattice-review-quality reviewing/, 'reviewer item dispatch should identify reviewer role');
+    assert.match(output, /Review only; do not change code/, 'reviewer item dispatch should constrain the role to review only');
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
@@ -668,7 +668,7 @@ async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
 }
 
 async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
-  const root = initRepo('koala-doctor-worktree-repair-');
+  const root = initRepo('lattice-doctor-worktree-repair-');
   try {
     const store = new StoryStore(root);
     const now = '2026-04-30T10:00:00.000Z';
@@ -700,14 +700,14 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
     git(root, ['worktree', 'add', join(root, '.worktrees', 'B-prune'), 'story/B-prune']);
     rmSync(join(root, '.worktrees', 'B-prune'), { recursive: true, force: true });
 
-    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
     assert.equal(before.worktrees.needsRepair, true, 'doctor should detect terminal worktree repair targets');
     assert(
       before.worktrees.terminalRegistered.length > 0 || before.worktrees.orphanDirs.length > 0 || before.worktrees.terminalDirs.length > 0,
       'doctor should report at least one terminal/orphan target before repair',
     );
 
-    const repaired = JSON.parse(await runKoala(root, 'doctor', { format: 'json', repair: true }));
+    const repaired = JSON.parse(await runLattice(root, 'doctor', { format: 'json', repair: true }));
     assert.equal(repaired.worktrees.needsRepair, false, 'doctor --repair should clear all terminal/orphan worktree targets');
     assert.equal(repaired.worktrees.terminalRegistered.length, 0, 'terminal registered worktrees should be gone after repair');
     assert.equal(repaired.worktrees.orphanDirs.length, 0, 'orphan dirs should be gone after repair');
@@ -721,7 +721,7 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
 }
 
 function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
-  const root = initRepo('koala-stray-generated-review-metadata-');
+  const root = initRepo('lattice-stray-generated-review-metadata-');
   try {
     const storyId = 'B-stray';
     const now = '2026-04-30T10:00:00.000Z';

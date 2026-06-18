@@ -11,7 +11,7 @@
  * 用户在项目配置文件 lattice.config.json 的 hooks 字段配置：
  *   "hooks": {
  *     "preCommand": { "*": ["./scripts/notify"] , "story_advance": ["./scripts/sync"] },
- *     "onPhaseChange": { "*": ["echo $KOALA_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }
+ *     "onPhaseChange": { "*": ["echo $LATTICE_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }
  *   }
  *
  * 设计原则：
@@ -20,12 +20,12 @@
  *   - 30 秒 timeout：每条 hook 命令独立计时，超时 SIGKILL
  *   - stdout 限制：只在 stderr echo 前 200 字符，避免污染主命令的 JSON 输出
  *   - 顺序执行：精确匹配 + "*" 通配，两组都跑（不是 fallback），按数组顺序串行
- *   - env 隔离：基于 process.env 派生，每条 hook 拿到完整 legacy KOALA_* 变量
+ *   - env 隔离：基于 process.env 派生，每条 hook 拿到完整 LATTICE_* 变量
  */
 
 import { spawn } from 'child_process';
 import { reportHealthIssue } from './health.js';
-import type { KoalaConfig } from './config.js';
+import type { LatticeConfig } from './config.js';
 
 export type HookStage = 'preCommand' | 'postCommand' | 'onError' | 'onPhaseChange';
 
@@ -43,7 +43,7 @@ export interface HookConfig {
 
 /**
  * Truncate a string to maxBytes, appending [...truncated] if cut.
- * Used for KOALA_RESULT_JSON which can blow up env vars.
+ * Used for LATTICE_RESULT_JSON which can blow up env vars.
  */
 export function truncateForEnv(value: string, maxBytes = 8192): string {
   if (typeof value !== 'string') return '';
@@ -54,8 +54,8 @@ export function truncateForEnv(value: string, maxBytes = 8192): string {
 
 /**
  * Compose the env var bag passed to a hook command. Caller fills in stage-specific
- * extras (KOALA_RESULT_JSON / KOALA_ERROR / KOALA_OLD_PHASE / ...). Common fields
- * are populated here so every stage stays consistent — including KOALA_ARGS_JSON,
+ * extras (LATTICE_RESULT_JSON / LATTICE_ERROR / LATTICE_OLD_PHASE / ...). Common fields
+ * are populated here so every stage stays consistent — including LATTICE_ARGS_JSON,
  * which used to be missing on onPhaseChange.
  */
 export function buildHookEnv(opts: {
@@ -69,16 +69,16 @@ export function buildHookEnv(opts: {
   extra?: Record<string, string>;
 }): Record<string, string> {
   const env: Record<string, string> = {
-    KOALA_STAGE: opts.stage,
-    KOALA_COMMAND: opts.command,
-    KOALA_CWD: opts.cwd,
-    KOALA_ROOT: opts.root,
+    LATTICE_STAGE: opts.stage,
+    LATTICE_COMMAND: opts.command,
+    LATTICE_CWD: opts.cwd,
+    LATTICE_ROOT: opts.root,
   };
   if (opts.argsJson !== undefined) {
-    env.KOALA_ARGS_JSON = truncateForEnv(opts.argsJson);
+    env.LATTICE_ARGS_JSON = truncateForEnv(opts.argsJson);
   }
-  if (opts.storyId) env.KOALA_STORY_ID = opts.storyId;
-  if (opts.phase) env.KOALA_PHASE = opts.phase;
+  if (opts.storyId) env.LATTICE_STORY_ID = opts.storyId;
+  if (opts.phase) env.LATTICE_PHASE = opts.phase;
   if (opts.extra) {
     for (const [k, v] of Object.entries(opts.extra)) {
       if (typeof v === 'string') env[k] = v;
@@ -93,7 +93,7 @@ interface ResolvedHookCmd {
   cmd: string;
 }
 
-function resolveHookCommands(stage: HookStage, key: string, cfg: KoalaConfig): ResolvedHookCmd[] {
+function resolveHookCommands(stage: HookStage, key: string, cfg: LatticeConfig): ResolvedHookCmd[] {
   const hooks = (cfg as any)?.hooks as HookConfig | undefined;
   if (!hooks) return [];
   const stageMap = hooks[stage];
@@ -185,7 +185,7 @@ export async function runHooks(
   stage: HookStage,
   key: string,
   env: Record<string, string>,
-  cfg: KoalaConfig | null | undefined,
+  cfg: LatticeConfig | null | undefined,
   cwd: string,
 ): Promise<void> {
   if (!cfg) return;

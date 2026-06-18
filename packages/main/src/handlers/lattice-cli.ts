@@ -84,8 +84,6 @@ function readEnforceEnv(env: Record<string, string | undefined>): {
 function envValue(env: Record<string, string | undefined>, suffix: string): string | undefined {
   const canonical = env[`LATTICE_AUTHORITY_${suffix}`];
   if (typeof canonical === 'string' && canonical.trim().length > 0) return canonical.trim();
-  const legacy = env[`KOALA_AUTHORITY_${suffix}`];
-  if (typeof legacy === 'string' && legacy.trim().length > 0) return legacy.trim();
   return undefined;
 }
 

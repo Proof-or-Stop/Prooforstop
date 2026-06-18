@@ -1,0 +1,94 @@
+{
+  "storyId": "B-72df",
+  "checkedAt": "2026-06-16T03:08:26.099Z",
+  "features": [
+    {
+      "feature": "Scope the DONE merge main-clean precondition to the merge affected paths (git diff main...HEAD --name-only) instead of the whole worktree tree",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Allow DONE to proceed when all dirty tracked paths are unrelated to the merge change set",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Still block DONE (clobber-protection) when a dirty tracked path overlaps the merge change set",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Never clobber any uncommitted work — unrelated dirty file must be left byte-identical after DONE merge",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Failing reproduction test demonstrating the over-broad block today (DONE blocked by unrelated dirty file)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B-e74e main-worktree-unavailable availability behavior must be preserved (distinct from unrelated-dirty contention)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Test: unrelated-dirty case proceeds and file is byte-identical after merge",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Test: overlapping-dirty case is still blocked (clobber-protection preserved)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Test: clean main worktree behavior unchanged",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE must still hold the unified main write lock (.koala/locks/main-write.lock/) covering pre-merge gate through merge and cleanup (session-ownership-and-write-leases.md main write lock rule 4)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Merged-State Combination Review advisory discipline: this story touches dirty/working-tree state classifier and DONE merge semantics (two of the five trigger assets from story-lifecycle.md §Merged-State Combination Review), requiring a post-merge read-only combination review of main merged state",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 10,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "58637999c315cbae49e264bbb450e597c52da371974489aace7390e1ba97582e",
+  "openQuestions": []
+}

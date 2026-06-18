@@ -1,0 +1,119 @@
+{
+  "storyId": "B-9177",
+  "name": "main-write-lock-coverage-guard",
+  "title": "Close main-write-lock coverage gaps so concurrent sessions cannot race main-branch mutations",
+  "description": "The shared-main-worktree fleet model means concurrent sessions mutate the same main branch. Any CLI path that commits to or mutates main WITHOUT holding the main-write-lock can be raced by a concurrent session — B-7365 just fixed exactly such a gap (the INIT_CHECK reconcile committed to main + merged without the lock, causing metadata corruption). Lock coverage today is by-convention (CLAUDE.md lists DONE/done_recover/gap_log/audit/story_create/B-META as locked), with no mechanical guard ensuring every main-mutating path is locked, so future code can reintroduce a B-7365-class gap. Scope: (1) audit all CLI paths that commit to / mutate the main branch or main worktree and identify any not under the lock; (2) wrap remaining unlocked main-mutating paths in withReentrantMainWriteLock; (3) add a regression guard (a test that fails if a main-mutating commit path is not under the lock) so future gaps are caught mechanically. NOTE: full physical per-session checkout isolation (the maximalist 'separate worktree per session' architecture) is the larger alternative and is intentionally OUT OF SCOPE here — this story bounds the fix to lock-coverage hardening, which addresses the actual concurrent-mutation corruption risk that the shared-worktree model exposes.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-06-16T02:57:31.250Z",
+  "startedAt": "2026-06-16T02:57:31.250Z",
+  "endedAt": "2026-06-16T04:51:47.251Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T02:57:31.251Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:51:32.638Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:51:59.903Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T03:56:53.593Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T04:25:01.891Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-16T04:25:14.633Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T04:38:11.099Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T04:38:12.090Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-16T04:38:24.503Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T04:45:44.776Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T04:45:45.806Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T04:47:16.417Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T04:51:47.251Z",
+      "branch": "story/B-9177",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T04:45:45.806Z"
+}

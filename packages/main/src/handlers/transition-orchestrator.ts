@@ -49,6 +49,7 @@ import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-r
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
   resolveGuardFailure,
   runScopeTransitionGate,
@@ -240,7 +241,7 @@ export async function runStoryTransition(
       const devEvents = story.events.filter(e => e.phase === 'DEV' && e.action === 'advance');
       if (devEvents.length > 0) {
         const lastDev = devEvents[devEvents.length - 1];
-        const currentSession = process.env.KOALA_SESSION_ID || process.env.CLAUDE_SESSION_ID || '';
+        const currentSession = process.env.LATTICE_SESSION_ID || process.env.CLAUDE_SESSION_ID || '';
         if (lastDev.sessionId && lastDev.sessionId !== currentSession) {
           const who = lastDev.user || lastDev.agent || 'unknown';
           const when = lastDev.timestamp;
@@ -257,23 +258,44 @@ export async function runStoryTransition(
       }
     }
 
+    // B-6666 CHK-001: the resolved DONE git cwd is hoisted to function scope so
+    // the SAME value resolved ONCE in the DONE pre-check block (preMortem #4)
+    // can be threaded into runDonePreMergeGate below — no second resolveGitCwd.
+    let doneGitCwd: string = ctx.root;
+
     // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
     // guard evaluates post-merge state, not pre-merge state.
     if (args.phase === 'DONE') {
+      // B-db56 F-002 fix: resolve the actual git cwd ONCE at the entry of the
+      // DONE pre-check block via the resolveGitCwd choke-point, then pass the
+      // resolved value to every git-invoking callee here. In a wrapper-root
+      // layout `ctx.root` (metadataRoot) is NOT a git repo and the real repo
+      // is a configured gitRoot subdir; without this routing the bare-root
+      // calls below would fail with `fatal: not a git repository`.
+      // Plain-repo / unresolved cases fall back to ctx.root — byte-identical.
+      doneGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
       // B-4c38 CHK-001: serialize every main-affecting DONE operation before
       // any DONE preflight can mutate the story branch or main. The lock spans
       // checkMainDivergence/autoSyncMain, DONE gates, phase persistence, and
       // the real merge/worktree cleanup. A live lock fails before phase=DONE
       // can be written; a stale lock is reclaimed by the mkdir-lock primitive.
-      doneMainMergeLock = acquireDoneMainMergeLock(args.storyId, ctx.root);
+      // acquireDoneMainMergeLock's lock-path mkdir uses the projectRoot fallback
+      // when not inside a story worktree, so pass the resolved gitCwd so the
+      // mkdir target is the real main repo root in wrapper-root layouts.
+      doneMainMergeLock = acquireDoneMainMergeLock(args.storyId, doneGitCwd);
       const doneWorktree = detectDoneStoryWorktreeContext();
       if (doneWorktree) {
         assertDoneStoryBranchMatches(args.storyId, doneWorktree.branch);
       }
-      const divergence = checkMainDivergence(ctx.root);
+      const divergence = checkMainDivergence(doneGitCwd);
       if (divergence.needsSync) {
         ctx.log?.(`DONE pre-check: current branch is ${divergence.behind} commits behind main, auto-syncing...`);
-        const syncResult = autoSyncMain(ctx.root);
+        const syncResult = autoSyncMain(doneGitCwd);
         if (syncResult.ok) {
           ctx.log?.(`✓ ${syncResult.message}`);
         } else {
@@ -343,7 +365,10 @@ export async function runStoryTransition(
     // stops the actor; the orchestrator's finally owns that.
     let doneRenderedChecklist: string | undefined;
     if (args.phase === 'DONE') {
-      doneRenderedChecklist = await runDonePreMergeGate(args.storyId, store, ctx.root, actor);
+      // B-6666 CHK-001: thread the SAME doneGitCwd resolved once above (no
+      // re-resolve, preMortem #4) so the DONE-oracle git-status probe runs in
+      // the real gitRoot on wrapper-root layouts instead of the bare ctx.root.
+      doneRenderedChecklist = await runDonePreMergeGate(args.storyId, store, ctx.root, actor, doneGitCwd);
       guardGateReport += runAuthorityReceiptTransitionGate(ctx, args.storyId, 'DONE');
     }
 

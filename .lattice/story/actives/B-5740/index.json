@@ -1,0 +1,59 @@
+{
+  "storyId": "B-5740",
+  "name": "oss-hygiene-remove-orphan-file-and-dead-modules",
+  "title": "Remove the stray orphans junk file and 3 confirmed-dead source modules (OSS hygiene)",
+  "description": "Pre-open-source hygiene. Delete a stray 5-byte junk file 'orphans' (content 'NO -', a shell-redirect mistake) at repo root, and 3 confirmed-dead source modules whose basenames AND exported symbols have zero references anywhere in the codebase: packages/main/src/core/intent-coverage.ts, packages/main/src/core/phase-protocol.ts, packages/main/src/verifier/bridge-utils.ts. Excluded from this story: verifier/dev-cli.ts (the lattice serve launcher — invocation path unconfirmed, not certain-dead), the omx disable guard (intentional, AGENTS.md-protected), the .codex/.Codex consolidation (separate decision), and the .lattice gitignore/untrack (must be an OSS-export-time step because gitignoring .lattice would break the self-hosting workflow's metadata commits).",
+  "type": "chore",
+  "phase": "DISCARDED",
+  "priority": "low",
+  "keywords": [
+    "open-source-cleanup",
+    "dead-code",
+    "junk-file",
+    "concept-deletion",
+    "ship-clean"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-06-16T18:03:35.718Z",
+  "startedAt": "2026-06-16T18:03:35.718Z",
+  "endedAt": "2026-06-16T18:50:59.570Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T18:03:35.728Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T18:06:12.100Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-16T18:50:59.570Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "REVIEW found intent-coverage.ts is NOT dead: fixture-preview-runner-parity.json dynamically imports dist/core/intent-coverage.js by path (concept finding F-001). The frozen CHK-002 title names all 3 modules incl intent-coverage, so recreating with corrected scope (orphans + phase-protocol + bridge-utils only; intent-coverage KEPT) is cleaner than descoping a frozen requirement."
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Validation Framework",
+      "reason": "False positive: the keyword verifier only appears as part of the file path packages/main/src/verifier/bridge-utils.ts (one of the dead modules being deleted), not because this story modifies the validation/verifier framework. This is a pure deletion of a confirmed-dead module (CreateBridgeOptions type, 0 references) plus a junk file; no validation-framework logic is changed.",
+      "at": "2026-06-16T18:03:47.744Z"
+    }
+  ]
+}

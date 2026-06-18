@@ -28,8 +28,8 @@ const storyId = 'B-ddp-smoke';
 const decisionTimestamp = '2026-06-14T00:00:00.000Z';
 const sessionEnv = {
   ...process.env,
-  KOALA_SESSION_ID: 'decision-doc-promotion-smoke',
-  KOALA_AGENT: 'decision-doc-promotion-smoke',
+  LATTICE_SESSION_ID: 'decision-doc-promotion-smoke',
+  LATTICE_AGENT: 'decision-doc-promotion-smoke',
 };
 
 function git(cwd: string, args: string[]): string {

@@ -1,0 +1,121 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-a5c9:RR-001",
+      "storyId": "B-a5c9",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-16T14:16:25.749Z",
+      "startedAt": "2026-06-16T14:17:19.747Z",
+      "headHash": "b53eded46c837096cc9e9307444d02de611014a5",
+      "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3f63d1434701a118967a121f141ddb7252c07e4db1f3af396419552f6470c802",
+        "diffPackHash": "657064d337e3ecf1966a6e5df3a40879bb3049fd88ead6ed1989ae5438aca360",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/usage-ledger/estimate.ts",
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1e946d8f1b2972863c4c3bee2497edbeca70729fe5c4b74fc38cadf454d7f738",
+          "87fbb886cae65fa85bdc692b2adb194144c2c094d5981a965265741320306a0e",
+          "fe6edc8452a9171a77fe438953c058d31ebd58484adf1e2d2b802f5ac23028e2"
+        ],
+        "bindingHash": "cf1c5b0b7e64cc557fc9a5ffebc4bf9c4ac5107e33957dbcda909eedc746cb2a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "workspaceMode": "story-worktree",
+        "headHash": "b53eded46c837096cc9e9307444d02de611014a5",
+        "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+        "bindingHash": "a1fb2a37dd02d29d619f2e1c7661f6b23f7e94b1cb2aa226d1a62c0fec501268"
+      },
+      "_hash": "36b4e49f347e90a9ed930eaa482c698e2633c50b72f15a16d684a896e1402d6d"
+    },
+    {
+      "reviewRunId": "B-a5c9:RR-002",
+      "storyId": "B-a5c9",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-16T14:16:25.749Z",
+      "startedAt": "2026-06-16T14:17:25.280Z",
+      "headHash": "b53eded46c837096cc9e9307444d02de611014a5",
+      "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3f63d1434701a118967a121f141ddb7252c07e4db1f3af396419552f6470c802",
+        "diffPackHash": "657064d337e3ecf1966a6e5df3a40879bb3049fd88ead6ed1989ae5438aca360",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/usage-ledger/estimate.ts",
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1e946d8f1b2972863c4c3bee2497edbeca70729fe5c4b74fc38cadf454d7f738",
+          "87fbb886cae65fa85bdc692b2adb194144c2c094d5981a965265741320306a0e",
+          "fe6edc8452a9171a77fe438953c058d31ebd58484adf1e2d2b802f5ac23028e2"
+        ],
+        "bindingHash": "cf1c5b0b7e64cc557fc9a5ffebc4bf9c4ac5107e33957dbcda909eedc746cb2a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "workspaceMode": "story-worktree",
+        "headHash": "b53eded46c837096cc9e9307444d02de611014a5",
+        "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+        "bindingHash": "a1fb2a37dd02d29d619f2e1c7661f6b23f7e94b1cb2aa226d1a62c0fec501268"
+      },
+      "_hash": "36a820af267f0cc34115e9790a785dc4da2e8eb6856d577befe62fd6000488d4"
+    },
+    {
+      "reviewRunId": "B-a5c9:RR-003",
+      "storyId": "B-a5c9",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T14:16:25.749Z",
+      "startedAt": "2026-06-16T14:17:32.401Z",
+      "headHash": "b53eded46c837096cc9e9307444d02de611014a5",
+      "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3f63d1434701a118967a121f141ddb7252c07e4db1f3af396419552f6470c802",
+        "diffPackHash": "657064d337e3ecf1966a6e5df3a40879bb3049fd88ead6ed1989ae5438aca360",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/usage-ledger/estimate.ts",
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1e946d8f1b2972863c4c3bee2497edbeca70729fe5c4b74fc38cadf454d7f738",
+          "87fbb886cae65fa85bdc692b2adb194144c2c094d5981a965265741320306a0e",
+          "fe6edc8452a9171a77fe438953c058d31ebd58484adf1e2d2b802f5ac23028e2"
+        ],
+        "bindingHash": "cf1c5b0b7e64cc557fc9a5ffebc4bf9c4ac5107e33957dbcda909eedc746cb2a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a5c9",
+        "workspaceMode": "story-worktree",
+        "headHash": "b53eded46c837096cc9e9307444d02de611014a5",
+        "materialHash": "f0a30b87b57e6dfbc79d128ccb30cdd53c6d01ef6d42ccb4921feb66647eddb6",
+        "bindingHash": "a1fb2a37dd02d29d619f2e1c7661f6b23f7e94b1cb2aa226d1a62c0fec501268"
+      },
+      "_hash": "ab641b39a3345f340eccaac97e36887eb80940a8155d481597cab01954df6a28"
+    }
+  ]
+}

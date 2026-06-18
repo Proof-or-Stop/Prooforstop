@@ -1,5 +1,5 @@
 /**
- * tool_status — report actual koala tool usage
+ * tool_status — report actual Lattice tool usage
  *
  * The data source is the dual-source activity.jsonl (new path .koala/activity.jsonl + legacy path docs/story/activity.jsonl).
  * Both CLI calls and the Claude hook write to the new path; the legacy path is read-only for compatibility.
@@ -145,7 +145,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
       // text format: dashboard
       const lines: string[] = [];
-      lines.push(`=== koala tool usage (last ${days} days, source=${source}, role=${role ?? 'all'}) ===`);
+      lines.push(`=== Lattice tool usage (last ${days} days, source=${source}, role=${role ?? 'all'}) ===`);
       lines.push(`Log files: ${logPaths.join(' + ')}`);
       lines.push(`Total records: ${totalLines} (parsed ${parsedLines}, filtered ${filteredOut})`);
       lines.push(`Tools: ${sorted.length}`);

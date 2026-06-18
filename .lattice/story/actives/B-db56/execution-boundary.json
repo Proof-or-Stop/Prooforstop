@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-db56",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git grep*",
+    "git status*",
+    "grep *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/*",
+    "npm --prefix * run *",
+    "npm run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "bin",
+    "package.json",
+    "packages/lab/package.json",
+    "packages/lab/src",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/utils/package.json",
+    "packages/utils/src",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".codex",
+    ".lattice",
+    ".lattice-codex",
+    "experiments",
+    "packages/main/src/core/intent-coverage.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Choke-point + contract: reroute 193 git call sites through resolveGitCwd; add grep contract smoke.",
+  "createdAt": "2026-06-16T22:09:24.011Z",
+  "updatedAt": "2026-06-16T22:09:24.011Z",
+  "_hash": "7a6ee5f30ef75a51a9645a31c920a906b628bc9dc7c25c8b4009e230adacbd23"
+}

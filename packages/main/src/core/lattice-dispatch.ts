@@ -1,4 +1,5 @@
 import { execFileSync, execSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   existsSync,
   lstatSync,
@@ -34,6 +35,21 @@ import {
   type DispatchRunnerRecord,
 } from './dispatch-runner.js';
 import type { StoryStore } from './store.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+// B-ceed: codex + gemini live-dispatch — bounded provider seams (real spawn).
+import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
+import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemini-cli.js';
+// THIN ONE-WAY SEAM: dispatch imports the usage ledger only through this single
+// in-module orchestrator. dispatch-usage.ts keeps zero cross-module imports, so
+// the dependency is strictly one-way (dispatch -> usage-ledger, never back).
+import {
+  isUsageLedgerEnabled,
+  parseClaudeCliOutput,
+  recordBudgetBlock,
+  recordDispatchFinal,
+  recordDispatchPreflight,
+  type DispatchUsageContext,
+} from './usage-ledger/dispatch-usage.js';
 
 export type HostRuntimeId = 'fake' | 'claude-code' | 'gemini' | 'codex';
 export type HostRuntimeStatus = 'ready' | 'scaffolded' | 'unavailable';
@@ -446,7 +462,7 @@ function detectCommandPath(command: string): string | null {
 }
 
 function currentCodexSessionAvailable(): boolean {
-  return process.env.KOALA_ACTIVITY_SOURCE === 'codex'
+  return process.env.LATTICE_ACTIVITY_SOURCE === 'codex'
     || typeof process.env.CODEX_SESSION_ID === 'string'
     || typeof process.env.CODEX_HOME === 'string';
 }
@@ -740,10 +756,17 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ? process.execPath
     : detectCommandPath(cliCommand);
   const available = Boolean(commandPath);
+  // B-ceed: codex/gemini real-host live dispatch now exists; only claude-code's
+  // own bespoke leaf retains the scaffolded-only path here, and even that is
+  // surfaced only as an informational note (real claude-code dispatch runs via
+  // runClaudeCodeRealLeafDispatch when allowRealHostSubprocess is granted).
+  const supportsLiveDispatch = normalized === 'codex' || normalized === 'gemini' || normalized === 'claude-code';
   const warnings = available
-    ? [
-      `${normalized} runtime is scaffolded only: Lattice records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
-    ]
+    ? supportsLiveDispatch
+      ? []
+      : [
+        `${normalized} runtime is scaffolded only: Lattice records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
+      ]
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
     ];
@@ -779,11 +802,15 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     unattendedSafe: capabilities.unattendedSafe,
     unattendedReasons: capabilities.unattendedReasons,
     degradations: capabilities.degradations,
-    limitations: [
-      'Real-host execution is scaffolded only in this milestone.',
-      'No external host is auto-driven by Lattice dispatch_run.',
-      'A local receipt is still diagnostic-only and leaves productionDone=false.',
-    ],
+    limitations: supportsLiveDispatch
+      ? [
+        'A local receipt is still diagnostic-only and leaves productionDone=false.',
+      ]
+      : [
+        'Real-host execution is scaffolded only in this milestone.',
+        'No external host is auto-driven by Lattice dispatch_run.',
+        'A local receipt is still diagnostic-only and leaves productionDone=false.',
+      ],
     warnings,
     nextAction: available
       ? `${normalized} is supervised-only until dispatch_auto (CHK-006) is authorized. Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Unattended execution requires dispatch_policy_check authorization and dispatch_auto policy binding.`
@@ -1169,9 +1196,15 @@ function assertCanonicalWorktreePath(worktreeAbs: string, candidatePath: string,
   return relativePath;
 }
 
-function listedGitWorktreeRoots(root: string): string[] {
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware),
+// threaded from the caller that holds store + record.storyId. On a wrapper-root
+// layout the bare metadataRoot (`root`) is not a git repo, so this hard-throwing
+// `git worktree list` errored and dispatch could never reach a registered
+// worktree. `root` is still used only for the realpath fallback resolution of
+// listed paths. Plain repos pass gitCwd == root → byte-identical.
+function listedGitWorktreeRoots(root: string, gitCwd: string): string[] {
   const output = execFileSync('git', ['worktree', 'list', '--porcelain'], {
-    cwd: root,
+    cwd: gitCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
     encoding: 'utf8',
   });
@@ -1220,7 +1253,12 @@ function assertProjectedWorktreeAncestors(root: string, worktreeAbs: string, lab
   }
 }
 
-function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string, label: string): void {
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware),
+// threaded from the caller. The hard-throwing `git rev-parse --show-toplevel`
+// (and the nested `git worktree list`) ran from the bare metadataRoot before,
+// which is not a git repo on a wrapper-root layout → dispatch hard-failed. `root`
+// stays for path-relative diagnostics only. Plain repos pass gitCwd == root.
+function assertRegisteredDispatchWorktreeRoot(root: string, gitCwd: string, worktreeAbs: string, label: string): void {
   const entry = lstatSync(worktreeAbs);
   if (entry.isSymbolicLink()) {
     throw new Error(`${label} must be a real git worktree root, not a symlink: ${relative(root, worktreeAbs)}`);
@@ -1237,7 +1275,7 @@ function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string,
   let gitTopLevel: string;
   try {
     gitTopLevel = execFileSync('git', ['-C', worktreeAbs, 'rev-parse', '--show-toplevel'], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     }).trim();
@@ -1251,7 +1289,7 @@ function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string,
     throw new Error(`${label} must be the git top-level worktree root, got ${relative(root, worktreeAbs)} inside ${relative(root, gitTopLevelReal)}`);
   }
 
-  if (!listedGitWorktreeRoots(root).includes(worktreeReal)) {
+  if (!listedGitWorktreeRoots(root, gitCwd).includes(worktreeReal)) {
     throw new Error(`${label} is not registered in this repository's git worktree list: ${relative(root, worktreeAbs)}`);
   }
 }
@@ -1282,18 +1320,23 @@ function normalizePackPaths(
   return patched;
 }
 
-function ensureWorktree(root: string, worktreePath: string, branch: string, baseRef: string): string {
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware),
+// resolved at the caller via resolveGitCwd (store + record.storyId in scope). All
+// `git worktree add` and the nested registration probes now run from the resolved
+// gitRoot instead of the bare metadataRoot. `root` stays for path math. Plain
+// repos pass gitCwd == root → byte-identical.
+function ensureWorktree(root: string, gitCwd: string, worktreePath: string, branch: string, baseRef: string): string {
   const absPath = resolve(root, worktreePath);
   assertProjectedWorktreeAncestors(root, absPath, 'Dispatch worktree path');
   if (existsSync(absPath)) {
-    assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
+    assertRegisteredDispatchWorktreeRoot(root, gitCwd, absPath, 'Dispatch worktree path');
     return absPath;
   }
   mkdirSync(dirname(absPath), { recursive: true });
   assertProjectedWorktreeAncestors(root, absPath, 'Dispatch worktree path');
   try {
     execFileSync('git', ['worktree', 'add', absPath, '-b', branch, baseRef], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -1304,22 +1347,25 @@ function ensureWorktree(root: string, worktreePath: string, branch: string, base
     }
   }
   try {
-    assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
+    assertRegisteredDispatchWorktreeRoot(root, gitCwd, absPath, 'Dispatch worktree path');
   } catch (error: any) {
     const detail = String(error?.message || error).trim();
-    const cleanupWarnings = cleanupCreatedWorktree(root, worktreePath, branch);
+    const cleanupWarnings = cleanupCreatedWorktree(root, gitCwd, worktreePath, branch);
     const suffix = cleanupWarnings.length > 0 ? ` (${cleanupWarnings.join(' | ')})` : '';
     throw new Error(`${detail}${suffix}`);
   }
   return absPath;
 }
 
-function cleanupCreatedWorktree(root: string, worktreePath: string, branch: string): string[] {
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware).
+// `git worktree remove` / `prune` / `branch -D` run from the resolved gitRoot, not
+// the bare metadataRoot. Plain repos pass gitCwd == root → byte-identical.
+function cleanupCreatedWorktree(root: string, gitCwd: string, worktreePath: string, branch: string): string[] {
   const warnings: string[] = [];
   const absPath = resolve(root, worktreePath);
   try {
     execFileSync('git', ['worktree', 'remove', '--force', absPath], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -1337,7 +1383,7 @@ function cleanupCreatedWorktree(root: string, worktreePath: string, branch: stri
   }
   try {
     execFileSync('git', ['worktree', 'prune'], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -1346,7 +1392,7 @@ function cleanupCreatedWorktree(root: string, worktreePath: string, branch: stri
   }
   try {
     execFileSync('git', ['branch', '-D', branch], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -1745,7 +1791,9 @@ function runFakeLeafDispatch(
   const projectedWorktreeAbs = resolve(root, record.worktree.worktreePath);
   pack = normalizePackPaths(root, record.dispatchId, projectedWorktreeAbs, pack);
   const baseRef = pack.baseSha ?? 'HEAD';
-  const worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
+  // B-75f0 CHK-001: resolve the authoritative git cwd from the real record.storyId.
+  const fakeGitCwd = resolveGitCwd({ store, storyId: record.storyId, metadataRoot: root, projectRoot: root });
+  const worktreeAbs = ensureWorktree(root, fakeGitCwd, record.worktree.worktreePath, record.worktree.branch, baseRef);
   pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
   const markerPath = pack.allowedPaths[0] ?? `.lattice/dispatches/${record.dispatchId}/worker/fake-result.txt`;
   const safeMarkerPath = assertCanonicalWorktreePath(worktreeAbs, markerPath, 'fake dispatch marker');
@@ -1836,6 +1884,175 @@ function runFakeLeafDispatch(
   };
 }
 
+/**
+ * Documented attribution constants for the claude-code leaf dispatch usage
+ * ledger seam. The dispatch path has no story phase of its own; `agentType` names
+ * the seam so usage diagnostics can group claude-code dispatch calls.
+ */
+const DISPATCH_LEDGER_PHASE = 'dispatch';
+const DISPATCH_LEDGER_AGENT_TYPE = 'lattice-dispatch:claude-code';
+/** Best-effort model default for the preflight estimate (before the provider reports). */
+const DISPATCH_LEDGER_ESTIMATE_MODEL = 'claude-code';
+
+/**
+ * Pure spawn-arg builder for the claude-code leaf dispatch. EXTRACTED so the
+ * OFF-vs-ON arg shape is unit-testable WITHOUT changing OFF behavior:
+ *   - ledger OFF -> exactly ['--print', promptFile] (byte-identical to today);
+ *   - ledger ON  -> ['--print', promptFile, '--output-format', 'json'] so the
+ *     host emits the JSON envelope we parse for usage.
+ * The OFF branch returns the literal original array; the ON branch only APPENDS.
+ */
+export function buildClaudeSpawnArgs(promptFile: string, ledgerOn: boolean): string[] {
+  if (!ledgerOn) return ['--print', promptFile];
+  return ['--print', promptFile, '--output-format', 'json'];
+}
+
+/** Deterministic projectRootHash for ledger records (sha256 of the root path). */
+function dispatchProjectRootHash(root: string): string {
+  return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
+}
+
+/**
+ * B-dd44: build the BLOCKED dispatch result when the fail-closed hard-budget
+ * guard skips the provider spawn. It MIRRORS the existing exitCode!=0 failure
+ * return: writes a `failed` record + a leaf collection, then returns the
+ * `lattice.dispatch_run.v1` shape with status `failed`. The block carries a
+ * distinct, machine-readable warning prefix so downstream handlers can tell a
+ * budget block apart from a provider error / timeout. The provider is NEVER
+ * called on this path.
+ */
+function buildBudgetBlockedDispatchResult(
+  root: string,
+  record: DispatchRecord,
+  pack: HandoffPack,
+  budgetPolicyId: string | null,
+  hardBudgetTokens: number | null,
+  transcriptPath: string,
+): DispatchRunResult {
+  const baseWarnings = removeScaffoldedOnlyWarnings(record.warnings);
+  const policyLabel = budgetPolicyId ?? 'hard-budget';
+  const budgetLabel = hardBudgetTokens !== null ? String(hardBudgetTokens) : 'configured';
+  const blockedWarning =
+    `claude-code dispatch blocked by hard budget (${policyLabel}): ` +
+    `preflight estimate exceeds the configured budget of ${budgetLabel} tokens. ` +
+    `Provider call skipped (fail-closed); no tokens were spent.`;
+  appendTranscript(transcriptPath, [
+    `[${nowIso()}] claude-code real subprocess SKIPPED: hard-budget block (${policyLabel})`,
+    `[${nowIso()}] ${blockedWarning}`,
+  ]);
+  const blocked = writeRecord(root, {
+    ...record,
+    status: 'failed',
+    warnings: [...baseWarnings, blockedWarning],
+    nextAction:
+      `Claude Code dispatch ${record.dispatchId} was blocked before spawn by the hard token budget ` +
+      `(${policyLabel}). Raise LATTICE_HARD_BUDGET_TOKENS or reduce the prompt size, then retry. ` +
+      `No provider call was made.`,
+  });
+  writeJson(resolve(root, blocked.collectFile), leafDispatchCollection(root, blocked, pack));
+  return {
+    schemaVersion: 'lattice.dispatch_run.v1',
+    dispatchId: blocked.dispatchId,
+    storyId: blocked.storyId,
+    host: blocked.selectedHost,
+    status: 'failed',
+    parallel: blocked.parallel,
+    runtime: blocked.runtime,
+    workers: [],
+    warnings: [...blocked.warnings],
+    nextAction: blocked.nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
+}
+
+/**
+ * B-ceed: minimal real-leaf dispatch for codex + gemini hosts.
+ *
+ * Unblocks the upstream live-dispatch story per [[llm-usage-ledger-status]] memory.
+ * Mirrors the SCAFFOLDED record shape (status='accepted_local') but actually
+ * spawns the host CLI via the bounded provider seam (codex-cli.ts / gemini-cli.ts),
+ * captures exit/duration/digests, and writes a real-subprocess transcript line
+ * instead of "scaffolded runtime". Out of scope for this story: usage-ledger seam
+ * + budget guard plumbing (claude-code parity is the follow-up adapter story).
+ */
+function runBoundedRealLeafDispatch(
+  root: string,
+  record: DispatchRecord,
+  runtime: HostRuntimeProbe,
+  executionPolicy: DispatchCommandExecutionPolicy,
+  hostKind: 'codex' | 'gemini',
+): DispatchRunResult {
+  const startedAt = nowIso();
+  const promptFile = resolve(root, record.promptFile);
+  const transcriptPath = resolve(root, record.transcriptFile);
+  const invocation = runtime.invocationTemplate?.map(part =>
+    part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,
+  ) ?? [];
+  const argv = invocation.length > 1 ? invocation.slice(1) : [];
+  const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
+  const runner = hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider;
+  const result = runner({
+    provider: hostKind,
+    argv,
+    cwd: record.worktree.worktreePath,
+    timeoutMs,
+    maxAttempts: 1,
+    env: process.env,
+  });
+  const endedAt = nowIso();
+  appendTranscript(transcriptPath, [
+    `[${startedAt}] ${hostKind} real subprocess started (worktree ${record.worktree.worktreePath})`,
+    `[${endedAt}] exitCode=${result.exitCode ?? 'null'} durationMs=${result.durationMs} spawnError=${result.spawnError} timedOut=${result.timedOut}`,
+  ]);
+  const status: DispatchLifecycleStatus = result.exitCode === 0 && !result.spawnError && !result.timedOut
+    ? 'accepted_local'
+    : 'diagnostic';
+  const nextAction = status === 'accepted_local'
+    ? `${hostKind} real subprocess completed cleanly in ${record.worktree.worktreePath}. Review the transcript before merge planning.`
+    : `${hostKind} real subprocess returned exitCode=${result.exitCode ?? 'null'}. Review the transcript and decide whether to retry or escalate.`;
+  const updated = writeRecord(root, {
+    ...record,
+    status,
+    nextAction,
+    warnings: [...record.warnings],
+  });
+  return {
+    schemaVersion: 'lattice.dispatch_run.v1',
+    dispatchId: updated.dispatchId,
+    storyId: updated.storyId,
+    host: updated.selectedHost,
+    status,
+    parallel: updated.parallel,
+    runtime: updated.runtime,
+    workers: [],
+    warnings: [...updated.warnings],
+    nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
+}
+
+function runCodexRealLeafDispatch(
+  root: string,
+  record: DispatchRecord,
+  runtime: HostRuntimeProbe,
+  executionPolicy: DispatchCommandExecutionPolicy,
+): DispatchRunResult {
+  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'codex');
+}
+
+function runGeminiRealLeafDispatch(
+  root: string,
+  record: DispatchRecord,
+  runtime: HostRuntimeProbe,
+  executionPolicy: DispatchCommandExecutionPolicy,
+): DispatchRunResult {
+  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'gemini');
+}
+
 function runClaudeCodeRealLeafDispatch(
   root: string,
   record: DispatchRecord,
@@ -1848,18 +2065,86 @@ function runClaudeCodeRealLeafDispatch(
   const promptFile = resolve(root, record.promptFile);
   assertClaudePrintLauncherAllowed(executionPolicy.commandAllowlist, 'dispatch_run:');
   const commandTemplate = runtime.invocationTemplate ?? ['claude', '--print', '<prompt-file>'];
-  const invocation = ['claude', '--print', promptFile];
   const commandLabel = CLAUDE_PRINT_LAUNCHER;
   const transcriptPath = resolve(root, record.transcriptFile);
   const commandEnv = buildRequiredCommandEnv(executionPolicy);
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
+
+  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
+  // INV-1: ledgerOn drives the arg shape; when OFF the builder returns the literal
+  // original ['--print', promptFile] and stdout is used raw, exactly as before.
+  // INV-3: every ledger call below is wrapped in try/catch and proceeds on error.
+  const ledgerOn = isUsageLedgerEnabled();
+  const ledgerCtx: DispatchUsageContext = {
+    storyId: record.storyId,
+    phase: DISPATCH_LEDGER_PHASE,
+    agentType: DISPATCH_LEDGER_AGENT_TYPE,
+    model: DISPATCH_LEDGER_ESTIMATE_MODEL,
+  };
+  const ledgerOpts = {
+    recordedAt: runnerStartedAt,
+    projectRootHash: dispatchProjectRootHash(root),
+    command: commandLabel,
+    host: { kind: record.selectedHost },
+    // B-dd44 F-001 fix: thread the real process env explicitly into the ledger +
+    // budget path. resolveHardBudget also defaults undefined -> process.env, but
+    // passing it here is belt-and-suspenders so the production budget guard reads
+    // the real env (the seam never builds a synthetic env object).
+    env: process.env,
+  };
+  let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
+  let ledgerPromptText = '';
+  if (ledgerOn) {
+    try {
+      ledgerPromptText = readFileSync(promptFile, 'utf8');
+      ledgerHandle = recordDispatchPreflight(root, ledgerCtx, ledgerPromptText, ledgerOpts);
+    } catch (error) {
+      appendTranscript(transcriptPath, [
+        `[${nowIso()}] usage-ledger preflight skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
+      ]);
+    }
+  }
+
+  // ---- B-dd44: FAIL-CLOSED HARD-BUDGET PRE-SPAWN GUARD (env-gated) ----
+  // INV-A: this block only runs when ledgerOn (the existing gate). When the ledger
+  //   flag is OFF this is never reached, so dispatch is byte-identical to today.
+  // INV-B: recordBudgetBlock returns blocked=true ONLY when a hard budget is
+  //   configured AND the preflight estimate strictly exceeds it; otherwise (no
+  //   budget env) it is a no-op and we proceed to spawnSync exactly as today.
+  // INV-C: all budget work is fail-open on error (recordBudgetBlock never throws
+  //   and returns blocked=false on any resolution/build error) — a budget-check
+  //   error PROCEEDS and never wrongly blocks.
+  if (ledgerOn) {
+    const budgetDecision = recordBudgetBlock(
+      root,
+      ledgerCtx,
+      ledgerHandle,
+      ledgerPromptText,
+      ledgerOpts,
+    );
+    if (budgetDecision.blocked) {
+      // Over budget: SKIP spawnSync and return a well-formed BLOCKED dispatch
+      // result, mirroring the exitCode!=0 failure-return shape below.
+      return buildBudgetBlockedDispatchResult(
+        root,
+        record,
+        pack,
+        budgetDecision.budgetPolicyId,
+        budgetDecision.hardBudgetTokens,
+        transcriptPath,
+      );
+    }
+  }
+
+  const spawnArgs = buildClaudeSpawnArgs(promptFile, ledgerOn);
+  const invocation = ['claude', ...spawnArgs];
   appendTranscript(transcriptPath, [
     `[${nowIso()}] claude-code real subprocess starting`,
     `[${nowIso()}] cwd ${record.worktree.worktreePath} (${worktreeAbs})`,
     `[${nowIso()}] invocation ${invocation.join(' ')}`,
   ]);
 
-  const result = spawnSync('claude', ['--print', promptFile], {
+  const result = spawnSync('claude', spawnArgs, {
     cwd: worktreeAbs,
     env: commandEnv,
     encoding: 'utf8',
@@ -1868,7 +2153,36 @@ function runClaudeCodeRealLeafDispatch(
   });
   const timedOut = spawnTimedOut(result, timeoutMs);
   const exitCode = spawnExitCode(result, timedOut);
-  const stdout = spawnOutputText(result.stdout).trimEnd();
+  const rawStdout = spawnOutputText(result.stdout).trimEnd();
+  // INV-1/INV-2: OFF -> stdout is the raw text, byte-identical to today. ON ->
+  // parse the JSON envelope; resultText is the downstream text (raw fallback when
+  // the output is not JSON/usage), and the parsed usage feeds the final record.
+  let stdout = rawStdout;
+  if (ledgerOn) {
+    try {
+      const parsed = parseClaudeCliOutput(rawStdout);
+      stdout = parsed.resultText;
+      // INV-5: the provider-reported final supersedes the preflight estimate.
+      // Bind the real served model from the envelope (token counts are
+      // model-version-specific; diagnostics group by model). recordDispatchFinal
+      // falls back to the best-effort default only when parsed.model is null.
+      recordDispatchFinal(
+        root,
+        ledgerCtx,
+        ledgerHandle?.correlation ?? null,
+        ledgerHandle?.estimateRecordId ?? null,
+        parsed.anthropicUsage,
+        parsed.model,
+        ledgerOpts,
+      );
+    } catch (error) {
+      // Never let a ledger/parse error break dispatch: fall back to raw stdout.
+      stdout = rawStdout;
+      appendTranscript(transcriptPath, [
+        `[${nowIso()}] usage-ledger final skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
+      ]);
+    }
+  }
   const stderr = spawnOutputText(result.stderr).trimEnd();
   const spawnError = result.error ? String(result.error.message || result.error).trim() : '';
   const runnerEndedAt = nowIso();
@@ -2132,9 +2446,12 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   const baseRef = pack.baseSha ?? 'HEAD';
   const worktreeAbsPath = resolve(root, record.worktree.worktreePath);
   const worktreeCreatedThisRun = !existsSync(worktreeAbsPath);
+  // B-75f0 CHK-001: resolve the authoritative git cwd from the real record.storyId
+  // once, then thread it into ensureWorktree + cleanupCreatedWorktree below.
+  const runGitCwd = resolveGitCwd({ store, storyId: record.storyId, metadataRoot: root, projectRoot: root });
   let worktreeAbs: string;
   try {
-    worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
+    worktreeAbs = ensureWorktree(root, runGitCwd, record.worktree.worktreePath, record.worktree.branch, baseRef);
   } catch (error: any) {
     const detail = String(error?.message || error).trim();
     appendTranscript(resolve(root, record.transcriptFile), [
@@ -2170,7 +2487,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   } catch (error: any) {
     const detail = String(error?.message || error).trim();
     const cleanupWarnings = worktreeCreatedThisRun
-      ? cleanupCreatedWorktree(root, record.worktree.worktreePath, record.worktree.branch)
+      ? cleanupCreatedWorktree(root, runGitCwd, record.worktree.worktreePath, record.worktree.branch)
       : [];
     appendTranscript(resolve(root, record.transcriptFile), [
       `[${nowIso()}] scaffolded runtime ${runtime.host} canonical pack-path validation failed`,
@@ -2209,6 +2526,27 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
     };
   }
   if (record.selectedHost === 'claude-code' && args.allowRealHostSubprocess === true && args.executionPolicy) {
+    return runClaudeCodeRealLeafDispatch(root, record, pack, runtime, worktreeAbs, args.executionPolicy);
+  }
+  // B-ceed: codex + gemini real-host live dispatch when CLI is available.
+  // When the requested CLI is NOT in PATH, fall back to claude-code real dispatch
+  // (per user (a3) decision 2026-06-17) with a logged degradation reason.
+  if (record.selectedHost === 'codex' && args.allowRealHostSubprocess === true && args.executionPolicy) {
+    if (codexCliAvailable()) {
+      return runCodexRealLeafDispatch(root, record, runtime, args.executionPolicy);
+    }
+    appendTranscript(resolve(root, record.transcriptFile), [
+      `[${nowIso()}] codex CLI unavailable in PATH; falling back to claude-code real dispatch (B-ceed fallback policy)`,
+    ]);
+    return runClaudeCodeRealLeafDispatch(root, record, pack, runtime, worktreeAbs, args.executionPolicy);
+  }
+  if (record.selectedHost === 'gemini' && args.allowRealHostSubprocess === true && args.executionPolicy) {
+    if (geminiCliAvailable()) {
+      return runGeminiRealLeafDispatch(root, record, runtime, args.executionPolicy);
+    }
+    appendTranscript(resolve(root, record.transcriptFile), [
+      `[${nowIso()}] gemini CLI unavailable in PATH; falling back to claude-code real dispatch (B-ceed fallback policy)`,
+    ]);
     return runClaudeCodeRealLeafDispatch(root, record, pack, runtime, worktreeAbs, args.executionPolicy);
   }
   const scaffoldStartedAt = nowIso();
@@ -2695,7 +3033,14 @@ function bindDispatchAutoArgsToPolicy(
     deniedPaths: paths.deniedPaths,
     requiredCommands,
     executionPolicy: buildDispatchCommandExecutionPolicy(policy),
-    allowRealHostSubprocess: selectedHost === 'claude-code' && policyAllowsRealHostSubprocess(policy),
+    // B-ceed: live dispatch now exists for codex + gemini in addition to
+    // claude-code. The dispatch_run switch routes the requested host to its real
+    // leaf when the CLI is available, and falls back to the claude-code real
+    // leaf otherwise. policyAllowsRealHostSubprocess() still gates the whole
+    // mechanism so unattended execution requires explicit policy authorization.
+    allowRealHostSubprocess:
+      (selectedHost === 'claude-code' || selectedHost === 'codex' || selectedHost === 'gemini')
+      && policyAllowsRealHostSubprocess(policy),
   };
 }
 
@@ -2768,9 +3113,13 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
         `dispatch_auto: host "${selectedHost}" is not available in PATH; install or expose ${probe.cliCommand ?? selectedHost} and retry, or use host=fake for deterministic local coverage.`,
       );
     }
-    if (selectedHost !== 'claude-code') {
+    // B-ceed: codex + gemini live dispatch is now wired through the dispatch_run
+    // switch (with claude-code fallback when the requested CLI is missing in
+    // PATH). The policy-side allowRealHostSubprocess gate below still applies
+    // uniformly across the three real hosts.
+    if (selectedHost !== 'claude-code' && selectedHost !== 'codex' && selectedHost !== 'gemini') {
       throw new Error(
-        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host subprocess policy is currently limited to claude-code; use host=fake for deterministic local coverage.`,
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host subprocess policy is currently limited to claude-code/codex/gemini; use host=fake for deterministic local coverage.`,
       );
     }
     if (!policyAllowsRealHostSubprocess(policy)) {

@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Strictly in-module + read-only; reuse summary.ts; preserve zero cross-module imports",
+    "Reporter is a runnable task, NOT a registered CLI command (no command-registry/other-logic changes)",
+    "Cost only from an injected price table — never hardcode prices",
+    "unknown/unavailable stays unknown (never 0); estimates never counted as final; feeds no gate"
+  ],
+  "drivers": [
+    "User explicitly required modularity and no changes to other logic code",
+    "Operators need to read per-story/per-model usage (and optional cost) from a ledger file",
+    "Diagnostics must stay read-only so it can never become a blocking mechanism"
+  ],
+  "options": [
+    {
+      "name": "A: diagnostics.ts + a runnable reporter task (npm script)",
+      "pros": [
+        "100% in-module, zero other-logic changes",
+        "read-only, testable",
+        "honors the user's constraint"
+      ],
+      "cons": [
+        "Reporter is a task over a file path, not a first-class lattice command"
+      ]
+    },
+    {
+      "name": "B: register a lattice usage CLI command",
+      "pros": [
+        "More ergonomic"
+      ],
+      "cons": [
+        "Touches the command registry / cli-engine (other logic) — violates the user's constraint — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: diagnostics.ts + a runnable reporter task (npm script)",
+  "rationale": "Option A keeps every change inside the usage-ledger module + its task + package.json, honoring the user's explicit 'don't modify other logic code' constraint and preserving the module's zero cross-module imports, while still delivering real read-only diagnostics (grouped usage + optional injected-price cost) over any ledger file.",
+  "preMortem": [
+    {
+      "scenario": "Reporter gets registered as a CLI command / touches the command registry",
+      "trigger": "Ergonomics temptation",
+      "consequence": "Violates the no-other-logic constraint",
+      "mitigation": "Reporter is a task only; verifier asserts the diff never touches cli-engine/handlers/command-registry; execution boundary excludes them"
+    },
+    {
+      "scenario": "Hardcoded prices couple the module to a billing source",
+      "trigger": "Convenience",
+      "consequence": "Stale/wrong cost baked in",
+      "mitigation": "Cost only from an injected price table; verifier greps for hardcoded dollar amounts/price constants (must be none); cost null when no table"
+    },
+    {
+      "scenario": "unknown/unavailable coerced to 0 in aggregation",
+      "trigger": "Default-zero sum",
+      "consequence": "Inflated/wrong totals",
+      "mitigation": "Reuse summary.ts unknown handling; smoke asserts unknown stays unknown (never 0) across groups"
+    },
+    {
+      "scenario": "Report becomes gate-consumable",
+      "trigger": "Adding a pass/verdict field",
+      "consequence": "Diagnostics turns into a blocking mechanism",
+      "mitigation": "No gate/verdict/decision/blocker field; not imported by any handler/gate; smoke asserts"
+    },
+    {
+      "scenario": "A cross-module import sneaks in",
+      "trigger": "Importing a helper from elsewhere",
+      "consequence": "Module loses independence",
+      "mitigation": "Static zero-cross-module-import assert in the smoke + verifier; diagnostics.ts imports only sibling files + node builtins"
+    }
+  ],
+  "timestamp": "2026-06-16T14:35:31.976Z"
+}

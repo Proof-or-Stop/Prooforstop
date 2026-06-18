@@ -259,7 +259,7 @@ console.log('\n--- Section 4: Search and dedup ---');
 const searchEntries = [
   dm.createEntry({ category: 'failure-mode', scope: 'project', summary: 'reviewer subagent not spawned', trigger: 'INIT phase stuck', lesson: 'spawn reviewer before advancing', reusePrompt: 'Did you spawn the INIT reviewer?', sourceAgent: 'agent-a', tags: ['reviewer', 'INIT'] }),
   dm.createEntry({ category: 'pattern', scope: 'project', summary: 'run build before tsc gate', trigger: 'tsc gate skipping', lesson: 'dist must exist for tsc to scan sub-packages', reusePrompt: 'Run build first', sourceAgent: 'agent-b', tags: ['build', 'tsc'] }),
-  dm.createEntry({ category: 'anti-pattern', scope: 'global', summary: 'modifying story JSON directly', trigger: 'trying to fix metadata', lesson: 'always use koala CLI not raw JSON', reusePrompt: 'Use koala CLI commands', sourceAgent: 'agent-a', tags: ['cli'] }),
+  dm.createEntry({ category: 'anti-pattern', scope: 'global', summary: 'modifying story JSON directly', trigger: 'trying to fix metadata', lesson: 'always use lattice CLI not raw JSON', reusePrompt: 'Use lattice CLI commands', sourceAgent: 'agent-a', tags: ['cli'] }),
 ];
 
 check('search by query finds relevant entries', () => {
@@ -350,16 +350,16 @@ check('formatPreflightPack includes "Dev Memory Preflight" header', () => {
 
 console.log('\n--- Section 6: CLI smoke tests ---');
 
-// Use the compiled CLI directly — avoids local koala bootstrap version skew.
-const KOALA_CLI = join(ROOT, 'packages', 'main', 'dist', 'cli.js');
+// Use the compiled CLI directly — avoids local lattice bootstrap version skew.
+const LATTICE_CLI = join(ROOT, 'packages', 'main', 'dist', 'cli.js');
 const cliEnv = {
   ...process.env,
   LATTICE_PROJECT_ROOT: join(tmpBase, 'cli-test-project'),
   LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'cli-test-global'),
 };
 
-function runKoala(args, env = cliEnv, cwd = ROOT) {
-  const result = spawnSync('node', [KOALA_CLI, ...args], {
+function runLattice(args, env = cliEnv, cwd = ROOT) {
+  const result = spawnSync('node', [LATTICE_CLI, ...args], {
     cwd,
     encoding: 'utf-8',
     env,
@@ -380,7 +380,7 @@ function createActiveStoryRepo(label, storyId = 'B-active') {
   const root = join(tmpBase, label);
   const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
   mkdirSync(storyDir, { recursive: true });
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: '.',
     storyDir: '.lattice/story/actives',
     phaseTools: { '*': ['dev_memory_*'] },
@@ -401,8 +401,8 @@ function createActiveStoryRepo(label, storyId = 'B-active') {
   }, null, 2) + '\n', 'utf-8');
   writeFileSync(join(root, 'seed.txt'), 'seed\n', 'utf-8');
   runGit(root, ['init']);
-  runGit(root, ['config', 'user.email', 'koala-test@noreply.local']);
-  runGit(root, ['config', 'user.name', 'Koala Test']);
+  runGit(root, ['config', 'user.email', 'lattice-test@noreply.local']);
+  runGit(root, ['config', 'user.name', 'Lattice Test']);
   runGit(root, ['add', '.']);
   runGit(root, ['commit', '-m', 'init active story fixture']);
   runGit(root, ['checkout', '-b', 'story/' + storyId]);
@@ -414,14 +414,14 @@ function readJsonl(filePath) {
 }
 
 check('dev_memory_list prints empty state when no entries', () => {
-  const result = runKoala(['dev_memory_list', '--scope=project']);
+  const result = runLattice(['dev_memory_list', '--scope=project']);
   const out = result.stdout + result.stderr;
   if (result.status !== 0) throw new Error(`Exit ${result.status}: ${out}`);
   if (!out.includes('No dev-memory experience entries yet')) throw new Error('expected empty state: ' + out);
 });
 
 check('dev_memory_capture writes an entry and prints Captured id', () => {
-  const r = runKoala([
+  const r = runLattice([
     'dev_memory_capture',
     '--category=pattern',
     '--summary=Run build before tsc gate in CI',
@@ -436,7 +436,7 @@ check('dev_memory_capture writes an entry and prints Captured id', () => {
 });
 
 check('dev_memory_list after capture shows the entry', () => {
-  const r = runKoala(['dev_memory_list', '--scope=project']);
+  const r = runLattice(['dev_memory_list', '--scope=project']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (out.includes('No dev-memory experience entries yet')) throw new Error('should have entries now');
@@ -444,14 +444,14 @@ check('dev_memory_list after capture shows the entry', () => {
 });
 
 check('dev_memory_search finds entry by query', () => {
-  const r = runKoala(['dev_memory_search', '--query=build']);
+  const r = runLattice(['dev_memory_search', '--query=build']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('build') && !out.includes('pattern')) throw new Error('should find build entry: ' + out);
 });
 
 check('dev_memory_preflight emits Dev Memory Preflight header', () => {
-  const r = runKoala(['dev_memory_preflight', '--query=build']);
+  const r = runLattice(['dev_memory_preflight', '--query=build']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Dev Memory Preflight')) throw new Error('missing preflight header: ' + out);
@@ -463,7 +463,7 @@ check('dev_memory_preflight with no memory shows empty state', () => {
     LATTICE_PROJECT_ROOT: join(tmpBase, 'empty-cli-project'),
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'empty-cli-global'),
   };
-  const r = runKoala(['dev_memory_preflight', '--query=anything'], emptyEnv);
+  const r = runLattice(['dev_memory_preflight', '--query=anything'], emptyEnv);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Dev Memory Preflight')) throw new Error('missing header: ' + out);
@@ -471,7 +471,7 @@ check('dev_memory_preflight with no memory shows empty state', () => {
 
 check('dev_memory_finish writes candidate file', () => {
   // First capture another entry
-  runKoala([
+  runLattice([
     'dev_memory_capture',
     '--category=debugging',
     '--summary=Use lattice doctor to diagnose stuck locks',
@@ -479,8 +479,8 @@ check('dev_memory_finish writes candidate file', () => {
     '--lesson=lattice doctor reveals stuck-lock state and suggests fix path',
     '--reusePrompt=Is there a stuck lock? Run lattice doctor',
   ]);
-  // Now finish with a fake storyId (no story dir required in non-Koala mode)
-  const r = runKoala(['dev_memory_finish', '--storyId=B-test123']);
+  // Now finish with a fake storyId (no story dir required in non-Lattice mode)
+  const r = runLattice(['dev_memory_finish', '--storyId=B-test123']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Experience candidates') && !out.includes('written')) {
@@ -489,7 +489,7 @@ check('dev_memory_finish writes candidate file', () => {
 });
 
 check('dev_memory_start --dryRun emits preflight and finish reminder', () => {
-  const r = runKoala(['dev_memory_start', '--agent=claude', '--query=new reviewer task', '--dryRun']);
+  const r = runLattice(['dev_memory_start', '--agent=claude', '--query=new reviewer task', '--dryRun']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Dev Memory Preflight')) throw new Error('missing preflight: ' + out);
@@ -499,7 +499,7 @@ check('dev_memory_start --dryRun emits preflight and finish reminder', () => {
 
 check('dev_memory_start default is dry-run (does not launch agent binary)', () => {
   // dev_memory_start never spawns external binaries — always dry-run
-  const r = runKoala(['dev_memory_start', '--agent=claude', '--query=test query']);
+  const r = runLattice(['dev_memory_start', '--agent=claude', '--query=test query']);
   const out = r.stdout + r.stderr;
   // Should not crash with "command not found" style errors
   if (out.toLowerCase().includes('enoent') && out.toLowerCase().includes('claude')) {
@@ -533,12 +533,12 @@ check('dev-memory.md explicitly states it cannot satisfy gate evidence', () => {
   }
 });
 
-check('dev-memory.md does NOT document koala dev_start for this feature', () => {
+check('dev-memory.md does NOT document lattice dev_start for this feature', () => {
   const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
   const content = readFileSync(docPath, 'utf-8');
-  // Must not use "koala dev_start" (without "memory_") as a command for this feature
-  if (content.includes('koala dev_start') || content.includes('### dev_start')) {
-    throw new Error('doc must not use "koala dev_start" or "### dev_start" — use dev_memory_start instead');
+  // Must not use "lattice dev_start" (without "memory_") as a command for this feature
+  if (content.includes('lattice dev_start') || content.includes('### dev_start')) {
+    throw new Error('doc must not use "lattice dev_start" or "### dev_start" — use dev_memory_start instead');
   }
   // Must mention dev_memory_start
   if (!content.includes('dev_memory_start')) {
@@ -590,15 +590,15 @@ check('dev_memory_finish uses .lattice/story/actives path in CLI smoke test', ()
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'finish-path-global'),
   };
   // Capture something first
-  runKoala([
+  runLattice([
     'dev_memory_capture',
     '--category=pattern',
     '--summary=Finish path test entry for candidate dir',
     '--trigger=testing candidate dir path',
-    '--lesson=Test that finish uses dot koala story actives path',
+    '--lesson=Test that finish uses dot lattice story actives path',
     '--reusePrompt=Check candidate dir path',
   ], finishEnv);
-  const r = runKoala(['dev_memory_finish', '--storyId=B-pathtest'], finishEnv);
+  const r = runLattice(['dev_memory_finish', '--storyId=B-pathtest'], finishEnv);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   // Output path should contain .lattice/story/actives
@@ -626,9 +626,9 @@ check('dev_memory_capture warns on possible duplicate', () => {
     '--reusePrompt=Did you run build before validate?',
   ];
   // Capture first entry
-  runKoala(commonArgs, dupEnv);
+  runLattice(commonArgs, dupEnv);
   // Capture nearly identical entry — should warn
-  const r2 = runKoala(commonArgs, dupEnv);
+  const r2 = runLattice(commonArgs, dupEnv);
   const out2 = r2.stdout + r2.stderr;
   if (r2.status !== 0) throw new Error(`Exit ${r2.status}: ${out2}`);
   if (!out2.includes('Possible duplicate')) {
@@ -643,7 +643,7 @@ check('dev_memory_list returns newest-first order', () => {
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'list-order-global'),
   };
   // Capture two entries with slight delay to ensure different timestamps
-  runKoala([
+  runLattice([
     'dev_memory_capture', '--category=pattern',
     '--summary=First entry for order test - oldest',
     '--trigger=order test first', '--lesson=First lesson for order testing newest first',
@@ -651,13 +651,13 @@ check('dev_memory_list returns newest-first order', () => {
   ], listEnv);
   // Small synchronous delay via spawnSync
   execSync('node -e "const d=Date.now();while(Date.now()-d<50){}"');
-  runKoala([
+  runLattice([
     'dev_memory_capture', '--category=workflow',
     '--summary=Second entry for order test - newest',
     '--trigger=order test second', '--lesson=Second lesson for order testing newest first',
     '--reusePrompt=check order second',
   ], listEnv);
-  const r = runKoala(['dev_memory_list', '--scope=project'], listEnv);
+  const r = runLattice(['dev_memory_list', '--scope=project'], listEnv);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   const firstIdx = out.indexOf('First entry for order test');
@@ -674,14 +674,14 @@ check('dev_memory_finish writes story-candidate scope and sourceStoryId', () => 
     LATTICE_PROJECT_ROOT: join(tmpBase, 'sc-test-project'),
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'sc-test-global'),
   };
-  runKoala([
+  runLattice([
     'dev_memory_capture', '--category=debugging',
     '--summary=Story candidate scope field test entry for finish',
     '--trigger=testing scope field in candidate file',
     '--lesson=Finish should set scope to story-candidate and sourceStoryId',
     '--reusePrompt=Check scope and sourceStoryId in candidate file',
   ], scEnv);
-  const r = runKoala(['dev_memory_finish', '--storyId=B-sctest'], scEnv);
+  const r = runLattice(['dev_memory_finish', '--storyId=B-sctest'], scEnv);
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${r.stdout + r.stderr}`);
 
   // Find the candidate file under .lattice/story/actives
@@ -763,10 +763,10 @@ check('CLI engine: dev_memory_start description distinguishes it from lifecycle/
 });
 
 // ---------------------------------------------------------------------------
-// Section 9: dev_memory_finish without --storyId (outside-Koala mode)
+// Section 9: dev_memory_finish without --storyId (outside-Lattice mode)
 // ---------------------------------------------------------------------------
 
-console.log('\n--- Section 9: dev_memory_finish outside-Koala mode ---');
+console.log('\n--- Section 9: dev_memory_finish outside-Lattice mode ---');
 
 check('dev_memory_finish without --storyId succeeds (exit 0)', () => {
   const noStoryEnv = {
@@ -775,15 +775,15 @@ check('dev_memory_finish without --storyId succeeds (exit 0)', () => {
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-test-global'),
   };
   // Capture an entry first so there is something to report
-  runKoala([
+  runLattice([
     'dev_memory_capture',
     '--category=pattern',
-    '--summary=Outside-Koala session experience for finish test',
+    '--summary=Outside-Lattice session experience for finish test',
     '--trigger=testing finish without storyId',
     '--lesson=dev_memory_finish should work without a story context',
     '--reusePrompt=Run dev_memory_finish without storyId',
   ], noStoryEnv);
-  const r = runKoala(['dev_memory_finish'], noStoryEnv);
+  const r = runLattice(['dev_memory_finish'], noStoryEnv);
   if (r.status !== 0) {
     throw new Error(`dev_memory_finish without --storyId must exit 0, got exit ${r.status}: ${r.stdout + r.stderr}`);
   }
@@ -795,15 +795,15 @@ check('dev_memory_finish without --storyId does NOT create .lattice/story/active
     LATTICE_PROJECT_ROOT: join(tmpBase, 'nostory-no-dir-project'),
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-no-dir-global'),
   };
-  runKoala([
+  runLattice([
     'dev_memory_capture',
     '--category=workflow',
-    '--summary=Check that finish never creates story actives dir outside Koala',
-    '--trigger=outside-Koala session with no storyId',
+    '--summary=Check that finish never creates story actives dir outside Lattice',
+    '--trigger=outside-Lattice session with no storyId',
     '--lesson=finish without storyId must not create story directories',
     '--reusePrompt=Verify no story dirs created',
   ], noStoryEnv);
-  runKoala(['dev_memory_finish'], noStoryEnv);
+  runLattice(['dev_memory_finish'], noStoryEnv);
   const storyActivesDir = join(noStoryEnv.LATTICE_PROJECT_ROOT, '.lattice', 'story', 'actives');
   if (existsSync(storyActivesDir)) {
     throw new Error(`dev_memory_finish without --storyId must NOT create .lattice/story/actives, but found: ${storyActivesDir}`);
@@ -817,7 +817,7 @@ check('dev_memory_finish without --storyId empty state does not touch story dirs
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-empty-global'),
   };
   // No capture first — project memory is empty
-  const r = runKoala(['dev_memory_finish'], emptyEnv);
+  const r = runLattice(['dev_memory_finish'], emptyEnv);
   if (r.status !== 0) {
     throw new Error(`dev_memory_finish (empty state) must exit 0, got ${r.status}: ${r.stdout + r.stderr}`);
   }
@@ -837,15 +837,15 @@ check('dev_memory_finish --scope=global without --storyId writes global dev-memo
     LATTICE_PROJECT_ROOT: join(tmpBase, 'global-export-project'),
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-export-global'),
   };
-  runKoala([
+  runLattice([
     'dev_memory_capture',
     '--category=debugging',
     '--summary=Global export test entry for scope=global finish path',
-    '--trigger=testing global scope promotion in outside-Koala mode',
+    '--trigger=testing global scope promotion in outside-Lattice mode',
     '--lesson=dev_memory_finish scope=global must write to global dev-memory',
     '--reusePrompt=Verify global export writes entries',
   ], globalEnv);
-  const r = runKoala(['dev_memory_finish', '--scope=global'], globalEnv);
+  const r = runLattice(['dev_memory_finish', '--scope=global'], globalEnv);
   if (r.status !== 0) {
     throw new Error(`dev_memory_finish --scope=global must exit 0, got ${r.status}: ${r.stdout + r.stderr}`);
   }
@@ -879,7 +879,7 @@ check('dev_memory_finish --scope=global deduplicates already-global entries', ()
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-dedup-global'),
   };
   // Capture one entry and export twice — second run should report 0 new entries
-  runKoala([
+  runLattice([
     'dev_memory_capture',
     '--category=pattern',
     '--summary=Dedup test entry for global scope idempotency check',
@@ -887,8 +887,8 @@ check('dev_memory_finish --scope=global deduplicates already-global entries', ()
     '--lesson=Repeat global export should not duplicate entries',
     '--reusePrompt=Run global export twice, count must not grow',
   ], dedupEnv);
-  runKoala(['dev_memory_finish', '--scope=global'], dedupEnv);
-  const r2 = runKoala(['dev_memory_finish', '--scope=global'], dedupEnv);
+  runLattice(['dev_memory_finish', '--scope=global'], dedupEnv);
+  const r2 = runLattice(['dev_memory_finish', '--scope=global'], dedupEnv);
   if (r2.status !== 0) throw new Error(`second export must exit 0, got ${r2.status}`);
   const out = r2.stdout + r2.stderr;
   // Second run should report 0 new entries (or "already present")
@@ -897,24 +897,24 @@ check('dev_memory_finish --scope=global deduplicates already-global entries', ()
   }
 });
 
-check('docs: dev-memory.md does not imply --storyId is mandatory for finish outside Koala', () => {
+check('docs: dev-memory.md does not imply --storyId is mandatory for finish outside Lattice', () => {
   const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
   const content = readFileSync(docPath, 'utf-8');
   // Must not say "--storyId is required" for finish
   if (content.match(/--storyId\s+is\s+required/i)) {
-    throw new Error('docs must not say "--storyId is required" — storyId is optional for outside-Koala finish');
+    throw new Error('docs must not say "--storyId is required" — storyId is optional for outside-Lattice finish');
   }
-  // Must explicitly say storyId is optional OR outside-Koala works without it
+  // Must explicitly say storyId is optional OR outside-Lattice works without it
   const hasOptional = content.includes('--storyId` is optional') ||
     content.includes('--storyId` optional') ||
     content.includes('storyId is optional') ||
     content.includes('no `--storyId`') ||
     content.includes('without `--storyId`') ||
-    content.includes('Outside Koala') ||
-    content.includes('outside-Koala') ||
-    content.includes('outside Koala');
+    content.includes('Outside Lattice') ||
+    content.includes('outside-Lattice') ||
+    content.includes('outside Lattice');
   if (!hasOptional) {
-    throw new Error('docs must state that --storyId is optional (outside-Koala use) for dev_memory_finish');
+    throw new Error('docs must state that --storyId is optional (outside-Lattice use) for dev_memory_finish');
   }
   // Must mention dev_memory_finish (already checked in section 7, belt-and-suspenders)
   if (!content.includes('dev_memory_finish')) {
@@ -949,7 +949,7 @@ check('dev_memory_finish in active story defaults to story candidate file', () =
     LATTICE_PROJECT_ROOT: activeRoot,
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-default-global'),
   };
-  const capture = runKoala(['dev_memory_capture', JSON.stringify({
+  const capture = runLattice(['dev_memory_capture', JSON.stringify({
     category: 'workflow',
     summary: 'Active story default finish writes candidate evidence refs',
     trigger: 'finishing an active Lattice story session',
@@ -959,7 +959,7 @@ check('dev_memory_finish in active story defaults to story candidate file', () =
   })], env, activeRoot);
   if (capture.status !== 0) throw new Error('capture failed: ' + (capture.stdout + capture.stderr));
 
-  const finish = runKoala(['dev_memory_finish'], env, activeRoot);
+  const finish = runLattice(['dev_memory_finish'], env, activeRoot);
   if (finish.status !== 0) throw new Error('finish failed: ' + (finish.stdout + finish.stderr));
   const candidateFile = join(activeRoot, '.lattice', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
   if (!existsSync(candidateFile)) throw new Error('candidate file not written: ' + candidateFile);
@@ -982,7 +982,7 @@ check('dev_memory_finish --scope=global in active story does not write story can
     LATTICE_PROJECT_ROOT: activeRoot,
     LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-global-memory'),
   };
-  const capture = runKoala(['dev_memory_capture', JSON.stringify({
+  const capture = runLattice(['dev_memory_capture', JSON.stringify({
     category: 'pattern',
     summary: 'Active story global finish writes only global memory',
     trigger: 'promoting active story lesson globally',
@@ -991,7 +991,7 @@ check('dev_memory_finish --scope=global in active story does not write story can
   })], env, activeRoot);
   if (capture.status !== 0) throw new Error('capture failed: ' + (capture.stdout + capture.stderr));
 
-  const finish = runKoala(['dev_memory_finish', '--scope=global'], env, activeRoot);
+  const finish = runLattice(['dev_memory_finish', '--scope=global'], env, activeRoot);
   if (finish.status !== 0) throw new Error('global finish failed: ' + (finish.stdout + finish.stderr));
   const candidateFile = join(activeRoot, '.lattice', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
   if (existsSync(candidateFile)) throw new Error('global finish must not create story candidates: ' + candidateFile);
@@ -1020,7 +1020,7 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
   const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
   mkdirSync(storyDir, { recursive: true });
   // Deliberately NO phaseTools — relies on DEFAULT_PHASE_TOOLS from config.ts
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: '.',
     storyDir: '.lattice/story/actives',
   }, null, 2) + '\n', 'utf-8');
@@ -1040,8 +1040,8 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
   }, null, 2) + '\n', 'utf-8');
   writeFileSync(join(root, 'seed.txt'), 'seed\n', 'utf-8');
   runGit(root, ['init']);
-  runGit(root, ['config', 'user.email', 'koala-test@noreply.local']);
-  runGit(root, ['config', 'user.name', 'Koala Test']);
+  runGit(root, ['config', 'user.email', 'lattice-test@noreply.local']);
+  runGit(root, ['config', 'user.name', 'Lattice Test']);
   runGit(root, ['add', '.']);
   runGit(root, ['commit', '-m', 'init default-config active story fixture']);
   runGit(root, ['checkout', '-b', 'story/' + storyId]);
@@ -1058,7 +1058,7 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
   };
 
   check('dev_memory_capture allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runKoala([
+    const r = runLattice([
       'dev_memory_capture',
       '--category=pattern',
       '--summary=DEFAULT_PHASE_TOOLS must include dev_memory_* for DEV access',
@@ -1073,20 +1073,20 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
   });
 
   check('dev_memory_list allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runKoala(['dev_memory_list', '--scope=project'], defaultEnv, defaultRoot);
+    const r = runLattice(['dev_memory_list', '--scope=project'], defaultEnv, defaultRoot);
     const out = r.stdout + r.stderr;
     if (r.status !== 0) throw new Error(`dev_memory_list rejected in DEV with default config. Exit ${r.status}: ${out}`);
     if (out.includes('No dev-memory experience entries yet')) throw new Error('expected entries from prior capture: ' + out);
   });
 
   check('dev_memory_search allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runKoala(['dev_memory_search', '--query=phaseTools'], defaultEnv, defaultRoot);
+    const r = runLattice(['dev_memory_search', '--query=phaseTools'], defaultEnv, defaultRoot);
     const out = r.stdout + r.stderr;
     if (r.status !== 0) throw new Error(`dev_memory_search rejected in DEV with default config. Exit ${r.status}: ${out}`);
   });
 
   check('dev_memory_preflight allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runKoala(['dev_memory_preflight', '--query=config'], defaultEnv, defaultRoot);
+    const r = runLattice(['dev_memory_preflight', '--query=config'], defaultEnv, defaultRoot);
     const out = r.stdout + r.stderr;
     if (r.status !== 0) throw new Error(`dev_memory_preflight rejected in DEV with default config. Exit ${r.status}: ${out}`);
   });
@@ -1204,8 +1204,8 @@ check('search includes sourceStoryId in searchable text (B-1148)', () => {
     scope: 'project',
     summary: 'Story owner lease fail-closed on non-owner writes',
     trigger: 'non-owner session hits storyScopedMutating command',
-    lesson: 'always set KOALA_SESSION_ID or rely on CLAUDE_CODE_SESSION_ID',
-    reusePrompt: 'set KOALA_SESSION_ID for owner lease commands',
+    lesson: 'always set LATTICE_SESSION_ID or rely on CLAUDE_CODE_SESSION_ID',
+    reusePrompt: 'set LATTICE_SESSION_ID for owner lease commands',
     tags: ['owner-lease', 'session'],
     sourceStoryId: 'B-c55d',
     evidenceRefs: ['.lattice/story/actives/B-c55d/summary.json'],

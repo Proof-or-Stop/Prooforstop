@@ -17,12 +17,12 @@
       "sandbox": false
     },
     {
-      "name": "CHK-001 edge: docs limit OMX borrowing to observable recoverable project-state ideas",
+      "name": "CHK-001 edge: docs limit borrowing to observable recoverable project-state ideas",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/docs/requirements/decisions/stack-layering.md\", \"utf8\"); return { mentionsOmxBorrowing: text.includes(\"借鉴 OMX\"), mentionsKoalaStateProjection: text.includes(\".koala/state\"), rejectsSecondTruth: text.includes(\"第二真相源\") };",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/docs/requirements/decisions/stack-layering.md\", \"utf8\"); return { mentionsObservabilityBorrowing: text.includes(\"observable, recoverable, and diagnosable\"), mentionsKoalaStateProjection: text.includes(\".koala/state\"), rejectsSecondTruth: text.includes(\"第二真相源\") };",
       "expect": {
-        "mentionsOmxBorrowing": true,
+        "mentionsObservabilityBorrowing": true,
         "mentionsKoalaStateProjection": true,
         "rejectsSecondTruth": true
       },
@@ -97,10 +97,10 @@
       "sandbox": false
     },
     {
-      "name": "CHK-003 happy: koala next prints only an executable next-step line",
+      "name": "CHK-003 happy: lattice next prints only an executable next-step line",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"next\"], { cwd: $root, encoding: \"utf8\" }); return { startsWithNext: out.includes(\"Next step:\"), mentionsPhase: out.includes(\"阶段\") || out.includes(\"Resume:\"), omitsBriefHeader: !out.includes(\"# koala session brief\") && !out.includes(\"# koala status\") };",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"next\"], { cwd: $root, encoding: \"utf8\" }); return { startsWithNext: out.includes(\"Next step:\"), mentionsPhase: out.includes(\"阶段\") || out.includes(\"Resume:\"), omitsBriefHeader: !out.includes(\"# lattice session brief\") && !out.includes(\"# lattice status\") };",
       "expect": {
         "startsWithNext": true,
         "mentionsPhase": true,

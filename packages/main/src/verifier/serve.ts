@@ -92,9 +92,9 @@ function findBrowserServer(): string | null {
 const CONSOLE_HOOK_SCRIPT = `
 <script>
 (function() {
-  if (window.__koala_console_hooked) return;
-  window.__koala_console_hooked = true;
-  window.__koala_console_logs = [];
+  if (window.__lattice_console_hooked) return;
+  window.__lattice_console_hooked = true;
+  window.__lattice_console_logs = [];
   var maxLogs = 1000;
   ['log', 'warn', 'error', 'info', 'debug'].forEach(function(level) {
     var orig = console[level];
@@ -103,19 +103,19 @@ const CONSOLE_HOOK_SCRIPT = `
         try { return typeof a === 'object' ? JSON.stringify(a) : String(a); }
         catch(e) { return '[unserializable]'; }
       });
-      window.__koala_console_logs.push({
+      window.__lattice_console_logs.push({
         level: level,
         message: args.join(' '),
         time: Date.now()
       });
-      if (window.__koala_console_logs.length > maxLogs) {
-        window.__koala_console_logs = window.__koala_console_logs.slice(-maxLogs);
+      if (window.__lattice_console_logs.length > maxLogs) {
+        window.__lattice_console_logs = window.__lattice_console_logs.slice(-maxLogs);
       }
       orig.apply(console, arguments);
     };
   });
   window.addEventListener('error', function(e) {
-    window.__koala_console_logs.push({
+    window.__lattice_console_logs.push({
       level: 'error',
       message: 'Uncaught: ' + (e.message || e),
       time: Date.now()
@@ -840,7 +840,7 @@ export async function startServe(options: ServeOptions) {
   }
   if (!bridgeWsPort) {
     console.log(`  ⚠ Project core not found. Please start the project first:`);
-    console.log(`    KOALA_SERVE_PORT=<port> npx tsx src/main.ts`);
+    console.log(`    LATTICE_SERVE_PORT=<port> npx tsx src/main.ts`);
     console.log(`    or npm run serve (will automatically start the core)`);
     return;
   }
@@ -950,7 +950,7 @@ export async function startServe(options: ServeOptions) {
 
             if (contentType.includes('text/html')) {
               let html = await resp.text();
-              const injection = `<script>window.__KOALA_WS_PORT=${wsPort};${clientScript}</script>${CONSOLE_HOOK_SCRIPT}`;
+              const injection = `<script>window.__LATTICE_WS_PORT=${wsPort};${clientScript}</script>${CONSOLE_HOOK_SCRIPT}`;
               html = html.includes('</head>')
                 ? html.replace('</head>', `${injection}</head>`)
                 : injection + html;
@@ -1044,13 +1044,13 @@ export async function startServe(options: ServeOptions) {
       }
       else if (url === '/browser/console') {
         const r = await bridgeApi(browserHttpPort, '/eval', {
-          code: 'JSON.parse(JSON.stringify(window.__koala_console_logs || []))',
+          code: 'JSON.parse(JSON.stringify(window.__lattice_console_logs || []))',
         });
         res.end(JSON.stringify(r?.result || []));
       }
       else if (url === '/browser/console/clear') {
         await bridgeApi(browserHttpPort, '/eval', {
-          code: 'window.__koala_console_logs = []; void 0',
+          code: 'window.__lattice_console_logs = []; void 0',
         });
         res.end(JSON.stringify({ ok: true }));
       }

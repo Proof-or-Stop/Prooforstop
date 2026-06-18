@@ -1,0 +1,109 @@
+{
+  "storyId": "B-097f",
+  "name": "global-agents-single-source",
+  "title": "Init 从单一全局 ~/.claude/agents 解析 Lattice agent prompt,项目里不再物化 per-project agent .md",
+  "description": "目的(用户明确):(1) 让所有项目都不再使用项目内生成的 agent prompt .md,而是统一从单一真相源解析,确保修改 Lattice 后所有项目行为一致;(2) lattice init 不再往项目里生成那么多 .md。现状:claude/all profile 下 init 会往项目 .claude/agents/ 写 16 个 agent 模板(当前是 symlink,指向 dev 仓 packages/main/templates/agents/),每个项目都堆一堆条目且 symlink target 指向本地 dev 路径不健壮;Codex 侧已由 B-4ee0 global-thin 收回 CLI runtime,但 Claude 侧未收。约束:Claude Code 的 subagent 必须能从磁盘解析 .claude/agents/*.md(无纯 CLI 内存解析),但支持用户级全局目录 ~/.claude/agents/。选定方案:把 16 个模板装一次到全局 ~/.claude/agents/(symlink 指向运行中 CLI 包的 templates/agents,对 npm -g 安装也健壮),lattice init 在项目里写 0 个 agent 文件,所有项目从全局解析 subagent_type;已有项目内的 project-local .claude/agents 需要被迁移清理,避免 stale 文件 shadow 全局源。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "迁移"
+    }
+  ],
+  "createdAt": "2026-06-16T14:09:15.295Z",
+  "startedAt": "2026-06-16T14:09:15.295Z",
+  "endedAt": "2026-06-16T20:46:51.395Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T14:09:15.297Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T14:12:47.247Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T14:13:07.843Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T14:26:30.338Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T18:23:00.908Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T18:31:32.782Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T18:51:41.763Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:05:42.838Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:05:43.534Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T19:12:03.079Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T20:46:51.395Z",
+      "branch": "story/B-097f",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T19:05:43.534Z"
+}

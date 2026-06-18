@@ -8,7 +8,7 @@ const storyRoot = join(root, 'docs', 'story', 'actives');
 const replayArtifactPath = join(root, 'experiments', 'replay-artifacts', 'real-story-replay-v1.json');
 const reportJsonPath = join(root, 'experiments', 'reports', 'real-story-replay-v1.json');
 const reportMdPath = join(root, 'experiments', 'reports', 'real-story-replay-v1.md');
-const generatedAt = process.env.KOALA_REAL_STORY_REPLAY_GENERATED_AT || 'real-story-replay-v1';
+const generatedAt = process.env.LATTICE_REAL_STORY_REPLAY_GENERATED_AT || 'real-story-replay-v1';
 const replayArtifacts = readJson(replayArtifactPath, { stories: {} });
 
 const STORIES = [

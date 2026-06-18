@@ -3,7 +3,6 @@ dist
 
 # Lattice worktree + runtime
 .worktrees/
-.omx/
 **/activity.jsonl
 .lattice/activity.legacy-koala.jsonl
 .lattice/*
@@ -54,6 +53,7 @@ packages/koala-observer-cli/
 # lattice runtime artifacts (managed)
 **/owner-lease.json
 .lattice/locks/
+.lattice/usage/
 .Lattice/authority.md
 .Lattice/artifacts/baseline/
 .lattice/artifacts/baseline/
@@ -63,3 +63,6 @@ packages/koala-observer-cli/
 # material; never commit). See docs/requirements/decisions/lattice-authority-live-integration.md
 .lattice/authority.md
 authority_trust.env
+
+# c8 coverage output (B-c6cf — test:coverage script)
+packages/main/coverage/

@@ -1,0 +1,52 @@
+{
+  "findings": [
+    {
+      "id": "B-24c3:F-001",
+      "desc": "review-pass-discard parallel-only FAIL (NOT timeout) needs follow-up story: FAILed exit 1 at 14.6s in B-24c3 3x parallel verify run 1 (PASSes 33s standalone serial). Different problem class — likely shared-state race in fixture setup. Out of scope for B-24c3 (timeoutMs bumps only).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T00:19:04.988Z",
+      "reviewRound": "",
+      "_hash": "2eec8d5ff21ad1eac80cb72a61bd9aca10bbb042e949f7596686b4417ffd0534"
+    },
+    {
+      "id": "B-24c3:F-002",
+      "desc": "field-regression-cli timed out under heavy parallel test:all load during B-24c3 CHK-003 verify (run 3: field-regression-cli exceeded its current timeoutMs). Out of scope for B-24c3 (9-target manifest bumps); same pattern but emerges only AFTER the original 9 are bumped (parallel load redistributes). Tracking for the systemic parallel-test-architecture redesign follow-up story.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T00:38:26.684Z",
+      "reviewRound": "",
+      "_hash": "5dbe5b9a5263312cd245700c977ae6e5b86210935303d6ecf7df520b23145639"
+    },
+    {
+      "id": "B-24c3:F-003",
+      "desc": "verification-freshness timed out under heavy parallel test:all load during B-24c3 CHK-003 verify (run 3: verification-freshness exceeded its current timeoutMs). Out of scope for B-24c3 (9-target manifest bumps); same pattern but emerges only AFTER the original 9 are bumped (parallel load redistributes). Tracking for the systemic parallel-test-architecture redesign follow-up story.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T00:38:28.424Z",
+      "reviewRound": "",
+      "_hash": "f575ff71932b42bd340922071969b98a79d322c86d6b27057dc5979f25924b1b"
+    },
+    {
+      "id": "B-24c3:F-004",
+      "desc": "worktree-repair timed out under heavy parallel test:all load during B-24c3 CHK-003 verify (run 3: worktree-repair exceeded its current timeoutMs). Out of scope for B-24c3 (9-target manifest bumps); same pattern but emerges only AFTER the original 9 are bumped (parallel load redistributes). Tracking for the systemic parallel-test-architecture redesign follow-up story.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T00:38:29.587Z",
+      "reviewRound": "",
+      "_hash": "5d3fe9fa18844073fa98c0c858163e9c7b888d3a1b03f582c596b52f58699aa3"
+    }
+  ]
+}

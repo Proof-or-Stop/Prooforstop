@@ -21,6 +21,7 @@ import type { HandlerContext } from './context.js';
 import type { InitCheckData, InitCheckIssue } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/story-owner-lease.js';
 import {
   INIT_CHECK_SALT,
@@ -96,7 +97,7 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
  * agentId is passed through purely as a reviewer-self-reported audit field. Anti-self-exemption relies on three layers: (1) the signature mechanism +
  * (2) the reviewer template fence + (3) CLAUDE.md behavioral conventions (same architecture as the landed B-ed3e scope-check).
  *
- * Three-layer validation (packages/koala/CLAUDE.md "Handler coding conventions"):
+ * Three-layer validation (CLAUDE.md "Handler coding conventions"):
  * - Zod schema: the cli-engine.ts registration side defines the issues array structure + severity enum + desc min(1)
  * - runtime (this handler's entry): re-validates desc.trim().length >= 1 to prevent paths that bypass Zod
  * - gate decision point (CHK-005 implementation): when consuming init-check.json.issues, applies trim validation by the same standard
@@ -285,15 +286,23 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         }));
 
         // 4) Audit attestation block (NOT in signature domain; surface + traceability).
+        // B-75f0 CHK-002: a real storyId (args.storyId) + store are in scope, so
+        // resolve the audit git cwd with the id-keyed resolveGitCwd. On a
+        // wrapper-root layout it is the real gitRoot subdir so the headHash /
+        // git-identity probes read the actual repo; on a plain repo (or when no
+        // gitRoot resolves) it falls back to root verbatim (byte-identical). The
+        // omit-on-failure behavior (try/catch leaving headHash/actor unset) is
+        // preserved on a non-git or unavailable cwd.
+        const auditGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
         let headHash: string | undefined;
         try {
-          headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim() || undefined;
+          headHash = execSync('git rev-parse HEAD', { cwd: auditGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim() || undefined;
         } catch { /* PROBE: non-git or unavailable, omit headHash */ }
         const materialHash = currentMaterialHash(root) || undefined;
         let actor = (args.actor ?? '').trim();
         if (!actor) {
           try {
-            actor = execSync('git config user.name', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+            actor = execSync('git config user.name', { cwd: auditGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
           } catch { /* PROBE: no git identity, leave actor empty */ }
         }
         let session: string | undefined;

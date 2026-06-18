@@ -1,0 +1,30 @@
+{
+  "storyId": "B-8387",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/package.json",
+    "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+    "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+    ".lattice/story/actives/B-8387/evidence/verify-b-8387.mjs",
+    ".lattice/story/actives/B-8387/evidence/verify-result.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Phase 2 playbook lifecycle; finding-signals-smoke import-fence updated to allow ./digest.js in learning-store (a leaf).",
+  "acknowledgements": [],
+  "createdAt": "2026-06-17T15:07:02.499Z",
+  "updatedAt": "2026-06-17T15:07:02.499Z"
+}

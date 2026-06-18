@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-d7ef:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Deleted modules phase-protocol.ts and bridge-utils.ts: no static imports, no dist refs, no dynamic import()/require(), no exported symbol usage found in packages/**/*.ts. Fixture JSON packages/main/tests/fixtures/phase-gate-protocol.json contains file:core/phase-protocol as a metadata label field only — the execute strings invoke scripts/verify-phase-gate-protocol.mjs, not the deleted module; confirmed not a consumer. Over-reach guards all hold: intent-coverage.ts present, dev-cli.ts present, lab/.codex untouched. Non-.lattice diff paths are exactly the 3 expected deletions (orphans, phase-protocol.ts, bridge-utils.ts). No blocker.",
+      "createdAt": "2026-06-16T19:05:04.354Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-001",
+      "_hash": "f10f88705878683b975243593792dd9cc541302ac4c48d9bb04cb3af1f4717ff"
+    },
+    {
+      "id": "B-d7ef:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Dead code removal verified clean: (1) no dangling imports of phase-protocol.ts or bridge-utils.ts in any .ts source file; (2) fixture file phase-gate-protocol.json uses the path only as display metadata, not as an import — the test calls a script that invokes the compiled CLI; (3) audit-silent-catches.mjs baseline retains the deleted bridge-utils.ts entry harmlessly (baseline entries for removed files become resolvedBaselineDebt; the audit only fails on new uncategorized keys, which there are none); (4) tsc build exits 0 with no errors; (5) full test suite (unit + e2e) ALL PASS; (6) no re-exports from barrel/index files; (7) orphans junk file deleted cleanly. No blockers found.",
+      "createdAt": "2026-06-16T19:06:13.913Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-002",
+      "_hash": "9524f1c75ef4cf2cc220fa6ccd366cf53f12515a30de10361f361bc3ba67d32c"
+    },
+    {
+      "id": "B-d7ef:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 24 verificationIntents (6 CHK-001 + 18 CHK-002) have evidence whose commands now concretely correspond to their stated intents. Load-bearing re-runs confirmed: orphans and both modules gone from disk and git index; git checkout HEAD fails for all three (deletions finalized); static + dynamic import scans empty; require() scan empty; dist-path scan empty; phase-gate-protocol.json execute fields confirmed zero runtime references to deleted modules (file-label metadata only); intent-coverage.ts SAFE; dev-cli.ts SAFE; npm run build exit 0; npm run test:e2e ALL PASS. The 8 evidence mismatches from F-001/F-002/F-003 are fully resolved. CHK-002:edge:0 evidence still uses the static-import grep rather than the dist-path grep its intent describes, but CHK-002:adversarial:3 carries the correct dist-path command with matching evidence, cross-covering the behavioral claim — no uncovered must-gap remains.",
+      "createdAt": "2026-06-16T19:10:12.575Z",
+      "reviewRound": "2026-06-16T19:03:54.889Z",
+      "reviewRunId": "B-d7ef:RR-004",
+      "_hash": "437ffe98ee0096f9a6179589bfe902f50bffaf65f07460dfaac357f0fecbdaff"
+    }
+  ]
+}

@@ -29,6 +29,7 @@ export interface AuditConfig {
   auditTriggerWindow: number;
   requireClaudeMdDiff: boolean;
   mode: AuditMode;
+  deprecatedGcThreshold: number;
 }
 
 /** Hardcoded fallback (last line of defense when all fields are missing). */
@@ -36,6 +37,7 @@ const HARD_DEFAULTS: AuditConfig = {
   auditTriggerWindow: 5,
   requireClaudeMdDiff: true,
   mode: 'semi-auto',
+  deprecatedGcThreshold: 10,
 };
 
 /** profile → auditTriggerWindow default mapping. All other fields share hardcoded fallback across profiles. */
@@ -59,6 +61,7 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
     auditTriggerWindow: PROFILE_TRIGGER_WINDOW[profile] ?? HARD_DEFAULTS.auditTriggerWindow,
     requireClaudeMdDiff: HARD_DEFAULTS.requireClaudeMdDiff,
     mode: HARD_DEFAULTS.mode,
+    deprecatedGcThreshold: HARD_DEFAULTS.deprecatedGcThreshold,
   };
 
   // 2. Try reading project-level config (per-field override)
@@ -81,6 +84,17 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
   }
   if (typeof userOverrides.requireClaudeMdDiff === 'boolean') {
     merged.requireClaudeMdDiff = userOverrides.requireClaudeMdDiff;
+  }
+  if (typeof userOverrides.deprecatedGcThreshold === 'number' && Number.isFinite(userOverrides.deprecatedGcThreshold)) {
+    const t = userOverrides.deprecatedGcThreshold;
+    if (!Number.isInteger(t) || t <= 0) {
+      console.warn(
+        `[audit-config] deprecatedGcThreshold must be a positive integer (>=1), got ${t}, falling back to default (${profileDefaults.deprecatedGcThreshold}).`,
+      );
+      // Keep profileDefaults.deprecatedGcThreshold
+    } else {
+      merged.deprecatedGcThreshold = t;
+    }
   }
   if (typeof userOverrides.mode === 'string') {
     if (VALID_MODES.has(userOverrides.mode as AuditMode)) {

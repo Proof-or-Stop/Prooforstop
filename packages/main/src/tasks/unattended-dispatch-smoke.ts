@@ -59,7 +59,7 @@ function git(root: string, args: string[]): string {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -803,11 +803,11 @@ try {
   // 9c: fake required commands run with filtered env and cannot read denied secrets
   {
     const secretValue = 'super-secret-value-that-must-not-leak';
-    const savedSecret = process.env.KOALA_DENIED_SECRET;
+    const savedSecret = process.env.LATTICE_DENIED_SECRET;
     const leakProbeCommand =
-      'node -e "if (process.env.KOALA_DENIED_SECRET) { console.error(process.env.KOALA_DENIED_SECRET); process.exit(2); } console.log(\'secret absent\')"';
+      'node -e "if (process.env.LATTICE_DENIED_SECRET) { console.error(process.env.LATTICE_DENIED_SECRET); process.exit(2); } console.log(\'secret absent\')"';
     try {
-      process.env.KOALA_DENIED_SECRET = secretValue;
+      process.env.LATTICE_DENIED_SECRET = secretValue;
       run<DispatchPolicy>('dispatch_policy_create', {
         policy: 'chk008-env-filter',
         allowedHosts: ['fake'],
@@ -816,7 +816,7 @@ try {
         maxRuntimeMinutes: 1,
         maxBudgetUSD: 5.0,
         network: 'none',
-        envDenylist: ['KOALA_DENIED_SECRET'],
+        envDenylist: ['LATTICE_DENIED_SECRET'],
         commandAllowlist: [leakProbeCommand],
       });
       const envResult = run<DispatchAutoResult>('dispatch_auto', {
@@ -835,11 +835,11 @@ try {
       assert.doesNotMatch(envCommands[0].output, /super-secret-value-that-must-not-leak/,
         'command result output must not contain denied secret value');
       const envStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: envResult.dispatchId });
-      assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('KOALA_DENIED_SECRET'), false,
+      assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('LATTICE_DENIED_SECRET'), false,
         'runner env summary must not list denied secret env var');
     } finally {
-      if (savedSecret === undefined) delete process.env.KOALA_DENIED_SECRET;
-      else process.env.KOALA_DENIED_SECRET = savedSecret;
+      if (savedSecret === undefined) delete process.env.LATTICE_DENIED_SECRET;
+      else process.env.LATTICE_DENIED_SECRET = savedSecret;
     }
   }
 

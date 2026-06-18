@@ -1,0 +1,32 @@
+{
+  "storyId": "B-24c3",
+  "checkedAt": "2026-06-17T23:51:55.981Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Conversational Texture line 20: cross-story ref \"run-all-smokes.ts (B-6efb frozen)\" appears twice without a one-sentence explanation of why B-6efb froze this file. A newly-onboarded reader can infer the constraint from context (\"out of scope\" + \"contract-frozen\") but the source-of-truth rationale is implicit."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-17T23:48:35.905Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-17T23:51:55.981Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Conversational Texture line 20: cross-story ref \"run-all-smokes.ts (B-6efb frozen)\" appears twice without a one-sentence explanation of why B-6efb froze this file. A newly-onboarded reader can infer the constraint from context (\"out of scope\" + \"contract-frozen\") but the source-of-truth rationale is implicit."
+        }
+      ]
+    }
+  ],
+  "_hash": "1d8d18069e7e971cf4cbb3ec13f4d2335d815a90921af6ae1cafa582421b5d10"
+}

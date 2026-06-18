@@ -1,6 +1,10 @@
-import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { digestCanonicalJson, digestText } from '../core/digest.js';
+// Backward-compat re-exports (B-2ccc CHK-002:edge:0): downstream consumers that
+// imported these from this module before the extraction keep working.
+export { canonicalJson, digestCanonicalJson, digestText } from '../core/digest.js';
+export type { Digestable } from '../core/digest.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { digestScopeExtensionDecision, digestScopeExtensionProposal } from '../core/scope-anti-expansion.js';
 import type {
@@ -52,41 +56,6 @@ type DecisionDocPreviewArgs = {
   storyId: string;
   proposalId: string;
 };
-
-type Digestable =
-  | null
-  | string
-  | number
-  | boolean
-  | Digestable[]
-  | { [key: string]: Digestable };
-
-function normalizeJson(value: unknown): Digestable | undefined {
-  if (value === undefined || typeof value === 'function' || typeof value === 'symbol') return undefined;
-  if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
-  if (Array.isArray(value)) return value.map((item) => normalizeJson(item) ?? null);
-  if (typeof value === 'object') {
-    const out: Record<string, Digestable> = {};
-    for (const [key, item] of Object.entries(value as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b))) {
-      const normalized = normalizeJson(item);
-      if (normalized !== undefined) out[key] = normalized;
-    }
-    return out;
-  }
-  return String(value);
-}
-
-export function canonicalJson(value: unknown): string {
-  return JSON.stringify(normalizeJson(value));
-}
-
-export function digestCanonicalJson(value: unknown): string {
-  return createHash('sha256').update(canonicalJson(value)).digest('hex');
-}
-
-export function digestText(text: string): string {
-  return createHash('sha256').update(text).digest('hex');
-}
 
 function canonicalTargetPath(slug: string): string {
   return `${DECISION_DOC_DIR}/${slug}.md`;

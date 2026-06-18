@@ -1,0 +1,170 @@
+{
+  "storyId": "B-d7c3",
+  "name": "test-runner-b2-collapse-smoke-npm-scripts",
+  "title": "B2: collapse the per-smoke test:* npm scripts into smoke-manifest entries",
+  "description": "B2 of the test-runner consolidation sub-program. Per the A0 decision doc (B-35aa: docs/requirements/decisions/test-runner-consolidation-plan.md): collapse the 143 individual `test:X-smoke` npm scripts in packages/main/package.json and their 44 redundant root-level proxy entries into smoke-manifest.json entries. Each collapse: add a manifest row (or accept the directory-scan default) — then remove the per-smoke npm script. Operators run a smoke via `npm run test:all -- --select <name>` instead of `npm run test:X-smoke`. KEEP (do NOT collapse): root `test` main script + the 5 named scripts it invokes (test:main-write-lock-coverage / test:review-convergence-smoke / test:review-incremental-context-smoke / test:docs-drift-smoke / test:e2e) + test:all + test:run-all-smokes-smoke + 49 scripts/verify-*.mjs (out of B2 scope, follow-up). Also keep a thin compatibility shim `npm run test:legacy -- <name>` per the A0 doc.",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "test-infra",
+    "sub-program-step",
+    "b2",
+    "script-collapse"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-17T12:07:58.388Z",
+  "startedAt": "2026-06-17T12:07:58.388Z",
+  "endedAt": "2026-06-17T13:27:19.682Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-17T12:07:58.431Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:16:07.521Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:16:56.224Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:20:27.513Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:26:26.645Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:33:55.916Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:34:04.110Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:48:38.573Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T12:53:08.202Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:02:55.111Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:03:12.170Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:05:53.169Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:05:54.697Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:09:41.239Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:09:44.045Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:17:56.448Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-17T13:27:19.683Z",
+      "branch": "story/B-d7c3",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Data Migration/Destructive",
+      "reason": "False positive: keyword migration only appears in the phrase 'migration command' describing the CHANGELOG entry's user-facing wording (e.g. 'use npm run test:legacy -- X instead of test:X-smoke'). This story performs zero data migration, file migration, or database migration. It is a script-level mechanical refactor: delete redundant npm scripts, add manifest entries, no data semantics change.",
+      "at": "2026-06-17T12:08:11.540Z"
+    }
+  ],
+  "currentReviewRound": "2026-06-17T13:09:44.045Z"
+}

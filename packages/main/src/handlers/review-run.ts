@@ -59,10 +59,14 @@ function resolveSignedWorkspaceRoot(workspace: ResolvedReviewWorkspace, storyId:
   return signedWorkspaceRoot;
 }
 
-function resolveGitTopLevel(projectRoot: string): string | null {
+function resolveGitTopLevel(gitCwd: string): string | null {
+  // B-75f0 CHK-004: param named `gitCwd` because the sole caller
+  // (review_run_start, below) passes the already-resolved signedWorkspaceRoot
+  // (authoritativeCwd), never a bare metadataRoot. Pure rename, zero behavior
+  // change — the inbound value is unchanged.
   try {
     return execFileSync('git', ['rev-parse', '--show-toplevel'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -83,7 +87,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           `review_run_start: story ${args.storyId} must be in REVIEW phase (current: ${preflightStory.phase})`,
         );
       }
-      const lane = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT, args.lane);
+      const lane = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
       const { headHash, materialHash } = captureReviewRunSnapshot(signedWorkspaceRoot, {

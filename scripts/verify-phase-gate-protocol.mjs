@@ -50,13 +50,13 @@ function extractStoryId(text) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'koala-phase-gate-'));
+  const dir = mkdtempSync(join(tmpdir(), 'lattice-phase-gate-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(dir, 'packages', 'main', 'src'), { recursive: true });
   mkdirSync(join(dir, 'packages', 'main', 'tests', 'fixtures'), { recursive: true });
   writeFileSync(join(dir, 'docs', 'requirements', 'placeholder.md'), '# placeholder\n');
-  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -67,8 +67,8 @@ function createTempProject() {
     storyPrefix: 'B',
   }, null, 2));
   git(dir, ['init']);
-  git(dir, ['config', 'user.email', 'koala@example.test']);
-  git(dir, ['config', 'user.name', 'Koala Test']);
+  git(dir, ['config', 'user.email', 'lattice@example.test']);
+  git(dir, ['config', 'user.name', 'Lattice Test']);
   try { git(dir, ['branch', '-M', 'main']); } catch { /* ignore */ }
   git(dir, ['add', '.']);
   git(dir, ['commit', '-m', 'init']);
