@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4254",
+  "mode": "maintenance",
+  "allowed": [
+    "Add regression coverage for the launcher contract",
+    "Keep documented serve behavior unchanged for lattice serve, --dev, and --port",
+    "Remove --web / --cli compatibility parsing from packages/main/src/verifier/dev-cli.ts"
+  ],
+  "excluded": [
+    "Do not change packages/main/src/verifier/serve.ts runtime behavior",
+    "Do not reintroduce hidden serve aliases in docs or help text",
+    "Do not widen the change to unrelated CLI parsing or launcher startup flow"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User confirmed the legacy serve launcher compatibility flags are not needed and should be removed.",
+  "createdAt": "2026-06-18T14:44:34.150Z",
+  "updatedAt": "2026-06-18T14:44:34.150Z",
+  "_hash": "fed138303525d4c52dd014732c50cfcc5053fc25e30d046fa88584b63595ecac"
+}

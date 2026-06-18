@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4254",
+  "checkedAt": "2026-06-18T14:45:34.329Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "fed138303525d4c52dd014732c50cfcc5053fc25e30d046fa88584b63595ecac",
+  "executionBoundaryHash": "b5e9d9016a0b63d4b94968c2bf4ae24d360545bf83076f9d8672bccbca2469f4",
+  "freshnessHash": "1cd735b6bee18f726f7fa5bb26675f01369b503d62955ad4e85d8b7b9486e4f7",
+  "effectiveExcludedKeywords": [
+    "Do not change packages/main/src/verifier/serve.ts runtime behavior",
+    "Do not reintroduce hidden serve aliases in docs or help text",
+    "Do not widen the change to unrelated CLI parsing or launcher startup flow"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change packages/main/src/verifier/serve.ts runtime behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change packages/main/src/verifier/serve.ts runtime behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not reintroduce hidden serve aliases in docs or help text",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not reintroduce hidden serve aliases in docs or help text",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not widen the change to unrelated CLI parsing or launcher startup flow",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not widen the change to unrelated CLI parsing or launcher startup flow",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9cfb6e11690637d905f0ea6a0ba0e097e37da6d6724b2f29dd34797b5a0e06da"
+}
