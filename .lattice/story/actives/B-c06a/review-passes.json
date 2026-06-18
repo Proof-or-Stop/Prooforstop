@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T15:57:22.456Z",
       "reviewRunId": "B-c06a:RR-002",
       "_hash": "ca18880b9f38af4fe3e3b9ed0feed39704dd4e9a694039f7bb4765d8559160d3"
+    },
+    {
+      "id": "B-c06a:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001/002/003 verified. (1) learning_effectiveness default output: predictive-value report + ON/OFF arm readout printed; nOn=nOff=0, recall/precision 0.000, significant=NO with explicit insufficient-N note — correct and honest (only ~14 findings carry signatureTag from forward ③.2; no A/B events yet; data accrues as backfill runs). (2) confirmedOnly=true: findingsWithSig drops from 14 to 1 (only confirmed-tagged findings), expected. (3) json=true: structured JSON emitted with predictiveValue + armComparison keys, all numeric fields present. (4) git status clean after all three invocations — read-only contract holds. (5) Smoke 16/16 PASS: exact recall/precision math, windowed trend, slopeSign, confirmedOnly threading, empty/zero-denominator never-NaN, determinism (100x loop), arm comparison small-N significant=false, >=MIN_ARM_N significant=true with observational note, one-empty-arm no crash. (6) Registration verified across all 6 required surfaces: registry.ts registerBatch, cli-engine.ts MAIN_TOOLS schema, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts (ownershipClass:readOnly/allowedPhases:all/destructiveRisk:none), process-fact-levels.ts (L0 experience-layer-read), READ_ONLY_COMMANDS list. (7) Pure leaf: experience-effectiveness.ts imports only type symbols, no fs/path/child_process/network. (8) Handler: no writeFileSync, no finding_add, no gate, no projectRoot persist — static read-only proof confirmed. (9) precision=preWarnable/preWarnable design: when preWarnable=0 => 0 (guarded); when preWarnable>0 => 1.0 — documented retrodictive design, correct. (10) Boundary N gate: significant=true only when both arms >= MIN_ARM_N=20; note always states either insufficient-N or observational-delta-no-p-value — conservative and honest as required.",
+      "createdAt": "2026-06-18T16:01:31.814Z",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "reviewRunId": "B-c06a:RR-004",
+      "_hash": "de0e2557c7f020b5d71a6f605edd57c6526b256dc039c19931fbeb0d15058cf3"
     }
   ]
 }
