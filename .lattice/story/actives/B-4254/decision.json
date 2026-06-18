@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Keep the supported serve surface honest: if a flag is not documented, it should not remain as hidden compatibility.",
+    "Make the smallest possible code change that preserves the documented lattice serve, --dev, and --port behavior.",
+    "Use regression coverage that is cheap to run and hard to forget so the hidden aliases do not quietly return."
+  ],
+  "drivers": [
+    "The docs and user prompts already advertise only the supported serve surface.",
+    "The current dev-cli launcher still has direct --web / --cli branches, so the source and docs are already drifting.",
+    "The repo already has npm run test:entrypoints, which can host a narrow launcher-contract guard without inventing a new test harness."
+  ],
+  "options": [
+    {
+      "name": "A: Delete the legacy alias branches and add a source-level entrypoint regression check",
+      "pros": [
+        "Smallest change that removes the hidden compatibility path.",
+        "Leaves the documented serve behavior untouched.",
+        "A root entrypoint smoke can fail fast if the aliases return."
+      ],
+      "cons": [
+        "Any private caller of --web or --cli loses that hidden behavior.",
+        "The guard is source-level plus smoke-based, not a dedicated runtime parser test."
+      ]
+    },
+    {
+      "name": "B: Keep the aliases but leave them undocumented",
+      "pros": [
+        "Preserves old ad-hoc callers if they still exist.",
+        "Avoids touching the launcher code path."
+      ],
+      "cons": [
+        "Keeps the contract drift alive and leaves a hidden feature in the codebase.",
+        "Does not solve the maintenance problem the user is explicitly asking to remove.",
+        "Future readers still have to reason about dead compatibility code."
+      ]
+    },
+    {
+      "name": "C: Remove the aliases and add an explicit unsupported-flag error",
+      "pros": [
+        "Makes unsupported flags obvious to anyone who still tries them.",
+        "Prevents silent no-op behavior for old callers."
+      ],
+      "cons": [
+        "Larger user-visible behavior change than requested.",
+        "Adds a branch that is not needed for the documented surface.",
+        "Could break ad-hoc private scripts more sharply than a simple cleanup."
+      ]
+    }
+  ],
+  "chosen": "A: Delete the legacy alias branches and add a source-level entrypoint regression check",
+  "rationale": "This option removes the hidden compatibility path with the least surface area while keeping the supported serve flow unchanged and giving us a cheap guard against reintroducing the aliases.",
+  "preMortem": [
+    {
+      "scenario": "An internal script still passes --web or --cli after the cleanup.",
+      "trigger": "The script was copied from an old note or from memory, not from the current docs.",
+      "consequence": "The launcher no longer enters that hidden branch, so the caller may lose the expected extra behavior.",
+      "mitigation": "Confirm there are no in-repo callers, keep the docs/README surface clean, and make the entrypoint smoke fail if the aliases are reintroduced."
+    },
+    {
+      "scenario": "The cleanup accidentally changes the actual serve startup behavior.",
+      "trigger": "While deleting the alias checks, the core spawn or vite startup logic gets edited by mistake.",
+      "consequence": "lattice serve no longer starts the same documented set of processes.",
+      "mitigation": "Limit edits to the alias branch and the regression check, then run build + entrypoint smoke before closing the story."
+    },
+    {
+      "scenario": "A future refactor reintroduces the aliases in another file or path.",
+      "trigger": "Someone adds a new compatibility shortcut or copies the old behavior into another launcher helper.",
+      "consequence": "The hidden contract drifts back even though this cleanup shipped.",
+      "mitigation": "Keep the regression check in the root entrypoint test path and review the launcher source for any reappearance of --web / --cli."
+    }
+  ],
+  "timestamp": "2026-06-18T14:49:09.634Z"
+}

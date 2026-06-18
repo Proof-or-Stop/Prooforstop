@@ -12,7 +12,30 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Legacy --web / --cli flags no longer change how serve starts; the documented lattice serve flow stays the only supported path."
+      "userSees": "Legacy --web / --cli flags no longer change how serve starts; the documented lattice serve flow stays the only supported path.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running lattice serve with the documented flags still starts the normal core + Dashboard flow; WHY: keeps the supported launcher surface intact.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Running lattice serve --dev=\"npx vite\" or lattice serve --port=N still behaves as before after the alias removal; WHY: preserves the supported launcher options.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A grep or smoke fails if --web or --cli reappears in packages/main/src/verifier/dev-cli.ts; WHY: prevents hidden compatibility from returning.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
