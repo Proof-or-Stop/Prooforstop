@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-eb8a",
+  "allowedCommands": [
+    "git commit",
+    "git diff",
+    "git status --short",
+    "lattice convergence_check --json",
+    "lattice decision_set",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_review",
+    "lattice story_review_dismiss",
+    "lattice summary_set",
+    "lattice understanding_set",
+    "node scripts/validate-tasks.js",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+    "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only policy clarification: annotation compliance / pure typo-only / wording-only changes are low-risk one-round cases; lifecycle/gate/Authority/process-fact work remains three-round two-host.",
+  "createdAt": "2026-06-18T10:59:33.552Z",
+  "updatedAt": "2026-06-18T10:59:33.552Z",
+  "_hash": "4918b003c7c32305c37218cb216fa16007c6a21d36fa64aa93602369adf38c59"
+}
