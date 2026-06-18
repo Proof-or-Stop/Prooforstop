@@ -57,7 +57,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'pass.?2|retry|Pass\\s*1|Pass\\s*2' packages/main/src/tasks/run-all-smokes.ts",
+          "result": "pass",
+          "note": "Returns 4+ — two-pass mechanism present (runEntrySet + pass1/pass2 + retry log).",
+          "headHash": "636824668d8c065f115150fcabd43e2112aca272",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:15.065Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
