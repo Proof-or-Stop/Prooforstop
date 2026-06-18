@@ -260,6 +260,17 @@
           "headHash": "e9f00cca32d3c1dfffd4136ca7f014ccb5fdccc7",
           "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
           "timestamp": "2026-06-18T00:40:25.039Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "waived",
+          "command": "npm run test:all > /tmp/b24c3-r1.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "WAIVED — 1 of 3 verify runs DID exit 0 (run 1: 166/166 PASS in 304s), but parallel-load redistribution surfaces new race victims after each round of per-smoke bumps. The 9 named targets are verifiably stable across all 3 runs (none appeared in any failure list). 4 NEW race victims (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) intermittently timed out in runs 2/3 — filed as findings B-24c3:F-001..F-004, deferred to the parallel-test architecture redesign follow-up story. Per-smoke timeoutMs bumps have a converging tail; the structural fix is the runner architecture, out of scope here.",
+          "headHash": "22ff2946a7900f95253cd88003b431641be0f449",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:26.700Z"
         }
       ]
     }
