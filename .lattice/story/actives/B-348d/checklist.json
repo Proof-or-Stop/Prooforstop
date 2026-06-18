@@ -189,6 +189,16 @@
           "headHash": "8f2a1983d96da5f0e80a3788a1c6400ce9b99491",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:46.914Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -c retryOnAnyFailure packages/main/smoke-manifest.json",
+          "result": "pass",
+          "note": "grep -c outputs 4; exactly 4 flags present, no over-flagging",
+          "headHash": "1663285a79afb765d1f77e68927c02efc3e05b1f",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:47.770Z"
         }
       ]
     },
