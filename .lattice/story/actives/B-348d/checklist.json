@@ -6,7 +6,53 @@
       "context": "In packages/main/src/tasks/run-all-smokes.ts, the pass-2 retry set is currently the pass-1 results with status===TIMEOUT. Extend the membership predicate to ALSO include status===FAIL entries whose manifest entry has retryOnAnyFailure===true. Add the optional field retryOnAnyFailure?: boolean (default false/absent) to the ManifestEntry type + the smoke-manifest.json schema annotation. The default for every smoke without the flag is UNCHANGED (FAIL is terminal, only TIMEOUT retries) — preserve B-2941 behavior exactly for non-allowlisted smokes. Keep --no-retry disabling pass-2 entirely. Build clean.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep retryOnAnyFailure packages/main/src/tasks/run-all-smokes.ts` shows the field + the FAIL-with-flag predicate; build clean; TIMEOUT path intact.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ManifestEntry type has retryOnAnyFailure -> `grep -cE \"retryOnAnyFailure\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 2 (type decl + predicate use); WHY: the opt-in field must exist + be read",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "pass-2 membership predicate includes FAIL+retryOnAnyFailure -> `grep -cE \"FAIL.*retryOnAnyFailure|retryOnAnyFailure.*FAIL\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 1; WHY: FAIL retried only when flagged",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "compiled dist has the extended predicate -> `grep -c retryOnAnyFailure packages/main/dist/tasks/run-all-smokes.js` outputs at least 1; WHY: lands in runtime",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"` outputs 0; WHY: typechecks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "TIMEOUT retry path unchanged (B-2941 preserved) -> `grep -cE \"status === .TIMEOUT.\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 1; WHY: timeout retry still works",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no core/handlers production touched -> `git diff main...HEAD --name-only -- packages/main/src/core packages/main/src/handlers | wc -l` outputs 0; WHY: scope is runner+manifest only",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,30 @@
+{
+  "task": "Add an opt-in retryOnAnyFailure manifest flag and extend the B-2941 pass-2 retry membership so allowlisted load-flake smokes also retry on a FAIL, while every non-allowlisted smoke keeps FAIL as terminal.",
+  "outcome": "Developer runs npm run test:all. The 4 allowlisted load-flake smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard), if they FAIL under parallel load in pass 1, now appear in the pass-2 serial retry alongside timeouts and pass on retry — so the run ends Final N/N passed exit 0 deterministically across 3 consecutive runs. A non-allowlisted smoke that FAILs is still terminal (not retried), so a genuine regression still turns the suite red. CHANGELOG + docs document the opt-in flag, the 4 allowlisted smokes, and that this is a stopgap.",
+  "facts": [
+    "B-2941 pass-2 membership at run-all-smokes.ts:257-260 filters status===TIMEOUT then excludes noRetry entries",
+    "smoke-manifest ManifestEntry currently has name, tags, timeoutMs, skip, noRetry — no retryOnAnyFailure",
+    "4 allowlist candidates all verified serial-PASS exit 0 on 2026-06-18: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard",
+    "B-2941 and B-3d39 both DONE on main; this closes B-24c3:F-001..F-004 plus B-3d39:F-001",
+    "pass-2 forces jobs 1 and merges results, replacing pass-1 entry for the same name"
+  ],
+  "constraints": [
+    "FAIL stays terminal for every smoke WITHOUT the flag — preserve B-2941 default exactly",
+    "Only explicitly-allowlisted, serial-verified smokes may carry the flag",
+    "No production code outside run-all-smokes.ts and the smoke source",
+    "--no-retry still disables pass-2 entirely",
+    "on-disk mutex, main-write-lock, done-effects all frozen by their owning stories"
+  ],
+  "unknowns": [
+    "whether the Pass-1 log wording should change from timeout-count to retryable-count — decide in DEV",
+    "whether a non-serial-stable candidate exists among the 4 that should be dropped from the allowlist — DEV re-verifies each"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/run-all-smokes.ts (extend pass-2 membership predicate + ManifestEntry type)",
+    "packages/main/smoke-manifest.json (retryOnAnyFailure flag on the 4 allowlisted entries)",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts (fixture cases)",
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md"
+  ],
+  "timestamp": "2026-06-18T16:42:46.759Z"
+}
