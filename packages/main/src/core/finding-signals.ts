@@ -102,6 +102,18 @@ function isNonEmptyString(value: unknown): value is string {
 }
 
 /**
+ * Normalize an anchor path to a canonical bare repo path by stripping a trailing
+ * `:line[:col]` suffix (a small fraction of real finding.files carry one, e.g.
+ * `config.ts:216`). Without this, those anchors never match a bare HEAD tree path
+ * and inflate the referential drift-rate as a pure string-format artifact. Only
+ * the anchorFiles surface is normalized; deriveFileKind and the localSignature
+ * key are intentionally left untouched.
+ */
+function stripAnchorLineSuffix(p: string): string {
+  return p.replace(/:\d+(:\d+)?$/, '');
+}
+
+/**
  * PURE derivation. Aggregates findings by
  * `localSignature = ${category}|${signatureTag ?? ''}|${fileKind}|${lifecyclePhase ?? 'review'}`.
  * Tolerant of missing fields; never throws on malformed entries; never NaN.
@@ -145,10 +157,12 @@ export function deriveFindingSignals(
 
     // Record the concrete anchor paths (already string-filtered by
     // toSourceFinding; guard for undefined/non-array anyway) up to the cap.
+    // Strip any trailing :line[:col] so anchorFiles store canonical bare repo
+    // paths (the Set still dedups post-strip).
     if (Array.isArray(finding.files)) {
       for (const file of finding.files) {
         if (entry.anchorFiles.size >= MAX_ANCHOR_FILES) break;
-        if (isNonEmptyString(file)) entry.anchorFiles.add(file);
+        if (isNonEmptyString(file)) entry.anchorFiles.add(stripAnchorLineSuffix(file));
       }
     }
 

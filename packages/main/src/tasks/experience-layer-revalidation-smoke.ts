@@ -215,6 +215,26 @@ function run(): void {
     assert.deepEqual(s.anchorFiles, ['ok.ts', 'two.ts'], 'only non-empty strings, deduped, sorted');
   });
 
+  // ─── INTEGRATION: trailing :line[:col] suffix stripped to bare repo path ────
+  // Both `foo/bar.ts:42` and `foo/bar.ts:42:7` must reduce to the bare repo path
+  // `foo/bar.ts` in anchorFiles (deriveFileKind / localSignature are intentionally
+  // NOT touched, so these stay as two signals — we assert each one independently).
+  check('integration: anchor :line[:col] suffix stripped => bare path => valid at HEAD', () => {
+    for (const raw of ['foo/bar.ts:42', 'foo/bar.ts:42:7']) {
+      const cache = deriveFindingSignals([{ category: 'c', signatureTag: 't', files: [raw] }], { now: PINNED_NOW });
+      assert.equal(cache.signals.length, 1, `one signal for ${raw}`);
+      const s = cache.signals[0];
+      assert.deepEqual(s.anchorFiles, ['foo/bar.ts'], `suffix stripped to bare path for ${raw}`);
+
+      // fileExists holds only the bare path => the de-suffixed anchor classifies valid.
+      const live = new Set<string>(['foo/bar.ts']);
+      const v = revalidateSignals(cache, (p) => live.has(p));
+      assert.equal(v[0].state, 'valid', `bare path matches HEAD => valid for ${raw}`);
+      assert.deepEqual(v[0].present, ['foo/bar.ts']);
+      assert.deepEqual(v[0].missing, []);
+    }
+  });
+
   console.log(`TOTAL ${total} | PASS ${passed} | FAIL ${total - passed}`);
   if (passed !== total) {
     process.exitCode = 1;
