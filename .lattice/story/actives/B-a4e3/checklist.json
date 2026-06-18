@@ -52,6 +52,16 @@
           "headHash": "38cef8f123eb6e714c7a641ce12c8ba754d49739",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:17.146Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "diff /tmp/salt-baseline-B-a4e3.txt <(grep salts now); npm run test:koala-residue",
+          "result": "pass",
+          "note": "25 salt literals byte-identical to baseline; salt-grep on source diff empty; test:koala-residue PASS 0 unclassified.",
+          "headHash": "f45e271c2aeaee61f7741f68529e67d34144e36d",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:17.983Z"
         }
       ]
     },
