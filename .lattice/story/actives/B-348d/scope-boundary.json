@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-348d",
+  "mode": "feature",
+  "allowed": [
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "excluded": [
+    "package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "packages/main/src/providers/",
+    "scripts/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose option (a) opt-in retryOnAnyFailure allowlist on 2026-06-18 to close the deferred parallel-only-FAIL findings; rejected (c) retry-all-FAILs as dangerous. Root-cause shared-state fixes deferred.",
+  "createdAt": "2026-06-18T16:36:46.168Z",
+  "updatedAt": "2026-06-18T16:36:46.168Z",
+  "_hash": "0a5c2a945a73cf86fa8193c322a55341a5356f8a199980d3cb022a45fb80588f"
+}

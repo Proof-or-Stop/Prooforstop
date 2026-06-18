@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-348d",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run test:all *",
+    "npm run test:legacy *",
+    "npm test",
+    "python3 -c *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "package.json",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "scripts/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Extends B-2941 pass-2 retry with opt-in retryOnAnyFailure. Narrow unfreeze run-all-smokes.ts. FAIL=terminal default preserved for all non-allowlisted smokes.",
+  "createdAt": "2026-06-18T16:36:46.905Z",
+  "updatedAt": "2026-06-18T16:36:46.905Z",
+  "_hash": "d2d6e6a71d4b821e29758f33b2fc529ea7c1b04e7b9802aaa8a44b8d6e1512a7"
+}
