@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T02:13:56.040Z",
       "reviewRunId": "B-5155:RR-005",
       "_hash": "56b33db558259405e4e77d06acf003cc1d155e0dcdfcf64cac7fdfb39751ca2b"
+    },
+    {
+      "id": "B-5155:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "B-5155:F-001 is fixed: runtime-owned-agent-assets-smoke.ts now only anchors prompt asset resolution / local Non-authority and no longer asserts requirementsDir coverage; truth.ts truthfully consumes loadConfig(projectRoot).requirementsDir in both scanTruth and generateNav. Verified with a temp-root custom requirementsDir check, runtime-owned-agent-assets-smoke.js, and lattice gap_analyze (0 high / 0 medium).",
+      "createdAt": "2026-06-18T02:19:38.988Z",
+      "reviewRound": "2026-06-18T02:13:56.040Z",
+      "reviewRunId": "B-5155:RR-004",
+      "_hash": "deffdb2912b52402189273094a37b9896715a39bd88315c939eb3ebec14863da"
     }
   ]
 }
