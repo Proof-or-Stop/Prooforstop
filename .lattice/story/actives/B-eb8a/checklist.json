@@ -30,9 +30,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T11:11:55.157Z",
-      "endTime": null,
+      "endTime": "2026-06-18T11:18:28.949Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/story-lifecycle.md",
@@ -41,7 +41,20 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg -n \"annotation-compliance|pure typo|wording-only|one two-host audit round|story-lifecycle.md\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "Canonical story-lifecycle text now names annotation-compliance / pure typo / wording-only as one-round cases, and the adjacent docs reference the same canonical rule.",
+          "headHash": "2150386570987677a591897bfc3b8619d24ab9ae",
+          "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
+          "timestamp": "2026-06-18T11:18:29.057Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -103,6 +116,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Keep the high-risk three-round rule intact while updating the low-risk wording."
+    },
+    {
+      "timestamp": "2026-06-18T11:18:28.949Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs updated and validated for the low-risk one-round policy."
     }
   ]
 }
