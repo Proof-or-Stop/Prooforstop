@@ -6,7 +6,49 @@
       "context": "In packages/main/src/handlers/finding.ts (withReviewPassLock ~line 38), review-run.ts (withReviewRunLock ~line 21), and init-check.ts (withInitCheckLock ~line 67): replace each hand-rolled mkdir/deadline/sleep loop with a delegation to withMkdirLock from packages/main/src/core/mkdir-lock.ts, exactly as checklist.ts's withChecklistLock already does. Keep the same lock path (storyFilePath(storyId,'<x>.lock')). Pass a descriptive label (e.g. 'review-passes metadata', 'review-runs metadata', 'init-check metadata'). This raises the acquire budget from 5s to the shared 30s default and restores the documented deadline(30s)>staleMs(10s) invariant. Remove the now-dead local sleepSync helpers if unused. The git commit (autoCommitStoryMetadata) stays inside the critical section (correct per-story commit serialization). Build clean (0 tsc errors).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "all 3 handlers delegate to withMkdirLock -> `grep -lE \"withMkdirLock\\(\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l` outputs 3; WHY: each hand-rolled loop is replaced by the shared primitive",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "no hand-rolled 5s budget remains -> `grep -E \"Date.now\\(\\) \\+ 5000\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l` outputs 0; WHY: the 5s<10s invariant violation is gone",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"` outputs 0; WHY: typechecks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wait-and-poll semantics preserved (no failFastIfHeld) -> `grep -E \"failFastIfHeld\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l` outputs 0; WHY: contention still waits, not fail-fast",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: the shared withMkdirLock primitive itself is unchanged -> `git diff main...HEAD --name-only -- packages/main/src/core/mkdir-lock.ts | wc -l` outputs 0; WHY: helper reused not rewritten",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
