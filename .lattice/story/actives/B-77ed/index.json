@@ -1,0 +1,30 @@
+{
+  "storyId": "B-77ed",
+  "name": "metadata-lock-acquire-budget",
+  "title": "Migrate hand-rolled metadata locks to shared withMkdirLock (fix load-induced review_pass_set timeout)",
+  "description": "Fix the B-348d deferred root cause: three hand-rolled metadata-lock loops (finding.ts/review-run.ts/init-check.ts) use a 5s acquire budget below the 10s stale threshold, so concurrent reviewers under heavy parallel load spuriously time out acquiring the lock and the smoke FAILs. Migrate them to the shared withMkdirLock primitive (30s budget, correct invariant), then retire the B-348d retryOnAnyFailure stopgap flags once proven.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "medium",
+  "keywords": [
+    "metadata-lock",
+    "withMkdirLock",
+    "review_pass_set",
+    "concurrency",
+    "test-determinism",
+    "B-348d-followup"
+  ],
+  "createdAt": "2026-06-18T19:14:00.718Z",
+  "startedAt": "2026-06-18T19:14:00.718Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-18T19:14:00.719Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
