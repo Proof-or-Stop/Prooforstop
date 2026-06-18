@@ -220,6 +220,17 @@
           "headHash": "481d4768237a5bed18fad56259592c9e0af6bcd2",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:20.645Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js 2>&1 | grep -oE '[0-9]+/[0-9]+ checks passed' | head -1",
+          "result": "pass",
+          "note": "Prints '13/13 checks passed' — grew from 9 to 13 (4 new B-2941 cases a/b/c/d).",
+          "headHash": "7600fea680ad297ee647cf80efc518b093d20b5f",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:21.226Z"
         }
       ]
     },
