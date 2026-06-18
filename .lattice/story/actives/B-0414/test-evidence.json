@@ -1,0 +1,196 @@
+{
+  "command": "lattice validate --story=B-0414 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-console-demo-mvp-requirements.md) — The document names the static prototype input and the existing host-neutral observability source-of-truth anchor.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-console-demo-mvp-requirements.md) — The document avoids replacing or contradicting the adopted host-neutral observability console design.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-console-demo-mvp-requirements.md) — The document identifies real productization gaps instead of adding arbitrary dashboard features or cosmetic-only work.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-console-demo-mvp-requirements.md) — The document includes goals, non-goals, CLI data-source contracts, pages, user flows, recovery commands, authority boundaries, MVP phasing, acceptance criteria, and verification plan.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-console-demo-mvp-requirements.md) — The document explicitly requires aesthetic spacing, symmetry, minimalism, restrained hierarchy, and semantic color use.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-console-demo-mvp-requirements.md) — The document explicitly requires every clickable demo target to open a meaningful detail/page/disabled explanation and preserve Lattice product logic.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/NAV.md) — NAV.md links to decisions/lattice-console-demo-mvp-requirements.md with the correct title.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/NAV.md) — NAV.md file count is updated consistently with the added decision document.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript (docs/requirements/NAV.md) — Navigation update is limited to the new document link and count, with no unrelated requirements navigation churn.\"],\"warnings\":[],\"timestamp\":\"2026-06-18T01:18:02.848Z\",\"headSha\":\"b6160b7972d9ececdd430772f71033feb724f45d\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":16122}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The document names the static prototype input and the existing host-neutral observability source-of-truth anchor.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"command\":\"rg -n \\\"Prototype input: .*lattice-console-demo.html|Existing source-of-truth anchor: .*host-neutral-observability-console.md\\\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"result\":\"pass\",\"note\":\"The document names the static prototype input and the host-neutral observability source-of-truth anchor in its header.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:33.082Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The document avoids replacing or contradicting the adopted host-neutral observability console design.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"command\":\"rg -n \\\"does not replace the host-neutral observability console design|Host-neutral workflow first|host-neutral and agent-neutral\\\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"result\":\"pass\",\"note\":\"The positioning statement and host-neutral principle keep this addendum from replacing or contradicting the adopted observability console design.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:33.117Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The document identifies real productization gaps instead of adding arbitrary dashboard features or cosmetic-only work.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"command\":\"rg -n \\\"No arbitrary optimization|Only fix real correctness issues|hard-coded|stale data|missing recovery instructions|unsupported JSON assumptions\\\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"result\":\"pass\",\"note\":\"The assessment and principles identify real productization gaps while rejecting arbitrary dashboard features and cosmetic-only work.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:33.152Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The document includes goals, non-goals, CLI data-source contracts, pages, user flows, recovery commands, authority boundaries, MVP phasing, acceptance criteria, and verification plan.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"command\":\"rg -n \\\"^## 4. MVP Goals|^## 5. Non-goals|^## 6. Data Source Contract|^## 7. Required Console Pages|^## 9. Core User Flows|recovery command|authority boundary|^## 10. MVP Phasing|^## 11. Acceptance Criteria|^## 12. Verification Plan\\\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"result\":\"pass\",\"note\":\"The document includes the required goals, non-goals, CLI data-source contract, pages, user flows, recovery and authority language, phasing, acceptance criteria, and verification plan.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:33.660Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The document explicitly requires aesthetic spacing, symmetry, minimalism, restrained hierarchy, and semantic color use.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"command\":\"rg -n \\\"spacing|symmetry|minimal|restrained hierarchy|semantic color|Visual and Interaction Requirements|Aesthetic Rules|Layout Requirements\\\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"result\":\"pass\",\"note\":\"Section 8 requires aesthetic spacing, symmetry, minimalism, restrained hierarchy, semantic color, layout alignment, and visual QA.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:33.700Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The document explicitly requires every clickable demo target to open a meaningful detail/page/disabled explanation and preserve Lattice product logic.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"command\":\"rg -n \\\"Click Target Requirements|Product Logic Requirements for Clicks|Every clickable element|meaningful detail|disabled-state explanation|product-logical action\\\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md\",\"result\":\"pass\",\"note\":\"Sections 8.3 and 8.4 require every clickable target to resolve and preserve Lattice product logic.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:33.734Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"NAV.md links to decisions/lattice-console-demo-mvp-requirements.md with the correct title.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"rg -n \\\"Lattice Console Demo MVP Requirements Recommendation|decisions/lattice-console-demo-mvp-requirements.md\\\" docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"NAV.md contains the correct title and link for the new requirements recommendation.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:34.403Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"NAV.md file count is updated consistently with the added decision document.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"rg -c \\\"^- \\\\[\\\" docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"The command returned 51, matching the NAV header verified by rg -n \\\"^> 51 个文件\\\" docs/requirements/NAV.md.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:34.442Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Navigation update is limited to the new document link and count, with no unrelated requirements navigation churn.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"git diff -- docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"The command produced empty output after link and count verification, so there is no unrelated NAV churn.\",\"headHash\":\"78fee2884a978ceb5ce86a015dae5291f825c72b\",\"materialHash\":\"25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2\",\"timestamp\":\"2026-06-16T01:01:34.476Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-18T01:18:07.782Z",
+  "headHash": "b6160b7972d9ececdd430772f71033feb724f45d",
+  "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The document names the static prototype input and the existing host-neutral observability source-of-truth anchor.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"Prototype input: .*lattice-console-demo.html|Existing source-of-truth anchor: .*host-neutral-observability-console.md\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The document names the static prototype input and the host-neutral observability source-of-truth anchor in its header.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.082Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The document avoids replacing or contradicting the adopted host-neutral observability console design.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"does not replace the host-neutral observability console design|Host-neutral workflow first|host-neutral and agent-neutral\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The positioning statement and host-neutral principle keep this addendum from replacing or contradicting the adopted observability console design.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.117Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The document identifies real productization gaps instead of adding arbitrary dashboard features or cosmetic-only work.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"No arbitrary optimization|Only fix real correctness issues|hard-coded|stale data|missing recovery instructions|unsupported JSON assumptions\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The assessment and principles identify real productization gaps while rejecting arbitrary dashboard features and cosmetic-only work.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.152Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The document includes goals, non-goals, CLI data-source contracts, pages, user flows, recovery commands, authority boundaries, MVP phasing, acceptance criteria, and verification plan.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"^## 4. MVP Goals|^## 5. Non-goals|^## 6. Data Source Contract|^## 7. Required Console Pages|^## 9. Core User Flows|recovery command|authority boundary|^## 10. MVP Phasing|^## 11. Acceptance Criteria|^## 12. Verification Plan\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The document includes the required goals, non-goals, CLI data-source contract, pages, user flows, recovery and authority language, phasing, acceptance criteria, and verification plan.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.660Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The document explicitly requires aesthetic spacing, symmetry, minimalism, restrained hierarchy, and semantic color use.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"spacing|symmetry|minimal|restrained hierarchy|semantic color|Visual and Interaction Requirements|Aesthetic Rules|Layout Requirements\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "Section 8 requires aesthetic spacing, symmetry, minimalism, restrained hierarchy, semantic color, layout alignment, and visual QA.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.700Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The document explicitly requires every clickable demo target to open a meaningful detail/page/disabled explanation and preserve Lattice product logic.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"Click Target Requirements|Product Logic Requirements for Clicks|Every clickable element|meaningful detail|disabled-state explanation|product-logical action\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "Sections 8.3 and 8.4 require every clickable target to resolve and preserve Lattice product logic.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.734Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "NAV.md links to decisions/lattice-console-demo-mvp-requirements.md with the correct title.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n \"Lattice Console Demo MVP Requirements Recommendation|decisions/lattice-console-demo-mvp-requirements.md\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV.md contains the correct title and link for the new requirements recommendation.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:34.403Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "NAV.md file count is updated consistently with the added decision document.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -c \"^- \\[\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The command returned 51, matching the NAV header verified by rg -n \"^> 51 个文件\" docs/requirements/NAV.md.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:34.442Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Navigation update is limited to the new document link and count, with no unrelated requirements navigation churn.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/NAV.md",
+          "command": "git diff -- docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The command produced empty output after link and count verification, so there is no unrelated NAV churn.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:34.476Z"
+        }
+      }
+    ]
+  }
+}
