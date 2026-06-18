@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Fix at the source, not the symptom: correct the lock-acquire budget rather than widen the retry band-aid.",
+    "Don't repeat yourself: converge the three duplicated lock loops onto the one audited shared primitive.",
+    "Preserve correct behavior: keep lock paths, per-story commit serialization, and external semantics unchanged.",
+    "Prove before removing a safety net: retire a retryOnAnyFailure flag only with empirical evidence."
+  ],
+  "drivers": [
+    "Concurrent multi-reviewer REVIEW on a loaded machine must not spuriously fail acquiring a per-story metadata lock.",
+    "The deadline>staleMs invariant must hold so a crashed holder's lock is reclaimable (5s<10s violates it).",
+    "Changes limited to the 6 allowed paths; shared helper and frozen subsystems untouched."
+  ],
+  "options": [
+    {
+      "name": "migrate-to-withMkdirLock",
+      "pros": [
+        "Fixes root cause (30s budget)",
+        "Restores deadline>staleMs invariant",
+        "Removes ~60 lines duplicated buggy code",
+        "Matches checklist.ts precedent (B-6812)"
+      ],
+      "cons": [
+        "Timeout message wording changes (no asserter)",
+        "Touches 3 handler files"
+      ]
+    },
+    {
+      "name": "bump-literal-5000-to-30000",
+      "pros": [
+        "Smallest diff",
+        "No message change"
+      ],
+      "cons": [
+        "Keeps 3 duplicated copies",
+        "Invariant stays unguarded in 3 places"
+      ]
+    },
+    {
+      "name": "do-nothing-keep-stopgap",
+      "pros": [
+        "Zero code change"
+      ],
+      "cons": [
+        "Leaves a real robustness defect",
+        "Permanent band-aid the user asked to remove"
+      ]
+    }
+  ],
+  "chosen": "migrate-to-withMkdirLock",
+  "rationale": "Migrating to withMkdirLock fixes the root cause (5s->30s) AND removes duplicated invariant-violating code, converging on the audited primitive checklist.ts already uses; a literal bump fixes the symptom but keeps three fragile copies.",
+  "preMortem": [
+    {
+      "scenario": "Premature stopgap removal re-introduces flakiness",
+      "trigger": "A previously-flagged smoke has a SECOND load sub-cause beyond the 5s lock budget.",
+      "consequence": "Removing its retryOnAnyFailure flag re-introduces non-deterministic red test:all runs.",
+      "mitigation": "CHK-002 gates removal on heavy --no-retry stress (>=24 runs, 0 FAIL) per smoke; keep the flag + file a finding for any that still fails."
+    },
+    {
+      "scenario": "Hidden assertion on the old timeout message",
+      "trigger": "Some test depends on the literal 'timed out waiting for metadata lock' string.",
+      "consequence": "Switching to withMkdirLock's message format silently breaks that test.",
+      "mitigation": "grep confirmed no asserter outside the 3 handlers; REVIEW reviewers re-verify."
+    },
+    {
+      "scenario": "Semantic drift from helper defaults",
+      "trigger": "withMkdirLock defaults (e.g. failFastIfHeld) differ from the hand-rolled wait-and-poll behavior.",
+      "consequence": "Lock contention starts fail-fasting instead of waiting, changing command semantics.",
+      "mitigation": "Call withMkdirLock with only a label so defaults stay poll-and-wait/30s/10s; reviewers confirm no failFastIfHeld is passed."
+    }
+  ],
+  "timestamp": "2026-06-18T19:22:25.015Z"
+}
