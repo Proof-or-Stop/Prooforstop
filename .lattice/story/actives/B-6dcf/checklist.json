@@ -56,7 +56,39 @@
       "userSees": "lattice check text output explains that managed asset relPath values are relative to the metadata/asset root, and displays gitRoot when different.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice check in text mode and assert the output names the managed asset metadata/asset root and states that relPath, applied paths, and manifest paths are metadata-root or asset-root relative.",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the path-base guidance appears near the check summary for both clean and drift states so a human reading the default terminal output sees the root context before acting.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run text output in a wrapper-root fixture where metadataRoot != gitRoot; assert the output shows both metadataRoot/assetRoot and gitRoot as separate paths and makes the difference visually clear.",
+            "type": "cli"
+          },
+          {
+            "desc": "Run text output when gitRoot equals metadataRoot or is unavailable; assert the guidance remains explicit without redundant or misleading split-root wording.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the item if the text says or implies relPath values are gitRoot-relative, repo-root-relative, or cwd-relative when managed asset apply semantics remain metadata-root based.",
+            "type": "cli"
+          },
+          {
+            "desc": "Fail the item if check --apply is recommended before the output explains the path base, because wrapper-root users must know which root will be modified before applying managed assets.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
