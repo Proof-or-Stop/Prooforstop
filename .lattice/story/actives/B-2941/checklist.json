@@ -69,6 +69,17 @@
           "headHash": "636824668d8c065f115150fcabd43e2112aca272",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:15.065Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'no-retry\\|noRetry\\|no_retry' packages/main/src/tasks/run-all-smokes.ts",
+          "result": "pass",
+          "note": "Returns 2+ — --no-retry CLI flag + noRetry field handled.",
+          "headHash": "1e44a01367250a1226bd30c71df13c703b75f6ab",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:15.660Z"
         }
       ]
     },
