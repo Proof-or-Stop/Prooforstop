@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Map decision-doc verificationRequirements to implemented promotion coverage",
+      "context": "gap_analyze reports decision-doc-promotion-execution-plan.md:174 verificationRequirements as uncovered. Verify existing decision_doc promotion schema/handler/smoke covers preview/save/local quorum separation. If implementation exists, add or adjust only machine-readable task annotation text. If implementation does not exist, stop and record a real finding instead of annotating over the gap.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "User sees lattice gap_analyze no longer list decision-doc-promotion-execution-plan.md:174 verificationRequirements as a high-priority uncovered requirement."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Map runtime-owned requirementsDir project fact to existing config/asset coverage",
+      "context": "gap_analyze reports lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir as uncovered. Verify requirementsDir remains a project structure fact handled by config/truth/story review paths. If implementation exists, add or adjust only a task annotation anchor in existing smoke/code coverage. If implementation does not exist, stop and record a real finding instead of annotating over the gap.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "User sees lattice gap_analyze no longer list lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir as a high-priority uncovered requirement."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Map future-blocked key-ref boundary without implementing locked suite",
+      "context": "gap_analyze reports the third selected key-ref redacted/non-secret row as uncovered. Preserve the existing future/blocked note and bind that boundary to existing scope/status coverage. Do not implement the key-ref field or claim completion of the locked safety suite.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "User sees lattice gap_analyze no longer list the selected key-ref redacted/non-secret row as a high-priority uncovered requirement, while that row remains explicitly future/blocked rather than implemented."
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify gap_analyze no longer reports high gaps",
+      "context": "Run build/targeted validation and lattice gap_analyze before and after. The final state must show 0 high gaps and no server-backed completion overclaim.",
+      "relatedDocs": [
+        "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "User sees lattice gap_analyze output with \"Gaps: 0 high / 0 medium\" and convergence_check shows \"No high-priority gaps\" PASS; any remaining convergence blockers are unrelated active-story or annotation issues."
+    }
+  ]
+}
