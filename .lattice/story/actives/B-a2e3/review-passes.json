@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-18T00:59:27.336Z",
       "reviewRunId": "B-a2e3:RR-005",
       "_hash": "a10ccd9289ddbb5365670e09089678e86a9aaf68040f7f9b2284697762c4e159"
+    },
+    {
+      "id": "B-a2e3:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "All changed files reviewed: no dead imports, no unused functions, no as-any, no swallowed catch, no fs/child_process in experience-revalidation.ts leaf (pure injection), learning-validate.ts is not imported from shell files, all wiring (cli-engine/registry/config/command-policy/process-fact-levels/READ_ONLY_COMMANDS) consistent and complete. NaN guard confirmed: anchored>0 denominator. Cap logic correct. stripAnchorLineSuffix regex covers :line and :line:col without false-positives on normal repo paths.",
+      "createdAt": "2026-06-18T01:02:01.137Z",
+      "reviewRound": "2026-06-18T00:59:27.336Z",
+      "reviewRunId": "B-a2e3:RR-006",
+      "_hash": "9faf171376a81994fad3ff170c7ad1d04ec745d05447bb0423c409e7a8532029"
     }
   ]
 }
