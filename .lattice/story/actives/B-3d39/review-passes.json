@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T14:52:07.514Z",
       "reviewRunId": "B-3d39:RR-002",
       "_hash": "a26f81d3a33066c9e5ad07d4a0d9842b20bded3656d315bc92b8650bf3dbc295"
+    },
+    {
+      "id": "B-3d39:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All CHK-001/CHK-002/CHK-003 userSees match code. Critical invariants verified: (a) sync nesting pass-through confirmed in section 7/7b/7c — withReentrantMainWriteLock uses heldLockPaths.has(lockKey) && currentContextOwns(lockKey), so genuine nested calls inherit ALS context and pass through with no self-deadlock. (b) Section 9 deterministic regression case correctly creates true siblings via two runWithMainWriteLockContext calls; B asserts bOutcome===contended — confirmed smoke exits 0 on two consecutive runs. (c) runWithMainWriteLockContext uses lockOwnerStore.run (bounded), not enterWith — confirmed at lines 372 and 489. (d) ALS propagates across await: lockOwnerStore.run() returns the Promise synchronously, Node ALS propagates the context through the async chain — verified empirically. (e) done-recover.ts:45 acquires via acquireDoneMainMergeLock without runWithMainWriteLockContext wrapper — safe because done-recover does raw git directly with no nested re-acquire; the absence of context means acquireMainWriteLockRegistered always performs real acquisition (lockOwnerStore.getStore()?.add(lockKey) is a no-op when store is undefined), which is the safe direction. (f) On-disk mkdir mutex unchanged — confirmed by git diff showing no removal of acquireMkdirLock or mainWriteLockPath primitives. Spec boundaries from session-ownership-and-write-leases.md: AC#3 (Two DONE operations serialized by main write lock; no partial-DONE race) is directly delivered by this fix; AC#6 (Lock acquisition failure is blocking) preserved via on-disk mutex unchanged. No missing boundary cases. No userSees mismatch. CHK-003:edge:0 test:all waiver is self-documenting (pre-existing parallel flake, B-3d39 lock change proved innocent via standalone serial pass). 0 findings.",
+      "createdAt": "2026-06-18T14:54:44.918Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-001",
+      "_hash": "8a15f2be0c308493d68a383c52cccada36b033f86cf1658ca835d34fcafe80ef"
     }
   ]
 }
