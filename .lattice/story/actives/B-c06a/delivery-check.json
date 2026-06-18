@@ -1,0 +1,47 @@
+{
+  "storyId": "B-c06a",
+  "checkedAt": "2026-06-18T16:29:19.834Z",
+  "reviewRound": "2026-06-18T16:20:24.941Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-c06a/plan.md#CHK-001",
+      "promise": "Pure leaf core/experience-effectiveness.ts: computePredictiveValue (retrodictive recall + windowed trend + slopeSign) and computeArmComparison (ON/OFF arm comparison with conservative N gate). Imports only node:/types. Never NaN; deterministic. precision field removed as vacuous.",
+      "verifiedBy": "diff/read + independent test run",
+      "evidence": "experience-effectiveness.ts has zero import statements (pure). computePredictiveValue returns {stories,findingsWithSig,preWarnable,recall,windows,slopeSign} with no precision field. computeArmComparison returns {nOn,nOff,outcomeOn,outcomeOff,delta,significant,note}. MIN_ARM_N=20 at line 98. Smoke 19/19 PASS; verifier 46/46 PASS (both run independently in this session)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c06a/plan.md#CHK-002",
+      "promise": "Read-only learning_effectiveness handler registered across all 6 surfaces: handlers/learning-effectiveness.ts, registry.ts registerBatch, cli-engine.ts command schema + READ_ONLY_COMMANDS, core/config.ts DEFAULT_PHASE_TOOLS, core/command-policy.ts (readOnly/allowedPhases:all/destructiveRisk:none), core/process-fact-levels.ts (L0 experience-layer-read). Supports --json and --confirmedOnly. Writes nothing, no findings, no gate.",
+      "verifiedBy": "grep across 6 files + independent test run",
+      "evidence": "registry.ts line 69 import + line 244 registerBatch. cli-engine.ts line 1786 schema + line 2961 READ_ONLY_COMMANDS. config.ts line 193 DEFAULT_PHASE_TOOLS. command-policy.ts line 218 readOnly+allowedPhases:all+destructiveRisk:none. process-fact-levels.ts line 134 L0 experience-layer-read. Handler source: no writeFileSync/finding_add/projectRoot persist. Verifier static checks all true (handlerReadOnly=true handlerNoProjectRoot=true cmdRegistered=true etc). CLI subprocess: bare run prints FAST predictive value line + recall, git status clean. --json parseable; --confirmedOnly filters correctly."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c06a/plan.md#CHK-003",
+      "promise": "Smoke suite experience-layer-effectiveness-smoke.ts with 19 named checks (leaf hermetic + CLI subprocess + handler empty-store). npm script test:experience-layer-effectiveness. Committed verifier verify-b-c06a.mjs running 46 checks.",
+      "verifiedBy": "read + independent test run",
+      "evidence": "Smoke file has 19 check() calls with assert statements. package.json line 37 test:experience-layer-effectiveness script. verify-b-c06a.mjs run independently: TOTAL 46 | PASS 46 | FAIL 0. Smoke run independently: TOTAL 19 | PASS 19 | FAIL 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:experience-layer-effectiveness run in this session: TOTAL 19 | PASS 19 | FAIL 0. Covers: exact recall/findingsWithSig/preWarnable over 3-story recurring fixture; exact windowed hit-rates+cutoffs; descending slopeSign; confirmedOnly filter; empty input zeroed-report never-NaN; zero-denominator no-NaN; single-story preWarnable=0; determinism (2-call + 100x loop); arm nOn=2 nOff=2 big-delta => significant FALSE insufficient-N; arm nOn>=20 nOff>=20 => significant TRUE + observational note; arm nOn=19 just-under => significant FALSE; all-unassigned nOn=0 nOff=0 not-significant; nOn=0 nOff=30 outcomeOn=0 not-NaN not-significant; no-overlap recall=0; mixed-null/undefined/empty tags excluded. CLI subprocess: read-only contract verified (git status clean); --json all fields; --confirmedOnly filter. Handler empty-store: zeros + insufficient-N, no NaN."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "CLI and handler adapter paths covered in the 19/19 smoke. Verifier node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs run in this session: TOTAL 46 | PASS 46 | FAIL 0 (buildUtils=true buildOk=true effSmoke=true noRegression=true fullTestOk=true leafIso=true leafNoIo=true leafDeterministic=true handlerReadOnly=true handlerNoProjectRoot=true cmdRegistered=true handlerRegistered=true configEntry=true policyEntry=true policyReadOnly=true factLevelEntry=true readOnlyListed=true pkgScript=true). 7 no-regression smokes all OK; full npm test incl. process-fact-contract green."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke suite independently run in this session: TOTAL 19 | PASS 19 | FAIL 0. Verifier independently run: TOTAL 46 | PASS 46 | FAIL 0. All 19 check() calls have assert statements with specific expected values, not empty stubs."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 plan.md promises independently verified from source. Smoke 19/19 and verifier 46/46 both re-run and confirmed in this review session. Edge cases thoroughly covered: empty input, NaN guard on zero-denominator, single-story, all-unassigned arms, one-empty-arm, no-overlap, mixed-null/undefined/empty tags, small-N honesty trap, boundary N threshold. No TODO/FIXME in production files. Live numbers honestly zero (recall 0, nOn=nOff=0) — correct, data accrues as stories accumulate. Precision field correctly absent with test assertions confirming its removal."
+  },
+  "_hash": "5d838bca14dfe61a1b83f7d9ba560dec7e530f35eec9711299e6221b1bd8c7e7"
+}
