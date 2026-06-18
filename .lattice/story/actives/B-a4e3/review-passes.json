@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-18T14:12:40.486Z",
       "reviewRunId": "B-a4e3:RR-007",
       "_hash": "ea08b188374d0874534042dacf0b7eeb0a518f3489550427a64380b7caa5514a"
+    },
+    {
+      "id": "B-a4e3:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review: 26 symbols extracted (Step 1, all path constants from config.ts/lattice-paths.ts). 2 doc paragraphs compared in Step 2 (CLAUDE.md Cluster section line 874, config.ts JSDoc). F-001 confirmed fixed: CLAUDE.md line 874 now states story_dispatch/finding_dispatch alias 已于 B-a4e3 移除（不再可用）, not 仍可用. F-002 confirmed fixed: config.ts JSDoc line 12 now says <projectRoot>/.lattice/audit-config.json. Salt constraint: git diff grep for koala-*-integrity|salt returned empty — no salt altered. .koala-serve.json: 7 occurrences intact (current code filename, not a branding issue). No new doc-code drift found.",
+      "createdAt": "2026-06-18T14:14:10.880Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-006",
+      "_hash": "0427be57000816c5a7274c8b53d154cf1706f7f467d51fe7c58c1fa186ffcd93"
     }
   ]
 }
