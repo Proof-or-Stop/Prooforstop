@@ -1897,22 +1897,8 @@ Behavior:
     sourcePointers: z.array(z.string()).optional().describe('Evidence pointers for resolution (decisions/ path or checklist item ID), default [].'),
   }},
 
-  // Story dispatch (B-45ed CHK-005: implementer prompt generator)
-  { name: 'story_dispatch', description: 'Generate a standard implementer prompt string (main agent dispatches CHK-xxx)', schema: {
-    storyId: z.string().describe('Story ID'),
-    itemId: z.string().describe('Checklist item ID, for example CHK-001.'),
-    agentType: z.string().optional().describe('subagent type, for example lattice-implementer / lattice-review-channel; CHK-008 will expand matrix.'),
-  }},
-
-  // Finding dispatch (B-45ed CHK-010: reviewer-finding repair prompt generator, isomorphic with story_dispatch).
-  // B-9d95 CHK-004: deprecated alias; first stdout line prints a deprecation warning and recommends lattice dispatch.
-  { name: 'finding_dispatch', description: '[deprecated: use lattice dispatch] Generate reviewer-finding repair prompt', schema: {
-    storyId: z.string().describe('Story ID'),
-    findingId: z.string().describe('Finding ID, for example F-001 or the full B-xxx:F-xxx form.'),
-    agentType: z.string().optional().describe('subagent type, for example lattice-implementer / lattice-review-channel; reuses the CHK-008 grading matrix.'),
-  }},
-
-  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases).
+  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases;
+  // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — lattice dispatch is now the only entry).
   { name: 'dispatch', description: 'Dispatch a subagent prompt for one item, finding, or cluster', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.'),

@@ -230,8 +230,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add',
     'validate', 'status', 'serve',
     'story_advance',
-    'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
-    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复（DEV 阶段可能提前出现 finding）
+    // B-a4e3 CHK-005: removed dead story_dispatch / finding_dispatch alias entries; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
@@ -242,7 +241,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',
-    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复
+    // B-a4e3 CHK-005: removed dead finding_dispatch alias entry; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
