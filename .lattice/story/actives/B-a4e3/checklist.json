@@ -308,6 +308,16 @@
           "headHash": "5fe06d488f9bede2f4351b388c964ed5e878b6c2",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:03:03.322Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show 0c208c1f3 story-dispatch.ts (clusterId branch); npm build; tests",
+          "result": "pass",
+          "note": "dispatch() clusterId branch unchanged — still calls createClusterHandlers(ctx).finding_dispatch (a DIFFERENT cluster.ts function, def at cluster.ts:49, untouched). tsc build exits 0; process-fact-contract + flow-stability-smoke + deprecated-gc-smoke pass; B-8451 advisory mechanism (threshold logic) intact; zero salt literals modified.",
+          "headHash": "4a3d07a55b83805030168bd4628caf49a8109f62",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:03:04.501Z"
         }
       ]
     }
