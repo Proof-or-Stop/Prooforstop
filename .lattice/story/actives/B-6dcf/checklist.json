@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Expose managed asset root diagnostics in lattice check results",
+      "context": "runManagedAssetCheck currently returns profile/assetMode/items/manifestPath only. Add stable JSON fields that identify the metadata/asset root, resolved gitRoot when available, and whether managed asset paths are relative to metadata root. Do not move asset writes to gitRoot; this is diagnostic clarity and evidence shape only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+      ],
+      "userSees": "lattice check --json includes explicit metadataRoot/assetRoot/gitRoot path-base diagnostics.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Render clear path-base guidance in lattice check text output",
+      "context": "renderManagedAssetCheck should show where relPath/applied/manifest paths are rooted, especially when metadataRoot != gitRoot. The text should make ClawCreek-style wrapper roots obvious before recommending check --apply.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+      ],
+      "userSees": "lattice check text output explains that managed asset relPath values are relative to the metadata/asset root, and displays gitRoot when different.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add wrapper-root regression coverage for lattice check diagnostics",
+      "context": "Add a focused smoke/test that builds a non-git metadata root with configured gitRoot subdir and verifies check JSON/text identify assetRoot/metadataRoot separately from gitRoot while keeping relPath semantics unchanged.",
+      "relatedDocs": [
+        "docs/dev/test-coverage.md",
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+      ],
+      "userSees": "A regression command proves wrapper-root lattice check diagnostics are explicit and apply semantics remain metadata-root based.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
