@@ -227,9 +227,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T02:01:19.867Z",
       "userSees": "User sees `Gaps: 0 high / 0 medium` at the top of `lattice gap_analyze --json` output and `No high-priority gaps: PASS` in `lattice convergence_check`; any remaining blockers are reported as unrelated active-story or legacy annotation issues, not these three rows.",
       "files": {
         "modify": [
@@ -267,6 +267,38 @@
       },
       "excludes": [
         "packages/main/src/tasks/gap-analyze.ts"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/decision-doc-promotion-smoke.js && node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && lattice gap_analyze --json",
+          "result": "pass",
+          "note": "build passed; decision-doc promotion smoke passed 9 checks; runtime-owned-agent-assets-smoke passed; gap_analyze returned Gaps: 0 high / 0 medium.",
+          "headHash": "ac9a8c135b2c16d8439efe0634ec17534b204d26",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:20.107Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check --json",
+          "result": "pass",
+          "note": "No high-priority gaps passed. Overall convergence remains false only because of unrelated active stories and pre-existing annotation errors in english-open-source-surface-smoke.ts, lattice-only-absence-smoke.ts, and verification-intent-repair-smoke.ts.",
+          "headHash": "ac9a8c135b2c16d8439efe0634ec17534b204d26",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:20.446Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "manual review of diff and verification transcript",
+          "result": "pass",
+          "note": "Verification is local Non-authority evidence only; no Authority Server receipt-backed completion, productionDone, authorityDone, or fullAuthorityDone is claimed.",
+          "headHash": "ac9a8c135b2c16d8439efe0634ec17534b204d26",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:20.619Z"
+        }
       ]
     }
   ]
