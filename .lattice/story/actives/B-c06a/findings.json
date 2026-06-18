@@ -29,6 +29,25 @@
       "_hash": "12c5a5ef0065e86d023b37c91964389a2d6108d2a977b5f0c0dd6599aaaca3e9",
       "signatureTag": "missing|unknown|type-safety-misleading",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c06a:F-003",
+      "desc": "CHK-002:happy:1 and CHK-002:happy:2 lack literal CLI flag coverage: intent requires exercising `lattice learning_effectiveness --json` (verify JSON output shape) and `lattice learning_effectiveness --confirmedOnly` (verify CLI flag threads to leaf), but the bound evidence command `npm --prefix packages/main run test:experience-layer-effectiveness` only invokes the bare CLI once (no --json, no --confirmedOnly) and tests confirmedOnly only at the direct JS function call level. These are distinct code paths (CLI argument parsing to leaf option) with no exercised test.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T16:02:49.316Z",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "reviewRunId": "B-c06a:RR-003",
+      "_hash": "e8fa8a017f716922d22c17244697504781c3a946badb70c7cf47f37f6f4317b4",
+      "files": [
+        "packages/main/src/handlers/learning-effectiveness.ts",
+        "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-happy-lack",
+      "signatureTagSource": "auto"
     }
   ]
 }
