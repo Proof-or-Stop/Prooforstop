@@ -197,6 +197,17 @@
           "headHash": "965f972bf99623475125183cc8c91804af1fcf7f",
           "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
           "timestamp": "2026-06-18T01:54:02.354Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Text assertions require the wording relative to assetRoot and, in split-root mode, say managed assets are not rooted at gitRoot, preventing repo/cwd/gitRoot-relative implication.",
+          "headHash": "b29130bdcfe1e0e9ec95e08531490f40736fcb7f",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:03.247Z"
         }
       ]
     },
