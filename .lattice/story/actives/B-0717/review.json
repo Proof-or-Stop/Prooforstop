@@ -70,6 +70,62 @@
         }
       ],
       "_hash": "ddf62d2bfba6bf6669565f19690b8df1e4ca2845a833360a7bc305b6dcdddd70"
+    },
+    {
+      "timestamp": "2026-06-18T14:10:35.111Z",
+      "issueCount": 7,
+      "blockerCount": 6,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Write the cli-engine modularization execution plan document + Verify the plan against current cli-engine and command contracts are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/cli-engine.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/registry.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/handlers is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/package.json is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: scripts/verify-process-fact-contract.mjs is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "686990f32023dbb023c3655cc904fc3a39d2000ecd549a80eeef02e445a7dcc3"
+    },
+    {
+      "timestamp": "2026-06-18T14:11:10.036Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Write the cli-engine modularization execution plan document + Verify the plan against current cli-engine and command contracts are performed simultaneously?)"
+        }
+      ],
+      "_hash": "c0e5a1ef3f01b5e1e3a49643686b377aa113e8da0e63418ce8fbd040a4c97737"
     }
   ]
 }
