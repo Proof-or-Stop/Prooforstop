@@ -143,9 +143,9 @@
         "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
       ],
       "userSees": "A regression command proves wrapper-root lattice check diagnostics are explicit and apply semantics remain metadata-root based.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T01:46:47.533Z",
-      "endTime": null,
+      "endTime": "2026-06-18T01:46:54.032Z",
       "verificationIntent": {
         "happy": [
           {
@@ -177,7 +177,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke creates a temporary non-git metadataRoot with configured gitRoot subdir and verifies JSON/text diagnostics distinguish roots.",
+          "headHash": "98cf3ed9ea5d467a225dfb86363c72e67a9c9ded",
+          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
+          "timestamp": "2026-06-18T01:46:54.248Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke runs check --apply and asserts .lattice/Lattice.md plus .lattice/managed-assets.json are written under metadataRoot/assetRoot while gitRoot sentinel content remains unchanged.",
+          "headHash": "98cf3ed9ea5d467a225dfb86363c72e67a9c9ded",
+          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
+          "timestamp": "2026-06-18T01:46:54.447Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed with managed-assets-wrapper-root-smoke.ts compiled and exposed by package scripts.",
+          "headHash": "98cf3ed9ea5d467a225dfb86363c72e67a9c9ded",
+          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
+          "timestamp": "2026-06-18T01:46:54.678Z"
+        }
+      ]
     }
   ]
 }
