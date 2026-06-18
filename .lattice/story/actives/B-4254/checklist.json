@@ -82,6 +82,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
       }
     }
   ]
