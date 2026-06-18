@@ -280,7 +280,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
-      // B-4f46 CHK-002: audit-only supplied signature tag (omitted => unchanged legacy behavior).
+      // B-4f46 CHK-002: audit-only supplied signature tag (omitted => auto-derived candidate, see B-5d48 below).
       const suppliedTag = typeof args.signatureTag === 'string' ? args.signatureTag.trim() : '';
       // B-5d48 CHK-002: provenance + auto-fallback candidate. A supplied (non-empty)
       // tag is CONFIRMED quality and persisted byte-identically; otherwise we persist a

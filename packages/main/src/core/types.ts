@@ -6,6 +6,7 @@ export type {
   ValidationResult,
   ValidationStatus,
 } from './validation-types.js';
+import type { SignatureTagSource } from './experience-layer-types.js';
 
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVIEW' | 'TEST' | 'DONE' | 'DISCARDED'
   // Legacy phases kept for backward compat with existing story data
@@ -589,7 +590,7 @@ export interface Finding {
    * mechanical fallback candidate (deriveSignatureCandidate).
    * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
    */
-  signatureTagSource?: 'auto' | 'confirmed';
+  signatureTagSource?: SignatureTagSource;
   /**
    * B-4f46 CHK-001: how this finding was resolved.
    * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
