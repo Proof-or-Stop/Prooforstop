@@ -90,6 +90,16 @@
           "headHash": "811a9a4b207a95975b16ad6e1944f314025c3b2c",
           "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
           "timestamp": "2026-06-18T19:49:27.041Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/core/mkdir-lock.ts | wc -l",
+          "result": "pass",
+          "note": "0 files — the shared withMkdirLock primitive is reused unchanged",
+          "headHash": "5949a2e34b6e502d3af61d60468dfeb9e5cba842",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:28.197Z"
         }
       ]
     },
