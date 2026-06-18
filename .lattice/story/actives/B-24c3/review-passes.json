@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-24c3:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "All 4 quality checks passed. (a) smoke-manifest.json is valid JSON; only timeoutMs values and one new entry name were changed — skip/tags/only fields untouched. (b) CHANGELOG Unreleased entry is factually accurate: lists 9 original targets, 3 scope-acked emergent victims, and honestly references 4 deferred findings (F-001..F-004) and the CHK-003 waiver. (c) No file under packages/main/src/ was modified. (d) No file under packages/main/src/tasks/ was modified. No dead code, no unsafe casts, no I/O bridge violations — no TypeScript files changed at all.",
+      "createdAt": "2026-06-18T00:42:01.333Z",
+      "reviewRound": "2026-06-18T00:40:43.388Z",
+      "reviewRunId": "B-24c3:RR-001",
+      "_hash": "5a40597efb9dd6a5b898485f3e1b038448545fd75ed35b57c77f6a298f660e6b"
+    }
+  ]
+}
