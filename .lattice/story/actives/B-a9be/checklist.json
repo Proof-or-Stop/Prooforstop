@@ -139,6 +139,17 @@
           "headHash": "385d0e01f",
           "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
           "timestamp": "2026-06-18T14:02:15.522Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "sed -n \"232,240p\" CLAUDE.md",
+          "result": "pass",
+          "note": "The startup block keeps npm start visually separate from lattice serve and only shows supported lattice serve invocations, so it cannot be read as an unsupported CLI alias.",
+          "headHash": "86cb1cc7343d76ca213571c1ddb479fad04b0c33",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:59.152Z"
         }
       ]
     }
