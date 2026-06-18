@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inventory related governance documents and current baseline context",
+      "context": "Read existing decision documents for unattended completion, mid-flight story repair, three-round two-host review escalation, and baseline execution so the new document follows established Lattice conventions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write the milestone execution plan for the three strengthening tracks",
+      "context": "Create a detailed requirements decision document that decomposes hard scope boundaries, mechanical evidence chain, and collaboration/preflight controls into executable milestones with deliverables, gates, tests, and sequencing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify the document is auditable and does not overclaim implementation",
+      "context": "Review the new document for clear non-goals, milestone DONE criteria, 3-round 2-host decision-doc validation policy, baseline/negative-control expectations, and explicit statement that it is a plan rather than completed runtime behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
