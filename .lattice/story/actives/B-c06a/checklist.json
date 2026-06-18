@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure effectiveness leaf (predictive value + arm comparison)",
+      "context": "New core/experience-effectiveness.ts importing only node:/types. computePredictiveValue(orderedStories): for each story in order, using priorSignatures (union of signatureTags from earlier stories), compute pre-warnable findings, pre-warned (recall), would-have-hinted precision; aggregate overall + windowed trend (e.g. Spearman-style slope or per-window hit-rate like Baseline A). computeArmComparison(orderedStories): group by hintMode (on/off/unassigned), compute a recurrence outcome (e.g. fraction of findings whose signature was already known) per arm, return {nOn, nOff, outcomeOn, outcomeOff, delta, significant:boolean, note}. Significance is a conservative gate (e.g. require min N per arm; otherwise significant=false, note='insufficient N'). Pure; never NaN; deterministic.",
+      "userSees": "Deterministic functions turning ordered per-story findings+signatures+arm into a predictive-value report and an ON/OFF comparison with honest N/significance.",
+      "excludes": [
+        "No fs/git in the leaf",
+        "No premature significance claim (conservative gate)"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Read-only learning_effectiveness handler + register",
+      "context": "New handlers/learning-effectiveness.ts (model on learning_validate): build ordered stories from ctx.store (listStoryIds -> readStory createdAt order -> readFindings signatureTag) + read hintMode per story from readActivityLogTail experience_hint_surfaced events; run the leaf; render a human report (fast predictive-value overall+trend, then the ON/OFF readout with N + 'not yet significant') and --json. Optional --confirmedOnly to restrict to signatureTagSource=confirmed. READ-ONLY: writes nothing, no findings, no gate. Register in cli-engine/registry/config/command-policy (readOnly, allowedPhases all)/process-fact-levels (L0 experience-layer-read) AND READ_ONLY_COMMANDS.",
+      "userSees": "Running `lattice learning_effectiveness` prints the predictive-value trend + ON/OFF arm readout (with N + significance); --json emits the structured report; nothing is written.",
+      "excludes": [
+        "No gate registration",
+        "No finding/advisory write",
+        "No cache write"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke + npm script + verifier",
+      "context": "New smoke: feed the leaf synthetic ordered stories (known signatures recurring across stories, known arms) and assert exact predictive-value (recall/precision) + arm comparison (N, outcome, significant=false when N small, true when a fixture crosses the threshold) + never-NaN + determinism; plus a CLI smoke that runs learning_effectiveness on a temp/real store and asserts a predictive-value line + nothing written. npm script + committed verifier (build + smokes + no-regression + full npm test incl. process-fact-contract; static: leaf pure; handler read-only/no projectRoot-persist/no finding/gate; registered across all 6 surfaces incl. READ_ONLY_COMMANDS + process-fact-levels). Maps every intent; TOTAL/PASS/FAIL.",
+      "userSees": "npm smokes pass and the verifier prints PASS for the effectiveness metric.",
+      "excludes": [
+        "No network",
+        "No reliance on unrelated repo state in the hermetic leaf test"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

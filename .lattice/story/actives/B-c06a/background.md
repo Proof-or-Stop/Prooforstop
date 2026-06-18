@@ -1,0 +1,11 @@
+## Trigger Event
+The approved forward-A/B-proof design (Work/lattice-Paper/experience-forward-ab-proof-design.md) makes the effectiveness metric story 3.4 — the read-out that turns the now-live loop (3.1 learning_scan, 3.2 real signatureTags, 3.3 A/B hintMode) into evidence. Baseline A (2026-06-18) measured a NEGATIVE retrodictive learning curve (rho=-0.55) but explicitly as a LOWER BOUND due to degraded signatures; 3.4 makes that computation a live command so it can be re-run on real signatures (after 3.5).
+
+## Key Insights
+The FAST predictive-value layer needs only findings + signatureTags + temporal story order (no hint events) — for story i, priorSignatures = union of signatures from stories before i; a finding is pre-warnable if its signatureTag is in priorSignatures; recall = pre-warned/pre-warnable, precision = matched/would-have-hinted. The LONG-GAME RCT layer reads the experience_hint_surfaced events (which 3.3 stamps with hintMode on/off) to group stories into arms and compare a recurrence outcome, honestly reporting N-per-arm + a significance gate. Story order comes from the store (createdAt); findings + signatureTag from readFindings; hint events from readActivityLogTail. learning_validate (B-a2e3) is the read-only handler template.
+
+## Solution Tradeoffs
+The metric is read-only (like learning_validate): an L0 experience-layer-read command, in READ_ONLY_COMMANDS, that writes nothing. The heavy logic is a PURE leaf (inject the ordered story data) so it is hermetically testable; the handler only adapts store + activity log to the leaf and renders. Honest by construction: it reports N and 'not yet significant' rather than a premature causal claim — forward arm data accrues slowly; the fast signal is observational (correlation, not causation). No weighting of confirmed vs auto signatures is imposed here beyond optionally restricting to confirmed tags in the report.
+
+## Conversational Texture
+The user locked 3.2 -> 3.3 -> 3.4 -> 3.5 backfill -> re-run. 3.4 is the read-out; running it after 3.5 backfills real signatures IS the re-run-learning-curve evidence. Honest framing: 3.4 measures; it does not itself prove — the fast signal is observational and the RCT accrues over future stories.
