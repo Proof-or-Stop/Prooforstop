@@ -59,8 +59,11 @@ function resolveSignedWorkspaceRoot(workspace: ResolvedReviewWorkspace, storyId:
   return signedWorkspaceRoot;
 }
 
-function resolveGitTopLevel(projectRoot: string): string | null {
-  const gitCwd = projectRoot;
+function resolveGitTopLevel(gitCwd: string): string | null {
+  // B-75f0 CHK-004: param named `gitCwd` because the sole caller
+  // (review_run_start, below) passes the already-resolved signedWorkspaceRoot
+  // (authoritativeCwd), never a bare metadataRoot. Pure rename, zero behavior
+  // change — the inbound value is unchanged.
   try {
     return execFileSync('git', ['rev-parse', '--show-toplevel'], {
       cwd: gitCwd,

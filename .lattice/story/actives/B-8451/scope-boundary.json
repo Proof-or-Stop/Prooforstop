@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8451",
+  "mode": "feature",
+  "allowed": [
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/audit-scan.ts",
+    "packages/main/src/core/audit-trigger.ts",
+    "packages/main/src/tasks/deprecated-gc-smoke.ts"
+  ],
+  "excluded": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "4 files: extend 3 existing audit core files + 1 new smoke test. No CLI commands, no handlers, no auth changes.",
+  "createdAt": "2026-06-18T00:33:31.877Z",
+  "updatedAt": "2026-06-18T00:33:31.877Z",
+  "_hash": "be9d2ab8513625df3b70fe07a45a24e9e9a6adb1037b9e029f17e98736dc8d1f"
+}

@@ -35,6 +35,7 @@ import {
   type DispatchRunnerRecord,
 } from './dispatch-runner.js';
 import type { StoryStore } from './store.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 // B-ceed: codex + gemini live-dispatch — bounded provider seams (real spawn).
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemini-cli.js';
@@ -1195,8 +1196,13 @@ function assertCanonicalWorktreePath(worktreeAbs: string, candidatePath: string,
   return relativePath;
 }
 
-function listedGitWorktreeRoots(root: string): string[] {
-  const gitCwd = root;
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware),
+// threaded from the caller that holds store + record.storyId. On a wrapper-root
+// layout the bare metadataRoot (`root`) is not a git repo, so this hard-throwing
+// `git worktree list` errored and dispatch could never reach a registered
+// worktree. `root` is still used only for the realpath fallback resolution of
+// listed paths. Plain repos pass gitCwd == root → byte-identical.
+function listedGitWorktreeRoots(root: string, gitCwd: string): string[] {
   const output = execFileSync('git', ['worktree', 'list', '--porcelain'], {
     cwd: gitCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -1247,7 +1253,12 @@ function assertProjectedWorktreeAncestors(root: string, worktreeAbs: string, lab
   }
 }
 
-function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string, label: string): void {
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware),
+// threaded from the caller. The hard-throwing `git rev-parse --show-toplevel`
+// (and the nested `git worktree list`) ran from the bare metadataRoot before,
+// which is not a git repo on a wrapper-root layout → dispatch hard-failed. `root`
+// stays for path-relative diagnostics only. Plain repos pass gitCwd == root.
+function assertRegisteredDispatchWorktreeRoot(root: string, gitCwd: string, worktreeAbs: string, label: string): void {
   const entry = lstatSync(worktreeAbs);
   if (entry.isSymbolicLink()) {
     throw new Error(`${label} must be a real git worktree root, not a symlink: ${relative(root, worktreeAbs)}`);
@@ -1262,10 +1273,9 @@ function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string,
   }
 
   let gitTopLevel: string;
-  const assertGitCwd = root;
   try {
     gitTopLevel = execFileSync('git', ['-C', worktreeAbs, 'rev-parse', '--show-toplevel'], {
-      cwd: assertGitCwd,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     }).trim();
@@ -1279,7 +1289,7 @@ function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string,
     throw new Error(`${label} must be the git top-level worktree root, got ${relative(root, worktreeAbs)} inside ${relative(root, gitTopLevelReal)}`);
   }
 
-  if (!listedGitWorktreeRoots(root).includes(worktreeReal)) {
+  if (!listedGitWorktreeRoots(root, gitCwd).includes(worktreeReal)) {
     throw new Error(`${label} is not registered in this repository's git worktree list: ${relative(root, worktreeAbs)}`);
   }
 }
@@ -1310,12 +1320,16 @@ function normalizePackPaths(
   return patched;
 }
 
-function ensureWorktree(root: string, worktreePath: string, branch: string, baseRef: string): string {
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware),
+// resolved at the caller via resolveGitCwd (store + record.storyId in scope). All
+// `git worktree add` and the nested registration probes now run from the resolved
+// gitRoot instead of the bare metadataRoot. `root` stays for path math. Plain
+// repos pass gitCwd == root → byte-identical.
+function ensureWorktree(root: string, gitCwd: string, worktreePath: string, branch: string, baseRef: string): string {
   const absPath = resolve(root, worktreePath);
-  const gitCwd = root;
   assertProjectedWorktreeAncestors(root, absPath, 'Dispatch worktree path');
   if (existsSync(absPath)) {
-    assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
+    assertRegisteredDispatchWorktreeRoot(root, gitCwd, absPath, 'Dispatch worktree path');
     return absPath;
   }
   mkdirSync(dirname(absPath), { recursive: true });
@@ -1333,20 +1347,22 @@ function ensureWorktree(root: string, worktreePath: string, branch: string, base
     }
   }
   try {
-    assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
+    assertRegisteredDispatchWorktreeRoot(root, gitCwd, absPath, 'Dispatch worktree path');
   } catch (error: any) {
     const detail = String(error?.message || error).trim();
-    const cleanupWarnings = cleanupCreatedWorktree(root, worktreePath, branch);
+    const cleanupWarnings = cleanupCreatedWorktree(root, gitCwd, worktreePath, branch);
     const suffix = cleanupWarnings.length > 0 ? ` (${cleanupWarnings.join(' | ')})` : '';
     throw new Error(`${detail}${suffix}`);
   }
   return absPath;
 }
 
-function cleanupCreatedWorktree(root: string, worktreePath: string, branch: string): string[] {
+// B-75f0 CHK-001: gitCwd is the RESOLVED git invocation cwd (wrapper-root aware).
+// `git worktree remove` / `prune` / `branch -D` run from the resolved gitRoot, not
+// the bare metadataRoot. Plain repos pass gitCwd == root → byte-identical.
+function cleanupCreatedWorktree(root: string, gitCwd: string, worktreePath: string, branch: string): string[] {
   const warnings: string[] = [];
   const absPath = resolve(root, worktreePath);
-  const gitCwd = root;
   try {
     execFileSync('git', ['worktree', 'remove', '--force', absPath], {
       cwd: gitCwd,
@@ -1775,7 +1791,9 @@ function runFakeLeafDispatch(
   const projectedWorktreeAbs = resolve(root, record.worktree.worktreePath);
   pack = normalizePackPaths(root, record.dispatchId, projectedWorktreeAbs, pack);
   const baseRef = pack.baseSha ?? 'HEAD';
-  const worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
+  // B-75f0 CHK-001: resolve the authoritative git cwd from the real record.storyId.
+  const fakeGitCwd = resolveGitCwd({ store, storyId: record.storyId, metadataRoot: root, projectRoot: root });
+  const worktreeAbs = ensureWorktree(root, fakeGitCwd, record.worktree.worktreePath, record.worktree.branch, baseRef);
   pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
   const markerPath = pack.allowedPaths[0] ?? `.lattice/dispatches/${record.dispatchId}/worker/fake-result.txt`;
   const safeMarkerPath = assertCanonicalWorktreePath(worktreeAbs, markerPath, 'fake dispatch marker');
@@ -2428,9 +2446,12 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   const baseRef = pack.baseSha ?? 'HEAD';
   const worktreeAbsPath = resolve(root, record.worktree.worktreePath);
   const worktreeCreatedThisRun = !existsSync(worktreeAbsPath);
+  // B-75f0 CHK-001: resolve the authoritative git cwd from the real record.storyId
+  // once, then thread it into ensureWorktree + cleanupCreatedWorktree below.
+  const runGitCwd = resolveGitCwd({ store, storyId: record.storyId, metadataRoot: root, projectRoot: root });
   let worktreeAbs: string;
   try {
-    worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
+    worktreeAbs = ensureWorktree(root, runGitCwd, record.worktree.worktreePath, record.worktree.branch, baseRef);
   } catch (error: any) {
     const detail = String(error?.message || error).trim();
     appendTranscript(resolve(root, record.transcriptFile), [
@@ -2466,7 +2487,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   } catch (error: any) {
     const detail = String(error?.message || error).trim();
     const cleanupWarnings = worktreeCreatedThisRun
-      ? cleanupCreatedWorktree(root, record.worktree.worktreePath, record.worktree.branch)
+      ? cleanupCreatedWorktree(root, runGitCwd, record.worktree.worktreePath, record.worktree.branch)
       : [];
     appendTranscript(resolve(root, record.transcriptFile), [
       `[${nowIso()}] scaffolded runtime ${runtime.host} canonical pack-path validation failed`,

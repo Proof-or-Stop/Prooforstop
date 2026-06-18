@@ -114,89 +114,90 @@ const ALLOWLIST_EXACT = new Set<string>([
   'packages/main/src/tasks/main-write-lock-coverage.ts',
 ]);
 
-// ── B-6666 DEFERRED-SITE ALLOWLIST (scoped follow-up) ────────────────────────
+// ── B-6666 / B-75f0 NEW-RULES EXEMPTION ALLOWLISTS (split into two sets) ──────
 // When B-6666 strengthened this contract to close the alias (BLIND SPOT A) and
 // backtick (BLIND SPOT B) blind spots, the strengthened rules surfaced the FULL
 // d93b69b8f silencing batch — ~two dozen `const <name> = projectRoot|root|
-// metadataRoot;` no-op aliases (mass-introduced across core/done-oracle, dispatch,
-// handoff, doctor, checklist, etc.) plus a handful of bare-root backtick git calls.
-// CHK-001/CHK-002 fixed the CONFIRMED high-severity wrapper-root sites
-// (done-oracle.ts + evidence-freshness.ts), and CHK-003 fixed validate-channel.ts /
-// validate-concept.ts (their git readers already received the resolved gitCwd via
-// deps.gitCwd; the closure param was renamed projectRoot→gitCwd so the wiring is
-// lexically honest and no allowlist entry is needed for them).
+// metadataRoot;` no-op aliases plus a handful of bare-root backtick / inline-arg
+// git calls. B-6666 DEFERRED that whole batch as a single time-boxed follow-up.
 //
-// The remaining batch is LARGER than this story can safely re-thread (preMortem #2):
-// each fix needs a resolved gitCwd threaded through its own caller chain, and most
-// are NOT in the confirmed wrapper-root DONE/authority blast radius. Per the
-// charter's bounded-blast-radius escape valve, they are DEFERRED here — explicitly,
-// auditably, and WITHOUT widening the detection regex to ignore them. The contract
-// stays GREEN; these files are skipped ONLY for the alias + bare-backtick rules
-// (the original literal-string bare-cwd rule still applies to non-allowlisted files).
+// B-75f0 BURNED THAT FOLLOW-UP DOWN. It is now split into TWO clearly-separated
+// sets so a reviewer can tell a permanent exemption from a pending debt:
 //
-// FOLLOW-UP (TODO B-6666 → tracked alongside B-99b6): burn this list down by
-// threading resolveGitCwd into each site (or proving it is a self-bootstrapping
-// toplevel-discovery cwd, like test-runner-core.ts:43). Removing an entry below and
-// re-running `npm run test:gitroot-cwd-contract` shows exactly which sites remain.
-// Each entry: <repo-rel path> — <why deferred>.
-const DEFERRED_ALLOWLIST_EXACT = new Set<string>([
-  // ── B-db56 silencing batch: `const <name> = root|projectRoot;` aliases used as
-  //    a git cwd without resolveGitCwd (the exact d93b69b8f shape). Not in this
-  //    story's allowed paths; each needs its own caller to thread a resolved gitCwd.
+//   1. BENIGN_BOOTSTRAP_ALLOWLIST (PERMANENT) — self-bootstrap / no-story-context
+//      git probes where threading resolveGitCwd is either circular (the call IS
+//      the toplevel-discovery step) or meaningless (no store/storyId exists at the
+//      site; the cwd is the repo root by construction). These are NOT debt; each
+//      carries a one-line rationale. They keep their original "deferred from the
+//      NEW alias + backtick rules only" behavior (the original literal-string
+//      bare-cwd rule still applies to them).
+//
+//   2. DEFERRED_ALLOWLIST_EXACT (PENDING BURNDOWN) — now EMPTY. The B-75f0 charter
+//      threaded resolveGitCwd into the 13 real wrapper-root sites (CHK-001/002/003)
+//      and renamed the 3 lexical false-positives (CHK-004 PART A). Nothing remains
+//      pending. If a future story re-introduces a deferrable real site, add it here
+//      WITH its tracking B-id — never silently into BENIGN_BOOTSTRAP.
+//
+// Neither set may contain the 3 CHK-004-renamed files (done-effects.ts,
+// handlers/review-run.ts, core/review-run.ts) nor any of the 13 CHK-001/002/003
+// fixed sites — those are genuinely resolved now and must face the full ruleset.
+
+// PERMANENT self-bootstrap / no-story-context exemptions. Each entry: a one-line
+// reason it is permanently benign (NOT a burndown target).
+const BENIGN_BOOTSTRAP_ALLOWLIST = new Set<string>([
+  // lab sandbox bootstrap: createSandbox(root) runs `git worktree add` from the
+  // repo root to materialize a lab sandbox; the lab subsystem owns its own
+  // root-level worktree and has no story store/storyId at the call site.
   'packages/lab/src/core/sandbox.ts',
-  'packages/main/src/core/codex-adapter-checks.ts',
-  'packages/main/src/core/lattice-dispatch.ts',
-  'packages/main/src/core/lattice-handoff.ts',
-  'packages/main/src/core/review-run.ts',
+  // self-bootstrap repo probe: isGitRepo(root) runs `git rev-parse
+  // --is-inside-work-tree` purely to answer "is this a git repo at all"; there is
+  // no story context and the answer is about `root` itself.
   'packages/main/src/core/rollout-check.ts',
-  'packages/main/src/handlers/checklist.ts',
-  'packages/main/src/handlers/doctor.ts',
-  'packages/main/src/handlers/done-effects.ts',
-  'packages/main/src/handlers/init-check.ts',
-  'packages/main/src/handlers/review-run.ts',
+  // detectActiveStoryId branch probe: reads the current branch from the repo root
+  // to INFER which story is active — it cannot resolveGitCwd by storyId because
+  // discovering the storyId is its whole purpose (chicken-and-egg, no-story-context).
+  'packages/main/src/core/stale-detector.ts',
+  // detectStoryIdFromBranch: same no-story-context branch probe as stale-detector —
+  // reads the branch to derive the storyId, so a storyId-keyed resolve is circular.
+  'packages/main/src/handlers/codex-adapter.ts',
+  // inferStoryIdFromGit: infers the active story from the repo-root branch before
+  // any storyId is known; self-bootstrap discovery, nothing to key a resolve on.
+  'packages/main/src/handlers/fixture.ts',
+  // listActiveWorktrees / branch probe: an inline-arg bare-root git probe used to
+  // enumerate worktrees / infer the active story before a storyId is in scope.
   'packages/main/src/handlers/session.ts',
-  'packages/main/src/handlers/story-query.ts',
+  // test_auto harness branch bookkeeping: snapshots branches before a full
+  // regression and prunes the ones it created afterward, from the repo root; this
+  // is test-fixture bookkeeping over the whole repo, not a story-scoped operation.
   'packages/main/src/handlers/test-auto.ts',
-  'packages/main/src/handlers/verifier.ts',
-  'packages/main/src/handlers/worktree.ts',
-  'packages/main/src/tasks/gap-analyze.ts',
-  'packages/main/src/tasks/trace-store.ts',
-  // ── Bare-root backtick git calls (BLIND SPOT B) outside this story's safely-
-  //    fixable bounded scope:
-  //    test-runner-core.ts: `const gitCwd = root` at :43 is a SELF-BOOTSTRAPPING
-  //      `git rev-parse --show-toplevel` discovery (root is the search origin, not
-  //      an assumed toplevel — threading resolveGitCwd would be circular); the
-  //      :377/:378 `git restore/clean` fixture cleanup uses bare `root` and would
-  //      need a gitCwd threaded through cleanupFixtureDir's 4 callers (test-auto/
-  //      test-fixture/test-story) — out of bounded scope.
+  // self-bootstrapping toplevel discovery: `const gitCwd = root` at :43 runs
+  // `git rev-parse --show-toplevel` where `root` is the SEARCH ORIGIN (threading
+  // resolveGitCwd would be circular); the fixture cleanup (`git restore/clean`)
+  // operates on the test-fixture dir, not a story workspace.
   'packages/main/src/handlers/test-runner-core.ts',
-  //    test-runner.ts: `git diff --name-only` from bare projectRoot; standalone
-  //      task with no store/storyId at the call site.
+  // getRepoRoot(): self-bootstrapping `git rev-parse --show-toplevel` from `root`
+  // (root is the search origin, with `?? root` fallback) — discovering the toplevel
+  // cannot itself depend on a resolved toplevel; no story context.
+  'packages/main/src/handlers/worktree.ts',
+  // standalone regression task: `git diff --name-only` from the repo root to list
+  // changed files for the test runner; a CLI task with no store/storyId at the site.
   'packages/main/src/tasks/test-runner.ts',
-  //    aux-diagnose.ts (packages/utils): `git diff` from bare root; outside the
-  //      main package and this story's allowed paths.
+  // trace snapshot bookkeeping: getCurrentCommit(root) reads `git rev-parse HEAD`
+  // from the repo root to stamp a trace snapshot, returning 'unknown' on failure;
+  // no story context, the commit is the repo's own HEAD.
+  'packages/main/src/tasks/trace-store.ts',
+  // aux-diagnose (packages/utils): `git diff` from the repo root for a diagnostic
+  // report; outside the main package, with no store/storyId — a whole-repo probe.
   'packages/utils/src/handlers/aux-diagnose.ts',
-  // ── BLIND SPOT C (inline-arg string literal) sites surfaced by B-6666 ──────
-  //    The OLD GIT_CALL_REGEX required `git` to be IMMEDIATELY followed by a
-  //    closing quote (`'git'`), so single-string invocations like
-  //    execSync('git rev-parse --abbrev-ref HEAD', { cwd: root }) — where the
-  //    args live INSIDE the same string literal — were entirely invisible. Drop-
-  //    ping the trailing-quote requirement (to also see backtick templates)
-  //    additionally closes this inline-arg literal gap. These are genuine bare-
-  //    root git calls (mostly branch / status / worktree probes that infer the
-  //    active story or render the dashboard) outside this story's allowed paths
-  //    and outside the confirmed wrapper-root DONE/authority blast radius.
-  //    FOLLOW-UP (TODO B-6666 → B-99b6 burndown): thread resolveGitCwd into each.
-  'packages/main/src/core/stale-detector.ts',          // detectActiveStoryId branch probe
-  'packages/main/src/core/touchpoints-fallback.ts',    // detectMdTouchpointsFromGit diff
-  'packages/main/src/core/validation-executor.ts',     // readGitStatus porcelain
-  'packages/main/src/dashboard.ts',                    // worktree list + dirty status (x2)
-  'packages/main/src/handlers/codex-adapter.ts',       // detectStoryIdFromBranch
-  'packages/main/src/handlers/fixture.ts',             // inferStoryIdFromGit
-  'packages/main/src/handlers/recover-evidence.ts',    // readGitStatusLines porcelain
-  // session.ts is ALSO in the alias batch above; its :265 listActiveWorktrees is
-  // an inline-arg literal bare-root probe (same deferral) — single entry covers both.
 ]);
+
+// PENDING BURNDOWN set — EMPTY. B-75f0 closed the B-6666 follow-up: the 13 real
+// wrapper-root sites were threaded through resolveGitCwd (CHK-001/002/003) and the
+// 3 lexical false-positives were renamed projectRoot→gitCwd (CHK-004 PART A), so
+// nothing is pending. Kept as an explicitly-empty set (rather than deleted) so a
+// future deferral has an obvious, NAMED home — any new entry MUST carry its
+// tracking B-id and is a debt, never a permanent benign exemption.
+const DEFERRED_ALLOWLIST_EXACT = new Set<string>([]);
 
 /** Returns true if the repo-relative path is exempt from ALL contract rules. */
 function isAllowlisted(repoRelPath: string): boolean {
@@ -208,12 +209,13 @@ function isAllowlisted(repoRelPath: string): boolean {
 }
 
 /**
- * B-6666: returns true if the file is a DEFERRED site exempt ONLY from the new
- * alias + backtick-bare-root rules (the original literal-string bare-cwd rule
- * still applies). See DEFERRED_ALLOWLIST_EXACT for the scoped follow-up rationale.
+ * B-6666 / B-75f0: returns true if the file is exempt ONLY from the new alias +
+ * backtick-bare-root rules (the original literal-string bare-cwd rule still
+ * applies). Covers BOTH the permanent BENIGN_BOOTSTRAP_ALLOWLIST (self-bootstrap /
+ * no-story-context probes) and the now-EMPTY pending DEFERRED_ALLOWLIST_EXACT set.
  */
 function isDeferredFromNewRules(repoRelPath: string): boolean {
-  return DEFERRED_ALLOWLIST_EXACT.has(repoRelPath);
+  return BENIGN_BOOTSTRAP_ALLOWLIST.has(repoRelPath) || DEFERRED_ALLOWLIST_EXACT.has(repoRelPath);
 }
 
 // ── Detection ────────────────────────────────────────────────────────────────

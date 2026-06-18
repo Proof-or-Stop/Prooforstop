@@ -1,0 +1,57 @@
+{
+  "storyId": "B-8451",
+  "checkedAt": "2026-06-18T00:47:56.907Z",
+  "reviewRound": "2026-06-18T00:40:00.984Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "index.json#description",
+      "promise": "Add optional deprecatedGcThreshold: number to AuditConfig interface with default 10",
+      "verifiedBy": "diff/read audit-config.ts",
+      "evidence": "Line 32: deprecatedGcThreshold: number in AuditConfig interface; Line 40: deprecatedGcThreshold: 10 in HARD_DEFAULTS; Lines 64+88-98: profileDefaults and merge-with-validation wired (positive integer check + warn + fallback, same pattern as auditTriggerWindow). Not present in main branch."
+    },
+    {
+      "docPath": "index.json#description",
+      "promise": "Add scanDeprecated(projectRoot) to audit-scan.ts: grep @deprecated in packages/main/src/**/*.ts, return { count, files }, must not throw",
+      "verifiedBy": "diff/read audit-scan.ts",
+      "evidence": "Lines 397-424 of audit-scan.ts: scanDeprecated exported function using grep -rl, counts per-file, returns { count, files } as unique basenames. Outer try/catch returns { count: 0, files: [] } on any error. Not present in main branch."
+    },
+    {
+      "docPath": "index.json#description",
+      "promise": "Wire deprecated advisory into audit-trigger.ts hint: after buildSemiAutoHint, call scanDeprecated, if count > deprecatedGcThreshold append advisory. Additive only — never changes triggered or blocks DONE.",
+      "verifiedBy": "diff/read audit-trigger.ts",
+      "evidence": "Line 27 imports scanDeprecated; Lines 247-253 in semi-auto branch call scanDeprecated, compare count > threshold, append advisory to hint string only. The triggered boolean is never changed. Not present in main branch."
+    },
+    {
+      "docPath": "checklist.json#CHK-004",
+      "promise": "Smoke test deprecated-gc-smoke.ts: default threshold=10, config override, scanDeprecated real repo no-throw, advisory fires when count>threshold, absent when count<=threshold",
+      "verifiedBy": "read deprecated-gc-smoke.ts + live execution",
+      "evidence": "6 tests using node:assert/strict: test1 default=10, test2 override=5, test3 real-repo scan no-throw count=22, test4 advisory present 12>10, test5 absent 7<=10, test6 absent 10===10. Live run: all 6 pass, exit 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "test1: resolveAuditConfig(balanced, tmpdir) asserts deprecatedGcThreshold===10. test2: .lattice/audit-config.json override {deprecatedGcThreshold:5} asserts resolved value===5. Both pass live."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "test3: scanDeprecated(realRoot) asserts count>=0 and Array.isArray(files) without throwing. Live: count=22 files=5. Covers happy path and no-throw contract."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "test4: count=12>threshold=10 hint includes @deprecated GC advisory. test5: count=7<=threshold=10 advisory absent. test6: count===threshold advisory absent (strictly greater). Covers advisory fires, absent below, absent at boundary."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/deprecated-gc-smoke.js — 6 assertions using node:assert/strict — all pass, exits 0. Independently re-run during delivery review and confirmed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items verified in source code. deprecatedGcThreshold added to AuditConfig with validation; scanDeprecated implemented with try/catch; advisory wired additively in audit-trigger.ts semi-auto branch; smoke test with 6 assertions passes live execution. Edge cases covered: config override, count at boundary (===threshold not firing), count below threshold. No CLAUDE.md changes in diff — doc update was out of story scope."
+  },
+  "_hash": "cafab1d83e57fcf28690e5756326a61eafb12f18826ee2870607e108b2b8a122"
+}

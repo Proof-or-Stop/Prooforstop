@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-24c3",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm run test:all",
+    "npm test",
+    "python3 -c *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "packages/main/smoke-manifest.json"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".c8rc.json",
+    "package.json",
+    "packages/main/src/",
+    "packages/main/src/tasks/",
+    "scripts/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Pure manifest+CHANGELOG story. No source code touched. No smoke logic touched. Verify by re-running test:all 3x consecutively.",
+  "createdAt": "2026-06-17T23:47:26.864Z",
+  "updatedAt": "2026-06-17T23:47:26.864Z",
+  "_hash": "6b08244c89a815f5a51ce66fa5fe3816b5b388aea3974cf83edc752ff1c12cdb"
+}

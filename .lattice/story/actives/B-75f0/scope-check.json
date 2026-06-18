@@ -1,0 +1,80 @@
+{
+  "storyId": "B-75f0",
+  "checkedAt": "2026-06-17T22:30:58.017Z",
+  "features": [
+    {
+      "feature": "Fix 3 hard-failure wrapper-root sites: lattice-dispatch worktree create/remove, checklist verification_evidence_refresh, doctor --repair mutations — each with a wrapper-root regression",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Thread resolveGitCwd into 7 graceful-degradation real sites: verifier currentHead, lattice-handoff resolveCommitSha, codex-adapter-checks readGitHead, touchpoints-fallback detectMdTouchpointsFromGit, validation-executor readGitStatus, recover-evidence readGitStatusLines, init-check init_check_repair",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Export resolveProjectGitRoot (or add a thin exported wrapper) from core/story-signed-workspace-resolution.ts as a pre-step for id-independent project-level scans",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix 3 project-level scans with id-independent resolveProjectGitRoot: gap-analyze readLinkedStoryWorktreeIds, story-query scanTerminalStoryResidues, dashboard collectProject",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename 3 lexical false-positive params projectRoot->gitCwd (done-effects.ts, handlers/review-run.ts, core/review-run.ts) — zero behavior change",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Split DEFERRED_ALLOWLIST_EXACT in gitroot-cwd-contract-smoke.ts into BENIGN_BOOTSTRAP_ALLOWLIST (permanent, with rationale) and an empty pending set",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Plain-repo byte-identity preserved: fall back to root/projectRoot when no gitRoot resolves at every fixed site",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "gitroot-cwd-contract-smoke exits 0 after each site is fixed and removed from the allowlist",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Contract self-tests still detect re-introduced bare-root alias (detection intact, not silenced after the allowlist split)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 9,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4660ab1edee24c81846166303249d79f3ddf694dc186646b9e1f93b49b26ea79",
+  "openQuestions": []
+}

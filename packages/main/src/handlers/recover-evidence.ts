@@ -22,6 +22,7 @@
 import { execSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
   classifyGitStatusRows,
   dirtyWorktreeClassifierOptionsFromConfig,
@@ -56,10 +57,16 @@ export interface RecoverEvidenceResult {
   validateTranscript?: string;
 }
 
-function readGitStatusLines(projectRoot: string): string[] {
+// B-75f0 CHK-002: `gitCwd` is the resolved git working dir (the handler resolves
+// it via the id-keyed resolveGitCwd — a real storyId + store are in scope there).
+// On a wrapper-root layout it is the real gitRoot subdir so the dirty-status
+// classification reads the actual repo; on a plain repo (or when no gitRoot
+// resolves) it is the passed projectRoot verbatim. The `[]` fallback on any git
+// failure is preserved (no git repo → empty dirty list, probe-style tolerance).
+function readGitStatusLines(gitCwd: string): string[] {
   try {
     const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -70,8 +77,8 @@ function readGitStatusLines(projectRoot: string): string[] {
   }
 }
 
-function classifyDirtyWorktree(projectRoot: string): DirtyWorktreeClassification {
-  const lines = readGitStatusLines(projectRoot);
+function classifyDirtyWorktree(projectRoot: string, gitCwd: string): DirtyWorktreeClassification {
+  const lines = readGitStatusLines(gitCwd);
   const config = loadConfig(projectRoot);
   return classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot));
 }
@@ -127,9 +134,14 @@ export function createRecoverEvidenceHandlers(ctx: HandlerContext): Record<strin
         throw new Error('recover_evidence: storyId is required (non-empty string)');
       }
       const projectRoot = args.projectRoot || ctx.root;
+      // B-75f0 CHK-002: a real storyId + store are in scope, so resolve the
+      // dirty-status git cwd with the id-keyed resolveGitCwd. On a wrapper-root
+      // layout it is the real gitRoot subdir; on a plain repo (or when no gitRoot
+      // resolves) it falls back to projectRoot verbatim (byte-identical).
+      const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: projectRoot, projectRoot });
 
       // 1. Classify dirty worktree via the shared B-6326 classifier.
-      const classification = classifyDirtyWorktree(projectRoot);
+      const classification = classifyDirtyWorktree(projectRoot, gitCwd);
       const refusedCategories = findRefusedCategories(classification);
 
       // 2. Allowlist short-circuit: refuse and DO NOT run refresh / validate.

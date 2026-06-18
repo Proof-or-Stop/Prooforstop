@@ -1,0 +1,17 @@
+{"type":"dispatch","storyId":"B-24c3","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-17T23:47:51.870Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":1,"issueCount":4,"timestamp":"2026-06-17T23:54:20.287Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":3,"timestamp":"2026-06-17T23:56:24.905Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-17T23:56:42.221Z"}
+{"type":"dispatch","checklistId":"CHK-002","timestamp":"2026-06-17T23:56:44.276Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-18T00:00:33.750Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-18T00:00:39.806Z"}
+{"type":"dispatch","checklistId":"CHK-003","timestamp":"2026-06-18T00:00:51.675Z"}
+{"type":"reviewer_finding","storyId":"B-24c3","command":"finding_add","role":"main","agent":"jek-main","result":"pass","findingId":"B-24c3:F-001","severity":"medium","missingAttribution":false,"timestamp":"2026-06-18T00:19:04.988Z"}
+{"type":"reviewer_finding","storyId":"B-24c3","command":"finding_add","role":"main","agent":"jek-main","result":"pass","findingId":"B-24c3:F-002","severity":"low","missingAttribution":false,"timestamp":"2026-06-18T00:38:26.685Z"}
+{"type":"reviewer_finding","storyId":"B-24c3","command":"finding_add","role":"main","agent":"jek-main","result":"pass","findingId":"B-24c3:F-003","severity":"low","missingAttribution":false,"timestamp":"2026-06-18T00:38:28.424Z"}
+{"type":"reviewer_finding","storyId":"B-24c3","command":"finding_add","role":"main","agent":"jek-main","result":"pass","findingId":"B-24c3:F-004","severity":"low","missingAttribution":false,"timestamp":"2026-06-18T00:38:29.588Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-18T00:40:08.382Z"}
+{"type":"review_pass","storyId":"B-24c3","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-24c3:RP-001","timestamp":"2026-06-18T00:42:01.334Z"}
+{"type":"review_pass","storyId":"B-24c3","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-24c3:RP-002","timestamp":"2026-06-18T00:42:46.132Z"}
+{"type":"review_pass","storyId":"B-24c3","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-24c3:RP-003","timestamp":"2026-06-18T00:43:59.808Z"}
+{"type":"dirty_gate_audit","storyId":"B-24c3","gate":"done-gate","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-24c3/owner-lease.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-18T00:52:12.748Z"}

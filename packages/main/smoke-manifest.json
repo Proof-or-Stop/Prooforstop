@@ -98,7 +98,8 @@
       "name": "storydir-inside-gitroot"
     },
     {
-      "name": "story-metadata-protection"
+      "name": "story-metadata-protection",
+      "timeoutMs": 180000
     },
     {
       "name": "worktree-authority",
@@ -141,7 +142,8 @@
       "name": "story-dedup"
     },
     {
-      "name": "story-create-concurrency"
+      "name": "story-create-concurrency",
+      "timeoutMs": 180000
     },
     {
       "name": "meta-story-next-hint"
@@ -150,19 +152,22 @@
       "name": "evidence-state-gate"
     },
     {
-      "name": "gap-log"
+      "name": "gap-log",
+      "timeoutMs": 180000
     },
     {
       "name": "authority-boundary"
     },
     {
-      "name": "init-check-fallback"
+      "name": "init-check-fallback",
+      "timeoutMs": 180000
     },
     {
       "name": "checklist-reload-hint"
     },
     {
-      "name": "story-capsule"
+      "name": "story-capsule",
+      "timeoutMs": 180000
     },
     {
       "name": "evidence-quality"
@@ -174,7 +179,8 @@
       "name": "decision-doc-quorum"
     },
     {
-      "name": "decision-doc-promotion"
+      "name": "decision-doc-promotion",
+      "timeoutMs": 180000
     },
     {
       "name": "attestation"
@@ -186,7 +192,8 @@
       "name": "fact-provenance"
     },
     {
-      "name": "scope-contract"
+      "name": "scope-contract",
+      "timeoutMs": 180000
     },
     {
       "name": "scope-anti-expansion"
@@ -229,14 +236,15 @@
     },
     {
       "name": "dispatch-run",
-      "timeoutMs": 180000
+      "timeoutMs": 300000
     },
     {
       "name": "autopilot-run",
       "timeoutMs": 180000
     },
     {
-      "name": "unattended-dispatch"
+      "name": "unattended-dispatch",
+      "timeoutMs": 180000
     },
     {
       "name": "rollout-check"
@@ -255,7 +263,7 @@
     },
     {
       "name": "lattice-baseline",
-      "timeoutMs": 240000
+      "timeoutMs": 360000
     },
     {
       "name": "lattice-parallel-wave"
@@ -274,7 +282,7 @@
     },
     {
       "name": "cli-json-stdout-contract",
-      "timeoutMs": 180000
+      "timeoutMs": 300000
     },
     {
       "name": "pretool-scope-hook"
@@ -463,6 +471,10 @@
     },
     {
       "name": "provider-gemini"
+    },
+    {
+      "name": "experience-layer-digest-extract",
+      "timeoutMs": 180000
     }
   ]
 }

@@ -685,7 +685,11 @@ function collectWorktreeCleanupTargets(scan: {
 }
 
 function tryWorktreeRemove(root: string, target: string): void {
-  const gitCwd = root;
+  // B-75f0 CHK-001: run `git worktree remove` from the resolved gitRoot, not the
+  // bare metadataRoot. On a wrapper-root layout (metadataRoot != gitRoot) the
+  // bare root is not a git repo, so the remove silently no-ops. resolveDoctorGitCwd
+  // returns `root` for plain repos (metadataRoot == gitRoot) → byte-identical.
+  const gitCwd = resolveDoctorGitCwd(root);
   try {
     execFileSync('git', ['worktree', 'remove', '--force', target], {
       cwd: gitCwd,
@@ -730,7 +734,11 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
   const branch = `story/${storyId}`;
   const branchRef = `refs/heads/${branch}`;
   const expectedPath = resolve(target).replace(/\\/g, '/');
-  const gitCwd = root;
+  // B-75f0 CHK-001: probe `--git-common-dir` from the resolved gitRoot, not the
+  // bare metadataRoot. On a wrapper-root layout (metadataRoot != gitRoot) the
+  // bare root is not a git repo, so the probe throws and stale admin dirs are
+  // never pruned. resolveDoctorGitCwd returns `root` for plain repos → identical.
+  const gitCwd = resolveDoctorGitCwd(root);
   let commonDir: string;
   try {
     commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
@@ -741,7 +749,8 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
   } catch {
     return removed;
   }
-  const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(root, commonDir, 'worktrees');
+  // A relative --git-common-dir is relative to the gitCwd it was probed from.
+  const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(gitCwd, commonDir, 'worktrees');
   let names: string[] = [];
   try {
     names = readdirSync(adminBase);
@@ -772,7 +781,11 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
 function deleteTerminalStoryBranch(root: string, store: HandlerContext['store'], storyId: string): void {
   if (!isTerminalStory(store, storyId)) return;
   const branch = `story/${storyId}`;
-  const gitCwd = root;
+  // B-75f0 CHK-001: delete the terminal story branch from the resolved gitRoot,
+  // not the bare metadataRoot. On a wrapper-root layout (metadataRoot != gitRoot)
+  // the bare root is not a git repo, so the branch -D silently no-ops and leaves
+  // a stale branch. resolveDoctorGitCwd returns `root` for plain repos → identical.
+  const gitCwd = resolveDoctorGitCwd(root);
   try {
     execFileSync('git', ['branch', '-D', branch], {
       cwd: gitCwd,

@@ -1,0 +1,61 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-18T00:36:22.653Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Add deprecatedGcThreshold to AuditConfig + resolveAuditConfig + Add scanDeprecated function to audit-scan.ts are performed simultaneously?)"
+        },
+        {
+          "type": "verification_intent_advisory",
+          "severity": "advisory",
+          "message": "fast channel allows fast path, but recommend adding at least one verificationIntent.happy for CHK-001, CHK-002, CHK-003, CHK-004 to help REVIEW/test-coverage reviewer align."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether audit-trigger.ts calls audit-scan functions directly or via audit.ts handler — need to trace call path before wiring"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "31ac1a3d8e0030c4ef981a5ad8d41e117e5d0c46cc4687dd80320af2f4cc45d5"
+    }
+  ]
+}

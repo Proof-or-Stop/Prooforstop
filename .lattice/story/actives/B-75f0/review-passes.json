@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-75f0:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 12 must-intents (4 CHKs x 3 lanes) have valid non-stale verificationEvidence. CHK-001 dispatch-checklist-doctor-wrapper-root-smoke.ts proves red->green for all 3 hard-failure sites (gitCwd resolver resolves to inner gitRoot, git commands throw from bare metadataRoot and succeed from resolved gitCwd, plain-repo byte-identical). CHK-002 graceful-sites smoke directly drives verifier/init-check/touchpoints; remaining 4 graceful sites delegated to contract smoke (explicitly noted and contract ran 0 violations). CHK-003 project-gitroot-cwd smoke directly tests resolveProjectGitRoot/resolveProjectGitCwd on wrapper/plain/null fixtures. CHK-004 build+contract evidence proves rename correctness and allowlist split. Adversarial intents all rely on gitroot-cwd-contract-smoke with 9 working self-tests (ALIAS/BACKTICK KNOWN-BAD each fire exactly 1 violation, DEFERRED_ALLOWLIST_EXACT is empty, 523 ts files scanned clean). No stale, token-only, or mismatched evidence found.",
+      "createdAt": "2026-06-17T23:25:54.227Z",
+      "reviewRound": "2026-06-17T23:23:07.953Z",
+      "reviewRunId": "B-75f0:RR-003",
+      "_hash": "eae307935260a8eb12e4c62546899af428597a18859267db9ef094efc1b86f83"
+    },
+    {
+      "id": "B-75f0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness check complete. (1) DEFERRED_ALLOWLIST_EXACT is genuinely empty (new Set<string>([])) in gitroot-cwd-contract-smoke.ts — no code file contains a non-empty burndown set; story metadata files reference the old name only as historical audit trail, not code residue. (2) The 3 CHK-004-renamed params: autoSyncMain(gitCwd) in done-effects.ts, resolveGitTopLevel(gitCwd) in handlers/review-run.ts, isGitRepository(gitCwd) in core/review-run.ts — all renamed; remaining projectRoot usages in those files are for OTHER unrelated params, not stale renames. (3) resolveProjectGitRoot is now exported from story-signed-workspace-resolution.ts; it was previously private and is now correctly importable by all 3 CHK-003 call sites (gap-analyze, story-query, dashboard). (4) No comments in fixed files (checklist.ts, verifier.ts, lattice-dispatch.ts, lattice-handoff.ts, codex-adapter-checks.ts, touchpoints-fallback.ts, validation-executor.ts, recover-evidence.ts, init-check.ts, doctor.ts, story-query.ts, dashboard.ts, gap-analyze.ts) describe those sites as deferred. (5) Closing self-check: all doc-promised exports (resolveProjectGitCwd, resolveProjectGitRoot, BENIGN_BOOTSTRAP_ALLOWLIST) are present in source. No blocker.",
+      "createdAt": "2026-06-17T23:26:09.456Z",
+      "reviewRound": "2026-06-17T23:23:07.953Z",
+      "reviewRunId": "B-75f0:RR-001",
+      "_hash": "1f355940f78153bcb76189f4978d3abf1de23a7ec8577105ca575497c2d5fc2c"
+    },
+    {
+      "id": "B-75f0:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001: dispatch resolveGitCwd keyed to record.storyId (from prepareDispatch args or readRecord — real dispatch storyId, never fabricated); no wrong-worktree hazard confirmed. doctor resolveDoctorGitCwd is id-independent (project-level config, correct for project-wide repair ops); adminBase relative-path fixed to use gitCwd as base (correct: --git-common-dir result is relative to cwd). checklist refresh uses resolveStoryGitCwd(args.storyId) — correct storyId. CHK-002: all graceful sites wrap resolveGitCwd/resolveProjectGitCwd in try/catch → projectRoot fallback; inner helpers retain their own undefined/null/[]/unknown catches; no graceful degrade turned into throw. Edge: resolveGitCwd catches all resolver errors and falls back to projectRoot — absent story or missing worktree both safe-fallback to projectRoot, never throw. CHK-003: resolveProjectGitCwd exported, returns projectRoot verbatim when resolveProjectGitRoot returns null (plain repos and no-git dirs byte-identical). CHK-004: all 3 renames are zero-behavior-change — done-effects autoSyncMain receives already-resolved doneGitCwd from transition-orchestrator:276, review-run resolveGitTopLevel receives signedWorkspaceRoot, core/review-run isGitRepository called with signedWorkspaceRoot. No blocking findings.",
+      "createdAt": "2026-06-17T23:26:52.705Z",
+      "reviewRound": "2026-06-17T23:23:07.953Z",
+      "reviewRunId": "B-75f0:RR-004",
+      "_hash": "c66af8d7b337030e94fcbf56645ef5c8664b7dd3eae192bc47f0914d1d493756"
+    },
+    {
+      "id": "B-75f0:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "round 2 re-verify after F-001 fix (commit f32bfb3): (1) DEFERRED_ALLOWLIST_EXACT is confirmed empty new Set<string>([]) in gitroot-cwd-contract-smoke.ts — story metadata references are historical audit trail only, zero code residue. (2) resolveProjectGitRoot is exported from story-signed-workspace-resolution.ts:442 with correct importers in gap-analyze, story-query, dashboard, project-gitroot-cwd-smoke. (3) 3 CHK-004 renames confirmed: autoSyncMain(gitCwd) in done-effects.ts, resolveGitTopLevel(gitCwd) in handlers/review-run.ts, isGitRepository(gitCwd) in core/review-run.ts — all renamed, remaining projectRoot usages in those files are for unrelated params. (4) F-001 delta consistency: verifier.ts:605 now passes loadConfig(projectRoot) as 3rd arg — loadConfig was already imported at line 33, no new import needed. All 8 production resolveProjectGitCwd call sites (dashboard, lattice-handoff, touchpoints-fallback, validation-executor, story-query, gap-analyze, codex-adapter-checks, verifier) now pass a config 3rd arg. The fix is consistent with all other sites. No new concept residue introduced by F-001 commit. No blocker.",
+      "createdAt": "2026-06-17T23:33:09.845Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-005",
+      "_hash": "7545ca3a80e67e98ae5e3fd862aa83e2b00aacf70122965816300765f4a0095f"
+    },
+    {
+      "id": "B-75f0:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 F-001 fix analysis: (1) CORRECTNESS IMPROVEMENT — old call resolveProjectGitCwd(projectRoot, projectRoot) omitted config entirely (config=undefined), so config?.gitRoot was always undefined and the function always fell back to projectRoot, never using a configured gitRoot subdir on wrapper-root layouts; new call passes loadConfig(projectRoot) enabling the wrapper-root path to resolve correctly. (2) PLAIN-REPO BYTE-IDENTICAL — plain repo has no configured gitRoot in DEFAULT_CONFIG, so loadConfig returns config with gitRoot=undefined; resolveProjectGitRoot(metadataRoot, undefined) probes metadataRoot git top-level which equals projectRoot, returning projectRoot verbatim; behavior unchanged. (3) NO NEW THROW PATH — loadConfig never throws: missing file returns defaults (existsSync check skips parse entirely), parse errors are swallowed (catch {}); loadConfig already called unconditionally at verifier.ts lines 146, 180, 352, 848, and at all 6 other resolveProjectGitCwd call sites (dashboard.ts:64, gap-analyze.ts:177, touchpoints-fallback.ts:31, lattice-handoff.ts:963, validation-executor.ts:162, codex-adapter-checks.ts:167) — the pattern is proven safe. (4) ROUND-1 CONCLUSIONS HOLD — F-001 delta touches only verifier.ts:605 (1 line, no dispatch/doctor/checklist code touched); no wrong-worktree hazard introduced; graceful fallbacks preserved; renames are zero-behavior. No blockers.",
+      "createdAt": "2026-06-17T23:33:36.689Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-008",
+      "_hash": "6a3122f910d090513d06f592e6e2aa8b1f008b70144878e41c5f42550a0c3f4d"
+    },
+    {
+      "id": "B-75f0:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "round 2: F-001 fix verified (verifier.ts:605 now passes loadConfig(projectRoot) as third arg to resolveProjectGitCwd, matching all 6 other call sites); loadConfig already imported at line 33, no new import needed; plain-repo byte-identity preserved (resolveProjectGitCwd returns resolveProjectGitRoot ?? projectRoot, undefined gitRoot yields verbatim fallback); DEFERRED_ALLOWLIST_EXACT confirmed empty (new Set([])); none of the 16 changed source files added to any allowlist; 9 contract self-tests intact and unmodified; no dead imports, no as-any, no empty catch in changed files",
+      "createdAt": "2026-06-17T23:33:47.166Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-006",
+      "_hash": "0770c46bd297207b6425c5bbc2cfcbe0ed12ee845d1efc5dfeebbddea2920534"
+    },
+    {
+      "id": "B-75f0:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 2 fresh verdict: 12/12 must-intents covered, 0 missing, 0 stale after F-001 fix. verifier.ts:605 (loadConfig threaded into resolveProjectGitCwd no-story path) is within CHK-002 scope (graceful sites); project-gitroot-cwd-smoke.ts directly exercises resolveProjectGitCwd with loadConfig (CHK-003 evidence), confirming fix is covered. graceful-sites-gitroot-cwd-wrapper-root-smoke.ts covers CHK-002 story-scoped verifier path. All 12 evidences carry non-stale headHash=27c1e4acc, materialHash consistent; validate --story=B-75f0 --json reports verificationCoverage 12/12 covered 0 missingRequired.",
+      "createdAt": "2026-06-17T23:34:53.670Z",
+      "reviewRound": "2026-06-17T23:31:35.856Z",
+      "reviewRunId": "B-75f0:RR-010",
+      "_hash": "9e6cde721f91dbcef068d85d0918ce6bfc70957297adee5beda68b7555e4bfc8"
+    }
+  ]
+}
