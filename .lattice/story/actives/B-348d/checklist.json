@@ -158,7 +158,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "python3 -c \"import json;m=json.load(open('packages/main/smoke-manifest.json'));t={'field-regression-cli','verification-freshness','worktree-repair','review-pass-discard'};print(sum(1 for s in m['smokes'] if s['name'] in t and s.get('retryOnAnyFailure')==True))\"",
+          "result": "pass",
+          "note": "corrected faithful command outputs 4; exactly the four verified load-flake smokes opted in",
+          "headHash": "05f3f38fc6669de070079577933794b42036ff8b",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:45.491Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
