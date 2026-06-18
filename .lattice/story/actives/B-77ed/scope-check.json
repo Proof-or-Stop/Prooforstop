@@ -1,0 +1,66 @@
+{
+  "storyId": "B-77ed",
+  "checkedAt": "2026-06-18T19:25:22.719Z",
+  "features": [
+    {
+      "feature": "Migrate finding.ts withReviewPassLock to withMkdirLock (5s->30s deadline, shared primitive)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Migrate review-run.ts withReviewRunLock to withMkdirLock",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Migrate init-check.ts withInitCheckLock to withMkdirLock",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Heavy parallel --no-retry stress test of 4 smokes (>=24 runs, 0 FAIL) to prove stopgap retirement",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove retryOnAnyFailure flags from 4 smoke-manifest.json entries (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add CHANGELOG.md Unreleased entry documenting lock migration and stopgap retirement with empirical proof",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update docs/dev/test-coverage.md Retry policy section to reflect smokes no longer need retryOnAnyFailure",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "95ceb241f5262fe1a3a706c9e2376259037a250e10275cfc66fd93f1f5a5502f",
+  "openQuestions": []
+}

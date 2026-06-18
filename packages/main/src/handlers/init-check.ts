@@ -14,7 +14,6 @@
  * the module comment in core/init-check-gate.ts.
  */
 
-import { mkdirSync, rmSync, statSync } from 'fs';
 import { execSync } from 'child_process';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
@@ -38,6 +37,7 @@ import {
   signInitCheck,
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
+import { withMkdirLock } from '../core/mkdir-lock.js';
 
 // Backward-compatible re-exports: existing importers (core/machine.ts now reads
 // from core directly; story-create.ts / draft-check.ts still import from here).
@@ -60,33 +60,9 @@ export {
 /** B-95d8 CHK-001: minimum length for a manual fallback attestation reason. */
 export const INIT_CHECK_FALLBACK_REASON_MIN = 30;
 
-function sleepSync(ms: number): void {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-}
-
 function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
   const lockDir = store.storyFilePath(storyId, 'init-check.lock');
-  const deadline = Date.now() + 5000;
-  while (true) {
-    try {
-      mkdirSync(lockDir);
-      break;
-    } catch (e: any) {
-      try {
-        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
-        if (ageMs > 10000) rmSync(lockDir, { recursive: true, force: true });
-      } catch { /* PROBE: lock disappeared between mkdir attempts */ }
-      if (Date.now() > deadline) {
-        throw new Error(`init_check_set: timed out waiting for metadata lock (${e?.message || e})`);
-      }
-      sleepSync(50);
-    }
-  }
-  try {
-    return fn();
-  } finally {
-    rmSync(lockDir, { recursive: true, force: true });
-  }
+  return withMkdirLock(lockDir, fn, { label: 'init-check metadata' });
 }
 
 /**

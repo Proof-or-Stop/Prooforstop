@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-77ed:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed finding.ts, review-run.ts, init-check.ts, smoke-manifest.json. All 3 hand-rolled mkdir lock loops replaced by withMkdirLock(lockDir, fn, {label}) with identical lock paths and no failFastIfHeld — wait-and-poll preserved. Dead code (sleepSync + mkdirSync/statSync/rmSync imports) removed cleanly. withMkdirLock import added and used in all 3 files. TypeScript build: 0 error TS. smoke-manifest.json: 4 retryOnAnyFailure fields removed, all other fields intact, valid JSON. No dead code, no type-safety issues, no I/O shell isolation violations found.",
+      "createdAt": "2026-06-18T19:50:56.644Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-001",
+      "_hash": "4e51c246eb7a45b96dcabf9fbc79a9a19c64d39cab8a04e850f42aeb59d4dc9e"
+    },
+    {
+      "id": "B-77ed:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 8 exported symbols from diff (withMkdirLock usage, withReviewPassLock, withReviewRunLock, withInitCheckLock, sleepSync removed, INIT_CHECK_FALLBACK_REASON_MIN, DEFAULT_DEADLINE_MS); Step2: 2 doc paragraphs compared (CHANGELOG.md Unreleased B-77ed entry, docs/dev/test-coverage.md Retry policy section). All claims verified: (1) grep -c retryOnAnyFailure smoke-manifest.json=0 (4 flags removed as stated); (2) grep -lE 'withMkdirLock(' finding.ts review-run.ts init-check.ts returns all 3 files; (3) git diff confirms old 5s deadline loops removed from all three handlers; (4) mkdir-lock.ts DEFAULT_DEADLINE_MS=30000 confirms 30s budget; (5) deadline>staleMs invariant documented in mkdir-lock.ts comments; (6) four smoke names (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) still present in manifest without retryOnAnyFailure; (7) test-coverage.md correctly states 'No smoke currently sets it' and accurately describes the root-cause fix and 32-run empirical proof. No blockers found.",
+      "createdAt": "2026-06-18T19:51:31.651Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-004",
+      "_hash": "618d7b45e3b968d3e950bd0f62a15a29b0ff21db1d7b1c124d9688fbdaf03aa0"
+    },
+    {
+      "id": "B-77ed:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 3 handlers (finding.ts/review-run.ts/init-check.ts) correctly delegate to withMkdirLock with wait-and-poll semantics (no failFastIfHeld, no 5s budget). Lock paths unchanged (review-passes.lock/review-runs.lock/init-check.lock). git commit stays inside the critical section for all 3. withMkdirLock defaults confirmed: deadlineMs=30000 > staleMs=10000 (stale-reclaim invariant satisfied). mkdir-lock.ts itself is unchanged. Spot-check stress (4 concurrent --no-retry runs across 2 key smokes) returned FAILS=0. CHANGELOG Unreleased and docs/dev/test-coverage.md both document the root-cause fix and stopgap retirement. No boundary gaps or userSees mismatches found.",
+      "createdAt": "2026-06-18T19:54:20.012Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-002",
+      "_hash": "481ce27af9f728dbd061dd78bb18bca42d203e9a6b5a9c10e9b76139ea5c986f"
+    },
+    {
+      "id": "B-77ed:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 13 intents across CHK-001/CHK-002/CHK-003. Bound commands literally match intent backtick commands in all 13 cases (no generic fallbacks). Spot-checked: CHK-001:happy:1 Date.now()+5000=0, CHK-001:happy:0 withMkdirLock 3-of-3, CHK-001:edge:0 failFastIfHeld=0, CHK-001:adversarial:0 mkdir-lock.ts diff=0, CHK-002:happy:0 retryOnAnyFailure=0, CHK-002:happy:1 JSON.parse OK, CHK-002:edge:0 serial smokes END (no BAD-*), CHK-002:adversarial:0 8-concurrent FAILS=0, CHK-003 all 4 commands reproduce expected values. No blocker found.",
+      "createdAt": "2026-06-18T19:55:11.941Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-003",
+      "_hash": "ef9a0db904ffa8a6f2e8775b1d715c30aba23b71ffdc8839fc41f51eb6b001b3"
+    },
+    {
+      "id": "B-77ed:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue scan complete. Diff removes only: (1) inline hand-rolled mkdir/sleep/deadline lock loops in finding.ts, review-run.ts, init-check.ts (replaced by withMkdirLock delegation — no exported symbol deleted); (2) four retryOnAnyFailure flag values from smoke-manifest.json (field schema, run-all-smokes.ts consumer, and smoke test references all remain intact). sleepSync helper removed from the three handlers only; canonical impl in mkdir-lock.ts untouched. grep retryOnAnyFailure packages/main/src confirms 9 live references — mechanism not orphaned. No concept deletion with dangling residual found. No blocker.",
+      "createdAt": "2026-06-18T19:56:31.066Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-005",
+      "_hash": "e9b5f6edde1a8f1d6a6aef3efecc3b0069dbefe547095ea870eb33386f94724b"
+    }
+  ]
+}

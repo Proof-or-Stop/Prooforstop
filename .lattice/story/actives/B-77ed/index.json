@@ -4,7 +4,7 @@
   "title": "Migrate hand-rolled metadata locks to shared withMkdirLock (fix load-induced review_pass_set timeout)",
   "description": "Fix the B-348d deferred root cause: three hand-rolled metadata-lock loops (finding.ts/review-run.ts/init-check.ts) use a 5s acquire budget below the 10s stale threshold, so concurrent reviewers under heavy parallel load spuriously time out acquiring the lock and the smoke FAILs. Migrate them to the shared withMkdirLock primitive (30s budget, correct invariant), then retire the B-348d retryOnAnyFailure stopgap flags once proven.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "metadata-lock",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-06-18T19:14:00.718Z",
   "startedAt": "2026-06-18T19:14:00.718Z",
-  "endedAt": null,
+  "endedAt": "2026-06-18T20:04:12.246Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-18T19:20:00.854Z",
+      "branch": "story/B-77ed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T19:28:23.999Z",
+      "branch": "story/B-77ed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T19:49:46.955Z",
+      "branch": "story/B-77ed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T19:57:08.105Z",
+      "branch": "story/B-77ed",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:04:12.246Z",
+      "branch": "story/B-77ed",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-77ed",
-    "branch": "story/B-77ed",
-    "createdAt": "2026-06-18T19:18:22.049Z"
-  }
+  "currentReviewRound": "2026-06-18T19:49:46.955Z"
 }

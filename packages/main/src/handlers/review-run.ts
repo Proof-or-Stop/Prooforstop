@@ -1,4 +1,3 @@
-import { mkdirSync, rmSync, statSync } from 'fs';
 import { execFileSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -13,34 +12,11 @@ import {
 } from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
-
-function sleepSync(ms: number): void {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-}
+import { withMkdirLock } from '../core/mkdir-lock.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
-  const deadline = Date.now() + 5000;
-  while (true) {
-    try {
-      mkdirSync(lockDir);
-      break;
-    } catch (e: any) {
-      try {
-        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
-        if (ageMs > 10000) rmSync(lockDir, { recursive: true, force: true });
-      } catch { /* PROBE: lock disappeared between retries */ }
-      if (Date.now() > deadline) {
-        throw new Error(`review_run_start: timed out waiting for metadata lock (${e?.message || e})`);
-      }
-      sleepSync(50);
-    }
-  }
-  try {
-    return fn();
-  } finally {
-    rmSync(lockDir, { recursive: true, force: true });
-  }
+  return withMkdirLock(lockDir, fn, { label: 'review-runs metadata' });
 }
 
 type ResolvedReviewWorkspace = ReturnType<typeof resolveStoryCommandWorkspace>;

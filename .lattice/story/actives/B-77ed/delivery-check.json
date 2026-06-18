@@ -1,0 +1,64 @@
+{
+  "storyId": "B-77ed",
+  "checkedAt": "2026-06-18T20:01:31.336Z",
+  "reviewRound": "2026-06-18T19:49:46.955Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "3 handlers (finding.ts/review-run.ts/init-check.ts) migrated to withMkdirLock (5s->30s acquire budget, deadline>stale invariant restored)",
+      "status": "verified",
+      "verifiedBy": "grep + diff",
+      "evidence": "grep -lE withMkdirLock on all 3 handlers returns 3; Date.now()+5000 grep returns 0; diff shows each hand-rolled loop replaced by withMkdirLock(lockDir, fn, {label:...}); ~60 lines of dead sleepSync/mkdirSync/rmSync removed per handler"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "4 retryOnAnyFailure flags removed from smoke-manifest.json",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep -c retryOnAnyFailure packages/main/smoke-manifest.json = 0; diff confirms 4 retryOnAnyFailure:true entries removed from field-regression-cli, verification-freshness, worktree-repair, review-pass-discard entries"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "retryOnAnyFailure mechanism retained in run-all-smokes.ts (not removed, only flags retired)",
+      "status": "verified",
+      "verifiedBy": "grep",
+      "evidence": "grep -n retryOnAnyFailure packages/main/src/tasks/run-all-smokes.ts shows type field at line 59, usage comment at 266, and conditional branch at 276 — mechanism intact; run-all-smokes.ts not in the diff"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "32-run heavy-concurrent --no-retry proof with 0 FAILs",
+      "status": "verified",
+      "verifiedBy": "diff + independent spot run",
+      "evidence": "CHK-002:adversarial:0 evidence records 24 concurrent runs (FAILS=0); independent delivery reviewer ran 8 concurrent runs (2 rounds x 4 smokes) = FAILS=0 confirmed; 32-run proof claimed in CHANGELOG/docs is from a pre-evidence batch evidenced in CHK-002 notes"
+    },
+    {
+      "docPath": "docs/dev/test-coverage.md#retry-policy",
+      "promise": "Retry policy section updated: four smokes no longer flagged, root-cause fix described (withMkdirLock migration), retryOnAnyFailure available as general safety net with no current users",
+      "status": "verified",
+      "verifiedBy": "diff + grep",
+      "evidence": "diff shows old text (four named smokes in stopgap allowlist) replaced by new text describing B-77ed root-cause fix; grep -ciE withMkdirLock|root cause|no longer need = 1; No smoke currently sets it statement present"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Build clean: npm --prefix packages/main run build 2>&1 | grep -cE error TS = 0. withMkdirLock called in all 3 handlers verified by grep. No 5s deadline remaining (grep = 0). No failFastIfHeld option (grep = 0). Primitive itself unchanged (mkdir-lock.ts not in diff). The assertReviewPassConcurrentCliSurface function in field-regression-cli-smoke.ts (lines 1182-1212) runs 5 concurrent review_pass_set calls via Promise.all and asserts all 5 unique IDs are returned — directly exercises the migrated withReviewPassLock path under concurrency."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "4 smokes confirmed serial-PASS (CHK-002:edge:0 evidence). Heavy concurrent stress: CHK-002:adversarial:0 evidence records 24-run batch (6 rounds x 4 smokes concurrently), FAILS=0. Independent delivery reviewer re-ran 8 concurrent runs (2 rounds x 4 smokes) = all 8 exited 0, FAILS=0. smoke-manifest.json valid JSON confirmed. 4 retryOnAnyFailure flags confirmed absent (grep -c = 0)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHANGELOG Unreleased entry grep = 1 (B-77ed and withMkdirLock both present). test-coverage.md grep = 1 (withMkdirLock/root cause language present). Diff confirms CHANGELOG touches only Unreleased section (no version heading added). Scope check: git diff --name-only | grep -vE allowed paths = 0 (no out-of-scope files)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from source: 3 handlers migrated to withMkdirLock (5s gone, 30s in, deadline>stale invariant restored), 4 retryOnAnyFailure flags removed, mechanism retained in run-all-smokes.ts. Build is clean (0 TS errors). Independent concurrent stress (8 runs) confirmed 0 FAILs. assertReviewPassConcurrentCliSurface covers the concurrent-reviewer edge case. Scope confined to 6 allowed paths plus .lattice metadata."
+  },
+  "_hash": "1c84a76777e638381e1050d26846aacea102c0d40c189cc1e67812bd49cd52fa"
+}
