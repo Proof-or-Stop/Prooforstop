@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T01:55:20.787Z",
       "reviewRunId": "B-6dcf:RR-002",
       "_hash": "6bc5dbe15fa93d3ccb60073e0010a5a8ddc2c5d72a1188693322127512fb2413"
+    },
+    {
+      "id": "B-6dcf:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "PASS quality review: managed asset root diagnostics add minimal result fields (metadataRoot, assetRoot, gitRoot, pathsRelativeTo, assetRootGitRootSplit), reuse existing resolveProjectGitRoot behavior for wrapper-root compatibility, preserve relPath/applied/manifestPath semantics under assetRoot, and add a focused wrapper-root smoke covering JSON/text/apply behavior. Evidence: packages/main/src/core/managed-assets.ts:121, packages/main/src/core/managed-assets.ts:1152, packages/main/src/core/managed-assets.ts:1210, packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:80.",
+      "createdAt": "2026-06-18T01:58:01.974Z",
+      "reviewRound": "2026-06-18T01:55:20.787Z",
+      "reviewRunId": "B-6dcf:RR-007",
+      "_hash": "f693e7feab105214e72080ded50a83c62e5da5a691e841407595821e4bbef8fa"
     }
   ]
 }
