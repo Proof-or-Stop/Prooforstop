@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T00:40:39.076Z",
       "reviewRunId": "B-a2e3:RR-004",
       "_hash": "178e7f565449c47efeda2401644968b4215f0d190eb3a59df921328e965020bb"
+    },
+    {
+      "id": "B-a2e3:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All CHK-001/002/003/004 userSees match actual code and CLI output. anchorFiles recording (sorted/deduped/capped/line-stripped) verified. revalidation leaf is fs-free, correct three-state (valid/stale/unanchored), and never-NaN. learning_validate human+json output confirmed with live CLI runs (total=31 anchored=27 valid=25 stale=2 unanchored=4 valid-rate=0.926 drift-rate=0.074). Empty store and nonexistent story handled gracefully. Read-only contract confirmed (git status clean after runs). All boundary conditions covered: zero-denominator guard, empty anchorFiles=unanchored, cap enforcement, non-string filter, throwing fileExists propagates, directory-style anchors stale (intentional conservative). Hermetic smoke TOTAL 12 PASS 12, CLI smoke TOTAL 5 PASS 5.",
+      "createdAt": "2026-06-18T00:45:43.449Z",
+      "reviewRound": "2026-06-18T00:40:39.076Z",
+      "reviewRunId": "B-a2e3:RR-003",
+      "_hash": "7a0337ef1b62a6f1446ee77343a2da90781fd2d8cbf1b0737aee28b0f64432f2"
     }
   ]
 }
