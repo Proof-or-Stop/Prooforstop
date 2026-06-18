@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-18T00:59:27.336Z",
       "reviewRunId": "B-a2e3:RR-006",
       "_hash": "9faf171376a81994fad3ff170c7ad1d04ec745d05447bb0423c409e7a8532029"
+    },
+    {
+      "id": "B-a2e3:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage review passed. All 44 intents across CHK-001..004 are covered by valid verificationEvidence. Leaf smoke: 13/13 PASS (incl. new CHK-002:adversarial:3 duplicate-anchorFiles check that resolves F-001 from round 1). CLI smoke: 5/5 PASS. Verifier (verify-b-a2e3.mjs) statically confirms leaf purity, read-only handler, full registration wiring, and no-regression. No must-gap found.",
+      "createdAt": "2026-06-18T01:02:08.991Z",
+      "reviewRound": "2026-06-18T00:59:27.336Z",
+      "reviewRunId": "B-a2e3:RR-008",
+      "_hash": "1f8361b748bdd83ae3ebf2848a4cc1e0a38b6f78aedf390566d3fa338d6073fe"
     }
   ]
 }
