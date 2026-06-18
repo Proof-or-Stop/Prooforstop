@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T02:26:21.245Z",
       "reviewRunId": "B-be91:RR-001",
       "_hash": "521f141d93c475ce2929dcd8c0187b8fe0d17cb3e575b5ab72e48d96273e7b4d"
+    },
+    {
+      "id": "B-be91:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 applied (pure docs diff, 0 exported symbols from Step 1). 1 doc file compared: CHANGELOG.md Unreleased section for B-be91. Entry correctly labels Plan A as empirically falsified with explicit outcome=blocked. Concrete falsification data cited (run1=159/167, run2=165/167, run3 truncated; cli-json-stdout-contract at 300s still timed out as direct disproof). No deliverable promises — states explicitly no package.json change and test:all stays at runner default. Plan B description is a rationale explanation only, not a delivery claim. docs/dev/test-coverage.md not modified (waived per Plan A failure, no mention of it in CHANGELOG). No doc-code drift, no doc-promise-undelivered issues. 0 blockers.",
+      "createdAt": "2026-06-18T02:29:48.014Z",
+      "reviewRound": "2026-06-18T02:26:21.245Z",
+      "reviewRunId": "B-be91:RR-004",
+      "_hash": "5aab4f7a899170bccbf8af66bb9687dc415bde53748a73c6d8c0d84b1438c2ef"
     }
   ]
 }
