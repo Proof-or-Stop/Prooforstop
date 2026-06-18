@@ -1,0 +1,17 @@
+{
+  "findings": [
+    {
+      "id": "B-8451:F-001",
+      "desc": "edge: deprecated-gc-smoke.ts:86-92 boundary condition count===threshold (count=10, threshold=10) is not tested; test5 only covers count=7 which is strictly less than threshold, leaving the strict > vs >= boundary unverified",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T00:41:59.748Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-001",
+      "_hash": "cdda12c4410b902d3ade7ec38564fe5ea41c6516d67684eade66720072aed927"
+    }
+  ]
+}
