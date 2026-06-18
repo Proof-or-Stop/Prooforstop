@@ -75,6 +75,17 @@
           "headHash": "9961d1bb32670676acdb813945a5bfad01db4382",
           "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
           "timestamp": "2026-06-18T01:50:59.650Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke parses check --json and verifies metadataRoot/assetRoot are the managed asset path base while existing profile, assetMode, manifestPath, summary, and item relPath fields remain stable.",
+          "headHash": "6ee9f434d9ce3b8de31dbec1c1f4913e89a468f4",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:53:58.357Z"
         }
       ]
     },
