@@ -51,7 +51,36 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees lattice gap_analyze no longer list lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir as a high-priority uncovered requirement."
+      "userSees": "User sees `lattice gap_analyze --json` omit the high gap `lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir`; if requirementsDir is not actually handled as a project structure fact, user sees a B-5155 finding titled `requirementsDir implementation missing` and this item is not marked done.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`lattice gap_analyze --json` no longer reports the runtime-owned requirementsDir row after a truthful @task annotation is added to existing runtime-owned asset smoke coverage.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A project with no prompt asset config still resolves runtime-owned assets while requirementsDir remains project config, not prompt asset ownership config.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Do not introduce project-local prompt templates or thin config into downstream projects solely to satisfy requirementsDir coverage.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
