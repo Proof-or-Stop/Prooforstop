@@ -128,9 +128,29 @@
           "command": "sed -n 16,20p docs/audits/lattice-token-cost-and-takeover-audit.md",
           "result": "pass",
           "note": "The audit summary bullet now states that the HandoffAuthorityBoundary table includes noHiddenContextSharing:true, matching packages/main/src/core/lattice-handoff.ts.",
-          "headHash": "33c1d6ab75c79fa04256bddf317393ab293b3885",
+          "headHash": "801404257f6efa3842ec94d25ff17edb18fb8221",
           "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
-          "timestamp": "2026-06-18T11:11:17.692Z"
+          "timestamp": "2026-06-18T11:12:27.591Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "git show --unified=0 b8eaa5848 -- docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "result": "pass",
+          "note": "The same patch changes both audit summary bullets together, and the current document still keeps §1.2 and the appendix aligned with the source-backed HandoffAuthorityBoundary fields.",
+          "headHash": "801404257f6efa3842ec94d25ff17edb18fb8221",
+          "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
+          "timestamp": "2026-06-18T11:12:27.677Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "git show --name-only --format=oneline b8eaa5848",
+          "result": "pass",
+          "note": "The doc-fix commit touches only docs/audits/lattice-token-cost-and-takeover-audit.md, so it stays limited to the audit document wording and does not broaden into runtime or CLI behavior.",
+          "headHash": "801404257f6efa3842ec94d25ff17edb18fb8221",
+          "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
+          "timestamp": "2026-06-18T11:12:27.771Z"
         }
       ]
     }
