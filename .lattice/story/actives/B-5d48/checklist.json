@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure signatureTag candidate-derivation leaf + source type",
+      "context": "New pure leaf (e.g. core/signature-candidate.ts) importing only node:/types: deriveSignatureCandidate(category, files, desc) -> a deterministic canonical-ish tag (category + coarse fileKind + a normalized desc key; lowercase, stopword-stripped, capped). Add a SignatureTagSource type ('auto' | 'confirmed') to the finding/types. No I/O in the leaf.",
+      "userSees": "A deterministic function that turns a finding's category/files/desc into a fallback candidate signatureTag.",
+      "excludes": [
+        "No filesystem/git in the leaf",
+        "No claim of human-quality signatures (it is a fallback)"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire auto-candidate + source flag into finding_add (audit-only)",
+      "context": "In handlers/finding.ts finding_add: if a non-empty signatureTag is supplied, persist it with signatureTagSource='confirmed'; otherwise derive a candidate via deriveSignatureCandidate and persist it with signatureTagSource='auto'. Both signatureTag and signatureTagSource MUST be excluded from the finding _hash / signFinding (mirror the existing signatureTag exclusion) and from every gate and the finding signature. Optionally fold the candidate through resolveTag for alias canonicalization. Keep the existing reviewer-supplied behavior byte-identical when a tag is given.",
+      "userSees": "Every new finding carries a signatureTag (confirmed if the reviewer set one, else an auto fallback) plus a source flag; the finding _hash is unchanged.",
+      "excludes": [
+        "No change to the finding _hash / signFinding output",
+        "No gate reads the new fields",
+        "No change when a reviewer supplies a tag (other than recording source=confirmed)"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke + npm script + verifier (incl. _hash invariance)",
+      "context": "New smoke: deriveSignatureCandidate is deterministic + sane on representative inputs; finding_add with no tag yields signatureTagSource='auto' + a non-empty candidate, with a tag yields 'confirmed' + the supplied tag; and CRITICALLY the finding _hash/signature is byte-identical with vs without the new fields (no gate perturbation). npm script + committed verifier (build + this smoke + no-regression + full npm test incl. process-fact-contract; static checks that signatureTag/signatureTagSource are excluded from signFinding/_hash). Maps every intent; TOTAL/PASS/FAIL.",
+      "userSees": "npm smoke passes and the verifier prints PASS, including the _hash-invariance check.",
+      "excludes": [
+        "No network",
+        "No reliance on unrelated repo state"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
