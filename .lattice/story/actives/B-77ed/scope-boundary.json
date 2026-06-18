@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-77ed",
+  "mode": "correctness_fix",
+  "allowed": [
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/handlers/review-run.ts"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "User directive 2026-06-18: fix the B-348d deferred metadata-lock root cause. Modifications limited to the 6 allowed paths; the shared mkdir-lock helper, main-write-lock, and run-all-smokes runner are reused/unchanged (enforced by allowedScope, not listed as excluded keywords since the background narrates them).",
+  "createdAt": "2026-06-18T19:15:44.891Z",
+  "updatedAt": "2026-06-18T19:15:44.891Z",
+  "_hash": "f45c24d9596b7ea2a5fa73d2a7075ad3e0cba9786dcded22a26f2bd1d646b3e9"
+}
