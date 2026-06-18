@@ -101,7 +101,39 @@
       "userSees": "A regression command proves wrapper-root lattice check diagnostics are explicit and apply semantics remain metadata-root based.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Add and run a focused regression command that creates a temporary wrapper-root fixture with non-git metadataRoot and configured gitRoot subdirectory; assert lattice check --json reports metadataRoot/assetRoot separately from gitRoot.",
+            "type": "cli"
+          },
+          {
+            "desc": "In the same regression, assert text output displays the split-root diagnostics and explains managed asset paths are metadata/asset-root relative.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise the fixture with drift present and with managed assets already clean; assert diagnostics remain present in both states and item relPath values remain unchanged relative paths.",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the regression on a metadataRoot path that is not itself a git repository; assert gitRoot discovery/configuration still appears only as diagnostic context and does not become the asset write root.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the regression with check --apply or the apply path helper and assert files are written/updated under metadataRoot/assetRoot, not under configured gitRoot, while gitRoot remains visible in diagnostics.",
+            "type": "cli"
+          },
+          {
+            "desc": "Fail the regression if it uses metadataRoot == gitRoot, checks only implementation internals, or validates only prose without parsing JSON root fields, because that would not protect the ClawCreek-style wrapper-root bug.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
