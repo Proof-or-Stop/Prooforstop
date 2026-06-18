@@ -132,7 +132,20 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "grep -n lattice/dev-memory docs/requirements/decisions/lattice-parallel-wave.md",
+          "result": "pass",
+          "note": "Lines 163-166 now show .lattice/dev-memory at the previously-stale lines (164/166 changed).",
+          "headHash": "287008af8e6fc35a4a1c3199b2f0ca6f885bbce1",
+          "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
+          "timestamp": "2026-06-18T19:30:09.569Z"
+        }
+      ]
     }
   ]
 }
