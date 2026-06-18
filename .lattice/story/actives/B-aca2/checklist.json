@@ -51,9 +51,29 @@
           "command": "sed -n 16,20p docs/audits/lattice-token-cost-and-takeover-audit.md",
           "result": "pass",
           "note": "The audit summary bullet now cites packages/main/src/handlers/story-query.ts instead of core/story-query.ts, matching the real source path and keeping the claim about checklist duplication intact.",
-          "headHash": "b8eaa5848e00a1eada1910eff785cd637ad69d94",
+          "headHash": "44c0f896f8801c7cff66e626372f12b52aa378f7",
           "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
-          "timestamp": "2026-06-18T11:11:17.292Z"
+          "timestamp": "2026-06-18T11:12:21.111Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "git show --unified=0 b8eaa5848 -- docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "result": "pass",
+          "note": "The single patch changes both audit summary bullets together, and the current document still keeps the appendix A and §3.2 references aligned with handlers/story-query.ts and the authority boundary table.",
+          "headHash": "44c0f896f8801c7cff66e626372f12b52aa378f7",
+          "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
+          "timestamp": "2026-06-18T11:12:21.198Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "git show --name-only --format=oneline b8eaa5848",
+          "result": "pass",
+          "note": "The doc-fix commit touches only docs/audits/lattice-token-cost-and-takeover-audit.md, so it does not broaden scope into runtime code or CLAUDE.md.",
+          "headHash": "44c0f896f8801c7cff66e626372f12b52aa378f7",
+          "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
+          "timestamp": "2026-06-18T11:12:21.286Z"
         }
       ]
     },
