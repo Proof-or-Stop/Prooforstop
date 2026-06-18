@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-18T15:22:38.273Z",
       "reviewRunId": "B-06b3:RR-007",
       "_hash": "e722198c091cec8af8aea3421f1cb74aed29a2f4b58b19cdee4a78452df1d5da"
+    },
+    {
+      "id": "B-06b3:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test-coverage review passed. F-001 fix confirmed: CHK-001:happy:3 export-surface is now bound to kind=integration_test, command=node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs, hmExportsSurface=true verified live. F-002 fix confirmed: CHK-001:adversarial:3 non-string coercion has a dedicated check block in smoke.ts (lines 246-261) that explicitly tests null/undefined/123/object => valid on/off deterministically; smoke ran TOTAL 14 | PASS 14 | FAIL 0. All 42 intents across CHK-001/002/003 have valid pass evidence with literal-command bindings; verifier ran TOTAL 42 | PASS 42 | FAIL 0 with hmExportsSurface=true, srGateWired=true, blockerBlockClean=true, hmImportPure=true, hmNoSideEffects=true. No coverage gaps, no mis-bound evidence, no waivers.",
+      "createdAt": "2026-06-18T15:25:51.632Z",
+      "reviewRound": "2026-06-18T15:22:38.273Z",
+      "reviewRunId": "B-06b3:RR-006",
+      "_hash": "3fbf13195362067b6e6f0cb162636f547a0d8738da41ee6bbfbcd3e2021a8175"
     }
   ]
 }
