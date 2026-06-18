@@ -25,7 +25,7 @@
       "desc": "concept-cleanup: stale comment residue in finding.ts line 283: B-4f46 comment says omitted signatureTag => unchanged legacy behavior but B-5d48 changed this to auto-candidate; the B-5d48 comment at lines 285-289 correctly describes the new behavior but the old B-4f46 comment line above it now contradicts it and misleads future readers",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-18T13:39:04.156Z",
@@ -36,7 +36,11 @@
         "packages/main/src/handlers/finding.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated stale B-4f46 comment at finding.ts:283 (commit 99eb3335a)",
+      "resolvedAt": "2026-06-18T13:50:34.731Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5d48:F-003",
