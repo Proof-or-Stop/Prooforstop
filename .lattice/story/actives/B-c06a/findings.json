@@ -117,6 +117,21 @@
       "_hash": "8cbd59184653e472b4ba2e153d3b08f87d901fb74b39c7e6baf2765975b651ed",
       "signatureTag": "missing|unknown|dead-code-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c06a:F-007",
+      "desc": "doc-promise-undelivered: cli-engine.ts:1786 command description (user-visible) says \"recall/precision + trend\" and cli-engine.ts:1782 comment + command-policy.ts:218 reason string say \"recall/precision\" — but precision was removed in F-002; description promises a field the command never produces",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T16:14:50.342Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-006",
+      "_hash": "8427595b430552353ed1d1ce1fb09e9f6b297fc6f6a982a4a07886125e8edfc0",
+      "signatureTag": "missing|unknown|promise-undelivered-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
