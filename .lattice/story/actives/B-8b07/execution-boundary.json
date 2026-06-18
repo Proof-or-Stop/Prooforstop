@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8b07",
+  "allowedCommands": [
+    "git diff --check",
+    "git status --short",
+    "lattice *",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed -n *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "docs/requirements/NAV.md",
+    "packages/main/src",
+    "packages/main/tests",
+    "README.md"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push *",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Documentation-only execution; no runtime implementation or direct story/fixture edits.",
+  "createdAt": "2026-06-18T23:56:56.791Z",
+  "updatedAt": "2026-06-18T23:56:56.791Z",
+  "_hash": "67291c3ad83016810898c591eeeeadbbec51f6c253d3003cb63d750cff6ece76"
+}
