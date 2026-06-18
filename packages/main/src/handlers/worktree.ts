@@ -372,6 +372,36 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   }
 
   /**
+   * B-1a12 CHK-001: resolve the MAIN repo root for INIT_CHECK bootstrap, even
+   * when invoked from inside a linked worktree's cwd. `getRepoRoot()` uses
+   * `git rev-parse --show-toplevel`, which from a linked worktree returns the
+   * WORKTREE root, not the main repo — so a from-worktree bootstrap would create
+   * a nested `<worktree>/.worktrees/B-new`. `--git-common-dir` instead points at
+   * the main repo's `.git` from any linked worktree, whose parent is the true
+   * main repo root (the same primitive removeStaleWorktreeAdminDirs already uses
+   * at ~:538). cwd is the metadata `root` (identical to getRepoRoot) so from-main
+   * behavior stays byte-identical. Any throw / non-`.git` common dir falls
+   * through to getRepoRoot() so we are never worse than today.
+   */
+  function resolveMainRepoRoot(cwd: string = root): string {
+    try {
+      const commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+        cwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 5000,
+      }).trim();
+      const abs = isAbsolute(commonDir) ? commonDir : join(cwd, commonDir);
+      if (abs.endsWith('/.git') || abs.endsWith('\\.git')) {
+        return dirname(abs);
+      }
+      return getRepoRoot();
+    } catch {
+      return getRepoRoot();
+    }
+  }
+
+  /**
    * B-854c CHK-002: probe one metadata leaf in the resolved repo root for the
    * data-loss state, then return the loud warning (or '' if safe). Reuses the
    * shared pure predicate so bootstrap, doctor, and tests agree on the verdict.
@@ -429,7 +459,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
    */
   function resolveBootstrapGitRoot(storyId: string): string {
     const configuredGitRoot = loadConfig(root).gitRoot?.trim();
-    if (!configuredGitRoot) return getRepoRoot();
+    if (!configuredGitRoot) return resolveMainRepoRoot();
     const resolution = resolveStorySignedWorkspace({ store, storyId, metadataRoot: root });
     if (
       resolution.resolved &&

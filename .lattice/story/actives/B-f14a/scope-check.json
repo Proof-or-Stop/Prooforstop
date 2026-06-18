@@ -1,0 +1,52 @@
+{
+  "storyId": "B-f14a",
+  "checkedAt": "2026-06-18T20:04:15.972Z",
+  "features": [
+    {
+      "feature": "CLI role helper + command-policy mirror upstream contract and reject stale mac_ui",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CLI docs remove mac_ui gate vocabulary",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "smoke coverage asserts cleaned wording and fail-closed behavior",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "combined CHK-001 + CHK-002 scenario keeps code/doc aligned without new tiers",
+      "covered_by": "CHK-001 + CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "combined CHK-001 + CHK-003 scenario keeps fail-closed behavior while wording changes",
+      "covered_by": "CHK-001 + CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "42c4fd19fdeedd6b7698b04c48426eeb73ff8c99f45a46c783aefac41ab8148d",
+  "openQuestions": []
+}

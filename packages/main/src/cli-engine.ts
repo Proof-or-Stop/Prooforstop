@@ -1778,6 +1778,15 @@ Behavior:
     json: z.boolean().optional().describe('Emit the machine-readable ValidRateReport as JSON.'),
     story: z.string().optional().describe('Restrict derivation to a single story id.'),
   }},
+  // B-c06a (Experience Layer ③.4): learning_effectiveness reports FAST per-story hint
+  // predictive value (retrodictive recall + windowed trend) and a LONG-GAME
+  // ON/OFF arm comparison (from experience_hint_surfaced hintMode events) with an honest
+  // per-arm N + conservative significance gate. READ-ONLY like learning_validate: reads
+  // stories/findings/activity-log via the read ports only; writes nothing, no gate.
+  { name: 'learning_effectiveness', description: 'Report Experience Layer learning effectiveness: per-story hint predictive value (recall + windowed trend) and ON/OFF arm comparison with honest N (read-only; advisory; writes nothing)', schema: {
+    json: z.boolean().optional().describe('Emit the structured report { predictiveValue, armComparison } as JSON.'),
+    confirmedOnly: z.boolean().optional().describe('Count only findings whose signatureTagSource === confirmed.'),
+  }},
 
   // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering plus manual merge/split).
   //
@@ -2949,6 +2958,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'autopilot_watch',
   'autopilot_review',
   'learning_validate', // read-only Experience Layer validity instrument; writes nothing
+  'learning_effectiveness', // read-only Experience Layer effectiveness instrument; writes nothing
 ]);
 
 function inferCodexEntrypoint(): string {

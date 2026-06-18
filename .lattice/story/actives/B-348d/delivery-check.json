@@ -1,0 +1,86 @@
+{
+  "storyId": "B-348d",
+  "checkedAt": "2026-06-18T17:18:59.787Z",
+  "reviewRound": "2026-06-18T17:12:07.020Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-348d",
+      "promise": "pass-2 retries FAIL only for smokes flagged retryOnAnyFailure:true (not all FAILs)",
+      "status": "verified",
+      "verifiedBy": "grep/source-read",
+      "evidence": "run-all-smokes.ts line 276: r.status===FAIL && entry.retryOnAnyFailure===true; unflagged FAIL stays terminal by default (no else branch); confirmed by self-smoke case (13) anti-masking assertion"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-348d",
+      "promise": "FAIL=terminal default preserved for every non-allowlisted smoke",
+      "status": "verified",
+      "verifiedBy": "grep/source-read/self-smoke",
+      "evidence": "predicate at line 274-277 returns false unless TIMEOUT or retryOnAnyFailure===true; self-smoke B-348d (b) asserts unflagged FAIL has no Pass 2 line, exits 1"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-348d",
+      "promise": "four named smokes flagged in smoke-manifest.json: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard",
+      "status": "verified",
+      "verifiedBy": "python3 json parse",
+      "evidence": "python3 list of flagged smokes = [field-regression-cli, verification-freshness, review-pass-discard, worktree-repair], count=4, exactly matches claims"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-348d",
+      "promise": "--no-retry disables pass 2 entirely",
+      "status": "verified",
+      "verifiedBy": "grep/source-read/self-smoke",
+      "evidence": "run-all-smokes.ts line 109: --no-retry sets opts.noRetry=true; line 269: retryEntries=[] when opts.noRetry; self-smoke case (10) B-2941(c) asserts no Pass 2 line and no Final: when --no-retry is set"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-348d",
+      "promise": "a flagged smoke that FAILs BOTH passes still counts as a final FAIL",
+      "status": "verified",
+      "verifiedBy": "source-read/self-smoke",
+      "evidence": "merge logic at line 296 replaces pass1 result with pass2 result; if pass2 still FAIL then merged result is FAIL; anyFail check at line 323 triggers exit 1; self-smoke case (14) B-348d(c) asserts this: flagged-E hard-fail retried but Final 0/1 exit 1"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-348d",
+      "promise": "Self-smoke grew to cover B-348d (a) flagged-FAIL-retried and B-348d (b) unflagged-FAIL-terminal",
+      "status": "verified",
+      "verifiedBy": "source-read/self-smoke-run",
+      "evidence": "run-all-smokes-smoke.ts cases (12) and (13) implement exactly these assertions; 16/16 self-smoke exit 0 confirmed by live run"
+    },
+    {
+      "docPath": "docs/dev/test-coverage.md#Retry-policy",
+      "promise": "Retry policy section documents FAIL=terminal default + retryOnAnyFailure allowlist with 4 named smokes + stopgap note + --no-retry disables pass 2",
+      "status": "verified",
+      "verifiedBy": "file-read",
+      "evidence": "test-coverage.md line 87-89 Retry policy section: states FAIL terminal default, names all 4 smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard), states stopgap, states --no-retry disables pass 2"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-348d",
+      "promise": "Case count staleness: CHANGELOG says 13->15 cases but F-001 fix added B-348d (c) bringing actual to 14 named scenarios / 16 total asserts",
+      "status": "waived",
+      "verifiedBy": "grep/count",
+      "evidence": "CHANGELOG written before F-001 resolution commit dd3af4f71; says 13->15 but actual is 14 named test scenarios with 16 total asserts. All behavioral promises correct; only internal case counter is stale by 1.",
+      "waiverReason": "The CHANGELOG case count (13->15) is stale by one case because it was written before the F-001 fix commit (dd3af4f71) added B-348d (c). All behavioral promises in the CHANGELOG (retry behavior, terminal default, four smokes, --no-retry) are fully delivered. The stale count is a cosmetic documentation gap that does not affect functionality."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Live run: grep -cE retryOnAnyFailure packages/main/src/tasks/run-all-smokes.ts = 3 (type decl + 2 uses). Predicate at line 274-276 gates FAIL retry on retryOnAnyFailure===true. noRetry guard at line 274. TIMEOUT path at line 275 unchanged. dist/tasks/run-all-smokes.js grep -c retryOnAnyFailure = 2. Self-smoke 16/16 exit 0 confirmed live."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Live run: python3 json parse of smoke-manifest.json shows exactly 4 smokes with retryOnAnyFailure:true: [field-regression-cli, verification-freshness, review-pass-discard, worktree-repair]. grep -c retryOnAnyFailure packages/main/smoke-manifest.json = 4. Manifest valid JSON confirmed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Live run: node packages/main/dist/tasks/run-all-smokes-smoke.js = 16/16 checks passed exit 0. Cases confirmed: B-348d (a) retryOnAnyFailure smoke FAILs pass 1 retried PASS Final 1/1; B-348d (b) unflagged FAIL NOT retried terminal exit 1 no pass 2; B-348d (c) flagged FAIL retried but fails both passes Final 0/1 exit 1. CHANGELOG B-348d entry present in Unreleased. docs/dev/test-coverage.md Retry policy section names all 4 smokes + correct semantics. git diff main...HEAD --name-only -- packages/main/src/core packages/main/src/handlers = empty (no core/handlers touched)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 behavioral CHANGELOG promises verified in source (predicate, terminal default, 4 named smokes, --no-retry, flagged-both-passes-terminal). docs/dev/test-coverage.md Retry policy section consistent. 16/16 self-smoke cases pass live including all three B-348d sub-cases (a)(b)(c). No core/handlers production touched. One waived item: CHANGELOG says 13->15 cases but F-001 fix made it 14 named scenarios / 16 asserts — stale count only, all behaviors delivered."
+  },
+  "_hash": "4982bc81f2c1739571193d2304a1a7a6ddfaddf84562648d73399bbd44ef4640"
+}

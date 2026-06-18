@@ -1,0 +1,178 @@
+{
+  "storyId": "B-c06a",
+  "checkedAt": "2026-06-18T15:40:21.449Z",
+  "features": [
+    {
+      "feature": "Pure leaf module core/experience-effectiveness.ts with no fs/git imports",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "computePredictiveValue(orderedStories): recall + precision metrics per story with windowed trend",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "computeArmComparison(orderedStories): ON/OFF arm grouping by hintMode with delta and significant:boolean",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Conservative significance gate (require min N per arm; significant=false with note when insufficient N)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Deterministic and never-NaN leaf function guarantees",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "learning_effectiveness handler (read-only, no writes, no findings, no gate)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Register learning_effectiveness across all 6 surfaces: registry, cli-engine, config, command-policy (readOnly + allowedPhases all), process-fact-levels (L0), and READ_ONLY_COMMANDS",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "--json flag on learning_effectiveness for structured report output",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "--confirmedOnly flag to restrict to signatureTagSource=confirmed findings",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Build ordered stories from ctx.store (listStoryIds + readStory createdAt order + readFindings signatureTag)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Read hintMode per story from readActivityLogTail experience_hint_surfaced events",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Leaf unit smoke: synthetic ordered stories asserting exact recall/precision, arm comparison N/outcome/significant, never-NaN, determinism",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "CLI smoke: runs learning_effectiveness on a real/temp store, asserts a predictive-value line and nothing written",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Committed verifier (verify-b-c06a.mjs) with static checks: leaf pure, handler read-only/no projectRoot-persist/no finding/gate, registered across all 6 surfaces, TOTAL/PASS/FAIL output",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "npm script for build + smokes + no-regression + full npm test",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Advisory-only principle: no automatic finding_add/finding_resolve/gate edits from the experience layer",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No gate registration; No finding/advisory write; No cache write (CHK-002 excludes)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Cross-repo or historical backfill (Phase ③.5 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly marks cross-repo and historical backfill (③.5) as OUT of scope",
+      "source": "description"
+    },
+    {
+      "feature": "Gate or scoring or promptHash changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly marks any gate/scoring/promptHash change as OUT of scope",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Persisting any cache or finding from the effectiveness handler",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No cache write (CHK-002 excludes); No finding/advisory write (CHK-002 excludes)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Claiming significance before N gate minimum is met",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No premature significance claim (conservative gate) (CHK-001 excludes)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "L1 finding-signals.ts derivation and writing finding-signals.json (Phase 1a scope, not B-c06a)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-c06a is a pure effectiveness leaf story; finding-signals derivation/write belongs to Phase 1a (prior story)",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "L2 story recall structured filtering (Phase 3 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly marks this as out of scope for B-c06a",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "L3 playbook lifecycle propose/approve/reject (Phase 2 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly marks this as out of scope for B-c06a",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 15,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "528bea55b0257944e7dcdbbff4aab4d9db2fe5ad8197e501824883de9b94c506",
+  "openQuestions": []
+}

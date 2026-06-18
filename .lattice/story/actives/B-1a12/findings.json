@@ -1,0 +1,28 @@
+{
+  "findings": [
+    {
+      "id": "B-1a12:F-001",
+      "desc": "doc-code-drift: After token swap, lines 163-166 of lattice-parallel-wave.md now list the SAME path twice while still asserting a legacy fallback exists. Line 163-164 reads: canonical store is .lattice/dev-memory/experience.jsonl, WITH .lattice/dev-memory/experience.jsonl AS A READ-ONLY LEGACY FALLBACK. Lines 165-167 repeat the pattern for the global path. This makes a factually false runtime claim: B-a4e3 removed the .koala read fallback entirely (confirmed by dev-memory-legacy-read-smoke.ts which seeds .koala entries and asserts they are IGNORED). The runtime (dev-memory.ts lines 146,173) has exactly one path each for project and global reads with no fallback. The prose must be rewritten to remove the legacy fallback sentence structure, not just swap the token.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-18T19:39:09.819Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-004",
+      "_hash": "563da693267b3ffa58334df3dba0e2ff7d83c10aeb7a3b4b340fc4dde8cdd31d",
+      "files": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-token",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Rewrote the Dev-memory Boundary prose in lattice-parallel-wave.md to match dev-memory.ts ground truth: single canonical project store (no read-only legacy fallback; removed in B-a4e3), global override env var corrected from KOALA_GLOBAL_MEMORY_DIR to LATTICE_GLOBAL_MEMORY_DIR, removed phantom legacy-fallback claims. Fixed in commit 5ead7b5; verified by lattice-review-docs Round 2 (RP-005, fix accepted) and greps (koala/dev-memory, KOALA_GLOBAL_MEMORY_DIR, legacy fallback all 0 matches).",
+      "resolvedAt": "2026-06-18T19:48:57.925Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

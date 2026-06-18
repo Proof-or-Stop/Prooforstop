@@ -66,6 +66,7 @@ import { createPlaybookHandlers } from './handlers/playbook.js';
 import { createRecallHandlers } from './handlers/recall.js';
 import { createLearningScanHandlers } from './handlers/learning-scan.js';
 import { createLearningValidateHandlers } from './handlers/learning-validate.js';
+import { createLearningEffectivenessHandlers } from './handlers/learning-effectiveness.js';
 import { createReviewEscalationHandlers } from './handlers/review-escalation.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
@@ -240,6 +241,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // reads. Writing (not read-only); files no findings / touches no gate.
   registry.registerBatch(createLearningScanHandlers(ctx));
   registry.registerBatch(createLearningValidateHandlers(ctx));
+  registry.registerBatch(createLearningEffectivenessHandlers(ctx));
   registry.registerBatch(createReviewEscalationHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));

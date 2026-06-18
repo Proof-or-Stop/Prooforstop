@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Read-only, advisory: writes nothing, no findings, no gate.",
+    "Pure leaf for the metric math (inject ordered story data); hermetically testable.",
+    "Honest by construction: report N + a conservative significance gate; never a premature causal claim.",
+    "Reuse existing reads (store findings/order + readActivityLogTail); no new storage.",
+    "Two clearly-separated layers: observational fast signal vs accruing RCT."
+  ],
+  "drivers": [
+    "Turn the live loop into evidence without overstating it.",
+    "Fast signal computable now (and re-runnable after the 3.5 backfill = the re-run-learning-curve step).",
+    "Register correctly as a read-only command incl. process-fact-levels (or the contract suite fails)."
+  ],
+  "options": [
+    {
+      "name": "Read-only command: pure metric leaf + store/activity adapter (chosen)",
+      "pros": [
+        "Mirrors learning_validate (proven read-only pattern)",
+        "pure leaf is testable + deterministic",
+        "fast layer needs no forward data; usable immediately + re-runnable after backfill"
+      ],
+      "cons": [
+        "RCT layer is mostly 'insufficient N' until forward data accrues (acceptable: honest by design)"
+      ]
+    },
+    {
+      "name": "Persist a metrics cache",
+      "pros": [
+        "Could memoize"
+      ],
+      "cons": [
+        "Introduces a write path (out of scope); the computation is cheap; recompute-on-read is simpler + safer"
+      ]
+    },
+    {
+      "name": "Fold into learning_validate",
+      "pros": [
+        "One command"
+      ],
+      "cons": [
+        "Conflates validity (drift) with effectiveness (predictive value/RCT); muddies both reports"
+      ]
+    }
+  ],
+  "chosen": "Read-only command: pure metric leaf + store/activity adapter (chosen)",
+  "rationale": "A dedicated read-only command with a pure metric leaf mirrors the proven learning_validate pattern, keeps the math hermetically testable, and cleanly separates the observational fast signal from the accruing RCT — while staying honest (N + significance gate). A metrics cache would add an out-of-scope write path, and folding into learning_validate would conflate drift with effectiveness.",
+  "preMortem": [
+    {
+      "scenario": "The metric overstates significance.",
+      "trigger": "The arm comparison reports a causal win on tiny N.",
+      "consequence": "Dishonest evidence — the exact trap Baseline A warned against.",
+      "mitigation": "Conservative significance gate (min N per arm); below it significant=false note='insufficient N'; the smoke asserts significant=false on a small-N fixture and true only when a fixture crosses the threshold; the human report leads with 'observational' / 'accrues over future stories'."
+    },
+    {
+      "scenario": "The new command breaks the process-fact contract.",
+      "trigger": "learning_effectiveness added to cli-engine but not PROCESS_FACT_LEVELS.",
+      "consequence": "Full npm test process-fact-contract fails late at DONE.",
+      "mitigation": "Add the L0 experience-layer-read entry to PROCESS_FACT_LEVELS in the same change; verifier runs full npm test; run npm test before REVIEW."
+    },
+    {
+      "scenario": "Mis-classified as writing / not read-only.",
+      "trigger": "The handler accidentally persists or omits READ_ONLY_COMMANDS membership.",
+      "consequence": "Wrong audit-trail behavior / mislabel.",
+      "mitigation": "Mirror learning_validate exactly: no writes, in READ_ONLY_COMMANDS, command-policy ownershipClass readOnly; verifier asserts no write/finding/gate calls + READ_ONLY_COMMANDS membership."
+    },
+    {
+      "scenario": "The leaf is impure or non-deterministic.",
+      "trigger": "deriveSignatureCandidate-style I/O or time/random in the metric leaf.",
+      "consequence": "Non-hermetic, flaky tests.",
+      "mitigation": "Leaf imports only node:/types; story order/findings/arms are injected; the smoke asserts determinism + never-NaN."
+    }
+  ],
+  "timestamp": "2026-06-18T15:38:12.284Z"
+}

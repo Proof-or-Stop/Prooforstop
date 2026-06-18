@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-1a12:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed: (1) resolveMainRepoRoot — all imports present (execFileSync, isAbsolute, join, dirname); git --git-common-dir output is relative .git from main repo (join(cwd,.git)->dirname gives cwd, byte-identical) and absolute path from linked worktree (dirname gives main root); /.git and \\.git suffix checks both handled; non-.git fall-through to getRepoRoot() is correct never-worse guarantee; timeout/stdio match existing removeStaleWorktreeAdminDirs pattern at :568. (2) resolveBootstrapGitRoot one-liner change: replaces getRepoRoot() with resolveMainRepoRoot() in the no-gitRoot branch only; correct scope. (3) Smoke script: createTempProject uses mkdtempSync + rmSync in finally (no temp dir leak); cpSync copies only story metadata JSON (not git history); bootstrap with --root=oldWorktree faithfully reproduces the B-a4e3 incident; dual assertion (correctPath exists AND nestedPath does not) is meaningful; byte-identical-from-main step 5 confirms no regression. No dead code, no unsafe casts, no missing null checks, no I/O isolation violations, no gold-plating.",
+      "createdAt": "2026-06-18T19:39:13.276Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-002",
+      "_hash": "dec6529d74132fb306c3371810e8c50049dcd992b7775d6d926c09149a55e0cd"
+    },
+    {
+      "id": "B-1a12:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion/replacement check complete. This story ADDS resolveMainRepoRoot (local closure fn in worktree.ts) and renames a doc token (.koala/dev-memory -> .lattice/dev-memory in lattice-parallel-wave.md). No concept was deleted half-way. (1) lattice-parallel-wave.md: zero .koala/dev-memory references remain (grep returned empty). (2) Other .koala/dev-memory references in repo are all in archived story artifact files (historical records), not runtime-path references, and correctly out of scope. (3) resolveMainRepoRoot name collision with partial-done-recovery.ts is intentional: the worktree.ts version is a private closure fn, not exported, not conflicting. (4) verify-nested-worktree-bootstrap.mjs created and wired into package.json test battery. No blocker found.",
+      "createdAt": "2026-06-18T19:39:48.081Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-001",
+      "_hash": "0231c6b065e0f637a32e4bda40b7db468d4bb744889f9b645461c73a8c69c75b"
+    },
+    {
+      "id": "B-1a12:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 7 must intents across 2 items, all covered by valid evidence with no gaps. CHK-001 happy:0 covered by integration_test (scripts/verify-nested-worktree-bootstrap.mjs, smoke run confirms exit 0, exercises from-main -> <main>/.worktrees/B-new byte-identical assert). CHK-001 edge:0 covered by integration_test (same smoke, from-worktree-root bootstrap asserts non-nested landing; RED-on-old confirmed in evidence note). CHK-001 edge:1 covered by logic_test (git diff confirms resolveStorySignedWorkspace branch unchanged, already yields main root via signed-workspace metadata). CHK-001 adversarial:0 covered by logic_test (grep confirms getRepoRoot at :482 in resolveWorktreePath unchanged; RED-GREEN proof cited in note). CHK-002 happy:0 covered by docs_check (grep -n lattice/dev-memory shows lines 163-166 updated). CHK-002 edge:0 covered by docs_check (grep koala/dev-memory returns no matches). CHK-002 adversarial:0 covered by docs_check (git diff touches only two doc tokens). Smoke wired into root npm test as test:nested-worktree-bootstrap and passes. No must-intent gaps, no waivers.",
+      "createdAt": "2026-06-18T19:40:44.991Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-003",
+      "_hash": "8b93436b9897ef4c8de76667f9c09e2f09fc34c2a8c2b1935f54456dad0628c5"
+    },
+    {
+      "id": "B-1a12:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "5-check behavioral review: (1) byte-identical-from-main: --git-common-dir from main outputs .git, abs=<main>/.git ends in /.git, dirname=<main> = same as --show-toplevel; (2) non-bootstrap callers (getRepoRoot, resolveWorktreePath) untouched in diff; (3) configured-gitRoot branch in resolveBootstrapGitRoot unchanged; (4) fallback safety: throw -> getRepoRoot(), non-.git common-dir (bare/submodule) -> getRepoRoot(); (5) smoke validity: old worktree IS inside <main>/.worktrees/<oldStory> (a subdir of main), so storyRel from <main> has no .., bootstrap proceeds, --git-common-dir from <oldWorktree> resolves to <main>/.git -> dirname=<main>, new worktree correctly lands at <main>/.worktrees/<newStory>; smoke passes (verified by running npm run test:nested-worktree-bootstrap); no blocking issues found.",
+      "createdAt": "2026-06-18T19:44:57.339Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-005",
+      "_hash": "ab3fe9d03d2f119cce987a582c2409393878cb36b42a8a004390c9fa8d869cfe"
+    },
+    {
+      "id": "B-1a12:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2: F-001 fixed — Dev-memory Boundary prose now matches dev-memory.ts (single canonical path, LATTICE_GLOBAL_MEMORY_DIR override, no phantom legacy fallback).",
+      "createdAt": "2026-06-18T19:48:41.739Z",
+      "reviewRound": "2026-06-18T19:47:50.990Z",
+      "reviewRunId": "B-1a12:RR-006",
+      "_hash": "ce8280a2817595536931d36b6b1ce52f99cbc6b99a4070fe68a3f1d3ffeecb33"
+    }
+  ]
+}

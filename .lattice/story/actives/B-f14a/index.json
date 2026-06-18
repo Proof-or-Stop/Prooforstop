@@ -1,0 +1,95 @@
+{
+  "storyId": "B-f14a",
+  "name": "remove-mac-ui-cli-role",
+  "title": "Mirror upstream gate-actor policy in CLI job-create",
+  "description": "This is the downstream CLI follow-up to the Authority server contract change. Update authority-client role checks, failure text, and CLI-facing docs so the CLI mirrors the upstream gate-actor vocabulary without widening the allowed role set or introducing new environment tiers.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "mac_ui",
+    "authority",
+    "gate",
+    "cli",
+    "actor",
+    "job_create"
+  ],
+  "createdAt": "2026-06-18T19:46:54.599Z",
+  "startedAt": "2026-06-18T19:46:54.599Z",
+  "endedAt": "2026-06-18T21:06:32.715Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-18T19:46:54.635Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:26:13.192Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:26:24.525Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:43:08.829Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:48:38.502Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:56:17.042Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:59:05.299Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:59:54.829Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-18T21:06:32.715Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-18T20:59:05.299Z"
+}

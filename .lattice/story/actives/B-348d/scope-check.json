@@ -1,0 +1,129 @@
+{
+  "storyId": "B-348d",
+  "checkedAt": "2026-06-18T16:45:14.653Z",
+  "features": [
+    {
+      "feature": "retryOnAnyFailure optional boolean field added to ManifestEntry type in run-all-smokes.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "pass-2 retry membership predicate extended to include status===FAIL entries where manifest retryOnAnyFailure===true",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "TIMEOUT retry path (B-2941 behavior) preserved unchanged for non-allowlisted smokes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "--no-retry flag continues to disable pass-2 entirely",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Non-allowlisted smokes retain FAIL=terminal default (non-flagged FAIL not retried)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "retryOnAnyFailure field added to smoke-manifest.json schema annotation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "4 verified allowlist candidates (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) flagged with retryOnAnyFailure:true in smoke-manifest.json",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Each of the 4 flagged candidates serial-re-verified (exit 0) before allowlisting — only serial-stable smokes qualify",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No smokes outside the 4 verified candidates receive retryOnAnyFailure:true",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Deterministic self-smoke: flagged-FAIL smoke is retried in pass-2 (positive proof of retry)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Deterministic self-smoke: non-flagged-FAIL smoke is NOT retried (negative/anti-masking safety proof)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry documenting opt-in flag, 4 allowlisted smokes, and stopgap/deferred-root-cause note",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "docs/dev/test-coverage.md updated to document retryOnAnyFailure opt-in flag",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "3 consecutive npm run test:all green (deterministic CI stability)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Manifest opt-in/opt-out flags architecture (from chosen Path B in test-runner-consolidation-plan.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Deferred root-cause follow-up for the 4 load-flake smokes (B-24c3 F-001..F-004, B-3d39 F-001 explicitly deferred)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description explicitly states root-cause is deferred (decision option b deferred)",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 15,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "eaec394ac9a993dce4c306cdb6f015a7ef6a4ddfc6e29e65ded667103ea9f75b",
+  "openQuestions": []
+}

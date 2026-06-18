@@ -1,0 +1,280 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Migrate the 3 hand-rolled metadata locks to the shared withMkdirLock primitive",
+      "context": "In packages/main/src/handlers/finding.ts (withReviewPassLock ~line 38), review-run.ts (withReviewRunLock ~line 21), and init-check.ts (withInitCheckLock ~line 67): replace each hand-rolled mkdir/deadline/sleep loop with a delegation to withMkdirLock from packages/main/src/core/mkdir-lock.ts, exactly as checklist.ts's withChecklistLock already does. Keep the same lock path (storyFilePath(storyId,'<x>.lock')). Pass a descriptive label (e.g. 'review-passes metadata', 'review-runs metadata', 'init-check metadata'). This raises the acquire budget from 5s to the shared 30s default and restores the documented deadline(30s)>staleMs(10s) invariant. Remove the now-dead local sleepSync helpers if unused. The git commit (autoCommitStoryMetadata) stays inside the critical section (correct per-story commit serialization). Build clean (0 tsc errors).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-18T19:30:10.960Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "all 3 handlers delegate to withMkdirLock -> `grep -lE \"withMkdirLock\\(\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l` outputs 3; WHY: each hand-rolled loop is replaced by the shared primitive",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "no hand-rolled 5s budget remains -> `grep -E \"Date.now\\(\\) \\+ 5000\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l` outputs 0; WHY: the 5s<10s invariant violation is gone",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"` outputs 0; WHY: typechecks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wait-and-poll semantics preserved (no failFastIfHeld) -> `grep -E \"failFastIfHeld\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l` outputs 0; WHY: contention still waits, not fail-fast",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: the shared withMkdirLock primitive itself is unchanged -> `git diff main...HEAD --name-only -- packages/main/src/core/mkdir-lock.ts | wc -l` outputs 0; WHY: helper reused not rewritten",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "`grep -lE \"withMkdirLock\\(\" .../{finding,review-run,init-check}.ts | wc -l` shows 3 and `grep -E \"Date.now() + 5000\"` shows 0; build clean — all 3 metadata locks now use the shared 30s primitive.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -lE \"withMkdirLock\\(\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l",
+          "result": "pass",
+          "note": "3 of 3 handlers now match withMkdirLock( — each hand-rolled loop replaced by the shared primitive",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -E \"Date.now\\(\\) \\+ 5000\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l",
+          "result": "pass",
+          "note": "0 matches of Date.now()+5000 — the 5s<10s invariant-violating budget is gone",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"",
+          "result": "pass",
+          "note": "0 TS errors — typechecks clean",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -E \"failFastIfHeld\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l",
+          "result": "pass",
+          "note": "0 matches of failFastIfHeld — wait-and-poll semantics preserved (defaults only)",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/core/mkdir-lock.ts | wc -l",
+          "result": "pass",
+          "note": "0 files — the shared withMkdirLock primitive is reused unchanged",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the fix retires the B-348d stopgap, then remove the 4 retryOnAnyFailure flags",
+      "context": "Build, then run the four previously-flagged smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) under heavy parallel load with FAIL-retry DISABLED, i.e. invoke each smoke binary directly (no two-pass runner) with concurrent fillers, for many iterations (>=24 total runs across heavy concurrency), capturing exit codes. Expectation: 0 FAIL. If all pass, remove retryOnAnyFailure:true from those four entries in packages/main/smoke-manifest.json (retire the stopgap). If any one still FAILs under load, KEEP that smoke's flag and record a finding documenting the residual sub-cause. The retryOnAnyFailure mechanism itself (the manifest field + run-all-smokes pass-2 logic from B-348d) is NOT removed - it stays as a general safety net.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-18T19:41:55.762Z",
+      "files": {
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "all 4 stopgap flags removed -> `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` outputs 0; WHY: stopgap retired after proof",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "manifest still valid JSON -> `node -e \"JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json','utf8'))\" && echo OK` outputs OK; WHY: no corruption",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the 4 formerly-flagged smokes pass standalone serial -> `for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done; echo END` outputs only END (no BAD); WHY: each is serially green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "heavy concurrent --no-retry stress shows 0 FAIL -> `rm -f /tmp/b77ed.tally; for r in 1 2 3 4 5 6; do for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do (node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1; echo $? >>/tmp/b77ed.tally) & done; done; wait; echo FAILS=$(grep -vc '^0$' /tmp/b77ed.tally)` outputs FAILS=0; WHY: proves the lock fix eliminates load-induced FAIL without the retry net",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Heavy concurrent --no-retry stress prints FAILS=0 across >=24 runs, and `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` shows 0 — the 4 stopgap flags are retired and the smokes are stable under load without the retry net.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -c retryOnAnyFailure packages/main/smoke-manifest.json",
+          "result": "pass",
+          "note": "grep -c retryOnAnyFailure = 0 — all 4 stopgap flags removed",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node -e \"JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json','utf8'))\" && echo OK",
+          "result": "pass",
+          "note": "node JSON.parse prints OK — manifest still valid JSON",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done; echo END",
+          "result": "pass",
+          "note": "loop prints only END (no BAD-*) — all 4 formerly-flagged smokes serial-PASS",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rm -f /tmp/b77ed.tally; for r in 1 2 3 4 5 6; do for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do (node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1; echo $? >>/tmp/b77ed.tally) & done; done; wait; echo FAILS=$(grep -vc '^0$' /tmp/b77ed.tally)",
+          "result": "pass",
+          "note": "FAILS=0 across 24 heavy-concurrent --no-retry runs — lock fix eliminates load-induced FAIL without the retry net (also pre-confirmed by a separate 32-run batch)",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update CHANGELOG + docs/dev/test-coverage.md",
+      "context": "Add a CHANGELOG.md Unreleased entry describing: the root-cause fix (3 hand-rolled metadata locks migrated to withMkdirLock, 5s->30s acquire budget, deadline>stale invariant restored) and the retirement of the B-348d stopgap flags (with empirical proof). Update the 'Retry policy' section of docs/dev/test-coverage.md to reflect that the four smokes no longer need retryOnAnyFailure (the shared-state root cause is fixed, not just stopgapped). Keep edits to the Unreleased section only; do not add a new version heading.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-18T19:42:49.381Z",
+      "files": {
+        "modify": [
+          "CHANGELOG.md",
+          "docs/dev/test-coverage.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased names this fix -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-77ed|withMkdirLock\"` outputs at least 1; WHY: documented",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs retry-policy section reflects the root-cause fix -> `grep -ciE \"withMkdirLock|root cause|no longer need\" docs/dev/test-coverage.md` outputs at least 1; WHY: doc-code consistency",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG touches only the Unreleased section -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: no version heading churn",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: only the 6 allowed source/doc paths changed -> `git diff main...HEAD --name-only | grep -vE \"^(packages/main/src/handlers/(finding|review-run|init-check)[.]ts|packages/main/smoke-manifest[.]json|CHANGELOG[.]md|docs/dev/test-coverage[.]md|[.]lattice/)\" | wc -l` outputs 0; WHY: scope respected",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "`awk '.../Unreleased' CHANGELOG.md | grep -ci 'B-77ed|withMkdirLock'` >=1 and docs/dev/test-coverage.md describes the root-cause fix — the change is documented and the stopgap retirement is recorded.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-77ed|withMkdirLock\"",
+          "result": "pass",
+          "note": "Unreleased grep = 1 — CHANGELOG documents B-77ed/withMkdirLock",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -ciE \"withMkdirLock|root cause|no longer need\" docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "docs grep = 1 — test-coverage.md retry-policy describes the root-cause fix",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l",
+          "result": "pass",
+          "note": "0 — CHANGELOG diff touches only the Unreleased section, no version heading",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD --name-only | grep -vE \"^(packages/main/src/handlers/(finding|review-run|init-check)[.]ts|packages/main/smoke-manifest[.]json|CHANGELOG[.]md|docs/dev/test-coverage[.]md|[.]lattice/)\" | wc -l",
+          "result": "pass",
+          "note": "0 — diff touches only the 6 allowed source/doc paths (+ .lattice metadata)",
+          "headHash": "8c5c4d63eb831d11a3e30aa0e0446154d44a0160",
+          "materialHash": "a6f8a8cd3e6bd99c16b02a87aa75cee0122856234c38414852965d5220438ac5",
+          "timestamp": "2026-06-18T20:03:07.395Z"
+        }
+      ]
+    }
+  ]
+}

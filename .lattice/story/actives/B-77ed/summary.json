@@ -1,0 +1,55 @@
+{
+  "storyId": "B-77ed",
+  "changes": "Migrated three hand-rolled mkdir metadata-lock loops — withReviewPassLock (handlers/finding.ts), withReviewRunLock (handlers/review-run.ts), withInitCheckLock (handlers/init-check.ts) — to the shared core/mkdir-lock.ts withMkdirLock primitive, raising the acquire budget 5s->30s and restoring the documented deadline>staleMs invariant. Removed ~76 net lines of duplicated, invariant-violating code. Retired the four B-348d retryOnAnyFailure stopgap flags from smoke-manifest.json.",
+  "usage": "No new API. review_pass_set / review_run_start / init_check_set now wait up to 30s (was 5s) to acquire their per-story metadata lock, so concurrent multi-reviewer REVIEW on a loaded machine no longer fails with 'timed out waiting for metadata lock'. The retryOnAnyFailure manifest field + run-all-smokes pass-2 logic remain available as a general load-flake safety net; no smoke currently sets the flag.",
+  "expectedOutcome": "Concurrent review_pass_set/review_run_start under heavy load succeed (no lock-acquire timeout). The four formerly-flagged smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) pass under heavy parallel --no-retry load. grep of 'Date.now() + 5000' across the 3 handlers = 0; grep -c retryOnAnyFailure smoke-manifest.json = 0; build clean.",
+  "actualTranscript": "32 heavy-concurrent --no-retry runs (8 per smoke) -> all exit 0, FAILS=0; a separate 24-run batch -> FAILS=0. Pre-fix reproduction: 20 concurrent procs -> field-regression-cli FAILed 2/24 with 'review_pass_set exited 1: timed out waiting for metadata lock'. Build: 0 TS errors. grep withMkdirLock( in 3 handlers = 3; grep Date.now()+5000 = 0; grep -c retryOnAnyFailure = 0. 13/13 verificationIntent evidence covered; validate all green.",
+  "outcomeDiff": "No diff — expected and actual match: 30s budget eliminates the load-induced lock-acquire timeout; 32-run and 24-run --no-retry stress both FAILS=0; all 4 flags removed; 13/13 intents pass.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. The fix addresses the metadata-lock acquire budget for the three migrated handlers; the retryOnAnyFailure mechanism is retained (unused) as a general safety net. The on-disk mkdir mutex, main-write-lock (B-3d39), and run-all-smokes two-pass runner (B-2941) are unchanged by design.",
+  "pitfalls": "Never re-introduce a hand-rolled lock loop with deadline < staleMs (a waiter can never reach the stale-reclaim branch, so a crashed holder deadlocks every caller). The git commit must stay inside the lock critical section (per-story commit serialization). Only set retryOnAnyFailure on a smoke re-confirmed serial-PASS — never to mask a real regression.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 264282
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 95853
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 503145
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1282956
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 441150
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 415418
+    }
+  },
+  "totalDurationMs": 3002805,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T20:04:03.523Z",
+  "updatedAt": "2026-06-18T20:04:03.523Z"
+}

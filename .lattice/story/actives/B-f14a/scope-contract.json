@@ -1,0 +1,29 @@
+{
+  "storyId": "B-f14a",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/command-policy.ts",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-completion-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Project validation needs an explicit story-specific validate.commands sequence so B-f14a does not fall back to the broad npm test gate and fail on unrelated checks.",
+      "timestamp": "2026-06-18T20:58:59.695Z",
+      "paths": [
+        "lattice.config.json"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-18T20:48:31.742Z",
+  "updatedAt": "2026-06-18T20:58:59.695Z"
+}

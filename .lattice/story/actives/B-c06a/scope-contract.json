@@ -1,0 +1,31 @@
+{
+  "storyId": "B-c06a",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/experience-effectiveness.ts",
+    "packages/main/src/handlers/learning-effectiveness.ts",
+    "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts",
+    ".lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/finding.ts"
+  ],
+  "scopeChangeReason": "Read-only learning_effectiveness command: pure metric leaf + store/activity adapter + registration; reuses existing reads unchanged.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-18T15:38:12.687Z",
+  "updatedAt": "2026-06-18T15:38:12.687Z"
+}

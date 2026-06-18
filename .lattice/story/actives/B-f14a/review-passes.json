@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-f14a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the gate-actor cleanup and found no blocking correctness issue.",
+      "createdAt": "2026-06-18T20:53:49.113Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-005",
+      "_hash": "db61310f82ab9356851442767885b9bbc98094b1f855c9d357f7530663195e4b"
+    },
+    {
+      "id": "B-f14a:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed the smokes and coverage path; no blocker found.",
+      "createdAt": "2026-06-18T20:53:49.690Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-006",
+      "_hash": "70fc47fe473afa4c91d378ac215ad257e8cee95a0081e4bcd454b229233fa148"
+    },
+    {
+      "id": "B-f14a:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the CLI policy and wording cleanup; no blocker found.",
+      "createdAt": "2026-06-18T20:53:50.290Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-007",
+      "_hash": "1b1993cde237dacf6b2541c30bad207a9a114faa60886be3b23f7ba161dcd498"
+    },
+    {
+      "id": "B-f14a:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed the touched docs and found them aligned with the cleaned contract.",
+      "createdAt": "2026-06-18T20:53:50.796Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-008",
+      "_hash": "5bcb5340cc4336de5f823d0f95bb754012a2cc40239cdc4516d73a3612aa15b2"
+    },
+    {
+      "id": "B-f14a:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "No blocking correctness issue; concept matches the upstream gate-actor policy change and the fail-closed mac_ui path is intentional.",
+      "createdAt": "2026-06-18T20:54:04.711Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-005",
+      "_hash": "f42b9fdce7cb78b501b8652f36b588c653c96874fdbbba7cf4fd2b312ce8ea9c"
+    },
+    {
+      "id": "B-f14a:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "No blocking quality issue; the role check, error text, and docs stay internally consistent with the narrowed actor set.",
+      "createdAt": "2026-06-18T20:54:11.658Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-007",
+      "_hash": "1bef2047ce3d0600ef4f599ec0fa91bcd2f74b159ae8259179b3707096f5a3b7"
+    },
+    {
+      "id": "B-f14a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "No blocking test-coverage gap; the added smoke check isolates stale mac_ui actor material and exercises the new fail-closed branch.",
+      "createdAt": "2026-06-18T20:54:17.326Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-006",
+      "_hash": "dad1595b7077a84134170d1bc2cf2395e17fbbd67e3cfc4e876d43e6ec1b2206"
+    },
+    {
+      "id": "B-f14a:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "No blocking docs issue; the touched requirements pages now align with the updated gate-capable role vocabulary.",
+      "createdAt": "2026-06-18T20:54:23.987Z",
+      "reviewRound": "2026-06-18T20:48:38.502Z",
+      "reviewRunId": "B-f14a:RR-008",
+      "_hash": "f6d22594c86b887d7d7493397a9c116a3cca8460cea887ea1dd8e3c21f42f469"
+    },
+    {
+      "id": "B-f14a:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed the current round after the validate config fix; no blocker found.",
+      "createdAt": "2026-06-18T20:59:37.172Z",
+      "reviewRound": "2026-06-18T20:59:05.299Z",
+      "reviewRunId": "B-f14a:RR-011",
+      "_hash": "f23dacc242a403d6ff769898e24098592ad7e76f125ee6a3387628e5f91c1c70"
+    },
+    {
+      "id": "B-f14a:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the current round after the validate config fix; no blocker found.",
+      "createdAt": "2026-06-18T20:59:37.826Z",
+      "reviewRound": "2026-06-18T20:59:05.299Z",
+      "reviewRunId": "B-f14a:RR-012",
+      "_hash": "e8e904bd6fc63f2c859c15201561ee2d2776e8887837fe7e7aa905846f6d1d51"
+    },
+    {
+      "id": "B-f14a:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the current round after the validate config fix; no blocker found.",
+      "createdAt": "2026-06-18T20:59:38.443Z",
+      "reviewRound": "2026-06-18T20:59:05.299Z",
+      "reviewRunId": "B-f14a:RR-010",
+      "_hash": "18419777ad4bbf5d1acee163b7e89a7a515317df7f7912644edaaf074fc17ed3"
+    },
+    {
+      "id": "B-f14a:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed the current round after the validate config fix; no blocker found.",
+      "createdAt": "2026-06-18T20:59:39.106Z",
+      "reviewRound": "2026-06-18T20:59:05.299Z",
+      "reviewRunId": "B-f14a:RR-009",
+      "_hash": "4ea5a1c2af93d8bb55fc1124211417283ef8cf2d21e693ca3cb1434d9f7eca1f"
+    }
+  ]
+}

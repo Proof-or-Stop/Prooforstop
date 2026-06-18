@@ -1218,7 +1218,7 @@ function resolveGateActorMaterial(
 }
 
 function roleCanRequestGate(role: string): boolean {
-  return role === 'main' || role === 'mac_ui' || role === 'human';
+  return role === 'main' || role === 'human';
 }
 
 function signHexEnvelope<T extends object>(
@@ -1925,7 +1925,7 @@ export async function submitAuthorityJobFromPlan(
       ok: false,
       accepted: false,
       transport: 'error',
-      reason: 'authority job create requires a main/mac_ui/human actor key',
+      reason: 'authority job create requires a main/human actor key',
     };
   }
   const out = await backing.client.createJob(envelope);

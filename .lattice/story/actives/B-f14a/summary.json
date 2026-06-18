@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f14a",
+  "changes": "Added explicit validate.commands in lattice.config.json so B-f14a uses the story-specific build and CLI smokes instead of falling back to broad npm test; kept CLI docs aligned with the neutral gate contract.",
+  "usage": "Run lattice validate --story=B-f14a --json from the repo root, then advance the story through REVIEW and DONE once delivery evidence is signed.",
+  "expectedOutcome": "The story should validate with the configured build plus authority-client-smoke and authority-completion-smoke commands, while the docs still describe the neutral gate vocabulary.",
+  "actualTranscript": "lattice validate --story=B-f14a --json -> PASS via configured validate.commands; build and both CLI smokes passed; 9/9 verification intents covered.",
+  "outcomeDiff": "Expected and actual match; the earlier npm test fallback is gone.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "The first TEST attempt fell through the fallback npm test gate and failed, so we added explicit validate.commands, re-ran validation, refreshed the current-round reviewer passes, and then signed delivery.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2358557
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11333
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1004304
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 497930
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 508070
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 320208
+    }
+  },
+  "totalDurationMs": 4700438,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T21:05:15.037Z",
+  "updatedAt": "2026-06-18T21:05:15.037Z"
+}

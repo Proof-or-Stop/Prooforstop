@@ -1,0 +1,31 @@
+{
+  "task": "Add a read-only learning_effectiveness CLI reporting (1) a fast per-story hint predictive-value signal computed retrodictively over findings+signatureTags in temporal order, and (2) an ON/OFF arm comparison from the experience_hint_surfaced hintMode events, with honest N and significance.",
+  "outcome": "Running `node bin/lattice.js learning_effectiveness` prints a report the operator can read, e.g.:\n\n  Experience Layer — effectiveness\n  Predictive value (retrodictive, prior-story signatures):\n    stories: 40   pre-warnable findings: 120   recall: 0.21   precision: 0.34\n    trend (windows of 25): hit-rate 0.10 -> 0.18 -> 0.22  (slope +)\n  A/B arms (from experience_hint_surfaced hintMode):\n    ON  n=3   recurrence-outcome 0.30\n    OFF n=2   recurrence-outcome 0.31\n    delta -0.01   significant: NO (insufficient N; need >= <threshold> per arm)\n  (advisory, read-only — observational; the A/B causal claim accrues over future stories)\n\nWith --json it prints the structured report. --confirmedOnly restricts to signatureTagSource=confirmed.",
+  "facts": [
+    "readActivityLogTail (core/activity-log.ts:46) reads experience_hint_surfaced events; B-06b3 (3.3) stamps each with hintMode (on/off) + hintIds.",
+    "store.readFindings exposes findings incl. signatureTag (B-5d48 populates it; source auto/confirmed); store.readStory exposes createdAt for temporal ordering; listStoryIds enumerates.",
+    "learning_validate (B-a2e3) is the read-only handler template: derives WITHOUT projectRoot, own git call in try/catch, writes nothing, registered L0 experience-layer-read + in READ_ONLY_COMMANDS + process-fact-levels.",
+    "The FAST predictive-value layer needs only findings+signatureTags+order (no hint events); the LONG-GAME RCT layer needs the hintMode events. Forward arm data is currently sparse, so the RCT will honestly report 'not yet significant' until N accrues / the 3.5 backfill lands."
+  ],
+  "constraints": [
+    "Read-only: writes nothing, files no findings, touches no gate; the leaf is pure (no fs/git), inject the ordered story data.",
+    "Honest by construction: report N per arm + a conservative significance gate; never claim a causal win before the N gate is met; the fast signal is observational.",
+    "Never NaN; deterministic given fixed inputs.",
+    "Registered exactly like a read-only command (L0 experience-layer-read, READ_ONLY_COMMANDS, process-fact-levels, command-policy readOnly) — adding a new command requires the process-fact-levels entry or the process-fact-contract suite fails (lesson from B-a2e3)."
+  ],
+  "unknowns": [
+    "The recurrence outcome for the arm comparison — resolved: fraction of a story's findings whose signatureTag was already known from prior stories (a higher value = more un-caught recurrence); compare ON vs OFF.",
+    "The significance gate — resolved: a conservative minimum N per arm (e.g. >= a small constant); below it, significant=false with note='insufficient N'. No p-value claim beyond that."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/experience-effectiveness.ts",
+    "packages/main/src/handlers/learning-effectiveness.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
+  ],
+  "timestamp": "2026-06-18T15:37:39.587Z"
+}
