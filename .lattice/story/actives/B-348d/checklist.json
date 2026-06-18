@@ -287,6 +287,16 @@
           "headHash": "21675df70634df14f77cdf9c12036d681df5170d",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:49.825Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-348d|retryOnAnyFailure\"",
+          "result": "pass",
+          "note": "Unreleased section has 1 B-348d/retryOnAnyFailure mention; CHANGELOG entry present",
+          "headHash": "26f9ba040a394cebfa114db36b2329b0d66d599a",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:50.617Z"
         }
       ]
     }
