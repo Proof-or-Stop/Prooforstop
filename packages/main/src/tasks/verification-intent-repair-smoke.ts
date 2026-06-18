@@ -3,7 +3,7 @@
  * @task B-4e06
  * @checklist CHK-001 CHK-002 CHK-004
  * @title verification intent repair + legacy diagnostic smoke
- * @type bug
+ * @type bugfix
  * @priority high
  * @description
  *   Proves the audited legacy repair reconstructs ONLY missing verificationIntent

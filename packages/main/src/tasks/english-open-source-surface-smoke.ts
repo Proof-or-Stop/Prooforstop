@@ -5,6 +5,8 @@
  * @title English open-source surface — no-new-Chinese gate
  * @type feature
  * @priority high
+ * @changes
+ *   - [CHK-004] Scan the active source and docs surface for CJK and fail on new untranslated text.
  * @description
  * Phase 3 gate for the cli-engine English open-source translation plan.
  *

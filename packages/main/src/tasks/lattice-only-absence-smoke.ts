@@ -5,6 +5,8 @@
  * @title Lattice-only runtime absence smoke
  * @type feature
  * @priority high
+ * @changes
+ *   - [CHK-003] Verify active runtime and generated assets no longer advertise legacy CLI alias compatibility.
  * @description
  * Proves active runtime, Codex adapter, and generated bootstrap surfaces no
  * longer accept or advertise legacy CLI alias compatibility.
