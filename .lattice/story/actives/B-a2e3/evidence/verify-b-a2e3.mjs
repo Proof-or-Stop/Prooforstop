@@ -49,6 +49,11 @@ const handlerRegistered = /createLearningValidateHandlers\(ctx\)/.test(registry)
 const pkgScript = /"test:experience-layer-revalidation"\s*:/.test(read('packages/main/package.json'));
 const configEntry = /'learning_validate'/.test(read('packages/main/src/core/config.ts'));
 const policyEntry = /learning_validate\s*:/.test(read('packages/main/src/core/command-policy.ts'));
+// Read-only contract: learning_validate must be in the READ_ONLY_COMMANDS set
+// (no activity.jsonl write). Scope the membership check to that Set literal so a
+// match in the command schema entry does not satisfy it vacuously.
+const readOnlySet = (cli.match(/READ_ONLY_COMMANDS[^=]*=\s*new Set\(\[([\s\S]*?)\]\)/) || [,''])[1];
+const readOnlyListed = /['"]learning_validate['"]/.test(readOnlySet);
 
 // ── Static: anchorFiles wiring in the core (CHK-001) ──
 const types = read('packages/main/src/core/experience-layer-types.ts');
@@ -65,13 +70,13 @@ const protectedUntouched = !diffNames.includes('packages/main/src/core/evidence-
 const chk = {
   'CHK-001': anchorTypes && anchorDerive && revalSmoke && buildOk,
   'CHK-002': leafIso && leafNoIo && revalSmoke && buildOk,
-  'CHK-003': cmdRegistered && handlerRegistered && handlerReadOnly && handlerNoProjectRoot && handlerOwnGit && configEntry && policyEntry && buildOk,
+  'CHK-003': cmdRegistered && handlerRegistered && handlerReadOnly && handlerNoProjectRoot && handlerOwnGit && configEntry && policyEntry && readOnlyListed && buildOk,
   'CHK-004': pkgScript && revalSmoke && noRegression && buildOk && leafIso && handlerReadOnly && protectedUntouched,
 };
 const note = {
   'CHK-001': 'experience-layer-types.ts adds anchorFiles?: string[]; finding-signals.ts populates capped sorted union (MAX_ANCHOR_FILES); smoke asserts sorted/deduped/non-string-filtered',
   'CHK-002': 'experience-revalidation.ts imports ONLY ./experience-layer-types.js (no fs/child_process); smoke asserts validRate/driftRate, anchored-only denominator, no NaN, throw propagates',
-  'CHK-003': 'learning_validate CLI + registry + config + policy registered; READ-ONLY (no write/finding/gate refs; no projectRoot); own git ls-tree (not evidence-freshness)',
+  'CHK-003': 'learning_validate CLI + registry + config + policy registered; in READ_ONLY_COMMANDS (no activity.jsonl write); READ-ONLY (no write/finding/gate refs; no projectRoot); own git ls-tree (not evidence-freshness)',
   'CHK-004': 'revalidation smoke passes + no-regression (finding-signals/playbook/recall) + build clean + leaf isolation + read-only + protected files unchanged; npm script wired',
 };
 
@@ -85,7 +90,7 @@ for (const it of cl.items || []) {
 }
 const refs = Object.keys(R), fails = refs.filter(r => !R[r].pass);
 console.log(`TOTAL ${refs.length} | PASS ${refs.length - fails.length} | FAIL ${fails.length}`);
-console.log(`(buildOk=${buildOk} revalSmoke=${revalSmoke} noRegression=${noRegression} leafIso=${leafIso} leafNoIo=${leafNoIo} handlerReadOnly=${handlerReadOnly} handlerNoProjectRoot=${handlerNoProjectRoot} handlerOwnGit=${handlerOwnGit} cmdRegistered=${cmdRegistered} handlerRegistered=${handlerRegistered} pkgScript=${pkgScript} configEntry=${configEntry} policyEntry=${policyEntry} anchorTypes=${anchorTypes} anchorDerive=${anchorDerive} protectedUntouched=${protectedUntouched})`);
+console.log(`(buildOk=${buildOk} revalSmoke=${revalSmoke} noRegression=${noRegression} leafIso=${leafIso} leafNoIo=${leafNoIo} handlerReadOnly=${handlerReadOnly} handlerNoProjectRoot=${handlerNoProjectRoot} handlerOwnGit=${handlerOwnGit} cmdRegistered=${cmdRegistered} handlerRegistered=${handlerRegistered} pkgScript=${pkgScript} configEntry=${configEntry} policyEntry=${policyEntry} readOnlyListed=${readOnlyListed} anchorTypes=${anchorTypes} anchorDerive=${anchorDerive} protectedUntouched=${protectedUntouched})`);
 console.log('regression: ' + Object.entries(reg).map(([k,v])=>`${k}=${v?'ok':'FAIL'}`).join(' '));
 for (const f of fails) console.log(`  FAIL ${f} :: ${R[f].note}`);
 fs.writeFileSync('.lattice/story/actives/B-a2e3/evidence/verify-result.json', JSON.stringify(R, null, 1));

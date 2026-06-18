@@ -2954,6 +2954,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'autopilot_status',
   'autopilot_watch',
   'autopilot_review',
+  'learning_validate', // read-only Experience Layer validity instrument; writes nothing
 ]);
 
 function inferCodexEntrypoint(): string {
