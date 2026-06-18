@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-3d39:F-001",
+      "desc": "During B-3d39 CHK-003 test:all verify, Plan B retry HEALED all 4 timeouts (done-preflight/init-check-required-agents/lattice-cli-migration/review-pass-discard all PASS on serial retry — real-world proof Plan B works). But field-regression-cli produced a non-timeout FAIL (exit 1 at 191.8s under load); Plan B only retries TIMEOUTs, so it was not retried. field-regression-cli PASSES standalone serial (exit 0) on this branch — confirming the B-3d39 lock change is innocent and this is a pre-existing parallel-load flake (same class as B-24c3:F-001..F-004 / review-pass-discard parallel-only FAIL). Out of scope for B-3d39 (lock-reentrancy fix). Candidate for the parallel-test-architecture follow-up: consider whether Plan B retry should also cover load-induced FAILs (not just timeouts) for the known flaky set.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T14:51:44.466Z",
+      "reviewRound": "",
+      "_hash": "b465c74d83b66adcd147bf67751a40b35442c687b62423d6e8dfe0ebf1018cc0",
+      "signatureTag": "missing|unknown|during-3d39-test",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Tracked for the parallel-test-architecture follow-up. Out of scope for B-3d39 (lock-reentrancy fix). field-regression-cli passes standalone serial — confirmed innocent of the lock change. Documents the gap that Plan B retries only timeouts, not load-induced FAILs.",
+      "resolvedAt": "2026-06-18T14:56:18.459Z"
+    }
+  ]
+}

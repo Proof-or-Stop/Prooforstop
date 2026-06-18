@@ -1,0 +1,28 @@
+{
+  "storyId": "B-3d39",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/tasks/main-write-lock-coverage.ts",
+    "CHANGELOG.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "PLAN declared the self-smoke target as main-write-lock-coverage.ts, but the reentrancy UNIT cases (section 7/7b/7c) actually live in main-write-lock-smoke.ts (main-write-lock-coverage.ts is a separate git-mutation-site SCANNER, B-9177). The B-3d39 async-sibling regression case + the necessary section-7c contract update belong in main-write-lock-smoke.ts. Same intent, correct file.",
+      "timestamp": "2026-06-18T14:41:06.953Z",
+      "paths": [
+        "packages/main/src/tasks/main-write-lock-smoke.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-18T14:19:40.774Z",
+  "updatedAt": "2026-06-18T14:41:06.953Z"
+}

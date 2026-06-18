@@ -1,0 +1,143 @@
+{
+  "storyId": "B-3d39",
+  "checkedAt": "2026-06-18T14:21:13.664Z",
+  "features": [
+    {
+      "feature": "Reentrancy predicate change in withReentrantMainWriteLock from bare heldLockPaths.has(lockKey) to ALS-owner-aware check",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Reentrancy predicate change in acquireMainWriteLockRegistered from bare heldLockPaths.has(lockKey) to ALS-owner-aware check",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "AsyncLocalStorage owner-token introduced in main-write-lock.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "ALS context establishment (als.run(ownerToken, ...)) in withReentrantMainWriteLock so genuine sync nesting inherits same context",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "ALS context establishment in transition-orchestrator.ts acquire/release-pair DONE merge window",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "On-disk mkdir mutex (cross-process lock) behavior frozen/unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "done-effects.ts merge order frozen/unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Build clean (no TypeScript errors) after ALS changes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "globalCoreCandidates in codex-adapter-checks.ts must probe @koala-agent/core in addition to @lattice-agent/core",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-codex-command-boundary-execution-plan.md"
+    },
+    {
+      "feature": "Only the candidates list changes in codex-adapter-checks.ts (minimal guard fix, no other guard logic touched)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-codex-command-boundary-execution-plan.md"
+    },
+    {
+      "feature": "Deterministic async-interleave negative test case: operation B in separate ALS context must NOT be mis-classified as reentrant while operation A holds lock",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Sync-nesting pass-through still asserted in smoke (no self-deadlock regression)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry documenting reentrancy-race fix and guard brand fix",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npm run test:all green after changes",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Main write lock must be held from pre-merge final check through merge and worktree cleanup (DONE semantics per session-ownership-and-write-leases.md Rule 4)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "done_recover must also acquire the main write lock (per session-ownership-and-write-leases.md and story-lifecycle.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-3d39 only fixes the async-reentrancy predicate bug; done_recover already acquires the lock (pre-existing implementation from B-f60c), not in scope of this bug fix",
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "isMainWriteLockHeldInProcess test helper updated to be ALS-context-aware",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke-manifest or package.json not changed (adversarial over-reach check)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 17,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ccca99aea007e54f74133dad89265e57988c18ea3eb0da8dd31e0a823c1f0e2a",
+  "openQuestions": []
+}
