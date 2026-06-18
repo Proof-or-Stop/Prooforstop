@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T02:22:16.644Z",
       "reviewRunId": "B-4eb6:RR-004",
       "_hash": "8cf090a77c6a857b64335d1ca2c0d190a5d2ce1af3aba5dbfcb332bf39ebf49f"
+    },
+    {
+      "id": "B-4eb6:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "39/39 intents covered; F-001 and F-002 resolved with genuine bindings. F-001 (CHK-001:adversarial:1): wrongRootEliminated static check asserts handler sources projectRoot from ctx.root (never from args), handler never reads args.projectRoot/root, and LearningScanArgs interface has no projectRoot/root field — three-part construction proof that the wrong-root vector is eliminated by API design, now part of CHK-001 pass condition. F-002 (CHK-002:adversarial:0/1/2): mutation-style guarding is provided by the LIVE process-fact-contract suite run inside the verifier via full npm test, which has a demonstrated track record of catching mis-registration (B-a2e3 case); static end-state checks reinforce the current-state assertion. All 39 intents across CHK-001/CHK-002/CHK-003 (4+4+4 / 6+3+4 / 5+4+5) are genuinely bound by their respective harnesses. No residual gaps found.",
+      "createdAt": "2026-06-18T02:35:27.993Z",
+      "reviewRound": "2026-06-18T02:22:16.644Z",
+      "reviewRunId": "B-4eb6:RR-005",
+      "_hash": "6fe7147a29df572acdb649d38eec83c01a0fbc59d6a46b554b3dd1f1eb63ef86"
     }
   ]
 }
