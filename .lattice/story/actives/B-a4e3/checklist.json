@@ -133,9 +133,9 @@
       "title": "P8 deprecated GC: remove dead finding_dispatch/story_dispatch aliases + dead @deprecated fields (keep necessary legacy-JSON-compat)",
       "context": "Remove the deprecated CLI aliases finding_dispatch and story_dispatch from cli-engine.ts (~:1908) + their handlers/registry entries — they are replaced by 'lattice dispatch'; confirm no active consumer (grep) before removing. Then review the @deprecated fields (core/types.ts legacy verificationIntent/trace-profiler/evidence-freshness-headHash fields, guard-session.ts) and remove the genuinely-dead ones; KEEP any @deprecated field still required to READ old stored story JSON (these are legacy-compat, removing them breaks old-JSON reads) — annotate each kept one with why. After: the deprecated-gc advisory count drops; tsc + the full battery stay green. Do NOT remove the B-8451 advisory mechanism itself.",
       "userSees": "`lattice dispatch` is the only dispatch entry (finding_dispatch/story_dispatch gone); dead @deprecated fields removed while legacy-JSON-compat fields are retained with rationale; the @deprecated count drops; build + battery green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T13:54:40.402Z",
       "verificationIntent": {
         "happy": [
           {
