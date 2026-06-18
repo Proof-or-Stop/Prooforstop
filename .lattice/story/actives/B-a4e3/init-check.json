@@ -1,0 +1,26 @@
+{
+  "storyId": "B-a4e3",
+  "checkedAt": "2026-06-18T13:16:43.221Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-18T13:14:14.032Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights + description both state LEGACY_KOALA_DIR is used in ~6 files, but a grep of packages/main/src shows 10 unique consumer files: cli-engine.ts, audit-config.ts, rollout-check.ts, dev-memory.ts, planner.ts, store.ts, activity-log.ts, evidence-freshness.ts, story-query.ts, doctor.ts. CHK-001 mitigates this by instructing the implementer to grep, but the stated blast radius is materially understated and could mislead scope/effort estimation."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-18T13:16:43.221Z",
+      "issues": []
+    }
+  ],
+  "_hash": "3657926449532165b82620f073fd69db8fa413580ad25caf9ed5c7bb7014252a"
+}
