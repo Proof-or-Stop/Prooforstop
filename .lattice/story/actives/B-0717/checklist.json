@@ -88,8 +88,8 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T14:18:47.597Z",
       "endTime": null,
       "userSees": "Final response includes: \"Verified the plan against current cli-engine.ts inventory, registry/handler split, exported compatibility surfaces, and available package verification commands.\"",
       "excludes": [
@@ -212,6 +212,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Document was created and committed by worker in aeeb84819; evidence covers CHK-001 verification intent."
+    },
+    {
+      "timestamp": "2026-06-18T14:18:47.597Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start verification of the plan against current cli-engine and command contracts."
     }
   ]
 }
