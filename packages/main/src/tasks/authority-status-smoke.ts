@@ -262,6 +262,7 @@ function refFor(
   assert.deepEqual(result.readinessWarnings, [], 'off-mode emits no readiness warnings');
   assert.deepEqual(result.nextActions, [], 'off-mode emits no next actions');
   assert.match(result.localWorkflowNote, /readiness warnings, not global blockers/i, 'off-mode includes local-workflow note');
+  assert.match(result.localWorkflowNote, /bundle/i, 'off-mode note mentions the generated bundle handoff');
   assertNoProductionOverclaim(result, 'buildAuthorityStatus off-mode');
 }
 

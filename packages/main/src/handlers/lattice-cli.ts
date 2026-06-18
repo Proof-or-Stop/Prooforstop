@@ -55,7 +55,7 @@ const AUTHORITY_DISCLAIMER =
   'Receipt-aware status only: existing receipt refs may be reported, no new receipt is verified, no evidence is submitted, and productionDone remains false.';
 
 const LOCAL_WORKFLOW_NOTE =
-  'Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; missing enforce prerequisites are readiness warnings, not global blockers.';
+  'Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; if you are consuming the generated lattice_authority_trust.env + lattice_staging-client.env bundle, missing live runner fields like PROJECT_ID or GATE_ACTOR_* are expected until you switch to authority enforce runner --live. Missing enforce prerequisites are readiness warnings, not global blockers.';
 
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
