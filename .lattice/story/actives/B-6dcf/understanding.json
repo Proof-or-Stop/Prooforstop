@@ -1,0 +1,26 @@
+{
+  "task": "Make lattice check explain exactly which root managed asset paths are relative to when metadata root and gitRoot differ.",
+  "outcome": "After completion, a ClawCreek-style user runs lattice check or lattice check --json and sees that .gitignore/.codex relPath values are rooted at the metadata asset root, with the configured gitRoot shown separately when it differs.",
+  "facts": [
+    "runManagedAssetCheck currently accepts a root argument and applies managed assets relative to that root.",
+    "ManagedAssetCheckResult currently returns profile, assetMode, items, applied paths, summary, and manifestPath but no root diagnostics.",
+    "ClawCreek has a wrapper-root shape where Lattice metadata root and configured gitRoot are different directories.",
+    "Prior stories B-1637/B-75f0 fixed git command cwd selection; this story is about check output and result shape, not git execution."
+  ],
+  "constraints": [
+    "Do not move managed asset writes from metadata root to gitRoot.",
+    "Keep relPath and applied path semantics backward compatible.",
+    "Expose root diagnostics in both JSON and human text output.",
+    "Add regression coverage for wrapper-root metadataRoot != gitRoot.",
+    "Do not run lattice check --apply against external ClawCreek as part of this code story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/handlers/check.ts",
+    "scripts/verify-entrypoints.mjs",
+    "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+    "README.md"
+  ],
+  "timestamp": "2026-06-18T01:34:02.361Z"
+}
