@@ -175,6 +175,17 @@
           "headHash": "7cf06b93012ba7ad5532c5b28c314c9b53969395",
           "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
           "timestamp": "2026-06-18T01:46:41.580Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Smoke checks text guidance appears immediately after Summary for both DRIFT and OK states, before manifest/apply details, so humans see path-base context before acting.",
+          "headHash": "ff8a702e710e891f09e8918d891c413d09aaa19c",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:01.335Z"
         }
       ]
     },
