@@ -176,6 +176,16 @@
           "headHash": "e884ca8f57d30709af6e40e6e0c98ae6dc28202d",
           "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
           "timestamp": "2026-06-18T19:49:31.667Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rm -f /tmp/b77ed.tally; for r in 1 2 3 4 5 6; do for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do (node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1; echo $? >>/tmp/b77ed.tally) & done; done; wait; echo FAILS=$(grep -vc '^0$' /tmp/b77ed.tally)",
+          "result": "pass",
+          "note": "FAILS=0 across 24 heavy-concurrent --no-retry runs — lock fix eliminates load-induced FAIL without the retry net (also pre-confirmed by a separate 32-run batch)",
+          "headHash": "31830aa402fc39d7c2c95f578dcda32b9d2225e4",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:32.807Z"
         }
       ]
     },
