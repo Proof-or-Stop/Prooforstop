@@ -6,7 +6,59 @@
       "context": "In packages/main/src/core/main-write-lock.ts: the bare process-global heldLockPaths Set (line 271) mis-classifies a CONCURRENT async sibling as a nested reentrant caller because it cannot distinguish synchronous nesting from async interleaving across an await. Introduce an AsyncLocalStorage-based owner context. Recommended design (a2): keep the on-disk acquisition + a process-global record of WHICH async-context-owner holds each lockKey, and change the reentrancy predicate in withReentrantMainWriteLock (line 304) AND acquireMainWriteLockRegistered (line ~352) from plain heldLockPaths.has(lockKey) to has(lockKey) && currentAlsContextOwnsIt. Outermost acquire runs fn (or the acquire/release window) inside als.run(ownerToken, ...) so genuine synchronous nesting (DONE->audit) inherits the same ALS context and still passes through, while a concurrent INIT_CHECK in a separate ALS context correctly contends on the on-disk mkdir lock (and fail-fasts / waits per options) instead of skipping acquisition. The acquire/release-pair form used by the DONE merge in transition-orchestrator.ts must establish the ALS context around its critical section; make the minimal change there to wrap the DONE main-merge window. Update isMainWriteLockHeldInProcess test helper accordingly. The on-disk mkdir mutex behavior is UNCHANGED.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep AsyncLocalStorage packages/main/src/core/main-write-lock.ts` shows the context primitive; reentrancy check is context-aware; build clean; done-effects.ts untouched.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "main-write-lock.ts imports AsyncLocalStorage -> `grep -cE \"AsyncLocalStorage|async_hooks\" packages/main/src/core/main-write-lock.ts` outputs at least 1; WHY: the async-context primitive must be present",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "reentrancy predicate is no longer bare heldLockPaths.has -> `grep -cE \"heldLockPaths.has\\(lockKey\\)\" packages/main/src/core/main-write-lock.ts` is reduced or paired with an ALS owner check (grep for the owner-token/context check) -> `grep -cE \"als|AsyncLocalStorage|ownerToken|context\" packages/main/src/core/main-write-lock.ts` outputs at least 2; WHY: predicate refined to context-aware",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "compiled dist has the ALS logic -> `grep -cE \"AsyncLocalStorage|async_hooks\" packages/main/dist/core/main-write-lock.js` outputs at least 1; WHY: lands in runtime",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"` outputs 0; WHY: typechecks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "transition-orchestrator establishes ALS context around DONE merge window -> `grep -cE \"als|AsyncLocalStorage|runWith|withMainWriteLockContext\" packages/main/src/handlers/transition-orchestrator.ts` outputs at least 1; WHY: the acquire/release-pair form must run inside the context",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: on-disk mkdir mutex acquire/release unchanged -> `git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E \"^[-+]\" | grep -cE \"mkdirSync|rmSync|acquireMainWriteLock\\b\"` shows no deletion of the mkdir/rm primitives (manual: the mkdir lock body is intact); WHY: cross-process mutex frozen",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: done-effects.ts merge order untouched -> `git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l` outputs 0; WHY: merge sequence frozen (correct)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
