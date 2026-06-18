@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6dcf",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm --prefix packages/main run validate",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/dev/test-coverage.md",
+    "docs/requirements/decisions/**",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/handlers/check.ts",
+    "packages/main/src/tasks/**",
+    "README.md",
+    "scripts/**"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "lattice --root /Users/jek/Documents/ClawCreek* check --apply",
+    "lattice check --apply --root /Users/jek/Documents/ClawCreek*",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "story_create",
+  "createdAt": "2026-06-18T01:31:26.112Z",
+  "updatedAt": "2026-06-18T01:31:26.112Z",
+  "_hash": "4cf3dd7387176faaa685096e10197d6d067930198414fdc34a8dfdf684b84a4f"
+}
