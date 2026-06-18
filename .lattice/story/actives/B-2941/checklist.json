@@ -342,6 +342,17 @@
           "headHash": "4ff253eb69707453562faff1c38a56213567a56f",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:23.565Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:all > /tmp/b-2941-r1.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — run 1 exit 0 (171/171 in 165.5s).",
+          "headHash": "a59eaecc08cb0fc625f15a674fc5d076c6885eba",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:24.230Z"
         }
       ]
     }
