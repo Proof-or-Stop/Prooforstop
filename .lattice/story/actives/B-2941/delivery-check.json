@@ -1,0 +1,60 @@
+{
+  "storyId": "B-2941",
+  "checkedAt": "2026-06-18T13:16:20.865Z",
+  "reviewRound": "2026-06-18T13:10:19.172Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "Unreleased entry names B-2941 and describes two-pass retry, --no-retry flag, noRetry manifest field",
+      "verifiedBy": "awk + grep on CHANGELOG.md",
+      "evidence": "awk /Unreleased/ block contains B-2941 bullet with two-pass description; grep -ciE B-2941|two.?pass returns 2"
+    },
+    {
+      "docPath": "docs/dev/test-coverage.md#Two-pass-retry",
+      "promise": "Section explains pass 1 high-concurrency, pass 2 serial retry for timeouts, --no-retry for CI strict mode, noRetry per-smoke escape hatch",
+      "verifiedBy": "grep on docs/dev/test-coverage.md",
+      "evidence": "grep -cE two.?pass|retry pass|Pass 2 returns 4; grep -c --no-retry returns 3; new section present in diff lines +47..+85"
+    },
+    {
+      "docPath": "packages/main/smoke-manifest.json#_schemaNote_noRetry",
+      "promise": "smoke-manifest.json documents optional noRetry boolean field per ManifestEntry as escape hatch",
+      "verifiedBy": "grep on smoke-manifest.json",
+      "evidence": "grep -c noRetry returns 1; _schemaNote_noRetry field present in diff"
+    },
+    {
+      "docPath": "packages/main/src/tasks/run-all-smokes.ts#runAllSmokes",
+      "promise": "runAllSmokes performs two-pass retry: pass 1 at opts.jobs concurrency, pass 2 at jobs=1 for timeout subset excluding noRetry=true; returns retried flag; closing label Final: when retry fired; --no-retry CLI flag skips pass 2",
+      "verifiedBy": "grep on run-all-smokes.ts + diff inspection",
+      "evidence": "grep -cE pass.?2|retry returns 20; noRetry filter at line 260 (e.noRetry !== true); retried:true at line 282; closingLabel at line 301; --no-retry parsed at line 98"
+    },
+    {
+      "docPath": "packages/main/src/tasks/run-all-smokes-smoke.ts#B-2941-cases",
+      "promise": "4 fixture cases (a/b/c/d) cover: pass-1-timeout->pass-2-pass, noRetry=true blocks retry, --no-retry CLI blocks retry, fail-both-passes=FAIL",
+      "verifiedBy": "grep + live self-smoke run",
+      "evidence": "grep -cE B-2941 case (a|b|c|d) returns 4; live run in this review session: 13/13 checks passed exit 0"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Self-smoke run-all-smokes-smoke.js: 13/13 checks passed exit 0 (live-run in this review). Cases cover: pass-1 output format preserved (edge:0), --no-retry produces no Final/Pass2 output (happy:3), two-pass grep 20+ hits. Adversarial: zero production source touched, package.json untouched."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Self-smoke 13/13 checks passed live-verified in this review session. Cases a/b/c/d independently confirmed: (a) flaky lock-dance retries to PASS Final 1/1; (b) noRetry=true stays TIMEOUT exit 1; (c) --no-retry blocks Pass 2 exit 1; (d) always-timeout both passes Final 0/1 exit 1."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Docs-only + 3x test:all verification. CHANGELOG Unreleased and test-coverage.md two-pass section independently verified by diff+grep in this review. Three test:all runs (171/171 each, exit 0) evidenced in checklist verificationEvidence with headHash stamps; not re-run in delivery review to avoid 9+ minutes of redundant wall-clock.",
+      "waiverReason": "CHK-003 happy:3/4/5 are 3x test:all runs (~3 min each) already recorded in checklist verificationEvidence with headHash stamps. Re-running three additional full test:all passes during delivery review provides no additional signal. Docs promises (CHANGELOG, test-coverage.md) independently verified by grep."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified directly from source diff and grep. Self-smoke independently executed in this review session: 13/13 cases passed including all 4 B-2941 fixture cases (a/b/c/d). Two-pass logic in run-all-smokes.ts is structurally complete (runEntrySet, noRetry filter, retried flag, Final: label). No production handlers or package.json touched. CHANGELOG and test-coverage.md match the implementation. No unresolved TODOs in changed files."
+  },
+  "_hash": "8cf0fdf32d0bd7722bcf208cd464e70bb31fc60ced0b94e91e5deec5f63b72f7"
+}
