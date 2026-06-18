@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-18T17:12:07.020Z",
       "reviewRunId": "B-348d:RR-008",
       "_hash": "4eadeace796dbc6a21f212daec8b6d974a4cfc0c2ae2dbaad0498c47c658a25c"
+    },
+    {
+      "id": "B-348d:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 16 verificationIntent bindings (15 must + 1 should across CHK-001/002/003) have passing evidence; every evidence command literally matches the backtick command in its intent desc including the DEV-corrected CHK-002:happy:0 python3 equivalent; 3 spot-checks confirmed live outputs match asserted values; no gap, no mismatch, no blocker.",
+      "createdAt": "2026-06-18T17:15:29.821Z",
+      "reviewRound": "2026-06-18T17:12:07.020Z",
+      "reviewRunId": "B-348d:RR-007",
+      "_hash": "a371c5c35fb499febd805ee4d1012927d585d79329e2ba88db89777cfa9ea43f"
     }
   ]
 }
