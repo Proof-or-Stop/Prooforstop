@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5d48:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff is predominantly additive (new signature-candidate.ts leaf, SignatureTagSource type, signatureTagSource field on Finding, finding_add wiring). The two stale assertions in experience-layer-finding-enums-smoke.ts (no signatureTag when omitted / blank signatureTag ignored not stored) are fully replaced in B-5d48 HEAD with correct B-5d48-contract assertions; no residue in the worktree. One medium finding filed: stale B-4f46 comment at finding.ts line 283 says omitted signatureTag => unchanged legacy behavior which now contradicts the new auto-candidate behavior added in the same block. The B-5d48 comment at lines 285-289 correctly describes the new contract but the old comment line is not updated or removed. No critical blockers found. No doc-promise-undelivered issues (README/CLAUDE.md untouched). No gate-consuming use of signatureTagSource detected. 1 finding registered (medium/missing).",
+      "createdAt": "2026-06-18T13:39:46.631Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-001",
+      "_hash": "952e90d6fc2d2fc150568ceeb10c6e23e5117ccd1518a1af8fa7aefd8bd9c08b"
+    }
+  ]
+}
