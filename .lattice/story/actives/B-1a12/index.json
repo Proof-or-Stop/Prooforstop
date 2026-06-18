@@ -4,7 +4,7 @@
   "title": "Fix INIT_CHECK worktree bootstrap resolving the current worktree instead of the main repo root (nested .worktrees) + clean last stale .koala doc ref",
   "description": "When `story_advance INIT_CHECK` bootstraps a new story worktree while the cwd is ALREADY inside another worktree, it resolves the wrong repo root and creates a NESTED worktree (.worktrees/B-old/.worktrees/B-new) instead of <main>/.worktrees/B-new. Root cause (confirmed): packages/main/src/handlers/worktree.ts `getRepoRoot()` runs `git rev-parse --show-toplevel` with cwd=root (the handler's cwd / metadataRoot); from a linked worktree, `--show-toplevel` returns THAT worktree, not the main repo. `resolveBootstrapGitRoot(storyId)` (worktree.ts:430) returns `getRepoRoot()` on the no-configured-gitRoot path (worktree.ts:432), and the bootstrap then joins the worktreeDir ('.worktrees') under that wrong root (worktree.ts:844-845), producing the nested path. This is the same gitRoot-class 'resolved the wrong root from a worktree cwd' defect family the recent campaign fixed elsewhere. Fix: the bootstrap must resolve the MAIN repo root regardless of cwd. Use `git rev-parse --git-common-dir` (resolve to absolute against the cwd, then take its parent when it ends in `.git`) — from a linked worktree this returns <main>/.git so its parent is the true main repo root; in the main repo it returns the main root. Apply this to the bootstrap root resolution (the no-gitRoot getRepoRoot path used by resolveBootstrapGitRoot, and verify the configured-gitRoot resolveStorySignedWorkspace path also yields the main root, not a worktree). Keep behavior byte-identical when already run from the main repo (plain repo + wrapper-root). Add a regression that bootstraps a new story's INIT_CHECK worktree from inside an existing worktree cwd and asserts the new worktree lands at <main>/.worktrees/B-new (NOT nested under the other worktree). Scope: worktree.ts bootstrap root resolution + the regression; plus a trivial doc cleanup. OUT OF SCOPE: the broader worktree lifecycle, the cwd gate for PLAN+ transitions, and any gitRoot site already fixed by B-2856/B-6666/B-75f0.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "worktree",
@@ -28,6 +28,15 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-18T17:33:35.025Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "lattice-wtbug",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T19:07:57.538Z",
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "lattice-wtbug",
