@@ -61,6 +61,13 @@
       "endTime": null,
       "userSees": "The plan cites the current cli-engine.ts responsibilities and the existing command/test contract risks instead of guessing from memory.",
       "excludes": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/registry.ts",
+        "packages/main/src/handlers",
+        "packages/main/src/core",
+        "packages/main/package.json",
+        "scripts/verify-process-fact-contract.mjs",
+        "Source and script touchpoints are read-only inventory/verification references in B-0717, not modification targets.",
         "No source-code move in this story",
         "No direct story JSON or fixture JSON edits"
       ],
