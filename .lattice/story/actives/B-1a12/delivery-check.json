@@ -1,0 +1,43 @@
+{
+  "storyId": "B-1a12",
+  "checkedAt": "2026-06-18T19:56:39.528Z",
+  "reviewRound": "2026-06-18T19:47:50.990Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#dev-memory-boundary",
+      "promise": "Project dev-memory reads from the single canonical store <projectRoot>/.lattice/dev-memory/experience.jsonl; no legacy .koala/dev-memory fallback remains",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows old .koala/dev-memory read-only legacy fallback prose removed; grep confirms 0 matches for koala/dev-memory in the file; dev-memory.ts line 6 shows only .lattice/dev-memory; no koala fallback in dev-memory.ts implementation"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#dev-memory-boundary",
+      "promise": "Global dev-memory override env var is LATTICE_GLOBAL_MEMORY_DIR (not KOALA_GLOBAL_MEMORY_DIR)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows KOALA_GLOBAL_MEMORY_DIR replaced by LATTICE_GLOBAL_MEMORY_DIR in the doc; dev-memory.ts line 171 uses process.env.LATTICE_GLOBAL_MEMORY_DIR; grep confirms 0 KOALA_GLOBAL_MEMORY_DIR in dev-memory.ts"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#dev-memory-boundary",
+      "promise": "Doc states the legacy pre-rename read fallback was removed in B-a4e3 and legacy-path entries are now ignored",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows new prose at line 163-165: single canonical store, legacy pre-rename read fallback removed in B-a4e3, legacy-path entries now ignored; confirmed in docs/requirements/decisions/lattice-parallel-wave.md"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "RED->GREEN regression smoke verified by this reviewer. Smoke node scripts/verify-nested-worktree-bootstrap.mjs exits 0: from-worktree-root bootstrap creates new worktree under MAIN repo at <main>/.worktrees/B-3ebc (NOT nested at <worktree>/.worktrees/B-3ebc); from-main bootstrap creates <main>/.worktrees/B-04d1 (byte-identical). Pre-fix RED evidence in transcript-diff.md: reverted resolver caused nested creation at <main>/.worktrees/B-977d/.worktrees/B-4263 (exit 1). Smoke chains in root npm test as test:nested-worktree-bootstrap before test:e2e. Edge cases: from-main byte-identical, non-.git commonDir falls through to getRepoRoot, git-throw falls through to getRepoRoot. resolveMainRepoRoot uses git rev-parse --git-common-dir; only no-gitRoot branch of resolveBootstrapGitRoot changed; getRepoRoot + resolveWorktreePath + configured-gitRoot branch unchanged."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Doc-only change verified by grep on this machine. grep koala/dev-memory in docs/requirements/decisions/lattice-parallel-wave.md returns 0 matches. KOALA_GLOBAL_MEMORY_DIR returns 0 matches. lattice/dev-memory and LATTICE_GLOBAL_MEMORY_DIR are present as promised. dev-memory.ts independently confirmed: line 6 .lattice path, line 171 LATTICE_GLOBAL_MEMORY_DIR, no koala legacy fallback. Factual alignment between doc prose and live implementation verified."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "CHK-001: resolveMainRepoRoot() delivered; regression smoke passes RED->GREEN on this reviewer machine (exit 0), chains into root npm test battery. CHK-002: lattice-parallel-wave.md Dev-memory Boundary prose corrected to match dev-memory.ts: single canonical .lattice store, LATTICE_GLOBAL_MEMORY_DIR override, legacy fallback explicitly noted as removed in B-a4e3; verified by grep against live implementation. No TODOs in any changed file."
+  },
+  "_hash": "29e83da4d9765cdc1b3d6635dca05f7f94d4df123dda54440a6c28fd42732d41"
+}
