@@ -1090,6 +1090,18 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   );
 }
 
+// --- job create: stale mac_ui actor material fails closed ------------------------
+{
+  const outcome = await submitAuthorityJobFromPlan(authorityJobPlan(), {
+    env: authorityEnv({ LATTICE_AUTHORITY_ACTOR_ROLE: 'mac_ui' }),
+    fetchImpl: noNetworkFetch,
+    cwd: '/repo',
+    provider: 'codex',
+  });
+  assert.equal(outcome.ok, false, 'stale mac_ui actor material must fail closed');
+  assert.equal(outcome.reason, 'authority job create requires a main/human actor key');
+}
+
 // --- discovery fallback: server key comes from policy, not env ----------------------
 {
   const approve = dynamicApproveForGateRequest();

@@ -6,6 +6,13 @@
   "fixturesDir": "packages/main/tests/fixtures",
   "storyDir": ".lattice/story/actives",
   "requirementsDir": "docs/requirements",
+  "validate": {
+    "commands": [
+      "npm --prefix packages/main run build",
+      "node packages/main/dist/tasks/authority-client-smoke.js",
+      "node packages/main/dist/tasks/authority-completion-smoke.js"
+    ]
+  },
   "baselineRiskAcceptedLocalPaths": [
     "AGENTS.md",
     "CLAUDE.md",

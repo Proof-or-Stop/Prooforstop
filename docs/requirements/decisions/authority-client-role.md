@@ -231,6 +231,9 @@ product approval lands).
   `authority-mode.ts` is **not** the same as being accepted by a production Python authority with
   `production_enforce_authority=true`; those are two orthogonal axes (per AUDIT matrix #8, lines
   154-156, 123).
+- The downstream CLI gate vocabulary stays aligned to the upstream Authority boundary: `main` and
+  `human` remain the live gate-capable roles, and `mac_ui` stays legacy-only wording that must not
+  reappear in the client contract.
 - The CLI envelope (`buildEnvelope`) is a strict subset: it never populates `producerRunId` /
   `verifierRunId`, `provider` / `model` / `vendor`, or structured claims/coverage/negativeControls
   (AUDIT matrix #1/#4/#5, blocker B3; CODEX HV-1).
