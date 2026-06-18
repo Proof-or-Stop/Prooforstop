@@ -5,7 +5,7 @@
  *
  * Priority (high → low):
  *   1. Fields in `<projectRoot>/.lattice/audit-config.json` (per-field override;
- *      legacy `<projectRoot>/.koala/audit-config.json` remains a read fallback)
+ *      the legacy `<projectRoot>/.koala/audit-config.json` read fallback was removed in B-a4e3)
  *   2. Profile defaults: auditTriggerWindow tiered as light=10 / balanced=5 / strict=3
  *      (requireClaudeMdDiff and mode have no profile differences, use hardcoded defaults)
  *   3. Hardcoded fallback: auditTriggerWindow=5, requireClaudeMdDiff=true, mode="semi-auto"

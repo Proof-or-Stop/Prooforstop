@@ -2330,7 +2330,7 @@ Behavior:
   }},
   { name: 'dev_memory_finish', description: 'Finish the dev-memory session', schema: {
     storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Lattice sessions.'),
-    storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives; legacy .koala/story/actives remains readable).'),
+    storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),
   }},
