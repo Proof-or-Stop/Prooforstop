@@ -320,10 +320,10 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:experience-layer-revalidation",
           "result": "pass",
-          "note": "Hermetic leaf smoke asserts this behavior (classification valid/stale/unanchored, anchored-only denominator never NaN, anchorFiles sorted/deduped/capped union with :line strip, throwing fileExists propagates) — TOTAL 12 | PASS 12 | FAIL 0.",
-          "headHash": "e168699f72c58067170ce7fe3e49d6cfda933511",
-          "materialHash": "f497159d42652e4de39b4d0ce3fec1da4f94502f2a1c43b45d02d507bea2dae8",
-          "timestamp": "2026-06-18T00:40:30.733Z"
+          "note": "Leaf smoke now binds this intent directly: a signal with anchorFiles [dup.ts,dup.ts,gone.ts] (present={dup.ts}) classifies valid with anchored=1/valid=1/stale=0 (duplicate inflates nothing, signal counted once), and [gone.ts,gone.ts] vs empty set classifies stale — revalidateSignals partition is duplicate-invariant. TOTAL 13 | PASS 13 | FAIL 0.",
+          "headHash": "d349db8bf05a8ef7ad9b7cdad1322946358fbd5f",
+          "materialHash": "ef34b3bf9ec1fc36864cd2e11dfe4568106424482d50dbb2746c76f2db3a41f3",
+          "timestamp": "2026-06-18T00:49:36.312Z"
         }
       ]
     },
