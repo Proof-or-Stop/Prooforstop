@@ -5,18 +5,169 @@
       "title": "Resolve the MAIN repo root (not the current worktree) in INIT_CHECK bootstrap, with a from-worktree regression",
       "context": "In packages/main/src/handlers/worktree.ts, fix the bootstrap root resolution so it returns the main repo root even when cwd is a linked worktree. getRepoRoot() currently does `git rev-parse --show-toplevel` (cwd=root) → returns the worktree from a worktree cwd. Change the bootstrap path (the no-gitRoot fallback used by resolveBootstrapGitRoot at :432, i.e. getRepoRoot for bootstrap) to resolve via `git rev-parse --git-common-dir` → resolve absolute against cwd → if it ends in `.git`, take its parent = main repo root (mirror the existing --git-common-dir usage at ~:538). Verify the configured-gitRoot branch (resolveStorySignedWorkspace) also yields the main root, not a worktree. Keep behavior byte-identical when already at the main repo (plain + wrapper-root). Be careful NOT to break getRepoRoot for its other non-bootstrap callers if shared — prefer a bootstrap-specific resolver if getRepoRoot is reused elsewhere with show-toplevel semantics intended. Add a regression smoke: create a main repo + an existing worktree, run the INIT_CHECK bootstrap for a NEW story from the existing worktree's cwd, and assert the new worktree is created at <main>/.worktrees/B-new and NOT nested (<main>/.worktrees/B-old/.worktrees/B-new); also assert byte-identical creation when run from the main repo cwd. Wire the regression into the validate battery.",
       "userSees": "Running `story_advance INIT_CHECK` for a new story from inside an existing worktree creates the new worktree at <main>/.worktrees/B-new (the regression proves no nested .worktrees/<other>/.worktrees/<new>); running from the main repo is unchanged; the new regression smoke is green in `lattice validate`.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T19:18:29.746Z",
+      "endTime": "2026-06-18T19:26:57.262Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From the main repo cwd, INIT_CHECK bootstrap creates the new worktree at <main>/.worktrees/B-new (byte-identical to pre-fix)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "From an EXISTING worktree cwd, INIT_CHECK bootstrap creates the new worktree at <main>/.worktrees/B-new and NOT nested (<main>/.worktrees/B-old/.worktrees/B-new)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The configured-gitRoot (wrapper-root) branch still resolves the MAIN root, not a worktree",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "getRepoRoot non-bootstrap caller (resolveWorktreePath) is unchanged; the regression is RED against the pre-fix --show-toplevel resolver and GREEN after",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts",
+          "package.json"
+        ],
+        "create": [
+          "scripts/verify-nested-worktree-bootstrap.mjs"
+        ],
+        "test": [
+          "scripts/verify-nested-worktree-bootstrap.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-nested-worktree-bootstrap.mjs",
+          "command": "node scripts/verify-nested-worktree-bootstrap.mjs",
+          "result": "pass",
+          "note": "Re-confirmed at HEAD 17264f7: smoke asserts from-main bootstrap lands at <main>/.worktrees/B-new (byte-identical-from-main); observed from-main -> <main>/.worktrees/B-b79b.",
+          "headHash": "17264f7619472525516630bef6e7acff1cea4055",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:50:47.133Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-nested-worktree-bootstrap.mjs",
+          "command": "node scripts/verify-nested-worktree-bootstrap.mjs",
+          "result": "pass",
+          "note": "Re-confirmed at HEAD 17264f7: smoke runs bootstrap from an EXISTING worktree (root pinned to linked worktree) and asserts new worktree at <main>/.worktrees/B-new NOT nested; observed from-worktree-root -> <main>/.worktrees/B-5db1 (not .worktrees/B-bd80/.worktrees/B-5db1).",
+          "headHash": "906361e31d78ab59583bf3c0f8f03bf856a9abb8",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:50:48.145Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/worktree.ts",
+          "command": "git diff main..HEAD -- packages/main/src/handlers/worktree.ts",
+          "result": "pass",
+          "note": "Re-confirmed at HEAD 17264f7: configured-gitRoot branch (resolveStorySignedWorkspace in resolveBootstrapGitRoot) UNCHANGED by diff; resolves main root via signed-workspace metadata not show-toplevel. Confirmed by behavior reviewer.",
+          "headHash": "f3fb8e629df171d64997ca3c56b515f4fbfd2039",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:50:49.204Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/worktree.ts",
+          "command": "grep -n getRepoRoot packages/main/src/handlers/worktree.ts",
+          "result": "pass",
+          "note": "Re-confirmed at HEAD 17264f7: getRepoRoot() unchanged; only resolveBootstrapGitRoot no-gitRoot path calls new resolveMainRepoRoot(); non-bootstrap caller resolveWorktreePath (:482) untouched. RED-GREEN proven: smoke RED (nested) on reverted resolver, GREEN (non-nested) on fix.",
+          "headHash": "ef42d5da21ad5df34642144c9459a7e87dcb04e0",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:50:50.169Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Clean the last stale .koala/dev-memory reference in lattice-parallel-wave.md",
       "context": "docs/requirements/decisions/lattice-parallel-wave.md around lines 164/166 still references `.koala/dev-memory`. Update it to `.lattice/dev-memory` to match the current runtime path (the .koala read fallback was removed in B-a4e3). Doc-only, one/two lines. Verify no other live (non-historical-record) `.koala/dev-memory` references remain in that file.",
       "userSees": "docs/requirements/decisions/lattice-parallel-wave.md references `.lattice/dev-memory` (not `.koala/dev-memory`); the last stale runtime-path koala reference is gone.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T19:28:31.005Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/decisions/lattice-parallel-wave.md shows .lattice/dev-memory at the previously-stale lines",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No remaining live (non-historical-record) .koala/dev-memory runtime-path reference in that file",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Only the doc line changed; no code/runtime path altered by this item",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "grep -n lattice/dev-memory docs/requirements/decisions/lattice-parallel-wave.md",
+          "result": "pass",
+          "note": "Re-confirmed at HEAD 17264f7: lattice-parallel-wave.md Dev-memory Boundary shows .lattice/dev-memory; F-001 prose fix accepted by docs reviewer RP-005.",
+          "headHash": "96537caab8c1c4800dbc672de567bb046c7d3b08",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:51:05.901Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "grep -n koala/dev-memory docs/requirements/decisions/lattice-parallel-wave.md",
+          "result": "pass",
+          "note": "Re-confirmed at HEAD 17264f7: grep koala/dev-memory returns no matches (0) — no remaining live runtime-path koala reference.",
+          "headHash": "8eeaaef92e02fa5337beeb44e37965c10dc466f8",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:51:06.928Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "git diff main..HEAD -- docs/requirements/decisions/lattice-parallel-wave.md",
+          "result": "pass",
+          "note": "Re-confirmed at HEAD 17264f7: diff touches only lattice-parallel-wave.md doc prose; no code/runtime path altered (dev-memory.ts unchanged).",
+          "headHash": "b19f03670fb6b5e631eeb771216998282e9a8e67",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:51:08.339Z"
+        }
+      ]
     }
   ]
 }

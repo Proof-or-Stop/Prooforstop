@@ -1,0 +1,29 @@
+{
+  "task": "Fix INIT_CHECK worktree bootstrap so it resolves the MAIN repo root, not the current linked worktree, preventing nested .worktrees/<old>/.worktrees/<new>; plus clean one stale .koala/dev-memory doc reference.",
+  "outcome": "Running `lattice story_advance INIT_CHECK` for a NEW story while cwd is inside an existing worktree prints `Path: <main>/.worktrees/B-new` (the new worktree is created directly under the main repo root, NOT at <main>/.worktrees/B-old/.worktrees/B-new). Running the same from the main repo root is byte-identical to before. The new regression smoke is green in `lattice validate` (it fails against the pre-fix --show-toplevel code and passes after). And docs/requirements/decisions/lattice-parallel-wave.md shows `.lattice/dev-memory` with no stale `.koala/dev-memory` runtime-path reference remaining.",
+  "facts": [
+    "packages/main/src/handlers/worktree.ts getRepoRoot() (line 365) runs `git rev-parse --show-toplevel` with cwd=root; from a linked worktree cwd this returns THE WORKTREE, not the main repo.",
+    "resolveBootstrapGitRoot(storyId) (line 430) returns getRepoRoot() on the no-configured-gitRoot path (line 432); bootstrap then joins worktreeDir under that wrong root (lines 844-846) -> nested .worktrees.",
+    "getRepoRoot() has exactly ONE other live caller: resolveWorktreePath (line 452), which resolves an existing stored worktree.path relative to repo root (NON-bootstrap; must not change).",
+    "The codebase already has the correct pattern: removeStaleWorktreeAdminDirs (line 538) uses `git rev-parse --git-common-dir`; if relative, join with cwd; the parent of the `.git` common dir is the main repo root even from a linked worktree.",
+    "packages/main/src/ does NOT import @lattice-agent/lab; the build (tsc) needs only typescript + @types + zod/xstate/ws types.",
+    "Existing smoke model: scripts/verify-init-check-bootstrap.mjs builds a temp project root and drives story_advance INIT_CHECK via a run(projectRoot, command, payload, cwd) helper where cwd is the controllable variable; wired as package.json test:init-check-bootstrap (NOT currently in the chained root test).",
+    "docs/requirements/decisions/lattice-parallel-wave.md lines 164/166 contain stale `.koala/dev-memory` runtime-path references; the .koala read fallback was removed in B-a4e3."
+  ],
+  "constraints": [
+    "STRICT SCOPE: worktree.ts bootstrap root resolution + the regression smoke + the one doc line ONLY.",
+    "Do NOT change getRepoRoot non-bootstrap callers (resolveWorktreePath) or alter show-toplevel semantics where intended — add a bootstrap-specific main-root resolver instead.",
+    "Keep behavior BYTE-IDENTICAL when run from the main repo (plain repo + wrapper-root).",
+    "Verify the configured-gitRoot branch (resolveStorySignedWorkspace) also yields the main root, not a worktree.",
+    "Do NOT touch broader worktree lifecycle, the PLAN+ cwd gate, gitRoot sites already fixed (B-2856/B-6666/B-75f0), or any signature salt.",
+    "The regression must FAIL against pre-fix --show-toplevel code and PASS after; wire it into the validate battery (root npm test)."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/worktree.ts",
+    "scripts/verify-nested-worktree-bootstrap.mjs",
+    "package.json",
+    "docs/requirements/decisions/lattice-parallel-wave.md"
+  ],
+  "timestamp": "2026-06-18T19:16:37.425Z"
+}

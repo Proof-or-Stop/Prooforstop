@@ -1,0 +1,101 @@
+{
+  "storyId": "B-1a12",
+  "checkedAt": "2026-06-18T19:15:25.159Z",
+  "features": [
+    {
+      "feature": "Fix resolveBootstrapGitRoot no-gitRoot path in worktree.ts to use --git-common-dir instead of --show-toplevel when computing main repo root from a linked worktree cwd",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify configured-gitRoot (resolveStorySignedWorkspace) branch still yields the main root, not a worktree",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep behavior byte-identical when run from main repo cwd (plain repo + wrapper-root)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT modify getRepoRoot() or resolveWorktreePath (non-bootstrap caller); use a bootstrap-specific resolver",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add regression smoke asserting new worktree lands at <main>/.worktrees/B-new and NOT nested (<main>/.worktrees/B-old/.worktrees/B-new) when bootstrapped from inside an existing worktree cwd",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression smoke is RED against pre-fix --show-toplevel resolver and GREEN after the fix",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire regression smoke into root npm test (validate battery) so it runs in lattice validate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Clean stale .koala/dev-memory runtime-path reference in docs/requirements/decisions/lattice-parallel-wave.md (~lines 164/166) to .lattice/dev-memory",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify no remaining live (non-historical) .koala/dev-memory reference in lattice-parallel-wave.md after the fix",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "gitRoot-aware worktree bootstrap using resolveStorySignedWorkspace for configured-gitRoot case (B-4e06 delivered scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly states: OUT OF SCOPE: broader worktree lifecycle, any gitRoot site already fixed by B-2856/B-6666/B-75f0. B-4e06 delivered section shows this was implemented in a prior story.",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "verification_intent_repair command and mid-flight verificationIntent repair path (P1 from midflight plan)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description and checklist constrain to worktree.ts bootstrap root resolution + regression + one doc cleanup only. P1 (intent repair) is listed as Delivered (B-4e06) in the spec.",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Dev-memory canonical path is .lattice/dev-memory (not .koala) as spec source of truth",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dev-memory.md"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 10,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a9d59c2660584b1679aa66917146effe6887d8e46d9003def8de44067c912e60",
+  "openQuestions": []
+}

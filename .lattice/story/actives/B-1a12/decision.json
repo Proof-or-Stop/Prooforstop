@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Mirror the existing proven pattern (--git-common-dir at line 538) rather than inventing a new resolution scheme.",
+    "Keep main-repo behavior byte-identical; only change behavior for the broken from-worktree-cwd case.",
+    "Do not regress non-bootstrap callers: scope the change to a bootstrap-specific resolver, leave getRepoRoot untouched.",
+    "Prove the fix with a regression that is red on the old code and green on the new, wired into the validate battery."
+  ],
+  "drivers": [
+    "Correctness: bootstrap must always land the new worktree under the main repo root.",
+    "Blast-radius minimization: getRepoRoot has a non-bootstrap caller (resolveWorktreePath) that wants show-toplevel-relative semantics.",
+    "Durability: a regression smoke prevents reintroduction.",
+    "Wrapper-root safety: the configured-gitRoot branch must still resolve the main root."
+  ],
+  "options": [
+    {
+      "name": "bootstrap-specific-resolver",
+      "pros": [
+        "Zero blast radius on non-bootstrap callers (getRepoRoot untouched)",
+        "Mirrors the proven line-538 --git-common-dir pattern",
+        "Byte-identical from main repo (common-dir parent == show-toplevel there)",
+        "Single-purpose helper, easy to test"
+      ],
+      "cons": [
+        "One new small helper function"
+      ]
+    },
+    {
+      "name": "mutate-getRepoRoot",
+      "pros": [
+        "Single resolution path"
+      ],
+      "cons": [
+        "Changes semantics for resolveWorktreePath (non-bootstrap) which resolves stored worktree.path relative to repo root — could break existing-worktree resolution",
+        "Violates strict scope / byte-identical constraint for the non-bootstrap caller",
+        "Higher regression risk"
+      ]
+    }
+  ],
+  "chosen": "bootstrap-specific-resolver",
+  "rationale": "Add a bootstrap-specific resolveMainRepoRoot helper using `git rev-parse --git-common-dir`, called only from the resolveBootstrapGitRoot no-gitRoot path. This surgically fixes the bug while leaving getRepoRoot and its non-bootstrap caller resolveWorktreePath byte-identical. It mirrors the already-proven pattern at line 538 and keeps main-repo behavior unchanged (common-dir parent == show-toplevel from main). mutate-getRepoRoot is rejected: it would change semantics for the NON-bootstrap caller resolveWorktreePath, violating strict-scope and byte-identical constraints and raising regression risk.",
+  "preMortem": [
+    {
+      "scenario": "The fix breaks the wrapper-root configured-gitRoot path or a non-bootstrap getRepoRoot caller (resolveWorktreePath)",
+      "trigger": "Implementer changes getRepoRoot itself instead of adding a bootstrap-specific resolver, or alters the configured-gitRoot branch in resolveBootstrapGitRoot",
+      "consequence": "Existing-worktree resolution (resolveWorktreePath) or wrapper-root bootstrap regresses; worktrees resolve to the wrong root",
+      "mitigation": "Check ALL getRepoRoot callers (only resolveWorktreePath:452 + bootstrap:432) and leave the non-bootstrap one untouched; keep the configured-gitRoot branch (resolveStorySignedWorkspace) intact and unchanged; add a byte-identical-from-main assertion in the regression and verify the configured-gitRoot branch still yields the main root"
+    },
+    {
+      "scenario": "The --git-common-dir resolution returns a wrong/relative path on some platforms or repo layouts",
+      "trigger": "git returns a relative `.git` common dir and the code does not resolve it absolute against cwd, or the path does not end in `.git` (e.g. bare repo)",
+      "consequence": "Bootstrap joins worktreeDir under a malformed root; worktree created in the wrong place or bootstrap throws",
+      "mitigation": "Resolve the common dir absolute against cwd (mirror line 538: isAbsolute? else join(cwd, commonDir)); take dirname only when it ends in `.git`, else fall through to the existing getRepoRoot() fallback so behavior never gets worse than today; cover both from-worktree and from-main in the regression"
+    },
+    {
+      "scenario": "The regression smoke passes against BOTH old and new code (false green) so it never proves the fix",
+      "trigger": "The smoke does not set cwd to the existing worktree, or asserts only the from-main case, so the buggy nested path is never exercised",
+      "consequence": "The bug could regress later undetected; the validate battery gives false confidence",
+      "mitigation": "The smoke MUST run the bootstrap with cwd = the existing worktree directory and assert the new worktree is at <main>/.worktrees/B-new and NOT nested; explicitly verify red-on-old by temporarily reverting the resolver and confirming the smoke fails (transcript-diff.md captures nested-before / main-after)"
+    },
+    {
+      "scenario": "The regression smoke is added but never runs in the validate battery",
+      "trigger": "package.json wires a test:* script but does not chain it into the root `test` script or the lattice validate battery",
+      "consequence": "Smoke exists but provides no protection; reviewers/CI never run it",
+      "mitigation": "Wire the new test:* script into the chained root `test` and confirm root npm test actually executes it (grep the chained test string; run it and see it pass)"
+    }
+  ],
+  "timestamp": "2026-06-18T19:12:02.191Z"
+}
