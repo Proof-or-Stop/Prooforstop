@@ -1,0 +1,50 @@
+{
+  "storyId": "B-be91",
+  "checkedAt": "2026-06-18T02:32:01.314Z",
+  "reviewRound": "2026-06-18T02:26:21.245Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased/Test-infrastructure/B-be91",
+      "promise": "CHANGELOG Unreleased section contains B-be91 entry documenting the empirical falsification: 3x --jobs 4 measurement worsened results, hypothesis falsified, no package.json change made, outcome=blocked",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- CHANGELOG.md shows the +B-be91 bullet in Unreleased section; falsification data (159/167 run1 861s, 165/167 run2 654s, run3 truncated, 11-14min wall-clock) matches F-001 numerics exactly"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-be91/no-package-json-edit",
+      "promise": "package.json test:all script is unmodified — no --jobs flag added, runner default preserved",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD shows package.json absent from changed files; grep confirms test:all=node packages/main/dist/tasks/run-all-smokes.js with no --jobs flag present"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-be91/finding-reference",
+      "promise": "CHANGELOG references finding B-be91:F-001 and Plan B follow-up pointer (two-pass retry)",
+      "verifiedBy": "grep",
+      "evidence": "CHANGELOG line 17 contains Finding B-be91:F-001 records the falsification data for the Plan B follow-up (two-pass retry)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "CHK-001 deliverable is the --jobs edit to package.json. Plan A was empirically falsified by 3x real test:all --jobs 4 runs (run 1: 159/167 in 861s with 8 timeouts; run 2: 165/167 in 654s; run 3: truncated at 87/167 with 1 fail). The non-edit is the correct blocked outcome. Machine evidence is the falsification data in B-be91:F-001.",
+      "waiverReason": "CHK-001 deliverable is the absence of a package.json edit because Plan A was empirically blocked by 3x measurement runs. The real-machine evidence is in B-be91:F-001. A passing automated test for a deliberately-not-made edit is not meaningful for a blocked negative-result story item."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "CHANGELOG entry is present and verified by git diff. docs/dev/test-coverage.md was not modified because Plan A failed — there is no new --jobs default to document. The CHANGELOG entry itself constitutes the machine-verifiable deliverable for this story item.",
+      "waiverReason": "docs/dev/test-coverage.md update was scoped to documenting a new --jobs default that was never established because Plan A failed. CHANGELOG entry (the primary deliverable) is fully delivered and verified by git diff."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHK-003 intent was 3x consecutive test:all exit 0. Three runs were executed on real hardware: run 1 = 159/167 in 861s (FAIL), run 2 = 165/167 in 654s (FAIL), run 3 truncated. The runs DID execute on real machines and produced real results recorded in B-be91:F-001. The failure outcome IS the deliverable — it correctly triggers Plan B.",
+      "waiverReason": "CHK-003 intent (3x exit 0) was the falsification vehicle. The tests ran on real hardware and failed, which is the correct negative-result outcome. Waiver is appropriate because the experimental design calls for honest reporting of failure."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Honest-negative-result story. The sole code deliverable (package.json edit) was correctly not made because Plan A was empirically falsified by 3x real runs. CHANGELOG entry is present, accurate, and numeric claims cross-verify exactly with F-001. package.json confirmed unmodified via git diff. All 3 docsPromises verified from source. Real machine runs executed and produced F-001 finding — the non-delivery of the package.json change is the correct experimental outcome, not a delivery gap."
+  },
+  "_hash": "443d416a595c41698489808cb3a6e214abf4c9448877b5c550401ed5c73decd0"
+}

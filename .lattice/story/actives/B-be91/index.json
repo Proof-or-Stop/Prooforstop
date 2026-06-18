@@ -4,7 +4,7 @@
   "title": "Story #6 (OSS-launch fix-wave): cap test:all default --jobs to fix parallel-race convergence-tail (Plan A)",
   "description": "Change root package.json test:all to invoke the runner with --jobs N where N is empirically measured (start N=4; fall back to N=2 if needed) so workers do not oversubscribe contended kernel resources (git index lock, fs syncfs, /tmp IO). Expected to resolve the convergence-tail of parallel-race timeouts that B-24c3 couldn't solve via per-smoke timeoutMs bumps alone. Tests/config-only — 0 production change, 0 smoke logic change, 0 manifest change, 0 runner change. Out of scope: Plan B (two-pass retry) is a separate follow-up story if Plan A insufficient.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "test",
@@ -22,7 +22,7 @@
   "priorityElevatedFrom": "P2",
   "createdAt": "2026-06-18T01:04:39.852Z",
   "startedAt": "2026-06-18T01:04:39.852Z",
-  "endedAt": null,
+  "endedAt": "2026-06-18T02:34:31.833Z",
   "events": [
     {
       "phase": "INIT",
@@ -39,11 +39,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-18T01:10:11.502Z",
+      "branch": "story/B-be91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T01:14:13.782Z",
+      "branch": "story/B-be91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T02:26:21.245Z",
+      "branch": "story/B-be91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T02:30:29.063Z",
+      "branch": "story/B-be91",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-18T02:34:31.833Z",
+      "branch": "story/B-be91",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-be91",
-    "branch": "story/B-be91",
-    "createdAt": "2026-06-18T01:09:58.201Z"
-  }
+  "currentReviewRound": "2026-06-18T02:26:21.245Z"
 }

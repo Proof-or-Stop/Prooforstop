@@ -1,0 +1,56 @@
+{
+  "storyId": "B-be91",
+  "changes": "Plan A empirically falsified. No code edit. CHANGELOG documents outcome=blocked + Plan B pointer. F-001 records the data.",
+  "usage": "No change. CHANGELOG is the artifact.",
+  "expectedOutcome": "package.json unchanged + CHANGELOG entry.",
+  "actualTranscript": "3x N=4: 159/167 in 861s, 165/167 in 654s, truncated. 4 lanes PASS. 19 waivers.",
+  "outcomeDiff": "Correct blocked outcome for falsification story.",
+  "acceptanceVerdict": "rejected",
+  "outcomeKind": "blocked",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Plan B is the path forward.",
+  "pitfalls": "Hypothesis was plausible but disproven.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 320157
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11491
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 242280
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 4327463
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 247818
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 241692
+    }
+  },
+  "totalDurationMs": 5390903,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T02:32:42.539Z",
+  "updatedAt": "2026-06-18T02:34:30.755Z"
+}

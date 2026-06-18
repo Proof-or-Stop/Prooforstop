@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-be91:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none — only CHANGELOG.md changed, no source files modified. Type safety: not applicable — no TypeScript touched. I/O shell isolation: not applicable. Quality checks (a)-(d) all pass: (a) CHANGELOG entry is honest, factual, and includes concrete data — run 1=159/167 in 861s with 8 specific timeouts named, run 2=165/167 in 654s, run 3 truncated, wall-clock 11-14 min vs predicted 5-7 min, plus the cli-json-stdout-contract at 300s data point that directly disproves the hypothesis; (b) No production source touched — git diff main...HEAD shows zero changes to package.json or any packages/ file; (c) Plan B pointer is concrete in the CHANGELOG entry — names two-pass retry as follow-up; (d) Finding B-be91:F-001 (high) records full falsification data with run-level detail, new victim names, and wall-clock measurements sufficient for reproducibility. No dead code, no type-safety violations, no shell-isolation violations found. 0 findings.",
+      "createdAt": "2026-06-18T02:28:01.108Z",
+      "reviewRound": "2026-06-18T02:26:21.245Z",
+      "reviewRunId": "B-be91:RR-003",
+      "_hash": "2c03399d034779b9b6efd7f55ec9efc0d444ff6a14a4b9e722ff4bfea7539840"
+    },
+    {
+      "id": "B-be91:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Diff is CHANGELOG.md only (one additive line). No concept deletions or replacements anywhere in the diff — residue check not triggered. CHANGELOG entry honestly documents Plan A empirical falsification (outcome=blocked, package.json unchanged). No doc-promise-undelivered: the entry explicitly records a negative result and makes no deliverable claims. Package.json confirmed unchanged via git diff. CHK-002 verification covers the CHANGELOG B-be91 entry presence; docs/dev/test-coverage.md skip is correct (no deliverable to document). All waived checklist items cite B-be91:F-001 falsification data. Concept residue check complete: 0 blockers.",
+      "createdAt": "2026-06-18T02:28:01.945Z",
+      "reviewRound": "2026-06-18T02:26:21.245Z",
+      "reviewRunId": "B-be91:RR-002",
+      "_hash": "f797d4942e00ea7cd08e5acb60b04bfdec232a01d624f77c84ab1d896eabdae1"
+    },
+    {
+      "id": "B-be91:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 19 intents (17 must + 2 should) carry manual_transcript evidence with verdict=waived, result=pass. Each evidence command field binds the literal intent command per memory rule. Waiver rationale uniformly cites B-be91:F-001 with concrete falsification data (run1=159/167 in 861s, run2=165/167 in 654s, run3 truncated) — honest negative result, not a vacuous pass. Escape hatch condition (neither N=4 nor N=2 works) is met. validate 19/19 covered, 0 required missing. No fabricated evidence, no generic fallback binding, no coverage gap.",
+      "createdAt": "2026-06-18T02:28:17.958Z",
+      "reviewRound": "2026-06-18T02:26:21.245Z",
+      "reviewRunId": "B-be91:RR-001",
+      "_hash": "521f141d93c475ce2929dcd8c0187b8fe0d17cb3e575b5ab72e48d96273e7b4d"
+    },
+    {
+      "id": "B-be91:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 applied (pure docs diff, 0 exported symbols from Step 1). 1 doc file compared: CHANGELOG.md Unreleased section for B-be91. Entry correctly labels Plan A as empirically falsified with explicit outcome=blocked. Concrete falsification data cited (run1=159/167, run2=165/167, run3 truncated; cli-json-stdout-contract at 300s still timed out as direct disproof). No deliverable promises — states explicitly no package.json change and test:all stays at runner default. Plan B description is a rationale explanation only, not a delivery claim. docs/dev/test-coverage.md not modified (waived per Plan A failure, no mention of it in CHANGELOG). No doc-code drift, no doc-promise-undelivered issues. 0 blockers.",
+      "createdAt": "2026-06-18T02:29:48.014Z",
+      "reviewRound": "2026-06-18T02:26:21.245Z",
+      "reviewRunId": "B-be91:RR-004",
+      "_hash": "5aab4f7a899170bccbf8af66bb9687dc415bde53748a73c6d8c0d84b1438c2ef"
+    }
+  ]
+}

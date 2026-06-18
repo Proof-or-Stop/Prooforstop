@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "id": "B-be91:F-001",
+      "desc": "Empirical 3x test:all --jobs 4 measurement on 2026-06-18: run 1 = 159/167 PASS in 861s (8 timeouts incl. cli-json-stdout-contract@300s + authority-evidence-flow + auxiliary-worktree-cleanup + evidence-state-gate + flow-stability — NEW victims that did not show at N=8); run 2 = 165/167 in 654s; run 3 truncated at 87/167 with 1 fail. Wall-clock at N=4 is 11-14 min vs the predicted 5-7 min — directly contradicts the N=4 hypothesis. cli-json-stdout-contract timing out at 300s under N=4 also disproves 'fewer workers = less contention' since it has the same timeout ceiling regardless of pool size. Root cause is NOT worker count; it is likely (1) absolute time pressure under shared-state interference and (2) shared-state ordering effects that vary unpredictably regardless of N. Plan A is empirically failed. Roll to Plan B (two-pass retry — pass 1 high-concurrency, pass 2 serial retry for timeouts) which does NOT depend on N being correct: any race that resolves in single-process mode will pass the retry.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T02:20:23.775Z",
+      "reviewRound": "",
+      "_hash": "9dd9bd415c6250b17c65f7c6721780431eff5e781475dde8bea8745332eba801"
+    }
+  ]
+}

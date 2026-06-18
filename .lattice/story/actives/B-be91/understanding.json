@@ -1,0 +1,30 @@
+{
+  "task": "Cap test:all default --jobs to N (empirically measured: start N=4, fall back N=2 if needed) by editing root package.json scripts.test:all",
+  "outcome": "Developer runs npm run test:all 3 times in a row. Each run shows 166/166 passed and exits 0. No FAIL/TIMEOUT for review-pass-discard / field-regression-cli / verification-freshness / worktree-repair / any B-24c3 race-tail. Wall-clock 5-7 min per run.",
+  "facts": [
+    "B-24c3 (12 timeoutMs bumps + 4 deferred findings) DONE on main 2026-06-18",
+    "Runner already supports --jobs N flag; defaults to os.cpus().length when omitted",
+    "test:coverage already uses --jobs 1",
+    "test:all uses NO --jobs flag — defaults to 8 on this 8-core box",
+    "Standalone serial wall-times 9-129s; under 8-worker parallel 2-4x slowdown",
+    "Root cause: shared kernel resources (git index lock, fs sync, /tmp IO), not CPU",
+    "Current smoke count: 166 per recent test:all runs"
+  ],
+  "constraints": [
+    "Single-line root package.json edit only",
+    "No runner code modification (B-6efb frozen)",
+    "No smoke source modification",
+    "No smoke-manifest.json modification (B-24c3 frozen)",
+    "test:coverage unchanged"
+  ],
+  "unknowns": [
+    "Whether N=4 will fully resolve convergence-tail or fall-back N=2 needed",
+    "Whether wall-clock at N=4 is in 5-7min range or worse"
+  ],
+  "touchpoints": [
+    "package.json",
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md"
+  ],
+  "timestamp": "2026-06-18T01:11:07.444Z"
+}
