@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T19:37:31.793Z",
       "reviewRunId": "B-1a12:RR-002",
       "_hash": "dec6529d74132fb306c3371810e8c50049dcd992b7775d6d926c09149a55e0cd"
+    },
+    {
+      "id": "B-1a12:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion/replacement check complete. This story ADDS resolveMainRepoRoot (local closure fn in worktree.ts) and renames a doc token (.koala/dev-memory -> .lattice/dev-memory in lattice-parallel-wave.md). No concept was deleted half-way. (1) lattice-parallel-wave.md: zero .koala/dev-memory references remain (grep returned empty). (2) Other .koala/dev-memory references in repo are all in archived story artifact files (historical records), not runtime-path references, and correctly out of scope. (3) resolveMainRepoRoot name collision with partial-done-recovery.ts is intentional: the worktree.ts version is a private closure fn, not exported, not conflicting. (4) verify-nested-worktree-bootstrap.mjs created and wired into package.json test battery. No blocker found.",
+      "createdAt": "2026-06-18T19:39:48.081Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-001",
+      "_hash": "0231c6b065e0f637a32e4bda40b7db468d4bb744889f9b645461c73a8c69c75b"
     }
   ]
 }
