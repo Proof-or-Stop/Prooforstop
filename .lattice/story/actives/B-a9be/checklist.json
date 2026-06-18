@@ -12,7 +12,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice check after the doc edit and confirm the framework audit no longer reports lattice serve --web or lattice serve --cli under CLAUDE.md#三种运行模式.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The rewritten prose still mentions the supported lattice serve --dev and --port surface without reintroducing phantom modes.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search the edited onboarding copy and source comment for --web and --cli and confirm the stale serve-mode wording only exists in the known historical places before the fix.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
