@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4eb6",
+  "mode": "feature",
+  "allowed": [
+    "learning_scan handler deriving and persisting the finding-signals cache",
+    "Registration of learning_scan across cli-engine/registry/config/command-policy/process-fact-levels",
+    "Smoke, npm script, and verifier for learning_scan"
+  ],
+  "excluded": [
+    "A/B hint-mode assignment or gating of hint injection",
+    "Aggregating learning across more than one repository",
+    "Any gate, scoring, signalScore weighting, or promptHash change",
+    "Referential-staleness filtering inside the scan",
+    "signatureTag auto-candidate capture at finding_add",
+    "The effectiveness metric command"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved the 4-story Hybrid forward-A/B design; 3.1 activates the cache only.",
+  "createdAt": "2026-06-18T01:57:29.621Z",
+  "updatedAt": "2026-06-18T01:57:29.621Z",
+  "_hash": "9448bdc341817fa10e07ab10cfa012beb89971fa192f70bb59036ea615015761"
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5155",
+  "mode": "correctness_fix",
+  "allowed": [
+    "decision-doc promotion smoke annotation/coverage mapping",
+    "existing locked-boundary status smoke annotation/coverage mapping",
+    "gap_analyze validation evidence",
+    "runtime-owned agent asset smoke annotation/coverage mapping"
+  ],
+  "excluded": [
+    "Changing server receipt verification semantics",
+    "Changing unrelated active stories B-be91 or B-de1d",
+    "Implementing locked key-reference support",
+    "Refactoring gap_analyze matching logic unless annotation mapping cannot correctly express the existing facts",
+    "Setting server-backed completion booleans true"
+  ],
+  "confirmedBy": "main-agent-scope-wording-repair",
+  "confirmationNote": "User asked to solve the three current high-priority gap_analyze reports using Lattice; scope is correctness mapping only, with locked key-reference implementation explicitly excluded.",
+  "createdAt": "2026-06-18T01:37:45.547Z",
+  "updatedAt": "2026-06-18T01:37:45.547Z",
+  "_hash": "df4066b14aa65ec64ea8566283a21190b2269ffe36fffa2bcfea55eb009c28a3"
+}
