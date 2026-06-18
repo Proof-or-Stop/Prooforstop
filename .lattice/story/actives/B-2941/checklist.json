@@ -386,6 +386,17 @@
           "headHash": "e4859f475aab3715f86f617ab9356334ab719bdd",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:25.988Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- CHANGELOG.md | grep -E '^[-+]## ' | grep -vE 'Unreleased' | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — only Unreleased section touched.",
+          "headHash": "95daae2ba295e03b69dd12fc7ec8a23dfd97f33f",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:26.576Z"
         }
       ]
     }
