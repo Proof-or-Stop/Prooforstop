@@ -105,13 +105,54 @@
       "title": "Record strong-verification readiness and review quorum requirements",
       "context": "Document and verify the exact commands/conditions for Authority Server receipt-backed validation if configured, plus local full 3x2 host verdict and explicit degraded 3x1 fallback boundaries for environments without Authority receipts.",
       "relatedDocs": [
-        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
-        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/authority-client-role.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The plan tells future hosts exactly when Authority Server receipts are required, when local 3x2 verdicts are only local evidence, and when 3x1 is a degraded fallback.",
+      "excludes": [
+        "Do not claim Authority production completion without verified gate_decision receipt",
+        "Do not treat 3x1 as equivalent to 3x2"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "The plan defines the Authority Server command flow: status/readiness, job creation, independent verdict submission, job status reconciliation, receipt verification, and lifecycle receipt consumption boundary.",
+            "type": "docs"
+          },
+          {
+            "id": "CHK-003:happy:1",
+            "desc": "The plan defines 3 rounds x 2 hosts as required local strong-review quorum for high-risk cli-engine implementation slices.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "When authority_status is off/not-configured, the plan states that local 3x2 can proceed only as lower-assurance evidence and cannot claim production Authority DONE.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "The plan states that 3 rounds x 1 host is a degraded fallback requiring explicit fallback classification, not a normal pass path for major architecture work.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
