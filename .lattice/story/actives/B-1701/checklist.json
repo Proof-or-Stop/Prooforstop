@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Basic bundle generator writes lattice_authority_trust.env and lattice_staging-client.env, then round-trips through loadAuthorityConfig and resolveAuthorityCustomerApiKey.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.208Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "node packages/main/dist/tasks/authority-status-smoke.js",
           "result": "pass",
           "note": "The generated bundle is consumable from a different cwd by buildAuthorityStatus and writeAuthorityTrustProfileBundle.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "file": "packages/main/src/core/authority-client.ts",
           "result": "pass",
           "note": "The default tier uses authorityTrustProfileFileNames(\"basic\") and emits only the basic filenames unless senior is explicitly requested.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         }
       ]
     },
@@ -126,9 +126,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "The legacy staging-client.env sidecar still loads through authority_trust.env and resolves to the same customer API key path semantics.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -136,9 +136,9 @@
           "file": "packages/main/src/core/authority-client.ts",
           "result": "pass",
           "note": "The loader still accepts a customer API key path from authority_trust.env, so old automation can keep using the legacy sidecar path.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -146,9 +146,9 @@
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
           "result": "pass",
           "note": "The generator now emits the Lattice-prefixed filenames by default while the compatibility regression block proves the legacy staging-client.env path still works.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         }
       ]
     },
@@ -202,9 +202,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Explicit senior opt-in round-trips lattice_senior_authority_trust.env and lattice_senior_staging-client.env through the bundle helper.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -212,9 +212,9 @@
           "file": "packages/main/src/core/authority-client.ts",
           "result": "pass",
           "note": "Omitting tier keeps the basic bundle as the default path; senior filenames are selected only when the caller asks for them.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -222,9 +222,9 @@
           "file": "packages/main/src/core/authority-mode.ts",
           "result": "pass",
           "note": "authorityTrustProfileFileNames exposes senior filenames only through the explicit senior tier, so the default path cannot silently drift to senior.",
-          "headHash": "ecfdb78b0aedce2046d66bd899c1f0603129d579",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:47:01.956Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         }
       ]
     },
@@ -285,9 +285,9 @@
           "command": "npm run test:docs-drift-smoke",
           "result": "pass",
           "note": "README, guide, and the CLI contract docs now explain the generated bundle handoff versus live runner variables.",
-          "headHash": "6f3f7ad3a4cf80bff59b28fd5d967772f419a609",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:46:03.871Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -296,9 +296,9 @@
           "command": "node packages/main/dist/tasks/authority-status-smoke.js",
           "result": "pass",
           "note": "The authority status smoke asserts the generated-bundle note and keeps missing PROJECT_ID / GATE_ACTOR_* in the live-only path.",
-          "headHash": "6f3f7ad3a4cf80bff59b28fd5d967772f419a609",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:46:03.977Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -307,9 +307,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "The authority client smoke still passes for basic and senior bundle generation, preserving the ordinary developer handoff.",
-          "headHash": "6f3f7ad3a4cf80bff59b28fd5d967772f419a609",
-          "materialHash": "6527fcfade45a9888f25582fdaa95f0a9564521b86e1e790f7818a751ba4c3a3",
-          "timestamp": "2026-06-18T21:46:04.162Z"
+          "headHash": "49b711c83c20a17c154e951fc83916eb3ba630a5",
+          "materialHash": "a451dce17edc8444ba9d909ccde0bf334dcf9dd5111bde6a33e16fdd498887ab",
+          "timestamp": "2026-06-18T22:25:05.209Z"
         }
       ]
     }
