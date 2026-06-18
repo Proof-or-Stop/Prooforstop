@@ -155,6 +155,17 @@
           "headHash": "05490ed7eede3e81d52be5f44aa99fb12f856c80",
           "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
           "timestamp": "2026-06-18T19:30:10.582Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "git diff main..HEAD -- docs/requirements/decisions/lattice-parallel-wave.md",
+          "result": "pass",
+          "note": "Diff touches only the two doc tokens; no code/runtime path altered by this item (dev-memory.ts already reads only .lattice/dev-memory per B-a4e3).",
+          "headHash": "d492526bb84f5fd867a41c9878a8c58df607f17c",
+          "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
+          "timestamp": "2026-06-18T19:30:11.559Z"
         }
       ]
     }
