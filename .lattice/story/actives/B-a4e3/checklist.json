@@ -298,6 +298,16 @@
           "headHash": "70f5ac6f02044ec80b5a6e3f0bb75c7fb371e418",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:59.766Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -c @deprecated types.ts guard-session.ts",
+          "result": "pass",
+          "note": "All 7 legacy-JSON-compat @deprecated symbols retained: types.ts has 5 (phase, testIntent, TestIntent, traceDiff, git), guard-session.ts has 2 (GUARD_PRELAUNCH_PROVIDERS, providerSupportsPreToolBlocking). Each has a live old-JSON reader or is exported+tested; old-JSON reads unaffected.",
+          "headHash": "5fe06d488f9bede2f4351b388c964ed5e878b6c2",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:03:03.322Z"
         }
       ]
     }
