@@ -581,13 +581,13 @@
         },
         {
           "intentRef": "CHK-003:adversarial:2",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
           "result": "pass",
-          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
-          "headHash": "2f5fa3c658de74b30216e648f38a1fdfc62b2175",
+          "note": "Verifier negative self-test: detectSignCallExcludesTag() is run against a synthetic BAD_SIGN_SNIPPET that wrongly passes signatureTag/signatureTagSource into signFinding — negSelfTestRejectsBad=true (the check FAILS on the bad snippet) and negSelfTestAcceptsGood=true (passes on the real finding.ts) => exclusionCheckHasTeeth=true. This proves the verifier would catch a signFinding _hash regression (the deliberately-broken-build scenario), not merely that the current code is fine.",
+          "headHash": "6c9dc2e77b0a0a1b6d54453dbb7f48c22b5bc3ce",
           "materialHash": "ed286bf2cfdbfa7ff4c2aa4af6511b1fa6cadc05c191c65aa1fbc489a3a5c37f",
-          "timestamp": "2026-06-18T13:50:38.094Z"
+          "timestamp": "2026-06-18T13:55:27.331Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
