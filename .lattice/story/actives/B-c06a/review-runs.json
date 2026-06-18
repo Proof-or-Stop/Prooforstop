@@ -1,0 +1,216 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-c06a:RR-001",
+      "storyId": "B-c06a",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "startedAt": "2026-06-18T15:57:56.746Z",
+      "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+      "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6c3cf51fdf41b2d4dd41ed4c8b3594c78fd8d681c0986d3192410b2675e5a772",
+        "diffPackHash": "d5c05450eadb79770a52b8d974590d3ba62d63b4c370abed7bf02d2b5d846626",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-effectiveness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/learning-effectiveness.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "167cbbea3ef5f1e1f4f915da5203c213a78ddd8c5c8b6f3925a78bd10522aae5",
+          "264960d08c2309c90d0e6937825682a4d36d6d69ead199c6e4e9722853b50971",
+          "557d7101c79f6a256b69425bf447742393f7345417cca9d6dd8c7d7670117c82",
+          "789e944053b845a3b3ca9258c3f96654c85c2890e0987234c935effbc2544390",
+          "80b8d92cb39c7505acc3fac9f5b9542bc9cc202ee68b9e789f2679255589998d",
+          "8e00ee26d2b8672940851efb169fe3f11b1276e19386e6136c98006bb2da37ed",
+          "c9494cebdd95b13f78a06c94d79a04dffb663668133b051365eea8cfc98bc845",
+          "d98f750b3461ee541b23d6147d8da7457c30c1ddf3cf0758a043d95c993f2fba",
+          "deb4a1d9f053a4714cecf74986dbfa77d86dcffe5488d91439c7f6f86bfd7a03",
+          "e44af4217112eb785698d4c451048b8b34b4cd8dc6cf3b4e0dd44ce52a8b8db1",
+          "f1672deef9ad5b2dae54302fe8a61ad2eb53d2a7f208818e4d225f9f59ae8d0a"
+        ],
+        "bindingHash": "b6f13864ba2311767ebf4098647fff00dc40697275e1daa74d3fc779c55bec9a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "workspaceMode": "story-worktree",
+        "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+        "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+        "bindingHash": "d3bf3ecca9fb12d37abd963b47e2fabf10964592f2215bc373db5ac31c897383"
+      },
+      "_hash": "9f6a757716ba2c55274d647990f60add13da1ddfe3afc8c3ab68eca670ef2cdc"
+    },
+    {
+      "reviewRunId": "B-c06a:RR-002",
+      "storyId": "B-c06a",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "startedAt": "2026-06-18T15:57:59.492Z",
+      "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+      "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6c3cf51fdf41b2d4dd41ed4c8b3594c78fd8d681c0986d3192410b2675e5a772",
+        "diffPackHash": "d5c05450eadb79770a52b8d974590d3ba62d63b4c370abed7bf02d2b5d846626",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-effectiveness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/learning-effectiveness.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "167cbbea3ef5f1e1f4f915da5203c213a78ddd8c5c8b6f3925a78bd10522aae5",
+          "264960d08c2309c90d0e6937825682a4d36d6d69ead199c6e4e9722853b50971",
+          "557d7101c79f6a256b69425bf447742393f7345417cca9d6dd8c7d7670117c82",
+          "789e944053b845a3b3ca9258c3f96654c85c2890e0987234c935effbc2544390",
+          "80b8d92cb39c7505acc3fac9f5b9542bc9cc202ee68b9e789f2679255589998d",
+          "8e00ee26d2b8672940851efb169fe3f11b1276e19386e6136c98006bb2da37ed",
+          "c9494cebdd95b13f78a06c94d79a04dffb663668133b051365eea8cfc98bc845",
+          "d98f750b3461ee541b23d6147d8da7457c30c1ddf3cf0758a043d95c993f2fba",
+          "deb4a1d9f053a4714cecf74986dbfa77d86dcffe5488d91439c7f6f86bfd7a03",
+          "e44af4217112eb785698d4c451048b8b34b4cd8dc6cf3b4e0dd44ce52a8b8db1",
+          "f1672deef9ad5b2dae54302fe8a61ad2eb53d2a7f208818e4d225f9f59ae8d0a"
+        ],
+        "bindingHash": "b6f13864ba2311767ebf4098647fff00dc40697275e1daa74d3fc779c55bec9a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "workspaceMode": "story-worktree",
+        "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+        "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+        "bindingHash": "d3bf3ecca9fb12d37abd963b47e2fabf10964592f2215bc373db5ac31c897383"
+      },
+      "_hash": "b229c84ccee20047c04d0062a49b2dc7b0d1f44ba7fa4112287a481647a66c7d"
+    },
+    {
+      "reviewRunId": "B-c06a:RR-003",
+      "storyId": "B-c06a",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "startedAt": "2026-06-18T15:58:04.131Z",
+      "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+      "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+      "promptHash": "0575a1142cd578d261734e45597d19f44192866415f1010d4c170d0b767869bb",
+      "scopeBinding": {
+        "scopeContractHash": "6c3cf51fdf41b2d4dd41ed4c8b3594c78fd8d681c0986d3192410b2675e5a772",
+        "diffPackHash": "d5c05450eadb79770a52b8d974590d3ba62d63b4c370abed7bf02d2b5d846626",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-effectiveness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/learning-effectiveness.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "167cbbea3ef5f1e1f4f915da5203c213a78ddd8c5c8b6f3925a78bd10522aae5",
+          "264960d08c2309c90d0e6937825682a4d36d6d69ead199c6e4e9722853b50971",
+          "557d7101c79f6a256b69425bf447742393f7345417cca9d6dd8c7d7670117c82",
+          "789e944053b845a3b3ca9258c3f96654c85c2890e0987234c935effbc2544390",
+          "80b8d92cb39c7505acc3fac9f5b9542bc9cc202ee68b9e789f2679255589998d",
+          "8e00ee26d2b8672940851efb169fe3f11b1276e19386e6136c98006bb2da37ed",
+          "c9494cebdd95b13f78a06c94d79a04dffb663668133b051365eea8cfc98bc845",
+          "d98f750b3461ee541b23d6147d8da7457c30c1ddf3cf0758a043d95c993f2fba",
+          "deb4a1d9f053a4714cecf74986dbfa77d86dcffe5488d91439c7f6f86bfd7a03",
+          "e44af4217112eb785698d4c451048b8b34b4cd8dc6cf3b4e0dd44ce52a8b8db1",
+          "f1672deef9ad5b2dae54302fe8a61ad2eb53d2a7f208818e4d225f9f59ae8d0a"
+        ],
+        "bindingHash": "b6f13864ba2311767ebf4098647fff00dc40697275e1daa74d3fc779c55bec9a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "workspaceMode": "story-worktree",
+        "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+        "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+        "bindingHash": "d3bf3ecca9fb12d37abd963b47e2fabf10964592f2215bc373db5ac31c897383"
+      },
+      "_hash": "e71053cc0359bc863f41a179968920547e6a085cd1e1ce2f62a7faebe2191571"
+    },
+    {
+      "reviewRunId": "B-c06a:RR-004",
+      "storyId": "B-c06a",
+      "agent": "lattice-review-behavior",
+      "lane": "lattice-review-behavior",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "startedAt": "2026-06-18T15:58:24.338Z",
+      "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+      "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6c3cf51fdf41b2d4dd41ed4c8b3594c78fd8d681c0986d3192410b2675e5a772",
+        "diffPackHash": "d5c05450eadb79770a52b8d974590d3ba62d63b4c370abed7bf02d2b5d846626",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-effectiveness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/learning-effectiveness.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "167cbbea3ef5f1e1f4f915da5203c213a78ddd8c5c8b6f3925a78bd10522aae5",
+          "264960d08c2309c90d0e6937825682a4d36d6d69ead199c6e4e9722853b50971",
+          "557d7101c79f6a256b69425bf447742393f7345417cca9d6dd8c7d7670117c82",
+          "789e944053b845a3b3ca9258c3f96654c85c2890e0987234c935effbc2544390",
+          "80b8d92cb39c7505acc3fac9f5b9542bc9cc202ee68b9e789f2679255589998d",
+          "8e00ee26d2b8672940851efb169fe3f11b1276e19386e6136c98006bb2da37ed",
+          "c9494cebdd95b13f78a06c94d79a04dffb663668133b051365eea8cfc98bc845",
+          "d98f750b3461ee541b23d6147d8da7457c30c1ddf3cf0758a043d95c993f2fba",
+          "deb4a1d9f053a4714cecf74986dbfa77d86dcffe5488d91439c7f6f86bfd7a03",
+          "e44af4217112eb785698d4c451048b8b34b4cd8dc6cf3b4e0dd44ce52a8b8db1",
+          "f1672deef9ad5b2dae54302fe8a61ad2eb53d2a7f208818e4d225f9f59ae8d0a"
+        ],
+        "bindingHash": "b6f13864ba2311767ebf4098647fff00dc40697275e1daa74d3fc779c55bec9a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-c06a",
+        "workspaceMode": "story-worktree",
+        "headHash": "9ff4189d04051fd742732c5226e18d2597563817",
+        "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+        "bindingHash": "d3bf3ecca9fb12d37abd963b47e2fabf10964592f2215bc373db5ac31c897383"
+      },
+      "_hash": "c0d134490837eed667e77e292c4e6fc906a1100d8acca5500e8170b6eb1ca605"
+    }
+  ]
+}
