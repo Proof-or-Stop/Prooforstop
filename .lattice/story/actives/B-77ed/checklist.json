@@ -99,9 +99,9 @@
       "id": "CHK-003",
       "title": "Update CHANGELOG + docs/dev/test-coverage.md",
       "context": "Add a CHANGELOG.md Unreleased entry describing: the root-cause fix (3 hand-rolled metadata locks migrated to withMkdirLock, 5s->30s acquire budget, deadline>stale invariant restored) and the retirement of the B-348d stopgap flags (with empirical proof). Update the 'Retry policy' section of docs/dev/test-coverage.md to reflect that the four smokes no longer need retryOnAnyFailure (the shared-state root cause is fixed, not just stopgapped). Keep edits to the Unreleased section only; do not add a new version heading.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T19:42:49.381Z",
       "files": {
         "modify": [
           "CHANGELOG.md",
