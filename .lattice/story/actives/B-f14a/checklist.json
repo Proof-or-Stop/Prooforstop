@@ -126,7 +126,21 @@
         "create": [],
         "test": []
       },
-      "userSees": "✓ CLI docs no longer promise mac_ui gate support."
+      "userSees": "✓ CLI docs no longer promise mac_ui gate support.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "command": "sh -lc 'if rg -n \"main/mac_ui\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'",
+          "result": "pass",
+          "note": "CLI docs describe the same neutral gate vocabulary as the server contract.",
+          "headHash": "bdc760b4262de6ffcfb51770b95899561df057f1",
+          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
+          "timestamp": "2026-06-18T20:48:14.203Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
