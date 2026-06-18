@@ -1,0 +1,25 @@
+{
+  "storyId": "B-24c3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/smoke-manifest.json",
+    "CHANGELOG.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "During CHK-003 3x parallel verify the 9 original targets ALL stabilized; but parallel-load surfaced 3 NEW race victims that need the same kind of timeoutMs bump (same pattern — finite ceiling, no smoke logic change). Adding bumps for cli-json-stdout-contract (180s->300s, already raised by B-2d6c but still races), dispatch-run (180s->300s, same), decision-doc-promotion (default 60s -> 180s). review-pass-discard remains out of scope (parallel-only FAIL not a timeout) — finding to file.",
+      "timestamp": "2026-06-18T00:18:55.808Z",
+      "paths": [
+        "packages/main/smoke-manifest.json"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-17T23:54:19.515Z",
+  "updatedAt": "2026-06-18T00:18:55.808Z"
+}
