@@ -1,0 +1,35 @@
+{
+  "storyId": "B-0717",
+  "name": "cli-engine-modularization-execution-plan",
+  "title": "Write CLI engine modularization execution plan with Authority strong verification",
+  "description": "Create a decision/execution document for decomposing packages/main/src/cli-engine.ts into stable command-schema, help/flag/alias, runtime-gate, and lifecycle-special-dispatch modules. The plan must explicitly require Lattice Authority Server strong verification where available, local 3 round x 2 host review escalation for the plan, and preserve local 3x1 degraded fallback semantics as lower assurance only.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-06-18T14:02:56.630Z",
+  "startedAt": "2026-06-18T14:02:56.630Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-18T14:02:56.630Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T14:05:19.368Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0717",
+    "branch": "story/B-0717",
+    "createdAt": "2026-06-18T14:05:14.156Z"
+  }
+}
