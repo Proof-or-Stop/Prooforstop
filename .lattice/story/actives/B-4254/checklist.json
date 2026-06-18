@@ -35,6 +35,16 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/verifier/dev-cli.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/verifier/dev-cli.ts",
+          "scripts/verify-entrypoints.mjs"
+        ]
       }
     },
     {
