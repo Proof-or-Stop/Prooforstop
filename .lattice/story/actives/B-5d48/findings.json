@@ -35,6 +35,24 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5d48:F-003",
+      "desc": "REVIEWER-SMOKE: behavior review live test — confirmed-tag path",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Live-fire smoke to confirm the confirmed path. Not a real finding — disproven immediately."
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T13:39:11.468Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-004",
+      "_hash": "60679a177db453407d50b40d8075acd3f9a31802abbd7fb0480d7854c31705f9",
+      "signatureTag": "review-smoke|confirmed-path-test",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
