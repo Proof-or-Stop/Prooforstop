@@ -1,0 +1,108 @@
+{
+  "storyId": "B-be91",
+  "checkedAt": "2026-06-18T01:13:39.601Z",
+  "features": [
+    {
+      "feature": "root package.json test:all script updated to include --jobs N (measured empirically)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "measured N empirically (3 consecutive runs at N=4; fallback to N=2 if flaky)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "test:coverage script unchanged from B-c6cf (NODE_OPTIONS + c8 + --jobs 1)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry with --jobs cap rationale and measured N",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "docs/dev/test-coverage.md updated to note test:all --jobs N default and manual override path",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG entry in Test infrastructure subsection",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "3x consecutive npm run test:all all exit 0 (166/166 passed)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "4 previously-flaky smokes (review-pass-discard, field-regression-cli, verification-freshness, worktree-repair) all PASS in all 3 runs",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "manual override path preserved (npm run test:all -- --jobs 8 still works)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "no runner code changes (run-all-smokes.ts frozen, B-6efb)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "no smoke-manifest changes (smoke-manifest.json frozen, B-24c3)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "only test:all script changed in package.json (no other test:* scripts touched)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "only Unreleased section of CHANGELOG modified",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 13,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7a2aff16340b5dc3ba2f02c052bbfd4f5cebfb7e9190c796ca0ee486e60bd7f3",
+  "openQuestions": []
+}
