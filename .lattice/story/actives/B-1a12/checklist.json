@@ -151,10 +151,10 @@
           "file": "docs/requirements/decisions/lattice-parallel-wave.md",
           "command": "grep -n koala/dev-memory docs/requirements/decisions/lattice-parallel-wave.md",
           "result": "pass",
-          "note": "grep koala/dev-memory returns no matches (exit 1) — no remaining live runtime-path koala reference.",
-          "headHash": "05490ed7eede3e81d52be5f44aa99fb12f856c80",
-          "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
-          "timestamp": "2026-06-18T19:30:10.582Z"
+          "note": "Re-confirmed at HEAD 17264f7: grep koala/dev-memory returns no matches (0) — no remaining live runtime-path koala reference.",
+          "headHash": "8eeaaef92e02fa5337beeb44e37965c10dc466f8",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:51:06.928Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
