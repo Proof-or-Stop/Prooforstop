@@ -74,6 +74,7 @@ import {
 } from './authority-runner-contracts.js';
 import {
   authorityModeEnabled,
+  authorityTrustProfileFileNames,
   loadAuthoritySettings,
   normalizeAuthorityTrustEnv,
   normalizeAuthorityMode,
@@ -83,12 +84,12 @@ import {
   readAuthorityEnv,
   DEFAULT_AUTHORITY_KEY_FILE,
   DEFAULT_AUTHORITY_TRUST_ENV_FILE,
-  DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES,
   renderAuthorityTrustProfileClientSidecar,
   renderAuthorityTrustProfileEnv,
   type AuthorityConfig,
   type AuthorityMdConfig,
   type AuthorityMode,
+  type AuthorityTrustProfileTier,
   type AuthoritySettings,
   type AuthoritySettingsOverride,
   DEFAULT_AUTHORITY_TIMEOUT_MS,
@@ -1657,6 +1658,7 @@ export interface AuthorityTrustProfileBundle {
 export interface AuthorityTrustProfileBundleOptions extends AuthorityConfigLoadOptions {
   env?: Record<string, string | undefined>;
   outputDir?: string;
+  tier?: AuthorityTrustProfileTier;
 }
 
 /**
@@ -1673,10 +1675,11 @@ export function buildAuthorityTrustProfileBundle(
   const env = options.env ?? process.env;
   const settings = loadAuthorityConfig(env, { authorityMode: 'enforce' }, options);
   const customer = resolveAuthorityCustomerApiKey(env, options);
+  const fileNames = authorityTrustProfileFileNames(options.tier ?? 'basic');
   const outputBaseDir = options.cwd ?? process.cwd();
   const outputDir = resolvePath(outputBaseDir, options.outputDir ?? '');
-  const trustFilePath = resolvePath(outputDir, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trust);
-  const clientFilePath = resolvePath(outputDir, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.client);
+  const trustFilePath = resolvePath(outputDir, fileNames.trustFileName);
+  const clientFilePath = resolvePath(outputDir, fileNames.clientFileName);
   const baseURL = settings.baseURL?.trim();
   if (!baseURL) {
     throw new Error('authority trust profile bundle requires a resolved authority URL');
@@ -1699,7 +1702,7 @@ export function buildAuthorityTrustProfileBundle(
     );
   }
   return {
-    trustFileName: DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trust,
+    trustFileName: fileNames.trustFileName,
     trustFileText: renderAuthorityTrustProfileEnv(
       {
         trustEnvFilePath: trustFilePath,
@@ -1713,7 +1716,7 @@ export function buildAuthorityTrustProfileBundle(
         customerApiKeyPath: clientFilePath,
       },
     ),
-    clientFileName: DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.client,
+    clientFileName: fileNames.clientFileName,
     clientFileText: renderAuthorityTrustProfileClientSidecar(customer.value),
   };
 }

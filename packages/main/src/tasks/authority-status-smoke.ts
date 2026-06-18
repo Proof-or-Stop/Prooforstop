@@ -624,8 +624,8 @@ function refFor(
       cwd: sourceRoot,
       outputDir: bundleRoot,
     });
-    assert.equal(bundle.trustFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trust);
-    assert.equal(bundle.clientFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.client);
+    assert.equal(bundle.trustFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trustFileName);
+    assert.equal(bundle.clientFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.clientFileName);
 
     const trustFilePath = join(bundleRoot, bundle.trustFileName);
     const clientFilePath = join(bundleRoot, bundle.clientFileName);

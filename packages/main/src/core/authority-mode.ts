@@ -53,8 +53,8 @@ export const DEFAULT_LATTICE_SENIOR_AUTHORITY_CLIENT_ENV_FILE = 'lattice_senior_
 export type AuthorityTrustProfileTier = 'basic' | 'senior';
 
 export interface AuthorityTrustProfileFileNames {
-  trustEnvFileName: string;
-  clientEnvFileName: string;
+  trustFileName: string;
+  clientFileName: string;
 }
 
 export function authorityTrustProfileFileNames(
@@ -62,34 +62,17 @@ export function authorityTrustProfileFileNames(
 ): AuthorityTrustProfileFileNames {
   if (tier === 'senior') {
     return {
-      trustEnvFileName: DEFAULT_LATTICE_SENIOR_AUTHORITY_TRUST_ENV_FILE,
-      clientEnvFileName: DEFAULT_LATTICE_SENIOR_AUTHORITY_CLIENT_ENV_FILE,
+      trustFileName: DEFAULT_LATTICE_SENIOR_AUTHORITY_TRUST_ENV_FILE,
+      clientFileName: DEFAULT_LATTICE_SENIOR_AUTHORITY_CLIENT_ENV_FILE,
     };
   }
   return {
-    trustEnvFileName: DEFAULT_LATTICE_AUTHORITY_TRUST_ENV_FILE,
-    clientEnvFileName: DEFAULT_LATTICE_AUTHORITY_CLIENT_ENV_FILE,
+    trustFileName: DEFAULT_LATTICE_AUTHORITY_TRUST_ENV_FILE,
+    clientFileName: DEFAULT_LATTICE_AUTHORITY_CLIENT_ENV_FILE,
   };
 }
 
-export function quoteAuthorityEnvValue(value: string): string {
-  return `'${value.replace(/'/g, `'\"'\"'`)}'`;
-}
-
-export function renderAuthorityEnvAssignment(key: string, value: string): string {
-  return `export ${key}=${quoteAuthorityEnvValue(value)}`;
-}
-
-/** Default bundle trust file emitted by the internal authority trust profile helper. */
-export const DEFAULT_AUTHORITY_TRUST_PROFILE_TRUST_FILE = 'lattice_authority_trust.env';
-
-/** Default bundle sidecar file emitted by the internal authority trust profile helper. */
-export const DEFAULT_AUTHORITY_TRUST_PROFILE_CLIENT_FILE = 'lattice_staging-client.env';
-
-export const DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES = {
-  trust: DEFAULT_AUTHORITY_TRUST_PROFILE_TRUST_FILE,
-  client: DEFAULT_AUTHORITY_TRUST_PROFILE_CLIENT_FILE,
-} as const;
+export const DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES = authorityTrustProfileFileNames();
 
 export interface AuthoritySettings {
   mode: AuthorityMode;
