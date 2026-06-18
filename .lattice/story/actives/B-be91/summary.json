@@ -1,18 +1,18 @@
 {
   "storyId": "B-be91",
-  "changes": "No code changes — package.json deliberately NOT modified. Only CHANGELOG.md modified: Unreleased entry honestly documents Plan A as empirically falsified with outcome=blocked, cites concrete falsification data (3x N=4 runs, wall-clock 11-14min vs predicted 5-7, new race victims, cli-json-stdout-contract still timed out at 300s under N=4 — proving worker count is NOT the root cause), and points to Plan B (two-pass retry) as the follow-up.",
-  "usage": "No user-facing change. Developers continue using npm run test:all as before (runner default, ~3min wall-clock with intermittent races). The deliverable is the falsification data in F-001 and the CHANGELOG entry: future engineers know that lowering --jobs is NOT the solution.",
-  "expectedOutcome": "package.json test:all script unchanged from main; CHANGELOG Unreleased entry under Test infrastructure names B-be91 with outcome=blocked + the run data + Plan B pointer.",
-  "actualTranscript": "3x test:all --jobs 4 measurement: run 1 = 159/167 PASS exit 1 in 861s (8 timeouts incl. cli-json-stdout-contract@300s + 4 new victims), run 2 = 165/167 in 654s, run 3 truncated. Wall-clock at N=4 = 11-14min directly contradicts predicted 5-7min. Finding B-be91:F-001 (high) filed. 4 reviewer lanes PASS (concept RP-002, quality RP-001, test-coverage RP-003, docs RP-004). All 19 intents recorded with verdict=waived + literal intent commands per memory rule. Delivery review PASS 3/3 docsPromises + 3/3 features (all waived as honest negative result).",
-  "outcomeDiff": "Outcome is BLOCKED, not delivered. Plan A hypothesis falsified by experiment — explicit difference vs PLAN-time expected 3-consecutive-green. This IS the correct outcome for a falsification-purpose story; the value is the data, not a script edit.",
+  "changes": "No code changes; CHANGELOG documents Plan A as empirically falsified, outcome=blocked. Cites 3x N=4 falsification data. Points to Plan B follow-up.",
+  "usage": "No user-facing change. Deliverable is the data + CHANGELOG entry.",
+  "expectedOutcome": "package.json unchanged; CHANGELOG Unreleased names B-be91 + outcome=blocked + Plan B pointer.",
+  "actualTranscript": "3x N=4 runs: 159/167 (861s), 165/167 (654s), truncated. 4 reviewer lanes PASS. 19 waivers recorded with literal commands. F-001 high filed.",
+  "outcomeDiff": "Outcome=blocked vs PLAN-time expected 3-consecutive-green. Correct outcome for falsification story.",
   "acceptanceVerdict": "rejected",
   "outcomeKind": "blocked",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Plan A's core hypothesis (worker count is the root cause) is disproven. The parallel-race convergence-tail remains unresolved. test:all continues to have intermittent timeouts and one parallel-only FAIL (review-pass-discard). Plan B story (two-pass retry — pass 1 high-concurrency, pass 2 serial retry for timeouts) is the follow-up; it does NOT depend on N being correct since any race that resolves in single-process mode passes the retry.",
-  "pitfalls": "(1) Plan A's hypothesis (8-worker kernel-resource contention) was plausible but empirically wrong — falsified by the SAME smoke (cli-json-stdout-contract) timing out at its 300s ceiling under N=4 just as under N=8. Lesson: when bumping per-smoke timeoutMs surfaces NEW victims (B-24c3 convergence-tail), the next hypothesis must distinguish between absolute-time, shared-state, and pool-size mechanisms. (2) Wall-clock at N=4 (11-14min) ballooned beyond predicted 5-7min because head-of-line blocking: slow smokes occupy worker slots while fast smokes queue. Lesson: lower N reduces concurrency but ALSO reduces throughput when slow tasks dominate. (3) Future Plan B design should NOT assume any N is correct — two-pass retry isolates rather than fixes the race.",
+  "limitations": "Plan A hypothesis falsified. Plan B is the path forward.",
+  "pitfalls": "Hypothesis was plausible but wrong. Future Plan B should NOT assume any N is correct.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 133476
+      "durationMs": 163314
     }
   },
-  "totalDurationMs": 5282687,
+  "totalDurationMs": 5312525,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-18T02:32:42.539Z",
-  "updatedAt": "2026-06-18T02:32:42.539Z"
+  "updatedAt": "2026-06-18T02:33:12.378Z"
 }
