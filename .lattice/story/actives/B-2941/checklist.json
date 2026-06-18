@@ -65,7 +65,49 @@
       "context": "Add optional boolean field noRetry to smoke-manifest.json entries (default false). When true, the smoke is NOT retried in pass 2 even if it timed out. Reserved escape hatch; no entry uses it on initial landing. Update run-all-smokes-smoke.ts with 3-4 new fixture cases proving: (a) pass 1 timeout -> pass 2 retry -> pass; (b) noRetry=true smoke that timed out stays as TIMEOUT in Final; (c) --no-retry CLI flag disables pass 2 entirely; (d) smoke that fails BOTH passes counts as final fail.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep noRetry packages/main/smoke-manifest.json` shows the schema is aware. `node packages/main/dist/tasks/run-all-smokes-smoke.js` shows N/N checks passed (N >= 12).",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts",
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "manifest schema documents noRetry field -> `grep -c \"noRetry\" packages/main/smoke-manifest.json` outputs at least 1; WHY: schema awareness (zero usage initially OK)",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "self-smoke has new retry-behavior fixture case -> `grep -cE \"pass.?2|retry|noRetry\" packages/main/src/tasks/run-all-smokes-smoke.ts` outputs at least 4; WHY: new cases present",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "self-smoke passes -> `node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b-2941-self.log 2>&1; echo $?` outputs 0; WHY: all fixture cases green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "self-smoke check count grew from 9 to at least 12 -> `node packages/main/dist/tasks/run-all-smokes-smoke.js 2>&1 | grep -oE \"[0-9]+/[0-9]+ checks passed\" | head -1` shows X/Y with Y at least 12; WHY: 3-4 new cases added",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: existing timeoutMs values unchanged -> `python3 -c \"import json,subprocess;a=json.loads(subprocess.check_output([\\\"git\\\",\\\"show\\\",\\\"main:packages/main/smoke-manifest.json\\\"],text=True));b=json.load(open(\\\"packages/main/smoke-manifest.json\\\"));am={s[chr(39)+chr(110)+chr(97)+chr(109)+chr(101)+chr(39)]:s.get(chr(39)+chr(116)+chr(105)+chr(109)+chr(101)+chr(111)+chr(117)+chr(116)+chr(77)+chr(115)+chr(39)) for s in a[chr(39)+chr(115)+chr(109)+chr(111)+chr(107)+chr(101)+chr(115)+chr(39)]};bm={s[chr(39)+chr(110)+chr(97)+chr(109)+chr(101)+chr(39)]:s.get(chr(39)+chr(116)+chr(105)+chr(109)+chr(101)+chr(111)+chr(117)+chr(116)+chr(77)+chr(115)+chr(39)) for s in b[chr(39)+chr(115)+chr(109)+chr(111)+chr(107)+chr(101)+chr(115)+chr(39)]};changed=[n for n in am if n in bm and am[n]!=bm[n]];print(chr(39)+chr(67)+chr(72)+chr(65)+chr(78)+chr(71)+chr(69)+chr(68)+chr(58)+chr(39)+str(changed))\"` prints CHANGED:[]; WHY: B-24c3 frozen",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
