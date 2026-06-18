@@ -1,0 +1,32 @@
+{
+  "storyId": "B-77ed",
+  "checkedAt": "2026-06-18T19:17:13.080Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights section references \"(B-6812)\" as the story that extracted withMkdirLock into a shared helper, but provides no one-sentence explanation of what B-6812 was. A newly-onboarded reader cannot independently verify the claim from background.md alone; they must look up an external story. Suggestion: add a parenthetical like \"(B-6812: checklist-lock extraction story)\" on first mention."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-18T19:16:54.201Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-18T19:17:13.080Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights section references \"(B-6812)\" as the story that extracted withMkdirLock into a shared helper, but provides no one-sentence explanation of what B-6812 was. A newly-onboarded reader cannot independently verify the claim from background.md alone; they must look up an external story. Suggestion: add a parenthetical like \"(B-6812: checklist-lock extraction story)\" on first mention."
+        }
+      ]
+    }
+  ],
+  "_hash": "0d0c05aa33b15511a8dc859f3b9a75add44d0b63095b7d03c80b14acfd0b7dd5"
+}

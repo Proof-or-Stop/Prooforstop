@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Migrate the 3 hand-rolled metadata locks to the shared withMkdirLock primitive",
+      "context": "In packages/main/src/handlers/finding.ts (withReviewPassLock ~line 38), review-run.ts (withReviewRunLock ~line 21), and init-check.ts (withInitCheckLock ~line 67): replace each hand-rolled mkdir/deadline/sleep loop with a delegation to withMkdirLock from packages/main/src/core/mkdir-lock.ts, exactly as checklist.ts's withChecklistLock already does. Keep the same lock path (storyFilePath(storyId,'<x>.lock')). Pass a descriptive label (e.g. 'review-passes metadata', 'review-runs metadata', 'init-check metadata'). This raises the acquire budget from 5s to the shared 30s default and restores the documented deadline(30s)>staleMs(10s) invariant. Remove the now-dead local sleepSync helpers if unused. The git commit (autoCommitStoryMetadata) stays inside the critical section (correct per-story commit serialization). Build clean (0 tsc errors).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the fix retires the B-348d stopgap, then remove the 4 retryOnAnyFailure flags",
+      "context": "Build, then run the four previously-flagged smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) under heavy parallel load with FAIL-retry DISABLED, i.e. invoke each smoke binary directly (no two-pass runner) with concurrent fillers, for many iterations (>=24 total runs across heavy concurrency), capturing exit codes. Expectation: 0 FAIL. If all pass, remove retryOnAnyFailure:true from those four entries in packages/main/smoke-manifest.json (retire the stopgap). If any one still FAILs under load, KEEP that smoke's flag and record a finding documenting the residual sub-cause. The retryOnAnyFailure mechanism itself (the manifest field + run-all-smokes pass-2 logic from B-348d) is NOT removed - it stays as a general safety net.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update CHANGELOG + docs/dev/test-coverage.md",
+      "context": "Add a CHANGELOG.md Unreleased entry describing: the root-cause fix (3 hand-rolled metadata locks migrated to withMkdirLock, 5s->30s acquire budget, deadline>stale invariant restored) and the retirement of the B-348d stopgap flags (with empirical proof). Update the 'Retry policy' section of docs/dev/test-coverage.md to reflect that the four smokes no longer need retryOnAnyFailure (the shared-state root cause is fixed, not just stopgapped). Keep edits to the Unreleased section only; do not add a new version heading.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

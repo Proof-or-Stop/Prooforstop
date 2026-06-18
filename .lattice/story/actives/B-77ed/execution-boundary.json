@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-77ed",
+  "allowedCommands": [
+    "bash /tmp/*.sh",
+    "git diff *",
+    "git status*",
+    "grep *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/handlers/review-run.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Migrate 3 hand-rolled metadata locks to the shared withMkdirLock; reuse not modify the helper. Verification = build + direct heavy-concurrency smoke stress with FAIL-retry disabled.",
+  "createdAt": "2026-06-18T19:15:08.351Z",
+  "updatedAt": "2026-06-18T19:15:08.351Z",
+  "_hash": "7c7011cab37f7b8e39faff519419e2ff762bcbbc8f698e2e70e713e2597243ad"
+}
