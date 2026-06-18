@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Correct the story_get path citation in the audit doc",
+      "context": "Update the F-010 section and summary table so it points at packages/main/src/handlers/story-query.ts and keeps the real claim about checklist duplication intact.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md",
+        "packages/main/src/handlers/story-query.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Restore the missing noHiddenContextSharing row in the authority boundary table",
+      "context": "Update the F-011 section and table so the documented boundary matches core/lattice-handoff.ts exactly, including noHiddenContextSharing:true.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md",
+        "packages/main/src/core/lattice-handoff.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
