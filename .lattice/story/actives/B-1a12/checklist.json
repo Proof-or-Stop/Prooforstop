@@ -5,9 +5,9 @@
       "title": "Resolve the MAIN repo root (not the current worktree) in INIT_CHECK bootstrap, with a from-worktree regression",
       "context": "In packages/main/src/handlers/worktree.ts, fix the bootstrap root resolution so it returns the main repo root even when cwd is a linked worktree. getRepoRoot() currently does `git rev-parse --show-toplevel` (cwd=root) → returns the worktree from a worktree cwd. Change the bootstrap path (the no-gitRoot fallback used by resolveBootstrapGitRoot at :432, i.e. getRepoRoot for bootstrap) to resolve via `git rev-parse --git-common-dir` → resolve absolute against cwd → if it ends in `.git`, take its parent = main repo root (mirror the existing --git-common-dir usage at ~:538). Verify the configured-gitRoot branch (resolveStorySignedWorkspace) also yields the main root, not a worktree. Keep behavior byte-identical when already at the main repo (plain + wrapper-root). Be careful NOT to break getRepoRoot for its other non-bootstrap callers if shared — prefer a bootstrap-specific resolver if getRepoRoot is reused elsewhere with show-toplevel semantics intended. Add a regression smoke: create a main repo + an existing worktree, run the INIT_CHECK bootstrap for a NEW story from the existing worktree's cwd, and assert the new worktree is created at <main>/.worktrees/B-new and NOT nested (<main>/.worktrees/B-old/.worktrees/B-new); also assert byte-identical creation when run from the main repo cwd. Wire the regression into the validate battery.",
       "userSees": "Running `story_advance INIT_CHECK` for a new story from inside an existing worktree creates the new worktree at <main>/.worktrees/B-new (the regression proves no nested .worktrees/<other>/.worktrees/<new>); running from the main repo is unchanged; the new regression smoke is green in `lattice validate`.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T19:18:29.746Z",
-      "endTime": null,
+      "endTime": "2026-06-18T19:26:57.262Z",
       "verificationIntent": {
         "happy": [
           {
