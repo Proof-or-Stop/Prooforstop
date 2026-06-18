@@ -93,6 +93,58 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "finding_add with NO signatureTag arg => persisted finding has signatureTagSource=auto AND a non-empty signatureTag (derived candidate); WHY: covers the auto-fallback main path",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add WITH signatureTag=\"my-tag\" => persisted finding has signatureTagSource=confirmed AND signatureTag=\"my-tag\" unchanged; WHY: covers the confirmed main path and byte-identity of supplied tag",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add with signatureTag=\"\" (empty string) => treated as omitted, source=auto + derived candidate; WHY: empty-string is the omission boundary",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "finding_add with signatureTag=\"  \" (whitespace-only) => treated as omitted, source=auto; WHY: whitespace trim boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add with supplied tag preserves existing signatureTagHint/hasActiveOrProposedTag behavior (propose + near-tag suggestion); WHY: regression check that confirmed path does not break existing B-4f46 wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add with missing category/files/desc AND no signatureTag => auto candidate still non-empty (deriveSignatureCandidate tolerates all-missing); WHY: sparse finding boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CRITICAL _hash invariance: signFinding output is byte-identical whether signatureTag/signatureTagSource are present or absent on the finding object — construct same finding with and without new fields, hash both, assert equal; WHY: THE critical regression — if new fields leak into _hash, every gate breaks",
+            "type": "cli"
+          },
+          {
+            "desc": "signatureTagSource is NOT included in signFinding hashed input (static grep/AST check of signFinding call site in finding.ts); WHY: defense-in-depth — even if runtime test passes, the code path must structurally exclude the field",
+            "type": "cli"
+          },
+          {
+            "desc": "signatureTag field (already excluded per B-4f46) remains excluded from signFinding after this change (static check); WHY: regression guard — the new code must not accidentally re-include the existing excluded field",
+            "type": "cli"
+          },
+          {
+            "desc": "No gate (story_done, validation, review) reads signatureTagSource or the auto-derived signatureTag for decisions; WHY: audit-only contract — if any gate consumes these, it creates a false dependency",
+            "type": "cli"
+          },
+          {
+            "desc": "Auto-derived candidate is NOT treated as confirmed quality anywhere downstream — source=auto must be distinguishable; WHY: if auto is mistaken for confirmed, the quality signal is corrupted",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
