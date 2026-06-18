@@ -263,6 +263,16 @@
           "headHash": "95143225a8920499d7c4d4aca79759325db49578",
           "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
           "timestamp": "2026-06-18T19:49:36.695Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD --name-only | grep -vE \"^(packages/main/src/handlers/(finding|review-run|init-check)[.]ts|packages/main/smoke-manifest[.]json|CHANGELOG[.]md|docs/dev/test-coverage[.]md|[.]lattice/)\" | wc -l",
+          "result": "pass",
+          "note": "0 — diff touches only the 6 allowed source/doc paths (+ .lattice metadata)",
+          "headHash": "ab326f9fe4580674b7be662f018a74aee8b32bfb",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:37.907Z"
         }
       ]
     }
