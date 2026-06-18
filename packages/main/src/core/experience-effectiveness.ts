@@ -17,7 +17,7 @@
  *
  * This module is a LEAF: it imports ONLY node builtins (none are needed) and
  * type-only symbols. It does NO filesystem / git / child_process / network I/O,
- * never calls Date.now()/new Date()/Math.random(), reads no process.env, and never
+ * uses no wall-clock, no random source, and no environment lookups, and never
  * produces NaN (every denominator is guarded to yield 0). The handler injects the
  * fully-built, ordered `EffStory[]`, so the leaf stays trivially testable.
  */
