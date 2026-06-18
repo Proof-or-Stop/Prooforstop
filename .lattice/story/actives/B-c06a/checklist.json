@@ -18,6 +18,82 @@
           "packages/main/src/core/experience-effectiveness.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "computePredictiveValue with 3+ ordered stories where signatureTags recur across stories => recall and precision are exact expected fractions; windowed trend has correct per-window hit-rates; slopeSign reflects the actual trend direction",
+            "type": "cli"
+          },
+          {
+            "desc": "computeArmComparison with nOn>=MIN_ARM_N and nOff>=MIN_ARM_N => returns correct outcomeOn, outcomeOff, delta=outcomeOff-outcomeOn, and significance gate engages correctly",
+            "type": "cli"
+          },
+          {
+            "desc": "computePredictiveValue with confirmedOnly=true => only counts findings with signatureTagSource===confirmed; unconfirmed findings excluded from recall/precision totals",
+            "type": "cli"
+          },
+          {
+            "desc": "computeArmComparison with both arms sufficient N and measurable delta => delta is numerically correct as outcomeOff minus outcomeOn",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "computePredictiveValue([]) empty stories array => zeroed report (recall=0, precision=0, findingsWithSig=0, preWarnable=0, windows=[], slopeSign neutral), never NaN",
+            "type": "cli"
+          },
+          {
+            "desc": "computePredictiveValue with stories that have zero findings-with-signature (all findings lack signatureTag) => recall=0, precision=0, no NaN from 0/0 division",
+            "type": "cli"
+          },
+          {
+            "desc": "computeArmComparison with all stories having hintMode=undefined (unassigned, all skipped) => nOn=0, nOff=0, significant=false, note contains insufficient N",
+            "type": "cli"
+          },
+          {
+            "desc": "computePredictiveValue with single story (no prior signatures possible) => preWarnable=0, recall=0, precision=0, no crash",
+            "type": "cli"
+          },
+          {
+            "desc": "computeArmComparison with exactly MIN_ARM_N-1 in one arm => significant=false, note=insufficient N; at exactly MIN_ARM_N per arm => significance gate engages",
+            "type": "cli"
+          },
+          {
+            "desc": "computePredictiveValue called twice with identical input => returns bit-identical output (determinism check)",
+            "type": "cli"
+          },
+          {
+            "desc": "computePredictiveValue with stories where findings have empty-string signatureTag => treated as no signature, not added to priorSignatures set, excluded from counts",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "computeArmComparison with nOn=2, nOff=2 (tiny N) and a large delta => significant MUST be false with insufficient-N note; implementation must NOT claim significance on tiny samples (honesty trap)",
+            "type": "cli"
+          },
+          {
+            "desc": "computePredictiveValue where every finding has a signatureTag but zero overlap across stories => precision=0, recall=0, never NaN from zero-denominator edge",
+            "type": "cli"
+          },
+          {
+            "desc": "Static import analysis of experience-effectiveness.ts => imports ONLY from node:/types (no fs, no path, no child_process, no git, no network modules); confirms leaf purity",
+            "type": "cli"
+          },
+          {
+            "desc": "Call computePredictiveValue 100 times in tight loop with same input => all 100 results identical (proves no hidden RNG, no Date.now, no process.env dependency)",
+            "type": "cli"
+          },
+          {
+            "desc": "computeArmComparison with nOn=0, nOff=50 (one arm completely empty) => significant=false, no NaN on zero-arm outcome computation, note indicates insufficient N",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed findings with undefined/null signatureTag mixed with valid ones => no crash, undefined/null tags excluded from priorSignatures and counts, valid tags computed correctly",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
