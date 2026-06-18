@@ -1,0 +1,129 @@
+{
+  "storyId": "B-06b3",
+  "checkedAt": "2026-06-18T14:39:58.906Z",
+  "features": [
+    {
+      "feature": "resolveHintMode(storyId) pure deterministic on/off leaf function",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New core/hint-mode.ts importing only node:crypto/types (pure, no fs/git)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "hintMode field added to experience_hint_surfaced event payload (fires on BOTH arms)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Shadow measurement: loadExperienceHints and event fire on OFF arm; only section render is gated",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "OFF-arm _reviewPrompt section is empty string (byte-identical to no-hints case)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "issues/blocker computation unchanged by arm assignment",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "resolveReviewPromptHash / reviewRunId unchanged (hints not in promptHash domain)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No gate reads hintMode",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: resolveHintMode determinism + rough balance + ON arm shows section + OFF arm hides section + event fires both arms with correct hintMode + promptHash invariance",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "npm script test:experience-layer-ab-shadow-gate added to package.json",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Committed verifier verify-b-06b3.mjs (build + smoke + no-regression + npm test + static checks; prints TOTAL/PASS/FAIL)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "experience-hint-loader.ts reused unchanged (already implemented in B-1dc9 / Phase 1.5)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: story explicitly reuses experience-hint-loader.ts unchanged; B-06b3 scope is gating only",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "review-run.ts not modified",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: No change to resolveReviewPromptHash / reviewRunId; review-run.ts explicitly out of scope",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Effectiveness / RCT readout command (Phase 3.4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly OUT per story scope: 3.4 effectiveness/RCT-readout is a separate future story",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Historical backfill (Phase 3.5)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly OUT per story scope: 3.5 backfill is a separate future story",
+      "source": "decisions:decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Cross-repo changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly OUT per story scope: no cross-repo changes",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 11,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "68c81ae9c0c6c3d0ae227585175cc601b92dd5ad8d64242c302c4c9cfcf4968d",
+  "openQuestions": []
+}

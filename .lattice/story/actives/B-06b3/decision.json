@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Deterministic pre-registered arms (parity of hash(storyId)) so assignment is not gameable.",
+    "Shadow measurement: OFF arm still computes hints + fires the event, only the render is gated — no story loses data.",
+    "Advisory isolation: hints stay in _reviewPrompt, never in resolveReviewPromptHash or the issues/blocker logic.",
+    "Pure leaf: resolveHintMode is a pure function of storyId.",
+    "Byte-identical no-hints path."
+  ],
+  "drivers": [
+    "Unconfounded forward A/B (deterministic arms, no time/selection bias).",
+    "Preserve measurement on both arms for the 3.4 predictive-value metric.",
+    "Touch the REVIEW-gate handler minimally: issues/blocker + promptHash unchanged."
+  ],
+  "options": [
+    {
+      "name": "Shadow-gate the section render + hintMode on the event (chosen)",
+      "pros": [
+        "Both arms measured; only display differs",
+        "promptHash/issues untouched (hints already advisory-only)",
+        "deterministic, pure arm assignment"
+      ],
+      "cons": [
+        "Slightly more code than a hard skip (acceptable; the shadow data is the point)"
+      ]
+    },
+    {
+      "name": "Hard-skip hint computation in OFF arm",
+      "pros": [
+        "Simplest"
+      ],
+      "cons": [
+        "Loses the would-have-hinted measurement for OFF — breaks the 3.4 fast metric on half the corpus"
+      ]
+    },
+    {
+      "name": "Random per-call arm",
+      "pros": [
+        "Trivial"
+      ],
+      "cons": [
+        "Non-deterministic/gameable; an arm could flip across calls within a story — confounds the RCT"
+      ]
+    }
+  ],
+  "chosen": "Shadow-gate the section render + hintMode on the event (chosen)",
+  "rationale": "Shadow-gating keeps both arms measured (essential for the 3.4 predictive-value metric) while giving only the ON arm the reviewer-facing nudge; deterministic arm assignment makes the RCT unconfounded and non-gameable; and because hints are already advisory-only (out of resolveReviewPromptHash and the blocker logic), gating the render perturbs nothing gated.",
+  "preMortem": [
+    {
+      "scenario": "Gating the section accidentally changes promptHash.",
+      "trigger": "_reviewPrompt feeds resolveReviewPromptHash, or the gating touches the reviewer-prompt channel.",
+      "consequence": "reviewRunId/promptHash changes between arms — breaks review evidence and confounds the experiment.",
+      "mitigation": "Hints are in the advisory _reviewPrompt only (B-1dc9 invariant); the smoke/verifier assert promptHash is byte-identical on/off; do not touch resolveReviewPromptHash."
+    },
+    {
+      "scenario": "OFF arm loses measurement.",
+      "trigger": "The OFF arm skips loadExperienceHints / the event.",
+      "consequence": "3.4 cannot compute predictive value on OFF stories — the A/B is half-blind.",
+      "mitigation": "Compute hints + fire the event on BOTH arms (shadow); only the render is gated; the smoke asserts the event fires with hintMode=off on an OFF story."
+    },
+    {
+      "scenario": "Arm assignment is non-deterministic or unbalanced.",
+      "trigger": "Using time/random, or a skewed hash.",
+      "consequence": "A story flips arms across calls (confound) or arms are lopsided.",
+      "mitigation": "resolveHintMode is a pure parity of sha256(storyId); the smoke asserts determinism (same id => same arm) and rough balance over many ids."
+    },
+    {
+      "scenario": "The issues/blocker computation regresses.",
+      "trigger": "Refactoring story-review.ts disturbs the blocker logic.",
+      "consequence": "The REVIEW gate behaves differently.",
+      "mitigation": "Only the advisory hint section + event payload change; the smoke/verifier assert issues/blocker output is unchanged by arm; no-hints path byte-identical."
+    }
+  ],
+  "timestamp": "2026-06-18T14:33:08.007Z"
+}
