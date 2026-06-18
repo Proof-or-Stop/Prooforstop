@@ -54,9 +54,9 @@
       "title": "Clean the last stale .koala/dev-memory reference in lattice-parallel-wave.md",
       "context": "docs/requirements/decisions/lattice-parallel-wave.md around lines 164/166 still references `.koala/dev-memory`. Update it to `.lattice/dev-memory` to match the current runtime path (the .koala read fallback was removed in B-a4e3). Doc-only, one/two lines. Verify no other live (non-historical-record) `.koala/dev-memory` references remain in that file.",
       "userSees": "docs/requirements/decisions/lattice-parallel-wave.md references `.lattice/dev-memory` (not `.koala/dev-memory`); the last stale runtime-path koala reference is gone.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T19:28:31.005Z",
       "verificationIntent": {
         "happy": [
           {
