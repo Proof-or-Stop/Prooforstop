@@ -115,7 +115,54 @@
       "context": "Add a DETERMINISTIC async-interleave negative case to the main-write-lock coverage smoke (packages/main/src/tasks/main-write-lock-coverage.ts or the dedicated lock smoke): orchestrate two async operations so operation A acquires the lock and parks at a controllable await; inside that await window, operation B (separate ALS context) attempts acquire and MUST NOT be mis-classified as reentrant pass-through (it should contend / fail-fast). Also assert genuine synchronous nesting still passes through (no regression to self-deadlock). CHANGELOG Unreleased entry under Test infrastructure documenting the reentrancy-race fix + the guard brand fix. Verify: npm run test:all green; the lock-coverage smoke passes incl the new case.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`node packages/main/dist/tasks/main-write-lock-coverage.js` passes incl the async-interleave case; CHANGELOG documents the fix; test:all green.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lock-coverage smoke has a deterministic async-interleave negative case -> `grep -cE \"interleav|concurrent|async.*sibling|parkAt|await.*acquire\" packages/main/src/tasks/main-write-lock-coverage.ts` outputs at least 1; WHY: proves the fix",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lock-coverage smoke passes incl new case -> `node packages/main/dist/tasks/main-write-lock-coverage.js > /tmp/b3d39-lock.log 2>&1; echo $?` outputs 0; WHY: green",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "sync-nesting pass-through still asserted (no self-deadlock regression) -> `grep -cE \"nest|pass.?through|reentrant\" packages/main/src/tasks/main-write-lock-coverage.ts` outputs at least 1; WHY: preMortem D1 guard",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG Unreleased names B-3d39 + reentrancy race -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-3d39|reentranc\" ` outputs at least 1; WHY: documented",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "full test:all green -> `npm run test:all > /tmp/b3d39-all.log 2>&1; echo $?` outputs 0; WHY: no regression in the suite",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no smoke-manifest or package.json change -> `git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l` outputs 0; WHY: frozen",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
