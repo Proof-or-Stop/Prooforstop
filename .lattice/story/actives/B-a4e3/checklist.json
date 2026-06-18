@@ -116,6 +116,16 @@
           "headHash": "e08ef35e309dc9a6551d7073113e08483584498e",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:19.552Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main HEAD -- packages/main/src scripts | grep salt-patterns",
+          "result": "pass",
+          "note": "Zero salt literals modified in source/scripts diff; salt snapshot byte-identical to baseline; residue gate green proves salts exempt and intact.",
+          "headHash": "9a037e4e23925f2fc4cceed9611f0d8fba2b8c24",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:20.195Z"
         }
       ]
     },
