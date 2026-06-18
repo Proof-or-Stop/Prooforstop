@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T19:49:46.955Z",
       "reviewRunId": "B-77ed:RR-004",
       "_hash": "618d7b45e3b968d3e950bd0f62a15a29b0ff21db1d7b1c124d9688fbdaf03aa0"
+    },
+    {
+      "id": "B-77ed:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 3 handlers (finding.ts/review-run.ts/init-check.ts) correctly delegate to withMkdirLock with wait-and-poll semantics (no failFastIfHeld, no 5s budget). Lock paths unchanged (review-passes.lock/review-runs.lock/init-check.lock). git commit stays inside the critical section for all 3. withMkdirLock defaults confirmed: deadlineMs=30000 > staleMs=10000 (stale-reclaim invariant satisfied). mkdir-lock.ts itself is unchanged. Spot-check stress (4 concurrent --no-retry runs across 2 key smokes) returned FAILS=0. CHANGELOG Unreleased and docs/dev/test-coverage.md both document the root-cause fix and stopgap retirement. No boundary gaps or userSees mismatches found.",
+      "createdAt": "2026-06-18T19:54:20.012Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-002",
+      "_hash": "481ce27af9f728dbd061dd78bb18bca42d203e9a6b5a9c10e9b76139ea5c986f"
     }
   ]
 }
