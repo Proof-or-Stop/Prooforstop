@@ -3,7 +3,7 @@
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, existsSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { execFileSync } from 'child_process';
+import { execFileSync, spawnSync } from 'child_process';
 import { runManagedAssetCheck } from '../packages/main/dist/core/managed-assets.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
@@ -24,6 +24,17 @@ function run(cmd, args, opts = {}) {
     cwd: repoRoot,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
+    ...opts,
+  });
+}
+
+function runBounded(cmd, args, opts = {}) {
+  return spawnSync(cmd, args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: 10000,
+    killSignal: 'SIGTERM',
     ...opts,
   });
 }
@@ -590,6 +601,30 @@ checks.push(() => {
   const devCliSource = readFileSync(join(repoRoot, 'packages/main/src/verifier/dev-cli.ts'), 'utf8');
   assertNotIncludes(devCliSource, '--web', 'packages/main/src/verifier/dev-cli.ts');
   assertNotIncludes(devCliSource, '--cli', 'packages/main/src/verifier/dev-cli.ts');
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-serve-flags-'));
+  try {
+    const cliPath = join(repoRoot, 'packages/main/dist/cli.js');
+    for (const flag of ['--web', '--cli']) {
+      const result = runBounded(process.execPath, [cliPath, 'serve', flag], {
+        cwd: tempDir,
+        env: process.env,
+      });
+      const output = `${result.stdout || ''}${result.stderr || ''}`;
+      assertIncludes(output, '🐨 lattice serve', `lattice serve ${flag} should still start the normal launcher`);
+      assertIncludes(output, 'Waiting for project core to start (.koala-serve.json)...', `lattice serve ${flag} should still boot the normal serve path`);
+      assertNotIncludes(output, 'Unknown option', `lattice serve ${flag} should not be rejected as an unknown option`);
+      assertNotIncludes(output, '--web', `lattice serve ${flag} runtime output`);
+      assertNotIncludes(output, '--cli', `lattice serve ${flag} runtime output`);
+      if (result.error && result.error.code !== 'ETIMEDOUT') {
+        throw result.error;
+      }
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 });
 
 checks.push(() => {
