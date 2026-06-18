@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Keep one canonical policy source and sync neighboring docs to it.",
+    "Keep low-risk audit buckets narrow: wording-only, annotation-compliance, and pure typo cleanups only.",
+    "Preserve the stronger three-round two-host rule for lifecycle, gate, Authority, and process-fact work."
+  ],
+  "drivers": [
+    "User needs the low-risk one-round policy to be explicit and easy to read.",
+    "Current wording is split across runbooks instead of one canonical decision doc.",
+    "The change must not alter runtime gate behavior or Authority Server semantics."
+  ],
+  "options": [
+    {
+      "name": "A: Canonicalize the low-risk bucket in story-lifecycle.md and sync the runbooks",
+      "pros": [
+        "Creates one source of truth for the one-round policy.",
+        "Lets the adjacent runbooks reference the same rule instead of drifting.",
+        "Makes the narrow low-risk bucket explicit without touching runtime code."
+      ],
+      "cons": [
+        "Touches the canonical policy doc, so the wording must be precise.",
+        "Requires coordinated doc sync across the related decision docs."
+      ]
+    },
+    {
+      "name": "B: Leave story-lifecycle.md unchanged and only add more exceptions in the runbooks",
+      "pros": [
+        "Smaller immediate edit surface.",
+        "Avoids rewriting the canonical doc."
+      ],
+      "cons": [
+        "The policy stays split across multiple places and stays easy to misread.",
+        "Drift remains likely because the canonical doc would still not carry the rule.",
+        "The story still looks like a wording patch instead of a coherent policy fix."
+      ]
+    }
+  ],
+  "chosen": "A: Canonicalize the low-risk bucket in story-lifecycle.md and sync the runbooks",
+  "rationale": "This keeps one canonical rule for the low-risk one-round bucket, resolves the current doc drift, and preserves the stronger three-round path for high-risk work without touching runtime behavior.",
+  "preMortem": [
+    {
+      "scenario": "The low-risk bucket becomes broader than intended.",
+      "trigger": "The new wording is read as any compliance-related work instead of wording-only annotation cleanup.",
+      "consequence": "Readers may think unrelated lifecycle or gate changes also qualify for one-round treatment.",
+      "mitigation": "Define the bucket narrowly as wording-only / annotation-compliance / pure typo doc edits and explicitly exclude lifecycle, gate, Authority, and process-fact work."
+    },
+    {
+      "scenario": "The canonical doc and runbooks drift again.",
+      "trigger": "Only one document gets the new wording, or the adjacent runbooks keep the old phrasing.",
+      "consequence": "story_review will still flag the policy as inconsistent and the rule will remain confusing.",
+      "mitigation": "Update all touched docs in the same change and make the runbooks point back to the canonical rule in story-lifecycle.md."
+    },
+    {
+      "scenario": "The new wording is mistaken for a runtime or Authority change.",
+      "trigger": "The audit policy text sits near Authority language and does not separate local Non-authority guidance from receipt-backed completion.",
+      "consequence": "Users may infer Authority Server proof or gate semantics changed when only docs changed.",
+      "mitigation": "Keep the text explicitly docs-only, preserve the local Non-authority framing, and state that no Authority Server completion is claimed."
+    }
+  ],
+  "timestamp": "2026-06-18T11:11:38.547Z"
+}

@@ -1,0 +1,28 @@
+{
+  "task": "Make the audit-round policy consistently treat annotation compliance and pure typo-only documentation fixes as one-round cases.",
+  "outcome": "The user sees policy docs explicitly saying something like: \"annotation compliance / pure typo-only / wording-only changes are one-round cases\", while lifecycle/gate/Authority/process-fact changes still require the stronger three-round two-host path.",
+  "facts": [
+    "story-lifecycle.md already says direct decision-doc edits do not by themselves require 3 rounds x 2 hosts at DONE.",
+    "done-closure-runbook-assistant-execution-plan.md line 353 already has a low-risk one-round exception for typo-only changes.",
+    "scope-check-missing-guidance-execution-plan.md line 251 already has a one-round exception for very small wording-only changes.",
+    "The story is docs-only and must not change runtime gates or Authority receipt semantics."
+  ],
+  "constraints": [
+    "Do not weaken the stronger three-round requirement for lifecycle, gate, Authority, or process-fact work.",
+    "Do not introduce new runtime behavior or Authority Server claims.",
+    "Keep the wording consistent across canonical decision docs rather than creating a new rule path.",
+    "Keep the scope limited to policy-doc wording and validation checks."
+  ],
+  "unknowns": [
+    "Which canonical doc should carry the most explicit one-round wording so the policy reads consistently.",
+    "Whether to add the phrase annotation compliance to the existing typo-only / wording-only exceptions or to a more general low-risk rule.",
+    "Whether scope-check-missing-guidance-execution-plan.md also needs a wording sync, or whether the canonical docs are enough."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+    "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-18T11:06:29.790Z"
+}

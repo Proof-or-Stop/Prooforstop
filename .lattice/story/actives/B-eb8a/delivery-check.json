@@ -1,0 +1,53 @@
+{
+  "storyId": "B-eb8a",
+  "checkedAt": "2026-06-18T11:29:13.912Z",
+  "reviewRound": "2026-06-18T11:21:07.292Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Direct edits under docs/requirements/decisions/*.md that are only annotation-compliance, pure typo, or wording-only clarifications are low-risk one-round cases, while high-risk lifecycle, gate, Authority, or process-fact changes still use the three-round path.",
+      "status": "verified",
+      "verifiedBy": "rg + reviewer passes",
+      "evidence": "story-lifecycle.md line 190 updated and reviewer passes recorded for concept/quality/test-coverage/docs."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "promise": "Low-risk annotation-compliance / typo-only / wording-only changes to this document use one two-host audit round; other changes keep the full three-round requirement from story-lifecycle.md.",
+      "status": "verified",
+      "verifiedBy": "rg + reviewer passes",
+      "evidence": "The runbook now points back to the canonical rule in story-lifecycle.md."
+    },
+    {
+      "docPath": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "promise": "A very small annotation-compliance, typo-only, or wording-only change may use one two-host audit round if the story is classified as low risk in story-lifecycle.md and does not touch gate semantics.",
+      "status": "verified",
+      "verifiedBy": "rg + reviewer passes",
+      "evidence": "The scope-check guidance now references the canonical low-risk bucket and stays narrow."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "The low-risk annotation-compliance, pure typo, or wording-only bucket stays in the one two-host audit round path, and the three-round path remains intact for lifecycle/gate/Authority/process-fact work.",
+      "status": "verified",
+      "verifiedBy": "rg + reviewer passes",
+      "evidence": "The doc keeps the stronger 3x2 path and separates it from local docs-only clarification."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --json passed the TEST gate after the docs were updated. Supporting checks: rg confirmed the canonical low-risk wording, and review passes were recorded for concept/quality/test-coverage/docs."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice validate --json passed the TEST gate after the docs were updated. Supporting checks: rg confirmed the three-round rule remained intact, and review passes were recorded for concept/quality/test-coverage/docs."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only policy clarification is validated by the git diff, reviewer passes, and TEST gate validation; no runtime gate or Authority Server semantics changed."
+  },
+  "_hash": "60524a1616d44ba3ca9db0ecee513535120e702e05e4e077b4512d9a5470e77e"
+}

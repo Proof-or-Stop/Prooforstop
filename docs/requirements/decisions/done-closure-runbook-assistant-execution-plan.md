@@ -350,9 +350,10 @@ Before implementation DONE:
 - DONE may only claim Authority completion when receipt-backed Authority Server
   proof is actually verified.
 
-For low-risk typo-only changes to this document, one two-host audit round is
-enough. For code changes to lifecycle gates, review evidence, Authority fields,
-or process-fact registry, use the full three-round requirement.
+For low-risk annotation-compliance / typo-only / wording-only changes to this
+document, one two-host audit round is enough. For code changes to lifecycle
+gates, review evidence, Authority fields, or process-fact registry, use the
+full three-round requirement from `story-lifecycle.md`.
 
 ## Non-Goals
 

@@ -1,0 +1,44 @@
+{
+  "storyId": "B-eb8a",
+  "checkedAt": "2026-06-18T11:13:22.860Z",
+  "features": [
+    {
+      "feature": "Canonical one-round wording for annotation compliance / pure typo / wording-only changes",
+      "covered_by": "docs/requirements/decisions/story-lifecycle.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story-lifecycle.md canonical policy block"
+    },
+    {
+      "feature": "Adjacent runbooks sync to the same one-round rule instead of inventing a second policy",
+      "covered_by": "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md; docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "done-closure and scope-check guidance sections"
+    },
+    {
+      "feature": "The stronger three-round two-host path for lifecycle / gate / Authority / process-fact work stays intact",
+      "covered_by": "docs/requirements/decisions/story-lifecycle.md; docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story-lifecycle high-risk escalation block and three-round review plan"
+    },
+    {
+      "feature": "Runtime code / Authority semantics changes are out of scope for this docs-only policy clarification",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "docs-only story scope; packages/main/src/**; Authority Server receipt semantics",
+      "source": "story description and checklist scope"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6ff35611c5fd9532ec26d8fadac4c6e7cf205d9a956f0b9d4bea001ec5ea9233"
+}

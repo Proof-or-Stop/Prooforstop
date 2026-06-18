@@ -248,9 +248,10 @@ The future implementation story must:
 - advance to DONE only after gates pass.
 
 For high-risk or lifecycle/gate/process-fact changes, run the stronger
-three-round two-host audit before DONE. For a very small wording-only change,
-one two-host audit round may be enough if the story is explicitly classified as
-low risk and does not touch gate semantics.
+three-round two-host audit before DONE. For a very small annotation-compliance,
+typo-only, or wording-only change, one two-host audit round may be enough if
+the story is explicitly classified as low risk in `story-lifecycle.md` and does
+not touch gate semantics.
 
 ## Two-Host Audit Protocol
 
