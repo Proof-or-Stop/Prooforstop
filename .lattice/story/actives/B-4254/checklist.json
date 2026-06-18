@@ -53,21 +53,21 @@
           "file": "packages/main/src/verifier/dev-cli.ts",
           "command": "npm --prefix packages/main run build && npm run test:entrypoints",
           "result": "pass",
-          "note": "dev-cli.ts no longer parses --web/--cli compatibility flags, and the entrypoints smoke now guards that launcher contract end-to-end.",
-          "headHash": "7699548b098f5c8ea7ac83a5eb08b073970f847c",
-          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
-          "timestamp": "2026-06-18T15:13:17.029Z"
+          "note": "The launcher change builds cleanly and the entrypoints smoke passes after removing hidden --web / --cli parsing from dev-cli.ts.",
+          "headHash": "239feb80520ad7454a841e7a8e6de81dd678bc7f",
+          "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
+          "timestamp": "2026-06-18T15:26:47.244Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/handlers/verifier.ts",
-          "command": "rg -n -- '--dev=|--port=' packages/main/src/handlers/verifier.ts packages/main/src/verifier/serve.ts",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "The supported lattice serve flags are still owned by the serve handler and serve implementation, so removing the hidden dev-cli aliases does not remove the documented launcher parameters.",
-          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "note": "The smoke now exercises real runtime serve launches with --web and --cli and confirms they still follow the normal startup path, so supported serve flags are not broken by the alias removal.",
+          "headHash": "239feb80520ad7454a841e7a8e6de81dd678bc7f",
           "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
-          "timestamp": "2026-06-18T15:16:04.331Z"
+          "timestamp": "2026-06-18T15:26:47.244Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "The entrypoints smoke now fails if --web or --cli reappear in packages/main/src/verifier/dev-cli.ts, so the hidden compatibility branch cannot silently return.",
-          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "note": "The smoke still fails if --web or --cli reappear in the launcher source, so the hidden compatibility branch cannot silently return.",
+          "headHash": "239feb80520ad7454a841e7a8e6de81dd678bc7f",
           "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
-          "timestamp": "2026-06-18T15:16:04.331Z"
+          "timestamp": "2026-06-18T15:26:47.244Z"
         }
       ]
     },
@@ -138,10 +138,10 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "entrypoints smoke now asserts packages/main/src/verifier/dev-cli.ts does not contain hidden --web/--cli compatibility parsing, and the test passes end-to-end.",
-          "headHash": "8557834c449ceb53d33a2dc05514e19ff26e456b",
+          "note": "The updated entrypoints smoke passes end-to-end and still finishes with entrypoints verified.",
+          "headHash": "239feb80520ad7454a841e7a8e6de81dd678bc7f",
           "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
-          "timestamp": "2026-06-18T15:13:26.172Z"
+          "timestamp": "2026-06-18T15:26:47.244Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -149,10 +149,10 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "The entrypoints smoke passes in this worktree after a clean build, so the regression check remains usable in the symlinked node_modules workspace.",
-          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "note": "The smoke remains runnable in this workspace after a clean build and the real serve-flag runtime case.",
+          "headHash": "239feb80520ad7454a841e7a8e6de81dd678bc7f",
           "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
-          "timestamp": "2026-06-18T15:16:04.331Z"
+          "timestamp": "2026-06-18T15:26:47.244Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -160,10 +160,10 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "The smoke includes a source-level guard on packages/main/src/verifier/dev-cli.ts, so reintroducing --web or --cli makes the test fail.",
-          "headHash": "885eb4f395642dfc65ab2bf5b3df84eca89f55a3",
+          "note": "The smoke rejects any reintroduction of the legacy --web / --cli aliases anywhere in the launcher path.",
+          "headHash": "239feb80520ad7454a841e7a8e6de81dd678bc7f",
           "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
-          "timestamp": "2026-06-18T15:16:04.331Z"
+          "timestamp": "2026-06-18T15:26:47.244Z"
         }
       ]
     }
