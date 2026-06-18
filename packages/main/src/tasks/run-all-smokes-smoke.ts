@@ -216,6 +216,21 @@ function main(): void {
       join(smokesDir, 'fixture-always-timeout-smoke.js'),
       `setTimeout(()=>process.exit(0), 60000);\n`,
     );
+    // B-348d FAIL-flaky fixture: exit 1 (a FAIL, NOT a timeout) on the first run,
+    // exit 0 on the second (lock dance). Manifest flags it retryOnAnyFailure:true,
+    // so pass 2 must retry it on the FAIL and it then passes.
+    const lockC = join(root, 'flaky-C.lock');
+    writeFileSync(
+      join(smokesDir, 'fixture-failflaky-C-smoke.js'),
+      `const fs=require('fs'); if(fs.existsSync(${JSON.stringify(lockC)})){ fs.unlinkSync(${JSON.stringify(lockC)}); process.exit(0); } fs.writeFileSync(${JSON.stringify(lockC)},'1'); console.error('flaky-C: deliberate first-run FAIL'); process.exit(1);\n`,
+    );
+    // B-348d hard-fail fixture: exit 1 on EVERY run, NOT flagged retryOnAnyFailure.
+    // This is the anti-masking safety case: a FAIL without the flag must stay
+    // terminal (never retried), so a genuine regression always surfaces.
+    writeFileSync(
+      join(smokesDir, 'fixture-hardfail-D-smoke.js'),
+      `console.error('hard-fail-D: deliberate FAIL on every run'); process.exit(1);\n`,
+    );
     const retryManifestPath = join(root, 'retry-manifest.json');
     writeFileSync(
       retryManifestPath,
@@ -224,6 +239,8 @@ function main(): void {
           { name: 'fixture-flaky-A', timeoutMs: 500 },
           { name: 'fixture-flaky-B', timeoutMs: 500, noRetry: true },
           { name: 'fixture-always-timeout', timeoutMs: 500 },
+          { name: 'fixture-failflaky-C', timeoutMs: 5000, retryOnAnyFailure: true },
+          { name: 'fixture-hardfail-D', timeoutMs: 5000 },
         ],
       }, null, 2),
     );
@@ -291,6 +308,38 @@ function main(): void {
         && failBoth.stdout.includes('Final:')
         && /Final:\s*0\/1/.test(failBoth.stdout),
       `code=${failBoth.code}, stdout=${failBoth.stdout.trim()}`,
+    );
+
+    // (12) B-348d (a): a FAIL (exit 1, not timeout) on a retryOnAnyFailure-flagged
+    //      smoke is retried in pass 2 and passes → Final 1/1 exit 0.
+    const failFlakyRetry = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', retryManifestPath,
+      '--select', 'fixture-failflaky-C',
+    ]);
+    assert(
+      'B-348d (a): retryOnAnyFailure smoke FAILs pass 1 → retried → PASS, Final 1/1 exit 0',
+      failFlakyRetry.code === 0
+        && failFlakyRetry.stdout.includes('retrying serially')
+        && failFlakyRetry.stdout.includes('Final:')
+        && /Final:\s*1\/1/.test(failFlakyRetry.stdout),
+      `code=${failFlakyRetry.code}, stdout=${failFlakyRetry.stdout.trim()}`,
+    );
+
+    // (13) B-348d (b) — ANTI-MASKING SAFETY: a FAIL on a smoke WITHOUT the flag is
+    //      NOT retried (stays terminal), so a genuine regression always surfaces.
+    const hardFailNoRetry = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', retryManifestPath,
+      '--select', 'fixture-hardfail-D',
+    ]);
+    assert(
+      'B-348d (b): unflagged FAIL is NOT retried (terminal) → exit 1, no pass 2',
+      hardFailNoRetry.code === 1
+        && hardFailNoRetry.stdout.includes('FAIL fixture-hardfail-D')
+        && !hardFailNoRetry.stdout.includes('retrying serially')
+        && !hardFailNoRetry.stdout.includes('Final:'),
+      `code=${hardFailNoRetry.code}, stdout=${hardFailNoRetry.stdout.trim()}`,
     );
   } finally {
     rmSync(root, { recursive: true, force: true });

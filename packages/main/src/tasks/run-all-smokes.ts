@@ -46,6 +46,17 @@ interface ManifestEntry {
    * regression. Default false (i.e. all smokes participate in retry).
    */
   noRetry?: boolean;
+  /**
+   * B-348d: if true, this smoke is ALSO retried in pass 2 on a FAIL (exit 1),
+   * not only on TIMEOUT. OPT-IN allowlist for a small, documented set of
+   * smokes that pass standalone serial but intermittently FAIL under heavy
+   * parallel worker-pool load (shared /tmp / git index / port contention).
+   * Default false: a FAIL stays terminal for every other smoke, so a genuine
+   * regression is never silently retried to green. This is a stopgap; the
+   * shared-state root cause is a deferred follow-up. A flagged smoke that FAILs
+   * BOTH passes still counts as a final FAIL.
+   */
+  retryOnAnyFailure?: boolean;
 }
 
 interface Manifest {
@@ -249,15 +260,24 @@ export async function runAllSmokes(opts: RunOptions): Promise<{ results: SmokeRe
   // Pass 1: high-concurrency worker pool per opts.jobs.
   const pass1 = await runEntrySet(selected, opts.smokesDir, opts.jobs, opts.quiet);
 
-  // B-2941: identify pass-1 timeout entries that are NOT explicitly noRetry-flagged.
-  // Pass 2 forces --jobs 1 for the subset, then merges results.
+  // B-2941: identify pass-1 entries to retry serially in pass 2 (forces --jobs 1),
+  // then merge results. A TIMEOUT is always retryable (single-process resolves
+  // the parallel-load race). B-348d: a FAIL is retryable ONLY for smokes
+  // explicitly flagged retryOnAnyFailure (a documented load-flake allowlist) —
+  // every other FAIL stays terminal so a genuine regression is never masked.
   const byName = new Map(selected.map((e) => [e.name, e] as const));
   const retryEntries: ManifestEntry[] = opts.noRetry
     ? []
     : pass1
-        .filter((r) => r.status === 'TIMEOUT')
+        .filter((r) => {
+          const entry = byName.get(r.name);
+          if (!entry || entry.noRetry === true) return false;
+          if (r.status === 'TIMEOUT') return true;
+          if (r.status === 'FAIL' && entry.retryOnAnyFailure === true) return true;
+          return false;
+        })
         .map((r) => byName.get(r.name))
-        .filter((e): e is ManifestEntry => !!e && e.noRetry !== true);
+        .filter((e): e is ManifestEntry => !!e);
 
   if (retryEntries.length === 0) {
     const passed = pass1.filter((r) => r.status === 'PASS').length;
@@ -266,7 +286,7 @@ export async function runAllSmokes(opts: RunOptions): Promise<{ results: SmokeRe
 
   if (!opts.quiet) {
     process.stdout.write(
-      `\nPass 1: ${pass1.filter((r) => r.status === 'PASS').length}/${selected.length} passed; ${retryEntries.length} timeout(s) → retrying serially...\n`,
+      `\nPass 1: ${pass1.filter((r) => r.status === 'PASS').length}/${selected.length} passed; ${retryEntries.length} retryable failure(s) → retrying serially...\n`,
     );
   }
   const pass2 = await runEntrySet(retryEntries, opts.smokesDir, 1, opts.quiet, 'Pass 2:');
