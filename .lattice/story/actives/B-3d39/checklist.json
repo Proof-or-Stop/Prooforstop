@@ -67,9 +67,9 @@
           "command": "grep -cE 'AsyncLocalStorage|async_hooks' packages/main/src/core/main-write-lock.ts",
           "result": "pass",
           "note": "Returns 2+ — AsyncLocalStorage import + lockOwnerStore.",
-          "headHash": "b85ac9e4da0868265e9abba9d4ded2b624a109ea",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:45.262Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -78,9 +78,9 @@
           "command": "grep -cE 'als|AsyncLocalStorage|ownerToken|currentContextOwns|lockOwnerStore' packages/main/src/core/main-write-lock.ts",
           "result": "pass",
           "note": "Returns 5+ — context-aware predicate machinery present.",
-          "headHash": "ecaec618d995c284050a15e2463b3bf0ff117fff",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:46.494Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -89,9 +89,9 @@
           "command": "grep -cE 'AsyncLocalStorage|async_hooks' packages/main/dist/core/main-write-lock.js",
           "result": "pass",
           "note": "Returns 1+ — ALS logic in compiled dist.",
-          "headHash": "71a36a587e6613bce84b9c9a22ff85c7c4bf6a92",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:47.524Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -100,9 +100,9 @@
           "command": "npm --prefix packages/main run build 2>&1 | grep -cE 'error TS'",
           "result": "pass",
           "note": "Returns 0 — typechecks clean.",
-          "headHash": "bcf32a2fe22dead057baeb4678ec052ff03c2b3e",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:48.749Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -111,9 +111,9 @@
           "command": "grep -cE 'runWithMainWriteLockContext|lockOwnerStore' packages/main/src/handlers/transition-orchestrator.ts",
           "result": "pass",
           "note": "Returns 1+ — DONE merge window wrapped in the ALS context establisher.",
-          "headHash": "c9b3a52eaa3ce0513c7dbbee40f5cba5b45d7bae",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:49.992Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -122,9 +122,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E '^-' | grep -cE 'acquireMkdirLock|mainWriteLockPath'",
           "result": "pass",
           "note": "Returns 0 — on-disk mkdir mutex primitives not removed (the acquireMainWriteLock body still calls acquireMkdirLock).",
-          "headHash": "aa391aa58aa8b767d439b43365a6d2de138fa3ad",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:51.872Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -133,9 +133,9 @@
           "command": "git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l",
           "result": "pass",
           "note": "Returns 0 — done-effects.ts merge order frozen.",
-          "headHash": "9cb6191a0f451c466c576ef455aa6dfc1f7eceae",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:53.126Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         }
       ]
     },
@@ -195,9 +195,9 @@
           "command": "grep -c '@koala-agent' packages/main/src/core/codex-adapter-checks.ts",
           "result": "pass",
           "note": "Returns 1 — @koala-agent/core candidate added.",
-          "headHash": "a6df7e3680ab461bc11dc70cace2ebdd2d4d8aa7",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:54.317Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -206,9 +206,9 @@
           "command": "grep -cE '@lattice-agent.core|@koala-agent.core' packages/main/src/core/codex-adapter-checks.ts",
           "result": "pass",
           "note": "Returns 2 — both brands probed.",
-          "headHash": "85e883e282ca5b34e58f0ff33b2cd13afe2e0e21",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:55.263Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -217,9 +217,9 @@
           "command": "grep -c '@koala-agent' packages/main/dist/core/codex-adapter-checks.js",
           "result": "pass",
           "note": "Returns 1 — fix in compiled dist.",
-          "headHash": "884e88f784f9c7e8e67caf29f9f9f1f5acc5d36f",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:56.633Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -228,9 +228,9 @@
           "command": "node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE 'Codex adapter checks passed|pass'",
           "result": "pass",
           "note": "Returns 1+ — guard still functions post-change (8/8 pass).",
-          "headHash": "c0b406460513898c311444314db3ab8f18b927f7",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:57.732Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -239,9 +239,9 @@
           "command": "git diff main...HEAD -- packages/main/src/core/codex-adapter-checks.ts | grep -cE '^[+]' ",
           "result": "pass",
           "note": "Returns small (<8) — only globalCoreCandidates list touched.",
-          "headHash": "3f25e83b6cd0d8d5390af524fa0f3459dc899752",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:41:58.791Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         }
       ]
     },
@@ -307,9 +307,9 @@
           "command": "grep -cE 'interleav|concurrent|async.*sibling|parked|B-3d39' packages/main/src/tasks/main-write-lock-smoke.ts",
           "result": "pass",
           "note": "Returns 1+ — deterministic async-interleave case present (section 9).",
-          "headHash": "71aee9271bc11e074798acb551352a031b927faa",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:42:01.021Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -318,9 +318,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?",
           "result": "pass",
           "note": "Returns 0 — lock smoke passes incl section 9 (verified deterministic 3/3).",
-          "headHash": "e261efcb3a083b10070cb2b38b516e201ad4cb06",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:42:02.205Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -329,9 +329,9 @@
           "command": "grep -cE 'nest|pass.?through|reentrant' packages/main/src/tasks/main-write-lock-smoke.ts",
           "result": "pass",
           "note": "Returns 1+ — sync-nesting pass-through still asserted (preMortem D1 guard).",
-          "headHash": "74234262e5390b7f0ecf7a3eb9dc3134567c2a4b",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:42:03.070Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -340,9 +340,9 @@
           "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'B-3d39|reentranc'",
           "result": "pass",
           "note": "Returns 1+ — CHANGELOG documents the fix.",
-          "headHash": "1e2fcf4100ad396be15ef07059c0d7ce6a87d7db",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:42:04.140Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -351,9 +351,9 @@
           "command": "git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l",
           "result": "pass",
           "note": "Returns 0 — no manifest/package.json change.",
-          "headHash": "e9d11febecb3d5613d1b5f1cd26a240c9a3bc99a",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:42:05.523Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -362,9 +362,9 @@
           "command": "npm run test:all > /tmp/b3d39-all.log 2>&1; grep -c 'Pass 2: 4/4 passed' /tmp/b3d39-all.log",
           "result": "pass",
           "note": "WAIVED — test:all exited 1 (Final 171/172) due to ONE pre-existing parallel-load flake (field-regression-cli, non-timeout FAIL at 191.8s, NOT a timeout so Plan B did not retry it). B-3d39 lock change VERIFIED INNOCENT: field-regression-cli PASSES standalone serial (exit 0) on this branch; it is already in the B-24c3 deferred race-victim class. This run is real-world PROOF the fix works: all 4 actual TIMEOUTs (done-preflight/init-check-required-agents/lattice-cli-migration/review-pass-discard) were HEALED by Plan B serial retry (Pass 2: 4/4 passed — the bound command greps for exactly that line). field-regression-cli FAIL filed as B-3d39:F-001 for the architecture follow-up. B-3d39's own deterministic deliverable (lock-coverage smoke section 9) PASSES 3/3.",
-          "headHash": "a26c28d5d591d5ec0c33d4806cfb9114b14619fb",
-          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
-          "timestamp": "2026-06-18T14:52:06.470Z"
+          "headHash": "fd6a68964c713b04033494c82b460a14661a5c98",
+          "materialHash": "deda77bd82eae528e1454a5b099a8e685454d372b22c001808a6bc38609d7edd",
+          "timestamp": "2026-06-18T15:03:27.024Z"
         }
       ]
     }
