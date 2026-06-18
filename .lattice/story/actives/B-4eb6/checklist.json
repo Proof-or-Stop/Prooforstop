@@ -19,6 +19,62 @@
           "packages/main/src/handlers/learning-scan.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice learning_scan against a store with findings -> .lattice/learning/finding-signals.json is created with valid FindingSignalsCache (schemaVersion, signals[], updatedAt); WHY: proves derive+persist path writes the cache the hint loader reads",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan --json -> stdout is parseable JSON with { written: true, path, signals: <n>, updatedAt }; WHY: proves machine-readable output path",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan --story <storyId> with a known story -> only signals from that story appear in cache; WHY: proves story-scoping filter works",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan (no flags) -> human-readable summary printed to stdout mentioning signal count, path, and updatedAt; WHY: proves default text rendering",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice learning_scan against a store with zero findings -> cache written with signals:[] (empty array), schemaVersion present, no crash; WHY: empty-store boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan --story nonexistent-id -> cache written with signals:[] and no error thrown; WHY: non-matching story filter degrades gracefully",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan twice with same store state -> output files are byte-identical (deterministic given pinned now); WHY: proves idempotency",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan when .lattice/learning/ directory does not yet exist -> directory is created and cache is written; WHY: first-run bootstrap boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inspect handler: the ONLY filesystem write is to .lattice/learning/finding-signals.json -- no finding_add, no gate write, no modification to tracked source files; WHY: prevents accidental side-effects that dirty worktree or trip a gate",
+            "type": "cli"
+          },
+          {
+            "desc": "Pass a projectRoot that differs from the store root (e.g. /tmp/wrong) -> verify cache is still written to correct .lattice/learning/ path relative to actual store, not bogus path; WHY: wrong projectRoot means hint loader never finds cache, defeating the feature",
+            "type": "cli"
+          },
+          {
+            "desc": "Call learning_scan then verify git status shows no changes to tracked source files (only .lattice/learning/ which is materialHash-excluded); WHY: cache write must not pollute source tree or cause materialHash drift",
+            "type": "cli"
+          },
+          {
+            "desc": "Invoke learning_scan with unexpected args (--gate, --finding) -> handler ignores or rejects them without side-effects; WHY: ensures handler surface is minimal and cannot be abused to trigger gates/findings",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
