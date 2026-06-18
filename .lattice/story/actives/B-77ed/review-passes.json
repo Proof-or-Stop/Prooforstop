@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T19:49:46.955Z",
       "reviewRunId": "B-77ed:RR-001",
       "_hash": "4e51c246eb7a45b96dcabf9fbc79a9a19c64d39cab8a04e850f42aeb59d4dc9e"
+    },
+    {
+      "id": "B-77ed:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 8 exported symbols from diff (withMkdirLock usage, withReviewPassLock, withReviewRunLock, withInitCheckLock, sleepSync removed, INIT_CHECK_FALLBACK_REASON_MIN, DEFAULT_DEADLINE_MS); Step2: 2 doc paragraphs compared (CHANGELOG.md Unreleased B-77ed entry, docs/dev/test-coverage.md Retry policy section). All claims verified: (1) grep -c retryOnAnyFailure smoke-manifest.json=0 (4 flags removed as stated); (2) grep -lE 'withMkdirLock(' finding.ts review-run.ts init-check.ts returns all 3 files; (3) git diff confirms old 5s deadline loops removed from all three handlers; (4) mkdir-lock.ts DEFAULT_DEADLINE_MS=30000 confirms 30s budget; (5) deadline>staleMs invariant documented in mkdir-lock.ts comments; (6) four smoke names (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) still present in manifest without retryOnAnyFailure; (7) test-coverage.md correctly states 'No smoke currently sets it' and accurately describes the root-cause fix and 32-run empirical proof. No blockers found.",
+      "createdAt": "2026-06-18T19:51:31.651Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-004",
+      "_hash": "618d7b45e3b968d3e950bd0f62a15a29b0ff21db1d7b1c124d9688fbdaf03aa0"
     }
   ]
 }
