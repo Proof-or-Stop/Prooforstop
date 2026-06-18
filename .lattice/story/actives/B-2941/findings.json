@@ -39,13 +39,15 @@
       "desc": "CHK-001 userSees says output ends with \"Final: 167/167 passed in N s\" but the actual count from verified runs is 171/171, and the Final: prefix only appears when retry fires (which did not fire in any of the 3 real test:all runs). The userSees is therefore ambiguous: it conflates the retry-fires path (Final: prefix emitted) with the no-retry-needed path (no Final: prefix, plain count line). A reader following userSees literally would expect Final: on every run, but the code only emits it when retried=true. Recommend updating userSees to distinguish: single-pass output stays as \"N/N passed in T s\"; retry-fires output shows \"Final: N/N passed in T s\". This is a documentation clarity issue, not a code bug. File: packages/main/src/tasks/run-all-smokes.ts:301-302.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-18T13:08:10.970Z",
       "reviewRound": "2026-06-18T13:05:32.603Z",
       "reviewRunId": "B-2941:RR-001",
-      "_hash": "856e1ad3769fe4057aa9693d134ee0c9f4957b76c07f3361eb27ab92cb143939"
+      "_hash": "856e1ad3769fe4057aa9693d134ee0c9f4957b76c07f3361eb27ab92cb143939",
+      "resolvedReason": "CHK-001 userSees is PLAN-frozen so cannot be edited in DEV; the conflation it described (hard-coded 'Final: 167/167') is a documentation-clarity issue, not a code defect — quality + behavior lanes both confirmed run-all-smokes.ts correctly emits the conditional Final: prefix only when retried=true. The accurate output-state description now lives in the CHANGELOG B-2941 entry + docs/dev/test-coverage.md two-pass section (both reviewed PASS). No code change needed.",
+      "resolvedAt": "2026-06-18T13:10:22.319Z"
     }
   ]
 }
