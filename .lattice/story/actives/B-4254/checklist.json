@@ -89,7 +89,8 @@
         ],
         "create": [],
         "test": [
-          "scripts/verify-entrypoints.mjs"
+          "scripts/verify-entrypoints.mjs",
+          "packages/main/src/handlers/verifier.ts"
         ]
       },
       "excludes": [
