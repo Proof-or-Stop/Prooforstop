@@ -80,8 +80,8 @@
       "id": "CHK-002",
       "title": "Preserve compatibility",
       "context": "Keep the new Lattice-prefixed filenames and the legacy authority_trust.env / staging-client.env path working together so current automation does not break.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T17:16:00.043Z",
       "endTime": null,
       "userSees": "User sees existing authority_trust.env and staging-client.env workflows still load and behave the same, even after the Lattice-prefixed names are added.",
       "files": {
@@ -224,6 +224,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Basic bundle generator implemented and verified."
+    },
+    {
+      "timestamp": "2026-06-18T17:16:00.043Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Compatibility regression block verified and ready to record."
     }
   ]
 }
