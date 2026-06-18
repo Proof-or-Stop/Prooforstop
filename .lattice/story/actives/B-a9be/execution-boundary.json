@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a9be",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "lattice check",
+    "lattice validate",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/koala/framework-audit/2026-06-18/report.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/verifier/dev-cli.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only drift fix for B-META-framework-audit F-012/F-013; no runtime behavior change.",
+  "createdAt": "2026-06-18T13:49:29.198Z",
+  "updatedAt": "2026-06-18T13:49:29.198Z",
+  "_hash": "138e93c1155f14b52a03ca36d0c373f9251aeef60989beb46756a1cdb068c45d"
+}
