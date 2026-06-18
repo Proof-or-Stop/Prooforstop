@@ -1,0 +1,121 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-5155:RR-001",
+      "storyId": "B-5155",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-18T02:01:39.916Z",
+      "startedAt": "2026-06-18T02:02:19.303Z",
+      "headHash": "d79f0351162e9f4e2bd8c3ece674410d4fbd1ac4",
+      "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+      "promptHash": "f610af2b175e3d0c7ab8ccfbceaa55eb264cc674b98054e1d63adf5935cce957",
+      "scopeBinding": {
+        "scopeContractHash": "e3a6ae2cc8509a59eb32df8741f0e440dc2184ef8127fc6c34d65750f459f830",
+        "diffPackHash": "8950c9ccff91fc3b83d8e3d3ece7fccd22d3df615b6079f14c18bdf890e3c4cd",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "58f022f834e9fb71a269c05cf84443f1ec87de296614604c12171f07d512925c",
+          "6349976880e773c04fc12c01b85cc583add0f51539d27ce07a98a143a9bbd83e",
+          "de8ffbd0ac2130e6778f50ddf39d6bf02793a0b8c0ba6be90e38a1f2f1c3fc63"
+        ],
+        "bindingHash": "66598957a4c3c5539adf15e23353561a5a10b41392f8c45a35cb254a6e5b7d42"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "workspaceMode": "story-worktree",
+        "headHash": "d79f0351162e9f4e2bd8c3ece674410d4fbd1ac4",
+        "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+        "bindingHash": "daa34bd582a4e96901c300919e53139ff921a966302cc784d818ab0cc6a8d067"
+      },
+      "_hash": "4e2015af40bccab2ea64ce797775c9bb10f2e661ff2c308b373f149c8b42f5d7"
+    },
+    {
+      "reviewRunId": "B-5155:RR-002",
+      "storyId": "B-5155",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-18T02:01:39.916Z",
+      "startedAt": "2026-06-18T02:02:25.601Z",
+      "headHash": "d79f0351162e9f4e2bd8c3ece674410d4fbd1ac4",
+      "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+      "promptHash": "316cc2e3bdc52a574ff1d579ad97e5ba0b44fbe96fdf5cec439df43afa25569e",
+      "scopeBinding": {
+        "scopeContractHash": "e3a6ae2cc8509a59eb32df8741f0e440dc2184ef8127fc6c34d65750f459f830",
+        "diffPackHash": "8950c9ccff91fc3b83d8e3d3ece7fccd22d3df615b6079f14c18bdf890e3c4cd",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "58f022f834e9fb71a269c05cf84443f1ec87de296614604c12171f07d512925c",
+          "6349976880e773c04fc12c01b85cc583add0f51539d27ce07a98a143a9bbd83e",
+          "de8ffbd0ac2130e6778f50ddf39d6bf02793a0b8c0ba6be90e38a1f2f1c3fc63"
+        ],
+        "bindingHash": "66598957a4c3c5539adf15e23353561a5a10b41392f8c45a35cb254a6e5b7d42"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "workspaceMode": "story-worktree",
+        "headHash": "d79f0351162e9f4e2bd8c3ece674410d4fbd1ac4",
+        "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+        "bindingHash": "daa34bd582a4e96901c300919e53139ff921a966302cc784d818ab0cc6a8d067"
+      },
+      "_hash": "e9ffdda80e14627eb2bc9f529baa4861b85e6de9508664105ae44086ff361e16"
+    },
+    {
+      "reviewRunId": "B-5155:RR-003",
+      "storyId": "B-5155",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-18T02:01:39.916Z",
+      "startedAt": "2026-06-18T02:02:36.331Z",
+      "headHash": "d79f0351162e9f4e2bd8c3ece674410d4fbd1ac4",
+      "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+      "promptHash": "68e5c420e7918c844aefd25a1bf13b7ed2034a50624b776bc72823a00f2fd1fa",
+      "scopeBinding": {
+        "scopeContractHash": "e3a6ae2cc8509a59eb32df8741f0e440dc2184ef8127fc6c34d65750f459f830",
+        "diffPackHash": "8950c9ccff91fc3b83d8e3d3ece7fccd22d3df615b6079f14c18bdf890e3c4cd",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "58f022f834e9fb71a269c05cf84443f1ec87de296614604c12171f07d512925c",
+          "6349976880e773c04fc12c01b85cc583add0f51539d27ce07a98a143a9bbd83e",
+          "de8ffbd0ac2130e6778f50ddf39d6bf02793a0b8c0ba6be90e38a1f2f1c3fc63"
+        ],
+        "bindingHash": "66598957a4c3c5539adf15e23353561a5a10b41392f8c45a35cb254a6e5b7d42"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-5155",
+        "workspaceMode": "story-worktree",
+        "headHash": "d79f0351162e9f4e2bd8c3ece674410d4fbd1ac4",
+        "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+        "bindingHash": "daa34bd582a4e96901c300919e53139ff921a966302cc784d818ab0cc6a8d067"
+      },
+      "_hash": "4c3d354a19856e41db67dad36d3fffdbb8f8ddf16a7e5503aaf7a1202615338f"
+    }
+  ]
+}
