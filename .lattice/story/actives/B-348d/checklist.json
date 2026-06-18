@@ -179,6 +179,16 @@
           "headHash": "227c886929b4c9d10ed8ee07f55a980aa2a80de3",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:46.232Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"./packages/main/smoke-manifest.json\\\",\\\"utf8\\\"))\";echo OK",
+          "result": "pass",
+          "note": "node JSON.parse succeeds + prints OK; manifest still valid JSON",
+          "headHash": "8f2a1983d96da5f0e80a3788a1c6400ce9b99491",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:46.914Z"
         }
       ]
     },
