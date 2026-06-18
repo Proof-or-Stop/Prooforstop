@@ -5,7 +5,7 @@
       "desc": "dead-code: tasks/experience-layer-effectiveness-smoke.ts:116-119 declares a `stories: EffStory[]` fixture (S0/S1 with tag X) that is immediately suppressed with `void stories` on line 127 and never used in any assertion — should be deleted",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-18T15:59:49.631Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-c06a:RR-002",
       "_hash": "fef7ebd3fde506f8f70effc04ee5502880d251b8920e3bb52eea89cdc26a66c0",
       "signatureTag": "missing|unknown|dead-code-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the dead void stories EffStory fixture from the smoke (commit 93cdef4d1).",
+      "resolvedAt": "2026-06-18T16:12:25.379Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c06a:F-002",
