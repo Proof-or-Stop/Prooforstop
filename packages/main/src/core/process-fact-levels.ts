@@ -264,8 +264,6 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'guard_session_status', level: 'L0', category: 'guard-session-read', owner: 'handlers/guard-session', rationale: 'Reads the current guard session projection without mutation.' },
   { name: 'guard_session_check', level: 'L4', category: 'guard-session', owner: 'handlers/guard-session', rationale: 'Checks current diff (plus optional simulated writes) against the guard session scope contract and records forbidden writes consumed by the lifecycle guard gate.', gateConsumer: 'story_advance REVIEW/TEST/DONE guard session gate' },
   { name: 'prewrite_guard_check', level: 'L0', category: 'guard-session-read', owner: 'handlers/prewrite-guard', rationale: 'Pre-write scope gate called by Claude Code PreToolUse hook or Lattice dispatch pre-apply; reads guard session + scope contract to check target paths and writes nothing.' },
-  { name: 'story_dispatch', level: 'L0', category: 'dispatch', owner: 'handlers/story-dispatch', rationale: 'Generates implementer prompt text without mutation.' },
-  { name: 'finding_dispatch', level: 'L0', category: 'dispatch', owner: 'handlers/story-dispatch', rationale: 'Generates deprecated finding repair prompt text without mutation.' },
   { name: 'dispatch', level: 'L0', category: 'dispatch', owner: 'handlers/story-dispatch', rationale: 'Generates unified subagent prompt text without mutation.' },
   { name: 'background_set', level: 'L1', category: 'background', owner: 'handlers/background', rationale: 'Writes planning background prose before it becomes signed gate evidence.' },
   { name: 'background_append', level: 'L1', category: 'background', owner: 'handlers/background', rationale: 'Appends planning background prose before it becomes signed gate evidence.' },

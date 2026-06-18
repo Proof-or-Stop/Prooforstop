@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-06b3:RP-001",
+      "agent": "lattice-review-behavior",
+      "note": "All 3 checklist userSees claims match code exactly. CHK-001: resolveHintMode is a pure leaf (node:crypto only, no fs/git/Date/random), sha256-parity deterministic, empty-string safe, verified 13/13 smoke. CHK-002: ON arm renders renderedHintsSection into _reviewPrompt; OFF arm sets it to empty string (byte-identical to no-hints baseline); experience_hint_surfaced fires on BOTH arms with full hintIds set and correct hintMode field; issues/blocker computation block (lines 70-519) has zero hintMode/experienceHintsSection references; resolveReviewPromptHash is not called in story-review.ts at all — hints never enter the promptHash domain. CHK-003: smoke 13/13 pass confirmed by live run; npm script wired correctly; hint-injection-smoke.ts updated to use onArmId() so existing ON-path assertions continue to pass. Spec boundary (lattice-experience-layer-execution-plan.md lines 184-194) satisfied: hints excluded from promptHash, advisory-only, no gate reads hintMode. OFF-arm design (half of prod stories see no hints) is the stated intent of the shadow gate experiment and is harmless to all gates.",
+      "createdAt": "2026-06-18T15:15:46.329Z",
+      "reviewRound": "2026-06-18T15:12:58.818Z",
+      "reviewRunId": "B-06b3:RR-004",
+      "_hash": "85c50c2a66ea5ff994ddd8c4d2eb61b2dbfbbdf0be7728144b0c0b3f26429631"
+    },
+    {
+      "id": "B-06b3:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement residue found. Three scope items examined: (1) hint-mode.ts — new additive leaf exporting HintMode + resolveHintMode; no prior concept deleted. (2) story-review.ts — experienceHintsSection is not deleted; it stays as the computation variable; renderedHintsSection is the new render-gated derivative at the two render sites (if-guard and string concat). Both deleted lines were exactly the two render-site uses; confirmed zero residual render-site uses of experienceHintsSection. (3) Test storyId constants B-hint1/B-hint-place/B-hint-inj deleted from hint-injection-smoke and fully replaced by onArmId() calls; grep confirms zero residue. B-hint-dedup is ON-arm (firstByte=12, even), so its section-present assertions remain correct without onArmId. ab-shadow-gate smoke: consistent ON/OFF arm storyId derivation via findStoryIdForArm helper; both arms covered for event hintMode field, byte-identical OFF prompt, and arm-independent issues/blocker output. No doc-promise-undelivered: CLAUDE.md and README.md unchanged. No @deprecated markers needed: no backward-compat removals. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-18T15:16:04.768Z",
+      "reviewRound": "2026-06-18T15:12:58.818Z",
+      "reviewRunId": "B-06b3:RR-001",
+      "_hash": "5a94d0d1dd9e43794a289d5ae0b3babd08f8471878d8b34044b33f2073745dbe"
+    },
+    {
+      "id": "B-06b3:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 4 changed source files: hint-mode.ts is a pure leaf (node:crypto only, deterministic sha256-parity, no state/env/fs/time, balanced split). story-review.ts: hintMode gating is correctly isolated to the renderedHintsSection IIFE only — issues/blocker computation and resolveReviewPromptHash are fully untouched; the experience_hint_surfaced event fires on BOTH arms with the hintMode field; experienceHintsSection (full, ungated) is used for the event while renderedHintsSection (gated) feeds only the advisory _reviewPrompt section. review-run.ts diff is 0 bytes (confirmed untouched). onArmId() change in hint-injection-smoke is sound: scans synthetic ids for ON-arm to preserve legacy assertions under the new gate. ab-shadow-gate-smoke.ts: all imports used, single empty catch is best-effort cleanup in finally block (not swallowing real errors), as any usage in runStoryReview() is justified by the handler return type being object. No dead code, no empty catch swallowing real errors, no I/O isolation violations (no bridge.ts in project). No findings.",
+      "createdAt": "2026-06-18T15:16:17.390Z",
+      "reviewRound": "2026-06-18T15:12:58.818Z",
+      "reviewRunId": "B-06b3:RR-002",
+      "_hash": "a379726bef20ed051aef41063d85cc67baa5f45b9f150ef66e3e44c0db505fd3"
+    },
+    {
+      "id": "B-06b3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. Four additive artifacts reviewed: hint-mode.ts (new), story-review.ts (gating additions), experience-layer-ab-shadow-gate-smoke.ts (new), experience-layer-hint-injection-smoke.ts (onArmId helper + storyId fixes). No concept was deleted or replaced en masse. The renderedHintsSection / experienceHintsSection dual-variable pattern is intentional dual-use (not a concept replacement). Old hard-coded storyIds B-hint1 / B-hint-place / B-hint-inj fully replaced by onArmId calls — zero residual refs. CHK-001 adversarial:3 smoke check added and self-contained. All new concept words (hintMode, resolveHintMode, HintMode, renderedHintsSection, onArmId, shadow-gate, hintYieldingSignals) are fully defined in their implementation files. No dangling refs. No concept residue. No blocker.",
+      "createdAt": "2026-06-18T15:24:47.825Z",
+      "reviewRound": "2026-06-18T15:22:38.273Z",
+      "reviewRunId": "B-06b3:RR-005",
+      "_hash": "8e19c34089ed7168c51185871659827b8ae69cd4fa4d653ad72fa38098c340e4"
+    },
+    {
+      "id": "B-06b3:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior review PASS. All 14 smoke checks green. CHK-001: hint-mode.ts line 22 uses String(storyId) coercion making resolveHintMode deterministic for null/undefined/number/object (F-002 fix; covered by adversarial:3). CHK-002: ON arm renders experienceHintsSection into _reviewPrompt; OFF arm sets renderedHintsSection=\"\" making it byte-identical to zero-hints baseline; experience_hint_surfaced fires on both arms carrying hintMode and full hintIds; issues/blocker block has zero hintMode refs (diff confirmed); resolveReviewPromptHash receives no hints (diff confirmed). CHK-003: smoke TOTAL 14 PASS 14 FAIL 0. Spec boundary from lattice-experience-layer-execution-plan.md guardrail 3 (hints must not enter promptHash domain) satisfied via Option A independent advisory channel; covered by adversarial:0/1 smoke checks.",
+      "createdAt": "2026-06-18T15:25:03.551Z",
+      "reviewRound": "2026-06-18T15:22:38.273Z",
+      "reviewRunId": "B-06b3:RR-007",
+      "_hash": "e722198c091cec8af8aea3421f1cb74aed29a2f4b58b19cdee4a78452df1d5da"
+    },
+    {
+      "id": "B-06b3:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test-coverage review passed. F-001 fix confirmed: CHK-001:happy:3 export-surface is now bound to kind=integration_test, command=node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs, hmExportsSurface=true verified live. F-002 fix confirmed: CHK-001:adversarial:3 non-string coercion has a dedicated check block in smoke.ts (lines 246-261) that explicitly tests null/undefined/123/object => valid on/off deterministically; smoke ran TOTAL 14 | PASS 14 | FAIL 0. All 42 intents across CHK-001/002/003 have valid pass evidence with literal-command bindings; verifier ran TOTAL 42 | PASS 42 | FAIL 0 with hmExportsSurface=true, srGateWired=true, blockerBlockClean=true, hmImportPure=true, hmNoSideEffects=true. No coverage gaps, no mis-bound evidence, no waivers.",
+      "createdAt": "2026-06-18T15:25:51.632Z",
+      "reviewRound": "2026-06-18T15:22:38.273Z",
+      "reviewRunId": "B-06b3:RR-006",
+      "_hash": "3fbf13195362067b6e6f0cb162636f547a0d8738da41ee6bbfbcd3e2021a8175"
+    },
+    {
+      "id": "B-06b3:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review complete. Dead code: none — all imports used across hint-mode.ts, story-review.ts, and both smoke files; experienceHintsSection feeds the event, renderedHintsSection feeds the prompt, no orphaned bindings. Type safety: two as-any usages in the smoke file are both justified (untyped handler return in test context; adversarial coercion test for non-string inputs). Catch at story-review.ts:588 is non-silent (console.warn). Cleanup catch at smoke:463 is intentional best-effort. I/O shell isolation: no bridge.ts in this project; hint-mode.ts is imported only by the handler and two smoke tasks, no shell-layer violations. Round 1 invariants re-confirmed: hint-mode.ts pure (node:crypto only), renderedHintsSection only gates the prompt, event fires both arms with hintMode field, resolveReviewPromptHash not called with hints, core/review-run.ts diff empty. F-002 non-string coercion smoke present and covers null/undefined/number/object inputs.",
+      "createdAt": "2026-06-18T15:26:03.704Z",
+      "reviewRound": "2026-06-18T15:22:38.273Z",
+      "reviewRunId": "B-06b3:RR-008",
+      "_hash": "4b4fd0ef302bdfc956d258aaf777ee0fbd03d4d8578d5719c61bc2c8719c4db4"
+    }
+  ]
+}

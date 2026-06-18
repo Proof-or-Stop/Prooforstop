@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-3d39:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 4 exported symbols changed (AsyncLocalStorage not a new export; runWithMainWriteLockContext, currentContextOwns, extendedOwnerSet new; acquireMainWriteLockRegistered + withReentrantMainWriteLock signature-updated). Step 2: 0 README/CLAUDE.md hits for these symbols (fallback 2 no-doc-reference for all 4 — only CHANGELOG.md references them). Step 3: compared CHANGELOG.md B-3d39 Unreleased bullet against full diff for main-write-lock.ts, transition-orchestrator.ts, codex-adapter-checks.ts, main-write-lock-smoke.ts. All 7 claims verified: AsyncLocalStorage lockOwnerStore present; dual-predicate heldLockPaths+currentContextOwns at both call sites; runWithMainWriteLockContext wraps DONE phase in transition-orchestrator; enterWith not used; section 9 sibling-contention smoke added; @koala-agent/core candidate added to globalCoreCandidates; on-disk mutex and done-effects merge order unchanged (done-effects.ts not in diff); done_recover handler unchanged. Entry is under ## Unreleased. No doc-promise-undelivered. No doc-code-drift. 0 findings.",
+      "createdAt": "2026-06-18T14:54:06.104Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-004",
+      "_hash": "05821278153e784327238b9d4813b7396ec01d529bc5304e531223af072e7c43"
+    },
+    {
+      "id": "B-3d39:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 5 quality checks passed. (a) transition-orchestrator split is clean: wrapper delegates to inner with no duplicated logic; DONE wraps in runWithMainWriteLockContext, non-DONE calls inner directly. (b) main-write-lock.ts type safety is sound: AsyncLocalStorage<Set<string>> is properly typed, no as-any, extendedOwnerSet returns a new Set (never mutates parent context store), release/clear semantics preserved via heldLockPaths.delete in finally. (c) No dead code: runWithMainWriteLockContext is exported and used by both transition-orchestrator and the smoke test; extendedOwnerSet is private and called at line 372; lockOwnerStore.getStore()?.add in acquireMainWriteLockRegistered gracefully handles no-context callers. (d) codex-adapter-checks change is minimal: single array entry added, consuming find/existsSync logic untouched. (e) CHANGELOG accurately describes all four areas of change for B-3d39. TypeScript type check exits clean. Missing store delete on release is intentionally benign: the two-part heldLockPaths.has && currentContextOwns guard remains correct after release.",
+      "createdAt": "2026-06-18T14:54:42.603Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-002",
+      "_hash": "a26f81d3a33066c9e5ad07d4a0d9842b20bded3656d315bc92b8650bf3dbc295"
+    },
+    {
+      "id": "B-3d39:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All CHK-001/CHK-002/CHK-003 userSees match code. Critical invariants verified: (a) sync nesting pass-through confirmed in section 7/7b/7c — withReentrantMainWriteLock uses heldLockPaths.has(lockKey) && currentContextOwns(lockKey), so genuine nested calls inherit ALS context and pass through with no self-deadlock. (b) Section 9 deterministic regression case correctly creates true siblings via two runWithMainWriteLockContext calls; B asserts bOutcome===contended — confirmed smoke exits 0 on two consecutive runs. (c) runWithMainWriteLockContext uses lockOwnerStore.run (bounded), not enterWith — confirmed at lines 372 and 489. (d) ALS propagates across await: lockOwnerStore.run() returns the Promise synchronously, Node ALS propagates the context through the async chain — verified empirically. (e) done-recover.ts:45 acquires via acquireDoneMainMergeLock without runWithMainWriteLockContext wrapper — safe because done-recover does raw git directly with no nested re-acquire; the absence of context means acquireMainWriteLockRegistered always performs real acquisition (lockOwnerStore.getStore()?.add(lockKey) is a no-op when store is undefined), which is the safe direction. (f) On-disk mkdir mutex unchanged — confirmed by git diff showing no removal of acquireMkdirLock or mainWriteLockPath primitives. Spec boundaries from session-ownership-and-write-leases.md: AC#3 (Two DONE operations serialized by main write lock; no partial-DONE race) is directly delivered by this fix; AC#6 (Lock acquisition failure is blocking) preserved via on-disk mutex unchanged. No missing boundary cases. No userSees mismatch. CHK-003:edge:0 test:all waiver is self-documenting (pre-existing parallel flake, B-3d39 lock change proved innocent via standalone serial pass). 0 findings.",
+      "createdAt": "2026-06-18T14:54:44.918Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-001",
+      "_hash": "8a15f2be0c308493d68a383c52cccada36b033f86cf1658ca835d34fcafe80ef"
+    },
+    {
+      "id": "B-3d39:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 18 intents across CHK-001/CHK-002/CHK-003 re-run live and pass. CHK-003:edge:0 waiver accepted: field-regression-cli standalone exit 0 confirmed, Plan B Pass 2: 4/4 passed confirmed in /tmp/b3d39-all.log, lock smoke section 9 (B-3d39 async-sibling contention) passes 3/3 deterministically.",
+      "createdAt": "2026-06-18T14:55:47.837Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-003",
+      "_hash": "c9e137c7d1bb4b83cf9d2ccbf9a8e8783c84d01dc13f018c46585c147e785b01"
+    },
+    {
+      "id": "B-3d39:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. No concept deleted or replaced en masse in this diff; focus was on consistency and stale-reference detection. Findings: (1) The old misleading doc-comment (\"JS is single-threaded, so two critical sections can only interleave by direct function nesting\") that was the root cause is fully replaced in main-write-lock.ts — verified absent at production source. background.md references it correctly as the historical wrong assumption, not as active guidance. (2) All three bare heldLockPaths.has(lockKey) reentrancy decision points are now correctly paired with && currentContextOwns(lockKey) — lines 361 and 436. The third usage (line 387, isMainWriteLockHeldInProcess) is intentionally left bare as it is a pure presence query, not a reentrancy decision. (3) runWithMainWriteLockContext is consistently named at its definition (main-write-lock.ts:485), its import in transition-orchestrator.ts, its import in main-write-lock-smoke.ts, and all call sites (201, 267, 276). No spelling drift. (4) doc-promise-undelivered scan: CHANGELOG promises lockOwnerStore ALS, currentContextOwns predicate, runWithMainWriteLockContext helper, transition-orchestrator.ts DONE wrap, section 9 interleave smoke, @koala-agent/core candidate — all verified present in delivered code. Plan names a private working symbol currentAlsContextOwns; delivered as currentContextOwns (non-exported private helper — not a public contract; no doc promise to users). Plan references main-write-lock-coverage.ts for test; delivered in main-write-lock-smoke.ts — CHANGELOG correctly names the smoke file, so no external promise is broken. 0 findings.",
+      "createdAt": "2026-06-18T14:58:33.554Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-005",
+      "_hash": "2584b7b9ce4d3d25116cbd7e50478a94f9f830f9eac7a4b001a9e9c792e496f7"
+    }
+  ]
+}

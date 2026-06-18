@@ -1,0 +1,55 @@
+{
+  "storyId": "B-a4e3",
+  "changes": "Removed the legacy .koala read fallback (LEGACY_KOALA_DIR + LEGACY_KOALA_* constants in lattice-paths.ts + the .koala read branches in 10 consumers: cli-engine, activity-log, audit-config, dev-memory, evidence-freshness, planner, rollout-check, store, doctor, story-query); flipped dev-memory-legacy-read-smoke.ts to a negative assertion proving .koala is no longer read; renamed stale non-salt .koala-readable doc claims (cli-engine help, audit-config + stale-detector JSDoc) and tightened 2 dead exemptions in verify-koala-residue.mjs; removed the 4 github.com/koala-agent/koala URLs from package.json + packages/main/package.json; reconciled 5 CLAUDE.md .koala/ runtime-path refs to .lattice/; removed the dead finding_dispatch/story_dispatch CLI aliases (cli-engine registry + command-policy + handler methods + process-fact-levels + config DEFAULT_PHASE_TOOLS). PRESERVED all 25 signature salt literals byte-identical.",
+  "usage": "All Lattice writes/reads (story metadata, dev-memory, audit-config, activity log, planner runs, autopilot-runs) now use only .lattice/; .koala/ is no longer read anywhere. Use lattice dispatch (itemId/findingId/clusterId) as the sole dispatch entry. The .koala write-guard (assertNoLegacyKoalaWritePath) still rejects .koala writes via the FORBIDDEN_WRITE_DIR sentinel.",
+  "expectedOutcome": "grep LEGACY_KOALA_DIR returns nothing; test:koala-residue PASS 0 unclassified; zero modified salt lines; no koala-agent/koala URLs; CLAUDE.md runtime paths say .lattice/; lattice dispatch sole entry; npm test + tsc green.",
+  "actualTranscript": "grep LEGACY_KOALA_DIR packages/main/src -> empty; npm run test:koala-residue -> PASS koala-residue: 0 unclassified; git diff main HEAD salt-grep on source/scripts -> empty (25 salts byte-identical to /tmp/salt-baseline-B-a4e3.txt); grep koala-agent/koala package.json -> empty; grep .koala/ CLAUDE.md -> 0; dispatch CLI aliases -> gone; tsc EXIT 0; npm test full battery -> validate PASS; lattice validate -> all green. See evidence/transcript-diff.md (9 proofs).",
+  "outcomeDiff": "Matches expected on all deliverables. Three documented factual deviations: (1) blast radius was 10 consumers not the briefs ~6 (all handled); (2) story_dispatch was mislabeled status:supported in command-policy - resolved via OQ-1 as a stale mislabel, removed with the alias; (3) the @deprecated count stays 22 (NOT dropped) because there were NO dead @deprecated FIELDS - all 22 are legacy-JSON-compat KEEP fields and the alias deprecation markers were markdown prose not @deprecated JSDoc tags; the dead CLI aliases (the only genuinely-dead P8 artifacts) were removed.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The @deprecated count did not drop (no dead fields existed; only dead aliases removed - documented honestly). The .koala read fallback removal is an intentional OSS backward-compat DROP (external repos still on .koala/ would need .lattice/; this repo + fleet are on .lattice/). The CHK-003 checklist context had a CJK gloss that required an INIT re-drive to normalize to English - this exposed a framework worktree-authority/INIT_CHECK-bootstrap path bug worth a follow-up story.",
+  "pitfalls": "NEVER rename any koala-*-integrity-v signature salt - they are frozen cryptographic constants; renaming bricks every signed gate artifact. The verify-koala-residue.mjs salt exemption (line 81) and the .koala runtime-path exemption (line 102) must be kept (the write-guard sentinel, the negative-assertion smoke, .koala-serve.json, and codex wrapper docs all legitimately retain .koala). Pre-existing out-of-scope drift remains in docs/requirements/decisions/lattice-parallel-wave.md:164/166 (stale .koala/dev-memory reference, file unchanged by this story).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 387987
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 81817
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 805770
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 2533586
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1959310
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 847320
+    }
+  },
+  "totalDurationMs": 6615810,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T15:00:46.102Z",
+  "updatedAt": "2026-06-18T15:00:46.102Z"
+}

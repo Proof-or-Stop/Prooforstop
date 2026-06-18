@@ -1,0 +1,53 @@
+{
+  "task": "Final OSS koala cleanup: drop the legacy .koala read-fallback, rename non-salt koala identifiers, remove 4 package.json koala URLs, fix CLAUDE.md .koala/ runtime-path doc refs to .lattice/, and GC dead deprecated dispatch aliases — while preserving every koala-* signature salt verbatim and keeping test:koala-residue green.",
+  "outcome": "After running, an operator sees: (1) `grep -rn LEGACY_KOALA_DIR packages/main/src` prints NOTHING; (2) `npm run test:koala-residue` prints `PASS koala-residue: 0 unclassified`; (3) `git diff main HEAD | grep -iE \"koala-.*-integrity|koala-.*salt|koala-capability-list|koala-discard-registry|koala-mixed-global\"` prints NOTHING (zero modified salt lines — the 25 salt literals are byte-identical to baseline); (4) `grep -n koala-agent/koala package.json packages/main/package.json` prints NOTHING; (5) `lattice` (or any consumer) reads dev-memory / audit-config / autopilot-runs only from .lattice/; (6) CLAUDE.md runtime-path refs say .lattice/activity.jsonl, .lattice/audit-config.json, .lattice/locks/main-write.lock/; (7) `lattice dispatch` is the canonical dispatch and the dead finding_dispatch/story_dispatch CLI aliases no longer appear in the command registry; (8) `npm test` (full root battery incl. test:koala-residue + deprecated-gc-smoke + dev-memory-legacy-read-smoke + flow-stability-smoke) is all-green; (9) tsc exits 0.",
+  "facts": [
+    "core/lattice-paths.ts defines LATTICE_DIR=.lattice as canonical and LEGACY_KOALA_DIR=.koala as read-fallback-only; LEGACY_KOALA_* constants (LEGACY_KOALA_ACTIVITY_LOG, etc.) feed the fallback.",
+    "LEGACY_KOALA_DIR / LEGACY_KOALA_* is consumed by 10 files besides the def: cli-engine.ts, core/activity-log.ts, core/audit-config.ts, core/dev-memory.ts, core/evidence-freshness.ts, core/planner.ts, core/rollout-check.ts, core/store.ts, handlers/doctor.ts, handlers/story-query.ts.",
+    "~/.koala/dev-memory (5 experiences) is ALREADY migrated to ~/.lattice/dev-memory (verified, ~/.koala kept as backup); ~/.koala/health.jsonl is obsolete (93% now-fixed gitRoot errors). So removing the .koala read fallback loses no data.",
+    "There are 25 koala-* signature-salt literal lines across 17 files (guard-utils.ts, finding-verify.ts, init-check-gate.ts, machine.ts x3, scope-check.ts, draft-check-hash.ts, delivery-check-hash.ts, review-run.ts x2, review-scope-binding.ts, reviewer-status.ts, process-fact-registry.ts, story-review.ts, capability-list-smoke.ts x2, worktree-repair-smoke.ts x2, plus verify-*.mjs scripts). These are FROZEN; baseline snapshot saved to /tmp/salt-baseline-B-a4e3.txt.",
+    "scripts/verify-koala-residue.mjs line 81 (/koala-[a-z-]+-integrity-v\\d+/g) is the salt exemption and MUST be kept; lines 93-108 are legacy path-literal exemptions (bin/koala.js, .lattice-codex/koala.json, etc.) and line 102 (/.koala[\\w./*-]*/gi) is the .koala runtime-path exemption — candidates to tighten as fallback paths are removed, but the gate must stay green.",
+    "package.json has 3 koala URLs (repository.url:81, bugs.url:88, homepage:90) and packages/main/package.json has 1 (repository.url:8), all github.com/koala-agent/koala; package.json:19 test:koala-residue script MUST be kept.",
+    "Both finding_dispatch (cli-engine.ts:1909) and story_dispatch (cli-engine.ts:1901) are documented as deprecated-in-B-9d95 in story-dispatch.ts JSDoc (443,459) and print deprecation warnings; in command-policy.ts finding_dispatch is status:legacy (331) but story_dispatch is mislabeled status:supported (330). The unified lattice dispatch (cli-engine.ts:1916) is the replacement. The dispatch() clusterId branch calls createClusterHandlers(ctx).finding_dispatch (a DIFFERENT cluster.ts function), NOT the deprecated CLI alias, so removing the two CLI aliases does not break dispatch().",
+    "All 7 @deprecated symbols in types.ts (phase, testIntent, TestIntent interface, traceDiff, git) and guard-session.ts (GUARD_PRELAUNCH_PROVIDERS, providerSupportsPreToolBlocking) are legacy-JSON-compat or actively-exported-and-tested → KEEP. The only removable @deprecated annotations are the JSDoc on the two alias methods being deleted.",
+    "deprecated-gc-smoke.ts asserts threshold semantics (count>10 advisory) with parameterized counts, NOT an exact real-repo count, so removing annotations keeps it green; it embodies the B-8451 advisory mechanism which must be kept.",
+    "CLAUDE.md has 5 live .koala/ runtime-path refs to fix (lines 37,71,95,99 audit-config/activity.jsonl, line 410 locks/main-write.lock) and 7 .koala-serve.json refs which match still-current code (dev-host.ts:46, serve.ts:795) and must NOT be changed."
+  ],
+  "constraints": [
+    "ABSOLUTE: never rename/modify any koala-*-integrity-v\\d+ or other signature-salt literal. Renaming invalidates every signed init-check/delivery-check/scope-check/draft-check/finding artifact in every repo. After every change, git diff must show ZERO modified salt lines (verified against /tmp/salt-baseline-B-a4e3.txt).",
+    "test:koala-residue must stay GREEN after every item (run npm run test:koala-residue). Only change its allowlist DATA, never its enforcement LOGIC.",
+    "Keep the test:koala-residue npm script (it is the enforcement gate, not a koala link).",
+    "Keep the B-8451 deprecated-gc advisory mechanism (deprecated-gc-smoke + audit-trigger count).",
+    "Do NOT touch health.jsonl rotation (out of scope).",
+    "Removing the .koala read fallback is an intentional OSS backward-compat DROP; do not re-add compat.",
+    "Normal channel + HIGH priority: main agent does not write business code; dispatch fresh lattice-implementer per item with the salt constraint in every prompt.",
+    "CLAUDE.md edit IS in scope (normal source file). No direct docs/story edits; no remote push; DONE merges to local main only."
+  ],
+  "unknowns": [
+    "Whether command-policy.ts story_dispatch status:supported (vs the JSDoc/CLAUDE.md deprecated framing) is an intentional keep or a stale mislabel — to be resolved as an OpenQuestion if the scope-plan reviewer flags it; planned resolution: treat both CLI aliases as removable since both are documented deprecated and superseded by lattice dispatch, and fix the command-policy mislabel by deletion alongside the alias."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/lattice-paths.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/activity-log.ts",
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/planner.ts",
+    "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+    "packages/main/src/tasks/deprecated-gc-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-koala-residue.mjs",
+    "package.json",
+    "packages/main/package.json",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-06-18T13:24:01.035Z"
+}

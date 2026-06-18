@@ -28,6 +28,7 @@ import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { loadExperienceHints, formatExperienceHintsSection, hasExperienceHints, experienceHintIds } from '../core/experience-hint-loader.js';
 import { appendActivityLog, readActivityLogTail } from '../core/activity-log.js';
+import { resolveHintMode } from '../core/hint-mode.js';
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -548,9 +549,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // The `_reviewPrompt` section still renders on every call — only the EVENT is
       // deduped — so a NEW round (or a different story) yields a new event.
       const hintRoundKey = story.currentReviewRound || `plan:${story.phase}`;
+      // B-06b3 CHK-002: deterministic A/B arm for the advisory experience-hint
+      // SHADOW gate. The arm only governs whether the advisory section is
+      // RENDERED into `_reviewPrompt` (see `renderedHintsSection` below) — hints
+      // are ALWAYS computed and the experience_hint_surfaced event ALWAYS fires
+      // (with this hintMode) on BOTH arms, so measurement is lossless. The arm
+      // must NEVER enter the issues/blocker computation or resolveReviewPromptHash.
+      const hintMode = resolveHintMode(args.storyId);
       let experienceHintsSection = '';
       try {
         const experienceHints = loadExperienceHints(ctx.root);
+        // ALWAYS compute the section (independent of arm); the OFF arm hides it
+        // from the prompt via the render-gate below, but the event still records
+        // the full would-have-surfaced set.
         experienceHintsSection = formatExperienceHintsSection(experienceHints);
         if (hasExperienceHints(experienceHints)) {
           // Skip the append if an experience_hint_surfaced event already exists for
@@ -562,11 +573,14 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           );
           if (!alreadySurfaced) {
             // USAGE TRACKING: exactly one event per (storyId, review round).
+            // Fires on BOTH arms; the hintMode field records which arm surfaced
+            // (ON) or shadow-suppressed (OFF) the section.
             appendActivityLog(ctx.root, {
               timestamp: new Date().toISOString(),
               event: 'experience_hint_surfaced',
               storyId: args.storyId,
               reviewRound: hintRoundKey,
+              hintMode,
               hintIds: experienceHintIds(experienceHints),
             });
           }
@@ -576,6 +590,11 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         console.warn(`[experience-hints] surface failed for ${args.storyId}:`, (e as Error).message);
         experienceHintsSection = '';
       }
+      // RENDER-GATE: the value the `_reviewPrompt` IIFE uses. ON arm renders the
+      // computed section; OFF arm uses '' so the OFF-arm prompt is byte-identical
+      // to the no-hints case. `experienceHintsSection` (used for the event above)
+      // is deliberately left untouched so measurement is unaffected by the arm.
+      const renderedHintsSection = hintMode === 'on' ? experienceHintsSection : '';
 
       return {
         storyId: args.storyId,
@@ -639,11 +658,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             ? `\n---\nTruth Source (${truthDocs.length} docs):\n${truthDocs.join('\n---\n')}`
             : '';
           // When there are no truth docs + no understanding + no decision + no
-          // grill + no experience hints, still return undefined (prompt absent).
-          // experienceHintsSection alone keeps the advisory prompt present so the
-          // hints are surfaced even in a bare PLAN. It is '' when no hints exist,
-          // so the prompt is byte-unchanged from the prior behavior in that case.
-          if (truthDocs.length === 0 && !understanding && !decision && !grill && experienceHintsSection === '') return undefined;
+          // grill + no rendered experience hints, still return undefined (prompt absent).
+          // renderedHintsSection alone keeps the advisory prompt present so the
+          // hints are surfaced even in a bare PLAN. It is '' when no hints exist OR
+          // when the A/B arm is OFF (B-06b3), so in both of those cases the prompt is
+          // byte-unchanged from the prior no-hints behavior.
+          if (truthDocs.length === 0 && !understanding && !decision && !grill && renderedHintsSection === '') return undefined;
           return `Please review the PLAN-phase artifacts of the following story. Focus on:\n` +
             `  1. Whether understanding is genuine (whether unknowns contradict facts, whether touchpoints are real)\n` +
             `  2. Whether the decision choice is reasonable (why other options were not chosen, whether rationale echoes drivers)\n` +
@@ -653,9 +673,11 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             (story.riskSignals && story.riskSignals.length > 0
               ? ` (riskSignals: ${story.riskSignals.map((r: any) => r.category).join(', ')})`
               : '') +
-            // experienceHintsSection mirrors grillSection (advisory channel),
-            // placed right after it. ADVISORY-ONLY: never fed to resolveReviewPromptHash.
-            understandingSection + decisionSection + grillSection + experienceHintsSection + checklistSection + truthSection;
+            // renderedHintsSection mirrors grillSection (advisory channel),
+            // placed right after it. It is the A/B render-gated value (B-06b3): the
+            // full section on the ON arm, '' on the OFF arm. ADVISORY-ONLY: never fed
+            // to resolveReviewPromptHash.
+            understandingSection + decisionSection + grillSection + renderedHintsSection + checklistSection + truthSection;
         })(),
       };
     },

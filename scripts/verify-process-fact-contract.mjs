@@ -3148,11 +3148,15 @@ function assertProcessFactCommandInventory() {
     findingClusterEntry?.level === 'L2',
     `${processFactLevelRegistryPath}: finding_cluster must stay L2 metadata maintenance, not gate evidence`,
   );
+  // B-a4e3 CHK-005: the deprecated finding_dispatch alias was removed; the unified `dispatch`
+  // is granted all-phase via the DEFAULT_PHASE_TOOLS '*' wildcard bucket, so DEV only needs to
+  // keep finding_add/finding_cluster in its own bucket here.
+  const wildcardPhaseToolEntries = extractPhaseToolEntries(configText, '*');
   assert(
     devPhaseToolEntries.has('finding_add') &&
-      devPhaseToolEntries.has('finding_dispatch') &&
-      devPhaseToolEntries.has('finding_cluster'),
-    'packages/main/src/core/config.ts: DEV phaseTools must keep finding_add/finding_dispatch/finding_cluster available together',
+      devPhaseToolEntries.has('finding_cluster') &&
+      wildcardPhaseToolEntries.has('dispatch'),
+    'packages/main/src/core/config.ts: DEV phaseTools must keep finding_add/finding_cluster available together with the all-phase dispatch entry',
   );
   assert(
     devPhaseToolEntries.size > 0 && !devPhaseToolEntries.has('bug_report'),

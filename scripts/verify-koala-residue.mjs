@@ -104,8 +104,6 @@ const NEUTRAL_TOKEN_PATTERNS = [
   /@koala-agent\/[\w-]+/g, // legacy npm scope
   /packages\/koala\//g,
   /docs\/koala\//g,
-  /\/work\/koala\//g,
-  /\.git\/koala/g, // done-auto-git lock dir
 
   // --- dual-accept markers (transitional regex that accept BOTH brands) ----
   /\(\?:koala\|lattice\)/g, // /(?:koala|lattice)-profile/ style markers

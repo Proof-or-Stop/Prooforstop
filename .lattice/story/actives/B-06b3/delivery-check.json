@@ -1,0 +1,60 @@
+{
+  "storyId": "B-06b3",
+  "checkedAt": "2026-06-18T15:30:18.504Z",
+  "reviewRound": "2026-06-18T15:22:38.273Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-06b3/plan.md#CHK-001",
+      "promise": "New packages/main/src/core/hint-mode.ts: exports resolveHintMode(storyId) => on|off via sha256 first-byte parity; deterministic, balanced ~50/50, empty-string tolerant, pure (node:crypto only, no fs/git/time/random)",
+      "verifiedBy": "diff + file read",
+      "evidence": "hint-mode.ts created in diff: createHash(sha256).update(String(storyId)).digest()[0] % 2 === 0 ? on : off; imports only node:crypto; exports exactly HintMode type + resolveHintMode function (2 exports confirmed in verifier check)",
+      "waiverReason": ""
+    },
+    {
+      "docPath": ".lattice/story/actives/B-06b3/plan.md#CHK-002",
+      "promise": "handlers/story-review.ts: resolveHintMode imported; hintMode computed once per call; experience_hint_surfaced event gains hintMode field and fires on BOTH arms; renderedHintsSection gates advisory section; issues/blocker computation and resolveReviewPromptHash not touched",
+      "verifiedBy": "diff + grep",
+      "evidence": "diff shows import of resolveHintMode, const hintMode = resolveHintMode(args.storyId), hintMode field in appendActivityLog, const renderedHintsSection = hintMode === on ? experienceHintsSection : empty. resolveReviewPromptHash live call only in handlers/review-run.ts (separate, unchanged). Grep confirmed 0 hintMode refs in blocker/issue logic.",
+      "waiverReason": ""
+    },
+    {
+      "docPath": ".lattice/story/actives/B-06b3/plan.md#CHK-003",
+      "promise": "New experience-layer-ab-shadow-gate-smoke.ts covering ON/OFF gating, event emission both arms, issues/blocker invariance, byte-identity, promptHash invariance. npm script test:experience-layer-ab-shadow-gate added. Committed verifier verify-b-06b3.mjs: build + smoke + no-regression smokes + full npm test + static checks.",
+      "verifiedBy": "diff + file read",
+      "evidence": "Smoke file created (465 lines, 42 assert calls, 14 named check blocks). npm script at package.json line 30. verify-b-06b3.mjs committed in evidence/ with build + ab-shadow-gate smoke + 7 no-regression smokes + npm test + static purity/invariance checks.",
+      "waiverReason": ""
+    },
+    {
+      "docPath": ".lattice/story/actives/B-06b3/plan.md#CHK-002-invariant",
+      "promise": "hint-injection smoke updated: storyIds asserting advisory section IS present now use onArmId() to land on ON arm",
+      "verifiedBy": "diff",
+      "evidence": "experience-layer-hint-injection-smoke.ts diff: onArmId() helper added and applied to B-hint1-, B-hint-place-, B-hint-inj- storyId assignments",
+      "waiverReason": ""
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "experience-layer-ab-shadow-gate-smoke.ts covers: valid HintMode literal returned; deterministic across 100 calls; balance 35-65% over 1000 ids; empty string tolerated; 10000-char id no hang; unicode deterministic; near-collision ids both valid; non-string coercion safe and deterministic.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke covers: ON-arm _reviewPrompt contains advisory section label and hint id; OFF-arm does not contain section or hint id; both arms emit experience_hint_surfaced with correct hintMode and full hintIds; issues/blocker identical between arms; no-hints both arms byte-identical; OFF-arm with hints byte-identical to zero-hints baseline; round dedup preserved; resolveReviewPromptHash byte-identical regardless of hints or arm.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "verify-b-06b3.mjs (committed verifier) runs: build clean, ab-shadow-gate smoke (14 checks), 7 no-regression smokes, full npm test including process-fact-contract, static checks for hint-mode.ts purity and story-review.ts invariants. Primary test artifact: 14 check blocks, 42 assertions.",
+      "waiverReason": ""
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docs promises independently verified from diff and source reads. Core implementation matches the plan exactly: resolveHintMode via sha256 parity, renderedHintsSection render-gate, hintMode in event, no hints in promptHash or blocker logic. Smoke test has 14 check blocks covering happy/edge/adversarial paths. No TODO/FIXME/HACK in changed source files. hint-injection smoke correctly updated for ON-arm ids."
+  },
+  "_hash": "0b1770076597adcaf4806bfa5fa9aef9d9146a3f7574dec6407aa4c39c251fb6"
+}

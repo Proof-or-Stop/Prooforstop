@@ -1,0 +1,170 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:happy:3": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:edge:2": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:edge:3": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:adversarial:2": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-001:adversarial:3": {
+  "pass": true,
+  "note": "hint-mode.ts pure (imports only node:; no fs/git/time/random/env; exactly 2 exports); smoke asserts determinism (same id=>same arm x100), balance (35-65% over 1000 ids), empty/long/unicode/near-collision edges"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:happy:2": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:happy:3": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:happy:4": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:edge:2": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:edge:3": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:adversarial:2": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:adversarial:3": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-002:adversarial:4": {
+  "pass": true,
+  "note": "story-review.ts: hintMode=resolveHintMode(storyId); renderedHintsSection gates the IIFE (ON shows / OFF hides); event fires on BOTH arms with hintMode + full hint set; issues/blocker block has NO arm/section refs; no resolveReviewPromptHash call; review-run.ts untouched. Smoke asserts ON-shows/OFF-hides, both-emit-event, issues identical, OFF==zero-hints baseline, promptHash byte-identical"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:happy:3": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:happy:4": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:happy:5": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:happy:6": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:edge:2": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:edge:3": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:adversarial:2": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:adversarial:3": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ },
+ "CHK-003:adversarial:4": {
+  "pass": true,
+  "note": "ab-shadow-gate smoke + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/hint-injection) + FULL npm test (incl. process-fact-contract) + static purity/gating/untouched checks; npm script wired"
+ }
+}

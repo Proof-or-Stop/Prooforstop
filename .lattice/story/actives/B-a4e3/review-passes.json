@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-a4e3:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 15 must-intents across 5 checklist items. Independent checks confirmed: (1) dev-memory-legacy-read-smoke.ts is a genuine negative assertion seeding .koala entries and asserting they are NOT in the read result (lines 137-150, 165-184); (2) CHK-005 evidence honestly documents that @deprecated count stays at 22 because deprecated markers were markdown prose not JSDoc tags, and all 22 are legacy-JSON-compat KEEP fields — evidence is accurate; (3) salt-grep on git diff main HEAD -- packages/main/src scripts returned empty (zero salt literals modified); (4) npm run test:koala-residue PASS 0 unclassified confirmed. Full test battery via lattice validate passes (status=pass, allPass=true, 15/15 coverage). No blocker found.",
+      "createdAt": "2026-06-18T14:05:52.194Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-003",
+      "_hash": "515fb425f5e8c7f16b856176709a4a127e8b2c3999a2eb8244487095148a212f"
+    },
+    {
+      "id": "B-a4e3:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness verified. HARD CONSTRAINT (salt preservation): git diff main HEAD -- packages/main/src scripts | grep -iE koala-*-integrity-v|koala-review-|... produced zero output — no signature salts were renamed. Check 1 LEGACY_KOALA_DIR: zero residue in packages/main/src (grep empty). Check 2 CLI registry aliases: name: story_dispatch and name: finding_dispatch fully removed from cli-engine.ts and command-policy.ts; remaining cluster.ts finding_dispatch is the internal handler object method (different symbol, intentional). Check 3 .koala read-fallback: all consumer functions deleted (getLegacyKoalaActivityLogPath, resolveLegacyProjectMemoryPath, resolveLegacyGlobalMemoryPath, legacyPlannerStateDir, LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, LEGACY_KOALA_REPAIR_IGNORE); FORBIDDEN_WRITE_DIR sentinel and dev-memory-legacy-read-smoke negative assertions are intentional and documented. Check 4 test:koala-residue: PASS koala-residue: 0 unclassified. Closing self-check: CLAUDE.md changes are pure .koala->/.lattice path substitutions, no new commands promised. No doc-promise-undelivered found. Zero findings.",
+      "createdAt": "2026-06-18T14:05:53.694Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-001",
+      "_hash": "d49119c9d5f99ed0a7add987ad453d0df4c4c8544aa6f42a37fee5fe9ec56f6d"
+    },
+    {
+      "id": "B-a4e3:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Salt check clean (empty grep). All 10 .koala read fallback removals are complete with no orphaned imports or dead code: LEGACY_KOALA_DIR, LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, LEGACY_KOALA_REPAIR_IGNORE, getLegacyKoalaActivityLogPath, resolveLegacyProjectMemoryPath, resolveLegacyGlobalMemoryPath, legacyPlannerStateDir, story_dispatch/finding_dispatch CLI aliases, and autopilot-run fallback all fully removed with corresponding consumer import removals. FORBIDDEN_WRITE_DIR rename in lattice-paths.ts is clean: private const, correct string value, write guard functions intact and coherent. verify-koala-residue.mjs: only allowlist DATA changed (2 dead exemptions removed), scan/classify logic untouched. Smoke test correctly converted to negative test asserting legacy paths are NOT read. No type safety issues, no I/O isolation violations, no dead code left behind.",
+      "createdAt": "2026-06-18T14:06:42.247Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-002",
+      "_hash": "33f3d8cf2f812b235614a7392bb08b86fbb7034be5feb96147115b4b2d65d2ec"
+    },
+    {
+      "id": "B-a4e3:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "All 5 checklist items verified: (1) salt diff grep empty — zero modified salt literals; (2) 24 salt literals present verbatim; (3) salt exemption at verify-koala-residue.mjs:81 intact; (4) all .koala read fallbacks removed from dev-memory.ts, audit-config.ts, planner.ts, rollout-check.ts, activity-log.ts, cli-engine.ts, store.ts, stale-detector.ts, evidence-freshness.ts, doctor.ts, story-query.ts; (5) FORBIDDEN_WRITE_DIR write guard survives in lattice-paths.ts via assertNoLegacyKoalaWritePath; (6) dispatch() clusterId branch calls cluster.ts:49 finding_dispatch, not the removed CLI alias; (7) test:koala-residue PASS 0 unclassified; (8) flow-stability-smoke and process-fact-contract updated and passing; (9) CLAUDE.md 5 runtime-path references updated to .lattice/, .koala-serve.json untouched; (10) package.json 4 koala URLs removed, valid JSON, test:koala-residue script preserved. No blocking issues found.",
+      "createdAt": "2026-06-18T14:09:10.903Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-004",
+      "_hash": "75f863f0dbd4f3ff1e0ecd14669e005b78a9b9c74971fe455010aa0725b07e3e"
+    },
+    {
+      "id": "B-a4e3:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-deletion completeness confirmed at HEAD d64f90b. (1) LEGACY_KOALA_DIR: zero residue in packages/main/src. (2) deprecated dispatch alias registrations (name: story_dispatch / name: finding_dispatch): zero residue in packages/main/src. (3) npm run test:koala-residue: PASS 0 unclassified. (4) Salt constraint grep (koala-*-integrity-v / koala-review- / koala-scope-check / etc.): empty — no integrity salts renamed. The two post-round-1 commits (CLAUDE.md line 874 + config.ts JSDoc) do not touch any deleted concept symbols. No findings.",
+      "createdAt": "2026-06-18T14:13:47.354Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-007",
+      "_hash": "ea08b188374d0874534042dacf0b7eeb0a518f3489550427a64380b7caa5514a"
+    },
+    {
+      "id": "B-a4e3:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review: 26 symbols extracted (Step 1, all path constants from config.ts/lattice-paths.ts). 2 doc paragraphs compared in Step 2 (CLAUDE.md Cluster section line 874, config.ts JSDoc). F-001 confirmed fixed: CLAUDE.md line 874 now states story_dispatch/finding_dispatch alias 已于 B-a4e3 移除（不再可用）, not 仍可用. F-002 confirmed fixed: config.ts JSDoc line 12 now says <projectRoot>/.lattice/audit-config.json. Salt constraint: git diff grep for koala-*-integrity|salt returned empty — no salt altered. .koala-serve.json: 7 occurrences intact (current code filename, not a branding issue). No new doc-code drift found.",
+      "createdAt": "2026-06-18T14:14:10.880Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-006",
+      "_hash": "0427be57000816c5a7274c8b53d154cf1706f7f467d51fe7c58c1fa186ffcd93"
+    },
+    {
+      "id": "B-a4e3:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: doc-fix clean, no quality regression, salts intact. Build exits 0, residue PASS 0, salt grep empty. CLAUDE.md dispatch-alias wording corrected (removed not deprecated), config.ts JSDoc path .koala->.lattice. No dead code, type issues, or I/O isolation violations introduced.",
+      "createdAt": "2026-06-18T14:14:39.600Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-008",
+      "_hash": "44b97012fb6091cd882c852a69dc191013e51a3936d6e6ce4c5f54fe22f9c112"
+    },
+    {
+      "id": "B-a4e3:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2: 15/15 must-intents covered, evidence honest, salts intact. All 5 checklist items (CHK-001 through CHK-005) have valid happy/edge/adversarial coverage. Salt constraint grep empty (no salt literals modified). Full test battery passes including test:koala-residue, test:process-fact-contract, and all smoke tests.",
+      "createdAt": "2026-06-18T14:14:45.114Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-009",
+      "_hash": "6a8f80845a78a743ed8cee183ffb011329ec6996f56e313a1befb058b03d4b17"
+    },
+    {
+      "id": "B-a4e3:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-review: (1) Salt diff check empty — no salt literal modified in diff. (2) Salt count 25 (within 24-25 range). (3) Exemption at scripts/verify-koala-residue.mjs line 81 present. (4) Write-guard assertNoLegacyKoalaWritePath still rejects .koala writes via FORBIDDEN_WRITE_DIR sentinel in lattice-paths.ts. (5) dispatch() clusterId branch in story-dispatch.ts:524-537 correctly delegates to clusterHandlers.finding_dispatch. (6) npm run test:koala-residue PASS 0 unclassified. All 5 checklist userSees claims verified against actual code. One medium spec-boundary finding (F-003) registered: dev-memory.md lines 30-31 still describe legacy .koala read fallback as active — not blocking, doc correction only.",
+      "createdAt": "2026-06-18T14:19:30.973Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-010",
+      "_hash": "ead053c179cb92787fe7571a918a80ee63693edb11de1231dd5718dea667566d"
+    },
+    {
+      "id": "B-a4e3:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-review of dev-memory.md fix (commit f59ee0587). Step 1: 28 exported symbols extracted from full diff; none are referenced in docs/requirements/decisions/dev-memory.md directly (Fallback 1: pure docs change for round-3 scope). Step 2/3: Verified 1 paragraph in dev-memory.md changed by this round. All 4 required checks PASS: (1) stale read-only fallback claim gone — grep returns nothing; (2) corrected note present at line 30 — .koala read fallback removed in B-a4e3, .koala is no longer read; (3) write-guard line intact at line 31 — must not append to or mutate legacy .koala; (4) salt constraint empty — diff introduces no koala-*-integrity salt strings. No new doc drift introduced. lattice-parallel-wave.md stale reference to .koala/dev-memory is pre-existing outside B-a4e3 scope (that file has 0 diff lines in git diff main...HEAD). F-001/F-002/F-003 all resolved; no blockers.",
+      "createdAt": "2026-06-18T14:23:04.837Z",
+      "reviewRound": "2026-06-18T14:21:30.775Z",
+      "reviewRunId": "B-a4e3:RR-011",
+      "_hash": "c2f161abe65850d56390ab9660b19524c4ea3f4f271223037c7ccf519c890e86"
+    },
+    {
+      "id": "B-a4e3:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4: 15/15 must-intents covered post CJK-context normalization; salts intact; no CJK remains in checklist.json; validate all-pass; no blocker.",
+      "createdAt": "2026-06-18T14:44:10.912Z",
+      "reviewRound": "2026-06-18T14:41:54.337Z",
+      "reviewRunId": "B-a4e3:RR-012",
+      "_hash": "9aae9d5bd3aae7fea8af927f1361ef7fe10ebf95d6fca9c809910cefbe77dc1e"
+    },
+    {
+      "id": "B-a4e3:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept deletion completeness verified at HEAD b673e6b. Salt constraint grep (koala-*-integrity-v / koala-review- / koala-scope-check / koala-delivery-check / koala-draft-check / koala-finding- / koala-init-check / koala-capability / koala-discard / koala-mixed) produced empty output — no integrity salts renamed. Check 1 (LEGACY_KOALA_DIR): zero residue in packages/main/src. Check 2 (CLI alias registrations name:story_dispatch / name:finding_dispatch): zero residue in packages/main/src. Check 3 (npm run test:koala-residue): PASS 0 unclassified. Check 4 (other deleted symbols LEGACY_KOALA_STORY_DIR / LEGACY_KOALA_ACTIVITY_LOG / LEGACY_KOALA_REPAIR_IGNORE / getLegacyKoalaActivityLogPath / resolveLegacyProjectMemoryPath / resolveLegacyGlobalMemoryPath): zero residue. Remaining .koala/ string references in src are all: write-protection guards, test fixture backward-compat paths, negative smoke assertions proving .koala is NOT read, or comments explaining the removal — none are read fallback branches. memory-benchmark-real-data.ts includes .koala/story/actives in benchmark data scan roots but is unchanged by this story and is outside scope. The CHK-003 checklist-context change (CJK to English normalization) touches only story metadata — no code concept deletion involved. No findings.",
+      "createdAt": "2026-06-18T14:44:15.497Z",
+      "reviewRound": "2026-06-18T14:41:54.337Z",
+      "reviewRunId": "B-a4e3:RR-013",
+      "_hash": "717ba4f333b10de4511308f5db237d6fdbb13586b34b52fe7b5a88b474d1fc8e"
+    }
+  ]
+}
