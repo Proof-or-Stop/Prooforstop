@@ -244,6 +244,16 @@
           "headHash": "39d7a5b55ce3f3f70d64a405a02bd376416606bf",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:42.726Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "grep koala-init-check-integrity-v1 CLAUDE.md; git diff CLAUDE.md | grep salt",
+          "result": "pass",
+          "note": "Salt mention (koala-init-check-integrity-v1 signing formula) untouched; no see story/B-xxx altered; CLAUDE.md diff salt-grep empty. docs-drift preflight passes.",
+          "headHash": "498c839d41d18013990d9abad927ba8987befdca",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:43.414Z"
         }
       ]
     },
