@@ -94,7 +94,43 @@
       "context": "Make the senior tier an explicit opt-in variant that produces the senior filenames while keeping the basic bundle as the default path. No extra developer fields.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the senior opt-in emit lattice_senior_authority_trust.env and lattice_senior_staging-client.env only when explicitly requested.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/core/authority-client.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Explicit senior opt-in writes lattice_senior_authority_trust.env and lattice_senior_staging-client.env.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Leaving senior mode off keeps the basic bundle as the default output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The senior path cannot become the silent default or require extra developer fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
