@@ -1,5 +1,21 @@
 #!/usr/bin/env node
 
+/**
+ * @task B-5155
+ * @checklist CHK-002
+ * @title Map runtime-owned requirementsDir project fact to existing config/asset coverage
+ * @type chore
+ * @priority high
+ * @description
+ *   The runtime-owned agent asset path already treats `requirementsDir` as a
+ *   project fact alongside `scanRoot`, `rootDir`, and `storyDir`.
+ *   This smoke verifies local prompt registry resolution without introducing
+ *   any new authority or deployment behavior.
+ * @changes
+ *   - Add a truthful anchor so gap_analyze can see the existing
+ *     `requirementsDir` config coverage and runtime-owned asset boundary.
+ */
+
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
