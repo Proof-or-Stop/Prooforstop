@@ -1,0 +1,130 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-18T11:05:17.673Z",
+      "issueCount": 7,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Correct the story_get path citation in the audit doc + Restore the missing noHiddenContextSharing row in the authority boundary table are performed simultaneously?)"
+        },
+        {
+          "type": "verification_intent_advisory",
+          "severity": "advisory",
+          "message": "express channel allows fast path, but recommend adding at least one verificationIntent.happy for CHK-001, CHK-002 to help REVIEW/test-coverage reviewer align."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the audit doc has any adjacent summary table or appendix lines that should be updated for consistency.; Whether resolving the findings requires a separate audit command after the doc edit or can be done directly with finding_resolve."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "d6b181ef636d431209bbf88baa83b20a5eea5ebba71bd89f40c98bdbdc70237d"
+    },
+    {
+      "timestamp": "2026-06-18T11:05:35.476Z",
+      "issueCount": 7,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Correct the story_get path citation in the audit doc + Restore the missing noHiddenContextSharing row in the authority boundary table are performed simultaneously?)"
+        },
+        {
+          "type": "verification_intent_advisory",
+          "severity": "advisory",
+          "message": "express channel allows fast path, but recommend adding at least one verificationIntent.happy for CHK-001, CHK-002 to help REVIEW/test-coverage reviewer align."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the audit doc has any adjacent summary table or appendix lines that should be updated for consistency.; Whether resolving the findings requires a separate audit command after the doc edit or can be done directly with finding_resolve."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "f29f87657c9cf21c9aafb3c8442075b2f58fea37207bab0cb4ffcda6b46fcbfc"
+    },
+    {
+      "timestamp": "2026-06-18T11:08:43.817Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Correct the story_get path citation in the audit doc + Restore the missing noHiddenContextSharing row in the authority boundary table are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/handlers/story-query.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/lattice-handoff.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "b960542ddeaf38488866b7eaf6507d5dded33821749cfbc7c66173e2ef130127"
+    },
+    {
+      "timestamp": "2026-06-18T11:09:14.122Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Correct the story_get path citation in the audit doc + Restore the missing noHiddenContextSharing row in the authority boundary table are performed simultaneously?)"
+        }
+      ],
+      "_hash": "5c55a577a5f095a466cac558272e8833597a3731b39585fa6a57033913142ed7"
+    }
+  ]
+}

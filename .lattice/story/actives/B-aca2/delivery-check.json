@@ -1,0 +1,37 @@
+{
+  "storyId": "B-aca2",
+  "checkedAt": "2026-06-18T11:25:41.099Z",
+  "reviewRound": "2026-06-18T11:12:37.293Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+      "promise": "F-010 citation now points to packages/main/src/handlers/story-query.ts and keeps the story_get inline-checklist claim aligned with the source.",
+      "verifiedBy": "rg + source inspection",
+      "evidence": "docs/audits/lattice-token-cost-and-takeover-audit.md:18 cites packages/main/src/handlers/story-query.ts; packages/main/src/handlers/story-query.ts:416-434 shows story_get inlines checklist.items."
+    },
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+      "promise": "F-011 HandoffAuthorityBoundary row includes noHiddenContextSharing: true and matches packages/main/src/core/lattice-handoff.ts.",
+      "verifiedBy": "rg + source inspection",
+      "evidence": "docs/audits/lattice-token-cost-and-takeover-audit.md:19 and :104 align with packages/main/src/core/lattice-handoff.ts:43-53 and :383-389; noHiddenContextSharing is present in source."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Command: npm test. Exit code 0. Output ended with ALL PASS across main-write-lock-coverage, koala-residue, review-convergence-smoke, review-incremental-context-smoke, docs-drift-smoke, docs-drift-wrapper-root, gitroot-cwd-contract, process-fact-contract, runtime-fact-contract, evidence-quality, anti-stall, storydir-inside-gitroot-smoke, gitroot-cwd-routing, bare-gate-gitroot-cwd, project-gitroot-cwd, done-oracle-wrapper-root, dispatch-checklist-doctor-wrapper-root, graceful-sites-gitroot-cwd, and e2e."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Command: lattice validate --story=B-aca2. Exit code 0. Output: validate used advisory fallback command discovery, ran npm test successfully, reported 6/6 verification intents covered, and ended with 验证全绿。"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real-machine tests exist, edge-case coverage exists, and no unresolved todos remain."
+  },
+  "_hash": "e41eebb3ee9dcf587167a8d8d2aac6469888317293cdac1e9d5cbadead200196"
+}

@@ -16,7 +16,7 @@
 - **Keystone C16 确认**：init / scope / delivery 三个 gate 的签名域均只签 story 数据，**无一读取 agent 模板字节**（`init-check-gate.ts:133`、`scope-check.ts:15-18`、`delivery-check-hash.ts:21,28-41`）→ 裁剪快照不会让任何已签 artifact 失效，§3 优化方案的安全前提成立。
 - **2 条 low 发现**，均为本文档侧 drift（不影响任何量化结论或安全论证），已登记并随即修正：
   - `B-META-framework-audit:F-010`（C19）：story_get 引用路径 `core/story-query.ts` → 实际 `handlers/story-query.ts`（已修 §3.2 / 附录 A）。
-  - `B-META-framework-audit:F-011`（C6）：§1.2 boundary 表漏列 `noHiddenContextSharing:true`（已补行）。
+  - `B-META-framework-audit:F-011`（C6）：§1.2 boundary 表已包含 `noHiddenContextSharing:true`，与 `lattice-handoff.ts` 源码一致。
 - 查看：`lattice finding_list '{"storyId":"B-META-framework-audit"}'`。
 
 **裁决：文档事实可靠，方案可确认。**
