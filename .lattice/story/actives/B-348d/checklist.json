@@ -267,6 +267,16 @@
           "headHash": "e28e7d1420cb256b66b40f1b81393cdb3a86a396",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:48.468Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -cE \"not.*retr|terminal|without.*flag|default\" packages/main/src/tasks/run-all-smokes-smoke.ts",
+          "result": "pass",
+          "note": "5 hits of terminal/default/without-flag language; anti-masking negative case present",
+          "headHash": "0169e6be7542080c150491f82e7bee595abba155",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:49.132Z"
         }
       ]
     }
