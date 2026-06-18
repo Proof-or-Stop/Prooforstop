@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Audit-only provenance: signatureTag + signatureTagSource never touch the finding _hash, signFinding, or any gate.",
+    "Reuse the existing registry primitives (resolveTag) rather than new storage.",
+    "Honest fallback: the mechanical candidate is a non-empty fallback, not a claim of human-quality signatures.",
+    "Pure derivation: the candidate function is deterministic and I/O-free.",
+    "Byte-identical confirmed path: a reviewer-supplied tag behaves exactly as today, only gaining source=confirmed."
+  ],
+  "drivers": [
+    "Must not perturb the finding _hash or the REVIEW->TEST findings gate (finding.ts is gate-critical).",
+    "Must give the ③.5 backfill a provenance flag to distinguish/upgrade auto vs confirmed.",
+    "Must populate a tag for every finding so learning_scan signals are never empty by omission."
+  ],
+  "options": [
+    {
+      "name": "Auto-candidate fallback at finding_add + source flag (chosen)",
+      "pros": [
+        "Smallest change to a gate-critical handler; mirrors the existing signatureTag exclusion.",
+        "Pure leaf for the derivation keeps it testable and deterministic.",
+        "Provenance flag is exactly what the ③.5 backfill and future weighting need."
+      ],
+      "cons": [
+        "Mechanical candidates are degraded (acceptable: they are an explicit fallback; quality comes from confirmed tags)."
+      ]
+    },
+    {
+      "name": "Require reviewers to always supply a signatureTag",
+      "pros": [
+        "All tags would be confirmed-quality."
+      ],
+      "cons": [
+        "Adds reviewer burden + a new blocking requirement; inconsistent across reviewers.",
+        "Findings filed by non-reviewer paths would have no tag."
+      ]
+    },
+    {
+      "name": "Derive signatures only later in learning_scan (not at finding_add)",
+      "pros": [
+        "finding.ts untouched."
+      ],
+      "cons": [
+        "No provenance captured at source; cannot distinguish confirmed vs auto.",
+        "The backfill would have nothing to upgrade; loses the forward confirmed-tag path."
+      ]
+    }
+  ],
+  "chosen": "Auto-candidate fallback at finding_add + source flag (chosen)",
+  "rationale": "Capturing the candidate + provenance at finding_add is the only place that distinguishes a reviewer-confirmed tag from a machine fallback, which is exactly what the ③.5 backfill and any future weighting require; the change to the gate-critical handler is minimal and mirrors the existing audit-only signatureTag exclusion, and the derivation lives in a pure testable leaf. The alternatives either add reviewer burden or lose provenance.",
+  "preMortem": [
+    {
+      "scenario": "The new fields change the finding _hash and break the findings gate.",
+      "trigger": "signatureTagSource (or a re-ordered signatureTag) gets included in the object signFinding hashes.",
+      "consequence": "Every finding's signature changes; the REVIEW->TEST findings gate and any signature-bound evidence break.",
+      "mitigation": "Exclude both fields from signFinding exactly as signatureTag is excluded today; the smoke + verifier assert the finding _hash is byte-identical with vs without the new fields (the single most important check)."
+    },
+    {
+      "scenario": "The auto-candidate is mistaken for a high-quality signature.",
+      "trigger": "Downstream code treats source=auto tags as equal to confirmed, inflating apparent signal quality.",
+      "consequence": "Effectiveness metrics / the backfill over-credit degraded machine signatures (the Baseline-A trap).",
+      "mitigation": "signatureTagSource explicitly marks provenance; this story does NOT weight them (deferred) but records the flag so ③.4/③.5 can treat confirmed > auto and the backfill can upgrade auto->confirmed."
+    },
+    {
+      "scenario": "The confirmed path regresses.",
+      "trigger": "Refactoring the signatureTag handling changes behavior when a reviewer DOES supply a tag.",
+      "consequence": "Existing reviewer-tagged findings behave differently; hint/registry hints break.",
+      "mitigation": "Keep the supplied-tag branch byte-identical except for adding source=confirmed; the smoke asserts a supplied tag is stored unchanged with source=confirmed."
+    },
+    {
+      "scenario": "The candidate derivation does I/O or is non-deterministic.",
+      "trigger": "deriveSignatureCandidate reads the registry file or uses time/randomness.",
+      "consequence": "finding_add gains hidden I/O / non-determinism; tests flake.",
+      "mitigation": "The leaf imports only node:/types and is a pure function of (category, files, desc); any registry alias folding happens in the handler via resolveTag, not the leaf; the smoke asserts determinism."
+    }
+  ],
+  "timestamp": "2026-06-18T13:17:20.869Z"
+}

@@ -1,0 +1,155 @@
+{
+  "findings": [
+    {
+      "id": "B-5d48:F-001",
+      "desc": "REVIEWER-SMOKE: behavior review live test — no-tag path (auto candidate)",
+      "severity": "low",
+      "category": "edge",
+      "status": "dismissed",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "This is a live-fire smoke test filed by lattice-review-behavior to confirm the auto-candidate path works correctly. Not a real finding."
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T13:38:55.031Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-004",
+      "_hash": "6ebc261fd3818267d9ca7e923dc3e49e1be5e14e69817a4ef830401ff3a0f6cb",
+      "signatureTag": "edge|unknown|reviewer-smoke-behavior",
+      "signatureTagSource": "auto",
+      "dismissReason": "Test artifact: the behavior reviewer created this REVIEWER-SMOKE finding by live-firing finding_add on B-5d48 itself to exercise the auto/confirmed path; it is not a real defect (should have used a scratch story). Dismissing as not-a-finding.",
+      "dismissedAt": "2026-06-18T13:43:45.900Z"
+    },
+    {
+      "id": "B-5d48:F-002",
+      "desc": "concept-cleanup: stale comment residue in finding.ts line 283: B-4f46 comment says omitted signatureTag => unchanged legacy behavior but B-5d48 changed this to auto-candidate; the B-5d48 comment at lines 285-289 correctly describes the new behavior but the old B-4f46 comment line above it now contradicts it and misleads future readers",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-18T13:39:04.156Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-001",
+      "_hash": "34182b105d3ff12faef1af962da1e8162c2fe9b586384bf2dbbf2f5f4688a35c",
+      "files": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated stale B-4f46 comment at finding.ts:283 (commit 99eb3335a)",
+      "resolvedAt": "2026-06-18T13:50:34.731Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5d48:F-003",
+      "desc": "REVIEWER-SMOKE: behavior review live test — confirmed-tag path",
+      "severity": "low",
+      "category": "edge",
+      "status": "dismissed",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Live-fire smoke to confirm the confirmed path. Not a real finding — disproven immediately."
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T13:39:11.468Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-004",
+      "_hash": "60679a177db453407d50b40d8075acd3f9a31802abbd7fb0480d7854c31705f9",
+      "signatureTag": "review-smoke|confirmed-path-test",
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Test artifact: the behavior reviewer created this REVIEWER-SMOKE finding by live-firing finding_add on B-5d48 itself to exercise the auto/confirmed path; it is not a real defect (should have used a scratch story). Dismissing as not-a-finding.",
+      "dismissedAt": "2026-06-18T13:43:46.366Z"
+    },
+    {
+      "id": "B-5d48:F-004",
+      "desc": "REVIEWER-SMOKE: whitespace-only signatureTag boundary test",
+      "severity": "low",
+      "category": "edge",
+      "status": "dismissed",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Live-fire boundary test for whitespace-only tag. Not a real finding."
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T13:39:24.227Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-004",
+      "_hash": "14f128b33a7e9e132c280e45d290d5110f2af99d543c2f30c5b49752e4c733e7",
+      "signatureTag": "edge|unknown|reviewer-smoke-whitespace",
+      "signatureTagSource": "auto",
+      "dismissReason": "Test artifact: the behavior reviewer created this REVIEWER-SMOKE finding by live-firing finding_add on B-5d48 itself to exercise the auto/confirmed path; it is not a real defect (should have used a scratch story). Dismissing as not-a-finding.",
+      "dismissedAt": "2026-06-18T13:43:46.793Z"
+    },
+    {
+      "id": "B-5d48:F-005",
+      "desc": "types.ts:592 duplicates the inline literal 'auto' | 'confirmed' for Finding.signatureTagSource instead of referencing the canonical SignatureTagSource type exported from core/experience-layer-types.ts; if the type grows a third value both copies must be updated separately",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T13:40:10.891Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-002",
+      "_hash": "590e2d87c49e37411a69ccf6c0049e517245873c9fa99ba2cfb4452f85b10465",
+      "files": [
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/experience-layer-types.ts"
+      ],
+      "signatureTag": "missing|ts|types-duplicates-inline",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Imported canonical SignatureTagSource type, single source of truth (commit 99eb3335a)",
+      "resolvedAt": "2026-06-18T13:50:35.474Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5d48:F-006",
+      "desc": "CHK-003:adversarial:2 — intent requires verifier catches a deliberately broken build (signatureTagSource added to signFinding args) and reports FAIL > 0; bound evidence is npm --prefix packages/main run test:experience-layer-signature-capture which only exercises the positive path (15/15 pass). Neither the smoke test nor verify-b-5d48.mjs contains any broken-build injection logic. The verifier has no negative/mutation test confirming it would detect the critical regression it is supposed to catch.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T13:41:02.965Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-003",
+      "_hash": "811957b9bc42e683050dc20eafb4c638798622d04efe747da687c0377dd72cc6",
+      "files": [
+        ".lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+        "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|adversarial-intent-requires",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verifier negative self-test exclusionCheckHasTeeth=true bound to CHK-003:adversarial:2 (commit f0936cbb2)",
+      "resolvedAt": "2026-06-18T13:50:36.138Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5d48:F-007",
+      "desc": "CHK-003:adversarial:2 evidence command mismatch: the intent requires the verifier to detect a deliberately-broken signFinding call and report FAIL>0 (negative self-test / exclusionCheckHasTeeth). The actual negative self-test (detectSignCallExcludesTag on a synthetic BAD_SIGN_SNIPPET) lives exclusively in verify-b-5d48.mjs, yet the bound evidence record uses command=npm --prefix packages/main run test:experience-layer-signature-capture (the smoke) and a note that describes only generic 15/15 smoke checks — no mention of negSelfTestRejectsBad or exclusionCheckHasTeeth. The smoke test does not contain any negative-path assertion. The evidence command must point to the command that actually executes the negative test (the verifier), and the note must concretely describe the BAD_SIGN_SNIPPET rejection result.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T13:53:38.894Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-007",
+      "_hash": "d48098bb1a3f1d9ce4739d5f439e38c6532cb7bd65e0167676556f5b2c644ba4",
+      "files": [
+        ".lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+        "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|adversarial-evidence-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-bound CHK-003:adversarial:2 evidence to the verifier (node .lattice/.../verify-b-5d48.mjs) with a note citing negSelfTestRejectsBad/negSelfTestAcceptsGood/exclusionCheckHasTeeth — the literal command where the negative self-test runs. The test itself (added for F-006) was already correct; only the evidence pointer was wrong.",
+      "resolvedAt": "2026-06-18T13:55:29.110Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

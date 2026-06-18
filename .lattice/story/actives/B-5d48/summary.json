@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5d48",
+  "changes": "finding_add now populates a signatureTag even when the reviewer omits one — deriving a deterministic canonical candidate (pure core/signature-candidate.ts deriveSignatureCandidate from category/files/desc, folded through the existing registry resolveTag) — and records provenance via a new signatureTagSource ('auto' | 'confirmed') field on the Finding. Both fields are audit-only: excluded from the finding _hash / signFinding and from every gate (the critical invariant). The mechanical auto-candidate is an explicit FALLBACK; real signal quality comes from confirmed tags (LLM reviewers forward, the ③.5 backfill historically). Fixes the Baseline-A signature-degradation bottleneck for forward findings.",
+  "usage": "No new command. When any finding is filed via finding_add, it now carries signatureTag + signatureTagSource: confirmed (reviewer/LLM supplied a tag) or auto (machine fallback). learning_scan then derives signals keyed on these tags; the ③.5 backfill will upgrade historical auto tags.",
+  "expectedOutcome": "Every new finding's persisted record includes a non-empty signatureTag and a signatureTagSource flag, while the finding _hash/signature is unchanged.",
+  "actualTranscript": "Smoke (15/15) confirms: no-tag => signatureTagSource='auto' + non-empty candidate; supplied tag => 'confirmed' + tag unchanged; blank/whitespace => treated as omitted (auto); and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. Verifier 36/36 incl. a negative self-test (exclusionCheckHasTeeth=true) proving it would catch a signFinding _hash regression. Full npm test green incl. process-fact-contract.",
+  "outcomeDiff": "Matches expected: provenance captured, _hash invariant preserved.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The mechanical auto-candidate is degraded (same family as Baseline A) — it is a FALLBACK, not human-quality; real quality flows from confirmed tags. This story does NOT weight confirmed vs auto in finding-signals derivation (deferred), does NOT backfill historical findings (③.5), and adds no A/B (③.3) or effectiveness metric (③.4).",
+  "pitfalls": "The single most important invariant: signatureTag + signatureTagSource MUST stay out of the finding _hash / signFinding (finding.ts is gate-critical) — attached AFTER _hash, never hashed. The auto candidate now flows into finding-signals localSignature for untagged findings (intended forward behavior, more specific than the old empty signature). Round 1 surfaced 3 countable review findings (resolved) → the degraded 3x1 review escalation was recorded per solo-operator policy; reviewer live-fire pollution findings were dismissed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 185537
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19790
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 292040
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1260220
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 976050
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 354673
+    }
+  },
+  "totalDurationMs": 3088322,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T14:04:08.947Z",
+  "updatedAt": "2026-06-18T14:04:08.947Z"
+}
