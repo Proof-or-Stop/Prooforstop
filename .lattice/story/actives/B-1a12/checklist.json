@@ -144,6 +144,17 @@
           "headHash": "287008af8e6fc35a4a1c3199b2f0ca6f885bbce1",
           "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
           "timestamp": "2026-06-18T19:30:09.569Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "grep -n koala/dev-memory docs/requirements/decisions/lattice-parallel-wave.md",
+          "result": "pass",
+          "note": "grep koala/dev-memory returns no matches (exit 1) — no remaining live runtime-path koala reference.",
+          "headHash": "05490ed7eede3e81d52be5f44aa99fb12f856c80",
+          "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
+          "timestamp": "2026-06-18T19:30:10.582Z"
         }
       ]
     }
