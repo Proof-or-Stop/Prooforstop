@@ -7,7 +7,35 @@
       "userSees": "Running `story_advance INIT_CHECK` for a new story from inside an existing worktree creates the new worktree at <main>/.worktrees/B-new (the regression proves no nested .worktrees/<other>/.worktrees/<new>); running from the main repo is unchanged; the new regression smoke is green in `lattice validate`.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From the main repo cwd, INIT_CHECK bootstrap creates the new worktree at <main>/.worktrees/B-new (byte-identical to pre-fix)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "From an EXISTING worktree cwd, INIT_CHECK bootstrap creates the new worktree at <main>/.worktrees/B-new and NOT nested (<main>/.worktrees/B-old/.worktrees/B-new)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The configured-gitRoot (wrapper-root) branch still resolves the MAIN root, not a worktree",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "getRepoRoot non-bootstrap caller (resolveWorktreePath) is unchanged; the regression is RED against the pre-fix --show-toplevel resolver and GREEN after",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
