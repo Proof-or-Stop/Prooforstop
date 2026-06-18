@@ -1,0 +1,30 @@
+{
+  "storyId": "B-5155",
+  "checkedAt": "2026-06-18T01:40:04.571Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 and CHK-002 userSees unconditionally promise gap_analyze stops listing the row, but each context permits a legitimate \"stop and record a real finding\" branch in which the gap correctly persists. Make the success criterion cover both terminal states (gap mapped/removed OR a real finding recorded) so the item stays verifiable whichever branch occurs and the checklist cannot be forced green by annotating over a real gap."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-18T01:39:17.210Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-18T01:40:04.571Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 and CHK-002 userSees unconditionally promise gap_analyze stops listing the row, but each context permits a legitimate \"stop and record a real finding\" branch in which the gap correctly persists. Make the success criterion cover both terminal states (gap mapped/removed OR a real finding recorded) so the item stays verifiable whichever branch occurs and the checklist cannot be forced green by annotating over a real gap."
+        }
+      ]
+    }
+  ],
+  "_hash": "87c67789c41c61e31d0b9a59841a709bdb2987a602fb8e05848d4058caa23660"
+}

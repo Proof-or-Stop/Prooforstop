@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5155",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice finding_*",
+    "lattice gap_analyze",
+    "lattice plan_*",
+    "lattice review_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice understanding_*",
+    "lattice validate*",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test*",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+    "packages/main/src/core/scope-anti-expansion.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Use Lattice lifecycle and only touch narrow code/test annotation anchors needed to clear real gap_analyze coverage mapping.",
+  "createdAt": "2026-06-18T01:32:11.626Z",
+  "updatedAt": "2026-06-18T01:32:11.626Z",
+  "_hash": "c889ea8600bebe6b4e365cd6092673b4c93daa5fca2a9ba35e472af6b9a45882"
+}
