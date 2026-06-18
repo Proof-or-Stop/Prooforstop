@@ -5,7 +5,7 @@
       "desc": "CHK-002:adversarial:3 evidence note mismatch: intent is revalidateSignals called with duplicate file paths in anchorFiles -> partition correct; evidence command test:experience-layer-revalidation note describes derivation-side dedup (sorted/deduped/capped union), not the leaf receiving an already-duplicated anchorFiles. No smoke check exercises revalidateSignals({anchorFiles:[a,a]}, ...). In practice this cannot occur (deriveFindingSignals deduplicates), but the intent is unaddressed by the bound evidence. Consider: add a check to the leaf smoke or add a waiver noting the derivation-side dedup guarantee makes this impossible.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T00:46:00.078Z",
@@ -15,7 +15,11 @@
       "files": [
         "packages/main/src/tasks/experience-layer-revalidation-smoke.ts",
         "packages/main/src/core/experience-revalidation.ts"
-      ]
+      ],
+      "resolvedReason": "Added a hermetic leaf-smoke assertion (commit d349db8bf) exercising revalidateSignals with duplicated anchorFiles (both present-dup and all-gone-dup cases); CHK-002:adversarial:3 is now bound to an executable check. Smoke TOTAL 13 | PASS 13 | FAIL 0; verifier 44/44 FAIL 0.",
+      "resolvedAt": "2026-06-18T00:49:41.309Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
