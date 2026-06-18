@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T19:37:31.793Z",
       "reviewRunId": "B-1a12:RR-001",
       "_hash": "0231c6b065e0f637a32e4bda40b7db468d4bb744889f9b645461c73a8c69c75b"
+    },
+    {
+      "id": "B-1a12:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 7 must intents across 2 items, all covered by valid evidence with no gaps. CHK-001 happy:0 covered by integration_test (scripts/verify-nested-worktree-bootstrap.mjs, smoke run confirms exit 0, exercises from-main -> <main>/.worktrees/B-new byte-identical assert). CHK-001 edge:0 covered by integration_test (same smoke, from-worktree-root bootstrap asserts non-nested landing; RED-on-old confirmed in evidence note). CHK-001 edge:1 covered by logic_test (git diff confirms resolveStorySignedWorkspace branch unchanged, already yields main root via signed-workspace metadata). CHK-001 adversarial:0 covered by logic_test (grep confirms getRepoRoot at :482 in resolveWorktreePath unchanged; RED-GREEN proof cited in note). CHK-002 happy:0 covered by docs_check (grep -n lattice/dev-memory shows lines 163-166 updated). CHK-002 edge:0 covered by docs_check (grep koala/dev-memory returns no matches). CHK-002 adversarial:0 covered by docs_check (git diff touches only two doc tokens). Smoke wired into root npm test as test:nested-worktree-bootstrap and passes. No must-intent gaps, no waivers.",
+      "createdAt": "2026-06-18T19:40:44.991Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-003",
+      "_hash": "8b93436b9897ef4c8de76667f9c09e2f09fc34c2a8c2b1935f54456dad0628c5"
     }
   ]
 }
