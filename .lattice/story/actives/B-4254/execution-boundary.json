@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4254",
+  "allowedCommands": [
+    "cat",
+    "git add",
+    "git commit",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "node",
+    "npm --prefix packages/main run build",
+    "npm run test:entrypoints",
+    "npm test",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/dist",
+    "packages/main/src/verifier/dev-cli.ts",
+    "scripts/verify-entrypoints.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Scope is limited to removing the hidden serve launcher compatibility aliases and adding regression coverage for the launcher contract.",
+  "createdAt": "2026-06-18T14:45:15.021Z",
+  "updatedAt": "2026-06-18T14:45:15.021Z",
+  "_hash": "b5e9d9016a0b63d4b94968c2bf4ae24d360545bf83076f9d8672bccbca2469f4"
+}
