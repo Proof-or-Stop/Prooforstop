@@ -1,0 +1,59 @@
+{
+  "storyId": "B-24c3",
+  "checkedAt": "2026-06-17T23:56:07.717Z",
+  "features": [
+    {
+      "feature": "Bump 7 existing smoke entries (gap-log, init-check-fallback, scope-contract, story-capsule, story-create-concurrency, story-metadata-protection, unattended-dispatch) from default 60s to 180s in smoke-manifest.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add experience-layer-digest-extract entry to smoke-manifest.json with timeoutMs=180000",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Bump lattice-baseline timeoutMs from 240000 to 360000 in smoke-manifest.json",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry naming B-24c3 and listing the 9 timeoutMs bumps",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "3 consecutive npm run test:all parallel runs exit 0 (162/162 PASS, no flake from the 9 target smokes)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "review-pass-discard parallel-only FAIL: explicitly excluded from this story scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 context: OUT OF SCOPE — file finding_add as a separate concern",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "28a04f7b1d19109990ccf57ca75e581a3cbb244844ff9cbd9646752ace92c935",
+  "openQuestions": []
+}

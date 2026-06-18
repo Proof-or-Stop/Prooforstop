@@ -1,0 +1,27 @@
+{
+  "task": "Bump per-smoke timeoutMs in packages/main/smoke-manifest.json for 9 parallel-only race-timeout smokes so npm run test:all parallel exits 0 consistently across consecutive runs.",
+  "outcome": "Developer runs npm run test:all from project root 3 times in a row. Each run ends with '162/162 passed in <N>s' and exit code 0. The 9 previously-timing-out smokes all PASS in the runs (no FAIL or TIMEOUT lines for them). CHANGELOG Unreleased entry documents the 9 timeoutMs bumps. review-pass-discard parallel-only FAIL (separate problem class, not a timeout) is filed as a follow-up finding, not fixed in this story.",
+  "facts": [
+    "9 smokes timeout in parallel test:all: experience-layer-digest-extract / gap-log / init-check-fallback / scope-contract / story-capsule / story-create-concurrency / story-metadata-protection / unattended-dispatch / lattice-baseline",
+    "All 9 PASS standalone in 9-129s serial wall-time",
+    "7 already present in manifest at default 60s; experience-layer-digest-extract NOT in manifest (runs at default via directory-scan); lattice-baseline at 240s",
+    "Pattern identical to B-2d6c CHK-002 and B-6745 CHK-002",
+    "review-pass-discard parallel-only FAIL is NOT a timeout — out of scope"
+  ],
+  "constraints": [
+    "No production code touched (packages/main/src/handlers, core, providers, cli-engine, cli-prompts all blocked)",
+    "No smoke logic touched (packages/main/src/tasks blocked)",
+    "No runner code touched (run-all-smokes.ts B-6efb frozen)",
+    "No assertion weakened (test logic preserved as-is)",
+    "Only smoke-manifest.json + CHANGELOG modifiable"
+  ],
+  "unknowns": [
+    "Whether the bumped values will still be enough under heavier system load (mitigated by 3x verify)",
+    "Whether review-pass-discard parallel-only FAIL is itself flaky (file finding regardless; not in scope)"
+  ],
+  "touchpoints": [
+    "packages/main/smoke-manifest.json (8 timeoutMs entries to bump; 1 entry to add: experience-layer-digest-extract)",
+    "CHANGELOG.md (Unreleased entry)"
+  ],
+  "timestamp": "2026-06-17T23:53:12.994Z"
+}

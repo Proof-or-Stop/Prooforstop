@@ -1,0 +1,72 @@
+{
+  "storyId": "B-24c3",
+  "checkedAt": "2026-06-18T00:48:34.529Z",
+  "reviewRound": "2026-06-18T00:40:43.388Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Unreleased",
+      "promise": "B-24c3 Unreleased entry names the story and describes 9 targeted timeoutMs bumps (7 existing default->180s, experience-layer-digest-extract new at 180s, lattice-baseline 240s->360s)",
+      "verifiedBy": "diff/read",
+      "evidence": "CHANGELOG.md line 16 contains B-24c3 entry; lists all 9 smokes by name with before/after values; mentions scope-acked trio and waived 3x intent explicitly"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-24c3",
+      "promise": "CHANGELOG correctly documents 3 scope-acked emergent race victims (cli-json-stdout-contract 180->300s, dispatch-run 180->300s, decision-doc-promotion default->180s) bumped during CHK-003 verify",
+      "verifiedBy": "diff/read + manifest grep",
+      "evidence": "CHANGELOG entry names all 3 scope-acked victims; manifest confirms cli-json-stdout-contract=300000, dispatch-run=300000, decision-doc-promotion=180000; git diff shows these are the only unexpected additions"
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-24c3",
+      "promise": "CHANGELOG documents 4 deferred findings (F-001..F-004: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) as out-of-scope tracked items for follow-up story",
+      "verifiedBy": "diff/read + findings.json",
+      "evidence": "CHANGELOG entry explicitly names F-001..F-004 and the follow-up story. findings.json in diff confirms all 4 findings filed with status=open. None of these 4 smokes received timeoutMs bumps in the manifest diff."
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-24c3",
+      "promise": "CHANGELOG honestly states CHK-003 3x consecutive test:all exit 0 intent was waived and explains the converging-tail rationale",
+      "verifiedBy": "diff/read",
+      "evidence": "CHANGELOG entry states CHK-003 3 consecutive test:all exit 0 intent was waived for this story; the 9 targeted bumps are verifiably stable on their own merits. Waiver rationale present. Consistent with verificationEvidence verdict=waived for CHK-003:happy:2-4."
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased/B-24c3",
+      "promise": "CHANGELOG states scope boundary: tests/config-only, 0 production change, 0 smoke logic change, no assertion weakened",
+      "verifiedBy": "diff/read + git diff --name-only",
+      "evidence": "CHANGELOG final clause confirms this. Git diff name-only shows only .lattice/story files, CHANGELOG.md, and packages/main/smoke-manifest.json changed. No src/ files touched."
+    },
+    {
+      "docPath": "packages/main/smoke-manifest.json",
+      "promise": "8 CHK-001 targets have timeoutMs=180000 (7 existing smokes plus new experience-layer-digest-extract entry)",
+      "verifiedBy": "python3 manifest parse",
+      "evidence": "All 8 confirmed at 180000 by direct manifest read. experience-layer-digest-extract entry exists as explicit manifest entry at 180000."
+    },
+    {
+      "docPath": "packages/main/smoke-manifest.json",
+      "promise": "lattice-baseline timeoutMs bumped from 240000 to 360000 (CHK-002)",
+      "verifiedBy": "python3 manifest parse",
+      "evidence": "manifest shows lattice-baseline timeoutMs=360000. diff shows removal of 240000 line for this entry."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Config-only change (smoke-manifest.json). CHK-001:happy:0 verified 7 existing targets=180000; CHK-001:happy:1 verified experience-layer-digest-extract=180000; CHK-001:edge:0 confirmed valid JSON; CHK-001:edge:1 run-all-smokes-smoke self-smoke returned 0 (9/9 PASS, dedup check). CHK-001:adversarial:0 confirmed 0 unexpected name changes beyond scoped entries."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Config-only change (smoke-manifest.json). CHK-002:happy:0 confirmed lattice-baseline=360000; CHK-002:edge:0 lattice-baseline serial run returned 0 in ~95s (within new 360s ceiling); CHK-002:adversarial:0 confirmed only timeoutMs changed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHANGELOG entry verified present (B-24c3 reference count=1; timeoutMs/parallel-race keyword count=4+). CHK-003:edge:0 confirmed 0 of the 9 named targets appeared as FAIL/TIMEOUT in any of the 3 verify runs. CHK-003:adversarial:0 confirmed only Unreleased section touched. CHK-003:happy:2-4 (3x test:all exit 0) waived: run 1 exited 0 with 166/166; runs 2-3 had intermittent failures for 4 NEW race victims outside this story scope tracked as B-24c3:F-001..F-004.",
+      "waiverReason": "3 consecutive test:all exit 0 not fully achieved due to system-level parallel race redistribution for smokes outside this story scope. The 9 targeted smokes were stable in all 3 runs per CHK-003:edge:0 verdict=success. The 4 new victims (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) are tracked as findings deferred to a follow-up parallel-test architecture redesign story."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises verified from source. 12 timeoutMs bumps confirmed in manifest (9 original CHK-001/002 targets + 3 scope-acked emergent race victims). CHANGELOG Unreleased entry honestly describes all 12 bumps, scope-acked additions, waived 3x intent, 4 deferred findings (F-001..F-004), and tests/config-only scope boundary. The 9 original targets were stable across all 3 verify runs per CHK-003:edge:0. No src/ files touched in diff. CHK-003 waiver is substantiated by edge-case evidence showing 9 targets never appeared in any failure list."
+  },
+  "_hash": "2f3ad6677da98a1e13df2496ca9f5d15117349129e1f4d4d581855f0937ac738"
+}
