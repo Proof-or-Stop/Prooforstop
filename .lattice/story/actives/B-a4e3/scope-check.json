@@ -1,0 +1,179 @@
+{
+  "storyId": "B-a4e3",
+  "checkedAt": "2026-06-18T13:30:14.876Z",
+  "features": [
+    {
+      "feature": "Remove LEGACY_KOALA_DIR + LEGACY_KOALA_* path constants from core/lattice-paths.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove the .koala read-fallback branches from the ~6 consumer files (audit-config.ts, rollout-check.ts, cli-engine.ts, dev-memory readers, etc.)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update dev-memory-legacy-read-smoke.ts: flip assertion from .koala-read-wins-lattice to .koala-is-NOT-read",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "dev-memory.md spec: .koala is a read-only fallback for migrated installations — this story removes that fallback (CHK-001 is the authorized .koala path migration successor)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dev-memory.md"
+    },
+    {
+      "feature": "Rename remaining NON-SALT koala identifiers (internal variable/comment branding) to lattice in active code",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Tighten verify-koala-residue.mjs allowlist: remove dead .koala-fallback path exemptions while KEEPING salt exemption (line 81) and historical exemptions",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Preserve all koala-*-integrity-v1 signature salts verbatim (frozen cryptographic constants)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT rename KOALA_* environment variables (KOALA_AGENT, KOALA_ROLE, KOALA_ACTIVITY_SOURCE, etc.)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal in koala-to-lattice-role-naming-execution-plan.md: Do not rename KOALA_* environment variables",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "Remove the 4 koala-agent/koala URLs in package.json (repository.url, bugs.url, homepage) and packages/main/package.json (repository.url)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep test:koala-residue script entry in package.json (not a koala branding link, it is the enforcement gate)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update CLAUDE.md .koala/ runtime-path references to .lattice/ (audit-config.json, activity.jsonl, locks/main-write.lock/)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT change .koala-serve.json filename references in CLAUDE.md (file still written by code)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove finding_dispatch deprecated CLI alias from cli-engine.ts registry + handler methods + command-policy",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove story_dispatch CLI alias from cli-engine.ts registry + handler methods + command-policy (plan treats status:supported as stale mislabel)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update flow-stability-smoke.ts to remove finding_dispatch/story_dispatch alias assertions",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove dead @deprecated alias JSDoc annotations; KEEP 7 legacy-JSON-compat @deprecated fields with rationale (testIntent, TestIntent, phase, traceDiff, git, GUARD_PRELAUNCH_PROVIDERS, providerSupportsPreToolBlocking)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT remove B-8451 advisory deprecated-gc mechanism (deprecated-gc-smoke.ts threshold + audit-trigger.ts count)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "koala-residue gate enforcement logic unchanged — only allowlist DATA arrays updated, not scan/classify functions",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "health.jsonl rotation (93% obsolete gitRoot-defect errors)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope in story description: health.jsonl rotation is a separate optional item the user has not approved",
+      "source": "description"
+    },
+    {
+      "feature": "Salt rename / signature re-mint / full migration (catastrophic, explicitly rejected by user)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope in story description: out of scope: changing the salts; a full signature re-mint/migration",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 17,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "05faa67f68fd7c041eea15806322670ef35ac7c8b4eed91f6edb357a544b1a16",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "command-policy.ts:330 marks story_dispatch as status:'supported' (not 'legacy'), yet plan.md CHK-005 and decision.json rationale treat it as a deprecated alias removable alongside finding_dispatch. The cli-engine-english-open-source-execution-plan.md manifest rows M593-M598 show B-9d95 CHK-004 merged story_dispatch/finding_dispatch into lattice dispatch, treating both as superseded. However only finding_dispatch has status:'legacy' in the policy file; story_dispatch retains status:'supported'. Plan calls this a stale mislabel and removes it directly. Is removing story_dispatch (status:supported) in this story correct — confirmed dead with no active consumers — or is this a contradiction that needs explicit acknowledgment that the supported label was never accurate post-B-9d95?",
+      "evidence": "packages/main/src/core/command-policy.ts:330 story_dispatch: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: ['DEV'], ... }. command-policy.ts:331 finding_dispatch: { status: 'legacy', ... replacement: 'Use lattice dispatch with itemId, findingId, or clusterId.' }. plan.md CHK-005: 'story_dispatch status:supported is a stale mislabel; both are deprecated and removed together'. decision.json rationale: 'story_dispatch/finding_dispatch are both confirmed deprecated by cli-engine-english-open-source-execution-plan.md (B-9d95 CHK-004 merged both into lattice dispatch); the command-policy story_dispatch status:supported is a stale mislabel deleted alongside the alias.'",
+      "sourcePointers": [
+        "packages/main/src/core/command-policy.ts#L330",
+        "packages/main/src/core/command-policy.ts#L331",
+        ".lattice/story/actives/B-a4e3/plan.md#CHK-005",
+        ".lattice/story/actives/B-a4e3/decision.json#rationale",
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#M593-M598"
+      ]
+    },
+    {
+      "id": "OQ-2",
+      "q": "decisions/koala-to-lattice-role-naming-execution-plan.md (B-ffa2) line 99 states as an explicit non-goal: 'Do not rename .koala/ runtime directories, locks, dispatches, activity logs, audit config, traces, or artifact registry entries as part of the role-ID rename. .koala path migration is a separate storage/runtime compatibility project.' CHK-001 of this story removes the .koala read FALLBACK from active source (LEGACY_KOALA_DIR + ~6 consumer files). CHK-004 updates CLAUDE.md .koala/ runtime-path doc references. Is this story the authorized successor '.koala path migration project' that B-ffa2 deferred to, or is removing the .koala read fallback in conflict with that non-goal? The story description implies it is the successor ('the runtime path is ALREADY .lattice/ for all writes; .koala/ only survives as a backward-compat READ fallback... removing the .koala read fallback is safe'), but the decisions doc does not explicitly name this story as the authorized successor.",
+      "evidence": "koala-to-lattice-role-naming-execution-plan.md lines 99-101: 'Do not rename .koala/ runtime directories, locks, dispatches, activity logs, audit config, traces, or artifact registry entries as part of the role-ID rename. .koala path migration is a separate storage/runtime compatibility project.' Story B-a4e3 description: 'The runtime path is ALREADY .lattice/ for all writes; .koala/ only survives as a backward-compat READ fallback (LEGACY_KOALA_DIR in core/lattice-paths.ts, used in ~6 files)... So removing the .koala read fallback is safe.'",
+      "sourcePointers": [
+        "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md#L99-L101",
+        ".lattice/story/actives/B-a4e3/index.json#description"
+      ]
+    }
+  ]
+}
