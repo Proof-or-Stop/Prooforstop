@@ -4,7 +4,7 @@
   "title": "Experience Layer 3.1: learning_scan — derive and persist the finding-signals cache",
   "description": "Add a learning_scan CLI that derives finding-signals through the store ports and persists them to .lattice/learning/finding-signals.json — the cache the Phase 1.5 hint loader reads. Today no command writes that cache, so advisory review hints never fire. This activates the loop. The scan is a deterministic derive+persist (it WRITES the advisory learning cache, so unlike learning_validate it is not read-only); it touches no gate, files no findings, and changes no scoring.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "experience-layer",
@@ -78,6 +78,14 @@
       "timestamp": "2026-06-18T02:22:43.142Z",
       "reviewer": "behavior",
       "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T02:36:18.811Z",
+      "branch": "story/B-4eb6",
+      "user": "Harmonygo",
       "agent": "main"
     }
   ],
