@@ -4,9 +4,20 @@
       "id": "CHK-001",
       "title": "Add deprecatedGcThreshold to AuditConfig + resolveAuditConfig",
       "context": "In packages/main/src/core/audit-config.ts: add optional deprecatedGcThreshold: number to AuditConfig interface (default 10). Read it from .lattice/audit-config.json per-field override (same pattern as auditTriggerWindow). Add to HARD_DEFAULTS.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T00:37:04.756Z",
-      "endTime": null
+      "endTime": "2026-06-18T00:37:47.101Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Added deprecatedGcThreshold: number to AuditConfig interface, HARD_DEFAULTS (value 10), profileDefaults, and merged config; validation follows same pattern as auditTriggerWindow (positive integer check + warn + fallback). Committed 2bcef674e.",
+          "headHash": "2bcef674ea77821a8d538c26e0799bda766201b0",
+          "materialHash": "d003eb6a47db5585a42b60f2072362dd1474a497b4181d48bfa45a02ccc90146",
+          "timestamp": "2026-06-18T00:37:47.308Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
