@@ -12,6 +12,19 @@
       "reviewRound": "2026-06-18T00:40:00.984Z",
       "reviewRunId": "B-8451:RR-001",
       "_hash": "cdda12c4410b902d3ade7ec38564fe5ea41c6516d67684eade66720072aed927"
+    },
+    {
+      "id": "B-8451:F-002",
+      "desc": "quality-cleanup: audit-scan.ts:415 catch block comment is misleading — says grep -c exits 1 when no matches but that case is already handled by the || echo 0 in the shell command; the catch only fires on unexpected execSync errors, not on zero-match grep exit; comment should reflect the actual scenario",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T00:42:10.601Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-001",
+      "_hash": "9d7a0cc79e2ac068f175c10e967ca4315fe3ad73af3aafee4ee152bcc073193e"
     }
   ]
 }
