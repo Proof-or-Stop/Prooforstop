@@ -37,9 +37,9 @@
       "title": "Rename remaining NON-SALT koala identifiers to lattice + shrink the residue-gate allowlist (PRESERVE salts)",
       "context": "Find remaining 'koala' identifiers in active code that are NOT signature salts and NOT historical/decision-doc/test-intent text, and rename to lattice (e.g. internal variable/comment branding tied to the removed fallback). HARD CONSTRAINT: do NOT rename any koala-*-integrity-v1 / salt literal (guard-utils/finding-verify/init-check-gate/machine/scope-check/draft-check-hash/review-run/reviewer-status/review-scope-binding/process-fact-registry) — those are frozen signature constants; renaming bricks all signed artifacts. In scripts/verify-koala-residue.mjs, remove the allowlist exemptions for the now-removed .koala read-fallback path literals, but KEEP the salt exemptions (/koala-[a-z-]+-integrity-v\\d+/) and historical/legacy-logic exemptions. The gate must stay GREEN (no un-exempted koala remains, no dead exemptions for things that no longer exist where avoidable).",
       "userSees": "Active code no longer carries non-salt koala branding; the koala-*-integrity-v1 signature salts are untouched (all existing signed artifacts still verify); test:koala-residue is green with a tightened allowlist (salt + historical exemptions only).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T14:00:28.651Z",
       "verificationIntent": {
         "happy": [
           {
