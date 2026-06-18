@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-2941:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed 4 changed code/doc files (run-all-smokes.ts, run-all-smokes-smoke.ts, smoke-manifest.json, CHANGELOG.md, docs/dev/test-coverage.md). Dead code: none — passLabel param used for pass-2 prefix; retried flag threaded correctly through both return paths. Type safety: ManifestEntry.noRetry?, RunOptions.noRetry, and return type retried:boolean all consistent; no as-any or empty catch. I/O isolation: bridge.ts not present in this project, check N/A. Pass 1 behavior preservation: runEntrySet with passLabel=undefined produces byte-identical output to the old inline loop (prefix is empty string). Fixture test ordering: case (10) correctly depends on case (8) consuming the lockA — sequential spawnSync guarantees ordering. noRetry short-circuit path: retryEntries empty → early return with retried:false → closingLabel is empty → Final: not in output; case (9) assertion is correct. Doc counts: CHANGELOG 167 references are historical B-be91 run data not a current count claim; test-coverage.md line-41 139-smoke count is pre-existing staleness not introduced by this diff. No findings.",
+      "createdAt": "2026-06-18T13:08:27.653Z",
+      "reviewRound": "2026-06-18T13:05:32.603Z",
+      "reviewRunId": "B-2941:RR-002",
+      "_hash": "80bef2a797f3c883e4b36e36012dc36d989c9775dbcbb06b74f484d7b5ea39a5"
+    }
+  ]
+}
