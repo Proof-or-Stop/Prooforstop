@@ -87,7 +87,7 @@
       "desc": "types.ts:592 duplicates the inline literal 'auto' | 'confirmed' for Finding.signatureTagSource instead of referencing the canonical SignatureTagSource type exported from core/experience-layer-types.ts; if the type grows a third value both copies must be updated separately",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-18T13:40:10.891Z",
@@ -99,7 +99,11 @@
         "packages/main/src/core/experience-layer-types.ts"
       ],
       "signatureTag": "missing|ts|types-duplicates-inline",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Imported canonical SignatureTagSource type, single source of truth (commit 99eb3335a)",
+      "resolvedAt": "2026-06-18T13:50:35.474Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5d48:F-006",
