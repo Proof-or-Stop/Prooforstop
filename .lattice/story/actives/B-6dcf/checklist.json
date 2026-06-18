@@ -186,6 +186,17 @@
           "headHash": "ff8a702e710e891f09e8918d891c413d09aaa19c",
           "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
           "timestamp": "2026-06-18T01:54:01.335Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "node packages/main/dist/cli.js check 2>&1 | rg -n \"Paths: managed asset relPath/applied/manifestPath values are relative to assetRoot\\.|gitRoot: .*\\(same as assetRoot\\)\"",
+          "result": "pass",
+          "note": "Current worktree text output explicitly prints assetRoot-relative path guidance and marks gitRoot as same as assetRoot, covering the non-split case without misleading split-root wording.",
+          "headHash": "965f972bf99623475125183cc8c91804af1fcf7f",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:02.354Z"
         }
       ]
     },
