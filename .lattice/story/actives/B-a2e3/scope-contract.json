@@ -14,18 +14,20 @@
     "packages/main/src/core/experience-revalidation.ts",
     "packages/main/src/handlers/learning-validate.ts",
     "packages/main/src/tasks/experience-layer-revalidation-smoke.ts",
+    "packages/main/src/tasks/experience-layer-revalidation-cli-smoke.ts",
     ".lattice/story/actives/B-a2e3/evidence/verify-b-a2e3.mjs"
   ],
   "allowedTest": [
-    "packages/main/src/tasks/experience-layer-revalidation-smoke.ts"
+    "packages/main/src/tasks/experience-layer-revalidation-smoke.ts",
+    "packages/main/src/tasks/experience-layer-revalidation-cli-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [
     "packages/main/src/core/evidence-freshness.ts",
     "packages/main/src/handlers/finding.ts"
   ],
-  "scopeChangeReason": "Conservative read-only Experience Layer validity instrument (① after Baseline A): anchorFiles + pure revalidation leaf + read-only learning_validate CLI.",
+  "scopeChangeReason": "Add end-to-end CLI smoke (CHK-004) so the user-facing learning_validate path has automated regression coverage, matching the verificationIntent that references a CLI smoke.",
   "acknowledgements": [],
   "createdAt": "2026-06-17T23:47:40.627Z",
-  "updatedAt": "2026-06-17T23:47:40.627Z"
+  "updatedAt": "2026-06-18T00:35:06.828Z"
 }
