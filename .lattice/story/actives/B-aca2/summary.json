@@ -1,0 +1,56 @@
+{
+  "storyId": "B-aca2",
+  "changes": "Corrected the audit doc so F-010 points to packages/main/src/handlers/story-query.ts and F-011 explicitly matches noHiddenContextSharing:true.",
+  "usage": "Read the corrected audit doc and verify with lattice finding_list --storyId=B-META-framework-audit.",
+  "expectedOutcome": "A user sees the audit doc lines corrected and F-010/F-011 resolved in the B-META findings list.",
+  "actualTranscript": "lattice validate and npm test passed; lattice finding_list --storyId=B-META-framework-audit shows F-010 and F-011 resolved; the audit doc now points to handlers/story-query.ts and includes noHiddenContextSharing:true.",
+  "outcomeDiff": "No difference: the observed result matches the expected result.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "Plan review took multiple rounds, B-META finding metadata needed an explicit scope acknowledgement, and the first TEST attempt failed until packages/main was built.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 138387
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 28347
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 416831
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 112632
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 531150
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 304225
+    }
+  },
+  "totalDurationMs": 1531573,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T11:26:32.668Z",
+  "updatedAt": "2026-06-18T11:26:32.668Z"
+}

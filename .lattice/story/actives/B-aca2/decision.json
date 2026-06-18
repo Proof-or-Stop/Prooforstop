@@ -1,0 +1,53 @@
+{
+  "principles": [
+    "Prefer the narrowest change that makes the audit text truthful.",
+    "Keep code claims grounded in the real source file paths and fields.",
+    "Do not broaden scope into runtime behavior or policy redesign."
+  ],
+  "drivers": [
+    "Two verified open findings need to be closed cleanly.",
+    "The user wants the fix verified before the next issue is tackled.",
+    "The work should remain easy to review and compare against the source."
+  ],
+  "options": [
+    {
+      "name": "A: patch the audit doc in place",
+      "pros": [
+        "Directly resolves F-010 and F-011.",
+        "Keeps the fix small and easy to audit.",
+        "Avoids unnecessary churn in unrelated docs."
+      ],
+      "cons": [
+        "Does not address the separate CLAUDE.md serve flag findings."
+      ]
+    },
+    {
+      "name": "B: rewrite the wider audit section and related docs bundle",
+      "pros": [
+        "Could make the surrounding documentation more consistent.",
+        "Might reduce later cleanup work if other nearby text is stale."
+      ],
+      "cons": [
+        "Touches more files than needed for the open findings.",
+        "Raises review cost and risk without fixing additional verified issues."
+      ]
+    }
+  ],
+  "chosen": "A: patch the audit doc in place",
+  "rationale": "The open findings are localized documentation mismatches, so the right fix is to patch the audit document directly and then resolve the findings. That closes the verified issues without introducing unrelated edits.",
+  "preMortem": [
+    {
+      "scenario": "The summary table and appendix diverge after the main prose is updated.",
+      "trigger": "Only one section is edited.",
+      "consequence": "The audit still reads inconsistently and a reviewer may leave a follow-up finding.",
+      "mitigation": "Update all references to the two claims in the same edit pass and verify with grep."
+    },
+    {
+      "scenario": "The story is accidentally broadened to include CLAUDE.md fixes.",
+      "trigger": "Scope drifts while reading adjacent audit material.",
+      "consequence": "The work grows beyond the verified findings and the review surface widens.",
+      "mitigation": "Keep the scope boundary fixed to docs/audits/lattice-token-cost-and-takeover-audit.md only."
+    }
+  ],
+  "timestamp": "2026-06-18T11:04:40.173Z"
+}

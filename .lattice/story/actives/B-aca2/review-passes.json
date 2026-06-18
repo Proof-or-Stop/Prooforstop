@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-aca2:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Docs-only scope stays narrow; the audit fix keeps F-010/F-011 truthful and does not expand beyond docs/audits/lattice-token-cost-and-takeover-audit.md.",
+      "createdAt": "2026-06-18T11:18:14.931Z",
+      "reviewRound": "2026-06-18T11:12:37.293Z",
+      "reviewRunId": "B-aca2:RR-003",
+      "_hash": "0368daabcb473a173cc0830c02da851d7629a04e0923c4caf2d9b035cc2bcc4d"
+    },
+    {
+      "id": "B-aca2:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "All three intents per checklist item are covered with docs_check evidence, including the combined patch scenario and scope-limited behavior.",
+      "createdAt": "2026-06-18T11:18:15.359Z",
+      "reviewRound": "2026-06-18T11:12:37.293Z",
+      "reviewRunId": "B-aca2:RR-002",
+      "_hash": "8bcdccea904dc1bdf0b2a0171d2a4e1b008337ce9bb1034c56b7c01b5db502a2"
+    },
+    {
+      "id": "B-aca2:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "The audit doc now matches the source-backed file path and boundary field, and the patch remains confined to the audit document.",
+      "createdAt": "2026-06-18T11:18:15.803Z",
+      "reviewRound": "2026-06-18T11:12:37.293Z",
+      "reviewRunId": "B-aca2:RR-004",
+      "_hash": "97e7059d810aa9e230f945679f0aa676755cd1e9c79741413512e91f48597607"
+    },
+    {
+      "id": "B-aca2:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "The rationale and evidence are sufficient for a small docs-only correction; no additional design work is required for this story.",
+      "createdAt": "2026-06-18T11:18:16.201Z",
+      "reviewRound": "2026-06-18T11:12:37.293Z",
+      "reviewRunId": "B-aca2:RR-001",
+      "_hash": "85209530b920681252ea8fbba1472c5adbacbd94de137fb388a2279768e44e81"
+    }
+  ]
+}
