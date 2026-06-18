@@ -124,6 +124,17 @@
           "headHash": "517618e83fc61e0353ee2ed14ccec0bbb13527e7",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:18.062Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- package.json | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — test:all script unchanged.",
+          "headHash": "8b75872e045c8e630a6ecfe35fdc3bf07dd9b5b3",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:18.686Z"
         }
       ]
     },
