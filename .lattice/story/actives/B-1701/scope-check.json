@@ -1,0 +1,59 @@
+{
+  "storyId": "B-1701",
+  "checkedAt": "2026-06-18T16:33:36.399Z",
+  "features": [
+    {
+      "feature": "Default bundle writes lattice_authority_trust.env and lattice_staging-client.env for ordinary developers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Legacy authority_trust.env and staging-client.env remain compatibility aliases",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Senior opt-in writes lattice_senior_authority_trust.env and lattice_senior_staging-client.env",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Customer API key and actor key stay separate production credentials and may come from env or path sources",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/lattice-authority-customer-api-key-access.md"
+    },
+    {
+      "feature": "Active Lattice role naming replaces Koala-facing wording while legacy Koala names remain compatibility text only",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "Docs explain the default bundle, the senior opt-in variant, and the legacy alias path together",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "76dfde20ad4e7d2af424968cf8b742d95e4855e50d21d3654c5e756c4b980716",
+  "openQuestions": []
+}
