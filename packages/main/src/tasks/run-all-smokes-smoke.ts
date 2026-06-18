@@ -231,6 +231,13 @@ function main(): void {
       join(smokesDir, 'fixture-hardfail-D-smoke.js'),
       `console.error('hard-fail-D: deliberate FAIL on every run'); process.exit(1);\n`,
     );
+    // B-348d hard-fail-flagged fixture: exit 1 on EVERY run, flagged retryOnAnyFailure:true.
+    // Proves the invariant "flagged smoke that FAILs BOTH passes still ends in a final FAIL":
+    // it IS retried in pass 2 (because flagged), but the retry also fails → terminal FAIL.
+    writeFileSync(
+      join(smokesDir, 'fixture-hardfail-flagged-E-smoke.js'),
+      `console.error('hard-fail-flagged-E: deliberate FAIL on every run'); process.exit(1);\n`,
+    );
     const retryManifestPath = join(root, 'retry-manifest.json');
     writeFileSync(
       retryManifestPath,
@@ -241,6 +248,7 @@ function main(): void {
           { name: 'fixture-always-timeout', timeoutMs: 500 },
           { name: 'fixture-failflaky-C', timeoutMs: 5000, retryOnAnyFailure: true },
           { name: 'fixture-hardfail-D', timeoutMs: 5000 },
+          { name: 'fixture-hardfail-flagged-E', timeoutMs: 5000, retryOnAnyFailure: true },
         ],
       }, null, 2),
     );
@@ -340,6 +348,23 @@ function main(): void {
         && !hardFailNoRetry.stdout.includes('retrying serially')
         && !hardFailNoRetry.stdout.includes('Final:'),
       `code=${hardFailNoRetry.code}, stdout=${hardFailNoRetry.stdout.trim()}`,
+    );
+
+    // (14) B-348d (c) — ANTI-MASKING SAFETY (flagged both-passes): a FAIL on a smoke
+    //      WITH the flag IS retried in pass 2, but when the retry also FAILs the suite
+    //      stays terminal (Final 0/1, exit 1). Retry must never mask a genuine regression.
+    const flaggedFailBoth = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', retryManifestPath,
+      '--select', 'fixture-hardfail-flagged-E',
+    ]);
+    assert(
+      'B-348d (c): flagged FAIL retried but fails both passes → Final 0/1, exit 1',
+      flaggedFailBoth.code === 1
+        && flaggedFailBoth.stdout.includes('retrying serially')
+        && flaggedFailBoth.stdout.includes('Final:')
+        && /Final:\s*0\/1/.test(flaggedFailBoth.stdout),
+      `code=${flaggedFailBoth.code}, stdout=${flaggedFailBoth.stdout.trim()}`,
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
