@@ -1,0 +1,24 @@
+{
+  "task": "Remove the hidden --web / --cli compatibility parsing from the serve launcher and keep the supported serve surface honest.",
+  "outcome": "User runs lattice serve and sees the normal startup flow with the documented flags only; the root entrypoint check still ends with entrypoints verified, and the old aliases are no longer part of the supported path.",
+  "facts": [
+    "packages/main/src/verifier/dev-cli.ts still checks args.includes('--web') and args.includes('--cli') before starting vite or setting LATTICE_SHELL",
+    "CLAUDE.md and README.md already only advertise lattice serve, lattice serve --dev=..., and lattice serve --port=N",
+    "scripts/verify-entrypoints.mjs is the existing root entrypoint smoke and package.json already exposes npm run test:entrypoints",
+    "A grep across packages/main/src and docs found no other in-repo caller for --web or --cli outside dev-cli.ts",
+    "The story is already in PLAN after INIT_CHECK, with scope_boundary_set, execution_boundary_set, and scope_freeze_check saved"
+  ],
+  "constraints": [
+    "Keep lattice serve, lattice serve --dev, and lattice serve --port behavior unchanged",
+    "Do not modify packages/main/src/verifier/serve.ts runtime behavior",
+    "Do not widen the change to unrelated CLI parsing, docs drift cleanup, or serve startup refactors",
+    "Use the existing root entrypoint smoke or a similarly small regression check instead of a new broad test harness"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/verifier/dev-cli.ts",
+    "scripts/verify-entrypoints.mjs",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "timestamp": "2026-06-18T14:49:19.709Z"
+}

@@ -9,10 +9,78 @@
         "CLAUDE.md",
         "README.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "Legacy --web / --cli flags no longer change how serve starts; the documented lattice serve flow stays the only supported path."
+      "status": "done",
+      "startTime": "2026-06-18T15:00:41.425Z",
+      "endTime": "2026-06-18T15:13:16.838Z",
+      "userSees": "\"🐨 lattice serve\" followed by \"API: http://localhost:<port>\" and \"Core WS: ws://localhost:<port>\"; the launcher starts the documented flow without any special --web / --cli mode.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running lattice serve with the documented flags still starts the normal core + Dashboard flow; WHY: keeps the supported launcher surface intact.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Running lattice serve --dev=\"npx vite\" or lattice serve --port=N still behaves as before after the alias removal; WHY: preserves the supported launcher options.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A grep or smoke fails if --web or --cli reappears in packages/main/src/verifier/dev-cli.ts; WHY: prevents hidden compatibility from returning.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/verifier/dev-cli.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/verifier/dev-cli.ts",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/verifier/dev-cli.ts",
+          "command": "npm --prefix packages/main run build && npm run test:entrypoints",
+          "result": "pass",
+          "note": "The launcher change builds cleanly and the entrypoints smoke passes after removing hidden --web / --cli parsing from dev-cli.ts.",
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The smoke now exercises real runtime serve launches with --web and --cli and confirms they still follow the normal startup path, so supported serve flags are not broken by the alias removal.",
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The smoke still fails if --web or --cli reappear in the launcher source, so the hidden compatibility branch cannot silently return.",
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -23,10 +91,81 @@
         "packages/main/src/verifier/serve.ts",
         "packages/main/src/handlers/verifier.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "The entrypoint check still ends with entrypoints verified, and it would fail if the old aliases reappear."
+      "endTime": "2026-06-18T15:13:25.916Z",
+      "userSees": "\"entrypoints verified\" at the end of npm run test:entrypoints; the smoke fails if the legacy serve aliases reappear.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:entrypoints finishes with entrypoints verified after the launcher change; WHY: proves the root smoke still passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The entrypoint check still passes on a clean build with the worktree symlinked node_modules; WHY: keeps the smoke usable in this workspace.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The entrypoint smoke fails if the legacy --web / --cli aliases are reintroduced anywhere in the launcher path; WHY: turns the hidden contract back into a guardrail.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs",
+          "packages/main/src/handlers/verifier.ts"
+        ]
+      },
+      "excludes": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The updated entrypoints smoke passes end-to-end and still finishes with entrypoints verified.",
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The smoke remains runnable in this workspace after a clean build and the real serve-flag runtime case.",
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The smoke rejects any reintroduction of the legacy --web / --cli aliases anywhere in the launcher path.",
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
+        }
+      ]
     }
   ]
 }

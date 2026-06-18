@@ -4,17 +4,12 @@
  *
  * Usage (run from the project directory):
  *   lattice serve              → core + Dashboard
- *   lattice serve --dev="..."   → core + vite + Dashboard
- *   lattice serve --port=N      → override the port
  */
 
 import { spawn, ChildProcess } from 'child_process';
 import { resolve, join } from 'path';
 import { existsSync } from 'fs';
 
-const args = process.argv.slice(2);
-const withWeb = args.includes('--web');
-const withCli = args.includes('--cli');
 const root = process.cwd();
 
 // Deterministic port
@@ -25,7 +20,6 @@ function stablePort(s: string, offset: number): number {
 }
 
 const wsPort = stablePort(root, 4);
-const vitePort = stablePort(root, 5);
 
 // Find the project's debug.ts entry
 const debugFile = ['src/core/debug.ts', 'src/core/debug.js', 'src/debug.ts', 'debug.ts'].find(f =>
@@ -48,29 +42,18 @@ process.on('SIGTERM', () => { cleanup(); process.exit(0); });
 
 // 1. Start core
 const coreEnv: Record<string, string> = { ...process.env as Record<string, string>, LATTICE_SERVE_PORT: String(wsPort) };
-if (withCli) coreEnv.LATTICE_SHELL = 'cli';
 
 const core = spawn('npx', ['tsx', debugFile], {
   cwd: root,
   env: coreEnv,
-  stdio: withCli ? 'inherit' : ['ignore', 'inherit', 'inherit'],
+  stdio: ['ignore', 'inherit', 'inherit'],
 });
 children.push(core);
 
 // Wait for core to start
 await new Promise(r => setTimeout(r, 3000));
 
-// 2. Optionally start vite
-if (withWeb) {
-  const vite = spawn('npx', ['vite', '--port', String(vitePort)], {
-    cwd: root,
-    stdio: ['ignore', 'inherit', 'inherit'],
-  });
-  children.push(vite);
-  await new Promise(r => setTimeout(r, 1000));
-}
-
-// 3. Start serve (Dashboard)
+// 2. Start serve (Dashboard)
 const serve = spawn('node', [servePath], {
   cwd: root,
   stdio: ['ignore', 'inherit', 'inherit'],

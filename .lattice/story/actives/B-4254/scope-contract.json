@@ -1,0 +1,20 @@
+{
+  "storyId": "B-4254",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/verifier/dev-cli.ts",
+    "scripts/verify-entrypoints.mjs"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/verifier/dev-cli.ts",
+    "scripts/verify-entrypoints.mjs",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-18T15:14:08.063Z",
+  "updatedAt": "2026-06-18T15:14:08.063Z"
+}

@@ -1,0 +1,31 @@
+{
+  "storyId": "B-4254",
+  "checkedAt": "2026-06-18T14:52:58.144Z",
+  "features": [
+    {
+      "feature": "CHK-001: Remove legacy --web / --cli compatibility parsing from packages/main/src/verifier/dev-cli.ts",
+      "covered_by": "CHK-001; background_get; plan_get; checklist_get",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/verifier/dev-cli.ts"
+    },
+    {
+      "feature": "CHK-002: Add a regression check in scripts/verify-entrypoints.mjs",
+      "covered_by": "CHK-002; plan_get; checklist_get",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scripts/verify-entrypoints.mjs"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "303974836ff073d6947aab618c707e864049a4af99d37fdab703691da37796da",
+  "openQuestions": []
+}

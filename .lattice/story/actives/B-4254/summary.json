@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4254",
+  "changes": "Removed the hidden --web / --cli compatibility parsing from the dev launcher and tightened the entrypoints smoke so it now checks both the launcher source and the real runtime serve path.",
+  "usage": "Run `npm run test:entrypoints` to verify the launcher contract, or run `lattice serve` normally; the smoke now exercises `lattice serve --web` and `lattice serve --cli` to ensure they still follow the normal startup path.",
+  "expectedOutcome": "The launcher no longer accepts hidden compatibility aliases, while the documented serve flow still starts core plus Dashboard and the regression smoke passes.",
+  "actualTranscript": "`npm --prefix packages/main run build && npm run test:entrypoints` completed successfully, `npm run test:entrypoints` ended with `entrypoints verified`, and `lattice validate --story=B-4254` passed with 6/6 verification intents covered.",
+  "outcomeDiff": "No diff: the observed behavior matches the expected outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "A static source guard was not enough by itself, so we added a runtime smoke that exercises the real launcher path with `--web` and `--cli` before signing off.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 907560
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 52082
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 503647
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1273151
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 752380
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 279385
+    }
+  },
+  "totalDurationMs": 3768206,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T15:33:25.572Z",
+  "updatedAt": "2026-06-18T15:33:25.572Z"
+}

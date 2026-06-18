@@ -1,0 +1,39 @@
+{
+  "storyId": "B-4254",
+  "checkedAt": "2026-06-18T15:32:26.856Z",
+  "reviewRound": "2026-06-18T15:16:13.807Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "`npm run test:entrypoints` is the documented regression check for repo-local entrypoints and the generated local wrapper, including launcher contract coverage for the active `lattice` entry point.",
+      "status": "verified",
+      "verifiedBy": "manual+grep",
+      "evidence": "README.md documents npm run test:entrypoints; scripts/verify-entrypoints.mjs exercises the launcher and wrapper contract on the real filesystem."
+    },
+    {
+      "docPath": "docs/requirements/decisions/project-vision.md",
+      "promise": "`lattice` is the active product entry and the docs do not accept `koala` as an active compatibility alias.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Project Vision explicitly states the active entry point is lattice and rejects koala as an active compatibility alias."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real-machine launcher coverage in scripts/verify-entrypoints.mjs verified that packages/main/src/verifier/dev-cli.ts no longer contains --web or --cli, while node packages/main/dist/cli.js serve --web and serve --cli still start the normal launcher path and do not emit Unknown option. The story evidence records this as passing coverage with npm run test:entrypoints."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Real-machine regression coverage in scripts/verify-entrypoints.mjs verified the repo-local entrypoints, generated wrapper, and clean-worktree behavior, ending with entrypoints verified. The story evidence records CHK-002 as covered by the same manual transcript and validation pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs promise and live launcher regression coverage are both present; no blocker remains for delivery signing."
+  },
+  "_hash": "d1c31627c72e26ade530e962444bb8e52f3cc4f4b203ed5418fd4a4687f03cae"
+}
