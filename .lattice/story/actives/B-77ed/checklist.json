@@ -56,7 +56,42 @@
       "context": "Build, then run the four previously-flagged smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) under heavy parallel load with FAIL-retry DISABLED, i.e. invoke each smoke binary directly (no two-pass runner) with concurrent fillers, for many iterations (>=24 total runs across heavy concurrency), capturing exit codes. Expectation: 0 FAIL. If all pass, remove retryOnAnyFailure:true from those four entries in packages/main/smoke-manifest.json (retire the stopgap). If any one still FAILs under load, KEEP that smoke's flag and record a finding documenting the residual sub-cause. The retryOnAnyFailure mechanism itself (the manifest field + run-all-smokes pass-2 logic from B-348d) is NOT removed - it stays as a general safety net.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "all 4 stopgap flags removed -> `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` outputs 0; WHY: stopgap retired after proof",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "manifest still valid JSON -> `node -e \"JSON.parse(require('fs').readFileSync('packages/main/smoke-manifest.json','utf8'))\" && echo OK` outputs OK; WHY: no corruption",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the 4 formerly-flagged smokes pass standalone serial -> `for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done; echo END` outputs only END (no BAD); WHY: each is serially green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "heavy concurrent --no-retry stress shows 0 FAIL -> `rm -f /tmp/b77ed.tally; for r in 1 2 3 4 5 6; do for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do (node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1; echo $? >>/tmp/b77ed.tally) & done; done; wait; echo FAILS=$(grep -vc '^0$' /tmp/b77ed.tally)` outputs FAILS=0; WHY: proves the lock fix eliminates load-induced FAIL without the retry net",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
