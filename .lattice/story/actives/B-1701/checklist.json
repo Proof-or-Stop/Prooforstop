@@ -137,11 +137,49 @@
       "title": "Update docs",
       "context": "Update authority docs to explain the basic bundle, the senior opt-in variant, and the legacy filename compatibility path without introducing a second protocol.",
       "relatedDocs": [
-        ".lattice/story/actives/B-1701/background.md"
+        "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+        "docs/guide.md",
+        "README.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the docs explain one default bundle, one explicit senior variant, and the legacy alias path in the same flow.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+          "docs/guide.md",
+          "README.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs show the default bundle, the senior opt-in variant, and the legacy alias path together.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Examples stay consistent with the actual filenames emitted by the generator.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not reintroduce the old Koala wording or a second protocol.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
