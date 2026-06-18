@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-3d39:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 4 exported symbols changed (AsyncLocalStorage not a new export; runWithMainWriteLockContext, currentContextOwns, extendedOwnerSet new; acquireMainWriteLockRegistered + withReentrantMainWriteLock signature-updated). Step 2: 0 README/CLAUDE.md hits for these symbols (fallback 2 no-doc-reference for all 4 — only CHANGELOG.md references them). Step 3: compared CHANGELOG.md B-3d39 Unreleased bullet against full diff for main-write-lock.ts, transition-orchestrator.ts, codex-adapter-checks.ts, main-write-lock-smoke.ts. All 7 claims verified: AsyncLocalStorage lockOwnerStore present; dual-predicate heldLockPaths+currentContextOwns at both call sites; runWithMainWriteLockContext wraps DONE phase in transition-orchestrator; enterWith not used; section 9 sibling-contention smoke added; @koala-agent/core candidate added to globalCoreCandidates; on-disk mutex and done-effects merge order unchanged (done-effects.ts not in diff); done_recover handler unchanged. Entry is under ## Unreleased. No doc-promise-undelivered. No doc-code-drift. 0 findings.",
+      "createdAt": "2026-06-18T14:54:06.104Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-004",
+      "_hash": "05821278153e784327238b9d4813b7396ec01d529bc5304e531223af072e7c43"
+    }
+  ]
+}
