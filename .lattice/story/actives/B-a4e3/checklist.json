@@ -95,7 +95,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:koala-residue",
+          "result": "pass",
+          "note": "Stale .koala-readable claims fixed (cli-engine:2333 help, audit-config:8 + stale-detector:126 JSDoc); test:koala-residue PASS 0 unclassified. Commit dcae4ee9f.",
+          "headHash": "51b289d837dc6ede63d338893b4e8be199b52839",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:18.695Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
