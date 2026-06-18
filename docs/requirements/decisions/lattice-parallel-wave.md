@@ -161,9 +161,9 @@ or block parallel DEV recommendations even when a story declares
 Parallel dispatch and report projections may include dev-memory refs only when
 `includeExperience=true`. The implementation reads project memory from
 `<projectRoot>/.lattice/dev-memory/experience.jsonl` as the canonical project
-store, with `<projectRoot>/.koala/dev-memory/experience.jsonl` as a read-only
+store, with `<projectRoot>/.lattice/dev-memory/experience.jsonl` as a read-only
 legacy fallback. Global reads use current `~/.lattice/dev-memory/experience.jsonl`
-plus the legacy global fallback when appropriate: `~/.koala/dev-memory/experience.jsonl`
+plus the legacy global fallback when appropriate: `~/.lattice/dev-memory/experience.jsonl`
 by default, or `KOALA_GLOBAL_MEMORY_DIR` when that legacy fallback override is
 set. Missing files are tolerated as an empty list. Results are de-duplicated by
 id, searched through the existing dev-memory search routine, and capped by
