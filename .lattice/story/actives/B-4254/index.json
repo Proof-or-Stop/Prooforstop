@@ -4,7 +4,7 @@
   "title": "Remove hidden serve launcher compatibility flags",
   "description": "The recent serve-surface cleanup left one stale compatibility branch behind in packages/main/src/verifier/dev-cli.ts. The launcher still recognizes --web and --cli, even though the docs, help text, and user-facing prompts now only advertise lattice serve, --dev, and --port. We want to remove that hidden compatibility path so the launcher behavior matches the supported surface instead of quietly preserving legacy flags that no longer belong to the product.",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -53,6 +53,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-18T15:16:13.807Z",
+      "branch": "story/B-4254",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T15:28:46.187Z",
       "branch": "story/B-4254",
       "user": "Harmonygo",
       "agent": "main"
