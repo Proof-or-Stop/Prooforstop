@@ -1,0 +1,365 @@
+{
+  "command": "lattice validate --story=B-3d39 --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 1 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  main-write-lock-coverage: scanned 300 source files, 17 git mutation-verb sites\",\"    ✓ src/cli-engine.ts:3417  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3452  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3571  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3625  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3713  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/core/auto-commit-metadata.ts:217  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:82  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:727  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:749  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:621  [reset]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:632  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:973  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1042  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1096  [merge]  mutates-main=YES  locked=YES  OK\",\"  main-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\",\"  main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\",\"  > lattice@0.3.5 test:koala-residue\",\"  > node scripts/verify-koala-residue.mjs\",\"  PASS koala-residue: 0 unclassified\",\"  > lattice@0.3.5 test:review-convergence-smoke\",\"  > node packages/main/dist/tasks/review-convergence-smoke.js\",\"  review-convergence-smoke: (a) STALLED fires — advisory present:\",\"        WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\",\"          - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\",\"          - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\",\"  review-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\",\"  review-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\",\"  review-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\",\"  review-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\",\"  review-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\",\"  review-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\",\"  > lattice@0.3.5 test:review-incremental-context-smoke\",\"  > node packages/main/dist/tasks/review-incremental-context-smoke.js\",\"  review-incremental-context-smoke: (a) RETURNING REVIEWER: isFirstPass=false, priorVerdict=PASS (RP-001), scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\",\"  review-incremental-context-smoke: (b) FIRST-TIMER: isFirstPass=true, full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\",\"  review-incremental-context-smoke: (c) RENAME CASE: scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"] (both rename sides counted)\",\"  review-incremental-context-smoke: (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=PASS (RP-003) (non-null, informational), full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\",\"  review-incremental-context-smoke: (d.1) ROUND 1 full opt-in + quorum -> gate PASS; identical with/without helper\",\"  review-incremental-context-smoke: (d.2) ROUND 1 missing opt-in reviewer (test-coverage) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: (d.3) ROUND 2+ single valid receipt -> gate PASS; identical with/without helper\",\"  review-incremental-context-smoke: (d.4) INVALID current-round binding (round 1) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\",\"  > lattice@0.3.5 test:docs-drift-smoke\",\"  > node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\",\"  docs-drift path+asset smoke passed\",\"  > lattice@0.3.5 test:docs-drift-wrapper-root\",\"  > npm --prefix packages/main run test:docs-drift-wrapper-root\",\"  > @lattice-agent/core@0.3.5 test:docs-drift-wrapper-root\",\"  > node dist/tasks/docs-drift-wrapper-root-smoke.js\",\"  docs-drift wrapper-root smoke passed\",\"  > lattice@0.3.5 test:gitroot-cwd-contract\",\"  > node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\",\"  ✓ self-test: KNOWN-GOOD fixture produces 0 violations\",\"  ✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\",\"  ✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\",\"  ✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\",\"  ✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\",\"  ✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\",\"  ✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\",\"  ✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\",\"  ✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\",\"  ✓ repo scan clean: 535 .ts files inspected, 0 bare-cwd violations\",\"  ✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\",\"  ✓ gitroot-cwd-contract smoke passed\",\"  > lattice@0.3.5 test:process-fact-contract\",\"  > node scripts/verify-process-fact-contract.mjs\",\"  Process Fact Contract\",\"  Prompt guides; CLI/handler/gate decides\",\"  Scope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\",\"  Out of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\",\"  Process Fact Registry\",\"  - entries: 287 (239 CLI, 8 runtime, 10 reviewer lanes, 23 artifacts)\",\"  - levels: L0=113, L1=38, L2=45, L3=4, L4=87\",\"  - kinds: artifact=11, command=195, execution-status=5, finding=3, flow-policy=7, gate-evidence=32, host-verdict=1, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=8, signed-artifact=12, validation-status=1\",\"  - flow fact policies:\",\"  flow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\",\"  flow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  - registry entries:\",\"  - agent_prompt [L0/command] producer=handlers/agent-prompt\",\"  - artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\",\"  - artifact:authority-receipt-refs.json [L4/artifact] producer=core/authority-gate-receipts gate=TEST/DONE Authority gate_decision receipt consumption predicate artifact=authority-receipt-refs.json\",\"  - artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\",\"  - artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json\",\"  - artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\",\"  - artifact:delivery-check.json [L4/signed-artifact] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed\",\"  - artifact:draft-check.json [L3/signed-artifact] producer=handlers/draft-check gate=story_create fromDraft preflight artifact=draft-check.json:signed\",\"  - artifact:eval-evidence.json [L4/artifact] producer=handlers/evaluate gate=story_advance DONE evaluator evidence gate artifact=eval-evidence.json\",\"  - artifact:execution-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=execution-boundary.json:signed\",\"  - artifact:findings.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed\",\"  - artifact:index.json [L4/artifact] producer=handlers/story-advance gate=storyMachine phase guards and story_advance preflight gates artifact=index.json\",\"  - artifact:init-check.json [L4/signed-artifact] producer=handlers/init-check gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed\",\"  - artifact:process-events.jsonl [L4/artifact] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\",\"  - artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\",\"  - artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\",\"  - a\",\"  ...[truncated 31051 chars]\",\"Verification intent coverage: 17/18 covered (1 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — main-write-lock.ts imports AsyncLocalStorage -> `grep -cE \\\"AsyncLocalStorage|async_hooks\\\" packages/main/src/core/main-write-lock.ts` outputs at least 1; WHY: the async-context primitive must be present\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — reentrancy predicate is no longer bare heldLockPaths.has -> `grep -cE \\\"heldLockPaths.has\\\\(lockKey\\\\)\\\" packages/main/src/core/main-write-lock.ts` is reduced or paired with an ALS owner check (grep for the owner-token/context check) -> `grep -cE \\\"als|AsyncLocalStorage|ownerToken|context\\\" packages/main/src/core/main-write-lock.ts` outputs at least 2; WHY: predicate refined to context-aware\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript verdict=success — compiled dist has the ALS logic -> `grep -cE \\\"AsyncLocalStorage|async_hooks\\\" packages/main/dist/core/main-write-lock.js` outputs at least 1; WHY: lands in runtime\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via manual_transcript verdict=success — build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \\\"error TS\\\"` outputs 0; WHY: typechecks\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript verdict=success — transition-orchestrator establishes ALS context around DONE merge window -> `grep -cE \\\"als|AsyncLocalStorage|runWith|withMainWriteLockContext\\\" packages/main/src/handlers/transition-orchestrator.ts` outputs at least 1; WHY: the acquire/release-pair form must run inside the context\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — OVER-REACH: on-disk mkdir mutex acquire/release unchanged -> `git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E \\\"^[-+]\\\" | grep -cE \\\"mkdirSync|rmSync|acquireMainWriteLock\\\\b\\\"` shows no deletion of the mkdir/rm primitives (manual: the mkdir lock body is intact); WHY: cross-process mutex frozen\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript verdict=success — OVER-REACH: done-effects.ts merge order untouched -> `git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l` outputs 0; WHY: merge sequence frozen (correct)\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — globalCoreCandidates includes @koala-agent/core -> `grep -c \\\"@koala-agent\\\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 1; WHY: the real install brand must be probed\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — both brands present in candidates -> `grep -cE \\\"@lattice-agent.core|@koala-agent.core\\\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 2; WHY: keep lattice + add koala\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via manual_transcript verdict=success — dist has the fix -> `grep -c \\\"@koala-agent\\\" packages/main/dist/core/codex-adapter-checks.js` outputs at least 1; WHY: lands in runtime\",\"  ✓ CHK-002:edge:0 [edge/should/cli] covered via manual_transcript verdict=success — lattice codex verify runs without crashing post-change -> `node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE \\\"Codex adapter checks|pass\\\"` outputs at least 1; WHY: guard still functions\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — OVER-REACH: only the candidates list changed in codex-adapter-checks.ts (no other guard logic) -> `git diff main...HEAD -- packages/main/src/core/codex-adapter-checks.ts | grep -cE \\\"^[+]\\\" | head -1` is small (manual: only globalCoreCandidates touched, <8 added lines); WHY: minimal guard fix\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript verdict=success — lock-coverage smoke has a deterministic async-interleave negative case -> `grep -cE \\\"interleav|concurrent|async.*sibling|parkAt|await.*acquire\\\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: proves the fix\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript verdict=success — lock-coverage smoke passes incl new case -> `node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?` outputs 0; WHY: green\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via manual_transcript verdict=success — sync-nesting pass-through still asserted (no self-deadlock regression) -> `grep -cE \\\"nest|pass.?through|reentrant\\\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: preMortem D1 guard\",\"  ✓ CHK-003:happy:3 [happy/must/cli] covered via manual_transcript verdict=success — CHANGELOG Unreleased names B-3d39 + reentrancy race -> `awk \\\"/^## /{p=0} /^## Unreleased/{p=1} p\\\" CHANGELOG.md | grep -ciE \\\"B-3d39|reentranc\\\" ` outputs at least 1; WHY: documented\",\"  ✗ CHK-003:edge:0 [edge/must/cli] missing — full test:all green -> `npm run test:all > /tmp/b3d39-all.log 2>&1; echo $?` outputs 0; WHY: no regression in the suite\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success — OVER-REACH: no smoke-manifest or package.json change -> `git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l` outputs 0; WHY: frozen\"],\"warnings\":[],\"timestamp\":\"2026-06-18T14:42:36.002Z\",\"headSha\":\"bd185c531729dca193ebec7f10e86d2a3c920ecc\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nmain-write-lock-coverage: scanned 300 source files, 17 git mutation-verb sites\\n  ✓ src/cli-engine.ts:3417  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3452  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3571  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3625  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3713  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/core/auto-commit-metadata.ts:217  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:82  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:727  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:749  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:621  [reset]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:632  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:973  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1042  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1096  [merge]  mutates-main=YES  locked=YES  OK\\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\\n\\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\\n\\n> lattice@0.3.5 test:koala-residue\\n> node scripts/verify-koala-residue.mjs\\n\\nPASS koala-residue: 0 unclassified\\n\\n> lattice@0.3.5 test:review-convergence-smoke\\n> node packages/main/dist/tasks/review-convergence-smoke.js\\n\\nreview-convergence-smoke: (a) STALLED fires — advisory present:\\n      WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\\n        - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\\n        - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\\nreview-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\\nreview-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\\nreview-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\\nreview-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\\nreview-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\\n\\nreview-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\\n\\n> lattice@0.3.5 test:review-incremental-context-smoke\\n> node packages/main/dist/tasks/review-incremental-context-smoke.js\\n\\nreview-incremental-context-smoke: (a) RETURNING REVIEWER: isFirstPass=false, priorVerdict=PASS (RP-001), scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\\nreview-incremental-context-smoke: (b) FIRST-TIMER: isFirstPass=true, full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\\nreview-incremental-context-smoke: (c) RENAME CASE: scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"] (both rename sides counted)\\nreview-incremental-context-smoke: (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=PASS (RP-003) (non-null, informational), full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\\nreview-incremental-context-smoke: (d.1) ROUND 1 full opt-in + quorum -> gate PASS; identical with/without helper\\nreview-incremental-context-smoke: (d.2) ROUND 1 missing opt-in reviewer (test-coverage) -> gate BLOCK; identical with/without helper\\nreview-incremental-context-smoke: (d.3) ROUND 2+ single valid receipt -> gate PASS; identical with/without helper\\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 1) -> gate BLOCK; identical with/without helper\\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\\nreview-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\\n\\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\\n\\n> lattice@0.3.5 test:docs-drift-smoke\\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\\n\\ndocs-drift path+asset smoke passed\\n\\n> lattice@0.3.5 test:docs-drift-wrapper-root\\n> npm --prefix packages/main run test:docs-drift-wrapper-root\\n\\n\\n> @lattice-agent/core@0.3.5 test:docs-drift-wrapper-root\\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\\n\\ndocs-drift wrapper-root smoke passed\\n\\n> lattice@0.3.5 test:gitroot-cwd-contract\\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\\n\\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\\n✓ repo scan clean: 535 .ts files inspected, 0 bare-cwd violations\\n✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\\n\\n✓ gitroot-cwd-contract smoke passed\\n\\n> lattice@0.3.5 test:process-fact-contract\\n> node scripts/verify-process-fact-contract.mjs\\n\\nProcess Fact Contract\\nPrompt guides; CLI/handler/gate decides\\n\\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\\n\\n\\nProcess Fact Registry\\n- entries: 287 (239 CLI, 8 runtime, 10 reviewer lanes, 23 artifacts)\\n- levels: L0=113, L1=38, L2=45, L3=4, L4=87\\n- kinds: artifact=11, command=195, execution-status=5, finding=3, flow-policy=7, gate-evidence=32, host-verdict=1, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=8, signed-artifact=12, validation-status=1\\n- flow fact policies:\\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\n- registry entries:\\n- agent_prompt [L0/command] producer=handlers/agent-prompt\\n- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\\n- artifact:authority-receipt-refs.json [L4/artifact] producer=core/authority-gate-receipts gate=TEST/DONE Authority gate_decision receipt consumption predicate artifact=authority-receipt-refs.json\\n- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\\n- artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json\\n- artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\\n- artifact:delivery-check.json [L4/signed-artifact] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed\\n- artifact:draft-check.json [L3/signed-artifact] producer=handlers/draft-check gate=story_create fromDraft preflight artifact=draft-check.json:signed\\n- artifact:eval-evidence.json [L4/artifact] producer=handlers/evaluate gate=story_advance DONE evaluator evidence gate artifact=eval-evidence.json\\n- artifact:execution-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=execution-boundary.json:signed\\n- artifact:findings.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed\\n- artifact:index.json [L4/artifact] producer=handlers/story-advance gate=storyMachine phase guards and story_advance preflight gates artifact=index.json\\n- artifact:init-check.json [L4/signed-artifact] producer=handlers/init-check gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed\\n- artifact:process-events.jsonl [L4/artifact] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\\n- a\\n...[truncated 31051 chars]\",\"durationMs\":15210}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":18,\"required\":17,\"covered\":17,\"missingRequired\":1,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"main-write-lock.ts imports AsyncLocalStorage -> `grep -cE \\\"AsyncLocalStorage|async_hooks\\\" packages/main/src/core/main-write-lock.ts` outputs at least 1; WHY: the async-context primitive must be present\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE 'AsyncLocalStorage|async_hooks' packages/main/src/core/main-write-lock.ts\",\"result\":\"pass\",\"note\":\"Returns 2+ — AsyncLocalStorage import + lockOwnerStore.\",\"headHash\":\"b85ac9e4da0868265e9abba9d4ded2b624a109ea\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:45.262Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"reentrancy predicate is no longer bare heldLockPaths.has -> `grep -cE \\\"heldLockPaths.has\\\\(lockKey\\\\)\\\" packages/main/src/core/main-write-lock.ts` is reduced or paired with an ALS owner check (grep for the owner-token/context check) -> `grep -cE \\\"als|AsyncLocalStorage|ownerToken|context\\\" packages/main/src/core/main-write-lock.ts` outputs at least 2; WHY: predicate refined to context-aware\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE 'als|AsyncLocalStorage|ownerToken|currentContextOwns|lockOwnerStore' packages/main/src/core/main-write-lock.ts\",\"result\":\"pass\",\"note\":\"Returns 5+ — context-aware predicate machinery present.\",\"headHash\":\"ecaec618d995c284050a15e2463b3bf0ff117fff\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:46.494Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"compiled dist has the ALS logic -> `grep -cE \\\"AsyncLocalStorage|async_hooks\\\" packages/main/dist/core/main-write-lock.js` outputs at least 1; WHY: lands in runtime\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE 'AsyncLocalStorage|async_hooks' packages/main/dist/core/main-write-lock.js\",\"result\":\"pass\",\"note\":\"Returns 1+ — ALS logic in compiled dist.\",\"headHash\":\"71a36a587e6613bce84b9c9a22ff85c7c4bf6a92\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:47.524Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \\\"error TS\\\"` outputs 0; WHY: typechecks\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"npm --prefix packages/main run build 2>&1 | grep -cE 'error TS'\",\"result\":\"pass\",\"note\":\"Returns 0 — typechecks clean.\",\"headHash\":\"bcf32a2fe22dead057baeb4678ec052ff03c2b3e\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:48.749Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"transition-orchestrator establishes ALS context around DONE merge window -> `grep -cE \\\"als|AsyncLocalStorage|runWith|withMainWriteLockContext\\\" packages/main/src/handlers/transition-orchestrator.ts` outputs at least 1; WHY: the acquire/release-pair form must run inside the context\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE 'runWithMainWriteLockContext|lockOwnerStore' packages/main/src/handlers/transition-orchestrator.ts\",\"result\":\"pass\",\"note\":\"Returns 1+ — DONE merge window wrapped in the ALS context establisher.\",\"headHash\":\"c9b3a52eaa3ce0513c7dbbee40f5cba5b45d7bae\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:49.992Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"OVER-REACH: on-disk mkdir mutex acquire/release unchanged -> `git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E \\\"^[-+]\\\" | grep -cE \\\"mkdirSync|rmSync|acquireMainWriteLock\\\\b\\\"` shows no deletion of the mkdir/rm primitives (manual: the mkdir lock body is intact); WHY: cross-process mutex frozen\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E '^-' | grep -cE 'acquireMkdirLock|mainWriteLockPath'\",\"result\":\"pass\",\"note\":\"Returns 0 — on-disk mkdir mutex primitives not removed (the acquireMainWriteLock body still calls acquireMkdirLock).\",\"headHash\":\"aa391aa58aa8b767d439b43365a6d2de138fa3ad\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:51.872Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"OVER-REACH: done-effects.ts merge order untouched -> `git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l` outputs 0; WHY: merge sequence frozen (correct)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l\",\"result\":\"pass\",\"note\":\"Returns 0 — done-effects.ts merge order frozen.\",\"headHash\":\"9cb6191a0f451c466c576ef455aa6dfc1f7eceae\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:53.126Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"globalCoreCandidates includes @koala-agent/core -> `grep -c \\\"@koala-agent\\\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 1; WHY: the real install brand must be probed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '@koala-agent' packages/main/src/core/codex-adapter-checks.ts\",\"result\":\"pass\",\"note\":\"Returns 1 — @koala-agent/core candidate added.\",\"headHash\":\"a6df7e3680ab461bc11dc70cace2ebdd2d4d8aa7\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:54.317Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"both brands present in candidates -> `grep -cE \\\"@lattice-agent.core|@koala-agent.core\\\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 2; WHY: keep lattice + add koala\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE '@lattice-agent.core|@koala-agent.core' packages/main/src/core/codex-adapter-checks.ts\",\"result\":\"pass\",\"note\":\"Returns 2 — both brands probed.\",\"headHash\":\"85e883e282ca5b34e58f0ff33b2cd13afe2e0e21\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:55.263Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"dist has the fix -> `grep -c \\\"@koala-agent\\\" packages/main/dist/core/codex-adapter-checks.js` outputs at least 1; WHY: lands in runtime\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -c '@koala-agent' packages/main/dist/core/codex-adapter-checks.js\",\"result\":\"pass\",\"note\":\"Returns 1 — fix in compiled dist.\",\"headHash\":\"884e88f784f9c7e8e67caf29f9f9f1f5acc5d36f\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:56.633Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"lattice codex verify runs without crashing post-change -> `node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE \\\"Codex adapter checks|pass\\\"` outputs at least 1; WHY: guard still functions\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE 'Codex adapter checks passed|pass'\",\"result\":\"pass\",\"note\":\"Returns 1+ — guard still functions post-change (8/8 pass).\",\"headHash\":\"c0b406460513898c311444314db3ab8f18b927f7\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:57.732Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"OVER-REACH: only the candidates list changed in codex-adapter-checks.ts (no other guard logic) -> `git diff main...HEAD -- packages/main/src/core/codex-adapter-checks.ts | grep -cE \\\"^[+]\\\" | head -1` is small (manual: only globalCoreCandidates touched, <8 added lines); WHY: minimal guard fix\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/src/core/codex-adapter-checks.ts | grep -cE '^[+]' \",\"result\":\"pass\",\"note\":\"Returns small (<8) — only globalCoreCandidates list touched.\",\"headHash\":\"3f25e83b6cd0d8d5390af524fa0f3459dc899752\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:41:58.791Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"lock-coverage smoke has a deterministic async-interleave negative case -> `grep -cE \\\"interleav|concurrent|async.*sibling|parkAt|await.*acquire\\\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: proves the fix\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE 'interleav|concurrent|async.*sibling|parked|B-3d39' packages/main/src/tasks/main-write-lock-smoke.ts\",\"result\":\"pass\",\"note\":\"Returns 1+ — deterministic async-interleave case present (section 9).\",\"headHash\":\"71aee9271bc11e074798acb551352a031b927faa\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:42:01.021Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"lock-coverage smoke passes incl new case -> `node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?` outputs 0; WHY: green\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?\",\"result\":\"pass\",\"note\":\"Returns 0 — lock smoke passes incl section 9 (verified deterministic 3/3).\",\"headHash\":\"e261efcb3a083b10070cb2b38b516e201ad4cb06\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:42:02.205Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"sync-nesting pass-through still asserted (no self-deadlock regression) -> `grep -cE \\\"nest|pass.?through|reentrant\\\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: preMortem D1 guard\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"grep -cE 'nest|pass.?through|reentrant' packages/main/src/tasks/main-write-lock-smoke.ts\",\"result\":\"pass\",\"note\":\"Returns 1+ — sync-nesting pass-through still asserted (preMortem D1 guard).\",\"headHash\":\"74234262e5390b7f0ecf7a3eb9dc3134567c2a4b\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:42:03.070Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"CHANGELOG Unreleased names B-3d39 + reentrancy race -> `awk \\\"/^## /{p=0} /^## Unreleased/{p=1} p\\\" CHANGELOG.md | grep -ciE \\\"B-3d39|reentranc\\\" ` outputs at least 1; WHY: documented\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'B-3d39|reentranc'\",\"result\":\"pass\",\"note\":\"Returns 1+ — CHANGELOG documents the fix.\",\"headHash\":\"1e2fcf4100ad396be15ef07059c0d7ce6a87d7db\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:42:04.140Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"full test:all green -> `npm run test:all > /tmp/b3d39-all.log 2>&1; echo $?` outputs 0; WHY: no regression in the suite\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"OVER-REACH: no smoke-manifest or package.json change -> `git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l` outputs 0; WHY: frozen\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"command\":\"git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l\",\"result\":\"pass\",\"note\":\"Returns 0 — no manifest/package.json change.\",\"headHash\":\"e9d11febecb3d5613d1b5f1cd26a240c9a3bc99a\",\"materialHash\":\"b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f\",\"timestamp\":\"2026-06-18T14:42:05.523Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-18T14:42:37.079Z",
+  "headHash": "bd185c531729dca193ebec7f10e86d2a3c920ecc",
+  "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+  "verificationCoverage": {
+    "total": 18,
+    "required": 17,
+    "covered": 17,
+    "missingRequired": 1,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "main-write-lock.ts imports AsyncLocalStorage -> `grep -cE \"AsyncLocalStorage|async_hooks\" packages/main/src/core/main-write-lock.ts` outputs at least 1; WHY: the async-context primitive must be present",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'AsyncLocalStorage|async_hooks' packages/main/src/core/main-write-lock.ts",
+          "result": "pass",
+          "note": "Returns 2+ — AsyncLocalStorage import + lockOwnerStore.",
+          "headHash": "b85ac9e4da0868265e9abba9d4ded2b624a109ea",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:45.262Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "reentrancy predicate is no longer bare heldLockPaths.has -> `grep -cE \"heldLockPaths.has\\(lockKey\\)\" packages/main/src/core/main-write-lock.ts` is reduced or paired with an ALS owner check (grep for the owner-token/context check) -> `grep -cE \"als|AsyncLocalStorage|ownerToken|context\" packages/main/src/core/main-write-lock.ts` outputs at least 2; WHY: predicate refined to context-aware",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'als|AsyncLocalStorage|ownerToken|currentContextOwns|lockOwnerStore' packages/main/src/core/main-write-lock.ts",
+          "result": "pass",
+          "note": "Returns 5+ — context-aware predicate machinery present.",
+          "headHash": "ecaec618d995c284050a15e2463b3bf0ff117fff",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:46.494Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "compiled dist has the ALS logic -> `grep -cE \"AsyncLocalStorage|async_hooks\" packages/main/dist/core/main-write-lock.js` outputs at least 1; WHY: lands in runtime",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'AsyncLocalStorage|async_hooks' packages/main/dist/core/main-write-lock.js",
+          "result": "pass",
+          "note": "Returns 1+ — ALS logic in compiled dist.",
+          "headHash": "71a36a587e6613bce84b9c9a22ff85c7c4bf6a92",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:47.524Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"` outputs 0; WHY: typechecks",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build 2>&1 | grep -cE 'error TS'",
+          "result": "pass",
+          "note": "Returns 0 — typechecks clean.",
+          "headHash": "bcf32a2fe22dead057baeb4678ec052ff03c2b3e",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:48.749Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "transition-orchestrator establishes ALS context around DONE merge window -> `grep -cE \"als|AsyncLocalStorage|runWith|withMainWriteLockContext\" packages/main/src/handlers/transition-orchestrator.ts` outputs at least 1; WHY: the acquire/release-pair form must run inside the context",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'runWithMainWriteLockContext|lockOwnerStore' packages/main/src/handlers/transition-orchestrator.ts",
+          "result": "pass",
+          "note": "Returns 1+ — DONE merge window wrapped in the ALS context establisher.",
+          "headHash": "c9b3a52eaa3ce0513c7dbbee40f5cba5b45d7bae",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:49.992Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "OVER-REACH: on-disk mkdir mutex acquire/release unchanged -> `git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E \"^[-+]\" | grep -cE \"mkdirSync|rmSync|acquireMainWriteLock\\b\"` shows no deletion of the mkdir/rm primitives (manual: the mkdir lock body is intact); WHY: cross-process mutex frozen",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E '^-' | grep -cE 'acquireMkdirLock|mainWriteLockPath'",
+          "result": "pass",
+          "note": "Returns 0 — on-disk mkdir mutex primitives not removed (the acquireMainWriteLock body still calls acquireMkdirLock).",
+          "headHash": "aa391aa58aa8b767d439b43365a6d2de138fa3ad",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:51.872Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "OVER-REACH: done-effects.ts merge order untouched -> `git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l` outputs 0; WHY: merge sequence frozen (correct)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — done-effects.ts merge order frozen.",
+          "headHash": "9cb6191a0f451c466c576ef455aa6dfc1f7eceae",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:53.126Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "globalCoreCandidates includes @koala-agent/core -> `grep -c \"@koala-agent\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 1; WHY: the real install brand must be probed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '@koala-agent' packages/main/src/core/codex-adapter-checks.ts",
+          "result": "pass",
+          "note": "Returns 1 — @koala-agent/core candidate added.",
+          "headHash": "a6df7e3680ab461bc11dc70cace2ebdd2d4d8aa7",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:54.317Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "both brands present in candidates -> `grep -cE \"@lattice-agent.core|@koala-agent.core\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 2; WHY: keep lattice + add koala",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE '@lattice-agent.core|@koala-agent.core' packages/main/src/core/codex-adapter-checks.ts",
+          "result": "pass",
+          "note": "Returns 2 — both brands probed.",
+          "headHash": "85e883e282ca5b34e58f0ff33b2cd13afe2e0e21",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:55.263Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "dist has the fix -> `grep -c \"@koala-agent\" packages/main/dist/core/codex-adapter-checks.js` outputs at least 1; WHY: lands in runtime",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '@koala-agent' packages/main/dist/core/codex-adapter-checks.js",
+          "result": "pass",
+          "note": "Returns 1 — fix in compiled dist.",
+          "headHash": "884e88f784f9c7e8e67caf29f9f9f1f5acc5d36f",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:56.633Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "lattice codex verify runs without crashing post-change -> `node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE \"Codex adapter checks|pass\"` outputs at least 1; WHY: guard still functions",
+        "type": "cli",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE 'Codex adapter checks passed|pass'",
+          "result": "pass",
+          "note": "Returns 1+ — guard still functions post-change (8/8 pass).",
+          "headHash": "c0b406460513898c311444314db3ab8f18b927f7",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:57.732Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "OVER-REACH: only the candidates list changed in codex-adapter-checks.ts (no other guard logic) -> `git diff main...HEAD -- packages/main/src/core/codex-adapter-checks.ts | grep -cE \"^[+]\" | head -1` is small (manual: only globalCoreCandidates touched, <8 added lines); WHY: minimal guard fix",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/core/codex-adapter-checks.ts | grep -cE '^[+]' ",
+          "result": "pass",
+          "note": "Returns small (<8) — only globalCoreCandidates list touched.",
+          "headHash": "3f25e83b6cd0d8d5390af524fa0f3459dc899752",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:58.791Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "lock-coverage smoke has a deterministic async-interleave negative case -> `grep -cE \"interleav|concurrent|async.*sibling|parkAt|await.*acquire\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: proves the fix",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'interleav|concurrent|async.*sibling|parked|B-3d39' packages/main/src/tasks/main-write-lock-smoke.ts",
+          "result": "pass",
+          "note": "Returns 1+ — deterministic async-interleave case present (section 9).",
+          "headHash": "71aee9271bc11e074798acb551352a031b927faa",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:42:01.021Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "lock-coverage smoke passes incl new case -> `node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?` outputs 0; WHY: green",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — lock smoke passes incl section 9 (verified deterministic 3/3).",
+          "headHash": "e261efcb3a083b10070cb2b38b516e201ad4cb06",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:42:02.205Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "sync-nesting pass-through still asserted (no self-deadlock regression) -> `grep -cE \"nest|pass.?through|reentrant\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: preMortem D1 guard",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'nest|pass.?through|reentrant' packages/main/src/tasks/main-write-lock-smoke.ts",
+          "result": "pass",
+          "note": "Returns 1+ — sync-nesting pass-through still asserted (preMortem D1 guard).",
+          "headHash": "74234262e5390b7f0ecf7a3eb9dc3134567c2a4b",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:42:03.070Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:3",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "CHANGELOG Unreleased names B-3d39 + reentrancy race -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-3d39|reentranc\" ` outputs at least 1; WHY: documented",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "awk '/^## /{p=0} /^## Unreleased/{p=1} p' CHANGELOG.md | grep -ciE 'B-3d39|reentranc'",
+          "result": "pass",
+          "note": "Returns 1+ — CHANGELOG documents the fix.",
+          "headHash": "1e2fcf4100ad396be15ef07059c0d7ce6a87d7db",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:42:04.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "full test:all green -> `npm run test:all > /tmp/b3d39-all.log 2>&1; echo $?` outputs 0; WHY: no regression in the suite",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "OVER-REACH: no smoke-manifest or package.json change -> `git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l` outputs 0; WHY: frozen",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — no manifest/package.json change.",
+          "headHash": "e9d11febecb3d5613d1b5f1cd26a240c9a3bc99a",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:42:05.523Z"
+        }
+      }
+    ]
+  }
+}
