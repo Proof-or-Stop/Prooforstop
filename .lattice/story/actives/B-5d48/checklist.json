@@ -72,7 +72,119 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -145,7 +257,119 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -233,7 +457,149 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "6c9af58311179b028f423ea5f405665915d1b02f",
+          "materialHash": "d0e7e694ead54f6ff526d45987631dd5d94a3a9c4fe3869632faaf06e43f10f5",
+          "timestamp": "2026-06-18T13:35:36.985Z"
+        }
+      ]
     }
   ]
 }
