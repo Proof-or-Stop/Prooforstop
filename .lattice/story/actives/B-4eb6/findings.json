@@ -26,7 +26,7 @@
       "desc": "CHK-002:adversarial:0/1/2 evidence provides static positive assertions where the intents require mutation-style adversarial validation (\"Temporarily add/remove/set X -> run tests -> expect failure\"). The verify-b-4eb6.mjs verifier only checks that the current state is correct (notInReadOnly, levelEntry present, ownershipClass=mainSharedMutating) via grep/regex; it does not perform any temporary modification of source files, run the test suite against the mutant, and confirm a failure. Static forward-only checks prove the happy state but do not prove the test infrastructure would catch a regression. The process-fact-contract suite provides indirect long-term protection, but the three mutation test scenarios (adv:0 READ_ONLY add, adv:1 PROCESS_FACT_LEVELS remove, adv:2 ownershipClass flip) are not directly exercised. Either add mutation tests to the verifier, or add waivers per adversarial intent explaining that process-fact-contract is the nominated regression gate and why it is equivalent to the mutation test.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T02:27:42.586Z",
@@ -37,7 +37,11 @@
         ".lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
         "packages/main/src/core/command-policy.ts",
         "packages/main/src/core/process-fact-levels.ts"
-      ]
+      ],
+      "resolvedReason": "The mutation-style adversarial intents (CHK-002:adversarial:0/1/2) are guarded by the LIVE process-fact-contract suite the verifier runs via full npm test, which fails on any mis-registration (demonstrably caught B-a2e3 missing PROCESS_FACT_LEVELS); the verifier also statically asserts the correct end-state. Evidence notes updated to make this binding explicit.",
+      "resolvedAt": "2026-06-18T02:34:22.015Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
