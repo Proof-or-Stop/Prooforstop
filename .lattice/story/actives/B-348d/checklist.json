@@ -297,6 +297,16 @@
           "headHash": "26f9ba040a394cebfa114db36b2329b0d66d599a",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:50.617Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -ciE \"retryOnAnyFailure|retry.*on.*fail\" docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "docs/dev/test-coverage.md has 1 retry-policy mention; docs updated",
+          "headHash": "fc6cc743ac6eeaddd57402a9a67f4863760aa7aa",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:51.305Z"
         }
       ]
     }
