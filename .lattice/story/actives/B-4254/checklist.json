@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run build && npm run test:entrypoints",
           "result": "pass",
           "note": "The launcher change builds cleanly and the entrypoints smoke passes after removing hidden --web / --cli parsing from dev-cli.ts.",
-          "headHash": "71d5a099e8f3de974b0e07c1ebaaa850c11cb941",
-          "materialHash": "5a5fecb68c5c8eb4566e2b5780382ff4bf5776322c29cd293ee8ec1c787c0ccd",
-          "timestamp": "2026-06-18T15:28:08.790Z"
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "The smoke now exercises real runtime serve launches with --web and --cli and confirms they still follow the normal startup path, so supported serve flags are not broken by the alias removal.",
-          "headHash": "71d5a099e8f3de974b0e07c1ebaaa850c11cb941",
-          "materialHash": "5a5fecb68c5c8eb4566e2b5780382ff4bf5776322c29cd293ee8ec1c787c0ccd",
-          "timestamp": "2026-06-18T15:28:08.790Z"
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "The smoke still fails if --web or --cli reappear in the launcher source, so the hidden compatibility branch cannot silently return.",
-          "headHash": "71d5a099e8f3de974b0e07c1ebaaa850c11cb941",
-          "materialHash": "5a5fecb68c5c8eb4566e2b5780382ff4bf5776322c29cd293ee8ec1c787c0ccd",
-          "timestamp": "2026-06-18T15:28:08.790Z"
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "The updated entrypoints smoke passes end-to-end and still finishes with entrypoints verified.",
-          "headHash": "71d5a099e8f3de974b0e07c1ebaaa850c11cb941",
-          "materialHash": "5a5fecb68c5c8eb4566e2b5780382ff4bf5776322c29cd293ee8ec1c787c0ccd",
-          "timestamp": "2026-06-18T15:28:08.790Z"
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,9 +150,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "The smoke remains runnable in this workspace after a clean build and the real serve-flag runtime case.",
-          "headHash": "71d5a099e8f3de974b0e07c1ebaaa850c11cb941",
-          "materialHash": "5a5fecb68c5c8eb4566e2b5780382ff4bf5776322c29cd293ee8ec1c787c0ccd",
-          "timestamp": "2026-06-18T15:28:08.790Z"
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,9 +161,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "The smoke rejects any reintroduction of the legacy --web / --cli aliases anywhere in the launcher path.",
-          "headHash": "71d5a099e8f3de974b0e07c1ebaaa850c11cb941",
-          "materialHash": "5a5fecb68c5c8eb4566e2b5780382ff4bf5776322c29cd293ee8ec1c787c0ccd",
-          "timestamp": "2026-06-18T15:28:08.790Z"
+          "headHash": "b39871702bfc6590b3f09143c418edd981c0370e",
+          "materialHash": "e13d64b940bf767a566f9c7e66513b34898c15ca3bd8b3791d2d0d97c7e4bf6e",
+          "timestamp": "2026-06-18T15:33:45.045Z"
         }
       ]
     }
