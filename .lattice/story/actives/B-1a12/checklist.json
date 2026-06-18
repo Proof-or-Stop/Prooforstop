@@ -44,7 +44,30 @@
       "userSees": "docs/requirements/decisions/lattice-parallel-wave.md references `.lattice/dev-memory` (not `.koala/dev-memory`); the last stale runtime-path koala reference is gone.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/decisions/lattice-parallel-wave.md shows .lattice/dev-memory at the previously-stale lines",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No remaining live (non-historical-record) .koala/dev-memory runtime-path reference in that file",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Only the doc line changed; no code/runtime path altered by this item",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
