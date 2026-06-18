@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rewrite the serve-mode explanation in CLAUDE.md to match the real lattice serve surface",
+      "context": "The existing text mentions web/cli variants that are not present in lattice serve --help. Update the prose so it only describes the supported serve options and does not imply extra modes that the CLI does not expose.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/verifier/dev-cli.ts",
+        "docs/koala/framework-audit/2026-06-18/report.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rewrite the startup command block in CLAUDE.md so it only uses supported lattice serve flags",
+      "context": "The current examples reference npm run serve, npm run serve:web, and npm run serve:cli, but those scripts are not defined and the serve entrypoint only advertises --dev and --port. Replace the examples with the actual supported invocation pattern.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
