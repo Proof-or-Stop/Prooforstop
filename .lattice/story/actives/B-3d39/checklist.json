@@ -114,6 +114,17 @@
           "headHash": "c9b3a52eaa3ce0513c7dbbee40f5cba5b45d7bae",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:41:49.992Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/core/main-write-lock.ts | grep -E '^-' | grep -cE 'acquireMkdirLock|mainWriteLockPath'",
+          "result": "pass",
+          "note": "Returns 0 — on-disk mkdir mutex primitives not removed (the acquireMainWriteLock body still calls acquireMkdirLock).",
+          "headHash": "aa391aa58aa8b767d439b43365a6d2de138fa3ad",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:51.872Z"
         }
       ]
     },
