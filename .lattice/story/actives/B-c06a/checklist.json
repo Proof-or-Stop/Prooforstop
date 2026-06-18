@@ -121,6 +121,70 @@
           "packages/main/src/handlers/learning-effectiveness.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice learning_effectiveness on a store with ordered stories containing recurring signatures and arm assignments => prints human-readable predictive-value overall+trend and ON/OFF arm readout with N and significance status",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_effectiveness --json => emits structured JSON report with predictiveValue (recall, precision, windows, slopeSign) and armComparison (nOn, nOff, outcomeOn, outcomeOff, delta, significant, note)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_effectiveness --confirmedOnly => report only reflects findings with signatureTagSource===confirmed",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_effectiveness is registered in all 6 surfaces: registry.ts registerBatch, cli-engine.ts command schema, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts (readOnly, allowedPhases all, destructiveRisk none), process-fact-levels.ts (L0 experience-layer-read), and READ_ONLY_COMMANDS list",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run learning_effectiveness on an empty store (no stories) => prints zeroed/empty report gracefully, no crash, no NaN",
+            "type": "cli"
+          },
+          {
+            "desc": "Run learning_effectiveness on a store with stories that have no findings at all => report shows zero metrics, no error",
+            "type": "cli"
+          },
+          {
+            "desc": "Run learning_effectiveness on a store where no stories have experience_hint_surfaced events (no arm data) => arm comparison shows nOn=0, nOff=0, significant=false",
+            "type": "cli"
+          },
+          {
+            "desc": "Run learning_effectiveness with both --json and --confirmedOnly flags together => structured JSON output respects confirmedOnly filter",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After running learning_effectiveness, verify git status shows nothing written to the store / project root => command is truly read-only (no findings, no gate, no cache, no advisory)",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify handler source code contains no writeFileSync, no finding_add, no gate calls, no projectRoot persist operations => static read-only proof",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify learning_effectiveness appears in READ_ONLY_COMMANDS in cli-engine.ts => enforcement that it cannot write",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify process-fact-levels.ts has a PROCESS_FACT_LEVELS entry for learning_effectiveness at L0 experience-layer-read => missing entry would break process-fact-contract test",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify command-policy.ts entry has readOnly=true and destructiveRisk=none => a readOnly:false or destructive entry would violate the story contract",
+            "type": "cli"
+          },
+          {
+            "desc": "Run learning_effectiveness and then immediately check for any new files or modified files in .lattice/ => nothing must change (no side-effect leak)",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
