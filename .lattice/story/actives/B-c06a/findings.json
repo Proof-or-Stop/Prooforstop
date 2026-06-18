@@ -132,6 +132,25 @@
       "_hash": "8427595b430552353ed1d1ce1fb09e9f6b297fc6f6a982a4a07886125e8edfc0",
       "signatureTag": "missing|unknown|promise-undelivered-engine",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c06a:F-008",
+      "desc": "doc-promise-undelivered: cli-engine.ts line 1782 comment and line 1786 description string both say \"recall/precision + trend\"; command-policy.ts line 218 reason string says \"retrodictive recall / precision + windowed trend\" — but `precision` was removed from PredictiveValueReport, renderHuman(), and --json output. Smoke tests explicitly assert precision===undefined. Fix: remove the word \"precision\" (and the slash) from both description strings so the public tool description matches the actual output contract.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T16:16:09.069Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-008",
+      "_hash": "24c4a7e80b0a955409064d66b17ae2522b33cfcad70bec19890aa6a9e833e253",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
