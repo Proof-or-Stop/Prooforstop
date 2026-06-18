@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0414",
+  "changes": "Added a Lattice Console demo MVP requirements recommendation and linked it from requirements NAV. The document now explicitly covers visual discipline, Lattice core design philosophy, and product-logical click behavior for every interactive demo surface.",
+  "usage": "Read docs/requirements/decisions/lattice-console-demo-mvp-requirements.md from docs/requirements/NAV.md when turning lattice-console-demo.html into an executable console MVP.",
+  "expectedOutcome": "The requirements recommendation should answer the user-requested aesthetics, Lattice philosophy, and clickable-product-logic concerns without inventing arbitrary feature work.",
+  "actualTranscript": "rg checks found Lattice Core Design Philosophy at line 47, Visual and Interaction Requirements at line 254, Aesthetic Rules at line 258, Click Target Requirements at line 279, Product Logic Requirements for Clicks at line 303, and the NAV link at docs/requirements/NAV.md line 22. validate reported allPass:true and 9/9 verificationIntent covered.",
+  "outcomeDiff": "Expected and actual match for the documentation scope; no remaining gap was observed for the three requested criteria.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story is a requirements documentation story only; it does not implement the interactive console UI itself.",
+  "pitfalls": "Do not treat the static demo as production behavior. The future UI story still needs browser click tests proving every interactive surface opens or resolves as specified.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 294767
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 62830
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 189510
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 239291
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 173677750
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 174415
+    }
+  },
+  "totalDurationMs": 174638573,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T01:19:40.296Z",
+  "updatedAt": "2026-06-18T01:19:40.296Z"
+}
