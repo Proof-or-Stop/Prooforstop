@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T17:01:59.780Z",
       "reviewRunId": "B-348d:RR-002",
       "_hash": "7c7a91f7a5f5bb73ef21c1902f316543f2fcc220e372228b215f279c85af01c0"
+    },
+    {
+      "id": "B-348d:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 0 exported symbols changed (docs-only diff for this lane). Step2: examined 2 doc surfaces — CHANGELOG.md Unreleased B-348d entry and docs/dev/test-coverage.md Retry policy section. Step3: 4 named smokes in both docs (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) match manifest exactly (python3 extraction confirmed count=4, names identical). Flag name retryOnAnyFailure matches manifest key. FAIL=terminal default, opt-in semantics, stopgap language, --no-retry flag all consistent across both doc surfaces. No overstatement, no stale names, no doc-promise-undelivered issues. 0 blockers.",
+      "createdAt": "2026-06-18T17:06:35.430Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-003",
+      "_hash": "93ba15a9334becb32b6fdfaf0ad589315a646fda1673e3cd26004d944fa4c528"
     }
   ]
 }
