@@ -151,6 +151,18 @@
           "headHash": "1ab3aed2f4fa67cabbedf9b6c59f4f13a75c33a9",
           "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
           "timestamp": "2026-06-18T20:48:14.780Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "sh -lc 'if rg -n \"main/mac_ui\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'",
+          "result": "pass",
+          "note": "No CLI doc still implies that mac_ui is a live client surface after the cleanup.",
+          "headHash": "aaa6992d0ca589a21fb4e1e0bd5f961a7730124b",
+          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
+          "timestamp": "2026-06-18T20:48:15.374Z"
         }
       ]
     },
