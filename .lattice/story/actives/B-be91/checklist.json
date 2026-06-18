@@ -142,9 +142,9 @@
       "id": "CHK-002",
       "title": "Update CHANGELOG + docs/dev/test-coverage.md",
       "context": "CHANGELOG Unreleased entry under Test infrastructure subsection describing the --jobs cap rationale (shared-resource contention not CPU) and the measured N. Update docs/dev/test-coverage.md to note: test:all now defaults to --jobs N for reliability; pass --jobs higher explicitly via npm run test:all -- --jobs 8 for max-throughput dev iterations.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T02:21:44.802Z",
       "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows the B-be91 bullet naming --jobs cap. `grep test:all docs/dev/test-coverage.md` shows the new default + override note.",
       "files": {
         "modify": [
