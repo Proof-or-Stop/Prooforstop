@@ -43,6 +43,9 @@ export const FINDING_SIGNALS_SCHEMA_VERSION = 1;
 /** Cap on example ids retained per signal (keeps the cache bounded). */
 const MAX_EXAMPLES = 5;
 
+/** Cap on anchor file paths retained per signal (keeps the cache bounded). */
+const MAX_ANCHOR_FILES = 50;
+
 export interface DeriveOptions {
   /** Pinned ISO timestamp for `updatedAt` (deterministic; required for hermetic tests). */
   now?: string;
@@ -60,6 +63,7 @@ interface SignalAccumulator {
   lastSeen?: string;
   exampleStoryIds: Set<string>;
   exampleFindingIds: Set<string>;
+  anchorFiles: Set<string>;
 }
 
 function emptyCounts(): FindingSignalCounts {
@@ -132,11 +136,21 @@ export function deriveFindingSignals(
         lastSeen: undefined,
         exampleStoryIds: new Set<string>(),
         exampleFindingIds: new Set<string>(),
+        anchorFiles: new Set<string>(),
       };
       acc.set(localSignature, entry);
     }
 
     entry.fileKinds.add(fileKind);
+
+    // Record the concrete anchor paths (already string-filtered by
+    // toSourceFinding; guard for undefined/non-array anyway) up to the cap.
+    if (Array.isArray(finding.files)) {
+      for (const file of finding.files) {
+        if (entry.anchorFiles.size >= MAX_ANCHOR_FILES) break;
+        if (isNonEmptyString(file)) entry.anchorFiles.add(file);
+      }
+    }
 
     // Status buckets (always available on real findings).
     const status = isNonEmptyString(finding.status) ? finding.status : undefined;
@@ -194,6 +208,7 @@ export function deriveFindingSignals(
       };
       if (entry.signatureTag !== undefined) signal.signatureTag = entry.signatureTag;
       if (entry.lastSeen !== undefined) signal.lastSeen = entry.lastSeen;
+      if (entry.anchorFiles.size > 0) signal.anchorFiles = [...entry.anchorFiles].sort();
       return signal;
     })
     .sort((a, b) => (a.localSignature < b.localSignature ? -1 : a.localSignature > b.localSignature ? 1 : 0));
