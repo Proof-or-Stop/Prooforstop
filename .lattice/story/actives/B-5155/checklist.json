@@ -80,9 +80,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T02:01:02.975Z",
       "userSees": "User sees `lattice gap_analyze --json` omit the high gap `lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir`; if requirementsDir is not actually handled as a project structure fact, user sees a B-5155 finding titled `requirementsDir implementation missing` and this item is not marked done.",
       "files": {
         "modify": [
@@ -112,7 +112,39 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze --json",
+          "result": "pass",
+          "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists lattice-runtime-owned-agent-assets-execution-plan.md:249 requirementsDir.",
+          "headHash": "e68c0268567670c0a7410e1c057b2dc8ccdcd9df",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:03.144Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "runtime-owned-agent-assets-smoke passed, confirming runtime-owned prompt registry behavior while requirementsDir remains a project config fact.",
+          "headHash": "e68c0268567670c0a7410e1c057b2dc8ccdcd9df",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:03.330Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "git diff main...HEAD -- packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "result": "pass",
+          "note": "diff adds only a local annotation anchor; it does not introduce project-local prompt templates or downstream thin config.",
+          "headHash": "e68c0268567670c0a7410e1c057b2dc8ccdcd9df",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:03.559Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
