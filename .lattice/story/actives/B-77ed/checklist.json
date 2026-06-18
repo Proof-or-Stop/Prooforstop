@@ -92,7 +92,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "Heavy concurrent --no-retry stress prints FAILS=0 across >=24 runs, and `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` shows 0 — the 4 stopgap flags are retired and the smokes are stable under load without the retry net."
     },
     {
       "id": "CHK-003",
