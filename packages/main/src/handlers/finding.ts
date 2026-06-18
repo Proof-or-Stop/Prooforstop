@@ -18,8 +18,11 @@ import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import {
   hasActiveOrProposedTag,
   proposeSignatureTag,
+  resolveTag,
   suggestNearActiveTag,
 } from '../core/learning-store.js';
+import { deriveSignatureCandidate } from '../core/signature-candidate.js';
+import type { SignatureTagSource } from '../core/experience-layer-types.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -277,8 +280,18 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
-      // B-4f46 CHK-002: audit-only signature tag (omitted => unchanged legacy behavior).
-      const signatureTag = typeof args.signatureTag === 'string' ? args.signatureTag.trim() : '';
+      // B-4f46 CHK-002: audit-only supplied signature tag (omitted => auto-derived candidate, see B-5d48 below).
+      const suppliedTag = typeof args.signatureTag === 'string' ? args.signatureTag.trim() : '';
+      // B-5d48 CHK-002: provenance + auto-fallback candidate. A supplied (non-empty)
+      // tag is CONFIRMED quality and persisted byte-identically; otherwise we persist a
+      // deterministic mechanical FALLBACK candidate flagged source='auto'. Both fields are
+      // audit-only and excluded from signFinding/_hash exactly like signatureTag (see below).
+      const signatureTagSource: SignatureTagSource = suppliedTag ? 'confirmed' : 'auto';
+      const signatureTag = suppliedTag
+        ? suppliedTag
+        // Fold the candidate through resolveTag for alias canonicalization (handler call;
+        // the leaf stays pure). deriveSignatureCandidate never throws / never returns ''.
+        : resolveTag(ctx.root, deriveSignatureCandidate(args.category, args.files, args.desc));
       const isReviewerAgent = agent.startsWith('lattice-review-');
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
 
@@ -317,8 +330,10 @@ export function createFindingHandlers(ctx: HandlerContext) {
           ...(args.reviewRunId ? { reviewRunId: args.reviewRunId } : {}),
           _hash: signFinding(args.storyId, fid, args.desc, args.severity, timestamp, reviewRound, args.reviewRunId || ''),
           ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
-          // B-4f46 CHK-002: audit-only signatureTag — persisted but NOT part of _hash (signFinding above unchanged).
-          ...(signatureTag ? { signatureTag } : {}),
+          // B-4f46 CHK-002 / B-5d48 CHK-002: audit-only signatureTag + provenance — persisted
+          // but NEITHER is part of _hash (signFinding above is unchanged; both fields are
+          // attached AFTER _hash and are never passed into the hashed input).
+          ...(signatureTag ? { signatureTag, signatureTagSource } : {}),
         };
         data.findings.push(finding);
         store.writeFindings(args.storyId, data);
@@ -328,19 +343,22 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // B-4f46 CHK-003: if a signatureTag was provided and is not yet an active/proposed
       // tag, auto-record it as status=proposed in the signature-registry (audit-only;
       // no gate reads it). Best-effort: a registry write failure must not fail finding_add.
+      // B-5d48 CHK-002: this auto-propose/hint path is for CONFIRMED (reviewer-supplied)
+      // tags only — keyed on suppliedTag so it stays byte-identical to B-4f46. The auto
+      // fallback candidate is audit-only and is NOT proposed to the registry here.
       let signatureTagHint = '';
-      if (signatureTag) {
+      if (suppliedTag) {
         try {
-          const alreadyKnown = hasActiveOrProposedTag(ctx.root, signatureTag);
+          const alreadyKnown = hasActiveOrProposedTag(ctx.root, suppliedTag);
           if (!alreadyKnown) {
-            proposeSignatureTag(ctx.root, signatureTag, agent);
-            const near = suggestNearActiveTag(ctx.root, signatureTag);
+            proposeSignatureTag(ctx.root, suppliedTag, agent);
+            const near = suggestNearActiveTag(ctx.root, suppliedTag);
             signatureTagHint = near
-              ? `\n→ signatureTag "${signatureTag}" auto-proposed (audit-only); did you mean active tag "${near}"?`
-              : `\n→ signatureTag "${signatureTag}" auto-proposed to the signature-registry (audit-only; approve via signature_registry_set).`;
+              ? `\n→ signatureTag "${suppliedTag}" auto-proposed (audit-only); did you mean active tag "${near}"?`
+              : `\n→ signatureTag "${suppliedTag}" auto-proposed to the signature-registry (audit-only; approve via signature_registry_set).`;
           }
         } catch (e) {
-          console.warn(`[signature-registry] auto-propose failed for ${signatureTag}:`, (e as Error).message);
+          console.warn(`[signature-registry] auto-propose failed for ${suppliedTag}:`, (e as Error).message);
         }
       }
 

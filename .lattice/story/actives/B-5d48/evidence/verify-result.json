@@ -1,0 +1,146 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:edge:2": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:edge:3": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:edge:4": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-001:adversarial:2": {
+  "pass": true,
+  "note": "pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:happy:2": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:edge:2": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:adversarial:2": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:adversarial:3": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-002:adversarial:4": {
+  "pass": true,
+  "note": "finding_add records signatureTagSource (auto|confirmed) + persists both fields; signFinding call excludes signatureTag/signatureTagSource; finding-verify.ts untouched; no gate reads the new field; CRITICAL _hash invariance smoke PASS"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:happy:3": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:happy:4": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:happy:5": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:edge:2": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:edge:3": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ },
+ "CHK-003:adversarial:2": {
+  "pass": true,
+  "note": "NEGATIVE self-test: exclusion check FAILs on a BAD signFinding(...signatureTag, signatureTagSource) snippet (rejectsBad=true) and PASSes on real finding.ts (acceptsGood=true) — proves the check would catch the critical _hash regression"
+ },
+ "CHK-003:adversarial:3": {
+  "pass": true,
+  "note": "signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass"
+ }
+}

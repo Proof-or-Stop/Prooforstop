@@ -1,0 +1,28 @@
+{
+  "task": "Make finding_add populate a signatureTag (auto-derived candidate) when the reviewer omits one, and record provenance (auto vs confirmed), keeping both fields audit-only and out of the finding _hash.",
+  "outcome": "When a reviewer files a finding WITHOUT a signatureTag, the persisted finding now carries an auto-derived candidate tag plus signatureTagSource='auto'; when the reviewer supplies one, it is stored with signatureTagSource='confirmed'. Observable via finding_list / the stored findings.json: e.g. a finding gains \"signatureTag\": \"missing|core-ts|null-deref\", \"signatureTagSource\": \"auto\". The decisive invariant the operator can verify: the finding's _hash / signature is BYTE-IDENTICAL with and without the new fields (the smoke + verifier assert this) — no gate is perturbed. A pure deriveSignatureCandidate(category, files, desc) function produces the deterministic fallback candidate.",
+  "facts": [
+    "finding_add (handlers/finding.ts ~line 270-334) already accepts a reviewer-supplied signatureTag and persists it audit-only, EXCLUDED from the finding _hash (signFinding unchanged) — comment at ~line 320 (B-4f46). It only sets it when provided; there is no auto-candidate and no provenance flag.",
+    "Registry primitives live in core/learning-store.ts: resolveTag (alias folding), hasActiveOrProposedTag, aliasSignatureTag, over .lattice/learning/signature-registry.json (materialHash-excluded).",
+    "Baseline A showed mechanical signatures are degraded (coarse=vacuous/fine=sparse), so the auto-candidate is a FALLBACK; real quality comes from confirmed tags (reviewers forward, the ③.5 backfill historically).",
+    "finding.ts is gate-critical: signFinding computes the finding _hash; any new field must be excluded from it (mirror the existing signatureTag exclusion) to avoid perturbing the REVIEW->TEST findings gate."
+  ],
+  "constraints": [
+    "signatureTag and signatureTagSource MUST be excluded from the finding _hash / signFinding output and from every gate and the finding signature.",
+    "When a reviewer supplies a signatureTag, existing behavior is byte-identical except for recording signatureTagSource='confirmed'.",
+    "The candidate-derivation leaf is pure (no fs/git), deterministic.",
+    "No backfill of historical findings (③.5), no A/B (③.3), no effectiveness metric (③.4), no confirmed-vs-auto weighting in finding-signals derivation."
+  ],
+  "unknowns": [
+    "Exact shape of the candidate key — resolved: category + coarse fileKind (first file ext/dir) + a normalized desc key (lowercase, stopword-stripped, first few len>=4 tokens), joined; optionally folded through resolveTag for alias canonicalization.",
+    "Where the SignatureTagSource type and the finding-shape addition live — resolved: add the type next to the existing finding/signatureTag types and thread it through finding_add's persisted object only."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/signature-candidate.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-18T13:17:20.385Z"
+}

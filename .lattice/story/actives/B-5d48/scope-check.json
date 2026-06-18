@@ -1,0 +1,178 @@
+{
+  "storyId": "B-5d48",
+  "checkedAt": "2026-06-18T13:20:16.152Z",
+  "features": [
+    {
+      "feature": "deriveSignatureCandidate pure leaf function (category + fileKind + normalized desc key, deterministic, no I/O)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "SignatureTagSource type (auto | confirmed) added to experience-layer-types.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "No filesystem/git access in the candidate-derivation leaf (pure function constraint)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Wire signatureTag auto-candidate into finding_add when reviewer omits tag (signatureTagSource=auto)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Record signatureTagSource=confirmed when reviewer supplies a tag (byte-identical confirmed path)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Both signatureTag and signatureTagSource excluded from signFinding / finding _hash / every gate (audit-only guardrail)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Optional alias canonicalization via resolveTag in finding_add handler",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: deriveSignatureCandidate determinism + sane output on representative inputs",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: finding_add with no tag yields signatureTagSource=auto + non-empty candidate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: finding_add with tag yields signatureTagSource=confirmed + supplied tag unchanged",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: finding _hash / signature byte-identical with vs without new fields (_hash invariance check)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "npm script for the signature-capture smoke (test:experience-layer-signature-capture)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Committed verifier (verify-b-5d48.mjs) covering build + smoke + no-regression + full npm test + static checks",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "resolutionType audit-only field on Finding (Phase 1b spec item)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "dismissReasonType optional audit-only field on Finding (Phase 1b spec item)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "resolveEvidenceStrength audit-only field on Finding (Phase 1b spec item)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "dismissEvidenceStrength audit-only field on Finding (Phase 1b spec item)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Historical backfill of signatures onto existing findings (Phase 1b / 3.5)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Backfilling signatures onto existing historical findings",
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "A/B hint-mode assignment or gating (3.3)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "A/B hint-mode assignment or gating",
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Effectiveness metric command (3.4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The effectiveness metric command",
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Weighting confirmed vs auto in finding-signals derivation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Weighting confirmed vs auto signals inside finding-signals derivation",
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Advisory hint injection (Phase 1.5: experience-hint-loader + hintSection in story-review.ts)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "A/B hint-mode assignment or gating",
+      "source": "decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Modify finding-signals.ts or learning-store.ts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Weighting confirmed vs auto signals inside finding-signals derivation",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "covered": 13,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 4,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5b6cc0d49179402d7580bbfc87b84fd11d81873a538a419e37298b529e04684f",
+  "openQuestions": []
+}

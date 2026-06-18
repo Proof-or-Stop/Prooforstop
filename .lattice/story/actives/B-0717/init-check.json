@@ -1,0 +1,32 @@
+{
+  "storyId": "B-0717",
+  "checkedAt": "2026-06-18T14:03:46.020Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "I-1",
+      "severity": "low",
+      "desc": "CHK-001 already asks the plan document to cover Authority strong verification, local 3x2 verdict requirements, and 3x1 degraded fallback semantics, while CHK-003 also asks to document and verify the exact strong-verification/quorum conditions. This is acceptable for INIT, but DEV should keep CHK-001 as the execution-plan skeleton/current inventory and CHK-003 as the exact command/readiness matrix to avoid duplicate evidence."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-18T14:03:39.769Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-18T14:03:46.020Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "low",
+          "desc": "CHK-001 already asks the plan document to cover Authority strong verification, local 3x2 verdict requirements, and 3x1 degraded fallback semantics, while CHK-003 also asks to document and verify the exact strong-verification/quorum conditions. This is acceptable for INIT, but DEV should keep CHK-001 as the execution-plan skeleton/current inventory and CHK-003 as the exact command/readiness matrix to avoid duplicate evidence."
+        }
+      ]
+    }
+  ],
+  "_hash": "1d56f58f2d821958980e2692436d4a2bebe3e0f585d1b9f6e836c5acf8b60075"
+}

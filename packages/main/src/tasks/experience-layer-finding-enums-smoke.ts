@@ -186,7 +186,11 @@ function run(): void {
       // add (no signatureTag)
       const addId = h.finding_add({ storyId, desc: 'legacy add', severity: 'medium', category: 'edge', agent: 'main' }).match(/Finding (\S+) created/)![1];
       const added = store.readFindings(storyId).findings.find(x => x.id === addId)!;
-      assert.equal(added.signatureTag, undefined, 'no signatureTag when omitted');
+      // B-5d48: an omitted signatureTag now yields an auto-fallback candidate flagged
+      // source='auto' (the confirmed/supplied path is not taken). The resolve/dismiss
+      // enum audit fields below remain undefined when omitted (unchanged behavior).
+      assert.ok(added.signatureTag && added.signatureTag.length > 0, 'omitted signatureTag => auto candidate stored');
+      assert.equal(added.signatureTagSource, 'auto', 'omitted signatureTag => source=auto');
       // resolve (no enums)
       h.finding_resolve({ storyId, findingId: addId });
       const resolved = store.readFindings(storyId).findings.find(x => x.id === addId)!;
@@ -373,8 +377,13 @@ function run(): void {
       // The finding stays open (the rejected calls performed no mutation).
       assert.equal(store.readFindings(storyId).findings.find(x => x.id === fid)!.status, 'open', 'rejected enum call did not mutate the finding');
       // signatureTag is free-text (NOT an enum): a blank value is ignored, not an error.
+      // B-5d48: a blank SUPPLIED tag is treated as OMITTED — the blank itself is never
+      // stored as a confirmed tag; instead an auto-fallback candidate is persisted with
+      // signatureTagSource='auto' (the supplied-tag confirmed path is not taken).
       const fid2 = h.finding_add({ storyId, desc: 'thing2', severity: 'low', category: 'edge', agent: 'main', signatureTag: '   ' }).match(/Finding (\S+) created/)![1];
-      assert.equal(store.readFindings(storyId).findings.find(x => x.id === fid2)!.signatureTag, undefined, 'blank signatureTag ignored, not stored');
+      const blankTagFinding = store.readFindings(storyId).findings.find(x => x.id === fid2)!;
+      assert.notEqual(blankTagFinding.signatureTag, '   ', 'blank supplied tag is not stored verbatim');
+      assert.equal(blankTagFinding.signatureTagSource, 'auto', 'blank supplied tag => source=auto (treated as omitted)');
     });
 
     // ─── F-001 / CHK-003:adversarial:0 — approve a never-proposed tag rejected ───
