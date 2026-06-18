@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-aca2",
+  "mode": "custom",
+  "allowed": [
+    "docs/audits/lattice-token-cost-and-takeover-audit.md"
+  ],
+  "excluded": [
+    "CLAUDE.md",
+    "docs/requirements/**",
+    "packages/main/src/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested a docs-only fix for audit findings F-010 and F-011 before addressing the separate serve flag issue.",
+  "createdAt": "2026-06-18T11:02:56.306Z",
+  "updatedAt": "2026-06-18T11:02:56.306Z",
+  "_hash": "912e0891357981bf94b699a5013d740bf4dacef36d208c903ec1fa9d6b689496"
+}

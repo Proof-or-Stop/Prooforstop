@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-aca2",
+  "checkedAt": "2026-06-18T11:03:12.177Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "912e0891357981bf94b699a5013d740bf4dacef36d208c903ec1fa9d6b689496",
+  "executionBoundaryHash": "afb3f5fe3716c8c6572da263af227f7485e8325532dad96430e23112e088cb6f",
+  "freshnessHash": "0ccbedd9c8af925b414c8f7108ed1f7611c7afd2cfd4ba7bae9ef153369c2032",
+  "effectiveExcludedKeywords": [
+    "CLAUDE.md",
+    "docs/requirements/**",
+    "packages/main/src/**"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "CLAUDE.md",
+      "source": "scopeBoundary.excluded",
+      "text": "CLAUDE.md",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/requirements/**",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/requirements/**",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/**",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "87f74e0eca5cdbe4cf294c4e7fc8ca2177de0b440d9d97eb66ffa149737aa4be"
+}
