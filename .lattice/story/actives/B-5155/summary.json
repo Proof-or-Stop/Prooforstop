@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5155",
+  "changes": "Resolved the three current high-priority gap_analyze requirement mapping gaps by adding truthful code anchors for decision-doc-promotion verificationRequirements, moving requirementsDir coverage to real truth.ts config consumers after review caught the false anchor, and marking customerKeyRef as a future/blocked redacted non-secret Authority boundary without implementing or claiming current support.",
+  "usage": "Run lattice gap_analyze --json from the Orchestrate worktree; the previously reported high gaps for verificationRequirements, requirementsDir, and customerKeyRef should no longer appear. For lifecycle verification, run lattice validate --story=B-5155 --json.",
+  "expectedOutcome": "gap_analyze reports 0 high and 0 medium gaps for the three target rows; validation remains green; local evidence stays Non-authority and does not claim Authority Server receipt-backed completion.",
+  "actualTranscript": "gap_analyze returned healthy=true, coveragePercent=100, and Gaps: 0 high / 0 medium. npm test passed through lattice validate, verification coverage was 12/12, and lattice-review-delivery accepted the delivery with 4 docsPromises checked.",
+  "outcomeDiff": "No difference for the requested local CLI outcome. The only explicit limit is that this is local Non-authority evidence and not Authority Server production proof.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No known limitation for the three local gap mappings. Authority Server receipt-backed completion, productionDone, authorityDone, and fullAuthorityDone are intentionally not claimed by this story.",
+  "pitfalls": "The first implementation placed requirementsDir on runtime-owned-agent-assets-smoke, which review correctly caught as false coverage. The final fix uses truth.ts because scanTruth and generateNav actually consume loadConfig(projectRoot).requirementsDir.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 503931
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 39038
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 689085
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 974362
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1045922
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 367071
+    }
+  },
+  "totalDurationMs": 3619450,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T02:32:31.077Z",
+  "updatedAt": "2026-06-18T02:32:31.077Z"
+}

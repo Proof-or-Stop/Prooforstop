@@ -1,0 +1,57 @@
+{
+  "storyId": "B-5155",
+  "checkedAt": "2026-06-18T02:32:03.025Z",
+  "reviewRound": "2026-06-18T02:13:56.040Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/story/actives/B-5155/index.json#description",
+      "promise": "The three high-priority gap_analyze gaps (decision-doc-promotion verificationRequirements, runtime-owned requirementsDir, customerKeyRef redacted/non-secret) are resolved without false coverage claims or Authority completion assertions.",
+      "verifiedBy": "lattice gap_analyze --json",
+      "evidence": "gap_analyze returned healthy=true, coveragePercent=100, Gaps: 0 high / 0 medium, truthEntries=2844, codeAnnotations=113."
+    },
+    {
+      "docPath": "packages/main/src/tasks/decision-doc-promotion-smoke.ts#JSDoc",
+      "promise": "Existing promotion smoke truthfully exercises verificationRequirements in the promotion path and keeps saved docs inside canonical requirementsDir; annotation does not claim Authority completion.",
+      "verifiedBy": "grep -n verificationRequirements packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+      "evidence": "Lines 145, 325, 487-489 confirm verificationRequirements is exercised: proposal creation at line 145, help-flag assertion at line 325, missing-value error-path at line 489. JSDoc reads This is local CLI coverage only; it does not claim Authority receipt completion."
+    },
+    {
+      "docPath": "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts#JSDoc",
+      "promise": "Smoke covers prompt asset resolution only (absent/matching/stale/full-asset/debug-override modes) with localNonAuthorityAudit boundary; the false requirementsDir coverage claim is removed.",
+      "verifiedBy": "grep -n requirementsDir packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+      "evidence": "No requirementsDir assertion in runtime logic; code checks promptRegistryHash and authorityBoundary.kind===localNonAuthorityAudit; assertNoAuthorityCompletionFields rejects receiptVerified/productionDone/authorityDone/fullAuthorityDone. requirementsDir is now anchored in truth.ts lines 143 and 198 where scanTruth/generateNav actually consume loadConfig(projectRoot).requirementsDir."
+    },
+    {
+      "docPath": "packages/main/src/core/scope-anti-expansion.ts#JSDoc",
+      "promise": "customerKeyRef remains future/blocked via DEFAULT_CORRECTNESS_FIX_EXCLUDED_KEYWORDS; annotation does not implement customerKeyRef support or claim Authority receipt completion.",
+      "verifiedBy": "grep -n customerKeyRef packages/main/src/core/scope-anti-expansion.ts",
+      "evidence": "customerKeyRef appears at line 52 in DEFAULT_CORRECTNESS_FIX_EXCLUDED_KEYWORDS constant. Diff adds only a JSDoc block; no producer, loader, verifier, or receipt claim was added. future_capability_keyword code at lines 700 and 1041 remains the sole gate. No Authority fields appear in the diff."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/decision-doc-promotion-smoke.js: PASS (9/9 checks), including --verificationRequirements flag assertion and missing-verificationRequirements error-path. lattice gap_analyze --json: no longer lists decision-doc-promotion-execution-plan.md:174 verificationRequirements as a high gap."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js: PASS with promptRegistryHash check and localNonAuthorityAudit boundary across absent/matching/stale/full-asset/debug-override modes. node packages/main/dist/tasks/truth.ts compiled and gap_analyze 0 high confirms requirementsDir now anchored to truth.ts consumers (scanTruth line 143, generateNav line 198)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "grep confirms customerKeyRef in DEFAULT_CORRECTNESS_FIX_EXCLUDED_KEYWORDS (scope-anti-expansion.ts line 52). Diff inspection: no new producer/loader/receipt/evaluator for customerKeyRef. gap_analyze --json: customerKeyRef redacted/non-secret row no longer appears as a high gap. assertNoAuthorityCompletionFields in runtime-owned smoke still green."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "lattice validate --story=B-5155 result=PASS at 2026-06-18T02:28:53.315Z. verificationCoverage: total=12 required=12 covered=12 missingRequired=0. lattice gap_analyze --json: healthy=true coveragePercent=100 Gaps: 0 high / 0 medium. DONE pre-check: all items PASS except delivery-check (this review) and story-summary."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items done. gap_analyze 0 high/0 medium confirmed. 12/12 verification intents covered. No Authority Server completion claimed anywhere in the diff. Evidence is local Non-authority only."
+  },
+  "_hash": "4cd9f6be10f4e1e2c45a2a260d2f9967e568018e031c682b10c10486149741ed"
+}

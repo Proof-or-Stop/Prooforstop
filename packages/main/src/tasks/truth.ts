@@ -1,4 +1,19 @@
-
+/**
+ * @task B-5155
+ * @checklist CHK-002
+ * @title Map project requirementsDir config to truth scan/navigation roots
+ * @type chore
+ * @priority high
+ * @description
+ *   scanTruth and generateNav resolve `loadConfig(projectRoot).requirementsDir`
+ *   to locate the project's requirements source of truth and build the NAV
+ *   index from that directory.
+ *   This is local truth-source coverage only; it does not claim any Authority
+ *   Server completion.
+ * @changes
+ *   - Add a truthful B-5155 anchor on the real requirementsDir consumer
+ *     without changing runtime behavior.
+ */
 import { readFileSync, readdirSync, statSync, writeFileSync, existsSync, lstatSync } from 'fs';
 import { join, relative, basename } from 'path';
 import { loadConfig } from '../core/config.js';

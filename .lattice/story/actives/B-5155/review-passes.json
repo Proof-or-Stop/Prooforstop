@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-5155:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage evidence spans happy/edge/adversarial for CHK-001..004; build, both smoke commands, gap_analyze 0 high, and convergence_check no-high-priority-gaps are covered, with unrelated annotation errors kept separate.",
+      "createdAt": "2026-06-18T02:03:40.209Z",
+      "reviewRound": "2026-06-18T02:01:39.916Z",
+      "reviewRunId": "B-5155:RR-002",
+      "_hash": "09d8120b6895cde2d078e1b0e7138ddb2e105d0d2d246a6d1c6799452f704f10"
+    },
+    {
+      "id": "B-5155:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "No blocking correctness issue remains. Current checkout passes build, runtime-owned-agent-assets-smoke, gap-analyze-input-hygiene-smoke, decision-doc-promotion-smoke, done-oracle-wrapper-root-smoke, and lattice gap_analyze --json reports Gaps: 0 high / 0 medium with local Non-authority semantics only.",
+      "createdAt": "2026-06-18T02:18:44.352Z",
+      "reviewRound": "2026-06-18T02:13:56.040Z",
+      "reviewRunId": "B-5155:RR-005",
+      "_hash": "56b33db558259405e4e77d06acf003cc1d155e0dcdfcf64cac7fdfb39751ca2b"
+    },
+    {
+      "id": "B-5155:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "B-5155:F-001 is fixed: runtime-owned-agent-assets-smoke.ts now only anchors prompt asset resolution / local Non-authority and no longer asserts requirementsDir coverage; truth.ts truthfully consumes loadConfig(projectRoot).requirementsDir in both scanTruth and generateNav. Verified with a temp-root custom requirementsDir check, runtime-owned-agent-assets-smoke.js, and lattice gap_analyze (0 high / 0 medium).",
+      "createdAt": "2026-06-18T02:19:38.988Z",
+      "reviewRound": "2026-06-18T02:13:56.040Z",
+      "reviewRunId": "B-5155:RR-004",
+      "_hash": "deffdb2912b52402189273094a37b9896715a39bd88315c939eb3ebec14863da"
+    },
+    {
+      "id": "B-5155:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality PASS: verified all three high gaps are mapped to GENUINE coverage, no false coverage. CHK-001 decision-doc-promotion-smoke.ts really exercises verificationRequirements (L145-146 set, L325 CLI help assert, L486-489 missing-case test) + canonical requirementsDir. CHK-002 correctly self-corrected after round-1 concept F-001: false requirementsDir claim removed from runtime-owned-agent-assets-smoke.ts and anchored to the real consumer truth.ts (scanTruth L142-143 / generateNav L197-198 resolve loadConfig().requirementsDir); truth.ts scope expansion is properly acknowledged with documented justification. CHK-003 customerKeyRef genuinely in DEFAULT_CORRECTNESS_FIX_EXCLUDED_KEYWORDS L52, kept future/blocked, annotation disclaims implementation. No Authority Server overclaim tokens (only a truthful negation). gap_analyze now 0 high / 0 medium / healthy. Changes are documentation-only JSDoc anchors: no dead code, type-safety, or I/O-isolation issues.",
+      "createdAt": "2026-06-18T02:20:03.731Z",
+      "reviewRound": "2026-06-18T02:13:56.040Z",
+      "reviewRunId": "B-5155:RR-006",
+      "_hash": "a8c3f5deb5f225b6b61139b56c7c8b7a62734304a6e4f5e9d3ee83fa7c4e9334"
+    }
+  ]
+}

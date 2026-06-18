@@ -1,5 +1,22 @@
 #!/usr/bin/env node
 
+/**
+ * @task B-5155
+ * @checklist CHK-002
+ * @title Map runtime-owned prompt asset resolution to existing config/asset coverage
+ * @type chore
+ * @priority high
+ * @description
+ *   The runtime-owned agent asset path verifies local prompt registry
+ *   resolution across absent, matching, stale, full-asset, and debug-override
+ *   cases.
+ *   This smoke only covers prompt asset resolution and the local
+ *   Non-authority boundary; it does not claim any Authority Server completion.
+ * @changes
+ *   - Keep the anchor on prompt asset resolution only and remove the false
+ *     `requirementsDir` coverage claim.
+ */
+
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

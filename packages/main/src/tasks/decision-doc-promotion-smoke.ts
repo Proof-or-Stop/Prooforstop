@@ -1,5 +1,22 @@
 #!/usr/bin/env node
 
+/**
+ * @task B-5155
+ * @checklist CHK-001
+ * @title Map decision-doc verificationRequirements to implemented promotion coverage
+ * @type chore
+ * @priority high
+ * @description
+ *   Existing smoke coverage already exercises `verificationRequirements` in
+ *   the promotion path and keeps saved docs inside the canonical
+ *   `requirementsDir`.
+ *   This is local CLI coverage only; it does not claim Authority receipt
+ *   completion.
+ * @changes
+ *   - Add a truthful gap_analyze anchor for the existing decision-doc
+ *     promotion smoke without changing runtime behavior.
+ */
+
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
