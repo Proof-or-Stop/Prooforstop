@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-18T15:22:38.273Z",
       "reviewRunId": "B-06b3:RR-005",
       "_hash": "8e19c34089ed7168c51185871659827b8ae69cd4fa4d653ad72fa38098c340e4"
+    },
+    {
+      "id": "B-06b3:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior review PASS. All 14 smoke checks green. CHK-001: hint-mode.ts line 22 uses String(storyId) coercion making resolveHintMode deterministic for null/undefined/number/object (F-002 fix; covered by adversarial:3). CHK-002: ON arm renders experienceHintsSection into _reviewPrompt; OFF arm sets renderedHintsSection=\"\" making it byte-identical to zero-hints baseline; experience_hint_surfaced fires on both arms carrying hintMode and full hintIds; issues/blocker block has zero hintMode refs (diff confirmed); resolveReviewPromptHash receives no hints (diff confirmed). CHK-003: smoke TOTAL 14 PASS 14 FAIL 0. Spec boundary from lattice-experience-layer-execution-plan.md guardrail 3 (hints must not enter promptHash domain) satisfied via Option A independent advisory channel; covered by adversarial:0/1 smoke checks.",
+      "createdAt": "2026-06-18T15:25:03.551Z",
+      "reviewRound": "2026-06-18T15:22:38.273Z",
+      "reviewRunId": "B-06b3:RR-007",
+      "_hash": "e722198c091cec8af8aea3421f1cb74aed29a2f4b58b19cdee4a78452df1d5da"
     }
   ]
 }
