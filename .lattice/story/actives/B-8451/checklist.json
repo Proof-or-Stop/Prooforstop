@@ -17,7 +17,18 @@
           "materialHash": "d003eb6a47db5585a42b60f2072362dd1474a497b4181d48bfa45a02ccc90146",
           "timestamp": "2026-06-18T00:37:47.308Z"
         }
-      ]
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reconstructed from logic_test evidence: Added deprecatedGcThreshold: number to AuditConfig interface, HARD_DEFAULTS (value 10), profileDefaults, and merged config; validation fo...",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-002",
@@ -36,7 +47,18 @@
           "materialHash": "7f9e8ce5ea5e2be4de4ac6efdbd09b91e4d89336463104bfc8534bdcf88edc7d",
           "timestamp": "2026-06-18T00:38:09.893Z"
         }
-      ]
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reconstructed from logic_test evidence: Added scanDeprecated(projectRoot) to audit-scan.ts: uses grep -rl to find files with @deprecated in packages/main/src/**/*.ts, counts mat...",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-003",
@@ -55,7 +77,18 @@
           "materialHash": "ca01125c1056e87edfebd3878ff206cac2feecc02dd6b01c908b19734c5f76fc",
           "timestamp": "2026-06-18T00:38:43.144Z"
         }
-      ]
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reconstructed from logic_test evidence: Imported scanDeprecated from audit-scan.js in audit-trigger.ts. In the semi-auto trigger branch, after buildSemiAutoHint, calls scanDepre...",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-004",
@@ -75,7 +108,18 @@
           "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
           "timestamp": "2026-06-18T00:39:48.124Z"
         }
-      ]
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reconstructed from integration_test evidence: All 5 tests pass: (1) default threshold=10, (2) config override to 5, (3) scanDeprecated on real repo returns count=20 files=5 without th...",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     }
   ]
 }
