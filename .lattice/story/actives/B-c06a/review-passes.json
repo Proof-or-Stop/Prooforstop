@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-18T16:12:22.973Z",
       "reviewRunId": "B-c06a:RR-008",
       "_hash": "58e017b2cbfd150f6783190de41d0862b8d8747a437da63bfef039be5d1c8065"
+    },
+    {
+      "id": "B-c06a:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check completed. F-005 resolution confirmed: grep on experience-effectiveness.ts, learning-effectiveness.ts, command-policy.ts, and cli-engine.ts all return zero hits for precision wording. Smoke file references to precision are all precision===undefined assertions (verifying removal) — correct and must be retained. memory-benchmark precisionAt10 is an unrelated pre-existing concept. Story metadata in .lattice/story/ is not in scope for code-concept residue. No concept deletion/replacement residue found in any .ts or .md source file. No blocker.",
+      "createdAt": "2026-06-18T16:22:43.328Z",
+      "reviewRound": "2026-06-18T16:20:24.941Z",
+      "reviewRunId": "B-c06a:RR-009",
+      "_hash": "3257849e9184b1eb40456c54895dbc2c2bb96a27f6d9a3b32b6677aa7f19f251"
     }
   ]
 }
