@@ -1,0 +1,57 @@
+{
+  "storyId": "B-a2e3",
+  "checkedAt": "2026-06-18T01:09:33.755Z",
+  "reviewRound": "2026-06-18T00:59:27.336Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-a2e3/plan.md#CHK-001",
+      "promise": "Add anchorFiles?: string[] to FindingSignal in core/experience-layer-types.ts (forward-compat, capped), and populate it in core/finding-signals.ts by accumulating finding.files (union, sorted, capped by MAX_ANCHOR_FILES). localSignature key and signalScore/support math unchanged.",
+      "verifiedBy": "diff/read",
+      "evidence": "FindingSignal.anchorFiles?: string[] at line 68 of experience-layer-types.ts; MAX_ANCHOR_FILES=50 + anchorFiles: Set<string> accumulator + stripAnchorLineSuffix + cap guard in finding-signals.ts; localSignature key unchanged; signalScore formula unchanged."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a2e3/plan.md#CHK-002",
+      "promise": "New leaf core/experience-revalidation.ts importing ONLY ./experience-layer-types.js (no node:fs, no child_process). Exports revalidateSignals (injected fileExists) and computeValidRate with anchored-only denominator (never NaN). Returns plain data, writes nothing.",
+      "verifiedBy": "diff/read",
+      "evidence": "experience-revalidation.ts sole import is ./experience-layer-types.js (type-only); revalidateSignals classifies valid/stale/unanchored via injected predicate; computeValidRate uses anchored > 0 ? valid/anchored : 0 guard; no fs/child_process import; verifier leafIso=true leafNoIo=true confirmed live."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a2e3/plan.md#CHK-003",
+      "promise": "New read-only learning_validate handler registered in registry.ts, cli-engine.ts (schema {json?: boolean, story?: string}), core/config.ts DEFAULT_PHASE_TOOLS, core/command-policy.ts (ownershipClass:readOnly, allowedPhases:all, destructiveRisk:none), and READ_ONLY_COMMANDS set. Derives signals without projectRoot (no persist), builds own git ls-tree fileExists, files no findings, writes nothing.",
+      "verifiedBy": "grep/diff",
+      "evidence": "registry.ts imports createLearningValidateHandlers and calls registerBatch; cli-engine.ts has command entry + READ_ONLY_COMMANDS at line 2957; config.ts has learning_validate in DEFAULT_PHASE_TOOLS; command-policy.ts has ownershipClass:readOnly/allowedPhases:all/destructiveRisk:none; handler has own buildHeadFileSet with try/catch, no writeFileSync/finding_add; handlerNoProjectRoot=true per verifier."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-a2e3/plan.md#CHK-004",
+      "promise": "Hermetic leaf smoke (13 checks) + end-to-end CLI smoke (5 checks) + npm scripts test:experience-layer-revalidation and test:experience-layer-revalidation-cli in package.json + committed verifier verify-b-a2e3.mjs (44 checks, all passing).",
+      "verifiedBy": "diff/live-run",
+      "evidence": "Both npm scripts in package.json confirmed; leaf smoke 13 check() calls with assert; CLI smoke 5 check() calls; live run leaf smoke TOTAL 13 | PASS 13 | FAIL 0; live run CLI smoke TOTAL 5 | PASS 5 | FAIL 0; live run verifier TOTAL 44 | PASS 44 | FAIL 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Leaf smoke covers anchorFiles accumulation: sorted union, dedup, cap, omitted-when-empty, non-string filtering, :line suffix stripping. Live run: TOTAL 13 | PASS 13 | FAIL 0. Verifier no-regression: finding-signals/playbook/recall smokes pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Leaf smoke covers revalidateSignals + computeValidRate: valid/stale/unanchored classification, 1-present-of-5 threshold, 1 stale among 100 unanchored = driftRate 1.0 (no dilution), all-unanchored NaN guard, empty anchorFiles = unanchored, empty input, all-valid, throwing fileExists propagates, duplicate anchorFiles invariance. Live run: TOTAL 13 | PASS 13 | FAIL 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CLI smoke exercises real node bin/lattice.js: human report has valid-rate and drift-rate lines, --json emits numeric ValidRateReport with anchored=valid+stale consistency, --story B-7561 restricts without crash, --story B-zzzz yields all-zero, git status --porcelain shows no new dirty files after all runs. Live run: TOTAL 5 | PASS 5 | FAIL 0."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Committed verifier runs: build clean, leaf smoke, CLI smoke, no-regression smokes (sig=ok pb=ok recall=ok), 20 static checks (leaf purity, handler read-only, projectRoot absence, own git ls-tree try/catch, all 5 registration points, anchorFiles type+derivation, protected files untouched). Live run: TOTAL 44 | PASS 44 | FAIL 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 plan promises verified in source: anchorFiles type added to FindingSignal, pure revalidation leaf with injected fileExists and NaN-safe anchored-only denominator, learning_validate registered across all 5 required locations, hermetic tests covering happy+edge+adversarial paths pass live (13 leaf + 5 CLI + 44 verifier). CLI is genuinely read-only with no writes, no gate, no finding creation. No unresolved TODOs found in implementation files."
+  },
+  "_hash": "3c84b230cd2cae2db5bbf5a5b4c7efd51c7f61548e4b7828b301992496d80cac"
+}

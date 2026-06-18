@@ -43,6 +43,9 @@ export const FINDING_SIGNALS_SCHEMA_VERSION = 1;
 /** Cap on example ids retained per signal (keeps the cache bounded). */
 const MAX_EXAMPLES = 5;
 
+/** Cap on anchor file paths retained per signal (keeps the cache bounded). */
+const MAX_ANCHOR_FILES = 50;
+
 export interface DeriveOptions {
   /** Pinned ISO timestamp for `updatedAt` (deterministic; required for hermetic tests). */
   now?: string;
@@ -60,6 +63,7 @@ interface SignalAccumulator {
   lastSeen?: string;
   exampleStoryIds: Set<string>;
   exampleFindingIds: Set<string>;
+  anchorFiles: Set<string>;
 }
 
 function emptyCounts(): FindingSignalCounts {
@@ -98,6 +102,18 @@ function isNonEmptyString(value: unknown): value is string {
 }
 
 /**
+ * Normalize an anchor path to a canonical bare repo path by stripping a trailing
+ * `:line[:col]` suffix (a small fraction of real finding.files carry one, e.g.
+ * `config.ts:216`). Without this, those anchors never match a bare HEAD tree path
+ * and inflate the referential drift-rate as a pure string-format artifact. Only
+ * the anchorFiles surface is normalized; deriveFileKind and the localSignature
+ * key are intentionally left untouched.
+ */
+function stripAnchorLineSuffix(p: string): string {
+  return p.replace(/:\d+(:\d+)?$/, '');
+}
+
+/**
  * PURE derivation. Aggregates findings by
  * `localSignature = ${category}|${signatureTag ?? ''}|${fileKind}|${lifecyclePhase ?? 'review'}`.
  * Tolerant of missing fields; never throws on malformed entries; never NaN.
@@ -132,11 +148,23 @@ export function deriveFindingSignals(
         lastSeen: undefined,
         exampleStoryIds: new Set<string>(),
         exampleFindingIds: new Set<string>(),
+        anchorFiles: new Set<string>(),
       };
       acc.set(localSignature, entry);
     }
 
     entry.fileKinds.add(fileKind);
+
+    // Record the concrete anchor paths (already string-filtered by
+    // toSourceFinding; guard for undefined/non-array anyway) up to the cap.
+    // Strip any trailing :line[:col] so anchorFiles store canonical bare repo
+    // paths (the Set still dedups post-strip).
+    if (Array.isArray(finding.files)) {
+      for (const file of finding.files) {
+        if (entry.anchorFiles.size >= MAX_ANCHOR_FILES) break;
+        if (isNonEmptyString(file)) entry.anchorFiles.add(stripAnchorLineSuffix(file));
+      }
+    }
 
     // Status buckets (always available on real findings).
     const status = isNonEmptyString(finding.status) ? finding.status : undefined;
@@ -194,6 +222,7 @@ export function deriveFindingSignals(
       };
       if (entry.signatureTag !== undefined) signal.signatureTag = entry.signatureTag;
       if (entry.lastSeen !== undefined) signal.lastSeen = entry.lastSeen;
+      if (entry.anchorFiles.size > 0) signal.anchorFiles = [...entry.anchorFiles].sort();
       return signal;
     })
     .sort((a, b) => (a.localSignature < b.localSignature ? -1 : a.localSignature > b.localSignature ? 1 : 0));

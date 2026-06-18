@@ -1,0 +1,55 @@
+{
+  "storyId": "B-a2e3",
+  "changes": "Added a read-only, advisory Experience Layer referential re-validation instrument: (1) an optional bounded anchorFiles[] on the derived FindingSignal (with :line[:col] suffix stripped to bare repo paths), (2) a pure leaf core/experience-revalidation.ts (revalidateSignals + computeValidRate, anchored-only denominator, never NaN), and (3) a read-only learning_validate CLI that derives finding-signals through the store ports (no persist) and reports valid-rate / drift-rate of accumulated signals against the current git HEAD. Registered consistently across cli-engine, registry, config DEFAULT_PHASE_TOOLS, command-policy (readOnly/all/none), READ_ONLY_COMMANDS, and process-fact-levels. No gate, no finding-lifecycle write, no scoring change, nothing persisted.",
+  "usage": "Run `node bin/lattice.js learning_validate` for the human report; `learning_validate '{\"json\":true}'` for the machine-readable ValidRateReport; `learning_validate '{\"story\":\"<id>\"}'` to restrict to one story.",
+  "expectedOutcome": "A terminal report showing signals total/anchored/valid/stale/unanchored plus valid-rate and drift-rate and a list of stale signals, marked advisory/read-only.",
+  "actualTranscript": "learning_validate prints valid-rate 0.926 / drift-rate 0.074 at HEAD (25 valid, 2 stale, 4 unanchored of 31 signals); --json emits a well-formed object with all numeric fields + staleSignals[]; --story B-7561 restricts to 2 signals (validRate 1.0); --story B-zzzz (nonexistent) yields all-zero with no crash; git status is unchanged before/after (read-only confirmed).",
+  "outcomeDiff": "Matches expected. The 0.926/0.074 signal-level numbers are consistent with Baseline A's finding-level 0.92/0.08, cross-validating the instrument.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Existence-based exact-path matching: a directory-style anchor (e.g. packages/main/src) is conservatively reported stale because git ls-tree -r lists only blobs — this over-reports rather than hides drift (the safe direction for a staleness detector). The stronger blob-equality 'unchanged since the finding was confirmed' tier is deferred to a later forward-capture story (it needs the confirmation HEAD recorded per finding). The metric is signal-level (the unit the Experience Layer surfaces), not finding-level.",
+  "pitfalls": "This is an advisory instrument only: it never changes gates, scoring, promptHash, or the surfaced signals, and persists nothing. valid-rate is signal-level, so it is a different (though consistent) unit from Baseline A's finding-level drift number; do not compare them as if identical. It does not by itself prove the Experience Layer makes development smarter — that forward A/B proof is a separate later step.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 303526
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 46549
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 455908
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 3110762
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1272504
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 348587
+    }
+  },
+  "totalDurationMs": 5537854,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T01:11:20.248Z",
+  "updatedAt": "2026-06-18T01:11:20.248Z"
+}
