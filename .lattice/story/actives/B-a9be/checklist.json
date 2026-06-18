@@ -32,6 +32,15 @@
             "type": "cli"
           }
         ]
+      },
+      "userSees": "CLAUDE.md now shows only supported lattice serve guidance: the serve-mode section uses lattice serve and lattice serve --dev=\"...\"; the old --web / --cli examples are gone.",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "packages/main/src/verifier/dev-cli.ts"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {
