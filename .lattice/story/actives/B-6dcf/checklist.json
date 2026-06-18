@@ -9,9 +9,9 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
       ],
       "userSees": "lattice check --json includes explicit metadataRoot/assetRoot/gitRoot path-base diagnostics.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T01:39:15.281Z",
-      "endTime": null,
+      "endTime": "2026-06-18T01:46:28.255Z",
       "verificationIntent": {
         "happy": [
           {
@@ -43,7 +43,29 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after commit b602ae20b; ManagedAssetCheckResult now includes metadataRoot, assetRoot, gitRoot, pathsRelativeTo, and assetRootGitRootSplit.",
+          "headHash": "b602ae20b72803f407b2769e8f3ef947c8fb8f06",
+          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
+          "timestamp": "2026-06-18T01:46:28.476Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused wrapper-root smoke asserts check --json distinguishes metadataRoot, assetRoot, configured gitRoot, pathsRelativeTo=assetRoot, and split=true.",
+          "headHash": "b602ae20b72803f407b2769e8f3ef947c8fb8f06",
+          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
+          "timestamp": "2026-06-18T01:46:28.636Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
