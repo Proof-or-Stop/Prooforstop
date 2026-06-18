@@ -6,6 +6,7 @@
     "packages/main/src/core/finding-signals.ts",
     "packages/main/src/core/config.ts",
     "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/registry.ts",
     "packages/main/src/cli-engine.ts",
     "packages/main/package.json"
@@ -26,7 +27,7 @@
     "packages/main/src/core/evidence-freshness.ts",
     "packages/main/src/handlers/finding.ts"
   ],
-  "scopeChangeReason": "Add end-to-end CLI smoke (CHK-004) so the user-facing learning_validate path has automated regression coverage, matching the verificationIntent that references a CLI smoke.",
+  "scopeChangeReason": "Register learning_validate in PROCESS_FACT_LEVELS (process-fact-contract requires every MAIN_TOOLS command to have a process-fact level entry).",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -35,8 +36,16 @@
       "paths": [
         ".lattice/story/actives/B-a2e3/evidence/verify-result.json"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "verifier machine-readable output artifact; intentional, not source expansion.",
+      "timestamp": "2026-06-18T00:52:16.303Z",
+      "paths": [
+        ".lattice/story/actives/B-a2e3/evidence/verify-result.json"
+      ]
     }
   ],
   "createdAt": "2026-06-17T23:47:40.627Z",
-  "updatedAt": "2026-06-18T00:41:04.956Z"
+  "updatedAt": "2026-06-18T00:56:11.615Z"
 }
