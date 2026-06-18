@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Measure stable --jobs N empirically + update root test:all script",
       "context": "Test in worktree: run npm run test:all -- --jobs N starting with N=4. If 3 consecutive runs exit 0, lock in N=4. If any flake, drop to N=2 and re-measure. If still flake at N=2, file finding and defer to Plan B. Record measured N + 3x verify wall-times in DEV evidence. Final change: edit root package.json scripts.test:all from node packages/main/dist/tasks/run-all-smokes.js to include --jobs N where N is the measured value. Single-line script edit.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T02:20:47.403Z",
       "endTime": null,
       "userSees": "`node -e 'console.log(require(\"./package.json\").scripts[\"test:all\"])'` shows '... run-all-smokes.js --jobs <N>' with N measured as 4 (or 2 fallback).",
       "files": {
