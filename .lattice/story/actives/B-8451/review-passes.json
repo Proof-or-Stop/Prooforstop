@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-8451:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. This diff only adds new concepts (deprecatedGcThreshold, scanDeprecated, @deprecated GC advisory) — no old concept words were deleted or replaced en masse. Repo-wide grep for all new concept terms confirms they appear only in the newly added files (audit-config.ts, audit-scan.ts, audit-trigger.ts, deprecated-gc-smoke.ts). No concept residue check blocker. Closing self-check: CLAUDE.md and README were not modified; no doc-promise-undelivered items found.",
+      "createdAt": "2026-06-18T00:41:43.222Z",
+      "reviewRound": "2026-06-18T00:40:00.984Z",
+      "reviewRunId": "B-8451:RR-002",
+      "_hash": "d2465e5e549aa47087838456b703e38e7ed233f05c70bb502005e1955b82d945"
+    }
+  ]
+}
