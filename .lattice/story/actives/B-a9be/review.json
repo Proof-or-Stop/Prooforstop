@@ -1,0 +1,39 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-18T13:55:08.974Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Rewrite the serve-mode explanation in CLAUDE.md to match the real lattice serve surface + Rewrite the startup command block in CLAUDE.md so it only uses supported lattice serve flags are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the audit report is regenerated automatically after the doc update or needs a follow-up check command.; Whether any other hidden stale serve references exist outside the known files."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "00480b3fe7c8b6251394e7f54bcac0739be5d118775b3bce0883ddacc520ccf8"
+    }
+  ]
+}

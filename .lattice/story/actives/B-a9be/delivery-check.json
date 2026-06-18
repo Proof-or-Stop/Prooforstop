@@ -1,0 +1,53 @@
+{
+  "storyId": "B-a9be",
+  "checkedAt": "2026-06-18T14:20:41.588Z",
+  "reviewRound": "2026-06-18T14:12:03.855Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md",
+      "promise": "The serve examples only advertise supported lattice serve invocations and no longer mention npm run serve:web / npm run serve:cli or lattice serve --web / --cli.",
+      "status": "verified",
+      "verifiedBy": "rg + sed + git diff",
+      "evidence": "CLAUDE.md now shows lattice serve, lattice serve --dev=\"npx vite\", and lattice serve --port=N; the stale aliases are absent."
+    },
+    {
+      "docPath": "packages/main/src/verifier/dev-cli.ts",
+      "promise": "The source usage hint matches the real serve surface and no longer advertises removed web/cli flags.",
+      "status": "verified",
+      "verifiedBy": "git diff + sed",
+      "evidence": "The comment now lists lattice serve, lattice serve --dev=\"...\", and lattice serve --port=N only."
+    },
+    {
+      "docPath": "packages/main/src/verifier/serve.ts",
+      "promise": "The runtime fallback hint points users to lattice serve instead of npm run serve.",
+      "status": "verified",
+      "verifiedBy": "git diff + sed",
+      "evidence": "The not-found message now says or lattice serve (will automatically start the core)."
+    },
+    {
+      "docPath": "docs/koala/framework-audit/2026-06-18/report.md",
+      "promise": "The audit report records F-012 and F-013 as resolved with no still-drifting items.",
+      "status": "verified",
+      "verifiedBy": "sed",
+      "evidence": "Round 9 reports still-drifting: 0 and resolved entries for F-012/F-013."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-a9be --json passed. Validation coverage was 6/6, and the docs checks for CLAUDE.md plus the synced source hints passed on the current HEAD."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "The same validation run confirmed the fallback hint in packages/main/src/verifier/serve.ts was updated and the framework audit report had already cleared F-012/F-013."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Final validation passed with 6/6 coverage; the serve docs, runtime hint, and audit report are aligned, and no unresolved TODOs remain."
+  },
+  "_hash": "1a9fae0f581624d74e5ed0eb61af10fafeac69af14c82455f14dfc9dc23f9c3f"
+}
