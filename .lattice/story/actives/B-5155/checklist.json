@@ -92,7 +92,37 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees lattice gap_analyze no longer list the selected key-ref redacted/non-secret row as a high-priority uncovered requirement, while that row remains explicitly future/blocked rather than implemented."
+      "userSees": "User sees `lattice gap_analyze --json` omit the high gap `customerKeyRef | Must be redacted and non-secret`, while code comments still say `customerKeyRef remains future/blocked` and no completion fields such as `receiptVerified=true` or `productionDone=true` are introduced.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`lattice gap_analyze --json` no longer reports the customerKeyRef redacted/non-secret row because an existing future/blocked boundary is truthfully anchored in code annotation text.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The row remains future/blocked; this story does not implement customerKeyRef producer, loader, verifier, receipt, or evaluator consumption.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diff must not introduce receiptVerified=true, productionDone=true, authorityDone=true, fullAuthorityDone=true, or any claim that customerKeyRef is current implemented support.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
