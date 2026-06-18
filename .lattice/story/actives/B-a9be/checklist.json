@@ -1,0 +1,170 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rewrite the serve-mode explanation in CLAUDE.md to match the real lattice serve surface",
+      "context": "The existing text mentions web/cli variants that are not present in lattice serve --help. Update the prose so it only describes the supported serve options and does not imply extra modes that the CLI does not expose.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/verifier/dev-cli.ts",
+        "packages/main/src/verifier/serve.ts",
+        "docs/koala/framework-audit/2026-06-18/report.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-18T13:56:38.352Z",
+      "endTime": "2026-06-18T14:11:58.115Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice check after the doc edit and confirm the framework audit no longer reports lattice serve --web or lattice serve --cli under CLAUDE.md#三种运行模式.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The rewritten prose still mentions the supported lattice serve --dev and --port surface without reintroducing phantom modes.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search the edited onboarding copy and source comment for --web and --cli and confirm the stale serve-mode wording only exists in the known historical places before the fix.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "CLAUDE.md now shows only supported lattice serve guidance: the serve-mode section uses lattice serve and lattice serve --dev=\"...\"; the old --web / --cli examples are gone.",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "packages/main/src/verifier/dev-cli.ts",
+          "packages/main/src/verifier/serve.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "rg -n \"lattice serve --web|lattice serve --cli|npm run serve:web|npm run serve:cli|npm run serve\" CLAUDE.md packages/main/src/verifier/dev-cli.ts",
+          "result": "pass",
+          "note": "The stale serve-mode aliases no longer appear in the edited onboarding file or the synced source comment.",
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice audit --framework",
+          "result": "pass",
+          "note": "Framework audit round 9 reported 0 still-drifting items and resolved B-META-framework-audit:F-012/F-013, proving the serve-mode drift is cleared.",
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "sed -n \"224,240p\" CLAUDE.md",
+          "result": "pass",
+          "note": "The serve-mode explanation still lists only supported lattice serve surface text, including lattice serve and lattice serve --dev, without reintroducing phantom --web / --cli modes.",
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/verifier/serve.ts",
+          "command": "sed -n \"841,846p\" packages/main/src/verifier/serve.ts",
+          "result": "pass",
+          "note": "The fallback prompt now tells users to start lattice serve instead of the nonexistent npm run serve command, removing the remaining user-facing misdirection.",
+          "headHash": "1f6869d42ea60b456e0d458ebf327a0a946acd03",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:10:15.307Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rewrite the startup command block in CLAUDE.md so it only uses supported lattice serve flags",
+      "context": "The current examples reference npm run serve, npm run serve:web, and npm run serve:cli, but those scripts are not defined and the serve entrypoint only advertises --dev and --port. Replace the examples with the actual supported invocation pattern.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "status": "done",
+      "startTime": "2026-06-18T13:56:38.785Z",
+      "endTime": "2026-06-18T14:02:14.897Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The startup command block shows only supported lattice serve invocations and no npm run serve:web or npm run serve:cli examples.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Any remaining direct web startup example stays clearly separated from lattice serve so it cannot be misread as an unsupported CLI alias.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "package.json and packages/main/package.json still do not contain serve:web or serve:cli scripts after the rewrite, so the docs cannot drift back to nonexistent npm commands.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "CLAUDE.md now shows a single truthful startup command block: no npm run serve:web or npm run serve:cli, only supported lattice serve invocations.",
+      "files": {
+        "modify": [
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "rg -n \"npm run serve:web|npm run serve:cli|lattice serve --web|lattice serve --cli|npm run serve\" CLAUDE.md",
+          "result": "pass",
+          "note": "The startup block now only shows supported lattice serve invocations and no nonexistent npm serve aliases.",
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice audit --framework",
+          "result": "pass",
+          "note": "Audit round 9 regenerated the report with zero drift and no remaining serve-mode findings.",
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "sed -n \"232,240p\" CLAUDE.md",
+          "result": "pass",
+          "note": "The startup block keeps npm start visually separate from lattice serve and only shows supported lattice serve invocations, so it cannot be read as an unsupported CLI alias.",
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
+        }
+      ]
+    }
+  ]
+}

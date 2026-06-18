@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-0717:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: doc-only plan preserves staged cli-engine split boundaries, compatibility re-exports, Authority receipt boundary, and labels 3x1 as degraded.",
+      "createdAt": "2026-06-18T14:21:08.579Z",
+      "reviewRound": "2026-06-18T14:19:57.285Z",
+      "reviewRunId": "B-0717:RR-001",
+      "_hash": "eff4f5a50d3f4f12da36702ceadc7ec18f34dba2f286ba2c1e3bbe6f06c0f6e4"
+    },
+    {
+      "id": "B-0717:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "PASS: git diff main...HEAD shows no source-code implementation changes; non-metadata product diff is only docs/requirements/decisions/cli-engine-modularization-execution-plan.md. The document is ASCII-only, specific about module boundaries, acceptance checks, compatibility symbols, stop conditions, and Authority/quorum limitations. It explicitly states B-0717 is documentation-only, local Authority is off/not-configured, production Authority completion is not claimed, and 3x1 is degraded rather than equivalent to 3x2. No blocker found.",
+      "createdAt": "2026-06-18T14:21:21.024Z",
+      "reviewRound": "2026-06-18T14:19:57.285Z",
+      "reviewRunId": "B-0717:RR-002",
+      "_hash": "050855601e5eb8f72aacc9e82e4b7890b4bad2ffab0653cdc268e08a841831a2"
+    },
+    {
+      "id": "B-0717:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001/002/003 verificationEvidence covers every verificationIntent entry. Docs evidence matches the created execution plan sections for documentation-only scope, compatibility inventory, verification matrix, Authority receipt flow, local 3x2 quorum, and degraded 3x1 fallback. CLI evidence commands are either documented as manual transcripts or mapped to existing package scripts/direct dist task when no package script exists. authority_status reports not-configured/off with receiptVerified=false and productionDone=false; authority_verdict_list for B-0717-cli-engine-plan-local-3x2 shows 6 local pass verdicts across 2 hosts, authorityServerContact=false, receiptVerified=false, fullAuthorityDone=false, and verdict notes consistently avoid production Authority receipt claims.",
+      "createdAt": "2026-06-18T14:21:36.582Z",
+      "reviewRound": "2026-06-18T14:19:57.285Z",
+      "reviewRunId": "B-0717:RR-003",
+      "_hash": "9101dc66180537677008797a75838e91cbee9c9b8af7fb62840e3f2d72972f19"
+    },
+    {
+      "id": "B-0717:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: cli-engine modularization execution plan is clear, documentation-only scope is explicit, Authority status is limited to off/not-configured readiness, production Authority completion is tied only to verified production gate_decision receipt refs, local 3x2 versus degraded 3x1 quorum language matches related review-escalation guidance, no misleading legacy testIntent/TEST_CASE naming found, and future implementation rounds include useful module boundaries, compatibility contracts, verification commands, and stop conditions.",
+      "createdAt": "2026-06-18T14:21:42.473Z",
+      "reviewRound": "2026-06-18T14:19:57.285Z",
+      "reviewRunId": "B-0717:RR-004",
+      "_hash": "c0340b7a33e5318b0f7a8e9df879aa7a7937a91a9ce32995b944b6c6a4fba77a"
+    }
+  ]
+}

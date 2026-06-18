@@ -1,0 +1,337 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the cli-engine modularization execution plan document",
+      "context": "Document current cli-engine.ts inventory, god-file root cause, four-stage decomposition, compatibility exports, high-risk gates, Authority Server strong-verification path, local 3x2 plan verdict requirements, and 3x1 degraded fallback semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-18T14:11:43.892Z",
+      "endTime": "2026-06-18T14:18:34.639Z",
+      "userSees": "Final response includes: \"Created docs/requirements/decisions/cli-engine-modularization-execution-plan.md with the staged cli-engine split plan; B-0717 did not refactor cli-engine.ts.\"",
+      "excludes": [
+        "No cli-engine.ts implementation changes in this story",
+        "No command rename/removal in this story"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "The execution plan document exists and has purpose, non-goals, current inventory, target boundaries, execution rounds, verification matrix, and rollback/stop conditions.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "The document explicitly distinguishes B-0717 documentation work from future implementation stories so no source refactor is implied as done here.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The plan does not hide high-risk process facts behind prose-only claims; gate/Authority-sensitive assertions point to mechanical verification or future required receipts.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Document exists at the declared path and includes purpose, non-goals, current inventory, compatibility contract, four implementation rounds, Authority flow, local quorum, verification matrix, implementation split, rollback/stop conditions, and reviewer checklist.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "The Purpose and Non-Goals sections explicitly state B-0717 is documentation only and does not refactor packages/main/src/cli-engine.ts or claim cli-engine decomposition is complete.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Authority-sensitive claims require authority_receipt_verify against production gate_decision receipts and lifecycle receipt consumption; local status/readiness/verdict prose is explicitly barred from production Authority completion claims.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify the plan against current cli-engine and command contracts",
+      "context": "Use current source inventory and contract docs to prove the plan preserves MAIN_TOOLS, command-policy coverage, handler registry dispatchability, owner lease/read-only reviewer gates, INIT_CHECK metadata sync, and JSON stdout behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "AGENTS.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-18T14:18:47.597Z",
+      "endTime": "2026-06-18T14:19:12.998Z",
+      "userSees": "Final response includes: \"Verified the plan against current cli-engine.ts inventory, registry/handler split, exported compatibility surfaces, and available package verification commands.\"",
+      "excludes": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/registry.ts",
+        "packages/main/src/handlers",
+        "packages/main/src/core",
+        "packages/main/package.json",
+        "scripts/verify-process-fact-contract.mjs",
+        "Source and script touchpoints are read-only inventory/verification references in B-0717, not modification targets.",
+        "No source-code move in this story",
+        "No direct story JSON or fixture JSON edits"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "The plan includes a current inventory of cli-engine.ts responsibilities and explicitly notes that handlers are already split through registry/handlers.",
+            "type": "docs"
+          },
+          {
+            "id": "CHK-002:happy:1",
+            "desc": "The plan lists compatibility surfaces that future implementation stories must preserve or migrate, including MAIN_TOOLS, parseFlags, owner lease helpers, and init-check metadata sync exports.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "The verification matrix uses commands that exist in the current package scripts or marks commands as conditional when no package script exists.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "The plan avoids a line-count-only split and instead assigns modules by responsibility boundaries with stop conditions for process-fact regressions.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "wc -l packages/main/src/cli-engine.ts && rg -n \"MAIN_TOOLS|parseFlags|ownerLeaseHelpBlock|resolveEffectiveOwnershipClass|enforceStoryOwnerLeaseGate|commitInitCheckMetadataAndMergeMain|runCli|story_create|story_advance|recover_evidence\" packages/main/src/cli-engine.ts && rg -n \"from ./cli-engine|cli-engine\" packages/main/src packages/main/tests scripts package.json packages/main/package.json",
+          "result": "pass",
+          "note": "Source inventory confirms cli-engine.ts is 4450 lines, owns MAIN_TOOLS/flag helpers/owner and reviewer gates/init-check sync/runCli special dispatch, and handlers are already separated through registry/handlers consumers rather than requiring handler moves first.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Compatibility Contract section lists MAIN_TOOLS, parseFlags, parseFlagsTest, coerce, addValue, ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, reviewer read-only helpers, and commitInitCheckMetadataAndMergeMain as preserve-or-migrate symbols.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:main-write-lock-coverage && node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
+          "result": "pass",
+          "note": "All executable verification matrix commands completed successfully; JSON stdout smoke was run via direct dist task because no package script is declared for it.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Target Module Boundaries split by responsibility rather than line count and each round has stop conditions for command disappearance, schema drift, JSON stdout changes, owner/reviewer gate weakening, and INIT_CHECK metadata regression.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record strong-verification readiness and review quorum requirements",
+      "context": "Document and verify the exact commands/conditions for Authority Server receipt-backed validation if configured, plus local full 3x2 host verdict and explicit degraded 3x1 fallback boundaries for environments without Authority receipts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-18T14:19:21.306Z",
+      "endTime": "2026-06-18T14:19:36.841Z",
+      "userSees": "Final response includes: \"Authority Server receipt flow, local 3x2 quorum, and degraded 3x1 fallback are documented; current local Authority status is off/not-configured, so no production Authority completion is claimed.\"",
+      "excludes": [
+        "Do not claim Authority production completion without verified gate_decision receipt",
+        "Do not treat 3x1 as equivalent to 3x2"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "The plan defines the Authority Server command flow: status/readiness, job creation, independent verdict submission, job status reconciliation, receipt verification, and lifecycle receipt consumption boundary.",
+            "type": "docs"
+          },
+          {
+            "id": "CHK-003:happy:1",
+            "desc": "The plan defines 3 rounds x 2 hosts as required local strong-review quorum for high-risk cli-engine implementation slices.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "When authority_status is off/not-configured, the plan states that local 3x2 can proceed only as lower-assurance evidence and cannot claim production Authority DONE.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "The plan states that 3 rounds x 1 host is a degraded fallback requiring explicit fallback classification, not a normal pass path for major architecture work.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js authority_status --json; node bin/lattice.js authority_job_create --help; node bin/lattice.js authority_verdict_submit --help; node bin/lattice.js authority_job_status --help; node bin/lattice.js authority_receipt_verify --help",
+          "result": "pass",
+          "note": "Authority command flow is mechanically available and documented: status/readiness, job creation, verdict submit, job status reconciliation, receipt verify, and lifecycle consumption boundary via verified production gate_decision receipt refs.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js authority_verdict_list --jobId=B-0717-cli-engine-plan-local-3x2 --runId=B-0717-local-review-2026-06-18 --requiredHosts=2 --json",
+          "result": "pass",
+          "note": "Local 3x2 evidence was recorded: 6 pass verdicts across host A and host B, 2 independent passing hosts, staleVerdicts=0, multiHostVerified=true; every verdict note says local/offline and not a production Authority gate_decision receipt.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js authority_status --json",
+          "result": "pass",
+          "note": "Current local Authority state is status=not-configured, authorityReady=false, receiptVerified=false, productionDone=false, canClaimProductionDone=false, so B-0717 cannot claim production Authority completion.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "result": "pass",
+          "note": "Local Quorum Flow section defines 3 rounds x 2 independent hosts as default high-risk local review and 3 rounds x 1 host as degraded lower-assurance fallback only, never equivalent to 3x2 for major architecture work.",
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-18T14:11:43.892Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start writing the CLI engine modularization execution plan document in DEV."
+    },
+    {
+      "timestamp": "2026-06-18T14:18:34.639Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Document was created and committed by worker in aeeb84819; evidence covers CHK-001 verification intent."
+    },
+    {
+      "timestamp": "2026-06-18T14:18:47.597Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start verification of the plan against current cli-engine and command contracts."
+    },
+    {
+      "timestamp": "2026-06-18T14:19:12.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Plan verified against current cli-engine inventory and command contract checks."
+    },
+    {
+      "timestamp": "2026-06-18T14:19:21.306Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start recording Authority readiness and review quorum evidence."
+    },
+    {
+      "timestamp": "2026-06-18T14:19:36.841Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Authority readiness and local strong-verification quorum evidence recorded."
+    }
+  ]
+}

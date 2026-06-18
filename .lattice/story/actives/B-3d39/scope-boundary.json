@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3d39",
+  "mode": "correctness_fix",
+  "allowed": [
+    "CHANGELOG.md",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/main-write-lock-coverage.ts"
+  ],
+  "excluded": [
+    "other core modules",
+    "other handlers",
+    "packages/main/src/core/lattice-paths.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved opening 1 story for the #1 High lock-reentrancy bug + #2 two-line guard fix on 2026-06-18; #3 CHANGELOG dropped (zero conflicts in history). Investigate-first path confirmed the root cause is the bare process-global heldLockPaths Set.",
+  "createdAt": "2026-06-18T14:07:53.217Z",
+  "updatedAt": "2026-06-18T14:07:53.217Z",
+  "_hash": "2845d5b7962defb6bc276670688a1cb786bb2e4bd3fe2977de9aa8493c0d7858"
+}

@@ -40,6 +40,12 @@ interface ManifestEntry {
   tags?: string[];
   timeoutMs?: number;
   skip?: boolean;
+  /**
+   * B-2941: if true, this smoke is NOT retried in pass 2 even if it times out
+   * in pass 1. Reserved escape hatch for smokes where retry would mask a real
+   * regression. Default false (i.e. all smokes participate in retry).
+   */
+  noRetry?: boolean;
 }
 
 interface Manifest {
@@ -53,6 +59,11 @@ interface RunOptions {
   manifestPath: string;
   smokesDir: string;
   quiet: boolean;
+  /**
+   * B-2941: --no-retry CLI flag (CI strict mode). When true, pass 2 retry is
+   * skipped — pass 1 result is the final result. Default false (two-pass).
+   */
+  noRetry: boolean;
 }
 
 interface SmokeResult {
@@ -74,6 +85,7 @@ export function parseArgs(argv: string[]): RunOptions {
     manifestPath: 'packages/main/smoke-manifest.json',
     smokesDir: 'packages/main/dist/tasks',
     quiet: false,
+    noRetry: false,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -83,6 +95,7 @@ export function parseArgs(argv: string[]): RunOptions {
     else if (a === '--manifest') { opts.manifestPath = argv[++i]!; }
     else if (a === '--smokes-dir') { opts.smokesDir = argv[++i]!; }
     else if (a === '--quiet') { opts.quiet = true; }
+    else if (a === '--no-retry') { opts.noRetry = true; }
   }
   return opts;
 }
@@ -185,38 +198,88 @@ async function runOneSmoke(entry: ManifestEntry, smokesDir: string): Promise<Smo
   });
 }
 
-export async function runAllSmokes(opts: RunOptions): Promise<{ results: SmokeResult[]; passed: number; total: number; durationMs: number }> {
+/**
+ * B-2941: shared worker-pool driver used by both pass 1 (jobs from opts) and
+ * pass 2 (jobs forced to 1). Selecting a specific entry subset overrides the
+ * tag/select filters — pass 2 retries the literal timeout-name set computed
+ * from pass 1 (excluding any manifest entry with noRetry=true).
+ */
+async function runEntrySet(
+  entries: ManifestEntry[],
+  smokesDir: string,
+  jobs: number,
+  quiet: boolean,
+  passLabel?: string,
+): Promise<SmokeResult[]> {
+  const results: SmokeResult[] = [];
+  if (entries.length === 0) return results;
+  let cursor = 0;
+  const workers: Promise<void>[] = [];
+  for (let w = 0; w < Math.min(jobs, entries.length); w++) {
+    workers.push((async () => {
+      while (true) {
+        const idx = cursor++;
+        if (idx >= entries.length) return;
+        const entry = entries[idx]!;
+        const result = await runOneSmoke(entry, smokesDir);
+        results.push(result);
+        if (!quiet) {
+          const tag = result.status === 'PASS' ? 'PASS' : result.status === 'TIMEOUT' ? 'TIMEOUT' : 'FAIL';
+          const suffix = result.reason ? ` [${result.reason}]` : '';
+          const prefix = passLabel ? `${passLabel} ` : '';
+          process.stdout.write(`${prefix}${tag} ${result.name} (${formatDuration(result.durationMs)})${suffix}\n`);
+        }
+      }
+    })());
+  }
+  await Promise.all(workers);
+  return results;
+}
+
+export async function runAllSmokes(opts: RunOptions): Promise<{ results: SmokeResult[]; passed: number; total: number; durationMs: number; retried: boolean }> {
   const start = Date.now();
   const manifest = readManifest(opts.manifestPath);
   const discovered = discoverSmokes(opts.smokesDir);
   const selected = selectSmokes(discovered, manifest, { tag: opts.tag, select: opts.select });
 
   if (selected.length === 0) {
-    return { results: [], passed: 0, total: 0, durationMs: 0 };
+    return { results: [], passed: 0, total: 0, durationMs: 0, retried: false };
   }
 
-  const results: SmokeResult[] = [];
-  let cursor = 0;
-  const workers: Promise<void>[] = [];
-  for (let w = 0; w < Math.min(opts.jobs, selected.length); w++) {
-    workers.push((async () => {
-      while (true) {
-        const idx = cursor++;
-        if (idx >= selected.length) return;
-        const entry = selected[idx]!;
-        const result = await runOneSmoke(entry, opts.smokesDir);
-        results.push(result);
-        if (!opts.quiet) {
-          const tag = result.status === 'PASS' ? 'PASS' : result.status === 'TIMEOUT' ? 'TIMEOUT' : 'FAIL';
-          const suffix = result.reason ? ` [${result.reason}]` : '';
-          process.stdout.write(`${tag} ${result.name} (${formatDuration(result.durationMs)})${suffix}\n`);
-        }
-      }
-    })());
+  // Pass 1: high-concurrency worker pool per opts.jobs.
+  const pass1 = await runEntrySet(selected, opts.smokesDir, opts.jobs, opts.quiet);
+
+  // B-2941: identify pass-1 timeout entries that are NOT explicitly noRetry-flagged.
+  // Pass 2 forces --jobs 1 for the subset, then merges results.
+  const byName = new Map(selected.map((e) => [e.name, e] as const));
+  const retryEntries: ManifestEntry[] = opts.noRetry
+    ? []
+    : pass1
+        .filter((r) => r.status === 'TIMEOUT')
+        .map((r) => byName.get(r.name))
+        .filter((e): e is ManifestEntry => !!e && e.noRetry !== true);
+
+  if (retryEntries.length === 0) {
+    const passed = pass1.filter((r) => r.status === 'PASS').length;
+    return { results: pass1, passed, total: selected.length, durationMs: Date.now() - start, retried: false };
   }
-  await Promise.all(workers);
-  const passed = results.filter((r) => r.status === 'PASS').length;
-  return { results, passed, total: selected.length, durationMs: Date.now() - start };
+
+  if (!opts.quiet) {
+    process.stdout.write(
+      `\nPass 1: ${pass1.filter((r) => r.status === 'PASS').length}/${selected.length} passed; ${retryEntries.length} timeout(s) → retrying serially...\n`,
+    );
+  }
+  const pass2 = await runEntrySet(retryEntries, opts.smokesDir, 1, opts.quiet, 'Pass 2:');
+
+  // Merge: pass 2 result REPLACES pass 1 result for the same name.
+  const pass2ByName = new Map(pass2.map((r) => [r.name, r] as const));
+  const merged: SmokeResult[] = pass1.map((r) => pass2ByName.get(r.name) ?? r);
+  const passed = merged.filter((r) => r.status === 'PASS').length;
+  if (!opts.quiet) {
+    const retriedPassed = pass2.filter((r) => r.status === 'PASS').length;
+    process.stdout.write(`Pass 2: ${retriedPassed}/${pass2.length} passed\n`);
+  }
+  return { results: merged, passed, total: selected.length, durationMs: Date.now() - start, retried: true };
 }
 
 async function main(): Promise<void> {
@@ -231,7 +294,12 @@ async function main(): Promise<void> {
       process.stdout.write(`run-all-smokes: 0 smokes matched filters (tag=${opts.tag ?? '*'} select=${opts.select ?? '*'})\n`);
       process.exit(0);
     }
-    process.stdout.write(`\n${summary.passed}/${summary.total} passed in ${formatDuration(summary.durationMs)}\n`);
+    // B-2941: if pass 2 actually ran, label the closing line "Final:" so
+    // downstream tooling (and humans) can distinguish a two-pass result from
+    // a single-pass result. Without retry, the closing line stays identical to
+    // pre-B-2941 output (preMortem D3 — pass 1 format preserved).
+    const closingLabel = summary.retried ? 'Final: ' : '';
+    process.stdout.write(`\n${closingLabel}${summary.passed}/${summary.total} passed in ${formatDuration(summary.durationMs)}\n`);
     const anyFail = summary.results.some((r) => r.status !== 'PASS');
     process.exit(anyFail ? 1 : 0);
   } catch (e) {

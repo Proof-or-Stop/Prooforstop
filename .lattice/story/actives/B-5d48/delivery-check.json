@@ -1,0 +1,60 @@
+{
+  "storyId": "B-5d48",
+  "checkedAt": "2026-06-18T14:03:18.961Z",
+  "reviewRound": "2026-06-18T13:50:17.000Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-5d48/plan.md#CHK-001",
+      "promise": "New packages/main/src/core/signature-candidate.ts exports deriveSignatureCandidate(category?, files?, desc?): string — deterministic, never-empty, tolerates missing/empty inputs, no I/O",
+      "verifiedBy": "diff/read + live test",
+      "evidence": "File exists in diff. Function exported at line 124. Pure string logic only. Zero non-node imports confirmed (no fs/path/child_process). Live smoke: 9 leaf checks PASS including all-missing, empty files, non-string files, long desc, collision resistance.",
+      "waiverReason": ""
+    },
+    {
+      "docPath": ".lattice/story/actives/B-5d48/plan.md#CHK-001",
+      "promise": "SignatureTagSource = auto | confirmed exported from experience-layer-types.ts, documented as audit-only provenance",
+      "verifiedBy": "diff/read",
+      "evidence": "experience-layer-types.ts line 81: export type SignatureTagSource = 'auto' | 'confirmed'; doc comment on lines 72-80 states AUDIT-ONLY, excluded from finding _hash. types.ts imports and applies it on Finding.signatureTagSource field.",
+      "waiverReason": ""
+    },
+    {
+      "docPath": ".lattice/story/actives/B-5d48/plan.md#CHK-002",
+      "promise": "finding_add in handlers/finding.ts: supplied tag -> signatureTagSource=confirmed; omitted/empty/whitespace -> signatureTagSource=auto + deriveSignatureCandidate fallback; both fields excluded from signFinding/_hash",
+      "verifiedBy": "diff/read + live test",
+      "evidence": "finding.ts lines 284-294: suppliedTag trim, signatureTagSource ternary. Line 331: signFinding called with only standard args (no signatureTag/signatureTagSource). Both fields attached AFTER _hash (line 336). finding-verify.ts untouched by diff. Smoke 6 wiring checks PASS + CRITICAL _hash invariance PASS. No gate files reference signatureTagSource.",
+      "waiverReason": ""
+    },
+    {
+      "docPath": ".lattice/story/actives/B-5d48/plan.md#CHK-003",
+      "promise": "New experience-layer-signature-capture-smoke.ts with 15 named checks; npm script test:experience-layer-signature-capture added; verifier verify-b-5d48.mjs committed; no-regression smokes + full npm test green",
+      "verifiedBy": "diff/read + live test execution",
+      "evidence": "Smoke file with 15 check() calls confirmed. Live run: TOTAL 15 PASS 15 FAIL 0 + signature-capture smoke passed. package.json line 36 registers npm script. verify-b-5d48.mjs present with static + behavioral + negative self-test (exclusionCheckHasTeeth). verify-result.json shows TOTAL 36 PASS 36 FAIL 0.",
+      "waiverReason": ""
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:experience-layer-signature-capture: 9 leaf checks PASS including determinism, all-missing, empty files, non-string files, 10k-char capping, lowercase-only output, collision resistance. Live execution: TOTAL 15 PASS 15 FAIL 0.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:experience-layer-signature-capture: 6 wiring checks PASS — no-tag->auto, supplied-tag->confirmed+unchanged, empty-string omission, whitespace omission, sparse-finding auto, CRITICAL signFinding BYTE-IDENTICAL with/without new fields (real signFinding imported not mocked). Live execution confirmed.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Verifier verify-b-5d48.mjs covers build clean, signature-capture smoke 15/15, hash invariance flag, 6 no-regression smokes (finding-signals/enums/playbook/recall/revalidation/learning-scan), full npm test, static purity/exclusion checks, negative self-test exclusionCheckHasTeeth=true. verify-result.json: TOTAL 36 PASS 36 FAIL 0.",
+      "waiverReason": ""
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 plan.md promises verified in code and confirmed by live test execution (15/15 pass). The critical _hash-invariance invariant is tested dynamically via real signFinding and statically via verifier grep plus negative self-test. No gate files read the new fields. No TODOs in production code. No open findings remain."
+  },
+  "_hash": "aa0d196461189aa3d75004f406f1c551ebd11f871b78e1822db678ed7a9c711f"
+}

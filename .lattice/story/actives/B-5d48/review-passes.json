@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-5d48:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff is predominantly additive (new signature-candidate.ts leaf, SignatureTagSource type, signatureTagSource field on Finding, finding_add wiring). The two stale assertions in experience-layer-finding-enums-smoke.ts (no signatureTag when omitted / blank signatureTag ignored not stored) are fully replaced in B-5d48 HEAD with correct B-5d48-contract assertions; no residue in the worktree. One medium finding filed: stale B-4f46 comment at finding.ts line 283 says omitted signatureTag => unchanged legacy behavior which now contradicts the new auto-candidate behavior added in the same block. The B-5d48 comment at lines 285-289 correctly describes the new contract but the old comment line is not updated or removed. No critical blockers found. No doc-promise-undelivered issues (README/CLAUDE.md untouched). No gate-consuming use of signatureTagSource detected. 1 finding registered (medium/missing).",
+      "createdAt": "2026-06-18T13:39:46.631Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-001",
+      "_hash": "952e90d6fc2d2fc150568ceeb10c6e23e5117ccd1518a1af8fa7aefd8bd9c08b"
+    },
+    {
+      "id": "B-5d48:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "LEAF invariant confirmed: signature-candidate.ts has zero imports (pure string work, no node: builtins used), never throws, never returns empty string. CRITICAL INVARIANT confirmed: signFinding call at handlers/finding.ts:331 does not include signatureTag or signatureTagSource in its arguments; both fields are spread AFTER _hash at line 336 exactly as designed. Confirmed path (reviewer supplies tag): suppliedTag flow is byte-identical to prior B-4f46 behavior except recording source=confirmed. Auto path: deriveSignatureCandidate fed through resolveTag (safe, never throws). finding-verify.ts signFinding is untouched. Enums-smoke assertion changes are correct for blank/omitted => auto candidate. New smoke suite imports all used. No dead code. No empty catch blocks (cleanup and warn-only are intentional). No I/O shell isolation issue (no bridge.ts/shells/ in project). One medium finding raised: type duplication of auto|confirmed literal in types.ts vs SignatureTagSource in experience-layer-types.ts.",
+      "createdAt": "2026-06-18T13:40:23.513Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-002",
+      "_hash": "2b61636e1988382fc1c3973caabc759cce580e5c7fec5663ba52e961aec57cf7"
+    },
+    {
+      "id": "B-5d48:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All three CHKs verified: (1) deriveSignatureCandidate is pure, deterministic, never-throws, never-empty — confirmed by 9 leaf checks + static import scan. (2) finding_add with no/blank/whitespace tag persists signatureTagSource=auto + auto candidate; with tag persists signatureTagSource=confirmed + byte-identical tag; _hash is BYTE-IDENTICAL (signFinding domain unchanged, new fields attached after _hash). Verified live-fire: F-001 auto, F-003 confirmed, F-004 whitespace=auto — all _hashes recompute correctly. (3) signatureTag/signatureTagSource excluded from signFinding (static grep confirms no args), finding-verify.ts untouched (git diff empty), no gate file (advisory.ts, story.ts, finding-verify.ts, review-run.ts, evidence-freshness.ts) reads the new fields. resolveTag on unknown tag returns as-is (no crash). Smoke 15/15, verifier 36/36. No blockers found.",
+      "createdAt": "2026-06-18T13:42:09.723Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-004",
+      "_hash": "e630d11216a7fab644514e22ef9ddce0422c30d95289bc475a0110e9b74fb824"
+    },
+    {
+      "id": "B-5d48:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. F-002 (stale comment at finding.ts line 283 claiming omitted signatureTag => unchanged legacy behavior) is confirmed RESOLVED: line 283 now reads omitted => auto-derived candidate, see B-5d48 below, consistent with the new auto-candidate behavior. All other unchanged legacy behavior occurrences in finding.ts (lines 464, 501) describe the finding_resolve / finding_dismiss enum paths, which were not changed by this story and remain accurate. The diff is additive: new signature-candidate.ts leaf (LEAF, zero outward imports), SignatureTagSource type in experience-layer-types.ts, signatureTagSource field on Finding in types.ts, finding_add wiring in handlers/finding.ts (suppliedTag / signatureTagSource / auto-fallback via deriveSignatureCandidate + resolveTag), enums-smoke updated to assert auto-candidate contract, new experience-layer-signature-capture-smoke.ts with full leaf+wiring+CRITICAL-_hash-invariance coverage, and package.json test script pointing to the new smoke. No dangling refs, no half-updated concepts, no doc-promise-undelivered (README/CLAUDE.md untouched). No gate-consuming use of signatureTagSource detected anywhere. Zero findings registered this round.",
+      "createdAt": "2026-06-18T13:52:30.566Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-005",
+      "_hash": "94314eaa825c0ea3eb6482c7f822351dd003e77b2ec2badf79245c8f45b6af85"
+    },
+    {
+      "id": "B-5d48:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review: (1) F-005 RESOLVED — types.ts line 9 imports SignatureTagSource from experience-layer-types.js via `import type` (no re-export needed; used only for Finding.signatureTagSource field); experience-layer-types.ts has zero imports so no cycle. (2) Dead code: none — resolveTag/deriveSignatureCandidate/all smoke imports all active. No commented-out logic. (3) Type safety: no `as any`; empty catch at line 270 of smoke test is best-effort cleanup with explicit comment, not error-swallowing. (4) I/O shell isolation: signature-candidate.ts consumed only by handlers/finding.ts and the smoke task, never by cli.ts/cli-engine.ts/index.ts shells. (5) _hash invariance: signFinding call at line 331 precedes signatureTag/signatureTagSource spread at line 336 — both audit fields excluded from signed domain. (6) signatureTagSource conditioned on same truthiness as signatureTag (line 336) — consistent with deriveSignatureCandidate never-empty contract. No blockers found.",
+      "createdAt": "2026-06-18T13:53:02.908Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-006",
+      "_hash": "2cc7be68e0025e84ceb4ee14658848c5aa60d54dfc23443137566c53c30b6f15"
+    },
+    {
+      "id": "B-5d48:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior review — all 4 round-1 findings confirmed resolved (F-002 stale comment fixed at finding.ts:283; F-005 SignatureTagSource type now canonical import from experience-layer-types.ts not inline literal; F-006 verifier negative self-test exclusionCheckHasTeeth added to verify-b-5d48.mjs; F-001/F-003/F-004 pollution dismissed). Smoke 15/15 PASS confirmed by re-running npm run test:experience-layer-signature-capture: (1) no-tag=>source=auto+non-empty candidate; (2) supplied-tag=>source=confirmed+unchanged; (3) empty/whitespace-only tag treated as omitted (auto); (4) CRITICAL _hash invariance via real signFinding — byte-identical with vs without new fields. Static checks via verifier: signFinding call at finding.ts:331 excludes signatureTagSource; no gate file (advisory.ts, story.ts, finding-verify.ts) reads signatureTagSource; leaf signature-candidate.ts has zero non-node imports; deriveSignatureCandidate confirmed never returns empty at runtime. Spec-boundary audit: lattice-experience-layer-execution-plan.md Determinism Guardrail 1 (audit-only fields excluded from gate reads and _hash) fully honored. No new findings.",
+      "createdAt": "2026-06-18T13:54:23.144Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-008",
+      "_hash": "8ba590fc0f23b743e7ac52cd9866479a3ac5f01163df64bbcbd02e4314a92040"
+    },
+    {
+      "id": "B-5d48:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "36/36 intents covered across CHK-001/002/003 (happy+edge+adversarial). Smoke TOTAL 15 PASS 15. Verifier TOTAL 36 PASS 36 FAIL 0 (all flags true). CHK-003:adversarial:2 now bound to the verifier (node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs, kind=integration_test) with note citing negSelfTestRejectsBad=true / negSelfTestAcceptsGood=true / exclusionCheckHasTeeth=true — the literal command where the negative self-test executes. F-006 resolved (negative self-test added). F-007 resolved (evidence pointer corrected). 0 open findings. Test coverage review passed.",
+      "createdAt": "2026-06-18T13:57:12.877Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-009",
+      "_hash": "08e6c672d22a5b68fda849dd3661692c570a4cbb8e0736026b042d4b8e3dcb71"
+    }
+  ]
+}

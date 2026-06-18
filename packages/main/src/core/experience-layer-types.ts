@@ -68,6 +68,18 @@ export interface FindingSignal {
   anchorFiles?: string[];
 }
 
+/**
+ * B-5d48 CHK-001 (Experience Layer ③.2): provenance of a finding's `signatureTag`.
+ * - `'confirmed'`: a reviewer (or LLM) explicitly supplied the tag — real quality.
+ * - `'auto'`: a deterministic mechanical FALLBACK candidate (deriveSignatureCandidate)
+ *   filled in because none was supplied.
+ *
+ * AUDIT-ONLY: like `signatureTag` itself, this field MUST NOT be read by any gate
+ * and MUST be excluded from the finding `_hash` / signFinding signature. It exists
+ * only to distinguish low-quality auto fallbacks from confirmed tags downstream.
+ */
+export type SignatureTagSource = 'auto' | 'confirmed';
+
 /** The derived-cache envelope persisted to `.lattice/learning/finding-signals.json`. */
 export interface FindingSignalsCache {
   /** Schema version of this cache shape. */

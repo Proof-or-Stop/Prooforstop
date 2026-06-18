@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Mask race via retry not algorithmic fix",
+    "Test-only edits",
+    "Preserve --no-retry escape for CI strict mode",
+    "Pass 1 output format byte-identical to today"
+  ],
+  "drivers": [
+    "B-24c3 + B-be91 proved every smoke passes serial",
+    "OSS-launch CI gate needs deterministic test:all",
+    "Two-pass is simpler than adaptive pool"
+  ],
+  "options": [
+    {
+      "name": "(a) Two-pass retry in runner (chosen)",
+      "pros": [
+        "Single execution path",
+        "Behaviorally identical to test:coverage retry pass",
+        "No external orchestration"
+      ],
+      "cons": [
+        "Adds 80-150 lines to runner"
+      ]
+    },
+    {
+      "name": "(b) External shell retry",
+      "pros": [
+        "Zero runner change"
+      ],
+      "cons": [
+        "Fragile output parsing"
+      ]
+    },
+    {
+      "name": "(c) Adaptive worker pool",
+      "pros": [
+        "Most thorough"
+      ],
+      "cons": [
+        "Overengineered"
+      ]
+    }
+  ],
+  "chosen": "(a) Two-pass retry in runner (chosen)",
+  "rationale": "User picked (a) on 2026-06-18. Two-pass converts timeouts to retries; behaviorally identical to test:coverage --jobs 1 mode that already exits 0 reliably.",
+  "preMortem": [
+    {
+      "scenario": "Pass 2 retry too slow",
+      "trigger": "5 timeouts each 1-3min serial = 5-15min added",
+      "consequence": "Wall-clock unacceptable",
+      "mitigation": "Measure DEV. If worst > 10min, document; CI uses --no-retry."
+    },
+    {
+      "scenario": "Smoke fails BOTH passes",
+      "trigger": "Real bug",
+      "consequence": "Final FAIL exit 1",
+      "mitigation": "Correct behavior — self-smoke fixture covers."
+    },
+    {
+      "scenario": "Pass 1 output format change breaks parsers",
+      "trigger": "Existing tools grep PASS/FAIL/TIMEOUT",
+      "consequence": "Tooling breaks",
+      "mitigation": "Pass 1 byte-identical; pass 2 lines prefixed."
+    }
+  ],
+  "timestamp": "2026-06-18T12:47:10.042Z"
+}

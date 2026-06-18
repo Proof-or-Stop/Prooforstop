@@ -47,3 +47,39 @@ c8 is configured via `.c8rc.json` at the repo root:
 - **No threshold gates**: the script does not fail on low coverage. Add
   `--lines`, `--branches`, etc. flags or `.c8rc.json` entries if a follow-up
   story wants enforced thresholds.
+
+## Two-pass retry for `npm run test:all` (B-2941)
+
+`npm run test:all` (the parallel smoke battery, separate from `test:coverage`)
+runs in two passes:
+
+1. **Pass 1** — high-concurrency worker pool (default `--jobs <cpuCount>`).
+   Per-smoke `PASS/FAIL/TIMEOUT` lines stream as today.
+2. **Pass 2** — if any smoke times out in pass 1, the runner re-invokes the
+   timeout subset with `--jobs 1` (forced serial). Output lines are prefixed
+   `Pass 2:`. The closing line becomes `Final: X/N passed in T s` when retry
+   actually fires.
+
+Because every smoke individually passes in single-process mode (verified by
+B-24c3 + B-be91 data), pass 2 reliably resolves parallel-load race timeouts.
+This makes `test:all` deterministic enough to use as a CI gate.
+
+### CI strict mode
+
+To disable pass 2 (for example in a fail-fast CI step that doesn't want the
+retry pass), use `--no-retry`:
+
+```sh
+npm run test:all -- --no-retry
+```
+
+With `--no-retry` the output and exit semantics are byte-identical to the
+pre-B-2941 single-pass behavior.
+
+### Per-smoke escape hatch
+
+`packages/main/smoke-manifest.json` supports an optional
+`noRetry: boolean` field per entry. A smoke with `noRetry: true` is **not**
+retried in pass 2 even if it timed out — reserved for cases where retry would
+mask a real regression. Zero entries use it on initial landing.
+

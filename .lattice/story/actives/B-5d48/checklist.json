@@ -9,9 +9,182 @@
         "No filesystem/git in the leaf",
         "No claim of human-quality signatures (it is a fallback)"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T13:22:58.278Z",
+      "endTime": "2026-06-18T13:24:09.846Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/experience-layer-types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/signature-candidate.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveSignatureCandidate(\"correctness\", [\"src/handlers/finding.ts\"], \"Missing null check on input\") => returns a deterministic non-empty string containing category + fileKind + desc tokens; WHY: covers the main derivation path with all three inputs present",
+            "type": "cli"
+          },
+          {
+            "desc": "Calling deriveSignatureCandidate twice with identical args => identical output; WHY: confirms determinism contract",
+            "type": "cli"
+          },
+          {
+            "desc": "SignatureTagSource type exists and is union of exactly auto | confirmed; WHY: confirms type export is correct",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "deriveSignatureCandidate(undefined, undefined, undefined) => non-empty string (never throws, never empty); WHY: all-missing input boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate(\"bug\", [], \"x\") => non-empty string with category=bug; WHY: empty files array boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate(\"\", [\"a.ts\"], \"\") => non-empty string; WHY: empty-string category + empty desc boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate(\"cat\", [123, null, true], \"desc\") => non-empty string, tolerates non-string files; WHY: dirty input from unvalidated callers",
+            "type": "cli"
+          },
+          {
+            "desc": "deriveSignatureCandidate with very long desc (10k chars) => returns a capped/bounded string; WHY: ensures capping works on extreme input",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "deriveSignatureCandidate does zero I/O (import graph of signature-candidate.ts references only node: builtins and local types, no fs/path/child_process/net); WHY: purity contract — I/O in the leaf would be a design violation",
+            "type": "cli"
+          },
+          {
+            "desc": "Output is fully lowercase and contains no punctuation beyond the | separator; WHY: canonical normalization contract — uppercase or stray punctuation would break dedup",
+            "type": "cli"
+          },
+          {
+            "desc": "Two different (category, files, desc) triples => two different outputs; WHY: collision resistance — if derivation collapses distinct findings, it defeats the purpose",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -23,9 +196,180 @@
         "No gate reads the new fields",
         "No change when a reviewer supplies a tag (other than recording source=confirmed)"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T13:24:10.679Z",
+      "endTime": "2026-06-18T13:25:43.865Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "finding_add with NO signatureTag arg => persisted finding has signatureTagSource=auto AND a non-empty signatureTag (derived candidate); WHY: covers the auto-fallback main path",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add WITH signatureTag=\"my-tag\" => persisted finding has signatureTagSource=confirmed AND signatureTag=\"my-tag\" unchanged; WHY: covers the confirmed main path and byte-identity of supplied tag",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add with signatureTag=\"\" (empty string) => treated as omitted, source=auto + derived candidate; WHY: empty-string is the omission boundary",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "finding_add with signatureTag=\"  \" (whitespace-only) => treated as omitted, source=auto; WHY: whitespace trim boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add with supplied tag preserves existing signatureTagHint/hasActiveOrProposedTag behavior (propose + near-tag suggestion); WHY: regression check that confirmed path does not break existing B-4f46 wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "finding_add with missing category/files/desc AND no signatureTag => auto candidate still non-empty (deriveSignatureCandidate tolerates all-missing); WHY: sparse finding boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CRITICAL _hash invariance: signFinding output is byte-identical whether signatureTag/signatureTagSource are present or absent on the finding object — construct same finding with and without new fields, hash both, assert equal; WHY: THE critical regression — if new fields leak into _hash, every gate breaks",
+            "type": "cli"
+          },
+          {
+            "desc": "signatureTagSource is NOT included in signFinding hashed input (static grep/AST check of signFinding call site in finding.ts); WHY: defense-in-depth — even if runtime test passes, the code path must structurally exclude the field",
+            "type": "cli"
+          },
+          {
+            "desc": "signatureTag field (already excluded per B-4f46) remains excluded from signFinding after this change (static check); WHY: regression guard — the new code must not accidentally re-include the existing excluded field",
+            "type": "cli"
+          },
+          {
+            "desc": "No gate (story_done, validation, review) reads signatureTagSource or the auto-derived signatureTag for decisions; WHY: audit-only contract — if any gate consumes these, it creates a false dependency",
+            "type": "cli"
+          },
+          {
+            "desc": "Auto-derived candidate is NOT treated as confirmed quality anywhere downstream — source=auto must be distinguishable; WHY: if auto is mistaken for confirmed, the quality signal is corrupted",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.901Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -36,9 +380,226 @@
         "No network",
         "No reliance on unrelated repo state"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T13:25:44.798Z",
+      "endTime": "2026-06-18T13:33:04.649Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test: deriveSignatureCandidate is deterministic across multiple calls with same input => identical output each time; WHY: determinism is a stated contract",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: finding_add with no tag => signatureTagSource=auto + non-empty signatureTag in persisted finding; WHY: auto path end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: finding_add with tag => signatureTagSource=confirmed + supplied tag unchanged; WHY: confirmed path end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: _hash invariance — finding _hash/signature is byte-identical with vs without signatureTag/signatureTagSource fields; WHY: THE critical invariant",
+            "type": "cli"
+          },
+          {
+            "desc": "npm script test:experience-layer-signature-capture exists and runs the smoke successfully (exit 0, prints passed); WHY: verifies npm script wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier verify-b-5d48.mjs runs end-to-end: build clean + smoke + full npm test + static checks => prints TOTAL N | PASS N | FAIL 0; WHY: full verifier integration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke covers deriveSignatureCandidate with missing/empty/non-string files array => never empty, never throws; WHY: boundary inputs must be exercised in the smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static check: signature-candidate.ts imports only node: builtins and local types (no fs/net/child_process); WHY: purity contract verified statically",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier includes full npm test (process-fact-contract and all existing tests pass); WHY: no-regression guard — new code must not break existing contracts",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test prints structured TOTAL/PASS/FAIL counts, not just a single pass/fail; WHY: verifier parsability contract",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verifier static check: signFinding hashed input in finding.ts does NOT contain signatureTag or signatureTagSource (grep/AST the signFinding call region); WHY: defense-in-depth — even if runtime _hash test passes, the code must structurally exclude the fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static check: no gate file (handlers/story.ts, validators, review gates) references signatureTagSource for gating decisions; WHY: audit-only contract must be structurally enforced",
+            "type": "cli"
+          },
+          {
+            "desc": "Running verifier on a deliberately broken build (e.g. signatureTagSource added to signFinding args) => verifier correctly reports FAIL > 0; WHY: verifier must catch the critical regression, not silently pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke _hash invariance test uses the actual signFinding function (not a mock), ensuring real hash algorithm is exercised; WHY: mocked hashing would miss algorithm-level field inclusion bugs",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + signature-capture smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (signature-candidate.ts pure; finding.ts signFinding hashed input excludes signatureTag/signatureTagSource). TOTAL 36 | PASS 36 | FAIL 0.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+          "result": "pass",
+          "note": "Verifier negative self-test: detectSignCallExcludesTag() is run against a synthetic BAD_SIGN_SNIPPET that wrongly passes signatureTag/signatureTagSource into signFinding — negSelfTestRejectsBad=true (the check FAILS on the bad snippet) and negSelfTestAcceptsGood=true (passes on the real finding.ts) => exclusionCheckHasTeeth=true. This proves the verifier would catch a signFinding _hash regression (the deliberately-broken-build scenario), not merely that the current code is fine.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-signature-capture",
+          "result": "pass",
+          "note": "signature-capture smoke asserts this: deriveSignatureCandidate deterministic/non-empty/tolerant; finding_add no-tag=>source=auto+candidate, supplied-tag=>source=confirmed+unchanged; and the finding _hash is BYTE-IDENTICAL via real signFinding with vs without the new fields. 15/15 checks pass.",
+          "headHash": "9fed07e33fe289817d8ceb84d96c8da725c2004e",
+          "materialHash": "b8a29016fbf5bf0ff995cd3c5ffb919aa25b63ab971bb968d2546daf3e4c8f28",
+          "timestamp": "2026-06-18T14:05:00.902Z"
+        }
+      ]
     }
   ]
 }

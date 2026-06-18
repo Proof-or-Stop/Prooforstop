@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-06b3",
+  "mode": "feature",
+  "allowed": [
+    "Pure resolveHintMode leaf (deterministic on/off)",
+    "Shadow-gating the experience-hint section render + adding hintMode to the surfaced event in story-review.ts",
+    "Smoke, npm script, and verifier for the A/B gating"
+  ],
+  "excluded": [
+    "Aggregating learning across more than one repository",
+    "Any change to the issues/blocker computation, resolveReviewPromptHash, or any gate",
+    "Historical signature backfill",
+    "The effectiveness metric / RCT readout command",
+    "Weighting confirmed vs auto signals"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User locked 3.2 -> 3.3 -> 3.4 -> 3.5; 3.3 is the deterministic A/B apparatus (shadow-gated display) only.",
+  "createdAt": "2026-06-18T14:27:03.458Z",
+  "updatedAt": "2026-06-18T14:27:03.458Z",
+  "_hash": "7498eee5441bc3a46485d0bd3c5656867a108f763a0aa5997c17a3f533eb0df5"
+}

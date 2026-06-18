@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0717",
+  "checkedAt": "2026-06-18T14:05:09.710Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "ca8b14dc467dbdb106ca978fb7ec57482a0907bd6f3c66f3fa0cd78179e9e048",
+  "executionBoundaryHash": "d2ae47c6e04d9ce9860895436cd003f87a9a9500076ff842681d2e9fe9242172",
+  "freshnessHash": "d3392b5f866cc4dac916ba61a347af586793e62a14a900e8e9a37a04e79de56a",
+  "effectiveExcludedKeywords": [
+    "Do not change CLI runtime behavior or command schemas in this story",
+    "Do not claim production Authority receipt completion unless a verified Authority gate_decision receipt exists",
+    "Do not refactor packages/main/src/cli-engine.ts in this story",
+    "Do not rename or remove commands in this story"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change CLI runtime behavior or command schemas in this story",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change CLI runtime behavior or command schemas in this story",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not claim production Authority receipt completion unless a verified Authority gate_decision receipt exists",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim production Authority receipt completion unless a verified Authority gate_decision receipt exists",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not refactor packages/main/src/cli-engine.ts in this story",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not refactor packages/main/src/cli-engine.ts in this story",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rename or remove commands in this story",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rename or remove commands in this story",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "e4a1b5299ad6a6abf020c418c97fed9b7f8931f9e909b99562bcd5ae10d380a9"
+}

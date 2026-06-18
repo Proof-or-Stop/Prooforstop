@@ -224,7 +224,7 @@ interface GameBridge {
 
 ```
 正式运行：   npm start / vite           → app.ts 里 LocalBridge 直连
-开发调试：   npm run serve / lattice serve   → core 进程 + WS bridge + Dashboard
+开发调试：   lattice serve / lattice serve --dev="npx vite"   → core 进程 + WS bridge + Dashboard
              CLI/浏览器同时连同一个逻辑实例
 纯浏览器：   vite build                 → LocalBridge 打包进浏览器
 ```
@@ -232,10 +232,10 @@ interface GameBridge {
 启动命令：
 
 ```bash
-npm start          # vite（Web 壳 + app.ts 浏览器内直连）
-npm run serve      # lattice serve（core + Dashboard）
-npm run serve:web  # lattice serve --web（core + vite + Dashboard）
-npm run serve:cli  # lattice serve --cli（core + CLI 壳 + Dashboard）
+npm start                     # vite（Web 壳 + app.ts 浏览器内直连）
+lattice serve                 # core + Dashboard
+lattice serve --dev="npx vite"  # core + vite + Dashboard
+lattice serve --port=N        # 显式端口（可选）
 ```
 
 ### 端口发现（多 worktree 安全）
@@ -256,7 +256,7 @@ npm run serve:cli  # lattice serve --cli（core + CLI 壳 + Dashboard）
 **Claude Code 调试流程**：
 
 1. 读 `.koala-serve.json` → 拿到 `api` URL
-2. 文件不存在或 pid 已死 → 先启动 `npm run serve`
+2. 文件不存在或 pid 已死 → 先启动 `lattice serve`
 3. 用读到的 URL 调 Bridge API / 打开 Dashboard
 
 不需要记端口号。`.koala-serve.json` 已加入 `.gitignore`，进程退出时自动清理。
