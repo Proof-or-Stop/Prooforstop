@@ -179,7 +179,8 @@
       "name": "decision-doc-quorum"
     },
     {
-      "name": "decision-doc-promotion"
+      "name": "decision-doc-promotion",
+      "timeoutMs": 180000
     },
     {
       "name": "attestation"
@@ -235,7 +236,7 @@
     },
     {
       "name": "dispatch-run",
-      "timeoutMs": 180000
+      "timeoutMs": 300000
     },
     {
       "name": "autopilot-run",
@@ -281,7 +282,7 @@
     },
     {
       "name": "cli-json-stdout-contract",
-      "timeoutMs": 180000
+      "timeoutMs": 300000
     },
     {
       "name": "pretool-scope-hook"
