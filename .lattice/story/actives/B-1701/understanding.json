@@ -1,0 +1,33 @@
+{
+  "task": "Add a default Authority trust/client bundle generator with an explicit senior opt-in variant and legacy filename aliases.",
+  "outcome": "A developer can get the default `lattice_authority_trust.env` and `lattice_staging-client.env` bundle without extra fields, an explicit senior opt-in can emit `lattice_senior_authority_trust.env` and `lattice_senior_staging-client.env`, and the legacy `authority_trust.env` / `staging-client.env` names keep working as compatibility aliases.",
+  "facts": [
+    "Existing code already reads `authority_trust.env` in enforce mode, so the new work must preserve that path.",
+    "The user wants ordinary developers to have one obvious bundle by default, with senior mode as an explicit opt-in.",
+    "Legacy `authority_trust.env` and `staging-client.env` names must keep working as compatibility aliases.",
+    "This story is about simplifying the credential bundle workflow, not redesigning tenant auth or multi-tenant management."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not add multi-tenant or unrelated auth redesign work.",
+    "Keep secret material out of logs and docs.",
+    "Preserve legacy compatibility while introducing the Lattice-prefixed names."
+  ],
+  "unknowns": [
+    "Exact generator entry point and file emission mechanism.",
+    "Whether senior mode is toggled by a flag or a separate command.",
+    "Which docs need updates beyond the immediate authority bundle decision notes."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/guide.md",
+    "README.md"
+  ],
+  "timestamp": "2026-06-18T16:24:29.989Z"
+}

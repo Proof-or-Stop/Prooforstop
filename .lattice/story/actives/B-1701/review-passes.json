@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-1701:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Host-neutrality is now stated correctly as local generation in the target workspace, so the bundle handoff does not overclaim cross-host portability.",
+      "createdAt": "2026-06-18T22:16:29.730Z",
+      "reviewRound": "2026-06-18T21:46:50.839Z",
+      "reviewRunId": "B-1701:RR-008",
+      "_hash": "39ecc40911e9347bf4a98289531e743978015af84307155f690fdf6352f767e9"
+    },
+    {
+      "id": "B-1701:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "The code and smoke checks still match the documented behavior after the target-workspace wording fix, with no regression in the bundle path.",
+      "createdAt": "2026-06-18T22:16:30.279Z",
+      "reviewRound": "2026-06-18T21:46:50.839Z",
+      "reviewRunId": "B-1701:RR-009",
+      "_hash": "1874780501d9b429994ba938795f4dd6ee66d108f6f48dba81d72975af446ab9"
+    },
+    {
+      "id": "B-1701:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "README, guide, and the CLI contract docs now consistently say the bundle is generated locally in the target workspace and live-only vars stay for runner/receipt use.",
+      "createdAt": "2026-06-18T22:16:30.969Z",
+      "reviewRound": "2026-06-18T21:46:50.839Z",
+      "reviewRunId": "B-1701:RR-011",
+      "_hash": "a2b36395eba508fed10b39d32d3ec790edb31dda40f09ccfbbd89a46e474bd44"
+    },
+    {
+      "id": "B-1701:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "The updated authority status smoke, authority client smoke, docs-drift smoke, and build cover the bundle handoff plus the live-only PROJECT_ID and GATE_ACTOR_* boundary.",
+      "createdAt": "2026-06-18T22:16:31.579Z",
+      "reviewRound": "2026-06-18T21:46:50.839Z",
+      "reviewRunId": "B-1701:RR-010",
+      "_hash": "ad80a928068129f5ec32de9cb2e850108e1bc42055bba974c6e7ca1565d2eae0"
+    }
+  ]
+}

@@ -48,14 +48,17 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   buildAuthorityStatus,
   buildConduitStatus,
+  writeAuthorityTrustProfileBundle,
 } from '../handlers/lattice-cli.js';
+import { buildAuthorityTrustProfileBundle } from '../core/authority-client.js';
+import { DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES } from '../core/authority-mode.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { upsertAuthorityGateReceiptRef, type AuthorityGateDecisionReceiptRef } from '../core/authority-gate-receipts.js';
 import { StoryStore } from '../core/store.js';
@@ -259,6 +262,7 @@ function refFor(
   assert.deepEqual(result.readinessWarnings, [], 'off-mode emits no readiness warnings');
   assert.deepEqual(result.nextActions, [], 'off-mode emits no next actions');
   assert.match(result.localWorkflowNote, /readiness warnings, not global blockers/i, 'off-mode includes local-workflow note');
+  assert.match(result.localWorkflowNote, /target workspace/i, 'off-mode note says the bundle is generated locally on the target workspace');
   assertNoProductionOverclaim(result, 'buildAuthorityStatus off-mode');
 }
 
@@ -596,6 +600,76 @@ function refFor(
   assert.ok(result.readinessWarnings.some(line => line.includes('ACTOR_KEY')), 'actor key warning remains');
   assert.ok(result.readinessWarnings.some(line => line.includes('RUNNER_ID')), 'runner id warning remains');
   assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-authority-trust-env');
+}
+
+// Basic bundle round-trip: generated Lattice-prefixed trust/client files remain consumable.
+{
+  const sourceRoot = mkdtempSync(join(tmpdir(), 'authority-bundle-source-'));
+  const bundleRoot = mkdtempSync(join(tmpdir(), 'authority-bundle-target-'));
+  try {
+    mkdirSync(join(sourceRoot, '.lattice', 'secrets'), { recursive: true });
+    writeFileSync(
+      join(sourceRoot, '.lattice', 'authority.md'),
+      [
+        'serverUrl: https://authority.example/',
+        'serverKeyId: source-server-key',
+        'serverPublicKey: source-server-public-key',
+        'projectId: source-project',
+        'customerApiKeyPath: .lattice/secrets/customer-api-key',
+      ].join('\n'),
+    );
+    writeFileSync(join(sourceRoot, '.lattice', 'secrets', 'customer-api-key'), 'source-customer-key\n');
+
+    const bundle = buildAuthorityTrustProfileBundle({
+      env: { LATTICE_AUTHORITY_MODE: 'off' },
+      cwd: sourceRoot,
+      outputDir: bundleRoot,
+    });
+    assert.equal(bundle.trustFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trustFileName);
+    assert.equal(bundle.clientFileName, DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.clientFileName);
+
+    const trustFilePath = join(bundleRoot, bundle.trustFileName);
+    const clientFilePath = join(bundleRoot, bundle.clientFileName);
+    const written = writeAuthorityTrustProfileBundle(bundleRoot, bundle);
+    assert.equal(written.trustFilePath, trustFilePath);
+    assert.equal(written.clientFilePath, clientFilePath);
+    assert.equal(readFileSync(trustFilePath, 'utf8'), bundle.trustFileText);
+    assert.equal(readFileSync(clientFilePath, 'utf8'), bundle.clientFileText);
+
+    const status = buildAuthorityStatus({}, {
+      ...EMPTY_AUTHORITY_ENV,
+      LATTICE_AUTHORITY_MODE: 'enforce',
+      LATTICE_AUTHORITY_TRUST_ENV_FILE: bundle.trustFileName,
+    }, { cwd: bundleRoot });
+    assert.deepEqual(
+      {
+        authorityTrustEnvLoaded: status.authorityTrustEnvLoaded,
+        authorityMdLoaded: status.authorityMdLoaded,
+        authorityUrlConfigured: status.authorityUrlConfigured,
+        customerApiKeyConfigured: status.customerApiKeyConfigured,
+        customerApiKeySource: status.customerApiKeySource,
+        resolvedBaseURL: status.resolvedBaseURL,
+        actorKeyConfigured: status.actorKeyConfigured,
+        runnerConfigured: status.runnerConfigured,
+      },
+      {
+        authorityTrustEnvLoaded: true,
+        authorityMdLoaded: false,
+        authorityUrlConfigured: true,
+        customerApiKeyConfigured: true,
+        customerApiKeySource: 'authority_trust_env',
+        resolvedBaseURL: 'https://authority.example/',
+        actorKeyConfigured: false,
+        runnerConfigured: false,
+      },
+    );
+    assert.ok(!status.readinessWarnings.some(line => line.includes('CUSTOMER_API_KEY')));
+    assert.ok(status.readinessWarnings.some(line => line.includes('ACTOR_KEY')));
+    assert.ok(status.readinessWarnings.some(line => line.includes('RUNNER_ID')));
+  } finally {
+    rmSync(sourceRoot, { recursive: true, force: true });
+    rmSync(bundleRoot, { recursive: true, force: true });
+  }
 }
 
 // CLI --root reads authority.md from the selected project root, not the shell cwd.

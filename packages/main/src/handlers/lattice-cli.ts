@@ -1,8 +1,13 @@
-import { existsSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'fs';
 import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import { type AuthorityConfig, type AuthoritySettings } from '../core/authority-mode.js';
-import { loadAuthorityConfig, resolveAuthorityCustomerApiKey, type AuthorityConfigLoadOptions } from '../core/authority-client.js';
+import {
+  loadAuthorityConfig,
+  resolveAuthorityCustomerApiKey,
+  type AuthorityConfigLoadOptions,
+  type AuthorityTrustProfileBundle,
+} from '../core/authority-client.js';
 import {
   AUTHORITY_RUNNER_PLANNED_STEPS,
   readActorPrivateKeyFromPath,
@@ -50,7 +55,7 @@ const AUTHORITY_DISCLAIMER =
   'Receipt-aware status only: existing receipt refs may be reported, no new receipt is verified, no evidence is submitted, and productionDone remains false.';
 
 const LOCAL_WORKFLOW_NOTE =
-  'Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; missing enforce prerequisites are readiness warnings, not global blockers.';
+  'Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; if you are consuming the generated lattice_authority_trust.env + lattice_staging-client.env bundle, generate it in the target workspace and keep the two files together on that machine because the bundle bakes local paths. Missing live runner fields like PROJECT_ID or GATE_ACTOR_* are expected until you switch to authority enforce runner --live. Missing enforce prerequisites are readiness warnings, not global blockers.';
 
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
@@ -855,6 +860,19 @@ function renderAuthorityStatusText(result: ReturnType<typeof buildAuthorityStatu
   lines.push('', result.localWorkflowNote);
   lines.push('', result.note);
   return lines.join('\n');
+}
+
+export function writeAuthorityTrustProfileBundle(
+  outputDir: string,
+  bundle: AuthorityTrustProfileBundle,
+): { trustFilePath: string; clientFilePath: string } {
+  const resolvedOutputDir = resolvePath(outputDir);
+  mkdirSync(resolvedOutputDir, { recursive: true });
+  const trustFilePath = join(resolvedOutputDir, bundle.trustFileName);
+  const clientFilePath = join(resolvedOutputDir, bundle.clientFileName);
+  writeFileSync(trustFilePath, bundle.trustFileText);
+  writeFileSync(clientFilePath, bundle.clientFileText);
+  return { trustFilePath, clientFilePath };
 }
 
 export function buildAuthorityEnforceRunnerPlan(

@@ -1,0 +1,39 @@
+{
+  "storyId": "B-1701",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/core/authority-client.ts",
+    "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/guide.md",
+    "README.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/docs-drift-path-drift-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These contract docs are required to explain the new default bundle handoff versus live runner-only variables and keep the CLI behavior understandable.",
+      "timestamp": "2026-06-18T21:46:47.438Z",
+      "paths": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+      ],
+      "anchors": [
+        "authority.bundle_handoff",
+        "authority.live_runner_only_vars"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-18T16:34:34.182Z",
+  "updatedAt": "2026-06-18T21:46:47.438Z"
+}

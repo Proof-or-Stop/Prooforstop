@@ -1,0 +1,61 @@
+{
+  "storyId": "B-1701",
+  "checkedAt": "2026-06-18T22:24:11.242Z",
+  "reviewRound": "2026-06-18T21:46:50.839Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Ordinary developer handoff uses a locally generated basic or senior bundle in the target workspace, and PROJECT_ID / GATE_ACTOR_* stay live-only.",
+      "status": "verified",
+      "verifiedBy": "diff + docs-drift smoke",
+      "evidence": "README now says the bundle is local to the workspace and must be regenerated on the destination machine; npm run test:docs-drift-smoke passed."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "The guide says the bundle is local to the target workspace and must be regenerated on the destination machine, while the live runner path keeps the live-only variables.",
+      "status": "verified",
+      "verifiedBy": "diff + status smoke",
+      "evidence": "docs/guide.md now matches the CLI boundary, and authority-status-smoke asserts the target-workspace note."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "promise": "The receipt-ref decision doc treats the bundle as workspace-local and keeps PROJECT_ID / GATE_ACTOR_* for live runner, receipt verification, and gate consumption only.",
+      "status": "verified",
+      "verifiedBy": "diff + authority-client/status smokes",
+      "evidence": "The doc now says the bundle should be regenerated on the destination machine, and the smoke tests cover the live-only boundary."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "The live-integration decision doc says ordinary developers generate and consume the bundle locally in the target workspace instead of hand-carrying live runner variables.",
+      "status": "verified",
+      "verifiedBy": "diff + docs-drift smoke",
+      "evidence": "The updated section now reflects the local bundle handoff and stays consistent with the live-only enforcement path."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/authority-client-smoke.js passed; default bundle generation writes lattice_authority_trust.env and lattice_staging-client.env, senior opt-in writes lattice_senior_authority_trust.env and lattice_senior_staging-client.env, and the legacy staging-client.env alias still resolves."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/authority-status-smoke.js passed; the off-mode note now says the bundle is generated locally in the target workspace, and enforce-mode readiness keeps PROJECT_ID and GATE_ACTOR_* in the live-only path."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/authority-client-smoke.js passed; the senior bundle path is explicit opt-in and the basic bundle remains the default output."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run test:docs-drift-smoke and lattice validate --story=B-1701 --json passed; README, guide, and the CLI contract docs stay aligned with the implementation."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs now match the code: local bundle handoff is explicit, the bundle is workspace-local, and PROJECT_ID / GATE_ACTOR_* remain live-only. The smoke coverage exercises the bundle round-trip, senior and legacy compatibility, and the live-only boundary without overclaiming cross-host portability."
+  },
+  "_hash": "8e494b575de26fba8d04285822f2fa525401f79cce129fbad6e720a252fdc6d9"
+}

@@ -1,0 +1,247 @@
+{
+  "command": "lattice validate --story=B-1701 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — Running the default bundle generator writes lattice_authority_trust.env and lattice_staging-client.env and reports success.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — Default generation still works when no extra developer fields are supplied or senior mode is absent.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/authority-client.ts) — Default generation never emits senior filenames or raw secret contents.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via manual_transcript — Legacy authority_trust.env and staging-client.env aliases still resolve to the same effective bundle contents.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/authority-client.ts) — New Lattice-prefixed files and legacy aliases can coexist without duplicate or conflicting reads.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/authority-client-smoke.ts) — Existing automation sourcing only the legacy names continues to work after the rename.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — Explicit senior opt-in writes lattice_senior_authority_trust.env and lattice_senior_staging-client.env.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/authority-client.ts) — Leaving senior mode off keeps the basic bundle as the default output.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/authority-mode.ts) — The senior path cannot become the silent default or require extra developer fields.\",\"  ✓ CHK-004:happy:0 [happy/must/docs] covered via docs_check (README.md) — Docs show the default bundle, the senior opt-in variant, and the legacy alias path together.\",\"  ✓ CHK-004:edge:0 [edge/must/docs] covered via logic_test (packages/main/src/tasks/authority-status-smoke.ts) — Examples stay consistent with the actual filenames emitted by the generator.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/docs] covered via integration_test (packages/main/src/tasks/authority-client-smoke.ts) — Docs do not reintroduce the old Koala wording or a second protocol.\"],\"warnings\":[],\"timestamp\":\"2026-06-18T22:33:54.385Z\",\"headSha\":\"82226c16fa66bfcf971de6347ea7812aca0561de\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":6683},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":217},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":209}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Running the default bundle generator writes lattice_authority_trust.env and lattice_staging-client.env and reports success.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/authority-client-smoke.js\",\"result\":\"pass\",\"note\":\"Basic bundle generator writes lattice_authority_trust.env and lattice_staging-client.env, then round-trips through loadAuthorityConfig and resolveAuthorityCustomerApiKey.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Default generation still works when no extra developer fields are supplied or senior mode is absent.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/authority-status-smoke.js\",\"result\":\"pass\",\"note\":\"The generated bundle is consumable from a different cwd by buildAuthorityStatus and writeAuthorityTrustProfileBundle.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Default generation never emits senior filenames or raw secret contents.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/authority-client.ts\",\"result\":\"pass\",\"note\":\"The default tier uses authorityTrustProfileFileNames(\\\"basic\\\") and emits only the basic filenames unless senior is explicitly requested.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Legacy authority_trust.env and staging-client.env aliases still resolve to the same effective bundle contents.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/authority-client-smoke.js\",\"result\":\"pass\",\"note\":\"The legacy staging-client.env sidecar still loads through authority_trust.env and resolves to the same customer API key path semantics.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"New Lattice-prefixed files and legacy aliases can coexist without duplicate or conflicting reads.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/authority-client.ts\",\"result\":\"pass\",\"note\":\"The loader still accepts a customer API key path from authority_trust.env, so old automation can keep using the legacy sidecar path.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Existing automation sourcing only the legacy names continues to work after the rename.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"result\":\"pass\",\"note\":\"The generator now emits the Lattice-prefixed filenames by default while the compatibility regression block proves the legacy staging-client.env path still works.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Explicit senior opt-in writes lattice_senior_authority_trust.env and lattice_senior_staging-client.env.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/authority-client-smoke.js\",\"result\":\"pass\",\"note\":\"Explicit senior opt-in round-trips lattice_senior_authority_trust.env and lattice_senior_staging-client.env through the bundle helper.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Leaving senior mode off keeps the basic bundle as the default output.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/authority-client.ts\",\"result\":\"pass\",\"note\":\"Omitting tier keeps the basic bundle as the default path; senior filenames are selected only when the caller asks for them.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The senior path cannot become the silent default or require extra developer fields.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/authority-mode.ts\",\"result\":\"pass\",\"note\":\"authorityTrustProfileFileNames exposes senior filenames only through the explicit senior tier, so the default path cannot silently drift to senior.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Docs show the default bundle, the senior opt-in variant, and the legacy alias path together.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"npm run test:docs-drift-smoke\",\"result\":\"pass\",\"note\":\"README, guide, and the CLI contract docs now explain the generated bundle handoff versus live runner variables.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Examples stay consistent with the actual filenames emitted by the generator.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-status-smoke.ts\",\"command\":\"node packages/main/dist/tasks/authority-status-smoke.js\",\"result\":\"pass\",\"note\":\"The authority status smoke asserts the generated-bundle note and keeps missing PROJECT_ID / GATE_ACTOR_* in the live-only path.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Docs do not reintroduce the old Koala wording or a second protocol.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"node packages/main/dist/tasks/authority-client-smoke.js\",\"result\":\"pass\",\"note\":\"The authority client smoke still passes for basic and senior bundle generation, preserving the ordinary developer handoff.\",\"headHash\":\"49c9b5764e5ff7ddab3bab877a934497ef51cc2c\",\"materialHash\":\"20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f\",\"timestamp\":\"2026-06-18T22:30:29.804Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-18T22:33:55.044Z",
+  "headHash": "82226c16fa66bfcf971de6347ea7812aca0561de",
+  "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Running the default bundle generator writes lattice_authority_trust.env and lattice_staging-client.env and reports success.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Basic bundle generator writes lattice_authority_trust.env and lattice_staging-client.env, then round-trips through loadAuthorityConfig and resolveAuthorityCustomerApiKey.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Default generation still works when no extra developer fields are supplied or senior mode is absent.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "The generated bundle is consumable from a different cwd by buildAuthorityStatus and writeAuthorityTrustProfileBundle.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Default generation never emits senior filenames or raw secret contents.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-client.ts",
+          "result": "pass",
+          "note": "The default tier uses authorityTrustProfileFileNames(\"basic\") and emits only the basic filenames unless senior is explicitly requested.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Legacy authority_trust.env and staging-client.env aliases still resolve to the same effective bundle contents.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "The legacy staging-client.env sidecar still loads through authority_trust.env and resolves to the same customer API key path semantics.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "New Lattice-prefixed files and legacy aliases can coexist without duplicate or conflicting reads.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-client.ts",
+          "result": "pass",
+          "note": "The loader still accepts a customer API key path from authority_trust.env, so old automation can keep using the legacy sidecar path.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Existing automation sourcing only the legacy names continues to work after the rename.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "result": "pass",
+          "note": "The generator now emits the Lattice-prefixed filenames by default while the compatibility regression block proves the legacy staging-client.env path still works.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Explicit senior opt-in writes lattice_senior_authority_trust.env and lattice_senior_staging-client.env.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Explicit senior opt-in round-trips lattice_senior_authority_trust.env and lattice_senior_staging-client.env through the bundle helper.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Leaving senior mode off keeps the basic bundle as the default output.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-client.ts",
+          "result": "pass",
+          "note": "Omitting tier keeps the basic bundle as the default path; senior filenames are selected only when the caller asks for them.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "The senior path cannot become the silent default or require extra developer fields.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-mode.ts",
+          "result": "pass",
+          "note": "authorityTrustProfileFileNames exposes senior filenames only through the explicit senior tier, so the default path cannot silently drift to senior.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Docs show the default bundle, the senior opt-in variant, and the legacy alias path together.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "npm run test:docs-drift-smoke",
+          "result": "pass",
+          "note": "README, guide, and the CLI contract docs now explain the generated bundle handoff versus live runner variables.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Examples stay consistent with the actual filenames emitted by the generator.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-status-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "The authority status smoke asserts the generated-bundle note and keeps missing PROJECT_ID / GATE_ACTOR_* in the live-only path.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Docs do not reintroduce the old Koala wording or a second protocol.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "The authority client smoke still passes for basic and senior bundle generation, preserving the ordinary developer handoff.",
+          "headHash": "49c9b5764e5ff7ddab3bab877a934497ef51cc2c",
+          "materialHash": "20dbbe4c39f7b72c4f4d35a55f8c9612a79f0a49f15d21fa2b211e49d3aab28f",
+          "timestamp": "2026-06-18T22:30:29.804Z"
+        }
+      }
+    ]
+  }
+}
