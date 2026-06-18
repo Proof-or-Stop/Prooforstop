@@ -387,3 +387,38 @@ function relPath(abs: string, repoRoot: string): string {
   if (abs === repoRoot) return '.';
   return abs;
 }
+
+/**
+ * scanDeprecated — count @deprecated annotations in packages/main/src/**\/*.ts (B-8451 CHK-002).
+ *
+ * Uses grep to find all lines containing @deprecated, counts matches, and returns
+ * unique file basenames. Wrap in try/catch — returns { count: 0, files: [] } on any error.
+ */
+export function scanDeprecated(projectRoot: string): { count: number; files: string[] } {
+  try {
+    const out = execSync(
+      `grep -rl "@deprecated" "${projectRoot}/packages/main/src" --include="*.ts" 2>/dev/null || true`,
+      { encoding: 'utf-8', timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] },
+    ).trim();
+
+    const matchingFiles = out.length > 0 ? out.split('\n').filter(Boolean) : [];
+
+    let count = 0;
+    for (const file of matchingFiles) {
+      try {
+        const lineOut = execSync(
+          `grep -c "@deprecated" "${file}" 2>/dev/null || echo 0`,
+          { encoding: 'utf-8', timeout: 5000, stdio: ['ignore', 'pipe', 'pipe'] },
+        ).trim();
+        count += parseInt(lineOut, 10) || 0;
+      } catch {
+        // grep -c exits 1 when no matches; treat as 0
+      }
+    }
+
+    const files = matchingFiles.map((f) => f.split('/').pop() ?? f);
+    return { count, files };
+  } catch {
+    return { count: 0, files: [] };
+  }
+}
