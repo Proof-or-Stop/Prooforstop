@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure resolveHintMode leaf (deterministic on/off)",
+      "context": "New core/hint-mode.ts importing only node:crypto/types: resolveHintMode(storyId: string): 'on' | 'off' — deterministic, e.g. parity of the first bytes of sha256(storyId). Same storyId always yields the same arm; roughly balanced across ids. Pure, no fs/git.",
+      "userSees": "A deterministic function that maps a storyId to a stable on/off A/B arm.",
+      "excludes": [
+        "No randomness/time",
+        "No fs/git in the leaf"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Shadow-gate the hint section + record hintMode in story-review.ts",
+      "context": "In handlers/story-review.ts experience-hints block (~528-578) and the _reviewPrompt assembly: compute hints as today (loadExperienceHints) regardless of arm; resolve hintMode = resolveHintMode(args.storyId); add hintMode to the experience_hint_surfaced event payload (fires on BOTH arms when hints exist, deduped per round as today); render experienceHintsSection into _reviewPrompt ONLY when hintMode==='on' (OFF arm: the section string used for the prompt is '' so it is hidden, but the event still recorded what would have surfaced). Do NOT change the issues/blocker computation; do NOT let hints enter resolveReviewPromptHash (unchanged); keep the no-hints byte-identical behavior.",
+      "userSees": "ON-arm stories show the advisory experience-hints section in _reviewPrompt; OFF-arm stories do not, yet both still emit experience_hint_surfaced (with hintMode) recording the would-have-hinted set.",
+      "excludes": [
+        "No change to issues/blocker logic",
+        "No change to resolveReviewPromptHash / reviewRunId",
+        "No gate reads hintMode"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke + npm script + verifier",
+      "context": "New smoke: resolveHintMode deterministic + roughly balanced; ON arm => _reviewPrompt contains the experience-hints section, OFF arm => it does NOT, but the experience_hint_surfaced event fires with the correct hintMode on both; the reviewer issues/blocker output and any promptHash are unchanged by the arm. npm script + committed verifier (build + smoke + no-regression + full npm test incl. process-fact-contract; static checks: hint-mode.ts pure; story-review.ts gates only the advisory section, not issues/blocker; hints not in resolveReviewPromptHash). Maps every intent; TOTAL/PASS/FAIL.",
+      "userSees": "npm smoke passes and the verifier prints PASS, including the arm-gating + promptHash-invariance checks.",
+      "excludes": [
+        "No network",
+        "No reliance on unrelated repo state"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
