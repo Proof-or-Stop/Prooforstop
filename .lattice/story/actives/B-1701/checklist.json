@@ -80,9 +80,9 @@
       "id": "CHK-002",
       "title": "Preserve compatibility",
       "context": "Keep the new Lattice-prefixed filenames and the legacy authority_trust.env / staging-client.env path working together so current automation does not break.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T17:16:00.043Z",
-      "endTime": null,
+      "endTime": "2026-06-18T17:16:26.364Z",
       "userSees": "User sees existing authority_trust.env and staging-client.env workflows still load and behave the same, even after the Lattice-prefixed names are added.",
       "files": {
         "modify": [
@@ -118,7 +118,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "The legacy staging-client.env sidecar still loads through authority_trust.env and resolves to the same customer API key path semantics.",
+          "headHash": "ee923a0172e43d9d5abcc805b3cf222c6da73eff",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:16:26.522Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-client.ts",
+          "result": "pass",
+          "note": "The loader still accepts a customer API key path from authority_trust.env, so old automation can keep using the legacy sidecar path.",
+          "headHash": "ee923a0172e43d9d5abcc805b3cf222c6da73eff",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:16:26.653Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "result": "pass",
+          "note": "The generator now emits the Lattice-prefixed filenames by default while the compatibility regression block proves the legacy staging-client.env path still works.",
+          "headHash": "ee923a0172e43d9d5abcc805b3cf222c6da73eff",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:16:26.816Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -233,6 +265,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Compatibility regression block verified and ready to record."
+    },
+    {
+      "timestamp": "2026-06-18T17:16:26.364Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Legacy staging-client.env compatibility verified."
     }
   ]
 }
