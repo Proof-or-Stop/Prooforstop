@@ -1,0 +1,32 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-18T14:19:41.263Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Make main-write-lock reentrancy async-context-aware (AsyncLocalStorage owner-token) + Fix global-fallback guard brand mismatch in codex-adapter-checks.ts are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-3d39\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: ALS implementation choice: (a1) store held-set inside ALS run-context vs (a2) process-global Set + per-acquisition owner token in ALS — pick in DEV; a2 is safer; Exact ALS boundary in transition-orchestrator for the acquire/release-pair form (vs callback form)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "034f62687725bb88a250045e1b37532efd6a0ce8d3bee8654aed569f5429664e"
+    }
+  ]
+}
