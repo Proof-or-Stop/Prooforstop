@@ -50,7 +50,43 @@
       "context": "Keep the new Lattice-prefixed filenames and the legacy authority_trust.env / staging-client.env path working together so current automation does not break.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees existing authority_trust.env and staging-client.env workflows still load and behave the same, even after the Lattice-prefixed names are added.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/core/authority-client.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Legacy authority_trust.env and staging-client.env aliases still resolve to the same effective bundle contents.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "New Lattice-prefixed files and legacy aliases can coexist without duplicate or conflicting reads.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Existing automation sourcing only the legacy names continues to work after the rename.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
