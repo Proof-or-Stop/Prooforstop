@@ -4,7 +4,7 @@
   "title": "Parallel-dev robustness: fix main-write-lock async-reentrancy race (DONE-merge lost commit) + global-fallback guard brand",
   "description": "Fix the High-severity intermittent bug where a DONE story is marked DONE but never merged to main (manual git merge needed; hit B-be91 + B-2941 this session). Root cause: the in-process main-write-lock reentrancy registry (bare process-global Set) mis-classifies a concurrent async sibling (another story's INIT_CHECK running in the same process during a DONE-merge await) as a nested reentrant caller, so it skips real lock acquisition and commits to main mid-merge. Make reentrancy async-context-aware via AsyncLocalStorage. Also fix the global-fallback guard brand mismatch (codex-adapter-checks.ts probes @lattice-agent/core but the install is @koala-agent/core, so the heartbeat-only warning never fires). Out of scope: on-disk mkdir mutex (frozen), done-effects merge order (correct), CHANGELOG structure (#3 dropped — zero conflicts in history).",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "main-write-lock",
@@ -60,11 +60,20 @@
       "branch": "story/B-3d39",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T14:52:07.515Z",
+      "branch": "story/B-3d39",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-3d39",
     "branch": "story/B-3d39",
     "createdAt": "2026-06-18T14:17:34.749Z"
-  }
+  },
+  "currentReviewRound": "2026-06-18T14:52:07.514Z"
 }
