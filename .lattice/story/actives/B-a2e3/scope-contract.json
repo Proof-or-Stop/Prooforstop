@@ -27,7 +27,16 @@
     "packages/main/src/handlers/finding.ts"
   ],
   "scopeChangeReason": "Add end-to-end CLI smoke (CHK-004) so the user-facing learning_validate path has automated regression coverage, matching the verificationIntent that references a CLI smoke.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "verify-result.json is the committed verifier own machine-readable output (sibling of verify-b-a2e3.mjs); intentional evidence artifact, not source expansion.",
+      "timestamp": "2026-06-18T00:41:04.956Z",
+      "paths": [
+        ".lattice/story/actives/B-a2e3/evidence/verify-result.json"
+      ]
+    }
+  ],
   "createdAt": "2026-06-17T23:47:40.627Z",
-  "updatedAt": "2026-06-18T00:35:06.828Z"
+  "updatedAt": "2026-06-18T00:41:04.956Z"
 }
