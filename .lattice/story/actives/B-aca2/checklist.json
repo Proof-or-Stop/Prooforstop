@@ -62,7 +62,9 @@
           "docs/audits/lattice-token-cost-and-takeover-audit.md"
         ],
         "create": [],
-        "test": []
+        "test": [
+          "packages/main/src/core/lattice-handoff.ts"
+        ]
       },
       "verificationIntent": {
         "happy": [
@@ -74,7 +76,7 @@
         ],
         "edge": [
           {
-            "desc": "The nearby summary prose and appendix stay aligned with the same source-backed authority boundary after the row is restored.",
+            "desc": "Applying both CHK-001 and CHK-002 in one patch still leaves the summary citation, authority table, and appendix internally consistent.",
             "type": "docs",
             "priority": "must"
           }
