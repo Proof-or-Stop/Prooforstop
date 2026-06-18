@@ -63,6 +63,16 @@ function assertPathMissing(root, relPath, label = relPath) {
   assert(!pathExistsWithExactCase(root, relPath), `${label} should not exist`);
 }
 
+function seedClaudeAgentMirror(tempDir) {
+  const sourceDir = join(repoRoot, 'packages/main/templates/agents');
+  const mirrorDir = join(tempDir, '.claude', 'agents');
+  mkdirSync(mirrorDir, { recursive: true });
+  for (const file of readdirSync(sourceDir).filter(name => name.endsWith('.md'))) {
+    writeFileSync(join(mirrorDir, file), readFileSync(join(sourceDir, file), 'utf8'));
+  }
+  return () => rmSync(mirrorDir, { recursive: true, force: true });
+}
+
 function sectionBetween(text, startNeedle, endNeedle, label) {
   const start = text.indexOf(startNeedle);
   assert(start >= 0, `${label} missing section "${startNeedle}"`);
@@ -134,7 +144,6 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
   if (profile === 'claude' || profile === 'all') {
     present.push(
       'CLAUDE.md',
-      '.claude/agents/lattice-implementer.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',
@@ -143,6 +152,8 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
   } else if (!opts.allowExistingClaude) {
     absent.push('CLAUDE.md', '.claude');
   }
+
+  absent.push('.claude/agents');
 
   for (const rel of present) {
     assertPathExists(tempDir, rel, `${profile} init ${rel}`);
@@ -165,7 +176,6 @@ function assertGlobalThinAssets(tempDir, profile, opts = {}) {
   if (profile === 'claude' || profile === 'all') {
     present.push(
       'CLAUDE.md',
-      '.claude/agents/lattice-implementer.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',
@@ -365,6 +375,7 @@ checks.push(() => {
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
     assertIncludes(initOut, 'Selected init profile: all', 'lattice init explicit all profile selection');
     assertIncludes(initOut, 'explicit --profile=all', 'lattice init explicit all reason');
+    assertIncludes(initOut, 'no per-project files', 'lattice init should advertise global thin-shim agent mode');
     assertIncludes(initOut, '.lattice-codex/README.md', 'lattice init output');
     assertProfileAssets(tempDir, 'all');
 
@@ -438,12 +449,13 @@ checks.push(() => {
     assertPathMissing(tempDir, 'bin/koala-codex.js', 'full init should not generate bin/koala-codex.js');
     assertPathMissing(tempDir, '.lattice-codex/koala.json', 'full init should not generate .lattice-codex/koala.json');
 
-    const verifyInitOut = run('node', [CORE_ENTRYPOINT, 'init', '--asset-mode=full', '--verify-codex', tempDir]);
-    assertIncludes(verifyInitOut, 'Codex verification:', 'lattice init --verify-codex output');
-    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'lattice init --verify-codex checks');
-    assertPathMissing(tempDir, 'src/core', 'lattice init --verify-codex src/core');
-    assertPathMissing(tempDir, 'src/shells', 'lattice init --verify-codex src/shells');
-    assertPathMissing(tempDir, 'tests', 'lattice init --verify-codex tests');
+    const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
+    const verifyInitOut = run(process.execPath, [join(tempDir, 'bin', 'lattice.js'), 'verify_codex'], { cwd: tempDir });
+    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'lattice verify_codex output');
+    assertIncludes(verifyInitOut, 'Codex agents mirror: 16 prompt(s) mirrored', 'lattice verify_codex mirror check');
+    assertPathMissing(tempDir, 'src/core', 'lattice verify_codex src/core');
+    assertPathMissing(tempDir, 'src/shells', 'lattice verify_codex src/shells');
+    assertPathMissing(tempDir, 'tests', 'lattice verify_codex tests');
 
     const staleBin = join(tempDir, 'stale-bin');
     mkdirSync(staleBin);
@@ -529,6 +541,7 @@ checks.push(() => {
       'lattice check should classify directory at managed file path without throwing EISDIR',
     );
 
+    cleanupClaudeMirror();
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -571,6 +584,12 @@ checks.push(() => {
   for (const rel of forbidden) {
     assert(!tracked.has(rel), `repository must not track non-canonical adapter path ${rel}`);
   }
+});
+
+checks.push(() => {
+  const devCliSource = readFileSync(join(repoRoot, 'packages/main/src/verifier/dev-cli.ts'), 'utf8');
+  assertNotIncludes(devCliSource, '--web', 'packages/main/src/verifier/dev-cli.ts');
+  assertNotIncludes(devCliSource, '--cli', 'packages/main/src/verifier/dev-cli.ts');
 });
 
 checks.push(() => {
@@ -728,7 +747,7 @@ checks.push(() => {
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=claude', '--asset-mode=full', tempDir]);
     assertIncludes(initOut, 'Selected init profile: claude', 'codex -> claude profile selection');
     assertPathExists(tempDir, 'CLAUDE.md', 'codex -> claude CLAUDE.md');
-    assertPathExists(tempDir, '.claude/agents', 'codex -> claude .claude/agents');
+    assertPathMissing(tempDir, '.claude/agents', 'codex -> claude should keep project-local .claude/agents uncreated');
     assertPathMissing(tempDir, 'AGENTS.md', 'codex -> claude should remove managed AGENTS.md');
     assertPathMissing(tempDir, '.lattice-codex', 'codex -> claude should remove .lattice-codex');
     assertPathMissing(tempDir, 'bin/lattice-codex.js', 'codex -> claude should remove generated codex wrapper');
@@ -870,15 +889,25 @@ checks.push(() => {
     const staleCli = join(staleBin, 'lattice');
     writeFileSync(staleCli, '#!/bin/sh\necho "stale lattice without verify_codex"\nexit 0\n');
     chmodSync(staleCli, 0o755);
-    const out = run(process.execPath, [CORE_ENTRYPOINT, 'init', '--profile=all', '--asset-mode=full', '--verify-codex', tempDir], {
+    const initOut = run(process.execPath, [CORE_ENTRYPOINT, 'init', '--profile=all', '--asset-mode=full', tempDir], {
       env: {
         ...process.env,
         PATH: `${staleBin}:/usr/bin:/bin`,
       },
     });
-    assertIncludes(out, 'Codex verification:', 'fresh lattice init --verify-codex minimal PATH output');
-    assertIncludes(out, 'Local wrapper heartbeat: source=codex', 'fresh lattice init --verify-codex should execute generated wrapper heartbeat');
-    assertIncludes(out, 'Codex adapter checks passed', 'fresh lattice init --verify-codex should pass via generated local bootstrap');
+    assertIncludes(initOut, 'Selected init profile: all', 'fresh lattice init minimal PATH profile selection');
+    const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
+    let verifyOut;
+    try {
+      verifyOut = run(process.execPath, [join(tempDir, 'bin', 'lattice.js'), 'verify_codex'], {
+        cwd: tempDir,
+      });
+    } finally {
+      cleanupClaudeMirror();
+    }
+    assertIncludes(verifyOut, 'Codex adapter checks passed', 'fresh lattice verify_codex minimal PATH output');
+    assertIncludes(verifyOut, 'Local wrapper heartbeat: source=codex', 'fresh lattice verify_codex should execute generated wrapper heartbeat');
+    assertIncludes(verifyOut, 'Codex agents mirror: 16 prompt(s) mirrored', 'fresh lattice verify_codex should pass via generated local bootstrap');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
