@@ -4,7 +4,7 @@
   "title": "Resolve current gap_analyze high requirement mapping gaps",
   "description": "Clear the three current gap_analyze high-priority uncovered-requirement reports by binding existing implemented or explicitly future-blocked requirements to code/test annotations. This must not implement the locked key-ref field or claim production-safety completion.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "gap_analyze",
@@ -32,6 +32,14 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-18T01:32:11.667Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T01:40:35.598Z",
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
