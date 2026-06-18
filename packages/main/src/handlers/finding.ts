@@ -2,7 +2,6 @@
  * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
 
-import { mkdirSync, rmSync, statSync } from 'fs';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import type { DisprovenEvidence, Finding, FindingEvidenceState } from '../core/types.js';
@@ -23,6 +22,7 @@ import {
 } from '../core/learning-store.js';
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
+import { withMkdirLock } from '../core/mkdir-lock.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -31,33 +31,9 @@ const KNOWN_FINDING_CATEGORIES = new Set<string>([
   ...LEGACY_FINDING_CATEGORIES,
 ]);
 
-function sleepSync(ms: number): void {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-}
-
 function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-passes.lock');
-  const deadline = Date.now() + 5000;
-  while (true) {
-    try {
-      mkdirSync(lockDir);
-      break;
-    } catch (e: any) {
-      try {
-        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
-        if (ageMs > 10000) rmSync(lockDir, { recursive: true, force: true });
-      } catch { /* PROBE: lock disappeared between mkdir attempts */ }
-      if (Date.now() > deadline) {
-        throw new Error(`review_pass_set: timed out waiting for metadata lock (${e?.message || e})`);
-      }
-      sleepSync(50);
-    }
-  }
-  try {
-    return fn();
-  } finally {
-    rmSync(lockDir, { recursive: true, force: true });
-  }
+  return withMkdirLock(lockDir, fn, { label: 'review-passes metadata' });
 }
 
 /**
