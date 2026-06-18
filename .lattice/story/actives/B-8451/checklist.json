@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add deprecatedGcThreshold to AuditConfig + resolveAuditConfig",
+      "context": "In packages/main/src/core/audit-config.ts: add optional deprecatedGcThreshold: number to AuditConfig interface (default 10). Read it from .lattice/audit-config.json per-field override (same pattern as auditTriggerWindow). Add to HARD_DEFAULTS.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add scanDeprecated function to audit-scan.ts",
+      "context": "In packages/main/src/core/audit-scan.ts: add scanDeprecated(projectRoot: string): { count: number; files: string[] } that greps @deprecated in packages/main/src/**/*.ts. Return count of matching lines and list of unique files. Pure function, no side effects. Must not throw — wrap in try/catch and return count=0 on error.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Wire deprecated advisory into audit trigger hint",
+      "context": "In packages/main/src/core/audit-trigger.ts: after existing trigger logic, call scanDeprecated and compare count to config.deprecatedGcThreshold. If count > threshold, append one-line advisory to the hint text listing count and files, suggesting a cleanup story. Additive only — never changes triggered=false or blocks DONE.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Smoke test: config field + scanDeprecated + advisory wiring",
+      "context": "New smoke test packages/main/src/tasks/deprecated-gc-smoke.ts: (1) resolveAuditConfig returns deprecatedGcThreshold=10 by default; (2) scanDeprecated on real repo returns count>=0 without throwing; (3) with mocked count > threshold, hint includes deprecated advisory; (4) with count <= threshold, no advisory appended.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
