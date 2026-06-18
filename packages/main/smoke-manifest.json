@@ -47,8 +47,7 @@
         "regression",
         "cli"
       ],
-      "timeoutMs": 240000,
-      "retryOnAnyFailure": true
+      "timeoutMs": 240000
     },
     {
       "name": "gap-coverage"
@@ -60,8 +59,7 @@
       "name": "verification-intent-alias"
     },
     {
-      "name": "verification-freshness",
-      "retryOnAnyFailure": true
+      "name": "verification-freshness"
     },
     {
       "name": "memory-benchmark"
@@ -76,12 +74,10 @@
       "name": "review-loop"
     },
     {
-      "name": "review-pass-discard",
-      "retryOnAnyFailure": true
+      "name": "review-pass-discard"
     },
     {
-      "name": "worktree-repair",
-      "retryOnAnyFailure": true
+      "name": "worktree-repair"
     },
     {
       "name": "init-check-atomicity"
