@@ -168,7 +168,10 @@
             "type": "manual"
           }
         ]
-      }
+      },
+      "excludes": [
+        "packages/main/src/tasks/gap-analyze.ts"
+      ]
     }
   ]
 }
