@@ -201,6 +201,34 @@
       "resolvedAt": "2026-06-18T11:13:40.075Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-META-framework-audit:F-012",
+      "desc": "CLAUDE.md references `lattice serve --web`, but help output does not contain the `--web` parameter",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-audit",
+      "createdAt": "2026-06-18T10:52:01.170Z",
+      "reviewRound": "8",
+      "_hash": "add78792d4e651d4e77a35a3078aaf15873c5e2a2e713f59f35c34f836d2814a",
+      "driftHash": "563719892e",
+      "lastSeenAt": "2026-06-18T10:59:00.673Z",
+      "firstSeenRound": 7
+    },
+    {
+      "id": "B-META-framework-audit:F-013",
+      "desc": "CLAUDE.md references `lattice serve --cli`, but help output does not contain the `--cli` parameter",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-audit",
+      "createdAt": "2026-06-18T10:52:01.170Z",
+      "reviewRound": "8",
+      "_hash": "fd83832880a05088d23684f04f8741d3a421622d7181a7248eafba01959a3571",
+      "driftHash": "d22cf7f8a8",
+      "lastSeenAt": "2026-06-18T10:59:00.674Z",
+      "firstSeenRound": 7
     }
   ]
 }
