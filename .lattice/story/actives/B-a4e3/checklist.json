@@ -7,7 +7,30 @@
       "userSees": "Reading + writing story metadata, dev-memory, audit-config, autopilot-runs etc. uses ONLY .lattice/; .koala/ is no longer read anywhere (grep LEGACY_KOALA_DIR returns nothing); the legacy-read smoke now proves .koala is not read; the koala-residue gate stays green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After removal, grep -rn LEGACY_KOALA_DIR packages/main/src returns nothing and all consumers read .lattice; tsc exits 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dev-memory-legacy-read-smoke.ts flipped to assert .koala is NOT read; the smoke passes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No salt literal modified (git diff salt-grep clean vs /tmp/salt-baseline-B-a4e3.txt); test:koala-residue stays PASS 0 unclassified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

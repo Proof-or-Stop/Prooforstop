@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Preserve cryptographic invariants absolutely: signature salts containing koala are frozen constants, never renamed — verified mechanically (git diff salt-grep + test:koala-residue salt exemption) after every change.",
+    "Code is the source of truth for what is removable; docs (CLAUDE.md, decisions/) are reconciled TO the code, not vice versa.",
+    "Change allowlist DATA, never enforcement LOGIC: the koala-residue gate stays green by tightening exemptions, not by weakening checks.",
+    "One checklist item at a time with build + test:koala-residue + tsc + salt-grep between items (high blast radius demands incremental verification).",
+    "Conservative GC: remove only genuinely-dead code (confirmed no consumer); keep every legacy-JSON-compat @deprecated field with an annotated rationale."
+  ],
+  "drivers": [
+    "OSS launch needs a clean repo: no stale koala branding/URLs and no dead backward-compat fallback.",
+    "Catastrophic downside if a salt is renamed (every signed gate artifact in every repo bricks) — outweighs all cleanup benefit; the plan is optimized to make a salt rename impossible to commit silently.",
+    "dev-memory already migrated to ~/.lattice + health.jsonl obsolete → removing the .koala read fallback is genuinely data-safe."
+  ],
+  "options": [
+    {
+      "name": "clean-break-preserve-salts",
+      "pros": [
+        "Removes the .koala read-fallback + non-salt koala identifiers + package.json URLs + dead dispatch aliases while preserving all salts verbatim.",
+        "Keeps test:koala-residue green by only tightening allowlist DATA.",
+        "Conservative @deprecated GC keeps legacy-JSON-compat fields; only deletes annotations on the deleted aliases.",
+        "Incremental per-item verification + salt-grep makes a salt rename impossible to ship unnoticed."
+      ],
+      "cons": [
+        "Intentional backward-compat DROP: external repos still on .koala/ would break (accepted — OSS clean break; this repo + fleet are on .lattice).",
+        "High file count (11 fallback files + residue script + 2 package.json + CLAUDE.md + dispatch files) means more review surface."
+      ]
+    },
+    {
+      "name": "total-removal-rename-salts",
+      "pros": [
+        "Total koala removal including salts means zero koala anywhere."
+      ],
+      "cons": [
+        "CATASTROPHIC: renaming salts invalidates every existing signed init-check/delivery-check/scope-check/draft-check/finding artifact in every repo. Explicitly REJECTED by the user."
+      ]
+    },
+    {
+      "name": "keep-fallback-no-op",
+      "pros": [
+        "Zero risk: keep the .koala read fallback as-is."
+      ],
+      "cons": [
+        "Leaves dead backward-compat + stale koala branding/URLs in the OSS repo; user explicitly wants the clean break and the data is already migrated."
+      ]
+    }
+  ],
+  "chosen": "clean-break-preserve-salts",
+  "rationale": "clean-break-preserve-salts is the only option satisfying the users explicit directive (clean OSS koala cleanup) while honoring the non-negotiable salt-preservation constraint. total-removal-rename-salts is catastrophic and user-rejected; keep-fallback-no-op leaves the repo dirty against the users wishes. The chosen option is made safe by: per-item incremental verification, a salt-grep against /tmp/salt-baseline-B-a4e3.txt after every change, keeping the koala-residue gate green (which via its surviving salt exemption proves salts are intact), and conservative @deprecated GC that preserves legacy-JSON-compat fields. story_dispatch/finding_dispatch are both confirmed deprecated by docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md (B-9d95 CHK-004 merged both into lattice dispatch); the command-policy story_dispatch status:supported is a stale mislabel deleted alongside the alias.",
+  "preMortem": [
+    {
+      "scenario": "An implementer renames a koala-* signature salt (e.g. koala-init-check-integrity-v1 to lattice-init-check-integrity-v1) while sweeping koala identifiers, treating it as branding.",
+      "trigger": "CHK-002 instructs renaming non-salt koala identifiers; an implementer over-applies the rename to a salt literal because both contain the substring koala.",
+      "consequence": "CATASTROPHIC: every existing signed init-check / delivery-check / scope-check / draft-check / finding artifact in every repo fails signature verification — all gates brick, no story can advance.",
+      "mitigation": "(1) Every implementer prompt opens with the explicit frozen-salt list + DO-NOT-RENAME constraint. (2) Salt files are NOT in execution_boundary allowedPaths. (3) After every implementer dispatch, main agent runs git diff main HEAD piped to grep for koala integrity/salt patterns and diffs the 25-line salt baseline at /tmp/salt-baseline-B-a4e3.txt — must show ZERO modified salt lines, else REVERT immediately. (4) test:koala-residue salt exemption (line 81) staying green is independent mechanical proof. (5) REVIEW reviewers are told to verify no salt was renamed."
+    },
+    {
+      "scenario": "Tightening the verify-koala-residue.mjs allowlist removes an exemption that is still needed, turning the gate RED (false positive) — or an implementer edits the gates enforcement logic instead of just its allowlist data.",
+      "trigger": "CHK-002 shrinks the allowlist; an implementer drops the salt exemption (line 81) or a still-referenced legacy path exemption, or refactors the scanning logic.",
+      "consequence": "test:koala-residue goes red and blocks REVIEW→TEST, or (worse) the gate is weakened so real koala residue passes undetected.",
+      "mitigation": "Run npm run test:koala-residue after EVERY allowlist edit and require PASS koala-residue: 0 unclassified. Constraint: only change allowlist DATA arrays, never the scan/classify functions. Keep line 81 salt exemption + all historical/doc exemptions; only drop exemptions whose target path literal no longer exists after the fallback removal. Reviewer verifies the diff touches only allowlist arrays."
+    },
+    {
+      "scenario": "An implementer deletes a legacy-JSON-compat @deprecated field (e.g. ChecklistItem.testIntent, TestResult.git) thinking it is dead, breaking deserialization of old stored story JSON.",
+      "trigger": "CHK-005 GCs @deprecated fields; an implementer deletes one that still has a reader in the old-JSON parse path.",
+      "consequence": "Old stories fail to load / lose data; lattice validate or story reads throw at runtime on existing repos.",
+      "mitigation": "All 7 @deprecated symbols are pre-classified KEEP (investigation confirmed each has a live reader or is exported+tested). CHK-005 scope is narrowed to ONLY removing the dead dispatch alias methods + their JSDoc @deprecated annotations + their command-policy/registry entries — NOT type fields. Implementer prompt explicitly lists the KEEP set with rationale. tsc + the full battery (incl. flow-stability-smoke + dev-memory-legacy-read-smoke) must stay green; any compat break surfaces as a test failure."
+    },
+    {
+      "scenario": "Removing a LEGACY_KOALA_DIR fallback branch breaks a consumer that silently depended on the .koala read path at runtime (e.g. planner.ts reading .koala/planner/runs).",
+      "trigger": "CHK-001 removes the fallback in 10 consumer files; one consumer had no .lattice equivalent wired and only ever read .koala.",
+      "consequence": "That feature (e.g. planner run history, autopilot-runs) silently returns empty / throws on repos that only had .koala data.",
+      "mitigation": "For each of the 10 consumers, the implementer must confirm the .lattice canonical path is the live write target (LATTICE_* constant exists) before deleting the .koala branch, and that this repo has zero .koala data (verified). The dev-memory-legacy-read-smoke.ts is flipped to assert .koala is no longer read (proving removal). Full battery + tsc green; reviewer checks each consumer keeps a working .lattice path."
+    }
+  ],
+  "timestamp": "2026-06-18T13:25:36.762Z"
+}
