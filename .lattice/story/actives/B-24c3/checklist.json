@@ -293,6 +293,17 @@
           "headHash": "0771c7a8e641758968fcaf47b1bdbf6859f6c2e7",
           "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
           "timestamp": "2026-06-18T00:40:32.114Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "cat /tmp/b24c3-v2-r1.log /tmp/b24c3-v2-r2.log /tmp/b24c3-v2-r3.log | grep -E '^FAIL |^TIMEOUT ' | awk '{print $2}' | grep -cE '^(experience-layer-digest-extract|gap-log|init-check-fallback|scope-contract|story-capsule|story-create-concurrency|story-metadata-protection|unattended-dispatch|lattice-baseline)$'",
+          "result": "pass",
+          "note": "Returns 0 — NONE of the 9 named targets appears as FAIL/TIMEOUT in any of the 3 verify runs (verified stable).",
+          "headHash": "06f2d8f1b591e3db518cb21c37184b63df7350e9",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:34.244Z"
         }
       ]
     }
