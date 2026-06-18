@@ -6,7 +6,7 @@
       "context": "In packages/main/src/core/main-write-lock.ts: the bare process-global heldLockPaths Set (line 271) mis-classifies a CONCURRENT async sibling as a nested reentrant caller because it cannot distinguish synchronous nesting from async interleaving across an await. Introduce an AsyncLocalStorage-based owner context. Recommended design (a2): keep the on-disk acquisition + a process-global record of WHICH async-context-owner holds each lockKey, and change the reentrancy predicate in withReentrantMainWriteLock (line 304) AND acquireMainWriteLockRegistered (line ~352) from plain heldLockPaths.has(lockKey) to has(lockKey) && currentAlsContextOwnsIt. Outermost acquire runs fn (or the acquire/release window) inside als.run(ownerToken, ...) so genuine synchronous nesting (DONE->audit) inherits the same ALS context and still passes through, while a concurrent INIT_CHECK in a separate ALS context correctly contends on the on-disk mkdir lock (and fail-fasts / waits per options) instead of skipping acquisition. The acquire/release-pair form used by the DONE merge in transition-orchestrator.ts must establish the ALS context around its critical section; make the minimal change there to wrap the DONE main-merge window. Update isMainWriteLockHeldInProcess test helper accordingly. The on-disk mkdir mutex behavior is UNCHANGED.",
       "status": "done",
       "startTime": "2026-06-18T14:24:13.606Z",
-      "endTime": "2026-06-18T14:31:16.810Z",
+      "endTime": "2026-06-18T14:41:18.933Z",
       "userSees": "`grep AsyncLocalStorage packages/main/src/core/main-write-lock.ts` shows the context primitive; reentrancy check is context-aware; build clean; done-effects.ts untouched.",
       "files": {
         "modify": [
@@ -119,7 +119,7 @@
       "userSees": "`node packages/main/dist/tasks/main-write-lock-coverage.js` passes incl the async-interleave case; CHANGELOG documents the fix; test:all green.",
       "files": {
         "modify": [
-          "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "packages/main/src/tasks/main-write-lock-smoke.ts",
           "CHANGELOG.md"
         ],
         "create": [],
@@ -128,17 +128,17 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "lock-coverage smoke has a deterministic async-interleave negative case -> `grep -cE \"interleav|concurrent|async.*sibling|parkAt|await.*acquire\" packages/main/src/tasks/main-write-lock-coverage.ts` outputs at least 1; WHY: proves the fix",
+            "desc": "lock-coverage smoke has a deterministic async-interleave negative case -> `grep -cE \"interleav|concurrent|async.*sibling|parkAt|await.*acquire\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: proves the fix",
             "type": "cli",
             "priority": "must"
           },
           {
-            "desc": "lock-coverage smoke passes incl new case -> `node packages/main/dist/tasks/main-write-lock-coverage.js > /tmp/b3d39-lock.log 2>&1; echo $?` outputs 0; WHY: green",
+            "desc": "lock-coverage smoke passes incl new case -> `node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?` outputs 0; WHY: green",
             "type": "cli",
             "priority": "must"
           },
           {
-            "desc": "sync-nesting pass-through still asserted (no self-deadlock regression) -> `grep -cE \"nest|pass.?through|reentrant\" packages/main/src/tasks/main-write-lock-coverage.ts` outputs at least 1; WHY: preMortem D1 guard",
+            "desc": "sync-nesting pass-through still asserted (no self-deadlock regression) -> `grep -cE \"nest|pass.?through|reentrant\" packages/main/src/tasks/main-write-lock-smoke.ts` outputs at least 1; WHY: preMortem D1 guard",
             "type": "cli",
             "priority": "must"
           },
