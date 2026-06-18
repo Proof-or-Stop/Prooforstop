@@ -115,7 +115,64 @@
       "context": "CHANGELOG Unreleased entry under Test infrastructure subsection: describe two-pass retry mechanism + --no-retry flag + noRetry manifest field (none used by default). Update docs/dev/test-coverage.md to note: test:all now runs a second serial retry pass for any smoke that times out in pass 1; expected wall-clock is pass1(~3min) + pass2(~1-3min); --no-retry for CI strict mode. Final verification: 3 consecutive npm run test:all all exit 0 with 167/167 (or whatever current total) PASS Final — including the previously-flaky review-pass-discard / field-regression-cli / verification-freshness / worktree-repair smokes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows the B-2941 bullet describing two-pass. 3× consecutive npm run test:all all end 'Final: 167/167 passed' exit 0.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md",
+          "docs/dev/test-coverage.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased names B-2941 + two-pass -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-2941|two.?pass\"` outputs at least 1; WHY: traceability + description",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs mentions two-pass behavior -> `grep -cE \"two.?pass|retry pass|Pass\\\\s*2\" docs/dev/test-coverage.md` outputs at least 1; WHY: doc-code consistency",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs mentions --no-retry override -> `grep -c \"--no-retry\" docs/dev/test-coverage.md` outputs at least 1; WHY: users need escape hatch",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run 1 test:all exit 0 -> `npm run test:all > /tmp/b-2941-r1.log 2>&1; echo $?` outputs 0; WHY: primary acceptance",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run 2 test:all exit 0 -> `npm run test:all > /tmp/b-2941-r2.log 2>&1; echo $?` outputs 0; WHY: stability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run 3 test:all exit 0 -> `npm run test:all > /tmp/b-2941-r3.log 2>&1; echo $?` outputs 0; WHY: stability",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "all 3 runs end with Final 167/167 PASS -> `grep -h \"Final:\" /tmp/b-2941-r1.log /tmp/b-2941-r2.log /tmp/b-2941-r3.log | grep -c \"167/167\"` outputs 3; WHY: deterministic test:all gate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no CHANGELOG sections outside Unreleased modified -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased should be touched",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
