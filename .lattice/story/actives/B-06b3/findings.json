@@ -28,7 +28,7 @@
       "desc": "CHK-001:adversarial:3 has no valid coverage: intent requires testing that passing null/undefined/number as storyId either throws TypeError or coerces deterministically (never silently corrupts the arm). The evidence is bound to the ab-shadow-gate smoke, but the smoke has zero check() calls for null/undefined/number inputs. The verifier (verify-b-06b3.mjs) also has no such test — it only validates purity via grep and does not call resolveHintMode with non-string values. This must-have adversarial intent is uncovered by any existing evidence command.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T15:17:28.868Z",
@@ -41,7 +41,11 @@
         "packages/main/src/core/hint-mode.ts"
       ],
       "signatureTag": "missing|ts|adversarial-valid-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added smoke check CHK-001 adversarial:3 (commit 4cfb3367a): resolveHintMode(null/undefined/123/object as any) returns a valid on/off arm + is deterministic across two calls — proves the String() coercion never silently corrupts the arm. Smoke TOTAL 14.",
+      "resolvedAt": "2026-06-18T15:22:43.716Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
