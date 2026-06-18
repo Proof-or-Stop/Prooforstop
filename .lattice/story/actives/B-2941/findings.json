@@ -16,6 +16,19 @@
         "packages/main/src/tasks/run-all-smokes.ts",
         "docs/dev/test-coverage.md"
       ]
+    },
+    {
+      "id": "B-2941:F-002",
+      "desc": "CHK-003:edge:0 evidence command substituted with one that does not verify the intended claim. The verificationIntent says grep -h \"Final:\" ... | grep -c \"167/167\" should output 3, but the recorded evidence instead runs grep -h \"passed in\" ... | grep -c \"passed in\" and gets 3. Actual check: grep -h \"Final:\" /tmp/b-2941-r{1,2,3}.log outputs 0 — no Final: prefix appears in any of the 3 real runs because retry never fired. The intent claim (all 3 runs end with Final 167/167) is not verified by the submitted evidence. The correct explanation is that when pass 1 is clean, no Final: is emitted (correct behavior), but the edge item was written assuming retry always fires. Either the edge intent should be reworded (covers retry-fires path via self-smoke case a/d) or a targeted test run that forces a timeout should be the evidence. Files: packages/main/src/tasks/run-all-smokes.ts:301 (closingLabel logic), packages/main/src/tasks/run-all-smokes-smoke.ts (cases a and d cover Final: semantics).",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T13:08:02.331Z",
+      "reviewRound": "2026-06-18T13:05:32.603Z",
+      "reviewRunId": "B-2941:RR-001",
+      "_hash": "1a0ec807b21ad6747c5811053fec916aa36327886e8ac3a4d117d865911b9169"
     }
   ]
 }
