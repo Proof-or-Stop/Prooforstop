@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0717",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "node bin/lattice.js authority_job_create",
+    "node bin/lattice.js authority_job_status",
+    "node bin/lattice.js authority_receipt_verify",
+    "node bin/lattice.js authority_status",
+    "node bin/lattice.js authority_verdict_submit",
+    "node bin/lattice.js aux_doc_list",
+    "node bin/lattice.js checklist_get",
+    "node bin/lattice.js checklist_update",
+    "node bin/lattice.js decision_set",
+    "node bin/lattice.js session_brief",
+    "node bin/lattice.js story_advance",
+    "node bin/lattice.js story_get",
+    "node bin/lattice.js story_review",
+    "node bin/lattice.js understanding_set",
+    "node bin/lattice.js validate",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:command-ownership-contract",
+    "rg"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "authority-cli",
+    "lattice-cli",
+    "shell",
+    "subagent-review"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/registry.ts",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "Codex",
+  "confirmationNote": "Documentation/planning story only. Source files may be inspected for inventory and contract references, but this story must not refactor cli-engine.ts or alter command behavior. Authority Server completion may only be claimed from a verified production gate_decision receipt; local 3x2 is lower-assurance evidence when authority mode is not configured.",
+  "createdAt": "2026-06-18T14:04:53.249Z",
+  "updatedAt": "2026-06-18T14:04:53.249Z",
+  "_hash": "d2ae47c6e04d9ce9860895436cd003f87a9a9500076ff842681d2e9fe9242172"
+}
