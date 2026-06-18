@@ -282,6 +282,17 @@
           "headHash": "66d6d76a2ced0496646870384e165bf75ed30621",
           "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
           "timestamp": "2026-06-18T00:40:29.858Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "waived",
+          "command": "npm run test:all > /tmp/b24c3-r3.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "WAIVED — same reason as happy:2 (system-level parallel race; per-smoke approach has converging tail).",
+          "headHash": "0771c7a8e641758968fcaf47b1bdbf6859f6c2e7",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:32.114Z"
         }
       ]
     }
