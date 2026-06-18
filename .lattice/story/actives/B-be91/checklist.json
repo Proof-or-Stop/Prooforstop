@@ -65,7 +65,54 @@
       "context": "CHANGELOG Unreleased entry under Test infrastructure subsection describing the --jobs cap rationale (shared-resource contention not CPU) and the measured N. Update docs/dev/test-coverage.md to note: test:all now defaults to --jobs N for reliability; pass --jobs higher explicitly via npm run test:all -- --jobs 8 for max-throughput dev iterations.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows the B-be91 bullet naming --jobs cap. `grep test:all docs/dev/test-coverage.md` shows the new default + override note.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md",
+          "docs/dev/test-coverage.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CHANGELOG Unreleased names B-be91 -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c B-be91` outputs at least 1; WHY: traceability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG mentions --jobs cap rationale -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"--jobs|jobs cap|worker.pool\"` outputs at least 1; WHY: explains what changed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs/dev/test-coverage.md mentions the new test:all default -> `grep -ciE \"test:all.*--jobs|--jobs.*test:all|jobs cap\" docs/dev/test-coverage.md` outputs at least 1; WHY: doc-code consistency",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs mentions manual override path -> `grep -c \"test:all -- --jobs\" docs/dev/test-coverage.md` outputs at least 1; WHY: users need to know they can override",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CHANGELOG entry in Test infrastructure subsection -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c \"Test infrastructure\"` outputs at least 1; WHY: pattern consistency",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: only Unreleased section of CHANGELOG modified -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased should be touched",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
