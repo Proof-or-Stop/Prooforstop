@@ -1,0 +1,890 @@
+{
+  "command": "lattice validate --story=B-c06a --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  main-write-lock-coverage: scanned 303 source files, 17 git mutation-verb sites\",\"    ✓ src/cli-engine.ts:3412  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3447  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3566  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3620  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3708  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/core/auto-commit-metadata.ts:217  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:82  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:727  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:749  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:621  [reset]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:632  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:973  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1042  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1096  [merge]  mutates-main=YES  locked=YES  OK\",\"  main-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\",\"  main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\",\"  > lattice@0.3.5 test:koala-residue\",\"  > node scripts/verify-koala-residue.mjs\",\"  PASS koala-residue: 0 unclassified\",\"  > lattice@0.3.5 test:review-convergence-smoke\",\"  > node packages/main/dist/tasks/review-convergence-smoke.js\",\"  review-convergence-smoke: (a) STALLED fires — advisory present:\",\"        WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\",\"          - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\",\"          - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\",\"  review-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\",\"  review-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\",\"  review-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\",\"  review-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\",\"  review-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\",\"  review-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\",\"  > lattice@0.3.5 test:review-incremental-context-smoke\",\"  > node packages/main/dist/tasks/review-incremental-context-smoke.js\",\"  review-incremental-context-smoke: (a) RETURNING REVIEWER: isFirstPass=false, priorVerdict=PASS (RP-001), scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\",\"  review-incremental-context-smoke: (b) FIRST-TIMER: isFirstPass=true, full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\",\"  review-incremental-context-smoke: (c) RENAME CASE: scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"] (both rename sides counted)\",\"  review-incremental-context-smoke: (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=PASS (RP-003) (non-null, informational), full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\",\"  review-incremental-context-smoke: (d.1) ROUND 1 full opt-in + quorum -> gate PASS; identical with/without helper\",\"  review-incremental-context-smoke: (d.2) ROUND 1 missing opt-in reviewer (test-coverage) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: (d.3) ROUND 2+ single valid receipt -> gate PASS; identical with/without helper\",\"  review-incremental-context-smoke: (d.4) INVALID current-round binding (round 1) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\",\"  review-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\",\"  > lattice@0.3.5 test:docs-drift-smoke\",\"  > node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\",\"  docs-drift path+asset smoke passed\",\"  > lattice@0.3.5 test:docs-drift-wrapper-root\",\"  > npm --prefix packages/main run test:docs-drift-wrapper-root\",\"  > @lattice-agent/core@0.3.5 test:docs-drift-wrapper-root\",\"  > node dist/tasks/docs-drift-wrapper-root-smoke.js\",\"  docs-drift wrapper-root smoke passed\",\"  > lattice@0.3.5 test:gitroot-cwd-contract\",\"  > node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\",\"  ✓ self-test: KNOWN-GOOD fixture produces 0 violations\",\"  ✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\",\"  ✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\",\"  ✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\",\"  ✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\",\"  ✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\",\"  ✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\",\"  ✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\",\"  ✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\",\"  ✓ repo scan clean: 540 .ts files inspected, 0 bare-cwd violations\",\"  ✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\",\"  ✓ gitroot-cwd-contract smoke passed\",\"  > lattice@0.3.5 test:process-fact-contract\",\"  > node scripts/verify-process-fact-contract.mjs\",\"  Process Fact Contract\",\"  Prompt guides; CLI/handler/gate decides\",\"  Scope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\",\"  Out of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\",\"  Process Fact Registry\",\"  - entries: 286 (238 CLI, 8 runtime, 10 reviewer lanes, 23 artifacts)\",\"  - levels: L0=112, L1=38, L2=45, L3=4, L4=87\",\"  - kinds: artifact=11, command=194, execution-status=5, finding=3, flow-policy=7, gate-evidence=32, host-verdict=1, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=8, signed-artifact=12, validation-status=1\",\"  - flow fact policies:\",\"  flow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\",\"  flow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\",\"  flow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\",\"  - registry entries:\",\"  - agent_prompt [L0/command] producer=handlers/agent-prompt\",\"  - artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\",\"  - artifact:authority-receipt-refs.json [L4/artifact] producer=core/authority-gate-receipts gate=TEST/DONE Authority gate_decision receipt consumption predicate artifact=authority-receipt-refs.json\",\"  - artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\",\"  - artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json\",\"  - artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\",\"  - artifact:delivery-check.json [L4/signed-artifact] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed\",\"  - artifact:draft-check.json [L3/signed-artifact] producer=handlers/draft-check gate=story_create fromDraft preflight artifact=draft-check.json:signed\",\"  - artifact:eval-evidence.json [L4/artifact] producer=handlers/evaluate gate=story_advance DONE evaluator evidence gate artifact=eval-evidence.json\",\"  - artifact:execution-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=execution-boundary.json:signed\",\"  - artifact:findings.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed\",\"  - artifact:index.json [L4/artifact] producer=handlers/story-advance gate=storyMachine phase guards and story_advance preflight gates artifact=index.json\",\"  - artifact:init-check.json [L4/signed-artifact] producer=handlers/init-check gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed\",\"  - artifact:process-events.jsonl [L4/artifact] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\",\"  - artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\",\"  - artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\",\"  - a\",\"  ...[truncated 31002 chars]\",\"Verification intent coverage: 46/46 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test — computePredictiveValue with 3+ ordered stories where signatureTags recur across stories => recall and precision are exact expected fractions; windowed trend has correct per-window hit-rates; slopeSign reflects the actual trend direction\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via logic_test — computeArmComparison with nOn>=MIN_ARM_N and nOff>=MIN_ARM_N => returns correct outcomeOn, outcomeOff, delta=outcomeOff-outcomeOn, and significance gate engages correctly\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via logic_test — computePredictiveValue with confirmedOnly=true => only counts findings with signatureTagSource===confirmed; unconfirmed findings excluded from recall/precision totals\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via logic_test — computeArmComparison with both arms sufficient N and measurable delta => delta is numerically correct as outcomeOff minus outcomeOn\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — computePredictiveValue([]) empty stories array => zeroed report (recall=0, precision=0, findingsWithSig=0, preWarnable=0, windows=[], slopeSign neutral), never NaN\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via logic_test — computePredictiveValue with stories that have zero findings-with-signature (all findings lack signatureTag) => recall=0, precision=0, no NaN from 0/0 division\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via logic_test — computeArmComparison with all stories having hintMode=undefined (unassigned, all skipped) => nOn=0, nOff=0, significant=false, note contains insufficient N\",\"  ✓ CHK-001:edge:3 [edge/must/cli] covered via logic_test — computePredictiveValue with single story (no prior signatures possible) => preWarnable=0, recall=0, precision=0, no crash\",\"  ✓ CHK-001:edge:4 [edge/must/cli] covered via logic_test — computeArmComparison with exactly MIN_ARM_N-1 in one arm => significant=false, note=insufficient N; at exactly MIN_ARM_N per arm => significance gate engages\",\"  ✓ CHK-001:edge:5 [edge/must/cli] covered via logic_test — computePredictiveValue called twice with identical input => returns bit-identical output (determinism check)\",\"  ✓ CHK-001:edge:6 [edge/must/cli] covered via logic_test — computePredictiveValue with stories where findings have empty-string signatureTag => treated as no signature, not added to priorSignatures set, excluded from counts\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test — computeArmComparison with nOn=2, nOff=2 (tiny N) and a large delta => significant MUST be false with insufficient-N note; implementation must NOT claim significance on tiny samples (honesty trap)\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via logic_test — computePredictiveValue where every finding has a signatureTag but zero overlap across stories => precision=0, recall=0, never NaN from zero-denominator edge\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via integration_test — Static import analysis of experience-effectiveness.ts => imports ONLY from node:/types (no fs, no path, no child_process, no git, no network modules); confirms leaf purity\",\"  ✓ CHK-001:adversarial:3 [adversarial/must/cli] covered via logic_test — Call computePredictiveValue 100 times in tight loop with same input => all 100 results identical (proves no hidden RNG, no Date.now, no process.env dependency)\",\"  ✓ CHK-001:adversarial:4 [adversarial/must/cli] covered via logic_test — computeArmComparison with nOn=0, nOff=50 (one arm completely empty) => significant=false, no NaN on zero-arm outcome computation, note indicates insufficient N\",\"  ✓ CHK-001:adversarial:5 [adversarial/must/cli] covered via logic_test — Feed findings with undefined/null signatureTag mixed with valid ones => no crash, undefined/null tags excluded from priorSignatures and counts, valid tags computed correctly\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test — Run lattice learning_effectiveness on a store with ordered stories containing recurring signatures and arm assignments => prints human-readable predictive-value overall+trend and ON/OFF arm readout with N and significance status\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via logic_test — Run lattice learning_effectiveness --json => emits structured JSON report with predictiveValue (recall, precision, windows, slopeSign) and armComparison (nOn, nOff, outcomeOn, outcomeOff, delta, significant, note)\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via logic_test — Run lattice learning_effectiveness --confirmedOnly => report only reflects findings with signatureTagSource===confirmed\",\"  ✓ CHK-002:happy:3 [happy/must/cli] covered via integration_test — learning_effectiveness is registered in all 6 surfaces: registry.ts registerBatch, cli-engine.ts command schema, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts (readOnly, allowedPhases all, destructiveRisk none), process-fact-levels.ts (L0 experience-layer-read), and READ_ONLY_COMMANDS list\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test — Run learning_effectiveness on an empty store (no stories) => prints zeroed/empty report gracefully, no crash, no NaN\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via logic_test — Run learning_effectiveness on a store with stories that have no findings at all => report shows zero metrics, no error\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via logic_test — Run learning_effectiveness on a store where no stories have experience_hint_surfaced events (no arm data) => arm comparison shows nOn=0, nOff=0, significant=false\",\"  ✓ CHK-002:edge:3 [edge/must/cli] covered via logic_test — Run learning_effectiveness with both --json and --confirmedOnly flags together => structured JSON output respects confirmedOnly filter\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test — After running learning_effectiveness, verify git status shows nothing written to the store / project root => command is truly read-only (no findings, no gate, no cache, no advisory)\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via integration_test — Verify handler source code contains no writeFileSync, no finding_add, no gate calls, no projectRoot persist operations => static read-only proof\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via integration_test — Verify learning_effectiveness appears in READ_ONLY_COMMANDS in cli-engine.ts => enforcement that it cannot write\",\"  ✓ CHK-002:adversarial:3 [adversarial/must/cli] covered via integration_test — Verify process-fact-levels.ts has a PROCESS_FACT_LEVELS entry for learning_effectiveness at L0 experience-layer-read => missing entry would break process-fact-contract test\",\"  ✓ CHK-002:adversarial:4 [adversarial/must/cli] covered via integration_test — Verify command-policy.ts entry has readOnly=true and destructiveRisk=none => a readOnly:false or destructive entry would violate the story contract\",\"  ✓ CHK-002:adversarial:5 [adversarial/must/cli] covered via logic_test — Run learning_effectiveness and then immediately check for any new files or modified files in .lattice/ => nothing must change (no side-effect leak)\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — Leaf smoke: synthetic ordered stories with known recurring signatures => assert exact recall/precision values + windowed trend values + arm comparison (N, outcome) match hand-calculated expectations\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via logic_test — Leaf smoke: arm comparison with small-N fixture (both arms < MIN_ARM_N) => significant=false, note=insufficient N\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via logic_test — Leaf smoke: arm comparison with fixture where both arms >= MIN_ARM_N => significance gate behaves as specified (significant reflects conservative gate)\",\"  ✓ CHK-003:happy:3 [happy/must/cli] covered via logic_test — CLI smoke: run learning_effectiveness on a temp/real store => output contains a predictive-value line; git status confirms nothing written\",\"  ✓ CHK-003:happy:4 [happy/must/cli] covered via integration_test — npm script test:experience-layer-effectiveness runs successfully (exit 0) and prints effectiveness smoke passed\",\"  ✓ CHK-003:happy:5 [happy/must/cli] covered via integration_test — Committed verifier verify-b-c06a.mjs runs build + this smoke + no-regression smokes + full npm test => TOTAL/PASS/FAIL with all PASS\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test — Leaf smoke: empty input (no stories) => zeroed report, no crash, no NaN\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via logic_test — Leaf smoke: never-NaN check across all edge fixtures (zero findings, zero signatures, zero arms) => every numeric field is a finite number\",\"  ✓ CHK-003:edge:2 [edge/must/cli] covered via logic_test — Leaf smoke: determinism check => two consecutive calls with same synthetic input produce identical output\",\"  ✓ CHK-003:edge:3 [edge/must/cli] covered via integration_test — Verifier: process-fact-contract test passes (learning_effectiveness L0 entry present and valid)\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test — Static check: experience-effectiveness.ts imports only node:/types (no fs, path, child_process, git, network) => leaf purity confirmed by verifier\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via integration_test — Static check: handler learning-effectiveness.ts contains no writeFileSync, no finding_add, no gate calls, no projectRoot-persist => read-only confirmed\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/cli] covered via integration_test — Static check: learning_effectiveness is registered across all 6 surfaces (cli-engine, registry, config, command-policy, process-fact-levels, READ_ONLY_COMMANDS) => verifier checks each one\",\"  ✓ CHK-003:adversarial:3 [adversarial/must/cli] covered via integration_test — Verifier runs full npm test including process-fact-contract => any missing registration surface causes FAIL\",\"  ✓ CHK-003:adversarial:4 [adversarial/must/cli] covered via integration_test — No-regression: all existing smokes (finding-signals, playbook, recall, revalidation, learning-scan, signature-capture, ab-shadow-gate) still pass after the new code => no side-effect regressions\"],\"warnings\":[],\"timestamp\":\"2026-06-18T15:59:56.820Z\",\"headSha\":\"9ff4189d04051fd742732c5226e18d2597563817\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nmain-write-lock-coverage: scanned 303 source files, 17 git mutation-verb sites\\n  ✓ src/cli-engine.ts:3412  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3447  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3566  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3620  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3708  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/core/auto-commit-metadata.ts:217  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:82  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:727  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:749  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:621  [reset]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:632  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:973  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1042  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1096  [merge]  mutates-main=YES  locked=YES  OK\\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\\n\\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\\n\\n> lattice@0.3.5 test:koala-residue\\n> node scripts/verify-koala-residue.mjs\\n\\nPASS koala-residue: 0 unclassified\\n\\n> lattice@0.3.5 test:review-convergence-smoke\\n> node packages/main/dist/tasks/review-convergence-smoke.js\\n\\nreview-convergence-smoke: (a) STALLED fires — advisory present:\\n      WARN review convergence stall: REVIEW has cycled 4 rounds and the most recent rounds still surface blocking findings with no downward trend (recent rounds: [2, 2, 1]).\\n        - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.\\n        - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.\\nreview-convergence-smoke: (b) CONVERGING [2,1,0] -> stalled=false, no advisory\\nreview-convergence-smoke: (c) BELOW THRESHOLD (3 < 4 rounds) -> stalled=false\\nreview-convergence-smoke: (d) SINGLE CLEAN ROUND -> stalled=false\\nreview-convergence-smoke: (e) NON-BLOCKING PROOF: append path is text-only, base preserved, no error/blocking signal\\nreview-convergence-smoke: (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)\\n\\nreview-convergence-smoke: PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).\\n\\n> lattice@0.3.5 test:review-incremental-context-smoke\\n> node packages/main/dist/tasks/review-incremental-context-smoke.js\\n\\nreview-incremental-context-smoke: (a) RETURNING REVIEWER: isFirstPass=false, priorVerdict=PASS (RP-001), scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\\nreview-incremental-context-smoke: (b) FIRST-TIMER: isFirstPass=true, full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\\nreview-incremental-context-smoke: (c) RENAME CASE: scopeChanged=true, changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"] (both rename sides counted)\\nreview-incremental-context-smoke: (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=PASS (RP-003) (non-null, informational), full diff changedFiles=[\\\"src/feature.ts\\\",\\\"src/new-name.ts\\\",\\\"src/old-name.ts\\\"]\\nreview-incremental-context-smoke: (d.1) ROUND 1 full opt-in + quorum -> gate PASS; identical with/without helper\\nreview-incremental-context-smoke: (d.2) ROUND 1 missing opt-in reviewer (test-coverage) -> gate BLOCK; identical with/without helper\\nreview-incremental-context-smoke: (d.3) ROUND 2+ single valid receipt -> gate PASS; identical with/without helper\\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 1) -> gate BLOCK; identical with/without helper\\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\\nreview-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\\n\\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\\n\\n> lattice@0.3.5 test:docs-drift-smoke\\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\\n\\ndocs-drift path+asset smoke passed\\n\\n> lattice@0.3.5 test:docs-drift-wrapper-root\\n> npm --prefix packages/main run test:docs-drift-wrapper-root\\n\\n\\n> @lattice-agent/core@0.3.5 test:docs-drift-wrapper-root\\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\\n\\ndocs-drift wrapper-root smoke passed\\n\\n> lattice@0.3.5 test:gitroot-cwd-contract\\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\\n\\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\\n✓ repo scan clean: 540 .ts files inspected, 0 bare-cwd violations\\n✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\\n\\n✓ gitroot-cwd-contract smoke passed\\n\\n> lattice@0.3.5 test:process-fact-contract\\n> node scripts/verify-process-fact-contract.mjs\\n\\nProcess Fact Contract\\nPrompt guides; CLI/handler/gate decides\\n\\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\\n\\n\\nProcess Fact Registry\\n- entries: 286 (238 CLI, 8 runtime, 10 reviewer lanes, 23 artifacts)\\n- levels: L0=112, L1=38, L2=45, L3=4, L4=87\\n- kinds: artifact=11, command=194, execution-status=5, finding=3, flow-policy=7, gate-evidence=32, host-verdict=1, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=8, signed-artifact=12, validation-status=1\\n- flow fact policies:\\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\n- registry entries:\\n- agent_prompt [L0/command] producer=handlers/agent-prompt\\n- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\\n- artifact:authority-receipt-refs.json [L4/artifact] producer=core/authority-gate-receipts gate=TEST/DONE Authority gate_decision receipt consumption predicate artifact=authority-receipt-refs.json\\n- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\\n- artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json\\n- artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\\n- artifact:delivery-check.json [L4/signed-artifact] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed\\n- artifact:draft-check.json [L3/signed-artifact] producer=handlers/draft-check gate=story_create fromDraft preflight artifact=draft-check.json:signed\\n- artifact:eval-evidence.json [L4/artifact] producer=handlers/evaluate gate=story_advance DONE evaluator evidence gate artifact=eval-evidence.json\\n- artifact:execution-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=execution-boundary.json:signed\\n- artifact:findings.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed\\n- artifact:index.json [L4/artifact] producer=handlers/story-advance gate=storyMachine phase guards and story_advance preflight gates artifact=index.json\\n- artifact:init-check.json [L4/signed-artifact] producer=handlers/init-check gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed\\n- artifact:process-events.jsonl [L4/artifact] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\\n- a\\n...[truncated 31002 chars]\",\"durationMs\":16723}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":46,\"reason\":\"verificationIntent entries present (46)\"},\"verificationCoverage\":{\"total\":46,\"required\":46,\"covered\":46,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"computePredictiveValue with 3+ ordered stories where signatureTags recur across stories => recall and precision are exact expected fractions; windowed trend has correct per-window hit-rates; slopeSign reflects the actual trend direction\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"computeArmComparison with nOn>=MIN_ARM_N and nOff>=MIN_ARM_N => returns correct outcomeOn, outcomeOff, delta=outcomeOff-outcomeOn, and significance gate engages correctly\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"computePredictiveValue with confirmedOnly=true => only counts findings with signatureTagSource===confirmed; unconfirmed findings excluded from recall/precision totals\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"computeArmComparison with both arms sufficient N and measurable delta => delta is numerically correct as outcomeOff minus outcomeOn\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"computePredictiveValue([]) empty stories array => zeroed report (recall=0, precision=0, findingsWithSig=0, preWarnable=0, windows=[], slopeSign neutral), never NaN\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"computePredictiveValue with stories that have zero findings-with-signature (all findings lack signatureTag) => recall=0, precision=0, no NaN from 0/0 division\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"computeArmComparison with all stories having hintMode=undefined (unassigned, all skipped) => nOn=0, nOff=0, significant=false, note contains insufficient N\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"computePredictiveValue with single story (no prior signatures possible) => preWarnable=0, recall=0, precision=0, no crash\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:edge:4\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"computeArmComparison with exactly MIN_ARM_N-1 in one arm => significant=false, note=insufficient N; at exactly MIN_ARM_N per arm => significance gate engages\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:edge:5\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"computePredictiveValue called twice with identical input => returns bit-identical output (determinism check)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.230Z\"}},{\"intentRef\":\"CHK-001:edge:6\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"computePredictiveValue with stories where findings have empty-string signatureTag => treated as no signature, not added to priorSignatures set, excluded from counts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:6\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"computeArmComparison with nOn=2, nOff=2 (tiny N) and a large delta => significant MUST be false with insufficient-N note; implementation must NOT claim significance on tiny samples (honesty trap)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"computePredictiveValue where every finding has a signatureTag but zero overlap across stories => precision=0, recall=0, never NaN from zero-denominator edge\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Static import analysis of experience-effectiveness.ts => imports ONLY from node:/types (no fs, no path, no child_process, no git, no network modules); confirms leaf purity\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Call computePredictiveValue 100 times in tight loop with same input => all 100 results identical (proves no hidden RNG, no Date.now, no process.env dependency)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-001:adversarial:4\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"computeArmComparison with nOn=0, nOff=50 (one arm completely empty) => significant=false, no NaN on zero-arm outcome computation, note indicates insufficient N\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:4\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-001:adversarial:5\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Feed findings with undefined/null signatureTag mixed with valid ones => no crash, undefined/null tags excluded from priorSignatures and counts, valid tags computed correctly\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Run lattice learning_effectiveness on a store with ordered stories containing recurring signatures and arm assignments => prints human-readable predictive-value overall+trend and ON/OFF arm readout with N and significance status\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Run lattice learning_effectiveness --json => emits structured JSON report with predictiveValue (recall, precision, windows, slopeSign) and armComparison (nOn, nOff, outcomeOn, outcomeOff, delta, significant, note)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Run lattice learning_effectiveness --confirmedOnly => report only reflects findings with signatureTagSource===confirmed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"learning_effectiveness is registered in all 6 surfaces: registry.ts registerBatch, cli-engine.ts command schema, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts (readOnly, allowedPhases all, destructiveRisk none), process-fact-levels.ts (L0 experience-layer-read), and READ_ONLY_COMMANDS list\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:3\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Run learning_effectiveness on an empty store (no stories) => prints zeroed/empty report gracefully, no crash, no NaN\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Run learning_effectiveness on a store with stories that have no findings at all => report shows zero metrics, no error\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Run learning_effectiveness on a store where no stories have experience_hint_surfaced events (no arm data) => arm comparison shows nOn=0, nOff=0, significant=false\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Run learning_effectiveness with both --json and --confirmedOnly flags together => structured JSON output respects confirmedOnly filter\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"After running learning_effectiveness, verify git status shows nothing written to the store / project root => command is truly read-only (no findings, no gate, no cache, no advisory)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Verify handler source code contains no writeFileSync, no finding_add, no gate calls, no projectRoot persist operations => static read-only proof\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Verify learning_effectiveness appears in READ_ONLY_COMMANDS in cli-engine.ts => enforcement that it cannot write\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Verify process-fact-levels.ts has a PROCESS_FACT_LEVELS entry for learning_effectiveness at L0 experience-layer-read => missing entry would break process-fact-contract test\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:3\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:adversarial:4\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Verify command-policy.ts entry has readOnly=true and destructiveRisk=none => a readOnly:false or destructive entry would violate the story contract\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:4\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-002:adversarial:5\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Run learning_effectiveness and then immediately check for any new files or modified files in .lattice/ => nothing must change (no side-effect leak)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:5\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Leaf smoke: synthetic ordered stories with known recurring signatures => assert exact recall/precision values + windowed trend values + arm comparison (N, outcome) match hand-calculated expectations\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Leaf smoke: arm comparison with small-N fixture (both arms < MIN_ARM_N) => significant=false, note=insufficient N\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Leaf smoke: arm comparison with fixture where both arms >= MIN_ARM_N => significance gate behaves as specified (significant reflects conservative gate)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"CLI smoke: run learning_effectiveness on a temp/real store => output contains a predictive-value line; git status confirms nothing written\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:happy:4\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"npm script test:experience-layer-effectiveness runs successfully (exit 0) and prints effectiveness smoke passed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:4\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:happy:5\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Committed verifier verify-b-c06a.mjs runs build + this smoke + no-regression smokes + full npm test => TOTAL/PASS/FAIL with all PASS\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:5\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Leaf smoke: empty input (no stories) => zeroed report, no crash, no NaN\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Leaf smoke: never-NaN check across all edge fixtures (zero findings, zero signatures, zero arms) => every numeric field is a finite number\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Leaf smoke: determinism check => two consecutive calls with same synthetic input produce identical output\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:experience-layer-effectiveness\",\"result\":\"pass\",\"note\":\"effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:edge:3\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Verifier: process-fact-contract test passes (learning_effectiveness L0 entry present and valid)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:3\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Static check: experience-effectiveness.ts imports only node:/types (no fs, path, child_process, git, network) => leaf purity confirmed by verifier\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Static check: handler learning-effectiveness.ts contains no writeFileSync, no finding_add, no gate calls, no projectRoot-persist => read-only confirmed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Static check: learning_effectiveness is registered across all 6 surfaces (cli-engine, registry, config, command-policy, process-fact-levels, READ_ONLY_COMMANDS) => verifier checks each one\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:adversarial:3\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Verifier runs full npm test including process-fact-contract => any missing registration surface causes FAIL\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:3\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}},{\"intentRef\":\"CHK-003:adversarial:4\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"No-regression: all existing smokes (finding-signals, playbook, recall, revalidation, learning-scan, signature-capture, ab-shadow-gate) still pass after the new code => no side-effect regressions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:4\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs\",\"result\":\"pass\",\"note\":\"Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.\",\"headHash\":\"28e5cc4cdaedaedeb073b91e15e18cbfba68bb40\",\"materialHash\":\"958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6\",\"timestamp\":\"2026-06-18T15:57:21.231Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-18T15:59:59.549Z",
+  "headHash": "e24e1d5bf0951a567e5e95c99845e256c5214c84",
+  "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+  "verificationCoverage": {
+    "total": 46,
+    "required": 46,
+    "covered": 46,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "computePredictiveValue with 3+ ordered stories where signatureTags recur across stories => recall and precision are exact expected fractions; windowed trend has correct per-window hit-rates; slopeSign reflects the actual trend direction",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "computeArmComparison with nOn>=MIN_ARM_N and nOff>=MIN_ARM_N => returns correct outcomeOn, outcomeOff, delta=outcomeOff-outcomeOn, and significance gate engages correctly",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "computePredictiveValue with confirmedOnly=true => only counts findings with signatureTagSource===confirmed; unconfirmed findings excluded from recall/precision totals",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "computeArmComparison with both arms sufficient N and measurable delta => delta is numerically correct as outcomeOff minus outcomeOn",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "computePredictiveValue([]) empty stories array => zeroed report (recall=0, precision=0, findingsWithSig=0, preWarnable=0, windows=[], slopeSign neutral), never NaN",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "computePredictiveValue with stories that have zero findings-with-signature (all findings lack signatureTag) => recall=0, precision=0, no NaN from 0/0 division",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "computeArmComparison with all stories having hintMode=undefined (unassigned, all skipped) => nOn=0, nOff=0, significant=false, note contains insufficient N",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "computePredictiveValue with single story (no prior signatures possible) => preWarnable=0, recall=0, precision=0, no crash",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:4",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "computeArmComparison with exactly MIN_ARM_N-1 in one arm => significant=false, note=insufficient N; at exactly MIN_ARM_N per arm => significance gate engages",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:5",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "computePredictiveValue called twice with identical input => returns bit-identical output (determinism check)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:6",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "computePredictiveValue with stories where findings have empty-string signatureTag => treated as no signature, not added to priorSignatures set, excluded from counts",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:6",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "computeArmComparison with nOn=2, nOff=2 (tiny N) and a large delta => significant MUST be false with insufficient-N note; implementation must NOT claim significance on tiny samples (honesty trap)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "computePredictiveValue where every finding has a signatureTag but zero overlap across stories => precision=0, recall=0, never NaN from zero-denominator edge",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Static import analysis of experience-effectiveness.ts => imports ONLY from node:/types (no fs, no path, no child_process, no git, no network modules); confirms leaf purity",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Call computePredictiveValue 100 times in tight loop with same input => all 100 results identical (proves no hidden RNG, no Date.now, no process.env dependency)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:4",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "computeArmComparison with nOn=0, nOff=50 (one arm completely empty) => significant=false, no NaN on zero-arm outcome computation, note indicates insufficient N",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:5",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Feed findings with undefined/null signatureTag mixed with valid ones => no crash, undefined/null tags excluded from priorSignatures and counts, valid tags computed correctly",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Run lattice learning_effectiveness on a store with ordered stories containing recurring signatures and arm assignments => prints human-readable predictive-value overall+trend and ON/OFF arm readout with N and significance status",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Run lattice learning_effectiveness --json => emits structured JSON report with predictiveValue (recall, precision, windows, slopeSign) and armComparison (nOn, nOff, outcomeOn, outcomeOff, delta, significant, note)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Run lattice learning_effectiveness --confirmedOnly => report only reflects findings with signatureTagSource===confirmed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:3",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "learning_effectiveness is registered in all 6 surfaces: registry.ts registerBatch, cli-engine.ts command schema, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts (readOnly, allowedPhases all, destructiveRisk none), process-fact-levels.ts (L0 experience-layer-read), and READ_ONLY_COMMANDS list",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Run learning_effectiveness on an empty store (no stories) => prints zeroed/empty report gracefully, no crash, no NaN",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Run learning_effectiveness on a store with stories that have no findings at all => report shows zero metrics, no error",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Run learning_effectiveness on a store where no stories have experience_hint_surfaced events (no arm data) => arm comparison shows nOn=0, nOff=0, significant=false",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:3",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Run learning_effectiveness with both --json and --confirmedOnly flags together => structured JSON output respects confirmedOnly filter",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "After running learning_effectiveness, verify git status shows nothing written to the store / project root => command is truly read-only (no findings, no gate, no cache, no advisory)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Verify handler source code contains no writeFileSync, no finding_add, no gate calls, no projectRoot persist operations => static read-only proof",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Verify learning_effectiveness appears in READ_ONLY_COMMANDS in cli-engine.ts => enforcement that it cannot write",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:3",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Verify process-fact-levels.ts has a PROCESS_FACT_LEVELS entry for learning_effectiveness at L0 experience-layer-read => missing entry would break process-fact-contract test",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:4",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Verify command-policy.ts entry has readOnly=true and destructiveRisk=none => a readOnly:false or destructive entry would violate the story contract",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:5",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Run learning_effectiveness and then immediately check for any new files or modified files in .lattice/ => nothing must change (no side-effect leak)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Leaf smoke: synthetic ordered stories with known recurring signatures => assert exact recall/precision values + windowed trend values + arm comparison (N, outcome) match hand-calculated expectations",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Leaf smoke: arm comparison with small-N fixture (both arms < MIN_ARM_N) => significant=false, note=insufficient N",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Leaf smoke: arm comparison with fixture where both arms >= MIN_ARM_N => significance gate behaves as specified (significant reflects conservative gate)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:3",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "CLI smoke: run learning_effectiveness on a temp/real store => output contains a predictive-value line; git status confirms nothing written",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:4",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "npm script test:experience-layer-effectiveness runs successfully (exit 0) and prints effectiveness smoke passed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:5",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Committed verifier verify-b-c06a.mjs runs build + this smoke + no-regression smokes + full npm test => TOTAL/PASS/FAIL with all PASS",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Leaf smoke: empty input (no stories) => zeroed report, no crash, no NaN",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Leaf smoke: never-NaN check across all edge fixtures (zero findings, zero signatures, zero arms) => every numeric field is a finite number",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Leaf smoke: determinism check => two consecutive calls with same synthetic input produce identical output",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-effectiveness",
+          "result": "pass",
+          "note": "effectiveness smoke (16/16): computePredictiveValue exact recall/precision + windowed trend + slopeSign; never-NaN on empty/zero-denominator; deterministic; computeArmComparison small-N => significant=false (insufficient N), >=MIN_ARM_N gate behaves; CLI prints a predictive-value line and writes nothing (git status clean).",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:3",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Verifier: process-fact-contract test passes (learning_effectiveness L0 entry present and valid)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Static check: experience-effectiveness.ts imports only node:/types (no fs, path, child_process, git, network) => leaf purity confirmed by verifier",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Static check: handler learning-effectiveness.ts contains no writeFileSync, no finding_add, no gate calls, no projectRoot-persist => read-only confirmed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Static check: learning_effectiveness is registered across all 6 surfaces (cli-engine, registry, config, command-policy, process-fact-levels, READ_ONLY_COMMANDS) => verifier checks each one",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:3",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Verifier runs full npm test including process-fact-contract => any missing registration surface causes FAIL",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:4",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "No-regression: all existing smokes (finding-signals, playbook, recall, revalidation, learning-scan, signature-capture, ab-shadow-gate) still pass after the new code => no side-effect regressions",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-c06a/evidence/verify-b-c06a.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + effectiveness smoke + 7 no-regression smokes + full npm test (process-fact-contract green) + static checks (experience-effectiveness.ts pure; handler read-only no write/finding/gate/projectRoot-persist; learning_effectiveness registered across cli-engine/registry/config/command-policy/process-fact-levels AND in READ_ONLY_COMMANDS). TOTAL 46 | PASS 46 | FAIL 0.",
+          "headHash": "28e5cc4cdaedaedeb073b91e15e18cbfba68bb40",
+          "materialHash": "958102721bf674ae16be2e1716ac928a0a7675e3dddfe00db6525c531ba98ef6",
+          "timestamp": "2026-06-18T15:57:21.231Z"
+        }
+      }
+    ]
+  }
+}

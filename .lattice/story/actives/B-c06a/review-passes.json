@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c06a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed. This diff is purely additive: new leaf core/experience-effectiveness.ts, new handler handlers/learning-effectiveness.ts, and registration across all 6 surfaces (cli-engine schema + READ_ONLY_COMMANDS, registry import + registerBatch, core/config DEFAULT_PHASE_TOOLS, core/command-policy COMMAND_POLICIES, core/process-fact-levels PROCESS_FACT_LEVELS). No concept words deleted or replaced en masse in production code. Deleted lines are only lattice story metadata (phase INIT_CHECK, pending checklist status). All 6 registration surfaces are consistent: command name learning_effectiveness matches across every surface. All leaf exports (computePredictiveValue, computeArmComparison, MIN_ARM_N, EffStory, EffFinding, PredictiveValueReport, ArmComparison, PredictiveValueOptions) are imported and exercised in the handler and smoke. The experience_hint_surfaced event depended on by the arm-comparison reader is confirmed written in handlers/story-review.ts:580. No dangling references, no half-wired command, no doc-promise-undelivered finding. No blocker.",
+      "createdAt": "2026-06-18T16:00:02.796Z",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "reviewRunId": "B-c06a:RR-001",
+      "_hash": "7de833269ad88ddc24b7ffbce06d27c6703f35c14f3986cc8d97780b879ea3f7"
+    }
+  ]
+}
