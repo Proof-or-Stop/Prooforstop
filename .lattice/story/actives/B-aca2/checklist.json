@@ -53,7 +53,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"noHiddenContextSharing:true\" in the HandoffAuthorityBoundary table row, and the F-011 summary matches the source-backed boundary.",
+      "files": {
+        "modify": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The audit doc F-011 section and table explicitly include noHiddenContextSharing:true and match core/lattice-handoff.ts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The nearby summary prose and appendix stay aligned with the same source-backed authority boundary after the row is restored.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story does not broaden scope to runtime or CLI behavior; it stays limited to the audit document wording.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
