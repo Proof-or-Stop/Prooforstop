@@ -1,0 +1,35 @@
+{
+  "storyId": "B-f14a",
+  "name": "remove-mac-ui-cli-role",
+  "title": "Mirror upstream gate-actor policy in CLI job-create",
+  "description": "This is the downstream CLI follow-up to the Authority server contract change. Update authority-client role checks, failure text, and CLI-facing docs so the CLI mirrors the upstream gate-actor vocabulary without widening the allowed role set or introducing new environment tiers.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "mac_ui",
+    "authority",
+    "gate",
+    "cli",
+    "actor",
+    "job_create"
+  ],
+  "createdAt": "2026-06-18T19:46:54.599Z",
+  "startedAt": "2026-06-18T19:46:54.599Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-18T19:46:54.635Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f14a",
+    "branch": "story/B-f14a",
+    "createdAt": "2026-06-18T20:26:11.733Z"
+  }
+}

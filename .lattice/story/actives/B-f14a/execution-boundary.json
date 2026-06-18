@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f14a",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "node packages/main/dist/tasks/authority-client-smoke.js",
+    "node packages/main/dist/tasks/authority-completion-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "packages/main/src/core",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".worktrees",
+    "coverage",
+    "dist"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "CLI scope frozen for downstream mirror cleanup.",
+  "createdAt": "2026-06-18T20:06:01.993Z",
+  "updatedAt": "2026-06-18T20:06:01.993Z",
+  "_hash": "c3aebcea6c7cc73dd2341a6737ce7ce763e747fa5c49ab8cf7ea9daf8a70400e"
+}
