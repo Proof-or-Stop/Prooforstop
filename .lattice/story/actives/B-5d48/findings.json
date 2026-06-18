@@ -17,6 +17,24 @@
       "_hash": "6ebc261fd3818267d9ca7e923dc3e49e1be5e14e69817a4ef830401ff3a0f6cb",
       "signatureTag": "edge|unknown|reviewer-smoke-behavior",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5d48:F-002",
+      "desc": "concept-cleanup: stale comment residue in finding.ts line 283: B-4f46 comment says omitted signatureTag => unchanged legacy behavior but B-5d48 changed this to auto-candidate; the B-5d48 comment at lines 285-289 correctly describes the new behavior but the old B-4f46 comment line above it now contradicts it and misleads future readers",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-18T13:39:04.156Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-001",
+      "_hash": "34182b105d3ff12faef1af962da1e8162c2fe9b586384bf2dbbf2f5f4688a35c",
+      "files": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
