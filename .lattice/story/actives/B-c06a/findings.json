@@ -102,6 +102,21 @@
       ],
       "signatureTag": "doc-promise-undelivered|ts|promise-undelivered-engine",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c06a:F-006",
+      "desc": "dead-code: core/experience-effectiveness.ts:26 exports EffSignatureTagSource but it is never imported or used anywhere in packages/main/src/",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-18T16:14:42.502Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-006",
+      "_hash": "8cbd59184653e472b4ba2e153d3b08f87d901fb74b39c7e6baf2765975b651ed",
+      "signatureTag": "missing|unknown|dead-code-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
