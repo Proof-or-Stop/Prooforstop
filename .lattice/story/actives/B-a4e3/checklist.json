@@ -41,6 +41,17 @@
           "headHash": "43385312b57ce1bbb79aace2d78c871812bd2650",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:16.247Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+          "command": "node --import tsx dev-memory-legacy-read-smoke.ts",
+          "result": "pass",
+          "note": "Smoke flipped to negative assertion: seeds entry ONLY in .koala location, asserts it is NOT read and read-path set has no .koala; prints dev-memory legacy read removal smoke passed (.koala no longer read).",
+          "headHash": "38cef8f123eb6e714c7a641ce12c8ba754d49739",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:17.146Z"
         }
       ]
     },
