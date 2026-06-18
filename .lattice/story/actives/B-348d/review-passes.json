@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T17:01:59.780Z",
       "reviewRunId": "B-348d:RR-001",
       "_hash": "761352b4ee3522075e0131dc5518ff16e40b127a08be6a7b195de8b9981dc05b"
+    },
+    {
+      "id": "B-348d:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001 predicate correct: retryOnAnyFailure field declared in ManifestEntry (line 59), predicate at line 276 correctly gates FAIL retry on retryOnAnyFailure===true, noRetry short-circuits at line 274. TIMEOUT path at line 275 unchanged (B-2941 preserved). --no-retry empties retryEntries at line 269. Build artifact confirmed via evidence. CHK-002 manifest: exactly 4 entries carry retryOnAnyFailure:true (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard), all serial-PASS confirmed by evidence, JSON valid. CHK-003 self-smoke: 15/15 pass confirmed by live re-run; B-348d (a) flagged-FAIL-retried and B-348d (b) unflagged-FAIL-terminal both present and passing. Final:/retry log wording appears only when pass 2 ran (retried flag). CHANGELOG Unreleased has B-348d entry. docs/dev/test-coverage.md updated with retryOnAnyFailure allowlist. One medium finding (B-348d:F-001) registered for missing double-fail self-smoke case (the code is correct but the third invariant from the spec is not asserted by any test case).",
+      "createdAt": "2026-06-18T17:05:08.182Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-002",
+      "_hash": "7c7a91f7a5f5bb73ef21c1902f316543f2fcc220e372228b215f279c85af01c0"
     }
   ]
 }
