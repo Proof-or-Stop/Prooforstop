@@ -62,6 +62,16 @@ const handlerWritesOnlyCache = handler.length > 0
   && /projectRoot/.test(handler)
   && !/finding_add|writeFindings|review_pass_set|advisory_add|appendFileSync/.test(handler);
 
+// ── Static (F-001 / CHK-001:adversarial:1): the wrong-projectRoot vector is eliminated by construction ──
+// The handler sources the root from ctx (`const projectRoot = ctx.root ...`), NEVER from a
+// caller-supplied arg — LearningScanArgs has no projectRoot/root field — so a caller cannot
+// make the scan write the cache to a path the hint loader will not read.
+const argsTypeBlock = (handler.match(/interface LearningScanArgs\s*\{[\s\S]*?\}/) || [''])[0];
+const wrongRootEliminated = handler.length > 0
+  && /const\s+projectRoot\s*=\s*ctx\.root/.test(handler)
+  && !/args\.(projectRoot|root)\b/.test(handler)
+  && !/\b(projectRoot|root)\s*[?:]/.test(argsTypeBlock);
+
 // ── Static: npm scripts wired ──
 const pkgJson = read('packages/main/package.json');
 const pkgScript = /"test:experience-layer-learning-scan"\s*:/.test(pkgJson);
@@ -88,13 +98,13 @@ const cacheNotDirtyingSource = !learningInDiff;
 const registrationOk = cmdRegistered && handlerRegistered && handlerImported && configEntry && policyEntry && levelEntry;
 const adversarialOk = notInReadOnly && ownershipNotReadOnly && policyNoDoneEvidence && noGateConsumer;
 const chk = {
-  'CHK-001': buildOk && scanSmoke && handlerWritesOnlyCache,
+  'CHK-001': buildOk && scanSmoke && handlerWritesOnlyCache && wrongRootEliminated,
   'CHK-002': buildOk && registrationOk && adversarialOk && processFactContract && fullTest,
   'CHK-003': buildUtilsOk && buildOk && scanSmoke && noRegression && processFactContract && fullTest && pkgScript && protectedUntouched && cacheNotDirtyingSource,
 };
 const note = {
-  'CHK-001': 'learning_scan handler derives+persists the advisory finding-signals cache via deriveFindingSignalsFromStore(projectRoot); ONLY write is .lattice/learning/finding-signals.json; smoke proves empty-before/firing-after + valid cache + anchorFiles + determinism + empty/scoped boundaries',
-  'CHK-002': 'learning_scan registered across cli-engine/registry/config/command-policy/process-fact-levels; ownershipClass=mainSharedMutating (NOT readOnly); NOT in READ_ONLY_COMMANDS; no gateConsumer; policy notes it cannot satisfy DONE/authority evidence; full npm test (incl. process-fact-contract) green',
+  'CHK-001': 'learning_scan handler derives+persists the advisory finding-signals cache via deriveFindingSignalsFromStore(projectRoot); ONLY write is .lattice/learning/finding-signals.json; smoke proves empty-before/firing-after + valid cache + anchorFiles + determinism + empty/scoped boundaries; wrong-projectRoot vector (adversarial:1) eliminated by construction — root comes from ctx.root, never from args (LearningScanArgs has no projectRoot/root field), asserted by wrongRootEliminated',
+  'CHK-002': 'learning_scan registered across cli-engine/registry/config/command-policy/process-fact-levels; ownershipClass=mainSharedMutating (NOT readOnly); NOT in READ_ONLY_COMMANDS; no gateConsumer; policy notes it cannot satisfy DONE/authority evidence. The mutation-style adversarial intents (adversarial:0/1/2) are guarded by the LIVE process-fact-contract suite (run here via full npm test), which FAILS on any mis-registration — it demonstrably caught B-a2e3 missing its PROCESS_FACT_LEVELS entry; the static checks assert the correct end-state',
   'CHK-003': 'committed smoke (learning-scan smoke passed) + no-regression smokes (finding-signals/playbook/recall/revalidation) + full npm test green + npm script wired + protected files (finding-signals.ts/learning-store.ts/finding.ts) unchanged + cache write does not dirty tracked source',
 };
 
