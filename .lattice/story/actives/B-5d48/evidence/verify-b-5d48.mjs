@@ -56,9 +56,24 @@ const sourceTypeOk = /export type SignatureTagSource\s*=\s*'auto'\s*\|\s*'confir
   || /export type SignatureTagSource\s*=\s*'confirmed'\s*\|\s*'auto'\s*;/.test(expTypes);
 
 // finding.ts: the signFinding hashed input must NOT contain signatureTag/signatureTagSource.
+// Exclusion-detection logic, factored so a NEGATIVE self-test can prove it has teeth.
+const detectSignCallExcludesTag = (src) => {
+  const calls = (src.match(/signFinding\([^)]*\)/g) || []).join('\n');
+  return calls.length > 0 && !/signatureTag/.test(calls);
+};
 const findingTs = read('packages/main/src/handlers/finding.ts');
 const signCall = (findingTs.match(/signFinding\([^)]*\)/g) || []).join('\n');
-const signCallExcludesTag = signCall.length > 0 && !/signatureTag/.test(signCall);
+const signCallExcludesTag = detectSignCallExcludesTag(findingTs);
+
+// ── NEGATIVE self-test (F-006): prove the exclusion check has teeth ──────────
+// Synthetic BAD snippet — simulates a regression where the new audit-only fields
+// are WRONGLY threaded into signFinding (which would corrupt the _hash domain).
+const BAD_SIGN_SNIPPET =
+  'const sig = signFinding(storyId, fid, desc, severity, timestamp, reviewRound, reviewRunId, signatureTag, signatureTagSource);';
+// The check must FAIL (false) on the broken snippet and PASS (true) on the real finding.ts.
+const negSelfTestRejectsBad = detectSignCallExcludesTag(BAD_SIGN_SNIPPET) === false;
+const negSelfTestAcceptsGood = detectSignCallExcludesTag(findingTs) === true;
+const exclusionCheckHasTeeth = negSelfTestRejectsBad && negSelfTestAcceptsGood;
 // finding-verify.ts (signFinding definition) must remain unchanged vs main.
 const findingVerifyUntouched = sh('git diff main...HEAD --name-only -- packages/main/src/core/finding-verify.ts').trim() === '';
 // finding.ts persists both fields (conditionally) and records provenance.
@@ -88,7 +103,7 @@ const chk = {
   'CHK-002': buildOk && captureSmoke && hashInvariancePass && signCallExcludesTag && findingVerifyUntouched
     && persistsBoth && recordsSource && noGateReadsSource && verifyExcludesFields,
   'CHK-003': captureSmoke && hashInvariancePass && structuredCounts && pkgScript && noRegressionSmokes
-    && fullTestOk && signCallExcludesTag && leafImportsClean && leafNoIo,
+    && fullTestOk && signCallExcludesTag && leafImportsClean && leafNoIo && exclusionCheckHasTeeth,
 };
 const note = {
   'CHK-001': 'pure leaf exports deriveSignatureCandidate, imports only node:/types (no fs/net/child_process); SignatureTagSource = auto|confirmed; build clean',
@@ -96,19 +111,36 @@ const note = {
   'CHK-003': 'signature-capture smoke (incl. _hash invariance + TOTAL/PASS/FAIL counts) + npm script + no-regression smokes + FULL npm test green; static purity/exclusion checks pass',
 };
 
+// Per-ref overrides: refs whose pass condition is more specific than the item-level cond.
+// CHK-003:adversarial:2 is THE negative-test intent ("verifier on a deliberately broken
+// build => FAIL > 0"); bind it to the negative self-test that proves the exclusion check
+// would catch a signatureTag/signatureTagSource regression in the signFinding call.
+const refOverride = {
+  'CHK-003:adversarial:2': {
+    pass: exclusionCheckHasTeeth,
+    note: `NEGATIVE self-test: exclusion check FAILs on a BAD signFinding(...signatureTag, signatureTagSource) snippet (rejectsBad=${negSelfTestRejectsBad}) and PASSes on real finding.ts (acceptsGood=${negSelfTestAcceptsGood}) — proves the check would catch the critical _hash regression`,
+  },
+};
 const R = {};
 const cl = JSON.parse(read('.lattice/story/actives/B-5d48/checklist.json') || '{}');
 for (const it of cl.items || []) {
   const vi = it.verificationIntent || {};
   const cond = chk[it.id] !== undefined ? chk[it.id] : true;
   for (const lane of ['happy', 'edge', 'adversarial']) {
-    (vi[lane] || []).forEach((_, i) => { R[`${it.id}:${lane}:${i}`] = { pass: !!(captureSmoke && cond), note: note[it.id] || '' }; });
+    (vi[lane] || []).forEach((_, i) => {
+      const ref = `${it.id}:${lane}:${i}`;
+      if (refOverride[ref]) {
+        R[ref] = { pass: !!(captureSmoke && cond && refOverride[ref].pass), note: refOverride[ref].note };
+      } else {
+        R[ref] = { pass: !!(captureSmoke && cond), note: note[it.id] || '' };
+      }
+    });
   }
 }
 
 const refs = Object.keys(R);
 const fails = refs.filter((r) => !R[r].pass);
 console.log(`TOTAL ${refs.length} | PASS ${refs.length - fails.length} | FAIL ${fails.length}`);
-console.log(`(utilsBuildOk=${utilsBuildOk} buildOk=${buildOk} captureSmoke=${captureSmoke} hashInvariancePass=${hashInvariancePass} structuredCounts=${structuredCounts} fullTestOk=${fullTestOk} noRegressionSmokes=${noRegressionSmokes} [signals=${findingSignalsSmoke} enums=${findingEnumsSmoke} playbook=${playbookSmoke} recall=${recallSmoke} reval=${revalidationSmoke} learnScan=${learningScanSmoke}] leafImportsClean=${leafImportsClean} leafNoIo=${leafNoIo} leafExportsFn=${leafExportsFn} sourceTypeOk=${sourceTypeOk} signCallExcludesTag=${signCallExcludesTag} findingVerifyUntouched=${findingVerifyUntouched} persistsBoth=${persistsBoth} recordsSource=${recordsSource} noGateReadsSource=${noGateReadsSource} verifyExcludesFields=${verifyExcludesFields} pkgScript=${pkgScript})`);
+console.log(`(utilsBuildOk=${utilsBuildOk} buildOk=${buildOk} captureSmoke=${captureSmoke} hashInvariancePass=${hashInvariancePass} structuredCounts=${structuredCounts} fullTestOk=${fullTestOk} noRegressionSmokes=${noRegressionSmokes} [signals=${findingSignalsSmoke} enums=${findingEnumsSmoke} playbook=${playbookSmoke} recall=${recallSmoke} reval=${revalidationSmoke} learnScan=${learningScanSmoke}] leafImportsClean=${leafImportsClean} leafNoIo=${leafNoIo} leafExportsFn=${leafExportsFn} sourceTypeOk=${sourceTypeOk} signCallExcludesTag=${signCallExcludesTag} exclusionCheckHasTeeth=${exclusionCheckHasTeeth} [negRejectsBad=${negSelfTestRejectsBad} negAcceptsGood=${negSelfTestAcceptsGood}] findingVerifyUntouched=${findingVerifyUntouched} persistsBoth=${persistsBoth} recordsSource=${recordsSource} noGateReadsSource=${noGateReadsSource} verifyExcludesFields=${verifyExcludesFields} pkgScript=${pkgScript})`);
 for (const f of fails) console.log(`  FAIL ${f} :: ${R[f].note}`);
 fs.writeFileSync('.lattice/story/actives/B-5d48/evidence/verify-result.json', JSON.stringify(R, null, 1));
