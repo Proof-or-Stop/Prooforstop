@@ -19,7 +19,7 @@
     {
       "id": "CHK-003",
       "title": "Final 3x consecutive parallel test:all verify",
-      "context": "With the new --jobs N default in place, run npm run test:all 3 consecutive times. ALL 3 must exit 0 with 162/162 (or 166/166) PASS — no FAIL, no TIMEOUT, including the previously flaky review-pass-discard / field-regression-cli / verification-freshness / worktree-repair. If any run flakes, this is Plan A failure; file finding and roll to Plan B.",
+      "context": "With the new --jobs N default in place, run npm run test:all 3 consecutive times. Current full battery size on main (post-B-24c3): the runner discovers ALL *-smoke.ts files via directory-scan + every manifest entry — 166 total per a clean baseline run today; this is the literal pass/fail target (i.e. all 3 runs must show '166/166 passed' and exit 0). The previously-flaky review-pass-discard / field-regression-cli / verification-freshness / worktree-repair MUST all PASS in all 3 runs. If any run flakes, this is Plan A failure; file finding and roll to Plan B.",
       "status": "pending",
       "startTime": null,
       "endTime": null

@@ -1,0 +1,42 @@
+{
+  "storyId": "B-be91",
+  "checkedAt": "2026-06-18T01:06:54.973Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Trigger Event line 1 says B-24c3 bumped timeoutMs for 9 smokes, but Key Insights line 8 says the 13 known-race smokes have serial wall-times 9-129s. Two different counts of known-race smokes within the same document; a new reader cannot resolve the discrepancy."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "CHK-003 context states the acceptance criterion as 162/162 (or 166/166) PASS with no explanation of why there are two possible totals or which applies. Makes the pass/fail criterion ambiguous to a new reader."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-18T01:06:09.773Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-18T01:06:54.973Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Trigger Event line 1 says B-24c3 bumped timeoutMs for 9 smokes, but Key Insights line 8 says the 13 known-race smokes have serial wall-times 9-129s. Two different counts of known-race smokes within the same document; a new reader cannot resolve the discrepancy."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "CHK-003 context states the acceptance criterion as 162/162 (or 166/166) PASS with no explanation of why there are two possible totals or which applies. Makes the pass/fail criterion ambiguous to a new reader."
+        }
+      ]
+    }
+  ],
+  "_hash": "48f388efa86b3ad58dd44474b91e6fe28c2d6a5496e5a05aa706ad731d73f882"
+}

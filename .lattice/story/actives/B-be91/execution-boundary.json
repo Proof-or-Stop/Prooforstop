@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-be91",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/run-all-smokes.js *",
+    "npm run test:all *",
+    "npm test",
+    "python3 -c *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md",
+    "package.json"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/",
+    "packages/utils/",
+    "scripts/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Plan A: cap default --jobs to fix convergence-tail. Single-line package.json edit + 2 doc updates. Plan B/C are deferred.",
+  "createdAt": "2026-06-18T01:05:05.099Z",
+  "updatedAt": "2026-06-18T01:05:05.099Z",
+  "_hash": "59a0001b66a23c1766b750a2c4d6503b53d9dc32dd9d8964a3b4072230f75e28"
+}
