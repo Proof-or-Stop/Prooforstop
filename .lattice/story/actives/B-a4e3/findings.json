@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: CLAUDE.md line 874 states story_dispatch / finding_dispatch are deprecated aliases still usable (仍可用但 stderr 告警), but B-a4e3 CHK-005 fully removed them — cli-engine.ts:1900-1901 and command-policy.ts:330 both carry explicit removal comments. Agents following CLAUDE.md will attempt lattice story_dispatch / lattice finding_dispatch and get command-not-found errors.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-18T14:06:38.497Z",
@@ -19,14 +19,15 @@
         "packages/main/src/handlers/story-dispatch.ts"
       ],
       "signatureTag": "missing|md|code-drift-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a4e3:F-001@7c7d9fd"
     },
     {
       "id": "B-a4e3:F-002",
       "desc": "doc-code-drift: packages/main/src/core/config.ts line 12 JSDoc still says `<projectRoot>/.koala/audit-config.json` as the project-level override path. B-a4e3 removed the .koala read fallback in audit-config.ts (confirmed via diff: LEGACY_KOALA_DIR import removed, legacy read path removed), but the JSDoc in config.ts was not updated. Should now read `.lattice/audit-config.json` matching the implementation and the corrected CLAUDE.md.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-18T14:06:47.177Z",
@@ -38,7 +39,8 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a4e3:F-002@7c7d9fd"
     }
   ]
 }
