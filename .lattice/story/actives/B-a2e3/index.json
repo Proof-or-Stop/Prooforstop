@@ -4,7 +4,7 @@
   "title": "Experience Layer: referential re-validation + valid-rate metric",
   "description": "Add a read-only temporal-validity instrument to the per-project Experience Layer. Finding-signals are derived from historical findings whose file anchors may no longer exist at HEAD (knowledge drift). This story records each signal's anchor files, adds a pure re-validation leaf that classifies a signal valid/stale against the current HEAD file set, and exposes a re-runnable learning_validate CLI that reports valid-rate and drift-rate. Strictly advisory and read-only: no gate, no finding-lifecycle write, no scoring change, writes nothing.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "experience-layer",
@@ -110,6 +110,14 @@
       "timestamp": "2026-06-18T00:59:35.006Z",
       "reviewer": "behavior",
       "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T01:05:31.661Z",
+      "branch": "story/B-a2e3",
+      "user": "Harmonygo",
       "agent": "main"
     }
   ],
