@@ -198,6 +198,17 @@
           "headHash": "a6df7e3680ab461bc11dc70cace2ebdd2d4d8aa7",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:41:54.317Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE '@lattice-agent.core|@koala-agent.core' packages/main/src/core/codex-adapter-checks.ts",
+          "result": "pass",
+          "note": "Returns 2 — both brands probed.",
+          "headHash": "85e883e282ca5b34e58f0ff33b2cd13afe2e0e21",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:55.263Z"
         }
       ]
     },
