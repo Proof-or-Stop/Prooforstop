@@ -4,7 +4,7 @@
   "title": "OSS final cleanup: remove the legacy .koala read fallback + non-salt koala identifiers + package.json koala URLs + GC dead @deprecated — PRESERVE signature salts",
   "description": "Final OSS koala cleanup + deprecated GC. The runtime path is ALREADY .lattice/ for all writes; .koala/ only survives as a backward-compat READ fallback (LEGACY_KOALA_DIR in core/lattice-paths.ts, used in ~6 files: audit-config.ts, rollout-check.ts, cli-engine.ts, dev-memory readers, etc.) + package.json koala URLs + dead @deprecated. The user's ~/.koala/dev-memory (5 experiences) has ALREADY been migrated to ~/.lattice/dev-memory (verified; ~/.koala kept as backup), and the global ~/.koala/health.jsonl is 93% obsolete gitRoot-defect errors (now-fixed) not worth migrating. So removing the .koala read fallback is safe. Scope: (1) remove the LEGACY_KOALA_DIR read fallback + LEGACY_KOALA_* path constants in core/lattice-paths.ts and the ~6 consumer sites, keeping .lattice the sole canonical path; update dev-memory-legacy-read-smoke.ts (which currently asserts ~/.koala is read with .lattice winning) to assert .koala is NO LONGER read. (2) rename remaining NON-SALT koala identifiers to lattice. (3) remove the 4 koala URLs in package.json + packages/main/package.json (repository x2, bugs, homepage pointing at github.com/koala-agent/koala). (4) update CLAUDE.md .koala/ runtime-path references to .lattice/. (5) P8 deprecated GC: remove the dead finding_dispatch / story_dispatch deprecated CLI aliases (replaced by 'lattice dispatch') after confirming no consumers, and remove genuinely-dead @deprecated fields, KEEPING the legacy-JSON-compat @deprecated fields still needed to read old stored story JSON (annotate why each kept one stays). === ABSOLUTE HARD CONSTRAINT — DO NOT VIOLATE === The signature salts containing 'koala' are FROZEN cryptographic constants, NOT branding: koala-init-check-integrity-v1, koala-delivery-check-integrity-v1, koala-draft-check-integrity-v1, koala-finding-integrity-v1, koala-capability-list-cli/-registry, koala-discard-registry-repair, koala-mixed-global-link, and any koala-*-integrity-v\\d+ / salt literal (across core/guard-utils.ts, finding-verify.ts, reviewer-status.ts, review-run.ts, init-check-gate.ts, review-scope-binding.ts, process-fact-registry.ts, machine.ts, draft-check-hash.ts, handlers/scope-check.ts). Renaming ANY of them to lattice-* would invalidate EVERY existing signed gate artifact (init-check/delivery-check/scope-check/draft-check/finding) in every repo — a catastrophic break. PRESERVE them verbatim. The koala-residue gate (scripts/verify-koala-residue.mjs, run by test:koala-residue) already exempts these salts; keep those salt exemptions and keep the gate GREEN. Out of scope: changing the salts; a full signature re-mint/migration; health.jsonl rotation (separate optional item the user has not approved); the koala-residue gate's own enforcement logic (only update its allowlist to drop now-removed .koala-fallback exemptions while keeping salt + historical-doc exemptions).",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "koala-cleanup",
@@ -112,6 +112,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-18T14:21:30.775Z",
+      "branch": "story/B-a4e3",
+      "user": "Harmonygo",
+      "sessionId": "lattice-koala-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T14:31:06.753Z",
       "branch": "story/B-a4e3",
       "user": "Harmonygo",
       "sessionId": "lattice-koala-final",
