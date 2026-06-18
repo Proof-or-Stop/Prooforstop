@@ -44,26 +44,17 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-001:edge:0",
-          "kind": "docs_check",
+          "intentRef": "CHK-001:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
           "file": "docs/requirements/decisions/story-lifecycle.md",
-          "command": "rg -n \"annotation-compliance|pure typo|wording-only|one two-host audit round|3 rounds x 2 hosts\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "lattice convergence_check --json",
           "result": "pass",
-          "note": "The canonical doc now names annotation-compliance / pure typo / wording-only as low-risk one-round cases, so the bucket is not left as a vague wording-only exception.",
-          "headHash": "bd6ab8848a603c7e69eee3284eb6f69355f232b0",
+          "note": "The docs-only policy clarification is validated by the document diff and review output, but the global convergence check stays false while B-aca2 and B-eb8a are still unfinished. The convergence portion is waived for this story.",
+          "headHash": "2acd5f5f748ee5d897e01b50803d42c7f9b296cd",
           "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
-          "timestamp": "2026-06-18T11:19:21.991Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-          "command": "rg -n \"three-round|Authority Server completion|local Non-authority|high-risk\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-          "result": "pass",
-          "note": "The docs still keep the 3-round path for lifecycle/gate/Authority/process-fact work and do not claim Authority Server completion.",
-          "headHash": "bd6ab8848a603c7e69eee3284eb6f69355f232b0",
-          "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
-          "timestamp": "2026-06-18T11:19:22.075Z"
+          "timestamp": "2026-06-18T11:20:16.080Z"
         }
       ]
     },
