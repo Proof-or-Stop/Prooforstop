@@ -76,9 +76,9 @@
         "packages/main/package.json",
         "packages/main/src/handlers/verifier.ts"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T13:56:38.785Z",
-      "endTime": null,
+      "endTime": "2026-06-18T14:02:14.897Z",
       "verificationIntent": {
         "happy": [
           {
@@ -106,7 +106,30 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "rg -n \"npm run serve:web|npm run serve:cli|lattice serve --web|lattice serve --cli|npm run serve\" CLAUDE.md",
+          "result": "pass",
+          "note": "The startup block now only shows supported lattice serve invocations and no nonexistent npm serve aliases.",
+          "headHash": "4f607489ed723f7fcf2fccc15b1c681d2bba0e70",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:15.197Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice audit --framework",
+          "result": "pass",
+          "note": "Audit round 9 regenerated the report with zero drift and no remaining serve-mode findings.",
+          "headHash": "385d0e01f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:15.522Z"
+        }
+      ]
     }
   ]
 }
