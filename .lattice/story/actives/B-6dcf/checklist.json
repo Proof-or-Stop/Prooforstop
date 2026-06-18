@@ -76,9 +76,9 @@
         "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
       ],
       "userSees": "lattice check text output explains that managed asset relPath values are relative to the metadata/asset root, and displays gitRoot when different.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T01:46:35.540Z",
-      "endTime": null,
+      "endTime": "2026-06-18T01:46:41.113Z",
       "verificationIntent": {
         "happy": [
           {
@@ -110,7 +110,29 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after commit b602ae20b; renderManagedAssetCheck includes root guidance immediately after Summary for all check states.",
+          "headHash": "7cf06b93012ba7ad5532c5b28c314c9b53969395",
+          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
+          "timestamp": "2026-06-18T01:46:41.370Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Focused smoke asserts DRIFT and OK text place root guidance immediately after Summary, before apply recommendations or manifest output, and show configured gitRoot separately when split.",
+          "headHash": "7cf06b93012ba7ad5532c5b28c314c9b53969395",
+          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
+          "timestamp": "2026-06-18T01:46:41.580Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
