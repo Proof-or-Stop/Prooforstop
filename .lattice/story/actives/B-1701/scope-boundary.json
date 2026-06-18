@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1701",
+  "mode": "feature",
+  "allowed": [
+    "Add a default Authority trust/client bundle generator for ordinary developers",
+    "Add an explicit senior opt-in bundle variant with Lattice-prefixed filenames",
+    "Add only the tests and verification needed to prove the new bundle flow works",
+    "Keep legacy authority_trust.env and staging-client.env aliases working",
+    "Update docs and developer guidance for the new bundle flow"
+  ],
+  "excluded": [
+    "Multi-tenant API key management",
+    "Non-authority refactors",
+    "Server-side authority auth redesign",
+    "Unrelated lifecycle or runner changes"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User confirmed a simplified Authority bundle workflow: default bundle for ordinary developers, senior opt-in variant, and legacy compatibility aliases using Lattice-prefixed filenames.",
+  "createdAt": "2026-06-18T16:22:31.582Z",
+  "updatedAt": "2026-06-18T16:22:31.582Z",
+  "_hash": "03d97ee7257697b987be51fd740b52e9f6b9e3dd464ee872ff3765a900a900fa"
+}

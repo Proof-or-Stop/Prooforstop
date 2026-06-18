@@ -233,6 +233,62 @@
       "firstSeenRound": 7,
       "resolvedReason": "drift cleared at round 9",
       "resolvedAt": "2026-06-18T13:58:20.895Z"
+    },
+    {
+      "id": "B-META-framework-audit:F-014",
+      "desc": "Authority enforce remediation found authority_status reports authorityReady=true with authorityTrustEnvLoaded=true, but real authority_job_create fails closed because config lacks PROJECT_ID/SESSION_ID and a main/mac_ui/human gate actor key. Readiness should expose job-create/live-runner prerequisites or strong-verification operators can mistake configured-no-receipt for runnable production Authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
+      "agent": "koala-gap-log",
+      "createdAt": "2026-06-18T16:01:31.614Z",
+      "reviewRound": "",
+      "_hash": "6fa4637311b0170ccb99be4ca66749a3e8ac01e15339983369df032a82ec7a3d",
+      "gapFingerprint": "b8a8a586d18055d7f2f6ff0817f7658b65d42fbac6fee2d19b34c9efb48fd3cc",
+      "files": [
+        "packages/main/src/core/authority-client.ts:1193",
+        "packages/main/src/core/authority-client.ts:1851",
+        "packages/main/src/handlers/lattice-cli.ts:870"
+      ]
+    },
+    {
+      "id": "B-META-framework-audit:F-015",
+      "desc": "Docs/handler mention authority_enforce_runner --live, but CLI schema/help omit live, so passing --live is ignored and the command remains local/dry-run style. Operators cannot trigger the documented live register/heartbeat/claim path through the CLI.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
+      "agent": "koala-gap-log",
+      "createdAt": "2026-06-18T16:01:31.644Z",
+      "reviewRound": "",
+      "_hash": "0ad33f93aeabf1393fd4c5c0a0a5cac35c817d93e1295894ad56f2c0ab2bd3db",
+      "gapFingerprint": "bc3240c877e2f0f947e4b756b182d98edc6d5b7363ac9912473e151b048de176",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts:858",
+        "packages/main/src/handlers/lattice-cli.ts:1251",
+        "packages/main/src/cli-engine.ts:2046"
+      ]
+    },
+    {
+      "id": "B-META-framework-audit:F-016",
+      "desc": "Live Python Authority E2E smoke reaches the server but fails DONE gate preflight because server now requires materialOverlapAudit while the smoke seed path does not provide it. The smoke is no longer a valid receipt-backed remediation proof until evidence seeding is updated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
+      "agent": "koala-gap-log",
+      "createdAt": "2026-06-18T16:01:31.692Z",
+      "reviewRound": "",
+      "_hash": "120bd47f26f50a5ea44591a829446ad24c130b0e91d3df6fe473e7fdad045d8a",
+      "gapFingerprint": "339e0db65e7e00609bc920f4ece3e39d28041860ed031af1a47afd5ec46e2bc3",
+      "files": [
+        "packages/main/src/tasks/authority-live-python-e2e-smoke.ts:650",
+        "packages/main/src/tasks/authority-live-python-e2e-smoke.ts:900"
+      ]
     }
   ]
 }

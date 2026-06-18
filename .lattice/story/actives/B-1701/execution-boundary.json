@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1701",
+  "allowedCommands": [
+    "cat *",
+    "find *",
+    "git diff",
+    "git log",
+    "git show",
+    "git status",
+    "jq *",
+    "lattice *",
+    "node *",
+    "npm *",
+    "pnpm *",
+    "python3 *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "pnpm-lock.yaml",
+    "README.md",
+    "scripts",
+    "tsconfig.json"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git reset --hard",
+    "omx",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Developer implementation and verification envelope for the Authority trust bundle generator story.",
+  "createdAt": "2026-06-18T16:22:31.652Z",
+  "updatedAt": "2026-06-18T16:22:31.652Z",
+  "_hash": "4f65002330fd2bf7869df4c026aea253aacddf0b58c2eff19d6fa11ffb361535"
+}
