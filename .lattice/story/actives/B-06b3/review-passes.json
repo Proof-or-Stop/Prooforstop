@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T15:12:58.818Z",
       "reviewRunId": "B-06b3:RR-002",
       "_hash": "a379726bef20ed051aef41063d85cc67baa5f45b9f150ef66e3e44c0db505fd3"
+    },
+    {
+      "id": "B-06b3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. Four additive artifacts reviewed: hint-mode.ts (new), story-review.ts (gating additions), experience-layer-ab-shadow-gate-smoke.ts (new), experience-layer-hint-injection-smoke.ts (onArmId helper + storyId fixes). No concept was deleted or replaced en masse. The renderedHintsSection / experienceHintsSection dual-variable pattern is intentional dual-use (not a concept replacement). Old hard-coded storyIds B-hint1 / B-hint-place / B-hint-inj fully replaced by onArmId calls — zero residual refs. CHK-001 adversarial:3 smoke check added and self-contained. All new concept words (hintMode, resolveHintMode, HintMode, renderedHintsSection, onArmId, shadow-gate, hintYieldingSignals) are fully defined in their implementation files. No dangling refs. No concept residue. No blocker.",
+      "createdAt": "2026-06-18T15:24:47.825Z",
+      "reviewRound": "2026-06-18T15:22:38.273Z",
+      "reviewRunId": "B-06b3:RR-005",
+      "_hash": "8e19c34089ed7168c51185871659827b8ae69cd4fa4d653ad72fa38098c340e4"
     }
   ]
 }
