@@ -120,7 +120,51 @@
       "context": "With the new --jobs N default in place, run npm run test:all 3 consecutive times. Current full battery size on main (post-B-24c3): the runner discovers ALL *-smoke.ts files via directory-scan + every manifest entry — 166 total per a clean baseline run today; this is the literal pass/fail target (i.e. all 3 runs must show '166/166 passed' and exit 0). The previously-flaky review-pass-discard / field-regression-cli / verification-freshness / worktree-repair MUST all PASS in all 3 runs. If any run flakes, this is Plan A failure; file finding and roll to Plan B.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "3 consecutive `npm run test:all` all show '166/166 passed' and exit 0; no FAIL/TIMEOUT for the 4 previously-flaky smokes.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run 1 exit 0 with full pass -> `npm run test:all > /tmp/b-be91-r1.log 2>&1; echo $?` outputs 0; WHY: primary acceptance",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run 2 exit 0 -> `npm run test:all > /tmp/b-be91-r2.log 2>&1; echo $?` outputs 0; WHY: stability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run 3 exit 0 -> `npm run test:all > /tmp/b-be91-r3.log 2>&1; echo $?` outputs 0; WHY: stability",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "166 PASS across all 3 runs -> `grep -h passed /tmp/b-be91-r1.log /tmp/b-be91-r2.log /tmp/b-be91-r3.log | grep -c \"166/166 passed\"` outputs 3; WHY: literal target",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "4 previously-flaky smokes (B-24c3 F-001..F-004) all PASS -> `cat /tmp/b-be91-r1.log /tmp/b-be91-r2.log /tmp/b-be91-r3.log | grep -E \"^FAIL |^TIMEOUT \" | awk \"{print \\$2}\" | grep -cE \"^(field-regression-cli|verification-freshness|worktree-repair|review-pass-discard)$\"` outputs 0; WHY: convergence-tail resolved",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no manifest touched during verify -> `git diff main...HEAD -- packages/main/smoke-manifest.json | wc -l` outputs 0; WHY: re-confirm B-24c3 frozen",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
