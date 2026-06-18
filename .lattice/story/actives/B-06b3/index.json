@@ -4,7 +4,7 @@
   "title": "Experience Layer 3.3: deterministic A/B hintMode + shadow-gated experience-hint display",
   "description": "Assign every story a deterministic, pre-registered hintMode (on/off) and gate the advisory experience-hints SECTION so reviewers see it only in the ON arm, while hints are still COMPUTED and the experience_hint_surfaced event still fires (now carrying hintMode) on BOTH arms. This sets up a clean, unconfounded forward A/B: no story loses measurement (the would-have-hinted data is recorded for OFF too), only the ON arm gets the reviewer-facing nudge. Hints already live solely in the advisory _reviewPrompt channel (separate from resolveReviewPromptHash), so the gating never perturbs promptHash, the issues/blocker computation, or any gate.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "experience-layer",
@@ -55,11 +55,28 @@
       "branch": "story/B-06b3",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-18T15:12:57.909Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T15:12:58.819Z",
+      "branch": "story/B-06b3",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-06b3",
     "branch": "story/B-06b3",
     "createdAt": "2026-06-18T14:32:03.098Z"
-  }
+  },
+  "currentReviewRound": "2026-06-18T15:12:58.818Z"
 }
