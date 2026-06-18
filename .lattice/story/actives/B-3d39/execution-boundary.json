@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3d39",
+  "allowedCommands": [
+    "cat *",
+    "git diff *",
+    "git log *",
+    "git reflog *",
+    "grep *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/main-write-lock-coverage.js",
+    "npm --prefix packages/main run build",
+    "npm run test:all *",
+    "npm run test:legacy *",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/main-write-lock-coverage.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "package.json",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "scripts/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Concurrency-correctness fix. main-write-lock reentrancy → async-context-aware. On-disk mkdir mutex frozen. done-effects/done-recover frozen (the cure stays; we add prevention).",
+  "createdAt": "2026-06-18T14:07:53.697Z",
+  "updatedAt": "2026-06-18T14:07:53.697Z",
+  "_hash": "be9dc666cc50baa180d43f705c1573bee9152bb8c41b45b2b22cf2b34304cbc5"
+}

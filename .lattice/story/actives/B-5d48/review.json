@@ -1,0 +1,59 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-18T13:20:50.763Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Pure signatureTag candidate-derivation leaf + source type + Wire auto-candidate + source flag into finding_add (audit-only) are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-5d48\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact shape of the candidate key — resolved: category + coarse fileKind (first file ext/dir) + a normalized desc key (lowercase, stopword-stripped, first few len>=4 tokens), joined; optionally folded through resolveTag for alias canonicalization.; Where the SignatureTagSource type and the finding-shape addition live — resolved: add the type next to the existing finding/signatureTag types and thread it through finding_add's persisted object only."
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature resolutionType audit-only field on Finding (Phase 1b spec item) orphan-suspect: see decisions/lattice-experience-layer-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature dismissReasonType optional audit-only field on Finding (Phase 1b spec item) orphan-suspect: see decisions/lattice-experience-layer-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature resolveEvidenceStrength audit-only field on Finding (Phase 1b spec item) orphan-suspect: see decisions/lattice-experience-layer-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature dismissEvidenceStrength audit-only field on Finding (Phase 1b spec item) orphan-suspect: see decisions/lattice-experience-layer-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        }
+      ],
+      "_hash": "1857702233d2fd0ca4fcfaa3c5c6d72ebb6e85252e802be2a43db0d136a394e3"
+    }
+  ]
+}

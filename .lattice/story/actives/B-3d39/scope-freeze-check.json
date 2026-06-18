@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3d39",
+  "checkedAt": "2026-06-18T14:15:10.943Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2845d5b7962defb6bc276670688a1cb786bb2e4bd3fe2977de9aa8493c0d7858",
+  "executionBoundaryHash": "be9dc666cc50baa180d43f705c1573bee9152bb8c41b45b2b22cf2b34304cbc5",
+  "freshnessHash": "ba0eebcac64c484aee47790ab8329d57b6ef436625a6ff507e325e3b0cfb4fb2",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "other core modules",
+    "other handlers",
+    "packages/main/src/core/lattice-paths.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "other core modules",
+      "source": "scopeBoundary.excluded",
+      "text": "other core modules",
+      "excluded": true
+    },
+    {
+      "keyword": "other handlers",
+      "source": "scopeBoundary.excluded",
+      "text": "other handlers",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core/lattice-paths.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/lattice-paths.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/done-effects.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/done-effects.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/done-recover.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/done-recover.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/tasks/run-all-smokes.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/tasks/run-all-smokes.ts",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "27ea70483703086406eb77b5b2e396991a80e103c1e7bc2ed80d92a9ed425e11"
+}

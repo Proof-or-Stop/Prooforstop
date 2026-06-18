@@ -1,0 +1,29 @@
+{
+  "storyId": "B-5d48",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/signature-candidate.ts",
+    "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts",
+    ".lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts",
+    "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/learning-store.ts"
+  ],
+  "scopeChangeReason": "signatureTagSource lives on the Finding interface in core/types.ts; the finding-enums smoke had stale blank=>undefined assertions superseded by the every-finding-carries-a-tag contract.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-18T13:17:21.344Z",
+  "updatedAt": "2026-06-18T13:34:26.844Z"
+}

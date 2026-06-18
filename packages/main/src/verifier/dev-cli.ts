@@ -4,9 +4,8 @@
  *
  * Usage (run from the project directory):
  *   lattice serve              → core + Dashboard
- *   lattice serve --web        → core + vite + Dashboard
- *   lattice serve --cli        → core + CLI shell + Dashboard
- *   lattice serve --web --cli  → core + vite + CLI + Dashboard
+ *   lattice serve --dev="..."   → core + vite + Dashboard
+ *   lattice serve --port=N      → override the port
  */
 
 import { spawn, ChildProcess } from 'child_process';
