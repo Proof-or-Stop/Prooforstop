@@ -5,7 +5,7 @@
       "desc": "CHK-001:happy:3 evidence command mismatch: intent requires checking that hint-mode.ts exports ONLY resolveHintMode + HintMode type (no unexpected exports), but evidence is bound to npm --prefix packages/main run test:experience-layer-ab-shadow-gate (smoke). The smoke has no check() call covering export surface area. The actual check (hmExportsSurface) lives in verify-b-06b3.mjs; the evidence command should be node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs (integration_test).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T15:17:20.556Z",
@@ -17,7 +17,11 @@
         ".lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs"
       ],
       "signatureTag": "missing|ts|happy-evidence-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-bound CHK-001:happy:3 to the verifier (hmExportsSurface static export-surface check) — the literal command where it runs.",
+      "resolvedAt": "2026-06-18T15:22:42.721Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-06b3:F-002",
