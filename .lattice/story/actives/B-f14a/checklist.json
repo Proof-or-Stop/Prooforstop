@@ -208,7 +208,21 @@
         "create": [],
         "test": []
       },
-      "userSees": "✓ smoke coverage keeps fail-closed behavior and removes the old mac_ui wording."
+      "userSees": "✓ smoke coverage keeps fail-closed behavior and removes the old mac_ui wording.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
+          "result": "pass",
+          "note": "Smokes continue to show successful job-create and completion behavior for valid inputs.",
+          "headHash": "db304e36071c92bacbc007625fc9414c48bd3a1e",
+          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
+          "timestamp": "2026-06-18T20:48:15.983Z"
+        }
+      ]
     }
   ]
 }
