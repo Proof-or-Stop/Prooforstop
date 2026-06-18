@@ -170,6 +170,16 @@
           "headHash": "46449c79b5f5313ced20d7276ca45bb5e1e1574d",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:38.949Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -n test:koala-residue package.json",
+          "result": "pass",
+          "note": "test:koala-residue script present at package.json line 19 (and referenced in the test battery line 15); enforcement gate preserved.",
+          "headHash": "cf779cf38e30e8a01dcc93dad63987982439961b",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:39.926Z"
         }
       ]
     },
