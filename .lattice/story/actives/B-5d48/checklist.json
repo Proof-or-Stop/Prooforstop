@@ -169,6 +169,70 @@
         "test": [
           "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test: deriveSignatureCandidate is deterministic across multiple calls with same input => identical output each time; WHY: determinism is a stated contract",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: finding_add with no tag => signatureTagSource=auto + non-empty signatureTag in persisted finding; WHY: auto path end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: finding_add with tag => signatureTagSource=confirmed + supplied tag unchanged; WHY: confirmed path end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test: _hash invariance — finding _hash/signature is byte-identical with vs without signatureTag/signatureTagSource fields; WHY: THE critical invariant",
+            "type": "cli"
+          },
+          {
+            "desc": "npm script test:experience-layer-signature-capture exists and runs the smoke successfully (exit 0, prints passed); WHY: verifies npm script wiring",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier verify-b-5d48.mjs runs end-to-end: build clean + smoke + full npm test + static checks => prints TOTAL N | PASS N | FAIL 0; WHY: full verifier integration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke covers deriveSignatureCandidate with missing/empty/non-string files array => never empty, never throws; WHY: boundary inputs must be exercised in the smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static check: signature-candidate.ts imports only node: builtins and local types (no fs/net/child_process); WHY: purity contract verified statically",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier includes full npm test (process-fact-contract and all existing tests pass); WHY: no-regression guard — new code must not break existing contracts",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test prints structured TOTAL/PASS/FAIL counts, not just a single pass/fail; WHY: verifier parsability contract",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verifier static check: signFinding hashed input in finding.ts does NOT contain signatureTag or signatureTagSource (grep/AST the signFinding call region); WHY: defense-in-depth — even if runtime _hash test passes, the code must structurally exclude the fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static check: no gate file (handlers/story.ts, validators, review gates) references signatureTagSource for gating decisions; WHY: audit-only contract must be structurally enforced",
+            "type": "cli"
+          },
+          {
+            "desc": "Running verifier on a deliberately broken build (e.g. signatureTagSource added to signFinding args) => verifier correctly reports FAIL > 0; WHY: verifier must catch the critical regression, not silently pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke _hash invariance test uses the actual signFinding function (not a mock), ensuring real hash algorithm is exercised; WHY: mocked hashing would miss algorithm-level field inclusion bugs",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
