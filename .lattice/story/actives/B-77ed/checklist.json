@@ -232,7 +232,19 @@
           }
         ]
       },
-      "userSees": "`awk '.../Unreleased' CHANGELOG.md | grep -ci 'B-77ed|withMkdirLock'` >=1 and docs/dev/test-coverage.md describes the root-cause fix — the change is documented and the stopgap retirement is recorded."
+      "userSees": "`awk '.../Unreleased' CHANGELOG.md | grep -ci 'B-77ed|withMkdirLock'` >=1 and docs/dev/test-coverage.md describes the root-cause fix — the change is documented and the stopgap retirement is recorded.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-77ed|withMkdirLock\"",
+          "result": "pass",
+          "note": "Unreleased grep = 1 — CHANGELOG documents B-77ed/withMkdirLock",
+          "headHash": "aeaf8856722ef3489da324eb4f18ea174a78cc6a",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:34.142Z"
+        }
+      ]
     }
   ]
 }
