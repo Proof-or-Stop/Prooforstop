@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T14:03:10.894Z",
       "reviewRunId": "B-a4e3:RR-002",
       "_hash": "33f3d8cf2f812b235614a7392bb08b86fbb7034be5feb96147115b4b2d65d2ec"
+    },
+    {
+      "id": "B-a4e3:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "All 5 checklist items verified: (1) salt diff grep empty — zero modified salt literals; (2) 24 salt literals present verbatim; (3) salt exemption at verify-koala-residue.mjs:81 intact; (4) all .koala read fallbacks removed from dev-memory.ts, audit-config.ts, planner.ts, rollout-check.ts, activity-log.ts, cli-engine.ts, store.ts, stale-detector.ts, evidence-freshness.ts, doctor.ts, story-query.ts; (5) FORBIDDEN_WRITE_DIR write guard survives in lattice-paths.ts via assertNoLegacyKoalaWritePath; (6) dispatch() clusterId branch calls cluster.ts:49 finding_dispatch, not the removed CLI alias; (7) test:koala-residue PASS 0 unclassified; (8) flow-stability-smoke and process-fact-contract updated and passing; (9) CLAUDE.md 5 runtime-path references updated to .lattice/, .koala-serve.json untouched; (10) package.json 4 koala URLs removed, valid JSON, test:koala-residue script preserved. No blocking issues found.",
+      "createdAt": "2026-06-18T14:09:10.903Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-004",
+      "_hash": "75f863f0dbd4f3ff1e0ecd14669e005b78a9b9c74971fe455010aa0725b07e3e"
     }
   ]
 }
