@@ -1,0 +1,27 @@
+{
+  "task": "Assign each story a deterministic hintMode (on/off) and shadow-gate the advisory experience-hints section so reviewers see it only in the ON arm, while hints are still computed and the experience_hint_surfaced event fires (with hintMode) on both arms.",
+  "outcome": "Running story_review on an ON-arm story includes the 'Project experience hints (advisory only)' section in _reviewPrompt (as today); on an OFF-arm story that section is absent from _reviewPrompt. In BOTH cases, when hints exist, an experience_hint_surfaced event is recorded in the activity log carrying the new hintMode field (on/off) plus the hintIds that were (or would have been) surfaced — so no story loses measurement. The issues/blocker output and any reviewRunId/promptHash are byte-identical regardless of arm.",
+  "facts": [
+    "Phase 1.5 (B-1dc9) computes experienceHintsSection at story-review.ts ~551-578 and renders it in the _reviewPrompt IIFE (~598+); experience_hint_surfaced fires once per (storyId, hintRoundKey) when hasExperienceHints.",
+    "The B-1dc9 comment (story-review.ts ~533-536) states hints live ONLY in the advisory _reviewPrompt, SEPARATE from the reviewer prompt feeding resolveReviewPromptHash — so showing/hiding the section cannot change any reviewRunId/promptHash.",
+    "Nothing in the issues/blocker computation reads hints (advisory-only).",
+    "loadExperienceHints reads the cache learning_scan (B-4eb6) writes; signatures are now real (B-5d48)."
+  ],
+  "constraints": [
+    "hintMode must be deterministic (parity of a hash of storyId), pre-registered, not gameable; the leaf is pure (no fs/git/time/random).",
+    "OFF arm still COMPUTES hints + fires the event (shadow) — only the section RENDER into _reviewPrompt is gated.",
+    "No change to the issues/blocker computation or resolveReviewPromptHash; no gate reads hintMode.",
+    "No-hints behavior stays byte-identical (section '' as today)."
+  ],
+  "unknowns": [
+    "Hash basis for the arm — resolved: sha256(storyId), take a leading byte parity => on/off (deterministic, ~balanced).",
+    "Where hintMode is recorded for 3.4 — resolved: as a field on the experience_hint_surfaced activity event (3.4 reads the activity log + findings)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/hint-mode.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-18T14:33:07.600Z"
+}
