@@ -60,7 +60,43 @@
       "context": "Set retryOnAnyFailure:true on the four candidates: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard. BEFORE flagging each, re-run it standalone serial (node packages/main/dist/tasks/<name>-smoke.js) and confirm exit 0 — only serial-stable smokes qualify (a serial FAIL would be a real bug, not a load flake, and must NOT be allowlisted). Each flagged entry must be self-documenting (the manifest already carries the name; add a sibling _note or rely on the CHANGELOG to record WHY each is allowlisted = known parallel-load FAIL, serial-stable, deferred root-cause). Do NOT flag any smoke that is not in the findings list + not serial-verified.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "manifest shows retryOnAnyFailure:true on exactly the 4 verified load-flake smokes; each still serial-PASS.",
+      "files": {
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "4 allowlisted smokes carry retryOnAnyFailure:true -> `python3 -c \"import json;m=json.load(open(chr(39)+chr(112)+chr(97)+chr(99)+chr(107)+chr(97)+chr(103)+chr(101)+chr(115)+chr(47)+chr(109)+chr(97)+chr(105)+chr(110)+chr(47)+chr(115)+chr(109)+chr(111)+chr(107)+chr(101)+chr(45)+chr(109)+chr(97)+chr(110)+chr(105)+chr(102)+chr(101)+chr(115)+chr(116)+chr(46)+chr(106)+chr(115)+chr(111)+chr(110)+chr(39)));t={chr(39)+chr(102)+chr(105)+chr(101)+chr(108)+chr(100)+chr(45)+chr(114)+chr(101)+chr(103)+chr(114)+chr(101)+chr(115)+chr(115)+chr(105)+chr(111)+chr(110)+chr(45)+chr(99)+chr(108)+chr(105)+chr(39),chr(39)+chr(118)+chr(101)+chr(114)+chr(105)+chr(102)+chr(105)+chr(99)+chr(97)+chr(116)+chr(105)+chr(111)+chr(110)+chr(45)+chr(102)+chr(114)+chr(101)+chr(115)+chr(104)+chr(110)+chr(101)+chr(115)+chr(115)+chr(39),chr(39)+chr(119)+chr(111)+chr(114)+chr(107)+chr(116)+chr(114)+chr(101)+chr(101)+chr(45)+chr(114)+chr(101)+chr(112)+chr(97)+chr(105)+chr(114)+chr(39),chr(39)+chr(114)+chr(101)+chr(118)+chr(105)+chr(101)+chr(119)+chr(45)+chr(112)+chr(97)+chr(115)+chr(115)+chr(45)+chr(100)+chr(105)+chr(115)+chr(99)+chr(97)+chr(114)+chr(100)+chr(39)};print(sum(1 for s in m[chr(39)+chr(115)+chr(109)+chr(111)+chr(107)+chr(101)+chr(115)+chr(39)] if s[chr(39)+chr(110)+chr(97)+chr(109)+chr(101)+chr(39)] in t and s.get(chr(39)+chr(114)+chr(101)+chr(116)+chr(114)+chr(121)+chr(79)+chr(110)+chr(65)+chr(110)+chr(121)+chr(70)+chr(97)+chr(105)+chr(108)+chr(117)+chr(114)+chr(101)+chr(39))==True))\"` outputs 4; WHY: exactly the 4 verified candidates flagged",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "each candidate still serial-PASS (qualifies as load-flake not real bug) -> `for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done` prints nothing; WHY: only serial-stable smokes may be allowlisted",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "manifest valid JSON -> `node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"./packages/main/smoke-manifest.json\\\",\\\"utf8\\\"))\";echo OK` prints OK; WHY: parseable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no smoke OTHER than the 4 got the flag -> `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` outputs at most 5 (4 flags + maybe 1 schema note); WHY: allowlist is exactly the 4",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
