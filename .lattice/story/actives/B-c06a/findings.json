@@ -43,7 +43,7 @@
       "desc": "CHK-002:happy:1 and CHK-002:happy:2 lack literal CLI flag coverage: intent requires exercising `lattice learning_effectiveness --json` (verify JSON output shape) and `lattice learning_effectiveness --confirmedOnly` (verify CLI flag threads to leaf), but the bound evidence command `npm --prefix packages/main run test:experience-layer-effectiveness` only invokes the bare CLI once (no --json, no --confirmedOnly) and tests confirmedOnly only at the direct JS function call level. These are distinct code paths (CLI argument parsing to leaf option) with no exercised test.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T16:02:49.316Z",
@@ -55,7 +55,11 @@
         "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-happy-lack",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added real CLI subprocess checks for --json / --confirmedOnly / combined, asserting parseable report fields + confirmedOnly filtering (commit 93cdef4d1).",
+      "resolvedAt": "2026-06-18T16:12:26.688Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c06a:F-004",
