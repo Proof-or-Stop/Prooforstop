@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a4e3:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 15 must-intents across 5 checklist items. Independent checks confirmed: (1) dev-memory-legacy-read-smoke.ts is a genuine negative assertion seeding .koala entries and asserting they are NOT in the read result (lines 137-150, 165-184); (2) CHK-005 evidence honestly documents that @deprecated count stays at 22 because deprecated markers were markdown prose not JSDoc tags, and all 22 are legacy-JSON-compat KEEP fields — evidence is accurate; (3) salt-grep on git diff main HEAD -- packages/main/src scripts returned empty (zero salt literals modified); (4) npm run test:koala-residue PASS 0 unclassified confirmed. Full test battery via lattice validate passes (status=pass, allPass=true, 15/15 coverage). No blocker found.",
+      "createdAt": "2026-06-18T14:05:52.194Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-003",
+      "_hash": "515fb425f5e8c7f16b856176709a4a127e8b2c3999a2eb8244487095148a212f"
+    }
+  ]
+}
