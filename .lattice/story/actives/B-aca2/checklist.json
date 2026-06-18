@@ -8,9 +8,9 @@
         "docs/audits/lattice-token-cost-and-takeover-audit.md",
         "packages/main/src/handlers/story-query.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T11:11:17.162Z",
       "userSees": "User sees \"F-010 now cites packages/main/src/handlers/story-query.ts\" in the audit doc diff, and no line mentions core/story-query.ts for that finding.",
       "files": {
         "modify": [
@@ -43,7 +43,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "sed -n 16,20p docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "result": "pass",
+          "note": "The audit summary bullet now cites packages/main/src/handlers/story-query.ts instead of core/story-query.ts, matching the real source path and keeping the claim about checklist duplication intact.",
+          "headHash": "b8eaa5848e00a1eada1910eff785cd637ad69d94",
+          "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
+          "timestamp": "2026-06-18T11:11:17.292Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -89,6 +101,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-18T11:11:17.162Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Docs patch committed and verified in the audit report"
     }
   ]
 }
