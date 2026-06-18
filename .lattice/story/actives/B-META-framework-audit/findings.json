@@ -162,7 +162,7 @@
       "desc": "审计文档 docs/audits/lattice-token-cost-and-takeover-audit.md 把 story_get 内嵌 checklist 的代码引到 core/story-query.ts:401-434（文档 §3.2 与附录 A）。实际不存在 packages/main/src/core/story-query.ts，真实文件是 packages/main/src/handlers/story-query.ts，401-434 行确为 story_get 实现（result.checklist = cl，内嵌完整 checklist）。实质主张（story_get 冗余内嵌 checklist.items）为真，仅目录前缀 core/ 应为 handlers/。",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "doc-audit:independent-verify",
       "createdAt": "2026-06-15T04:05:59.177Z",
@@ -174,14 +174,18 @@
         "docs/audits/lattice-token-cost-and-takeover-audit.md:174",
         "docs/audits/lattice-token-cost-and-takeover-audit.md:212",
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
-      ]
+      ],
+      "resolvedReason": "Audit doc summary bullet now cites packages/main/src/handlers/story-query.ts; appendix and later references already matched the source.",
+      "resolvedAt": "2026-06-18T11:13:39.948Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-META-framework-audit:F-011",
       "desc": "审计文档 §1.2 的 HandoffAuthorityBoundary 表（文档 64-71 行）漏列了接口里存在的 noHiddenContextSharing:true 字段（core/lattice-handoff.ts:45）。表中已列字段全部与源码一致，boundary 真实存在、Q1 的『authority 不转移』结论不受影响。仅为表格遗漏一个（额外保护性的）字段，建议补一行 noHiddenContextSharing|true。",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "doc-audit:independent-verify",
       "createdAt": "2026-06-15T04:05:59.391Z",
@@ -192,7 +196,11 @@
         "packages/main/src/core/lattice-handoff.ts:41-53",
         "docs/audits/lattice-token-cost-and-takeover-audit.md:64-71",
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
-      ]
+      ],
+      "resolvedReason": "Audit doc now states that the HandoffAuthorityBoundary table includes noHiddenContextSharing:true, matching core/lattice-handoff.ts.",
+      "resolvedAt": "2026-06-18T11:13:40.075Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
