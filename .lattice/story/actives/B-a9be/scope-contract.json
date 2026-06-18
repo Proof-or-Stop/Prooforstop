@@ -20,8 +20,16 @@
         ".lattice/story/actives/B-META-framework-audit/index.json",
         "docs/koala/framework-audit/2026-06-18/report.md"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "lattice-review-quality found a real user-facing fallback hint that still advertised npm run serve, so updating the hint to lattice serve is part of the same serve-doc truthfulness fix.",
+      "timestamp": "2026-06-18T14:09:40.888Z",
+      "paths": [
+        "packages/main/src/verifier/serve.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-18T13:56:33.134Z",
-  "updatedAt": "2026-06-18T14:00:26.298Z"
+  "updatedAt": "2026-06-18T14:09:40.888Z"
 }
