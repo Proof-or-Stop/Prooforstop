@@ -92,6 +92,17 @@
           "headHash": "bb46cf01cf5bbb8cb9a972e270d365a2842916af",
           "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
           "timestamp": "2026-06-18T00:40:15.251Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/smoke-manifest.json | grep -E '^[+].*name' | grep -vE 'gap-log|init-check-fallback|scope-contract|story-capsule|story-create-concurrency|story-metadata-protection|unattended-dispatch|experience-layer-digest-extract|cli-json-stdout-contract|dispatch-run|decision-doc-promotion' | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — only the 8 CHK-001 targets + 3 scope-acked additions modified. (Original intent listed 8 names; scope-ack documented in scope-contract.json for the additional 3.)",
+          "headHash": "16fbdf04763f0bb74d60081cf7440e6badb0b283",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:16.888Z"
         }
       ]
     },
