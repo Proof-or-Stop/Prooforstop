@@ -209,6 +209,17 @@
           "headHash": "85e883e282ca5b34e58f0ff33b2cd13afe2e0e21",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:41:55.263Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '@koala-agent' packages/main/dist/core/codex-adapter-checks.js",
+          "result": "pass",
+          "note": "Returns 1 — fix in compiled dist.",
+          "headHash": "884e88f784f9c7e8e67caf29f9f9f1f5acc5d36f",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:56.633Z"
         }
       ]
     },
