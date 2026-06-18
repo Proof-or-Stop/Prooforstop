@@ -137,7 +137,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "`awk '.../Unreleased' CHANGELOG.md | grep -ci 'B-77ed|withMkdirLock'` >=1 and docs/dev/test-coverage.md describes the root-cause fix — the change is documented and the stopgap retirement is recorded."
     }
   ]
 }
