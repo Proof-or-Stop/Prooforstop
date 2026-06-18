@@ -4,7 +4,7 @@
   "title": "Sync CLAUDE serve examples with actual lattice serve options",
   "description": "CLAUDE.md still advertises npm run serve:web / npm run serve:cli and lattice serve --web / --cli, but lattice serve --help only exposes --dev and --port. We need to align the user-facing docs with the real CLI surface so the B-META-framework-audit findings F-012 and F-013 can close cleanly.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "keywords": [
     "lattice-serve",
@@ -19,6 +19,14 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-18T13:47:25.889Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T13:49:52.424Z",
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
