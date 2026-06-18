@@ -95,6 +95,70 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ON-arm storyId: _reviewPrompt contains 'Project experience hints (advisory only):' section text; WHY: confirms ON arm renders hints",
+            "type": "cli"
+          },
+          {
+            "desc": "OFF-arm storyId: _reviewPrompt does NOT contain any experience-hints section text; WHY: confirms OFF arm hides hints",
+            "type": "cli"
+          },
+          {
+            "desc": "ON-arm: experience_hint_surfaced event fires with hintMode='on' in payload; WHY: confirms event records the arm",
+            "type": "cli"
+          },
+          {
+            "desc": "OFF-arm: experience_hint_surfaced event fires with hintMode='off' in payload; WHY: confirms OFF arm still emits event for measurement",
+            "type": "cli"
+          },
+          {
+            "desc": "Both arms: issues/blocker output is identical between ON and OFF arm for same hints+facts; WHY: gating must not affect review decisions",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No hints exist (loadExperienceHints returns empty): both arms produce byte-identical _reviewPrompt; WHY: no-hints path unchanged",
+            "type": "cli"
+          },
+          {
+            "desc": "No hints exist: experience_hint_surfaced event does NOT fire on either arm; WHY: dedup guard (only fires when hasExperienceHints)",
+            "type": "cli"
+          },
+          {
+            "desc": "Multiple review rounds same story: event dedup per (storyId, hintRoundKey) still works, hintMode field present on each unique emission; WHY: dedup contract preserved",
+            "type": "cli"
+          },
+          {
+            "desc": "OFF-arm _reviewPrompt is byte-identical to what the prompt would be with zero hints (pre-feature baseline); WHY: OFF arm must be invisible to the reviewer",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CRITICAL: resolveReviewPromptHash output is identical between ON and OFF arms; WHY: gating MUST NOT leak into the prompt hash (the critical regression)",
+            "type": "cli"
+          },
+          {
+            "desc": "CRITICAL: reviewRunId is unchanged between ON and OFF arms; WHY: arm must not affect run identity",
+            "type": "cli"
+          },
+          {
+            "desc": "Static: story-review.ts does not pass hints/experienceHintsSection into resolveReviewPromptHash call; WHY: grep-enforced architectural invariant",
+            "type": "cli"
+          },
+          {
+            "desc": "Static: story-review.ts issues/blocker computation block has no reference to hintMode or experienceHintsSection; WHY: gating must not change blocker logic",
+            "type": "cli"
+          },
+          {
+            "desc": "OFF arm with hints: event payload still contains the full would-have-hinted set (not empty); WHY: measurement must not lose data on OFF arm",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
