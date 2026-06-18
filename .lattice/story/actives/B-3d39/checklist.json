@@ -343,6 +343,17 @@
           "headHash": "1e2fcf4100ad396be15ef07059c0d7ce6a87d7db",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:42:04.140Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/smoke-manifest.json package.json | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — no manifest/package.json change.",
+          "headHash": "e9d11febecb3d5613d1b5f1cd26a240c9a3bc99a",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:42:05.523Z"
         }
       ]
     }
