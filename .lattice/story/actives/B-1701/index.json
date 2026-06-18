@@ -1,0 +1,33 @@
+{
+  "storyId": "B-1701",
+  "name": "authority-trust-profile-bundle",
+  "title": "Authority trust profile bundle generator",
+  "description": "Add one obvious Authority trust bundle generator for developers: the basic bundle is the default workflow, the senior bundle is an explicit opt-in variant, and legacy names remain compatibility aliases.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "secret"
+    }
+  ],
+  "createdAt": "2026-06-18T16:11:48.564Z",
+  "startedAt": "2026-06-18T16:11:48.564Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-18T16:11:48.565Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-1701",
+    "branch": "story/B-1701",
+    "createdAt": "2026-06-18T16:22:40.944Z"
+  }
+}
