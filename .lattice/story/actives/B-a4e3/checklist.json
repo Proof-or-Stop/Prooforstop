@@ -69,9 +69,9 @@
       "title": "Remove the 4 koala URLs in package.json + packages/main/package.json",
       "context": "Remove the github.com/koala-agent/koala URLs: package.json repository.url (~:81), bugs.url (~:88), homepage (~:90); packages/main/package.json repository.url (~:8). Either delete the fields or, if a real lattice repo URL is known, point them there — the user said remove ('去掉'), so delete the fields if no lattice URL is provided. Do NOT remove the test:koala-residue script (that is the enforcement gate, not a koala link). Verify the package.json files are still valid JSON + builds pass.",
       "userSees": "package.json + packages/main/package.json no longer contain github.com/koala-agent/koala URLs; npm still builds; the test:koala-residue gate script remains.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T13:34:21.699Z",
       "verificationIntent": {
         "happy": [
           {
