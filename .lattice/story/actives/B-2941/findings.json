@@ -29,6 +29,19 @@
       "reviewRound": "2026-06-18T13:05:32.603Z",
       "reviewRunId": "B-2941:RR-001",
       "_hash": "1a0ec807b21ad6747c5811053fec916aa36327886e8ac3a4d117d865911b9169"
+    },
+    {
+      "id": "B-2941:F-003",
+      "desc": "CHK-001 userSees says output ends with \"Final: 167/167 passed in N s\" but the actual count from verified runs is 171/171, and the Final: prefix only appears when retry fires (which did not fire in any of the 3 real test:all runs). The userSees is therefore ambiguous: it conflates the retry-fires path (Final: prefix emitted) with the no-retry-needed path (no Final: prefix, plain count line). A reader following userSees literally would expect Final: on every run, but the code only emits it when retried=true. Recommend updating userSees to distinguish: single-pass output stays as \"N/N passed in T s\"; retry-fires output shows \"Final: N/N passed in T s\". This is a documentation clarity issue, not a code bug. File: packages/main/src/tasks/run-all-smokes.ts:301-302.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T13:08:10.970Z",
+      "reviewRound": "2026-06-18T13:05:32.603Z",
+      "reviewRunId": "B-2941:RR-001",
+      "_hash": "856e1ad3769fe4057aa9693d134ee0c9f4957b76c07f3361eb27ab92cb143939"
     }
   ]
 }
