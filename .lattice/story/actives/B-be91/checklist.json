@@ -361,12 +361,12 @@
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
           "verdict": "waived",
-          "command": "echo PLAN_A_FALSIFIED_SEE_F-001",
+          "command": "cat /tmp/b-be91-r1.log /tmp/b-be91-r2.log /tmp/b-be91-r3.log | grep -E \"^FAIL |^TIMEOUT \" | awk \"{print \\$2}\" | grep -cE \"^(field-regression-cli|verification-freshness|worktree-repair|review-pass-discard)$\"",
           "result": "pass",
-          "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). N=4 worsened wall-clock (11-14min vs predicted 5-7) and surfaced NEW race victims (authority-evidence-flow, auxiliary-worktree-cleanup, evidence-state-gate, flow-stability) plus cli-json-stdout-contract timed out at 300s under N=4 — proves contention is NOT worker-count. Per scope-boundary escape hatch, Plan A closed as blocked; Plan B (two-pass retry) is the follow-up. package.json deliberately NOT modified.",
-          "headHash": "be08278982821ae5a4cc49ce7b29b5ab1a153751",
+          "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
+          "headHash": "c36bb68104a7dad102da29295ff9b63e491961af",
           "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:25:18.129Z"
+          "timestamp": "2026-06-18T02:26:17.519Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
