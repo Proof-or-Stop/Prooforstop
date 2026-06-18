@@ -63,6 +63,17 @@
           "headHash": "385d0e01f",
           "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
           "timestamp": "2026-06-18T14:02:14.323Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "sed -n \"224,240p\" CLAUDE.md",
+          "result": "pass",
+          "note": "The serve-mode explanation still lists only supported lattice serve surface text, including lattice serve and lattice serve --dev, without reintroducing phantom --web / --cli modes.",
+          "headHash": "590a30217a9b43f9b83f00dc9233a89d9414b44f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:58.587Z"
         }
       ]
     },
