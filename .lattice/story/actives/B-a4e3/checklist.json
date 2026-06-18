@@ -30,7 +30,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -rn LEGACY_KOALA_DIR packages/main/src; npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "grep returns nothing (LEGACY_KOALA_DIR gone, only .lattice-path LATTICE_LEGACY_KOALA_ACTIVITY_LOG remains); tsc build exits 0. Commit 1a2f4fec0.",
+          "headHash": "43385312b57ce1bbb79aace2d78c871812bd2650",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:16.247Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
