@@ -61,8 +61,8 @@
       "id": "CHK-004",
       "title": "Smoke test: config field + scanDeprecated + advisory wiring",
       "context": "New smoke test packages/main/src/tasks/deprecated-gc-smoke.ts: (1) resolveAuditConfig returns deprecatedGcThreshold=10 by default; (2) scanDeprecated on real repo returns count>=0 without throwing; (3) with mocked count > threshold, hint includes deprecated advisory; (4) with count <= threshold, no advisory appended.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T00:38:46.771Z",
       "endTime": null
     }
   ]
