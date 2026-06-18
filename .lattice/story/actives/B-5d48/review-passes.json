@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T13:35:38.436Z",
       "reviewRunId": "B-5d48:RR-001",
       "_hash": "952e90d6fc2d2fc150568ceeb10c6e23e5117ccd1518a1af8fa7aefd8bd9c08b"
+    },
+    {
+      "id": "B-5d48:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "LEAF invariant confirmed: signature-candidate.ts has zero imports (pure string work, no node: builtins used), never throws, never returns empty string. CRITICAL INVARIANT confirmed: signFinding call at handlers/finding.ts:331 does not include signatureTag or signatureTagSource in its arguments; both fields are spread AFTER _hash at line 336 exactly as designed. Confirmed path (reviewer supplies tag): suppliedTag flow is byte-identical to prior B-4f46 behavior except recording source=confirmed. Auto path: deriveSignatureCandidate fed through resolveTag (safe, never throws). finding-verify.ts signFinding is untouched. Enums-smoke assertion changes are correct for blank/omitted => auto candidate. New smoke suite imports all used. No dead code. No empty catch blocks (cleanup and warn-only are intentional). No I/O shell isolation issue (no bridge.ts/shells/ in project). One medium finding raised: type duplication of auto|confirmed literal in types.ts vs SignatureTagSource in experience-layer-types.ts.",
+      "createdAt": "2026-06-18T13:40:23.513Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-002",
+      "_hash": "2b61636e1988382fc1c3973caabc759cce580e5c7fec5663ba52e961aec57cf7"
     }
   ]
 }
