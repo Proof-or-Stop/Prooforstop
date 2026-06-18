@@ -153,9 +153,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T02:01:11.623Z",
       "userSees": "User sees `lattice gap_analyze --json` omit the high gap `customerKeyRef | Must be redacted and non-secret`, while code comments still say `customerKeyRef remains future/blocked` and no completion fields such as `receiptVerified=true` or `productionDone=true` are introduced.",
       "files": {
         "modify": [
@@ -186,7 +186,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze --json",
+          "result": "pass",
+          "note": "gap_analyze returned Gaps: 0 high / 0 medium and no longer lists the customerKeyRef redacted/non-secret row.",
+          "headHash": "ded23cbf34baf35d2d2a178eb13207f80fdd725f",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:11.784Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "git diff main...HEAD -- packages/main/src/core/scope-anti-expansion.ts",
+          "result": "pass",
+          "note": "diff anchors customerKeyRef as future/blocked, redacted, and non-secret; it does not implement producer, loader, verifier, receipt, or evaluator consumption.",
+          "headHash": "ded23cbf34baf35d2d2a178eb13207f80fdd725f",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:11.939Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD -- packages/main/src/core/scope-anti-expansion.ts packages/main/src/tasks/authority-status-smoke.ts",
+          "result": "pass",
+          "note": "diff did not touch authority-status-smoke.ts and does not introduce receiptVerified=true, productionDone=true, authorityDone=true, or fullAuthorityDone=true.",
+          "headHash": "ded23cbf34baf35d2d2a178eb13207f80fdd725f",
+          "materialHash": "ba883260b80b28bc8e9719253662c97b5dfccaec41ef7c0ae74ffacb7ca97cc9",
+          "timestamp": "2026-06-18T02:01:12.110Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
