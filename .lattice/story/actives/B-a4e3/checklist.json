@@ -39,7 +39,30 @@
       "userSees": "Active code no longer carries non-salt koala branding; the koala-*-integrity-v1 signature salts are untouched (all existing signed artifacts still verify); test:koala-residue is green with a tightened allowlist (salt + historical exemptions only).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Non-salt koala identifiers renamed to lattice; test:koala-residue prints PASS koala-residue: 0 unclassified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verify-koala-residue.mjs allowlist line 81 salt exemption kept; only allowlist DATA arrays changed (diff touches no scan/classify function)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff salt-grep shows ZERO modified salt lines; renaming any salt would have turned the residue gate red or broken signatures",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
