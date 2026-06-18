@@ -99,6 +99,66 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep registry.ts for registerBatch(createLearningScanHandlers(ctx)) -> learning_scan is batch-registered; WHY: proves command is discoverable via the registry",
+            "type": "cli"
+          },
+          {
+            "desc": "grep cli-engine.ts for learning_scan command entry with schema {json?: boolean, story?: string} -> entry exists with correct schema; WHY: proves CLI discoverability and argument parsing",
+            "type": "cli"
+          },
+          {
+            "desc": "grep core/config.ts DEFAULT_PHASE_TOOLS for learning_scan -> present in appropriate phase groups alongside other experience-layer commands; WHY: proves phase-gating allows the command where needed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep core/command-policy.ts for learning_scan -> entry exists with ownershipClass that is NOT readOnly, status:supported, destructiveRisk:none; WHY: proves correct policy classification as a writing command",
+            "type": "cli"
+          },
+          {
+            "desc": "grep core/process-fact-levels.ts PROCESS_FACT_LEVELS for learning_scan -> entry exists with level L2, category experience-layer, owner handlers/learning-scan; WHY: required or process-fact-contract suite fails",
+            "type": "cli"
+          },
+          {
+            "desc": "Run full npm test -> all pass including process-fact-contract; WHY: proves registration is complete and consistent across all contract checks",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify learning_scan is NOT present in READ_ONLY_COMMANDS array/set -> absent; WHY: it writes the advisory cache so must not be classified as read-only",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify learning_scan command-policy allowedPhases does NOT include phases where only read-only commands should run (if such restriction exists); WHY: ensures phase compatibility",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify learning_scan command-policy entry explicitly notes it cannot satisfy DONE/authority evidence; WHY: prevents misuse as evidence source",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Temporarily add learning_scan to READ_ONLY_COMMANDS -> run process-fact-contract or command-policy tests -> expect failure (contradiction: writing command in read-only list); WHY: proves the test suite catches this miscategorization",
+            "type": "cli"
+          },
+          {
+            "desc": "Temporarily remove learning_scan from PROCESS_FACT_LEVELS -> run npm test -> expect process-fact-contract failure; WHY: proves the contract suite enforces completeness",
+            "type": "cli"
+          },
+          {
+            "desc": "Temporarily set learning_scan ownershipClass to readOnly in command-policy -> run tests -> expect failure or contradiction with the fact it writes .lattice/learning/; WHY: proves policy consistency is enforced",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify learning_scan is not registered as a gate command and cannot produce gate evidence -> no gate entry in command-policy or gate registry; WHY: prevents accidental gate side-effects from an advisory-only command",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
