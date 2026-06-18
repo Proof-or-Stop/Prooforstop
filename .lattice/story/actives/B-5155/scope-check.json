@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5155",
+  "checkedAt": "2026-06-18T01:51:09.191Z",
+  "features": [
+    {
+      "feature": "CHK-001 decision-doc verificationRequirements mapping",
+      "covered_by": "CHK-001 + packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md#verificationRequirements"
+    },
+    {
+      "feature": "CHK-002 runtime-owned requirementsDir mapping",
+      "covered_by": "CHK-002 + packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md#requirementsDir"
+    },
+    {
+      "feature": "CHK-003 future-blocked key-ref boundary",
+      "covered_by": "CHK-003 + packages/main/src/core/scope-anti-expansion.ts + packages/main/src/tasks/authority-status-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md#key-ref"
+    },
+    {
+      "feature": "CHK-004 aggregate validation",
+      "covered_by": "CHK-004 + lattice validate + lattice gap_analyze + lattice convergence_check",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md"
+    },
+    {
+      "feature": "packages/main/src/tasks/gap-analyze.ts read-only scanner contract",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-004.excludes",
+      "source": "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md#excludes"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "37094d90fe7b31cd67e1e0679199923f7880ea88aae41cd199626a5050f23fe1",
+  "openQuestions": []
+}
