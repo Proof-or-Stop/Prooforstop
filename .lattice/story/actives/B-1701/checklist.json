@@ -156,9 +156,9 @@
       "id": "CHK-003",
       "title": "Enable senior bundle path",
       "context": "Make the senior tier an explicit opt-in variant that produces the senior filenames while keeping the basic bundle as the default path. No extra developer fields.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T17:16:37.549Z",
-      "endTime": null,
+      "endTime": "2026-06-18T17:16:54.001Z",
       "userSees": "User sees the senior opt-in emit lattice_senior_authority_trust.env and lattice_senior_staging-client.env only when explicitly requested.",
       "files": {
         "modify": [
@@ -194,7 +194,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Explicit senior opt-in round-trips lattice_senior_authority_trust.env and lattice_senior_staging-client.env through the bundle helper.",
+          "headHash": "11479a942117f24dd1a0763888ba4a01dd06bf6c",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:16:54.200Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-client.ts",
+          "result": "pass",
+          "note": "Omitting tier keeps the basic bundle as the default path; senior filenames are selected only when the caller asks for them.",
+          "headHash": "11479a942117f24dd1a0763888ba4a01dd06bf6c",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:16:54.346Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-mode.ts",
+          "result": "pass",
+          "note": "authorityTrustProfileFileNames exposes senior filenames only through the explicit senior tier, so the default path cannot silently drift to senior.",
+          "headHash": "11479a942117f24dd1a0763888ba4a01dd06bf6c",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:16:54.533Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -283,6 +315,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Senior bundle path is implemented and ready to record."
+    },
+    {
+      "timestamp": "2026-06-18T17:16:54.001Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Senior bundle path implemented and verified."
     }
   ]
 }
