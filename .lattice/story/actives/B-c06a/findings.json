@@ -83,6 +83,25 @@
       "resolvedAt": "2026-06-18T16:12:27.341Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c06a:F-005",
+      "desc": "doc-promise-undelivered: cli-engine.ts lines 1782+1786 and command-policy.ts line 218 still say recall/precision in comment and description strings after precision field was removed from PredictiveValueReport; users and AI consumers of these description strings will believe precision is reported but the actual output (human and JSON) contains only recall — the residual text in cli-engine.ts:1782 comment (retrodictive recall/precision), cli-engine.ts:1786 description (recall/precision + trend), and command-policy.ts:218 reason (retrodictive recall / precision) are all stale references to the deleted precision concept",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-18T16:14:26.272Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-005",
+      "_hash": "a857deec8db5ec9999d863afbd4d91e985f541105e7da96647660df20613a576",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|promise-undelivered-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
