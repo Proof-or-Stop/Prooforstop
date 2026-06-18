@@ -85,7 +85,7 @@ const chk = {
   'CHK-003': effSmoke && pkgScript && noRegression && fullTestOk && allReg && handlerReadOnly && leafIso && buildOk,
 };
 const note = {
-  'CHK-001': 'experience-effectiveness.ts imports ONLY node:/types (no fs/child_process/path), no RNG/clock/env; smoke asserts exact recall/precision/windows/slope + never-NaN + determinism + conservative arm gate',
+  'CHK-001': 'experience-effectiveness.ts imports ONLY node:/types (no fs/child_process/path), no RNG/clock/env; smoke asserts exact recall/windows/slope + never-NaN + determinism + conservative arm gate',
   'CHK-002': 'learning_effectiveness registered across all 6 surfaces (cli command schema + READ_ONLY_COMMANDS, registry registerBatch, config DEFAULT_PHASE_TOOLS, command-policy readOnly/none/all, process-fact-levels L0 experience-layer-read); handler writes nothing / no finding / no gate / no projectRoot',
   'CHK-003': 'effectiveness smoke passes + npm script wired + no-regression smokes (finding-signals/playbook/recall/revalidation/learning-scan/signature-capture/ab-shadow-gate) + FULL npm test (incl. process-fact-contract) exit 0',
 };

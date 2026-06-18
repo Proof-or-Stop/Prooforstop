@@ -4,8 +4,8 @@
  * `learning_effectiveness` reports two deterministic readouts over the local store
  * + activity log, modelled on the strictly-read-only `learning_validate` (B-a2e3):
  *
- *   1. FAST per-story hint predictive value (retrodictive recall / precision over
- *      findings + signatureTags in temporal order, plus a windowed trend + slope).
+ *   1. FAST per-story hint predictive value (retrodictive recall over findings +
+ *      signatureTags in temporal order, plus a windowed trend + slope).
  *   2. LONG-GAME ON/OFF arm comparison from the recorded experience_hint_surfaced
  *      hintMode events, with an HONEST per-arm N and a CONSERVATIVE significance
  *      gate (no p-value).
@@ -117,7 +117,6 @@ function renderHuman(predictive: PredictiveValueReport, arms: ArmComparison): st
   lines.push(`  findings w/ signature:  ${predictive.findingsWithSig}`);
   lines.push(`  pre-warnable findings:  ${predictive.preWarnable}`);
   lines.push(`  recall:    ${predictive.recall.toFixed(3)}`);
-  lines.push(`  precision: ${predictive.precision.toFixed(3)}`);
   lines.push(`  trend (windowed hit-rate, slope ${predictive.slopeSign}):`);
   if (predictive.windows.length === 0) {
     lines.push('    (no windows)');
@@ -141,8 +140,8 @@ export function createLearningEffectivenessHandlers(ctx: HandlerContext) {
   return {
     /**
      * Report Experience Layer learning effectiveness: FAST per-story hint
-     * predictive value (retrodictive recall / precision + windowed trend) and a
-     * LONG-GAME ON/OFF arm comparison from recorded hintMode events. READ-ONLY:
+     * predictive value (retrodictive recall + windowed trend) and a LONG-GAME
+     * ON/OFF arm comparison from recorded hintMode events. READ-ONLY:
      * reads stories + findings + activity log through the read ports only,
      * persists nothing, files no findings, and touches no gate.
      */

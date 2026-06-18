@@ -74,15 +74,6 @@ export interface PredictiveValueReport {
    * surfaced ahead of time (because it appeared in an earlier story).
    */
   recall: number;
-  /**
-   * precision = preWarnable / wouldHaveHinted. "wouldHaveHinted" is the set of
-   * findings the prior-signatures set WOULD have surfaced a hint for — which, in
-   * this retrodictive design, is EXACTLY the preWarnable set (a hint surfaces iff
-   * the finding's signature is already known). So recall and precision coincide
-   * here; both are still exposed honestly rather than collapsing them into one
-   * field, because the denominators are conceptually distinct.
-   */
-  precision: number;
   /** Per-window hit-rate trend (windows of opts.window stories). */
   windows: PredictiveValueWindow[];
   /** Coarse trend direction from first vs last window hit-rate: '+', '-', or '0'. */
@@ -175,7 +166,7 @@ function retrodict(stories: EffStory[], confirmedOnly: boolean): StoryRetrodicti
 
 /**
  * FAST per-story hint predictive value. Deterministic; never NaN. See the
- * PredictiveValueReport docs for the recall / precision definitions.
+ * PredictiveValueReport docs for the recall definition.
  */
 export function computePredictiveValue(
   stories: EffStory[],
@@ -225,10 +216,6 @@ export function computePredictiveValue(
     preWarnable,
     // recall = preWarnable / findingsWithSig (guarded).
     recall: ratio(preWarnable, findingsWithSig),
-    // precision = preWarnable / wouldHaveHinted; wouldHaveHinted === preWarnable
-    // in this retrodictive design, so precision is 1 over the surfaced set when
-    // anything was surfaced, else 0 (guarded — never NaN).
-    precision: ratio(preWarnable, preWarnable),
     windows,
     slopeSign,
   };

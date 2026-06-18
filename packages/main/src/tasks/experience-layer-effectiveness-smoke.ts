@@ -8,8 +8,8 @@
  * `effectiveness smoke passed` at the very end):
  *
  *   LEAF (hermetic — synthetic ordered stories, no fs / no repo state):
- *     - EXACT recall / precision / findingsWithSig / preWarnable for a fixture
- *       with a known recurring signatureTag across 3 stories;
+ *     - EXACT recall / findingsWithSig / preWarnable for a fixture with a known
+ *       recurring signatureTag across 3 stories;
  *     - EXACT windowed trend (per-window hit-rate + cutoff) + slopeSign;
  *     - confirmedOnly threads through (unconfirmed findings excluded);
  *     - never-NaN on empty / zero-denominator inputs;
@@ -19,22 +19,38 @@
  *     - arm comparison: nOn>=20 && nOff>=20 => significant TRUE (gate behaves);
  *     - empty input => fully zeroed report, no crash.
  *
- *   CLI (drives the REAL user-facing path on the real store):
- *     - human output prints a predictive-value line;
- *     - `git status --porcelain` shows nothing newly written (read-only contract).
+ *   CLI (drives the REAL user-facing path on the real store, via subprocess so the
+ *   actual flag-parsing code runs, not just the JS function):
+ *     - bare run: human output prints a predictive-value line + recall line;
+ *       `git status --porcelain` shows nothing newly written (read-only contract);
+ *     - `'{"json":true}'` produces parseable JSON (after stripping leading log
+ *       lines) with predictiveValue {recall, windows, slopeSign} and armComparison
+ *       {nOn, nOff, outcomeOn, outcomeOff, delta, significant, note};
+ *     - `'{"confirmedOnly":true}'` runs and its findingsWithSig <= the unfiltered
+ *       count; `'{"json":true,"confirmedOnly":true}'` parses with both flags;
+ *     - removed `precision` no longer appears in human or JSON output.
+ *
+ *   HANDLER (store-adapter path on EMPTY data — hermetic temp project root):
+ *     - learning_effectiveness against an empty StoryStore does NOT crash and
+ *       reports zeros (findingsWithSig 0, recall 0, nOn 0, nOff 0, significant
+ *       false 'insufficient N') with no NaN, in both human and --json shapes.
  */
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { StoryStore } from '../core/store.js';
 import {
   computePredictiveValue,
   computeArmComparison,
   MIN_ARM_N,
   type EffStory,
 } from '../core/experience-effectiveness.js';
+import { createLearningEffectivenessHandlers } from '../handlers/learning-effectiveness.js';
+import type { HandlerContext } from '../handlers/context.js';
 
 let total = 0;
 let passed = 0;
@@ -66,6 +82,29 @@ function assertAllFinite(value: unknown, path = 'root'): void {
   }
 }
 
+/** Resolve the built CLI entrypoint (bin/lattice.js at the repo root). */
+function resolveCli(): { ROOT: string; CLI: string } {
+  const ROOT = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf-8' }).trim();
+  const CLI = join(ROOT, 'bin', 'lattice.js');
+  assert.ok(existsSync(CLI), `bin/lattice.js not found at ${CLI}`);
+  return { ROOT, CLI };
+}
+
+/** Run `node bin/lattice.js learning_effectiveness <argsJson>` and return stdout. */
+function runCli(ROOT: string, CLI: string, argsJson?: string): string {
+  const argv = argsJson === undefined
+    ? [CLI, 'learning_effectiveness']
+    : [CLI, 'learning_effectiveness', argsJson];
+  return execFileSync('node', argv, { cwd: ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+}
+
+/** Strip the CLI's leading log lines and JSON.parse from the first '{'. */
+function parseCliJson(out: string): Record<string, unknown> {
+  const start = out.indexOf('{');
+  assert.ok(start >= 0, `no JSON object in CLI output:\n${out}`);
+  return JSON.parse(out.slice(start)) as Record<string, unknown>;
+}
+
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
 /** 3 ordered stories with signatureTag "A"/"B" recurring across stories. */
@@ -91,13 +130,13 @@ function armStories(n: number, mode: 'on' | 'off', offset: number): EffStory[] {
 
 function run(): void {
   // ─── LEAF: exact predictive value over the recurring fixture (window=2) ──────
-  check('leaf: exact recall/precision/counts over recurring fixture', () => {
+  check('leaf: exact recall/counts over recurring fixture', () => {
     const pv = computePredictiveValue(RECURRING, { window: 2 });
     assert.equal(pv.stories, 3, 'stories');
     assert.equal(pv.findingsWithSig, 7, 'findingsWithSig (2+2+3)');
     assert.equal(pv.preWarnable, 3, 'preWarnable (0 + A + A,B)');
     assert.equal(pv.recall, 3 / 7, 'recall = preWarnable/findingsWithSig');
-    assert.equal(pv.precision, 1, 'precision = preWarnable/preWarnable = 1 (surfaced set non-empty)');
+    assert.equal((pv as unknown as Record<string, unknown>).precision, undefined, 'precision field removed');
   });
 
   check('leaf: exact windowed trend + slopeSign over recurring fixture', () => {
@@ -112,19 +151,14 @@ function run(): void {
 
   // ─── LEAF: descending trend => slopeSign '-' ────────────────────────────────
   check("leaf: descending hit-rate => slopeSign '-'", () => {
-    // Window 1 fully pre-warned (every tag seen earlier), window 2 all-novel.
-    const stories: EffStory[] = [
-      { storyId: 'S0', createdAt: '2026-01-01', findings: [{ signatureTag: 'X' }] },
-      { storyId: 'S1', createdAt: '2026-01-02', findings: [{ signatureTag: 'X' }] }, // window1 with S0 below? no — window starts at 0
-    ];
-    // Build a clearer descending case across 4 stories, window=2.
+    // Descending case across 4 stories, window=2:
+    //   window1 [D0,D1] pre=1/2 (D1's P seen in D0); window2 [D2,D3] pre=0/2 (all-novel).
     const desc: EffStory[] = [
       { storyId: 'D0', createdAt: '2026-01-01', findings: [{ signatureTag: 'P' }] },
       { storyId: 'D1', createdAt: '2026-01-02', findings: [{ signatureTag: 'P' }] }, // window1 [D0,D1]: pre=1/2
       { storyId: 'D2', createdAt: '2026-01-03', findings: [{ signatureTag: 'Q' }] },
       { storyId: 'D3', createdAt: '2026-01-04', findings: [{ signatureTag: 'R' }] }, // window2 [D2,D3]: pre=0/2
     ];
-    void stories;
     const pv = computePredictiveValue(desc, { window: 2 });
     assert.deepEqual(pv.windows, [{ cutoff: 2, hitRate: 0.5 }, { cutoff: 4, hitRate: 0 }]);
     assert.equal(pv.slopeSign, '-', 'last (0) < first (0.5) => -');
@@ -160,15 +194,15 @@ function run(): void {
       findingsWithSig: 0,
       preWarnable: 0,
       recall: 0,
-      precision: 0,
       windows: [],
       slopeSign: '0',
     });
+    assert.equal((pv as unknown as Record<string, unknown>).precision, undefined, 'no precision field');
     assertAllFinite(pv);
   });
 
   // ─── LEAF: zero-denominator (no signatures at all) => no NaN ─────────────────
-  check('leaf: stories with no signatureTag => recall/precision 0, no NaN', () => {
+  check('leaf: stories with no signatureTag => recall 0, no NaN', () => {
     const stories: EffStory[] = [
       { storyId: 'N0', createdAt: '2026-01-01', findings: [{}, { signatureTag: '' }] },
       { storyId: 'N1', createdAt: '2026-01-02', findings: [{ signatureTag: undefined }] },
@@ -176,7 +210,6 @@ function run(): void {
     const pv = computePredictiveValue(stories);
     assert.equal(pv.findingsWithSig, 0, 'empty/undefined tags excluded');
     assert.equal(pv.recall, 0, 'recall 0 not NaN');
-    assert.equal(pv.precision, 0, 'precision 0 not NaN');
     assertAllFinite(pv);
   });
 
@@ -269,7 +302,7 @@ function run(): void {
     assertAllFinite(arm);
   });
 
-  // ─── LEAF: no overlap across stories => precision/recall 0, no NaN ───────────
+  // ─── LEAF: no overlap across stories => recall 0, no NaN ─────────────────────
   check('leaf: every finding has a unique signature (no overlap) => recall 0', () => {
     const stories: EffStory[] = [
       { storyId: 'U0', createdAt: '2026-01-01', findings: [{ signatureTag: 'u0' }] },
@@ -279,7 +312,6 @@ function run(): void {
     const pv = computePredictiveValue(stories);
     assert.equal(pv.preWarnable, 0, 'no overlap => nothing pre-warnable');
     assert.equal(pv.recall, 0, 'recall 0');
-    assert.equal(pv.precision, 0, 'precision 0 (empty surfaced set)');
     assertAllFinite(pv);
   });
 
@@ -307,24 +339,105 @@ function run(): void {
 
   // ─── CLI: real read-only run prints a predictive-value line; nothing written ─
   check('cli: learning_effectiveness prints a predictive-value line + writes nothing', () => {
-    const ROOT = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf-8' }).trim();
-    const CLI = join(ROOT, 'bin', 'lattice.js');
-    assert.ok(existsSync(CLI), `bin/lattice.js not found at ${CLI}`);
+    const { ROOT, CLI } = resolveCli();
 
     const before = execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf-8' });
-    const out = execFileSync('node', [CLI, 'learning_effectiveness'], {
-      cwd: ROOT,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
+    const out = runCli(ROOT, CLI);
     assert.match(out, /FAST predictive value/, 'human output has the predictive-value section');
     assert.match(out, /recall:/, 'human output has a recall line');
+    assert.doesNotMatch(out, /precision/i, 'precision field removed from human output');
 
     const after = execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf-8' });
     const beforeSet = new Set(before.split('\n').map((l) => l.trim()).filter(Boolean));
     const introduced = after.split('\n').map((l) => l.trim()).filter(Boolean).filter((l) => !beforeSet.has(l));
     const offending = introduced.filter((l) => /\.lattice[\\/]learning|activity\.jsonl/.test(l));
     assert.deepEqual(offending, [], `read-only violated; new write(s): ${introduced.join(' | ')}`);
+  });
+
+  // ─── CLI: --json exercises the real flag-parsing path => parseable report ─────
+  check('cli: learning_effectiveness {"json":true} => parseable report with expected fields', () => {
+    const { ROOT, CLI } = resolveCli();
+    const out = runCli(ROOT, CLI, '{"json":true}');
+    assert.doesNotMatch(out, /"precision"/, 'precision field removed from --json output');
+    const report = parseCliJson(out);
+
+    const pv = report.predictiveValue as Record<string, unknown>;
+    assert.ok(pv && typeof pv === 'object', 'predictiveValue present');
+    assert.equal(typeof pv.recall, 'number', 'predictiveValue.recall is a number');
+    assert.ok(Array.isArray(pv.windows), 'predictiveValue.windows is an array');
+    assert.ok(['+', '-', '0'].includes(pv.slopeSign as string), 'predictiveValue.slopeSign in {+,-,0}');
+    assert.equal((pv as Record<string, unknown>).precision, undefined, 'no precision field');
+
+    const arm = report.armComparison as Record<string, unknown>;
+    assert.ok(arm && typeof arm === 'object', 'armComparison present');
+    for (const k of ['nOn', 'nOff', 'outcomeOn', 'outcomeOff', 'delta']) {
+      assert.equal(typeof arm[k], 'number', `armComparison.${k} is a number`);
+    }
+    assert.equal(typeof arm.significant, 'boolean', 'armComparison.significant is a boolean');
+    assert.equal(typeof arm.note, 'string', 'armComparison.note is a string');
+    assertAllFinite(report);
+  });
+
+  // ─── CLI: --confirmedOnly exercises the filter flag => findingsWithSig <= all ─
+  check('cli: learning_effectiveness {"confirmedOnly":true} => findingsWithSig <= unfiltered', () => {
+    const { ROOT, CLI } = resolveCli();
+    const all = parseCliJson(runCli(ROOT, CLI, '{"json":true}'));
+    const confirmed = parseCliJson(runCli(ROOT, CLI, '{"json":true,"confirmedOnly":true}'));
+    const allPv = all.predictiveValue as Record<string, number>;
+    const confPv = confirmed.predictiveValue as Record<string, number>;
+    assert.ok(
+      confPv.findingsWithSig <= allPv.findingsWithSig,
+      `confirmedOnly findingsWithSig (${confPv.findingsWithSig}) must be <= unfiltered (${allPv.findingsWithSig})`,
+    );
+    assert.ok(
+      confPv.preWarnable <= allPv.preWarnable,
+      `confirmedOnly preWarnable (${confPv.preWarnable}) must be <= unfiltered (${allPv.preWarnable})`,
+    );
+
+    // Bare (human) --confirmedOnly also runs without crashing and stays read-only-shaped.
+    const human = runCli(ROOT, CLI, '{"confirmedOnly":true}');
+    assert.match(human, /recall:/, '--confirmedOnly human output still has a recall line');
+    assert.doesNotMatch(human, /precision/i, 'precision still absent under --confirmedOnly');
+  });
+
+  // ─── HANDLER: empty temp store => zeros, no crash, no NaN (store-adapter path) ─
+  check('handler: empty temp store => zeros + insufficient-N, no crash, no NaN', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'eff-empty-'));
+    try {
+      const ctx = {
+        store: new StoryStore(tmp),
+        root: tmp,
+        scanRoot: tmp,
+      } as HandlerContext;
+      const handlers = createLearningEffectivenessHandlers(ctx);
+
+      // JSON shape: zeros everywhere, no NaN, no precision field.
+      const report = JSON.parse(handlers.learning_effectiveness({ json: true })) as Record<string, unknown>;
+      const pv = report.predictiveValue as Record<string, unknown>;
+      const arm = report.armComparison as Record<string, unknown>;
+      assert.equal(pv.stories, 0, 'no stories');
+      assert.equal(pv.findingsWithSig, 0, 'findingsWithSig 0');
+      assert.equal(pv.preWarnable, 0, 'preWarnable 0');
+      assert.equal(pv.recall, 0, 'recall 0');
+      assert.deepEqual(pv.windows, [], 'no windows');
+      assert.equal(pv.slopeSign, '0', 'slopeSign 0');
+      assert.equal((pv as Record<string, unknown>).precision, undefined, 'no precision field');
+      assert.equal(arm.nOn, 0, 'nOn 0');
+      assert.equal(arm.nOff, 0, 'nOff 0');
+      assert.equal(arm.outcomeOn, 0, 'outcomeOn 0');
+      assert.equal(arm.outcomeOff, 0, 'outcomeOff 0');
+      assert.equal(arm.delta, 0, 'delta 0');
+      assert.equal(arm.significant, false, 'not significant on empty store');
+      assert.match(arm.note as string, /insufficient N/, 'note states insufficient N');
+      assertAllFinite(report);
+
+      // Human shape also renders without throwing.
+      const human = handlers.learning_effectiveness({});
+      assert.match(human, /recall:/, 'human output has a recall line on empty store');
+      assert.doesNotMatch(human, /precision/i, 'no precision in empty-store human output');
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   console.log(`TOTAL ${total} | PASS ${passed} | FAIL ${total - passed}`);
