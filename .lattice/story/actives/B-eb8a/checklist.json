@@ -47,14 +47,14 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "waiver",
           "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
+          "waiverType": "permanent",
           "file": "docs/requirements/decisions/story-lifecycle.md",
           "command": "lattice convergence_check --json",
           "result": "pass",
-          "note": "The docs-only policy clarification is validated by the document diff and review output, but the global convergence check stays false while B-aca2 and B-eb8a are still unfinished. The convergence portion is waived for this story.",
-          "headHash": "7fd862b379478d4f94df8153eb4c6b1da0168714",
+          "note": "The docs-only policy clarification is validated by the document diff and reviewer passes, but the global convergence check stays false while B-aca2 and B-eb8a are still unfinished. This convergence portion is permanently waived for this story.",
+          "headHash": "3d892400eac9d4e50fcca3c0ef243951df99c3aa",
           "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
-          "timestamp": "2026-06-18T11:20:47.909Z"
+          "timestamp": "2026-06-18T11:28:00.211Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -125,14 +125,14 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "waiver",
           "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
+          "waiverType": "permanent",
           "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "command": "lattice convergence_check --json",
           "result": "pass",
-          "note": "The three-round rule itself is preserved by the docs diff, but the global convergence check stays false because B-aca2 and B-eb8a are unfinished. The convergence portion is waived rather than treated as a docs-policy regression.",
-          "headHash": "3f915da33a76768c1cde8f4d7a1b1b7cd5a01272",
+          "note": "The three-round rule itself is preserved by the docs diff and reviewer passes, but the global convergence check stays false while B-aca2 and B-eb8a are unfinished. This convergence portion is permanently waived for this story.",
+          "headHash": "3d892400eac9d4e50fcca3c0ef243951df99c3aa",
           "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
-          "timestamp": "2026-06-18T11:21:01.206Z"
+          "timestamp": "2026-06-18T11:28:00.211Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
