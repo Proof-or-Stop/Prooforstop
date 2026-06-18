@@ -22,9 +22,6 @@
  * fully-built, ordered `EffStory[]`, so the leaf stays trivially testable.
  */
 
-/** Provenance of a finding's signatureTag (mirrors core/experience-layer-types). */
-export type EffSignatureTagSource = 'auto' | 'confirmed';
-
 /** One finding projection the effectiveness pass reads. */
 export interface EffFinding {
   /** The recurrence key; empty/undefined => the finding carries no signature. */
