@@ -23,8 +23,8 @@
       "id": "CHK-002",
       "title": "Add scanDeprecated function to audit-scan.ts",
       "context": "In packages/main/src/core/audit-scan.ts: add scanDeprecated(projectRoot: string): { count: number; files: string[] } that greps @deprecated in packages/main/src/**/*.ts. Return count of matching lines and list of unique files. Pure function, no side effects. Must not throw — wrap in try/catch and return count=0 on error.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T00:37:50.955Z",
       "endTime": null
     },
     {
