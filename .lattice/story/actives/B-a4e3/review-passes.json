@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T14:03:10.894Z",
       "reviewRunId": "B-a4e3:RR-001",
       "_hash": "d49119c9d5f99ed0a7add987ad453d0df4c4c8544aa6f42a37fee5fe9ec56f6d"
+    },
+    {
+      "id": "B-a4e3:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Salt check clean (empty grep). All 10 .koala read fallback removals are complete with no orphaned imports or dead code: LEGACY_KOALA_DIR, LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, LEGACY_KOALA_REPAIR_IGNORE, getLegacyKoalaActivityLogPath, resolveLegacyProjectMemoryPath, resolveLegacyGlobalMemoryPath, legacyPlannerStateDir, story_dispatch/finding_dispatch CLI aliases, and autopilot-run fallback all fully removed with corresponding consumer import removals. FORBIDDEN_WRITE_DIR rename in lattice-paths.ts is clean: private const, correct string value, write guard functions intact and coherent. verify-koala-residue.mjs: only allowlist DATA changed (2 dead exemptions removed), scan/classify logic untouched. Smoke test correctly converted to negative test asserting legacy paths are NOT read. No type safety issues, no I/O isolation violations, no dead code left behind.",
+      "createdAt": "2026-06-18T14:06:42.247Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-002",
+      "_hash": "33f3d8cf2f812b235614a7392bb08b86fbb7034be5feb96147115b4b2d65d2ec"
     }
   ]
 }
