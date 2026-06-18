@@ -3,17 +3,18 @@
 /**
  * @task B-5155
  * @checklist CHK-002
- * @title Map runtime-owned requirementsDir project fact to existing config/asset coverage
+ * @title Map runtime-owned prompt asset resolution to existing config/asset coverage
  * @type chore
  * @priority high
  * @description
- *   The runtime-owned agent asset path already treats `requirementsDir` as a
- *   project fact alongside `scanRoot`, `rootDir`, and `storyDir`.
- *   This smoke verifies local prompt registry resolution without introducing
- *   any new authority or deployment behavior.
+ *   The runtime-owned agent asset path verifies local prompt registry
+ *   resolution across absent, matching, stale, full-asset, and debug-override
+ *   cases.
+ *   This smoke only covers prompt asset resolution and the local
+ *   Non-authority boundary; it does not claim any Authority Server completion.
  * @changes
- *   - Add a truthful anchor so gap_analyze can see the existing
- *     `requirementsDir` config coverage and runtime-owned asset boundary.
+ *   - Keep the anchor on prompt asset resolution only and remove the false
+ *     `requirementsDir` coverage claim.
  */
 
 import assert from 'node:assert/strict';
