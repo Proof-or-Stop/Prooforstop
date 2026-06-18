@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-18T19:49:46.955Z",
       "reviewRunId": "B-77ed:RR-003",
       "_hash": "ef9a0db904ffa8a6f2e8775b1d715c30aba23b71ffdc8839fc41f51eb6b001b3"
+    },
+    {
+      "id": "B-77ed:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue scan complete. Diff removes only: (1) inline hand-rolled mkdir/sleep/deadline lock loops in finding.ts, review-run.ts, init-check.ts (replaced by withMkdirLock delegation — no exported symbol deleted); (2) four retryOnAnyFailure flag values from smoke-manifest.json (field schema, run-all-smokes.ts consumer, and smoke test references all remain intact). sleepSync helper removed from the three handlers only; canonical impl in mkdir-lock.ts untouched. grep retryOnAnyFailure packages/main/src confirms 9 live references — mechanism not orphaned. No concept deletion with dangling residual found. No blocker.",
+      "createdAt": "2026-06-18T19:56:31.066Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-005",
+      "_hash": "e9b5f6edde1a8f1d6a6aef3efecc3b0069dbefe547095ea870eb33386f94724b"
     }
   ]
 }
