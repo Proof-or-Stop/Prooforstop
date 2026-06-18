@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-77ed:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed finding.ts, review-run.ts, init-check.ts, smoke-manifest.json. All 3 hand-rolled mkdir lock loops replaced by withMkdirLock(lockDir, fn, {label}) with identical lock paths and no failFastIfHeld — wait-and-poll preserved. Dead code (sleepSync + mkdirSync/statSync/rmSync imports) removed cleanly. withMkdirLock import added and used in all 3 files. TypeScript build: 0 error TS. smoke-manifest.json: 4 retryOnAnyFailure fields removed, all other fields intact, valid JSON. No dead code, no type-safety issues, no I/O shell isolation violations found.",
+      "createdAt": "2026-06-18T19:50:56.644Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-001",
+      "_hash": "4e51c246eb7a45b96dcabf9fbc79a9a19c64d39cab8a04e850f42aeb59d4dc9e"
+    }
+  ]
+}
