@@ -378,10 +378,10 @@
           "kind": "integration_test",
           "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
           "result": "pass",
-          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
-          "headHash": "d7babd302502f4def53623552d6c11e3f26fb626",
+          "note": "Guarded by the LIVE process-fact-contract suite (run via full npm test in the verifier), which fails on any mis-registration — it demonstrably caught B-a2e3 missing its PROCESS_FACT_LEVELS entry; the verifier also statically asserts the correct end-state (in process-fact-levels, NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly). FAIL 0.",
+          "headHash": "2dd20daa6144b008abd46e6728bb2af462d407dd",
           "materialHash": "6031687da5f7caebfde8f98eddf2977b90a34577f1b2fe92273656a7413934b6",
-          "timestamp": "2026-06-18T02:22:12.685Z"
+          "timestamp": "2026-06-18T02:34:08.815Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
