@@ -135,7 +135,30 @@
       "userSees": "`lattice dispatch` is the only dispatch entry (finding_dispatch/story_dispatch gone); dead @deprecated fields removed while legacy-JSON-compat fields are retained with rationale; the @deprecated count drops; build + battery green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice dispatch is the only dispatch entry; finding_dispatch/story_dispatch removed from cli-engine registry + command-policy; deprecated-gc advisory count drops",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy-JSON-compat @deprecated fields (testIntent, TestIntent, phase, traceDiff, git, GUARD_PRELAUNCH_PROVIDERS, providerSupportsPreToolBlocking) RETAINED with annotation; old-JSON reads unaffected",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dispatch() clusterId branch still works (uses cluster.ts finding_dispatch, not the removed CLI alias); full battery + tsc green; B-8451 advisory mechanism intact; no salt touched",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
