@@ -58,7 +58,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cE 'AsyncLocalStorage|async_hooks' packages/main/src/core/main-write-lock.ts",
+          "result": "pass",
+          "note": "Returns 2+ — AsyncLocalStorage import + lockOwnerStore.",
+          "headHash": "b85ac9e4da0868265e9abba9d4ded2b624a109ea",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:45.262Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
