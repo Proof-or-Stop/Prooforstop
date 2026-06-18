@@ -49,7 +49,19 @@
           }
         ]
       },
-      "userSees": "`grep -lE \"withMkdirLock\\(\" .../{finding,review-run,init-check}.ts | wc -l` shows 3 and `grep -E \"Date.now() + 5000\"` shows 0; build clean — all 3 metadata locks now use the shared 30s primitive."
+      "userSees": "`grep -lE \"withMkdirLock\\(\" .../{finding,review-run,init-check}.ts | wc -l` shows 3 and `grep -E \"Date.now() + 5000\"` shows 0; build clean — all 3 metadata locks now use the shared 30s primitive.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -lE \"withMkdirLock\\(\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l",
+          "result": "pass",
+          "note": "3 of 3 handlers now match withMkdirLock( — each hand-rolled loop replaced by the shared primitive",
+          "headHash": "ce42f4e7baf4e62da11d2ee95b35ee1990214b0e",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:23.149Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
