@@ -80,6 +80,16 @@
           "headHash": "9ae339ec9f50db57ac69d4241f10067178fbb17d",
           "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
           "timestamp": "2026-06-18T19:49:25.650Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -E \"failFastIfHeld\" packages/main/src/handlers/finding.ts packages/main/src/handlers/review-run.ts packages/main/src/handlers/init-check.ts | wc -l",
+          "result": "pass",
+          "note": "0 matches of failFastIfHeld — wait-and-poll semantics preserved (defaults only)",
+          "headHash": "811a9a4b207a95975b16ad6e1944f314025c3b2c",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:27.041Z"
         }
       ]
     },
