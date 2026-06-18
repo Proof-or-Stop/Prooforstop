@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1701",
+  "changes": "Implemented the local Authority bundle generator so the default path emits lattice_authority_trust.env and lattice_staging-client.env, while the senior opt-in path emits the lattice_senior_* pair and preserves the legacy aliases.",
+  "usage": "Run the bundle generation flow in the target workspace, source lattice_authority_trust.env plus lattice_staging-client.env for the normal path, and opt into the senior pair only when you need the stronger live runner path.",
+  "expectedOutcome": "A developer can generate a basic trust bundle locally, keep the legacy aliases working, and later opt into senior live-only files without changing the default path.",
+  "actualTranscript": "npm run build passed; authority-client-smoke passed for basic and senior bundles; authority-status-smoke passed; docs-drift-smoke passed; authority-completion-smoke passed; validate passed after the current branch sync.",
+  "outcomeDiff": "Actual outcome matches the expected one: the ordinary bundle stays local and simple, legacy aliases keep working, and live-only receipt and gate variables remain separate.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No cross-host portability is promised; the generated files are intended for the target workspace and the stronger live runner path still needs its own trust inputs.",
+  "pitfalls": "When source files or wording change, rerun validate before DONE so evidence freshness does not drift behind the current branch state.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 654833
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 52911
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 647492
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 18747038
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1822248
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 657398
+    }
+  },
+  "totalDurationMs": 22581921,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T22:28:10.485Z",
+  "updatedAt": "2026-06-18T22:28:10.485Z"
+}
