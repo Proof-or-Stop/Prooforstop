@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5d48",
+  "mode": "feature",
+  "allowed": [
+    "Pure signatureTag candidate-derivation leaf + SignatureTagSource type",
+    "Smoke, npm script, and verifier including finding _hash invariance",
+    "Wiring auto-candidate + source flag into finding_add as audit-only fields"
+  ],
+  "excluded": [
+    "A/B hint-mode assignment or gating",
+    "Aggregating learning across more than one repository",
+    "Any change to the finding _hash, signFinding output, or any gate",
+    "Backfilling signatures onto existing historical findings",
+    "The effectiveness metric command",
+    "Weighting confirmed vs auto signals inside finding-signals derivation"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User locked 3.2 -> 3.3 -> 3.4 -> 3.5 backfill -> re-run; 3.2 is forward capture + provenance only.",
+  "createdAt": "2026-06-18T13:12:40.625Z",
+  "updatedAt": "2026-06-18T13:12:40.625Z",
+  "_hash": "fc74da18da32410651a9cce1829ab1a491a261e9c926a01be64c917790c05528"
+}
