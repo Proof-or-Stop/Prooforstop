@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Migrate the 3 hand-rolled metadata locks to the shared withMkdirLock primitive",
       "context": "In packages/main/src/handlers/finding.ts (withReviewPassLock ~line 38), review-run.ts (withReviewRunLock ~line 21), and init-check.ts (withInitCheckLock ~line 67): replace each hand-rolled mkdir/deadline/sleep loop with a delegation to withMkdirLock from packages/main/src/core/mkdir-lock.ts, exactly as checklist.ts's withChecklistLock already does. Keep the same lock path (storyFilePath(storyId,'<x>.lock')). Pass a descriptive label (e.g. 'review-passes metadata', 'review-runs metadata', 'init-check metadata'). This raises the acquire budget from 5s to the shared 30s default and restores the documented deadline(30s)>staleMs(10s) invariant. Remove the now-dead local sleepSync helpers if unused. The git commit (autoCommitStoryMetadata) stays inside the critical section (correct per-story commit serialization). Build clean (0 tsc errors).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T19:30:10.960Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/finding.ts",
