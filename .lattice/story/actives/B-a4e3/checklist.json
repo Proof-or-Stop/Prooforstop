@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove the legacy .koala read fallback (LEGACY_KOALA_DIR + the ~6 consumer sites) + update the legacy-read smoke",
+      "context": "In core/lattice-paths.ts remove LEGACY_KOALA_DIR and the LEGACY_KOALA_* path constants (LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, etc.), keeping the .lattice (LATTICE_*) constants as the sole canonical paths. Remove the .koala read-fallback branches in the ~6 consumers (audit-config.ts readAuditConfig fallback, rollout-check.ts, cli-engine.ts autopilot-runs + storyDir help text, the dev-memory legacy reader, and any other LEGACY_KOALA_DIR usage — grep LEGACY_KOALA_DIR to find all). Update packages/main/src/tasks/dev-memory-legacy-read-smoke.ts: it currently asserts ~/.koala entries are read with .lattice winning duplicates; change it to assert .koala is NO LONGER read (the fallback is gone) — do NOT just delete the assertion, flip it to prove removal. dev-memory is already migrated to ~/.lattice so no data is lost. DO NOT touch any koala-*-integrity-v1 salt. Verify test:koala-residue + the dev-memory smoke + tsc all green.",
+      "userSees": "Reading + writing story metadata, dev-memory, audit-config, autopilot-runs etc. uses ONLY .lattice/; .koala/ is no longer read anywhere (grep LEGACY_KOALA_DIR returns nothing); the legacy-read smoke now proves .koala is not read; the koala-residue gate stays green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rename remaining NON-SALT koala identifiers to lattice + shrink the residue-gate allowlist (PRESERVE salts)",
+      "context": "Find remaining 'koala' identifiers in active code that are NOT signature salts and NOT historical/decision-doc/test-intent text, and rename to lattice (e.g. internal variable/comment branding tied to the removed fallback). HARD CONSTRAINT: do NOT rename any koala-*-integrity-v1 / salt literal (guard-utils/finding-verify/init-check-gate/machine/scope-check/draft-check-hash/review-run/reviewer-status/review-scope-binding/process-fact-registry) — those are frozen signature constants; renaming bricks all signed artifacts. In scripts/verify-koala-residue.mjs, remove the allowlist exemptions for the now-removed .koala read-fallback path literals, but KEEP the salt exemptions (/koala-[a-z-]+-integrity-v\\d+/) and historical/legacy-logic exemptions. The gate must stay GREEN (no un-exempted koala remains, no dead exemptions for things that no longer exist where avoidable).",
+      "userSees": "Active code no longer carries non-salt koala branding; the koala-*-integrity-v1 signature salts are untouched (all existing signed artifacts still verify); test:koala-residue is green with a tightened allowlist (salt + historical exemptions only).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Remove the 4 koala URLs in package.json + packages/main/package.json",
+      "context": "Remove the github.com/koala-agent/koala URLs: package.json repository.url (~:81), bugs.url (~:88), homepage (~:90); packages/main/package.json repository.url (~:8). Either delete the fields or, if a real lattice repo URL is known, point them there — the user said remove ('去掉'), so delete the fields if no lattice URL is provided. Do NOT remove the test:koala-residue script (that is the enforcement gate, not a koala link). Verify the package.json files are still valid JSON + builds pass.",
+      "userSees": "package.json + packages/main/package.json no longer contain github.com/koala-agent/koala URLs; npm still builds; the test:koala-residue gate script remains.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update CLAUDE.md .koala/ runtime-path references to .lattice/",
+      "context": "CLAUDE.md still references .koala/ runtime paths (e.g. .koala/activity.jsonl, .koala/locks/main-write.lock/, .koala/audit-config.json) as if current. Update those runtime-path references to .lattice/ to match the code (which now writes only .lattice/ and no longer reads .koala/). Do NOT rewrite historical 'see story/B-xxx' or salt mentions; only the live runtime-path doc references. Keep CLAUDE.md's docs-drift gate green (the docs-drift gate validates path references — ensure the updated paths exist).",
+      "userSees": "CLAUDE.md's runtime-path references say .lattice/ (matching the code); no stale .koala/ runtime paths remain in the doc; docs-drift gate green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "P8 deprecated GC: remove dead finding_dispatch/story_dispatch aliases + dead @deprecated fields (keep necessary legacy-JSON-compat)",
+      "context": "Remove the deprecated CLI aliases finding_dispatch and story_dispatch from cli-engine.ts (~:1908) + their handlers/registry entries — they are replaced by 'lattice dispatch'; confirm no active consumer (grep) before removing. Then review the @deprecated fields (core/types.ts legacy verificationIntent/trace-profiler/evidence-freshness-headHash fields, guard-session.ts) and remove the genuinely-dead ones; KEEP any @deprecated field still required to READ old stored story JSON (these are legacy-compat, removing them breaks old-JSON reads) — annotate each kept one with why. After: the deprecated-gc advisory count drops; tsc + the full battery stay green. Do NOT remove the B-8451 advisory mechanism itself.",
+      "userSees": "`lattice dispatch` is the only dispatch entry (finding_dispatch/story_dispatch gone); dead @deprecated fields removed while legacy-JSON-compat fields are retained with rationale; the @deprecated count drops; build + battery green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

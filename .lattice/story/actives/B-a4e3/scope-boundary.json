@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a4e3",
+  "mode": "maintenance",
+  "allowed": [
+    "Flip dev-memory-legacy-read-smoke.ts to assert .koala is no longer read",
+    "P8 GC: remove genuinely-dead deprecated dispatch alias(es) and genuinely-dead @deprecated fields, preserving legacy-JSON-compat @deprecated fields with rationale, keeping the B-8451 advisory mechanism",
+    "Remove LEGACY_KOALA_DIR + LEGACY_KOALA_* constants and the .koala read-fallback branches across all consumer sites (lattice-paths.ts + the 10 consumers: cli-engine.ts, activity-log.ts, audit-config.ts, dev-memory.ts, evidence-freshness.ts, planner.ts, rollout-check.ts, store.ts, doctor.ts, story-query.ts)",
+    "Remove the 4 koala URLs in package.json + packages/main/package.json",
+    "Rename remaining NON-SALT koala identifiers to lattice and shrink the verify-koala-residue.mjs allowlist to drop now-removed .koala-fallback path exemptions (keep salt + historical exemptions)",
+    "Update CLAUDE.md .koala/ runtime-path references to .lattice/"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "User directed final koala cleanup + P8 GC; salts FROZEN (preserve verbatim); .koala read-fallback removal is an intentional OSS backward-compat drop (dev-memory already migrated to ~/.lattice, health.jsonl obsolete).",
+  "createdAt": "2026-06-18T13:15:25.562Z",
+  "updatedAt": "2026-06-18T13:15:25.562Z",
+  "_hash": "c7e9b9b102458cb6d44ab55c25986ea79878b3df0af5df2b20325026626a61b3"
+}

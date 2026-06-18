@@ -1,0 +1,157 @@
+{
+  "storyId": "B-2941",
+  "checkedAt": "2026-06-18T12:49:57.358Z",
+  "features": [
+    {
+      "feature": "Two-pass execution in run-all-smokes.ts: pass 1 runs smokes with default job count; pass 2 serially retries only the timeout subset",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "--no-retry CLI flag to disable pass 2 entirely (CI strict mode)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Pass 1 summary log line + pass 2 log line + Final aggregate log line in runner output",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "noRetry optional boolean field in smoke-manifest.json schema (default false; excludes smoke from pass 2 retry even on TIMEOUT)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No manifest entry uses noRetry=true on initial landing (reserved escape hatch only)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Self-smoke fixture case (a): pass 1 TIMEOUT → pass 2 retry → PASS",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Self-smoke fixture case (b): noRetry=true smoke that timed out stays TIMEOUT in Final",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Self-smoke fixture case (c): --no-retry CLI flag disables pass 2 entirely",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Self-smoke fixture case (d): smoke that fails BOTH passes counts as Final FAIL",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG Unreleased entry describing two-pass retry + --no-retry + noRetry manifest field",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "docs/dev/test-coverage.md update: two-pass behavior, wall-clock expectation, --no-retry escape hatch",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "3x consecutive npm run test:all all exit 0 with Final 167/167 PASS",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "In-house runner + manifest architecture from test-runner-consolidation-plan (existing foundation B1 scope) — run-all-smokes.ts + smoke-manifest.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Production source files (handlers/core/providers/cli-engine.ts/cli-prompts.ts) must remain untouched",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "package.json test:all script must remain untouched",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Existing per-smoke timeoutMs values frozen (B-24c3 constraint)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Worker pool, manifest reader, CLI flag parser otherwise untouched (only two-pass logic added to run-all-smokes.ts)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B2 script-collapse (collapse 258 test:* scripts) — out of scope for this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md out-of-scope: package.json unchanged; test:all script unchanged",
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "B4 optional tag/select UX polish (--watch, --rerun-failed, --json output) — out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md out-of-scope: only run-all-smokes.ts and self-smoke touched",
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "c8 coverage instrumentation (B3, already delivered by B-c6cf) — not re-delivered",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "test-runner-consolidation-plan.md marks B3 DONE (B-c6cf, 2026-06-17)",
+      "source": "decisions:decisions/test-runner-consolidation-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 17,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b8cc57df48975ee4659dc329cb8ba78dc17501602c215154752ff346defd843d",
+  "openQuestions": []
+}

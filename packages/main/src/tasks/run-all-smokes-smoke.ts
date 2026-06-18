@@ -193,6 +193,105 @@ function main(): void {
       unlisted.code === 0 && unlisted.stdout.includes('PASS fixture-unlisted'),
       `code=${unlisted.code}, stdout=${unlisted.stdout.trim()}`,
     );
+
+    // ──────────────────────────────────────────────────────────────────────
+    // B-2941: 4 fixture cases for two-pass retry behavior.
+    // ──────────────────────────────────────────────────────────────────────
+    // Flaky fixture: times out on first run (sleeps past 500ms timeout), passes on
+    // second run (sees a lock file left by the first attempt and exits 0). This
+    // simulates a parallel-load race that resolves under serial retry.
+    const lockA = join(root, 'flaky-A.lock');
+    writeFileSync(
+      join(smokesDir, 'fixture-flaky-A-smoke.js'),
+      `const fs=require('fs'); if(fs.existsSync(${JSON.stringify(lockA)})){ fs.unlinkSync(${JSON.stringify(lockA)}); process.exit(0); } fs.writeFileSync(${JSON.stringify(lockA)},'1'); setTimeout(()=>process.exit(0), 60000);\n`,
+    );
+    // noRetry fixture: same flaky pattern but manifest noRetry=true blocks pass 2.
+    const lockB = join(root, 'flaky-B.lock');
+    writeFileSync(
+      join(smokesDir, 'fixture-flaky-B-smoke.js'),
+      `const fs=require('fs'); if(fs.existsSync(${JSON.stringify(lockB)})){ fs.unlinkSync(${JSON.stringify(lockB)}); process.exit(0); } fs.writeFileSync(${JSON.stringify(lockB)},'1'); setTimeout(()=>process.exit(0), 60000);\n`,
+    );
+    // Always-fails fixture: times out on every run (no lock dance).
+    writeFileSync(
+      join(smokesDir, 'fixture-always-timeout-smoke.js'),
+      `setTimeout(()=>process.exit(0), 60000);\n`,
+    );
+    const retryManifestPath = join(root, 'retry-manifest.json');
+    writeFileSync(
+      retryManifestPath,
+      JSON.stringify({
+        smokes: [
+          { name: 'fixture-flaky-A', timeoutMs: 500 },
+          { name: 'fixture-flaky-B', timeoutMs: 500, noRetry: true },
+          { name: 'fixture-always-timeout', timeoutMs: 500 },
+        ],
+      }, null, 2),
+    );
+
+    // (8) B-2941 case (a): flaky smoke times out in pass 1, retried in pass 2, passes.
+    const retryPass = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', retryManifestPath,
+      '--select', 'fixture-flaky-A',
+    ]);
+    assert(
+      'B-2941 (a): pass 1 timeout → pass 2 retry → PASS, Final 1/1 exit 0',
+      retryPass.code === 0
+        && retryPass.stdout.includes('Pass 1:')
+        && retryPass.stdout.includes('retrying serially')
+        && retryPass.stdout.includes('Final:')
+        && /Final:\s*1\/1/.test(retryPass.stdout),
+      `code=${retryPass.code}, stdout=${retryPass.stdout.trim()}`,
+    );
+
+    // (9) B-2941 case (b): noRetry=true smoke that times out stays TIMEOUT (no pass 2 for it).
+    const noRetryFlag = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', retryManifestPath,
+      '--select', 'fixture-flaky-B',
+    ]);
+    assert(
+      'B-2941 (b): noRetry=true smoke that times out stays TIMEOUT, exit 1',
+      noRetryFlag.code === 1
+        && noRetryFlag.stdout.includes('TIMEOUT fixture-flaky-B')
+        && !noRetryFlag.stdout.includes('Final:'),
+      `code=${noRetryFlag.code}, stdout=${noRetryFlag.stdout.trim()}`,
+    );
+
+    // (10) B-2941 case (c): --no-retry CLI flag disables pass 2 entirely.
+    // The flaky-A fixture writes a lock if absent (first run will timeout),
+    // recreating the cycle. After case 8 consumed the lock, this run starts
+    // fresh and will time out without retry under --no-retry.
+    const cliNoRetry = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', retryManifestPath,
+      '--select', 'fixture-flaky-A',
+      '--no-retry',
+    ]);
+    assert(
+      'B-2941 (c): --no-retry CLI flag → pass 1 only, exit 1 on timeout',
+      cliNoRetry.code === 1
+        && cliNoRetry.stdout.includes('TIMEOUT fixture-flaky-A')
+        && !cliNoRetry.stdout.includes('Pass 2:')
+        && !cliNoRetry.stdout.includes('Final:'),
+      `code=${cliNoRetry.code}, stdout=${cliNoRetry.stdout.trim()}`,
+    );
+
+    // (11) B-2941 case (d): smoke fails BOTH passes → Final FAIL exit 1.
+    const failBoth = runRunner([
+      '--smokes-dir', smokesDir,
+      '--manifest', retryManifestPath,
+      '--select', 'fixture-always-timeout',
+    ]);
+    assert(
+      'B-2941 (d): smoke that times out BOTH passes → Final 0/1, exit 1',
+      failBoth.code === 1
+        && failBoth.stdout.includes('Pass 1:')
+        && failBoth.stdout.includes('retrying serially')
+        && failBoth.stdout.includes('Final:')
+        && /Final:\s*0\/1/.test(failBoth.stdout),
+      `code=${failBoth.code}, stdout=${failBoth.stdout.trim()}`,
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -1,0 +1,32 @@
+{
+  "task": "Add two-pass retry to packages/main/src/tasks/run-all-smokes.ts: pass 1 default jobs, pass 2 forces serial retry of timeouts. Add noRetry optional manifest field + --no-retry CLI flag.",
+  "outcome": "Developer runs npm run test:all. Output ends with: 'Pass 1: X/167 passed; N timeouts → retrying serially...' then 'Pass 2: M/N passed' then 'Final: 167/167 passed in <wall>s' with exit code 0. Across 3 consecutive runs all show Final 167/167 exit 0. Manual override: npm run test:all -- --no-retry runs only pass 1 (today behavior, fail-fast for CI strict mode). CHANGELOG documents two-pass mechanism. docs/dev/test-coverage.md describes new behavior + override flag.",
+  "facts": [
+    "B-be91 outcome=blocked 2026-06-18 — Plan A falsified (F-001 records data)",
+    "B-24c3 F-001..F-004 deferred race victims (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard)",
+    "Every smoke passes standalone serial mode (B-24c3 + B-be91 data combined)",
+    "run-all-smokes.ts B-6efb single-pass currently",
+    "smoke-manifest.json schema currently {name, tags?, timeoutMs?, skip?}; no noRetry",
+    "Test count current: 167 entries discovered by runner"
+  ],
+  "constraints": [
+    "No production code modification (handlers, core, providers, cli-engine.ts, cli-prompts.ts blocked)",
+    "No package.json modification",
+    "No existing smoke source modification (only self-smoke fixture cases)",
+    "No existing manifest timeoutMs change (B-24c3 frozen)",
+    "DefaultProviderExecutor seam preserved (retry only changes worker pool size)",
+    "--jobs default unchanged (still runner cpuCount)"
+  ],
+  "unknowns": [
+    "Whether pass 2 wall-clock adds 1-3 min in worst case (need DEV measurement)",
+    "Whether review-pass-discard parallel FAIL (not timeout) needs noRetry=true override or its FAIL counts as final fail too"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/run-all-smokes.ts (add two-pass logic + --no-retry flag handler)",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts (add 4 fixture cases for retry behavior)",
+    "packages/main/smoke-manifest.json (add noRetry? optional field if needed; doc the schema)",
+    "CHANGELOG.md (Unreleased entry)",
+    "docs/dev/test-coverage.md (note two-pass + override flag)"
+  ],
+  "timestamp": "2026-06-18T12:46:52.008Z"
+}
