@@ -102,6 +102,17 @@
           "headHash": "747b15533d2f034ec116b742ebecba9b679934fa",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:16.850Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes.js --select gitroot-cwd-contract 2>&1 | grep -cE '^PASS gitroot-cwd-contract'",
+          "result": "pass",
+          "note": "Returns 1 — pass 1 output format preserved byte-identical (preMortem D3).",
+          "headHash": "ba2c28c2ca170fe3143f64daaef04f609248655c",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:17.448Z"
         }
       ]
     },
