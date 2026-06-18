@@ -166,6 +166,16 @@
           "headHash": "965e409004b82d81f4750089c46b02d86d5a674c",
           "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
           "timestamp": "2026-06-18T19:49:30.501Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done; echo END",
+          "result": "pass",
+          "note": "loop prints only END (no BAD-*) — all 4 formerly-flagged smokes serial-PASS",
+          "headHash": "e884ca8f57d30709af6e40e6e0c98ae6dc28202d",
+          "materialHash": "2b5ba975cbc336006f2620cf6cadc9ed780e3b95fb268329c0e7d11dd2ef9bb5",
+          "timestamp": "2026-06-18T19:49:31.667Z"
         }
       ]
     },
