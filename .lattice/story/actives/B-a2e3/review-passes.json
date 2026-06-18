@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-18T00:59:27.336Z",
       "reviewRunId": "B-a2e3:RR-008",
       "_hash": "1f8361b748bdd83ae3ebf2848a4cc1e0a38b6f78aedf390566d3fa338d6073fe"
+    },
+    {
+      "id": "B-a2e3:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "All 4 checklist items verified: userSees matches actual CLI output. Human report shows total/anchored/valid/stale/unanchored + valid-rate + drift-rate + stale list. JSON mode well-formed with all numeric fields, no NaN. Anchored-only denominator correct (unanchored excluded). stale for directory-style anchors is intentional conservative behavior. B-zzzz returns all-zero without crash. Read-only confirmed by git status and CLI smoke. Numbers 25/27=0.926 / 2/27=0.074 consistent with Baseline A. All 13+5=18 smoke checks pass. No spec boundary gaps found in decisions/lattice-experience-layer-execution-plan.md.",
+      "createdAt": "2026-06-18T01:04:23.492Z",
+      "reviewRound": "2026-06-18T00:59:27.336Z",
+      "reviewRunId": "B-a2e3:RR-007",
+      "_hash": "9009ae16b2aa1b98f033884b5e028c3369abbb10ad7fce3cb4fba6ad8665258d"
     }
   ]
 }
