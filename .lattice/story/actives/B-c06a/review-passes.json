@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-c06a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed. This diff is purely additive: new leaf core/experience-effectiveness.ts, new handler handlers/learning-effectiveness.ts, and registration across all 6 surfaces (cli-engine schema + READ_ONLY_COMMANDS, registry import + registerBatch, core/config DEFAULT_PHASE_TOOLS, core/command-policy COMMAND_POLICIES, core/process-fact-levels PROCESS_FACT_LEVELS). No concept words deleted or replaced en masse in production code. Deleted lines are only lattice story metadata (phase INIT_CHECK, pending checklist status). All 6 registration surfaces are consistent: command name learning_effectiveness matches across every surface. All leaf exports (computePredictiveValue, computeArmComparison, MIN_ARM_N, EffStory, EffFinding, PredictiveValueReport, ArmComparison, PredictiveValueOptions) are imported and exercised in the handler and smoke. The experience_hint_surfaced event depended on by the arm-comparison reader is confirmed written in handlers/story-review.ts:580. No dangling references, no half-wired command, no doc-promise-undelivered finding. No blocker.",
+      "createdAt": "2026-06-18T16:00:02.796Z",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "reviewRunId": "B-c06a:RR-001",
+      "_hash": "7de833269ad88ddc24b7ffbce06d27c6703f35c14f3986cc8d97780b879ea3f7"
+    },
+    {
+      "id": "B-c06a:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 8 changed source files (experience-effectiveness.ts, learning-effectiveness.ts, registry.ts, command-policy.ts, process-fact-levels.ts, cli-engine.ts, config.ts, experience-layer-effectiveness-smoke.ts, package.json). Core leaf is pure: zero imports, all denominators guarded via ratio(), never NaN, deterministic. MIN_ARM_N gate is conservative (significant=false below threshold, no p-value). Handler is strictly read-only: no writeFileSync/appendFileSync/finding_add/gate mutations; single projectRoot usage is ctx.root passed as read basis to readActivityLogTail, not a persist path. All 6 registration surfaces consistent (registry import+registerBatch, command-policy readOnly, process-fact-levels L0 experience-layer-read, cli-engine schema+READ_ONLY_COMMANDS, config DEFAULT_PHASE_TOOLS). No I/O shell isolation violations. Two findings registered: F-001 low dead-code (unused stories fixture voided in smoke task), F-002 medium misleading degenerate precision field (always 1 or 0). No blockers to DONE.",
+      "createdAt": "2026-06-18T16:00:45.552Z",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "reviewRunId": "B-c06a:RR-002",
+      "_hash": "ca18880b9f38af4fe3e3b9ed0feed39704dd4e9a694039f7bb4765d8559160d3"
+    },
+    {
+      "id": "B-c06a:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001/002/003 verified. (1) learning_effectiveness default output: predictive-value report + ON/OFF arm readout printed; nOn=nOff=0, recall/precision 0.000, significant=NO with explicit insufficient-N note — correct and honest (only ~14 findings carry signatureTag from forward ③.2; no A/B events yet; data accrues as backfill runs). (2) confirmedOnly=true: findingsWithSig drops from 14 to 1 (only confirmed-tagged findings), expected. (3) json=true: structured JSON emitted with predictiveValue + armComparison keys, all numeric fields present. (4) git status clean after all three invocations — read-only contract holds. (5) Smoke 16/16 PASS: exact recall/precision math, windowed trend, slopeSign, confirmedOnly threading, empty/zero-denominator never-NaN, determinism (100x loop), arm comparison small-N significant=false, >=MIN_ARM_N significant=true with observational note, one-empty-arm no crash. (6) Registration verified across all 6 required surfaces: registry.ts registerBatch, cli-engine.ts MAIN_TOOLS schema, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts (ownershipClass:readOnly/allowedPhases:all/destructiveRisk:none), process-fact-levels.ts (L0 experience-layer-read), READ_ONLY_COMMANDS list. (7) Pure leaf: experience-effectiveness.ts imports only type symbols, no fs/path/child_process/network. (8) Handler: no writeFileSync, no finding_add, no gate, no projectRoot persist — static read-only proof confirmed. (9) precision=preWarnable/preWarnable design: when preWarnable=0 => 0 (guarded); when preWarnable>0 => 1.0 — documented retrodictive design, correct. (10) Boundary N gate: significant=true only when both arms >= MIN_ARM_N=20; note always states either insufficient-N or observational-delta-no-p-value — conservative and honest as required.",
+      "createdAt": "2026-06-18T16:01:31.814Z",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "reviewRunId": "B-c06a:RR-004",
+      "_hash": "de0e2557c7f020b5d71a6f605edd57c6526b256dc039c19931fbeb0d15058cf3"
+    },
+    {
+      "id": "B-c06a:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage review passed. Smoke: 19/19 checks pass (TOTAL 19 | PASS 19 | FAIL 0). Verifier: TOTAL 46 | PASS 46 | FAIL 0. F-003 (--json/--confirmedOnly CLI subprocess paths) resolved: smoke now exercises literal subprocess calls node bin/lattice.js learning_effectiveness with {\\\"json\\\":true}, {\\\"confirmedOnly\\\":true}, and {\\\"json\\\":true,\\\"confirmedOnly\\\":true}, parsing structured JSON output and asserting field shapes. F-004 (empty/edge store at CLI/handler level) resolved: smoke adds hermetic createLearningEffectivenessHandlers on mkdtemp root asserting zeros, no NaN, no crash in both json and human shapes. CHK-001 all 17 intents (happy:0-3, edge:0-6, adversarial:0-5): each bound to either test:experience-layer-effectiveness (logic_test, 19-check smoke) or verify-b-c06a.mjs (integration_test). CHK-002 all 13 intents: --json and --confirmedOnly covered by literal subprocess calls; empty-store handler covered by hermetic handler test; registration across all 6 surfaces confirmed by verifier static checks (allReg=true). CHK-003 all 16 intents: effectiveness smoke + npm script + 7 no-regression smokes + full npm test all pass; static leaf-purity and handler-read-only checks pass. Precision-field removal (F-002) reflected in smoke via precision===undefined assertions covering CHK-001:happy:0 + CHK-002:happy:1/happy:2. No must-gap found in any intent column.",
+      "createdAt": "2026-06-18T16:16:06.251Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-007",
+      "_hash": "3f1e97d7543ceab3cfa3a41c55a5583cca93d72a4e2d2e9b06bbb8f2bcce1496"
+    },
+    {
+      "id": "B-c06a:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior review PASS (1 low finding registered). CHK-001: computePredictiveValue and computeArmComparison are pure, deterministic, never-NaN; precision field is absent from all output paths (PredictiveValueReport type, renderHuman, --json); recall + windowed trend + slopeSign present; conservative significance gate enforced (MIN_ARM_N=20); confirmedOnly threads correctly. CHK-002: handler is strictly read-only — no writes, no findings, no gate calls (confirmed by static check in verifier); registered in all 6 surfaces (cli-engine schema, READ_ONLY_COMMANDS, registry.ts registerBatch, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts readOnly/allowedPhases:all/destructiveRisk:none, process-fact-levels.ts L0 experience-layer-read); live run on 453-story store: nOn=0 nOff=0 significant:NO insufficient-N (honest); git status after run shows zero new writes from learning_effectiveness. CHK-003: 19/19 smoke tests pass including exact leaf math (3/7 recall, window hitRates 0.25+2/3, slope +/-/0), small-N honesty trap (nOn=2 nOff=2 large delta => significant:false), MIN_ARM_N boundary (19 => false, 20 => true), empty/zero-denominator no-NaN, 100x determinism loop, CLI read-only assertion, --json parseable, --confirmedOnly <= unfiltered, handler-on-empty-store zeros. One low finding (F-008): stale \"recall/precision\" wording in cli-engine.ts description string (line 1786) and command-policy.ts reason string (line 218) — precision was removed from implementation; no functional impact.",
+      "createdAt": "2026-06-18T16:16:32.194Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-008",
+      "_hash": "58e017b2cbfd150f6783190de41d0862b8d8747a437da63bfef039be5d1c8065"
+    },
+    {
+      "id": "B-c06a:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check completed. F-005 resolution confirmed: grep on experience-effectiveness.ts, learning-effectiveness.ts, command-policy.ts, and cli-engine.ts all return zero hits for precision wording. Smoke file references to precision are all precision===undefined assertions (verifying removal) — correct and must be retained. memory-benchmark precisionAt10 is an unrelated pre-existing concept. Story metadata in .lattice/story/ is not in scope for code-concept residue. No concept deletion/replacement residue found in any .ts or .md source file. No blocker.",
+      "createdAt": "2026-06-18T16:22:43.328Z",
+      "reviewRound": "2026-06-18T16:20:24.941Z",
+      "reviewRunId": "B-c06a:RR-009",
+      "_hash": "3257849e9184b1eb40456c54895dbc2c2bb96a27f6d9a3b32b6677aa7f19f251"
+    },
+    {
+      "id": "B-c06a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test-coverage review passed: all 46 verificationIntent entries (CHK-001 through CHK-006, covering happy/edge/adversarial) remain fully covered by valid verificationEvidence. Round-3 changes were limited to description string edits and removal of a dead type with no test-surface impact. Smoke: 19/19 test:experience-layer-effectiveness PASS. Verifier: 46/46 verify-b-c06a.mjs PASS. No gaps found, no findings raised.",
+      "createdAt": "2026-06-18T16:22:44.762Z",
+      "reviewRound": "2026-06-18T16:20:24.941Z",
+      "reviewRunId": "B-c06a:RR-011",
+      "_hash": "139e4e127bd8d60382f16bae75fbb163068961ca1c52aecea8f1662017d77924"
+    },
+    {
+      "id": "B-c06a:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality review: (1) Dead code - F-006 EffSignatureTagSource export fully removed, no trace remaining; all remaining exports consumed by handler or smoke. (2) Precision wording F-007 resolved: zero occurrences in all changed files. (3) Type safety - sole as-any in smoke test is deliberate null boundary fixture with eslint-disable; three empty-catch blocks have explicit fallback comments, justifiable graceful-degradation for read-only advisory handler. (4) I/O shell isolation N/A (bridge.ts absent). (5) Core invariants hold: leaf has no runtime imports, ratio() guards every denominator, both compute functions are stateless/deterministic, significant is conservative N-only gate. (6) 6-surface registration complete. No findings.",
+      "createdAt": "2026-06-18T16:23:02.880Z",
+      "reviewRound": "2026-06-18T16:20:24.941Z",
+      "reviewRunId": "B-c06a:RR-010",
+      "_hash": "05d8ed1c95d6fe039b7a4dc109827f32bdcce2f15d88dadbb5ae3ea8579f793d"
+    },
+    {
+      "id": "B-c06a:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round 3: F-008 (stale precision wording) fully resolved. learning_effectiveness CLI output shows recall + windowed trend + honest ON/OFF readout with nOn=0 nOff=0, significant=NO, insufficient N note — no precision field in human or JSON output. effectiveness smoke 19/19 PASS. Full npm test suite all PASS. git status clean. No new findings; all checklist items verified against actual code behavior.",
+      "createdAt": "2026-06-18T16:24:01.485Z",
+      "reviewRound": "2026-06-18T16:20:24.941Z",
+      "reviewRunId": "B-c06a:RR-012",
+      "_hash": "0fec844aa4cde4a8f72b41366232d39c6dfee845fbaf6cc8213607b309be69f8"
+    }
+  ]
+}

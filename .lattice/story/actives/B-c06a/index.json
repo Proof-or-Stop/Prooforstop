@@ -4,7 +4,7 @@
   "title": "Experience Layer 3.4: learning_effectiveness — predictive-value metric + ON/OFF RCT readout",
   "description": "Add a read-only learning_effectiveness CLI that reports two layers of evidence for whether accumulated experience helps: (1) FAST signal — per-story hint predictive value, computed retrodictively over findings + signatureTags in temporal order (of the findings whose signature was known from PRIOR stories, how many would have been pre-warned = recall; of the would-have-hinted signatures, how many matched a real finding = precision), trended over story windows; and (2) LONG-GAME — an ON vs OFF arm comparison (from the experience_hint_surfaced hintMode events that 3.3 records) of a recurrence-style outcome, reporting N per arm and an explicit 'not yet significant' until power is reached. Strictly read-only and advisory: writes nothing, files no findings, touches no gate. Running it after the 3.5 backfill (real signatures) is the 're-run learning curve' evidence step.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "experience-layer",
@@ -22,7 +22,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-18T15:34:20.915Z",
   "startedAt": "2026-06-18T15:34:20.915Z",
-  "endedAt": null,
+  "endedAt": "2026-06-18T16:30:39.164Z",
   "events": [
     {
       "phase": "INIT",
@@ -39,11 +39,111 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-18T15:37:11.527Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T15:41:52.486Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-18T15:57:21.873Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T15:57:22.456Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-18T15:57:24.672Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T16:04:12.519Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T16:12:22.973Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-18T16:12:30.351Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T16:17:18.425Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T16:20:24.941Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-18T16:20:32.865Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T16:25:10.724Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-18T16:30:39.164Z",
+      "branch": "story/B-c06a",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c06a",
-    "branch": "story/B-c06a",
-    "createdAt": "2026-06-18T15:37:01.029Z"
-  }
+  "currentReviewRound": "2026-06-18T16:20:24.941Z"
 }
