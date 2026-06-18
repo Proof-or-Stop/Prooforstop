@@ -103,7 +103,30 @@
       "userSees": "CLAUDE.md's runtime-path references say .lattice/ (matching the code); no stale .koala/ runtime paths remain in the doc; docs-drift gate green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLAUDE.md runtime-path refs (lines 37,71,95,99,410) say .lattice/ matching the code; docs-drift gate green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": ".koala-serve.json mentions (still-current code filename) are NOT changed; only .koala/<dir> paths updated",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No historical see story/B-xxx or salt mentions altered; docs-drift preflight passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
