@@ -34,7 +34,7 @@
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
 | **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`lattice-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
 | **TEST** | `lattice validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
-| **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.koala/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
+| **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.lattice/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
 
 ### 如何选通道
 
@@ -68,7 +68,7 @@ lattice decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":
 
 ## Claude Prompt Hook
 
-`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.koala/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `lattice session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
+`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.lattice/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `lattice session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
 
 ```text
 建议先运行 lattice session_brief 恢复现场
@@ -92,11 +92,11 @@ B-9bd9 引入了「跨 story 框架自省 audit」机制（定期扫 CLAUDE.md �
 
 | 层 | 来源 | 说明 |
 |---|---|---|
-| 1 | `<projectRoot>/.koala/audit-config.json` | 项目级覆盖，按字段逐项覆盖 |
+| 1 | `<projectRoot>/.lattice/audit-config.json` | 项目级覆盖，按字段逐项覆盖 |
 | 2 | profile 默认 | `auditTriggerWindow`：light=10 / balanced=5 / strict=3（其他字段所有 profile 共用第 3 层硬编码） |
 | 3 | 硬编码兜底 | `{auditTriggerWindow:5, requireClaudeMdDiff:true, mode:"semi-auto"}` |
 
-**手改配置**：直接编辑 `<projectRoot>/.koala/audit-config.json`（如需）：
+**手改配置**：直接编辑 `<projectRoot>/.lattice/audit-config.json`（如需）：
 
 ```json
 {
@@ -407,7 +407,7 @@ project/
 
 ### 多 session 写协调（设计真相源）
 
-Lattice 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.koala/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。**story owner lease（rollout step 2）已实现（B-c55d）**：`core/story-owner-lease.ts` 的 per-story owner lease + `cli-engine.ts` 的单一 choke-point gate `enforceStoryOwnerLeaseGate`（按 `CommandPolicy.ownershipClass` 分类，非 owner 的 story-scoped / dangerous 变更命令被拒绝）、stale-lease 检测 + `--takeover` / `--forceTakeover`、ownership-aware 拒绝错误、`session_brief` ownership 渲染（`renderOwnershipBlock`），以及 `lattice doctor` 的 stale story-owner-lease 检查。rollout step 1-6 已全部完成（B-8596 / B-f60c / B-c55d），其中 step 5（stuck-lock + stale story-owner-lease 检查）与 step 6（多 session 收敛 / 回归 smoke）由 B-c55d 收口。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准。
+Lattice 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.lattice/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。**story owner lease（rollout step 2）已实现（B-c55d）**：`core/story-owner-lease.ts` 的 per-story owner lease + `cli-engine.ts` 的单一 choke-point gate `enforceStoryOwnerLeaseGate`（按 `CommandPolicy.ownershipClass` 分类，非 owner 的 story-scoped / dangerous 变更命令被拒绝）、stale-lease 检测 + `--takeover` / `--forceTakeover`、ownership-aware 拒绝错误、`session_brief` ownership 渲染（`renderOwnershipBlock`），以及 `lattice doctor` 的 stale story-owner-lease 检查。rollout step 1-6 已全部完成（B-8596 / B-f60c / B-c55d），其中 step 5（stuck-lock + stale story-owner-lease 检查）与 step 6（多 session 收敛 / 回归 smoke）由 B-c55d 收口。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准。
 
 ## Checklist 写法
 
@@ -871,7 +871,7 @@ lattice reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # �
 
 **自动聚簇依据**：files 交集 ≥50% + severity 完全一致（severity 不同绝不合并，防时序 bug 被并入文件名同簇）。
 
-> B-9d95 CHK-004 起，派发统一走 `lattice dispatch`（itemId / findingId / clusterId 互斥参数）。`story_dispatch` / `finding_dispatch` 降为 deprecated alias（仍可用但 stderr 告警），新代码一律用 `lattice dispatch`。
+> B-9d95 CHK-004 起派发统一走 `lattice dispatch`（itemId / findingId / clusterId 互斥参数）；旧的 `story_dispatch` / `finding_dispatch` alias 已于 B-a4e3 移除（不再可用），一律用 `lattice dispatch`。
 
 ```bash
 lattice finding_cluster '{"storyId":"B-xxx"}'                        # 自动聚簇（按 files ∩ severity）

@@ -27,7 +27,7 @@ Dev-memory is advisory context only. Its purpose is to help agents recall releva
 | **story-candidate** | `<projectRoot>/.lattice/story/actives/<storyId>/dev-memory-candidates.jsonl` | story lifetime |
 
 - Paths resolve deterministically without a Lattice daemon running.
-- Project/global reads use `.lattice/dev-memory/experience.jsonl` and `~/.lattice/dev-memory/experience.jsonl` as canonical storage. The legacy `.koala/dev-memory/experience.jsonl` and `~/.koala/dev-memory/experience.jsonl` paths are read-only fallback inputs for migrated installations.
+- Project/global reads use `.lattice/dev-memory/experience.jsonl` and `~/.lattice/dev-memory/experience.jsonl` as the sole canonical storage. The legacy `.koala/dev-memory/experience.jsonl` read fallback was removed in B-a4e3 (existing data was migrated to `.lattice`); `.koala` is no longer read.
 - Writes only target canonical `.lattice` storage; dev-memory commands must not append to or mutate legacy `.koala` files.
 - JSONL format: one JSON object per line, schema-versioned via required fields.
 - Story candidates are written by `lattice dev_memory_finish`. They are **not** automatically promoted to project/global memory — this is a deliberate review step.

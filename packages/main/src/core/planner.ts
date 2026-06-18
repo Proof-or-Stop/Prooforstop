@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { canonicalDigest } from './authority-signing.js';
 import type { StoryInfo, StoryType, VerificationIntent } from './types.js';
-import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 
 /**
  * @task B-e3d9
@@ -542,17 +542,10 @@ export function plannerStateDir(root: string): string {
   return join(root, LATTICE_DIR, 'planner', 'runs');
 }
 
-function legacyPlannerStateDir(root: string): string {
-  return join(root, LEGACY_KOALA_DIR, 'planner', 'runs');
-}
-
 export function readPlannerRun(root: string, plannerRunId: string): PlannerRunRecord {
   const filename = `${plannerRunId}.json`;
   const currentPath = join(plannerStateDir(root), filename);
-  if (existsSync(currentPath)) {
-    return JSON.parse(readFileSync(currentPath, 'utf8')) as PlannerRunRecord;
-  }
-  return JSON.parse(readFileSync(join(legacyPlannerStateDir(root), filename), 'utf8')) as PlannerRunRecord;
+  return JSON.parse(readFileSync(currentPath, 'utf8')) as PlannerRunRecord;
 }
 
 export function writePlannerRun(root: string, record: PlannerRunRecord): void {
@@ -563,7 +556,7 @@ export function writePlannerRun(root: string, record: PlannerRunRecord): void {
 
 export function listPlannerRuns(root: string): PlannerRunRecord[] {
   const records = new Map<string, PlannerRunRecord>();
-  for (const dir of [legacyPlannerStateDir(root), plannerStateDir(root)]) {
+  for (const dir of [plannerStateDir(root)]) {
     if (!existsSync(dir)) continue;
     for (const name of readdirSync(dir).filter(entry => entry.endsWith('.json'))) {
       const record = JSON.parse(readFileSync(join(dir, name), 'utf8')) as PlannerRunRecord;

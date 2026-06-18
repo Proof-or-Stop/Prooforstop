@@ -440,39 +440,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
   return {
     /**
-     * finding_dispatch — B-45ed CHK-010（**deprecated in B-9d95 CHK-004**）
-     *
-     * Retained as alias; prints deprecation warning on first line of stdout; return value byte-identical to dispatch({findingId}).
-     */
-    finding_dispatch(args: {
-      storyId: string;
-      findingId: string;
-      agentType?: string;
-    }): { prompt: string } {
-      console.log(
-        '⚠ deprecation: finding_dispatch will be removed in versions after B-9d95, please switch to lattice dispatch',
-      );
-      return buildFindingPrompt(args);
-    },
-
-    /**
-     * story_dispatch — B-45ed CHK-005（**deprecated in B-9d95 CHK-004**）
-     *
-     * Retained as alias; prints deprecation warning on first line of stdout; return value byte-identical to dispatch({itemId}).
-     */
-    story_dispatch(args: {
-      storyId: string;
-      itemId: string;
-      agentType?: string;
-    }): { prompt: string } {
-      console.log(
-        '⚠ deprecation: story_dispatch will be removed in versions after B-9d95, please switch to lattice dispatch',
-      );
-      return buildItemPrompt(args);
-    },
-
-    /**
      * dispatch — B-9d95 CHK-004 unified entry
+     * (B-a4e3 CHK-005: the deprecated finding_dispatch / story_dispatch alias methods were removed;
+     * dispatch is now the only entry. buildItemPrompt / buildFindingPrompt remain — they are used here.)
      *
      * Dispatch by exactly one of itemId / findingId / clusterId; if only
      * agentType=lattice-review-story-init is passed, generate the INIT reviewer prompt.

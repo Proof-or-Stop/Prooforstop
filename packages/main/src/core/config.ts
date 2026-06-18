@@ -9,7 +9,7 @@ import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
  *   - profile 默认值由 `resolveAuditConfig` 接管（light=10, balanced=5, strict=3）
- *   - 项目级覆盖文件为 `<projectRoot>/.koala/audit-config.json`
+ *   - 项目级覆盖文件为 `<projectRoot>/.lattice/audit-config.json`
  *   - 详见 CLAUDE.md「框架自省 audit 配置」
  *
  * 这里以 re-export 的形式挂到 config 入口，**不**改动现有 `loadConfig` /
@@ -230,8 +230,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add',
     'validate', 'status', 'serve',
     'story_advance',
-    'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
-    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复（DEV 阶段可能提前出现 finding）
+    // B-a4e3 CHK-005: removed dead story_dispatch / finding_dispatch alias entries; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
@@ -242,7 +241,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',
-    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复
+    // B-a4e3 CHK-005: removed dead finding_dispatch alias entry; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
