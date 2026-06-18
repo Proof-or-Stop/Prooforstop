@@ -4,7 +4,7 @@
   "title": "Experience Layer 3.4: learning_effectiveness — predictive-value metric + ON/OFF RCT readout",
   "description": "Add a read-only learning_effectiveness CLI that reports two layers of evidence for whether accumulated experience helps: (1) FAST signal — per-story hint predictive value, computed retrodictively over findings + signatureTags in temporal order (of the findings whose signature was known from PRIOR stories, how many would have been pre-warned = recall; of the would-have-hinted signatures, how many matched a real finding = precision), trended over story windows; and (2) LONG-GAME — an ON vs OFF arm comparison (from the experience_hint_surfaced hintMode events that 3.3 records) of a recurrence-style outcome, reporting N per arm and an explicit 'not yet significant' until power is reached. Strictly read-only and advisory: writes nothing, files no findings, touches no gate. Running it after the 3.5 backfill (real signatures) is the 're-run learning curve' evidence step.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "experience-layer",
@@ -37,6 +37,14 @@
       "action": "advance",
       "timestamp": "2026-06-18T15:37:02.203Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-18T15:37:11.527Z",
+      "branch": "story/B-c06a",
       "user": "Harmonygo",
       "agent": "main"
     }
