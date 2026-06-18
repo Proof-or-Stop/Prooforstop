@@ -44,7 +44,21 @@
         "create": [],
         "test": []
       },
-      "userSees": "✓ CLI gate wording now matches the upstream Authority contract."
+      "userSees": "✓ CLI gate wording now matches the upstream Authority contract.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/authority-client.ts",
+          "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
+          "result": "pass",
+          "note": "Valid gate-capable inputs still produce signed job-create envelopes and completions as before.",
+          "headHash": "806c5443864f0f91da689b202fc6df968bb790d8",
+          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
+          "timestamp": "2026-06-18T20:48:12.315Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
