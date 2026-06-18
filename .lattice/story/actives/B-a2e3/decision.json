@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Advisory and read-only: the instrument reports, it never writes, files findings, or touches a gate.",
+    "Pure-leaf isolation: validity logic is computation over injected data (fileExists), zero I/O in the leaf.",
+    "Determinism preserved: no change to localSignature, signalScore, promptHash, or any gated material.",
+    "Honest metric: valid-rate uses an anchored-only denominator and reports unanchored separately so it is not diluted.",
+    "Minimal blast radius: reuse existing derivation + store ports; add no new persisted state."
+  ],
+  "drivers": [
+    "Must not affect determinism, scoring, or any gate (Experience Layer is advisory by design).",
+    "Must be re-runnable on live finding history without persisting anything.",
+    "Result must be comparable to Baseline A's finding-level 8% drift number."
+  ],
+  "options": [
+    {
+      "name": "Read-only derive-then-validate CLI",
+      "pros": [
+        "No dependency on a persisted signals cache — always reflects current findings + HEAD.",
+        "Zero gate/determinism risk: derives without projectRoot (no write), checks anchors, prints.",
+        "Smallest surface: reuses deriveFindingSignalsFromStore and the recall.ts read-only pattern."
+      ],
+      "cons": [
+        "Recomputes signals on each run (acceptable: the data set is small and this is an out-of-band instrument)."
+      ]
+    },
+    {
+      "name": "Persist validity flags + auto-demote stale signals",
+      "pros": [
+        "Surfaced signals could self-filter stale entries without a separate command."
+      ],
+      "cons": [
+        "Introduces a write path and auto-demotion — explicitly out of scope for this story.",
+        "Determinism/gate risk if the cache feeds any scored surface.",
+        "Premature before forward confirmation-HEAD capture exists."
+      ]
+    },
+    {
+      "name": "Blob-equality unchanged-since-confirmation tier",
+      "pros": [
+        "Stronger validity: detects a file that still exists but was rewritten since the finding was confirmed."
+      ],
+      "cons": [
+        "Needs forward capture of the confirmation HEAD on each finding — touches the finding write path.",
+        "Cannot be computed from existing data; belongs to the later forward-capture story."
+      ]
+    }
+  ],
+  "chosen": "Read-only derive-then-validate CLI",
+  "rationale": "The read-only derive-then-validate path delivers the valid-rate/drift instrument with zero gate, scoring, or write-path risk, is always current because it recomputes from live findings and HEAD, and is directly comparable to Baseline A. The persisted/auto-demote and blob-equality options add write paths or forward-capture requirements that are explicitly out of this conservative story's scope.",
+  "preMortem": [
+    {
+      "scenario": "The re-validation leaf stops being pure.",
+      "trigger": "A developer imports fs or child_process (git) into core/experience-revalidation.ts to check files directly instead of using the injected fileExists predicate.",
+      "consequence": "Pure-leaf isolation and hermetic testability break; the leaf becomes environment-dependent and non-deterministic.",
+      "mitigation": "fileExists is an injected parameter; the verifier statically asserts the leaf imports only ./experience-layer-types.js, and the hermetic smoke drives it with a stub predicate (no real fs)."
+    },
+    {
+      "scenario": "valid-rate is misleadingly low or high.",
+      "trigger": "Signals with no anchorFiles (unanchored) are counted in the denominator, or a partially-stale signal is marked stale.",
+      "consequence": "The drift number is not comparable to Baseline A and over/under-states staleness.",
+      "mitigation": "Denominator is anchored-only with unanchored reported separately; a signal is stale only when ALL anchors are gone; the smoke asserts exact validRate/driftRate on a fixed fixture."
+    },
+    {
+      "scenario": "The handler accidentally writes state or touches a gate.",
+      "trigger": "Passing projectRoot to deriveFindingSignalsFromStore (persists the cache) or calling a finding/gate API from the handler.",
+      "consequence": "Violates the read-only contract, pollutes .lattice/learning, or perturbs a gate.",
+      "mitigation": "Derive WITHOUT projectRoot; no finding/gate APIs are imported; the verifier greps the handler for write/finding/gate calls and the story mirrors the recall.ts read-only handler."
+    },
+    {
+      "scenario": "git HEAD is unavailable (empty/detached repo or non-git cwd).",
+      "trigger": "`git ls-tree -r --name-only -z HEAD` fails because there is no HEAD.",
+      "consequence": "The command throws instead of degrading.",
+      "mitigation": "Wrap the git call in try/catch returning an empty file set (mirroring currentMaterialHash returning undefined); the report then shows 0 anchored-live and a clear note rather than crashing."
+    }
+  ],
+  "timestamp": "2026-06-17T23:46:26.587Z"
+}
