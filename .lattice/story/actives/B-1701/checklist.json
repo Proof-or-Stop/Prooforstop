@@ -237,9 +237,9 @@
         "docs/guide.md",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T21:44:57.029Z",
       "userSees": "User sees the docs explain one default bundle, one explicit senior variant, and the legacy alias path in the same flow.",
       "files": {
         "modify": [
@@ -276,7 +276,40 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "npm run test:docs-drift-smoke",
+          "result": "pass",
+          "note": "README and guide now explain the generated bundle handoff versus live runner variables.",
+          "headHash": "168f046cb138bd943b9c7ecb981a095ce5c82ddd",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T21:44:57.181Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "TypeScript build succeeded after updating the authority status note and docs.",
+          "headHash": "168f046cb138bd943b9c7ecb981a095ce5c82ddd",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T21:44:57.298Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js && node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Authority status smoke covered the new bundle-handoff hint, and bundle round-trip smoke still passed for basic and senior bundles.",
+          "headHash": "168f046cb138bd943b9c7ecb981a095ce5c82ddd",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T21:44:57.420Z"
+        }
+      ]
     }
   ],
   "auditLog": [
