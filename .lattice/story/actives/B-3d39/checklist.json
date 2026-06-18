@@ -92,6 +92,17 @@
           "headHash": "71a36a587e6613bce84b9c9a22ff85c7c4bf6a92",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:41:47.524Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build 2>&1 | grep -cE 'error TS'",
+          "result": "pass",
+          "note": "Returns 0 — typechecks clean.",
+          "headHash": "bcf32a2fe22dead057baeb4678ec052ff03c2b3e",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:48.749Z"
         }
       ]
     },
