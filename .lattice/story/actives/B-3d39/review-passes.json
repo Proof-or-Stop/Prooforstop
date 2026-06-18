@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-18T14:52:07.514Z",
       "reviewRunId": "B-3d39:RR-003",
       "_hash": "c9e137c7d1bb4b83cf9d2ccbf9a8e8783c84d01dc13f018c46585c147e785b01"
+    },
+    {
+      "id": "B-3d39:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. No concept deleted or replaced en masse in this diff; focus was on consistency and stale-reference detection. Findings: (1) The old misleading doc-comment (\"JS is single-threaded, so two critical sections can only interleave by direct function nesting\") that was the root cause is fully replaced in main-write-lock.ts — verified absent at production source. background.md references it correctly as the historical wrong assumption, not as active guidance. (2) All three bare heldLockPaths.has(lockKey) reentrancy decision points are now correctly paired with && currentContextOwns(lockKey) — lines 361 and 436. The third usage (line 387, isMainWriteLockHeldInProcess) is intentionally left bare as it is a pure presence query, not a reentrancy decision. (3) runWithMainWriteLockContext is consistently named at its definition (main-write-lock.ts:485), its import in transition-orchestrator.ts, its import in main-write-lock-smoke.ts, and all call sites (201, 267, 276). No spelling drift. (4) doc-promise-undelivered scan: CHANGELOG promises lockOwnerStore ALS, currentContextOwns predicate, runWithMainWriteLockContext helper, transition-orchestrator.ts DONE wrap, section 9 interleave smoke, @koala-agent/core candidate — all verified present in delivered code. Plan names a private working symbol currentAlsContextOwns; delivered as currentContextOwns (non-exported private helper — not a public contract; no doc promise to users). Plan references main-write-lock-coverage.ts for test; delivered in main-write-lock-smoke.ts — CHANGELOG correctly names the smoke file, so no external promise is broken. 0 findings.",
+      "createdAt": "2026-06-18T14:58:33.554Z",
+      "reviewRound": "2026-06-18T14:52:07.514Z",
+      "reviewRunId": "B-3d39:RR-005",
+      "_hash": "2584b7b9ce4d3d25116cbd7e50478a94f9f830f9eac7a4b001a9e9c792e496f7"
     }
   ]
 }
