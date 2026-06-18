@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1a12",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a regression smoke that builds a main repo + an existing worktree, runs the INIT_CHECK bootstrap for a NEW story from the existing worktree cwd, and asserts the new worktree is created at <main>/.worktrees/B-new and NOT nested; also asserts byte-identical creation from the main repo cwd; wire it into the root npm test validate battery",
+    "Clean the last stale .koala/dev-memory reference (-> .lattice/dev-memory) in docs/requirements/decisions/lattice-parallel-wave.md",
+    "Fix the INIT_CHECK bootstrap root resolution in packages/main/src/handlers/worktree.ts so it returns the MAIN repo root (via git rev-parse --git-common-dir) even when invoked from a linked worktree cwd, without breaking getRepoRoot non-bootstrap callers or the configured-gitRoot branch"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Correctness fix: resolver bug producing nested .worktrees. Scope strictly limited to worktree.ts bootstrap root resolution + regression smoke + one doc line. No broader worktree lifecycle, no PLAN+ cwd gate, no already-fixed gitRoot sites (B-2856/B-6666/B-75f0), no signature salt changes. Plain/main-repo behavior must stay byte-identical.",
+  "createdAt": "2026-06-18T19:06:13.094Z",
+  "updatedAt": "2026-06-18T19:06:13.094Z",
+  "_hash": "7e2d783febe59177a4ddb49e6276f7164dd1788139cfcc41306fd2c5dc44472d"
+}
