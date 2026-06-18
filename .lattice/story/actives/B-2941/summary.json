@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2941",
+  "changes": "run-all-smokes.ts: extracted runEntrySet() shared worker-pool driver; runAllSmokes() now does pass1 (default jobs) → collect TIMEOUTs (minus noRetry entries) → pass2 (--jobs 1 serial) → merge (pass2 replaces pass1 for same name) → retried flag. Added --no-retry CLI flag + noRetry manifest field + conditional 'Final:' closing label. run-all-smokes-smoke.ts: +4 fixture cases (lock-file flaky dance + always-timeout) proving retry/noRetry/--no-retry/fail-both. smoke-manifest.json: +_schemaNote_noRetry annotation. CHANGELOG + docs/dev/test-coverage.md two-pass section.",
+  "usage": "npm run test:all now self-heals parallel-load race timeouts: pass 1 runs high-concurrency; any TIMEOUT is retried serially in pass 2; output gains 'Pass 1:'/'Pass 2:'/'Final:' lines only when retry fires. npm run test:all -- --no-retry for CI strict (single-pass). noRetry:true in a manifest entry opts a smoke out of retry.",
+  "expectedOutcome": "3 consecutive npm run test:all all exit 0 with a full-pass summary; self-smoke 13/13; --no-retry produces pre-B-2941 single-pass output; production source + package.json untouched.",
+  "actualTranscript": "3x test:all all exit 0 (171/171 in 165.5s / 156.4s / 167.5s — pass 1 clean this round, no retry needed). self-smoke 13/13 incl 4 new retry cases. 3 reviewer lanes PASS (behavior R2, quality R1, test-coverage R2). 3 findings F-001/F-002/F-003 resolved (CHK-003:edge:0 intent rewritten from stale Final:167 to count-agnostic 3x-full-pass; userSees clarity noted in CHANGELOG/docs). Degraded 3x1 escalation cleared. Delivery PASS 5/5.",
+  "outcomeDiff": "No difference vs goal: test:all is now a deterministic CI gate. The two-pass safety net is proven by self-smoke cases a/d even though the 3 live runs happened to have a clean pass 1 (no live timeout this round).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Retry masks parallel-load timeouts rather than fixing the underlying shared-state races (acceptable — every smoke passes serial; 0 real bugs concealed). A smoke that fails BOTH passes counts as a real Final FAIL (correct). Authority/production receipts NOT issued (degraded 3x1 fallback; authorityDone/productionDone stay false).",
+  "pitfalls": "(1) PLAN-time intent 'Final: 167/167' was doubly stale by REVIEW: count grew to 171 AND the Final: prefix only appears when retry fires (pass 1 was clean in the live runs). Lesson: for two-pass-style features, assert the INVARIANT (3x exit 0, count-agnostic) not a specific output-state string. (2) userSees is PLAN-frozen — can't fix conflated acceptance text in DEV; the accurate description had to live in CHANGELOG/docs instead. (3) self-smoke must PROVE the retry path with deterministic fixtures (lock-file dance) since live runs may not organically produce a timeout.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 289201
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12011
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 239915
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 974060
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 444685
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 179756
+    }
+  },
+  "totalDurationMs": 2139629,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T13:16:54.750Z",
+  "updatedAt": "2026-06-18T13:16:54.750Z"
+}

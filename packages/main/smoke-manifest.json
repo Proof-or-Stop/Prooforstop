@@ -476,5 +476,6 @@
       "name": "experience-layer-digest-extract",
       "timeoutMs": 180000
     }
-  ]
+  ],
+  "_schemaNote_noRetry": "B-2941: ManifestEntry.noRetry?:boolean (default false). When true, smoke is NOT retried in pass 2 even if timed out in pass 1. Reserved escape hatch."
 }

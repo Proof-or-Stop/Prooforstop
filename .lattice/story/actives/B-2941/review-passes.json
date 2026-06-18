@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-2941:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed 4 changed code/doc files (run-all-smokes.ts, run-all-smokes-smoke.ts, smoke-manifest.json, CHANGELOG.md, docs/dev/test-coverage.md). Dead code: none — passLabel param used for pass-2 prefix; retried flag threaded correctly through both return paths. Type safety: ManifestEntry.noRetry?, RunOptions.noRetry, and return type retried:boolean all consistent; no as-any or empty catch. I/O isolation: bridge.ts not present in this project, check N/A. Pass 1 behavior preservation: runEntrySet with passLabel=undefined produces byte-identical output to the old inline loop (prefix is empty string). Fixture test ordering: case (10) correctly depends on case (8) consuming the lockA — sequential spawnSync guarantees ordering. noRetry short-circuit path: retryEntries empty → early return with retried:false → closingLabel is empty → Final: not in output; case (9) assertion is correct. Doc counts: CHANGELOG 167 references are historical B-be91 run data not a current count claim; test-coverage.md line-41 139-smoke count is pre-existing staleness not introduced by this diff. No findings.",
+      "createdAt": "2026-06-18T13:08:27.653Z",
+      "reviewRound": "2026-06-18T13:05:32.603Z",
+      "reviewRunId": "B-2941:RR-002",
+      "_hash": "80bef2a797f3c883e4b36e36012dc36d989c9775dbcbb06b74f484d7b5ea39a5"
+    },
+    {
+      "id": "B-2941:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-review CLEAN. CHK-003:edge:0 rewrite verified honest: the intent now asserts a count-agnostic full-pass summary line (grep -qE passed-in) and explicitly documents that no Final: prefix appeared because pass 1 was clean all 3 runs (171/171). Code path confirmed: retryEntries.length===0 returns retried:false -> closingLabel= -> no Final: prefix. Two-pass retry safety net correctly attributed to self-smoke a/b/c/d (CHK-002) not to live runs. All prior behavioral checks (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial, CHK-003 happy/adversarial) remain verified from RR-003. No new findings. Zero blockers.",
+      "createdAt": "2026-06-18T13:12:04.026Z",
+      "reviewRound": "2026-06-18T13:10:19.172Z",
+      "reviewRunId": "B-2941:RR-004",
+      "_hash": "db675c26a236cded26f4bdd694c292cd91965e8d4606518023171d7dd3f84148"
+    },
+    {
+      "id": "B-2941:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 20 verificationIntents (must + should) have valid verificationEvidence with commands that literally match the intent descriptions; CHK-003:edge:0 intent was rewritten in DEV round 2 to be count-agnostic (grep passed-in) and the evidence command matches exactly; live re-execution of all 20 intent commands in round 2 confirms correct outputs; no blockers.",
+      "createdAt": "2026-06-18T13:12:22.953Z",
+      "reviewRound": "2026-06-18T13:10:19.172Z",
+      "reviewRunId": "B-2941:RR-005",
+      "_hash": "b08ab75c7ea8264dd8aabada21c2e51a9a5f0f3e24a0741ff77cf9e75a0d33e6"
+    }
+  ]
+}
