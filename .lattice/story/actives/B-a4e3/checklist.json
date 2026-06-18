@@ -287,7 +287,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep name: story_dispatch/finding_dispatch cli-engine.ts; lattice dispatch",
+          "result": "pass",
+          "note": "finding_dispatch + story_dispatch removed from cli-engine registry, command-policy, story-dispatch handler methods, process-fact-levels, config DEFAULT_PHASE_TOOLS; unified lattice dispatch is the only dispatch entry (still produces a prompt). FINDING: the deprecated-gc advisory count does NOT drop (stays 22) — the alias deprecation markers were markdown prose **deprecated in B-9d95** NOT @deprecated JSDoc tags, and all 22 @deprecated are legacy-JSON-compat KEEP fields; there were no dead @deprecated FIELDS to GC, only the dead CLI aliases. Commit 0c208c1f3.",
+          "headHash": "70f5ac6f02044ec80b5a6e3f0bb75c7fb371e418",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:59.766Z"
+        }
+      ]
     }
   ]
 }
