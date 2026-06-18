@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T13:35:38.436Z",
       "reviewRunId": "B-5d48:RR-004",
       "_hash": "e630d11216a7fab644514e22ef9ddce0422c30d95289bc475a0110e9b74fb824"
+    },
+    {
+      "id": "B-5d48:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. F-002 (stale comment at finding.ts line 283 claiming omitted signatureTag => unchanged legacy behavior) is confirmed RESOLVED: line 283 now reads omitted => auto-derived candidate, see B-5d48 below, consistent with the new auto-candidate behavior. All other unchanged legacy behavior occurrences in finding.ts (lines 464, 501) describe the finding_resolve / finding_dismiss enum paths, which were not changed by this story and remain accurate. The diff is additive: new signature-candidate.ts leaf (LEAF, zero outward imports), SignatureTagSource type in experience-layer-types.ts, signatureTagSource field on Finding in types.ts, finding_add wiring in handlers/finding.ts (suppliedTag / signatureTagSource / auto-fallback via deriveSignatureCandidate + resolveTag), enums-smoke updated to assert auto-candidate contract, new experience-layer-signature-capture-smoke.ts with full leaf+wiring+CRITICAL-_hash-invariance coverage, and package.json test script pointing to the new smoke. No dangling refs, no half-updated concepts, no doc-promise-undelivered (README/CLAUDE.md untouched). No gate-consuming use of signatureTagSource detected anywhere. Zero findings registered this round.",
+      "createdAt": "2026-06-18T13:52:30.566Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-005",
+      "_hash": "94314eaa825c0ea3eb6482c7f822351dd003e77b2ec2badf79245c8f45b6af85"
     }
   ]
 }
