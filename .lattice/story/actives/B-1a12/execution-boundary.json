@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1a12",
+  "allowedCommands": [
+    "lattice validate",
+    "node scripts/verify-init-check-bootstrap.mjs",
+    "node scripts/verify-nested-worktree-bootstrap.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "lattice-implementer"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "package.json",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/nested-worktree-bootstrap-smoke.ts",
+    "scripts/verify-init-check-bootstrap.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Production change expected: the bootstrap main-root resolver fix in worktree.ts. Regression smoke is either a new scripts/verify-nested-worktree-bootstrap.mjs (modeled on verify-init-check-bootstrap.mjs) or an extension to the existing one; package.json gets the test:* wiring chained into the root test battery. Keep plain/main-repo behavior byte-identical. Do NOT touch getRepoRoot non-bootstrap callers.",
+  "createdAt": "2026-06-18T19:06:21.279Z",
+  "updatedAt": "2026-06-18T19:06:21.279Z",
+  "_hash": "b71ac0dab7875759380c1be2143a865341f7363af91748513dedf11371ca22c6"
+}
