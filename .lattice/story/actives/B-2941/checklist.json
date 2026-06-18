@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Two-pass retry in run-all-smokes.ts: pass 1 default jobs, pass 2 serial retry for timeouts",
+      "context": "Un-freeze packages/main/src/tasks/run-all-smokes.ts narrowly to add a second execution pass. After pass 1 collects results, compute the set of timeouts (status=TIMEOUT, excluding any smoke with manifest noRetry=true). If empty -> exit with pass 1 result (today behavior). Else log Pass 1 summary + retrying serially..., re-spawn the runner workers with --jobs 1 forced for the timeout subset only. Aggregate final result: smokes in passOnRetry count toward Final passed; smokes that fail BOTH passes count toward Final failed. Add --no-retry CLI flag for CI strict mode (skip pass 2 entirely; today behavior). Worker pool, manifest reader, CLI flag parser otherwise untouched.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Smoke manifest schema: noRetry? optional field + add to run-all-smokes-smoke",
+      "context": "Add optional boolean field noRetry to smoke-manifest.json entries (default false). When true, the smoke is NOT retried in pass 2 even if it timed out. Reserved escape hatch; no entry uses it on initial landing. Update run-all-smokes-smoke.ts with 3-4 new fixture cases proving: (a) pass 1 timeout -> pass 2 retry -> pass; (b) noRetry=true smoke that timed out stays as TIMEOUT in Final; (c) --no-retry CLI flag disables pass 2 entirely; (d) smoke that fails BOTH passes counts as final fail.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "CHANGELOG + docs/dev/test-coverage.md + 3x consecutive test:all verify",
+      "context": "CHANGELOG Unreleased entry under Test infrastructure subsection: describe two-pass retry mechanism + --no-retry flag + noRetry manifest field (none used by default). Update docs/dev/test-coverage.md to note: test:all now runs a second serial retry pass for any smoke that times out in pass 1; expected wall-clock is pass1(~3min) + pass2(~1-3min); --no-retry for CI strict mode. Final verification: 3 consecutive npm run test:all all exit 0 with 167/167 (or whatever current total) PASS Final — including the previously-flaky review-pass-discard / field-regression-cli / verification-freshness / worktree-repair smokes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
