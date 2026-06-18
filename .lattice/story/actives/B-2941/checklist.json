@@ -63,9 +63,9 @@
       "id": "CHK-002",
       "title": "Smoke manifest schema: noRetry? optional field + add to run-all-smokes-smoke",
       "context": "Add optional boolean field noRetry to smoke-manifest.json entries (default false). When true, the smoke is NOT retried in pass 2 even if it timed out. Reserved escape hatch; no entry uses it on initial landing. Update run-all-smokes-smoke.ts with 3-4 new fixture cases proving: (a) pass 1 timeout -> pass 2 retry -> pass; (b) noRetry=true smoke that timed out stays as TIMEOUT in Final; (c) --no-retry CLI flag disables pass 2 entirely; (d) smoke that fails BOTH passes counts as final fail.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T12:53:09.665Z",
-      "endTime": null,
+      "endTime": "2026-06-18T12:55:01.573Z",
       "userSees": "`grep noRetry packages/main/smoke-manifest.json` shows the schema is aware. `node packages/main/dist/tasks/run-all-smokes-smoke.js` shows N/N checks passed (N >= 12).",
       "files": {
         "modify": [
