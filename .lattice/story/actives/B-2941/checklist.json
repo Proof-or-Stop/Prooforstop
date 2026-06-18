@@ -375,6 +375,17 @@
           "headHash": "79055cc0fa1d9d553e6e79170296744399af36af",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:25.402Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -h 'passed in' /tmp/b-2941-r1.log /tmp/b-2941-r2.log /tmp/b-2941-r3.log | grep -c 'passed in'",
+          "result": "pass",
+          "note": "Returns 3 — all 3 runs ended with a passed-in summary line, all 171/171 exit 0. (Test count is currently 171 not 167; the discovery set grew since PLAN. All 3 runs full-pass — pass 1 itself was clean this round, and the two-pass retry safety net is proven by self-smoke cases a/b/c/d regardless.)",
+          "headHash": "e4859f475aab3715f86f617ab9356334ab719bdd",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:25.988Z"
         }
       ]
     }
