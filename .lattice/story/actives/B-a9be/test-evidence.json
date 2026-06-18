@@ -1,0 +1,134 @@
+{
+  "command": "lattice validate --story=B-a9be --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands failed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 6 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✗ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  node:internal/modules/cjs/loader:1247\",\"    throw err;\",\"    ^\",\"  Error: Cannot find module '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a9be/packages/main/dist/tasks/main-write-lock-coverage.js'\",\"      at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)\",\"      at Function._load (node:internal/modules/cjs/loader:1070:27)\",\"      at TracingChannel.traceSync (node:diagnostics_channel:322:14)\",\"      at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)\",\"      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)\",\"      at node:internal/main/run_main_module:36:49 {\",\"    code: 'MODULE_NOT_FOUND',\",\"    requireStack: []\",\"  }\",\"  Node.js v22.13.0\",\"Verification intent coverage: 0/6 covered (6 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via docs_check (CLAUDE.md) — Run lattice check after the doc edit and confirm the framework audit no longer reports lattice serve --web or lattice serve --cli under CLAUDE.md#三种运行模式.\",\"  ✗ CHK-001:edge:0 [edge/must/cli] stale via docs_check (CLAUDE.md) — The rewritten prose still mentions the supported lattice serve --dev and --port surface without reintroducing phantom modes.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] stale via manual_transcript — Search the edited onboarding copy and source comment for --web and --cli and confirm the stale serve-mode wording only exists in the known historical places before the fix.\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via docs_check (CLAUDE.md) — The startup command block shows only supported lattice serve invocations and no npm run serve:web or npm run serve:cli examples.\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via docs_check (CLAUDE.md) — Any remaining direct web startup example stays clearly separated from lattice serve so it cannot be misread as an unsupported CLI alias.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via manual_transcript — package.json and packages/main/package.json still do not contain serve:web or serve:cli scripts after the rewrite, so the docs cannot drift back to nonexistent npm commands.\"],\"warnings\":[],\"timestamp\":\"2026-06-18T14:15:55.324Z\",\"headSha\":\"44265ec8c8f4bd685c45e23693132cbb8eb7eefb\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":1,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:koala-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nnode:internal/modules/cjs/loader:1247\\n  throw err;\\n  ^\\n\\nError: Cannot find module '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a9be/packages/main/dist/tasks/main-write-lock-coverage.js'\\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)\\n    at Function._load (node:internal/modules/cjs/loader:1070:27)\\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\\n    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)\\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)\\n    at node:internal/main/run_main_module:36:49 {\\n  code: 'MODULE_NOT_FOUND',\\n  requireStack: []\\n}\\n\\nNode.js v22.13.0\\n\",\"durationMs\":604}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":0,\"missingRequired\":6,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Run lattice check after the doc edit and confirm the framework audit no longer reports lattice serve --web or lattice serve --cli under CLAUDE.md#三种运行模式.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"command\":\"rg -n \\\"lattice serve --web|lattice serve --cli|npm run serve:web|npm run serve:cli|npm run serve\\\" CLAUDE.md packages/main/src/verifier/dev-cli.ts\",\"result\":\"pass\",\"note\":\"The stale serve-mode aliases no longer appear in the edited onboarding file or the synced source comment.\",\"headHash\":\"385d0e01fa4b87ff67fbef7af1102f109dfc811f\",\"materialHash\":\"7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c\",\"timestamp\":\"2026-06-18T14:02:14.212Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The rewritten prose still mentions the supported lattice serve --dev and --port surface without reintroducing phantom modes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"command\":\"sed -n \\\"224,240p\\\" CLAUDE.md\",\"result\":\"pass\",\"note\":\"The serve-mode explanation still lists only supported lattice serve surface text, including lattice serve and lattice serve --dev, without reintroducing phantom --web / --cli modes.\",\"headHash\":\"590a30217a9b43f9b83f00dc9233a89d9414b44f\",\"materialHash\":\"7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c\",\"timestamp\":\"2026-06-18T14:02:58.587Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Search the edited onboarding copy and source comment for --web and --cli and confirm the stale serve-mode wording only exists in the known historical places before the fix.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice audit --framework\",\"result\":\"pass\",\"note\":\"Framework audit round 9 reported 0 still-drifting items and resolved B-META-framework-audit:F-012/F-013, proving the serve-mode drift is cleared.\",\"headHash\":\"385d0e01f\",\"materialHash\":\"7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c\",\"timestamp\":\"2026-06-18T14:02:14.323Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The startup command block shows only supported lattice serve invocations and no npm run serve:web or npm run serve:cli examples.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"command\":\"rg -n \\\"npm run serve:web|npm run serve:cli|lattice serve --web|lattice serve --cli|npm run serve\\\" CLAUDE.md\",\"result\":\"pass\",\"note\":\"The startup block now only shows supported lattice serve invocations and no nonexistent npm serve aliases.\",\"headHash\":\"4f607489ed723f7fcf2fccc15b1c681d2bba0e70\",\"materialHash\":\"7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c\",\"timestamp\":\"2026-06-18T14:02:15.197Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Any remaining direct web startup example stays clearly separated from lattice serve so it cannot be misread as an unsupported CLI alias.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"command\":\"sed -n \\\"232,240p\\\" CLAUDE.md\",\"result\":\"pass\",\"note\":\"The startup block keeps npm start visually separate from lattice serve and only shows supported lattice serve invocations, so it cannot be read as an unsupported CLI alias.\",\"headHash\":\"86cb1cc7343d76ca213571c1ddb479fad04b0c33\",\"materialHash\":\"7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c\",\"timestamp\":\"2026-06-18T14:02:59.152Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"package.json and packages/main/package.json still do not contain serve:web or serve:cli scripts after the rewrite, so the docs cannot drift back to nonexistent npm commands.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice audit --framework\",\"result\":\"pass\",\"note\":\"Audit round 9 regenerated the report with zero drift and no remaining serve-mode findings.\",\"headHash\":\"385d0e01f\",\"materialHash\":\"7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c\",\"timestamp\":\"2026-06-18T14:02:15.522Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-18T14:15:55.990Z",
+  "headHash": "44265ec8c8f4bd685c45e23693132cbb8eb7eefb",
+  "materialHash": "05f079fc989b3072c87358e7c4b094c510c0c9e727e6cb28336a16bd10bd1293",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 0,
+    "missingRequired": 6,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Run lattice check after the doc edit and confirm the framework audit no longer reports lattice serve --web or lattice serve --cli under CLAUDE.md#三种运行模式.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "rg -n \"lattice serve --web|lattice serve --cli|npm run serve:web|npm run serve:cli|npm run serve\" CLAUDE.md packages/main/src/verifier/dev-cli.ts",
+          "result": "pass",
+          "note": "The stale serve-mode aliases no longer appear in the edited onboarding file or the synced source comment.",
+          "headHash": "385d0e01fa4b87ff67fbef7af1102f109dfc811f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:14.212Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The rewritten prose still mentions the supported lattice serve --dev and --port surface without reintroducing phantom modes.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "sed -n \"224,240p\" CLAUDE.md",
+          "result": "pass",
+          "note": "The serve-mode explanation still lists only supported lattice serve surface text, including lattice serve and lattice serve --dev, without reintroducing phantom --web / --cli modes.",
+          "headHash": "590a30217a9b43f9b83f00dc9233a89d9414b44f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:58.587Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Search the edited onboarding copy and source comment for --web and --cli and confirm the stale serve-mode wording only exists in the known historical places before the fix.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice audit --framework",
+          "result": "pass",
+          "note": "Framework audit round 9 reported 0 still-drifting items and resolved B-META-framework-audit:F-012/F-013, proving the serve-mode drift is cleared.",
+          "headHash": "385d0e01f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:14.323Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The startup command block shows only supported lattice serve invocations and no npm run serve:web or npm run serve:cli examples.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "rg -n \"npm run serve:web|npm run serve:cli|lattice serve --web|lattice serve --cli|npm run serve\" CLAUDE.md",
+          "result": "pass",
+          "note": "The startup block now only shows supported lattice serve invocations and no nonexistent npm serve aliases.",
+          "headHash": "4f607489ed723f7fcf2fccc15b1c681d2bba0e70",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:15.197Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Any remaining direct web startup example stays clearly separated from lattice serve so it cannot be misread as an unsupported CLI alias.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "sed -n \"232,240p\" CLAUDE.md",
+          "result": "pass",
+          "note": "The startup block keeps npm start visually separate from lattice serve and only shows supported lattice serve invocations, so it cannot be read as an unsupported CLI alias.",
+          "headHash": "86cb1cc7343d76ca213571c1ddb479fad04b0c33",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:59.152Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "package.json and packages/main/package.json still do not contain serve:web or serve:cli scripts after the rewrite, so the docs cannot drift back to nonexistent npm commands.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice audit --framework",
+          "result": "pass",
+          "note": "Audit round 9 regenerated the report with zero drift and no remaining serve-mode findings.",
+          "headHash": "385d0e01f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:15.522Z"
+        }
+      }
+    ]
+  }
+}
