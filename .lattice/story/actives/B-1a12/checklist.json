@@ -35,6 +35,18 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts",
+          "package.json"
+        ],
+        "create": [
+          "scripts/verify-nested-worktree-bootstrap.mjs"
+        ],
+        "test": [
+          "scripts/verify-nested-worktree-bootstrap.mjs"
+        ]
       }
     },
     {
