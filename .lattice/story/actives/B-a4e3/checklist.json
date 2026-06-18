@@ -223,7 +223,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "grep -n .koala/ CLAUDE.md; grep .lattice/audit-config CLAUDE.md",
+          "result": "pass",
+          "note": "grep .koala/ returns 0; the 5 runtime-path refs (lines 37,71,95,99,410) now say .lattice/audit-config.json / .lattice/activity.jsonl / .lattice/locks/main-write.lock; 5 .lattice path hits. Commit e1b3ecbf6. docs-drift gate verified at REVIEW preflight.",
+          "headHash": "8ffbe2977d9a3a641f0512e4e55f573aec003c3c",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:41.867Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
