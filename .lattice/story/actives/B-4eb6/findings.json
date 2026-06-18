@@ -16,6 +16,24 @@
         "packages/main/src/handlers/learning-scan.ts",
         "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts"
       ]
+    },
+    {
+      "id": "B-4eb6:F-002",
+      "desc": "CHK-002:adversarial:0/1/2 evidence provides static positive assertions where the intents require mutation-style adversarial validation (\"Temporarily add/remove/set X -> run tests -> expect failure\"). The verify-b-4eb6.mjs verifier only checks that the current state is correct (notInReadOnly, levelEntry present, ownershipClass=mainSharedMutating) via grep/regex; it does not perform any temporary modification of source files, run the test suite against the mutant, and confirm a failure. Static forward-only checks prove the happy state but do not prove the test infrastructure would catch a regression. The process-fact-contract suite provides indirect long-term protection, but the three mutation test scenarios (adv:0 READ_ONLY add, adv:1 PROCESS_FACT_LEVELS remove, adv:2 ownershipClass flip) are not directly exercised. Either add mutation tests to the verifier, or add waivers per adversarial intent explaining that process-fact-contract is the nominated regression gate and why it is equivalent to the mutation test.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T02:27:42.586Z",
+      "reviewRound": "2026-06-18T02:22:16.644Z",
+      "reviewRunId": "B-4eb6:RR-002",
+      "_hash": "817e6f759022e222a6fe46c28a2d20d0d2fe8bc59e349679d3aede298a7993b0",
+      "files": [
+        ".lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ]
     }
   ]
 }
