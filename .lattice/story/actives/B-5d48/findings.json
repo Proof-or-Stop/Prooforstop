@@ -110,7 +110,7 @@
       "desc": "CHK-003:adversarial:2 — intent requires verifier catches a deliberately broken build (signatureTagSource added to signFinding args) and reports FAIL > 0; bound evidence is npm --prefix packages/main run test:experience-layer-signature-capture which only exercises the positive path (15/15 pass). Neither the smoke test nor verify-b-5d48.mjs contains any broken-build injection logic. The verifier has no negative/mutation test confirming it would detect the critical regression it is supposed to catch.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T13:41:02.965Z",
@@ -122,7 +122,11 @@
         "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts"
       ],
       "signatureTag": "missing|mjs|adversarial-intent-requires",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verifier negative self-test exclusionCheckHasTeeth=true bound to CHK-003:adversarial:2 (commit f0936cbb2)",
+      "resolvedAt": "2026-06-18T13:50:36.138Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
