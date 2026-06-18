@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-eb8a",
+  "mode": "maintenance",
+  "allowed": [
+    "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+    "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "excluded": [
+    "docs/story/**",
+    "packages/main/src/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to unify annotation compliance / pure typo-only changes into the one-round audit bucket; this story is limited to policy-doc wording only and must not change runtime gate behavior or Authority semantics.",
+  "createdAt": "2026-06-18T10:59:29.397Z",
+  "updatedAt": "2026-06-18T10:59:29.397Z",
+  "_hash": "cf6c7322be78563b4a4239c0eec9fbbe4ff924436d2bc723d600dc51430dbbbc"
+}

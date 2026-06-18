@@ -1,0 +1,49 @@
+{
+  "storyId": "B-eb8a",
+  "name": "audit-round-low-risk-clarification",
+  "title": "Clarify one-round policy for annotation compliance and pure typo",
+  "description": "Unify the audit-round guidance so annotation compliance, pure typo-only, and wording-only changes are explicitly treated as low-risk one-round work. Keep the stronger three-round two-host requirement unchanged for lifecycle, gate, Authority, and process-fact changes.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "audit-rounds",
+    "annotation-compliance",
+    "pure-typo",
+    "two-host-audit",
+    "done-closure",
+    "review-escalation"
+  ],
+  "riskSignals": [
+    {
+      "category": "Compliance/Privacy",
+      "matched": "compliance"
+    }
+  ],
+  "createdAt": "2026-06-18T10:58:22.279Z",
+  "startedAt": "2026-06-18T10:58:22.279Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-18T10:58:22.288Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T11:05:35.684Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-eb8a",
+    "branch": "story/B-eb8a",
+    "createdAt": "2026-06-18T11:05:34.272Z"
+  }
+}

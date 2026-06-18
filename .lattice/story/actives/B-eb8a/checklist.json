@@ -1,0 +1,71 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Clarify the low-risk one-round policy in the canonical decision docs",
+      "context": "Update the central policy wording so annotation compliance / pure typo / wording-only changes are explicitly grouped as low-risk one-round audits without changing the stronger 3-round rule for lifecycle, gate, Authority, or process-fact work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "userSees": "The policy docs now plainly say annotation-compliance and pure typo-only changes are one-round cases, while lifecycle/gate/Authority/process-fact changes still require the stronger three-round path.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The updated docs explicitly classify annotation-compliance and pure typo-only changes as low-risk one-round work, and `lattice convergence_check --json` remains green for annotation compliance.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a doc section still says only wording-only without naming annotation compliance or pure typo, revise the wording rather than changing the audit rule itself.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Do not weaken the three-round requirement for lifecycle, gate, Authority, or process-fact changes, and do not claim Authority Server completion.",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Keep the strong three-round rule intact for high-risk work",
+      "context": "Verify that the updated wording still leaves high-risk lifecycle, gate, Authority, and process-fact changes on the 3-round two-host path and that annotation validation / convergence checks still pass after the doc edits.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "The stronger audit rule is unchanged for high-risk work; the only visible difference is that small annotation or typo cleanups are clearly called out as one-round cases.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the doc edits, the relevant policy text still preserves the 3-round rule for high-risk lifecycle / gate / Authority work, and validation checks remain green.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A document-only policy clarification must not introduce new runtime gate behavior or new Authority evidence semantics.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The verification transcript must not present the docs-only clarification as production or Authority Server proof.",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
