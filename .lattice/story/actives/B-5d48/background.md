@@ -1,0 +1,11 @@
+## Trigger Event
+Baseline A (2026-06-18) proved the Experience Layer's machine-derived signatures are the bottleneck (coarse=vacuous, fine=sparse; learning curve rho=-0.55, explicitly a lower bound due to degraded signatures). The approved forward-A/B-proof design (Work/lattice-Paper/experience-forward-ab-proof-design.md) makes signatureTag capture story 3.2 the fix. finding_add (handlers/finding.ts) already accepts + persists a reviewer-supplied signatureTag (B-4f46, audit-only, excluded from _hash at finding.ts ~line 320), but nothing populates it when the reviewer omits it, and there is no record of whether a tag was human/LLM-confirmed vs machine-guessed.
+
+## Key Insights
+The registry primitives already exist in core/learning-store.ts (resolveTag for alias folding, hasActiveOrProposedTag, aliasSignatureTag) over .lattice/learning/signature-registry.json (materialHash-excluded). This story adds (a) a PURE candidate-derivation function from category/files/desc, and (b) a source flag (auto vs confirmed) on the finding. A mechanical candidate is itself degraded (same family as Baseline A), so it is explicitly a FALLBACK; quality comes from confirmed tags (reviewer/LLM forward, backfill historical). The source flag is what lets learning_scan / the 3.5 backfill distinguish and upgrade them.
+
+## Solution Tradeoffs
+The candidate derivation is a deterministic fallback (category + coarse fileKind + a normalized desc key), NOT an attempt to produce human-quality signatures mechanically. The real fix is keeping the reviewer-supplied (confirmed) path primary and flagging provenance. Both signatureTag and the new signatureTagSource MUST remain audit-only and excluded from the finding _hash / signFinding so no gate or finding signature is perturbed — finding.ts is gate-critical. No change to the finding _hash is the single most important invariant.
+
+## Conversational Texture
+The user locked the sequence 3.2 -> 3.3 -> 3.4 -> 3.5 backfill -> re-run learning curve, understanding that 3.2's auto-candidate is a fallback and the real signal quality comes from confirmed tags (forward via LLM reviewers, historical via the 3.5 LLM-assisted backfill). 3.2 is the capture + provenance foundation the backfill reuses.

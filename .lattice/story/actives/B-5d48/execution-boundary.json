@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5d48",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "lattice-implementer",
+    "node",
+    "npm",
+    "tsc"
+  ],
+  "allowedPaths": [],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-18T13:15:43.661Z",
+  "updatedAt": "2026-06-18T13:15:43.661Z",
+  "_hash": "53c1760d0881559a4b5ef160e2a7f5487f6389b20626e7c05217c7c28c216397"
+}
