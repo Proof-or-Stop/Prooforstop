@@ -10,7 +10,36 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees lattice gap_analyze no longer list decision-doc-promotion-execution-plan.md:174 verificationRequirements as a high-priority uncovered requirement."
+      "userSees": "User sees `lattice gap_analyze --json` omit the high gap `decision-doc-promotion-execution-plan.md:174 verificationRequirements`; if the implementation proof is absent, user sees a B-5155 finding titled `verificationRequirements implementation missing` and this item is not marked done.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`lattice gap_analyze --json` no longer reports the decision-doc-promotion verificationRequirements row after a truthful @task annotation is added to the existing promotion smoke.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If inspection shows preview/save/local quorum separation is not implemented, do not add a coverage annotation; record a real finding and leave the gap visible.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Annotation wording must not claim Authority Server completion; it may only describe existing local promotion coverage and separation from receipt-backed completion.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

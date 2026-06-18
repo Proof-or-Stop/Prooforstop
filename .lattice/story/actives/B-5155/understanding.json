@@ -1,0 +1,27 @@
+{
+  "task": "Resolve the three current high-priority gap_analyze uncovered-requirement reports by binding existing implemented or explicitly future-blocked facts to code annotations.",
+  "outcome": "After the fix, the user runs `lattice gap_analyze --json` and sees `Gaps: 0 high / 0 medium`; `lattice convergence_check` reports `No high-priority gaps: PASS`. If any cited implementation does not actually exist, the user instead sees a recorded B-5155 finding explaining the real missing implementation and the story does not claim the gap is resolved.",
+  "facts": [
+    "gap_analyze currently reports exactly three high uncovered requirements: decision-doc verificationRequirements at line 174, runtime-owned requirementsDir at line 249, and the future/blocked customerKeyRef row at line 257.",
+    "decision-doc-promotion-smoke.ts already exercises verificationRequirements behavior around proposal creation, help text, missing field validation, save output, and local quorum/Authority separation.",
+    "runtime-owned-agent-assets-smoke.ts already exercises runtime-owned prompt asset resolution without project-local prompt config while project config remains the source for structure facts such as requirementsDir.",
+    "unlock-layer4-production-safety-suite.md explicitly keeps customerKeyRef future/blocked and scope-anti-expansion.ts already contains customerKeyRef in the default correctness-fix excluded keyword denylist.",
+    "gap_analyze matches requirement keywords against @task title, description, and changes text, so adding truthful task annotation text is sufficient only when implementation or future/blocked boundary already exists."
+  ],
+  "constraints": [
+    "Do not implement customerKeyRef or the locked production safety suite in this story.",
+    "Do not claim Authority Server, receiptVerified, productionDone, authorityDone, or fullAuthorityDone completion.",
+    "Only fix real correctness issues; if a requirement lacks implementation, record a finding and stop instead of annotating over it.",
+    "Do not optimize arbitrarily; keep the patch to annotation anchors and targeted validation unless gap_analyze proves a real implementation gap.",
+    "Follow consistency of logic between truth docs, code annotations, smoke coverage, local Non-authority evidence, and Authority Server boundaries."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/src/core/scope-anti-expansion.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/gap-analyze.ts"
+  ],
+  "timestamp": "2026-06-18T01:43:14.387Z"
+}
