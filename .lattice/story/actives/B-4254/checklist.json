@@ -49,7 +49,30 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The entrypoint check still ends with entrypoints verified, and it would fail if the old aliases reappear."
+      "userSees": "The entrypoint check still ends with entrypoints verified, and it would fail if the old aliases reappear.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:entrypoints finishes with entrypoints verified after the launcher change; WHY: proves the root smoke still passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The entrypoint check still passes on a clean build with the worktree symlinked node_modules; WHY: keeps the smoke usable in this workspace.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The entrypoint smoke fails if the legacy --web / --cli aliases are reintroduced anywhere in the launcher path; WHY: turns the hidden contract back into a guardrail.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
