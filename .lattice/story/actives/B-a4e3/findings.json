@@ -20,6 +20,25 @@
       ],
       "signatureTag": "missing|md|code-drift-claude",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a4e3:F-002",
+      "desc": "doc-code-drift: packages/main/src/core/config.ts line 12 JSDoc still says `<projectRoot>/.koala/audit-config.json` as the project-level override path. B-a4e3 removed the .koala read fallback in audit-config.ts (confirmed via diff: LEGACY_KOALA_DIR import removed, legacy read path removed), but the JSDoc in config.ts was not updated. Should now read `.lattice/audit-config.json` matching the implementation and the corrected CLAUDE.md.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-18T14:06:47.177Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-005",
+      "_hash": "73d9130d6c35dfb128345a43c9c262f17e2bcfcd9c275d2850791db518ea572d",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/audit-config.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
