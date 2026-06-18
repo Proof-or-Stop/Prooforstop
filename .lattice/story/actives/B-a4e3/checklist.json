@@ -5,9 +5,9 @@
       "title": "Remove the legacy .koala read fallback (LEGACY_KOALA_DIR + the ~6 consumer sites) + update the legacy-read smoke",
       "context": "In core/lattice-paths.ts remove LEGACY_KOALA_DIR and the LEGACY_KOALA_* path constants (LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, etc.), keeping the .lattice (LATTICE_*) constants as the sole canonical paths. Remove the .koala read-fallback branches in the ~6 consumers (audit-config.ts readAuditConfig fallback, rollout-check.ts, cli-engine.ts autopilot-runs + storyDir help text, the dev-memory legacy reader, and any other LEGACY_KOALA_DIR usage — grep LEGACY_KOALA_DIR to find all). Update packages/main/src/tasks/dev-memory-legacy-read-smoke.ts: it currently asserts ~/.koala entries are read with .lattice winning duplicates; change it to assert .koala is NO LONGER read (the fallback is gone) — do NOT just delete the assertion, flip it to prove removal. dev-memory is already migrated to ~/.lattice so no data is lost. DO NOT touch any koala-*-integrity-v1 salt. Verify test:koala-residue + the dev-memory smoke + tsc all green.",
       "userSees": "Reading + writing story metadata, dev-memory, audit-config, autopilot-runs etc. uses ONLY .lattice/; .koala/ is no longer read anywhere (grep LEGACY_KOALA_DIR returns nothing); the legacy-read smoke now proves .koala is not read; the koala-residue gate stays green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T13:46:52.503Z",
       "verificationIntent": {
         "happy": [
           {
