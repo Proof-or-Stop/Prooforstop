@@ -4,7 +4,7 @@
   "title": "Mirror upstream gate-actor policy in CLI job-create",
   "description": "This is the downstream CLI follow-up to the Authority server contract change. Update authority-client role checks, failure text, and CLI-facing docs so the CLI mirrors the upstream gate-actor vocabulary without widening the allowed role set or introducing new environment tiers.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "mac_ui",
@@ -49,11 +49,20 @@
       "branch": "story/B-f14a",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-18T20:48:38.502Z",
+      "branch": "story/B-f14a",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-f14a",
     "branch": "story/B-f14a",
     "createdAt": "2026-06-18T20:26:11.733Z"
-  }
+  },
+  "currentReviewRound": "2026-06-18T20:48:38.502Z"
 }
