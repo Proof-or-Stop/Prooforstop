@@ -61,9 +61,21 @@
       "id": "CHK-004",
       "title": "Smoke test: config field + scanDeprecated + advisory wiring",
       "context": "New smoke test packages/main/src/tasks/deprecated-gc-smoke.ts: (1) resolveAuditConfig returns deprecatedGcThreshold=10 by default; (2) scanDeprecated on real repo returns count>=0 without throwing; (3) with mocked count > threshold, hint includes deprecated advisory; (4) with count <= threshold, no advisory appended.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T00:38:46.771Z",
-      "endTime": null
+      "endTime": "2026-06-18T00:39:47.904Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/deprecated-gc-smoke.js",
+          "result": "pass",
+          "note": "All 5 tests pass: (1) default threshold=10, (2) config override to 5, (3) scanDeprecated on real repo returns count=20 files=5 without throwing, (4) advisory appears when count=12 > threshold=10, (5) advisory absent when count=7 <= threshold=10. Committed 79a8a02b6.",
+          "headHash": "79a8a02b665b69312f5dec625e78c630e9563709",
+          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
+          "timestamp": "2026-06-18T00:39:48.124Z"
+        }
+      ]
     }
   ]
 }
