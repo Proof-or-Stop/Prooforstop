@@ -113,9 +113,9 @@
       "id": "CHK-003",
       "title": "CHANGELOG + docs/dev/test-coverage.md + 3x consecutive test:all verify",
       "context": "CHANGELOG Unreleased entry under Test infrastructure subsection: describe two-pass retry mechanism + --no-retry flag + noRetry manifest field (none used by default). Update docs/dev/test-coverage.md to note: test:all now runs a second serial retry pass for any smoke that times out in pass 1; expected wall-clock is pass1(~3min) + pass2(~1-3min); --no-retry for CI strict mode. Final verification: 3 consecutive npm run test:all all exit 0 with 167/167 (or whatever current total) PASS Final — including the previously-flaky review-pass-discard / field-regression-cli / verification-freshness / worktree-repair smokes.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T12:55:02.274Z",
-      "endTime": null,
+      "endTime": "2026-06-18T13:05:14.222Z",
       "userSees": "`grep -A5 Unreleased CHANGELOG.md` shows the B-2941 bullet describing two-pass. 3× consecutive npm run test:all all end 'Final: 167/167 passed' exit 0.",
       "files": {
         "modify": [
