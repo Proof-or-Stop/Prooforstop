@@ -22,6 +22,7 @@
  * by the literal `done-main-merge.lock` name).
  */
 
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { hostname } from 'os';
 import { join } from 'path';
 import {
@@ -255,15 +256,14 @@ export function withMainWriteLock<T>(
 
 /**
  * Process-level set of `mainRepoRoot` paths whose main write lock is currently
- * held by THIS process inside a `withReentrantMainWriteLock` critical section.
+ * held by THIS process inside a reentrant main-write critical section.
  *
- * The on-disk mkdir lock is a cross-PROCESS mutex. Within a single Node process
- * JS is single-threaded, so two critical sections can only interleave by direct
- * function nesting (e.g. the DONE merge holds the lock and then runs `audit`
- * in-process, which also wants the lock). Re-acquiring the same mkdir dir in
- * that case throws `failFastIfHeld` — a self-deadlock. This set lets the
- * OUTERMOST `withReentrantMainWriteLock` own the real on-disk lock while every
- * NESTED same-process call becomes a pass-through that just runs `fn`.
+ * The on-disk mkdir lock is a cross-PROCESS mutex. This set is the PROCESS-level
+ * bookkeeping: it answers "does some critical section in THIS process currently
+ * hold the on-disk lock for this path". It is NOT sufficient on its own to
+ * decide reentrancy — see `lockOwnerStore` below. It is kept EXACTLY as before
+ * (add on outermost acquire, delete on release) so cross-process behavior and
+ * `isMainWriteLockHeldInProcess`'s smoke contract are unchanged.
  *
  * Keyed by the resolved canonical lock path so a story worktree and the main
  * checkout (which resolve to the same `mainWriteLockPath`) share one key.
@@ -271,15 +271,69 @@ export function withMainWriteLock<T>(
 const heldLockPaths = new Set<string>();
 
 /**
+ * B-3d39: async-context-aware ownership registry.
+ *
+ * `heldLockPaths` alone mis-classifies a CONCURRENT async sibling as a nested
+ * reentrant caller. Node is single-threaded for synchronous code, but a
+ * critical section held across `await` (the DONE merge holds the lock across
+ * `actor.send`) YIELDS the event loop. While it is parked, a concurrent
+ * operation for another story (e.g. INIT_CHECK) runs in a SEPARATE async
+ * context. Deciding reentrancy purely on `heldLockPaths.has(lockKey)` would let
+ * that sibling skip real acquisition and write to main mid-merge — silently
+ * dropping the DONE story's merge commit.
+ *
+ * This `AsyncLocalStorage` carries the set of lockKeys owned by the CURRENT
+ * async context. The reentrancy predicate is now "the process holds the lock
+ * AND this very async context is the owner" (`currentContextOwns`). Genuine
+ * synchronous nesting (DONE → in-process `audit`) runs INSIDE the owning
+ * context and inherits the owner set → passes through with no self-deadlock. A
+ * concurrent sibling in a different context is NOT an owner → it contends on the
+ * on-disk mkdir lock exactly as a separate process would.
+ *
+ * The on-disk mkdir mutex (acquire / mtime stale reclaim / failFastIfHeld) is
+ * untouched; this only refines the in-process pass-through decision.
+ */
+const lockOwnerStore = new AsyncLocalStorage<Set<string>>();
+
+/**
+ * True iff the CURRENT async context owns `lockKey` (i.e. it is the context that
+ * performed the outermost acquisition, or a synchronous/await descendant of it).
+ * A concurrent sibling context returns false even when `heldLockPaths` has the
+ * key, because it never entered the owner's store.
+ */
+function currentContextOwns(lockKey: string): boolean {
+  return lockOwnerStore.getStore()?.has(lockKey) ?? false;
+}
+
+/**
+ * Build the owner set for an outermost acquisition: the current context's set
+ * (if any) extended with `lockKey`, otherwise a fresh single-entry set. A copy
+ * is returned so the parent context's set is never mutated in place.
+ */
+function extendedOwnerSet(lockKey: string): Set<string> {
+  const current = lockOwnerStore.getStore();
+  const next = current ? new Set(current) : new Set<string>();
+  next.add(lockKey);
+  return next;
+}
+
+/**
  * Reentrant variant of `withMainWriteLock`.
  *
  * - First (outermost) call for a given `mainRepoRoot` acquires the real on-disk
- *   mkdir lock, records the path in `heldLockPaths`, runs `fn`, then releases
- *   the lock and clears the record (release + clear always run, even on throw).
- * - A NESTED call for the SAME `mainRepoRoot` from the same process sees the
- *   path already in `heldLockPaths` and runs `fn` directly WITHOUT re-acquiring
- *   — no self-deadlock. In-process serialization is already guaranteed by JS's
- *   single thread, so the nested section needs no separate mutex.
+ *   mkdir lock, records the path in `heldLockPaths`, runs `fn` INSIDE the
+ *   async-context owner store, then releases the lock and clears the record
+ *   (release + clear always run, even on throw). The owner store unwinds
+ *   automatically when `lockOwnerStore.run` returns.
+ * - A NESTED call for the SAME `mainRepoRoot` from the SAME async context sees
+ *   the path in `heldLockPaths` AND that this context owns it, so it runs `fn`
+ *   directly WITHOUT re-acquiring — no self-deadlock. Synchronous nesting and
+ *   `await` descendants share the owner store, so the in-process serialization
+ *   that JS's single thread already guarantees needs no separate mutex.
+ * - A CONCURRENT async sibling (a different context whose own work interleaves
+ *   while the outer holder is parked at an `await`) is NOT an owner of the key,
+ *   so it does NOT pass through — it contends on the on-disk mkdir lock exactly
+ *   as a separate process would (wait or fail-fast per `options`).
  * - A call from ANOTHER process still contends on the on-disk mkdir lock and
  *   fails fast if it is held (cross-process mutual exclusion is unchanged).
  *
@@ -300,15 +354,22 @@ export function withReentrantMainWriteLock<T>(
   }
   const lockKey = mainWriteLockPath(root);
 
-  // Nested same-process call: the outer frame already owns the on-disk lock.
-  if (heldLockPaths.has(lockKey)) {
+  // Nested same-CONTEXT call: the outer frame already owns the on-disk lock AND
+  // this very async context is its owner. A concurrent sibling that merely sees
+  // the process-level `heldLockPaths` entry (but never entered the owner store)
+  // fails this check and falls through to real acquisition.
+  if (heldLockPaths.has(lockKey) && currentContextOwns(lockKey)) {
     return fn();
   }
 
   const lock = acquireMainWriteLock(root, options);
   heldLockPaths.add(lockKey);
   try {
-    return fn();
+    // Run the critical section inside the owner store so synchronous nesting and
+    // `await` descendants are recognized as owners. `run` restores the previous
+    // store when it returns (including on throw), so the context unwinds without
+    // explicit cleanup.
+    return lockOwnerStore.run(extendedOwnerSet(lockKey), fn);
   } finally {
     heldLockPaths.delete(lockKey);
     lock.release();
@@ -339,8 +400,25 @@ export function isMainWriteLockHeldInProcess(mainRepoRoot: string): boolean {
  *
  * The returned handle's `release()` clears the registry entry FIRST, then
  * removes the on-disk lock dir. Both run even if the caller's critical section
- * threw. If the path is already registered (a reentrant acquire), `release()`
- * is a no-op — the outer frame still owns the real lock.
+ * threw. If the path is already owned by THIS async context (a reentrant
+ * acquire), `release()` is a no-op — the outer frame still owns the real lock.
+ *
+ * B-3d39 async-context: this is the acquire/release-PAIR form. By itself it does
+ * NOT establish the async-context owner store — see the design note below.
+ * Reentrancy still requires `currentContextOwns(lockKey)`, so the caller MUST
+ * wrap the lock's lifetime (acquire → critical section across `await` → release)
+ * in `runWithMainWriteLockContext(fn)`. This acquire then records the resolved
+ * lock key into that scope's store. Without the wrap the first acquire is a real
+ * (contending) acquisition and a same-context nested acquire would NOT be
+ * recognized as reentrant.
+ *
+ * WHY NOT `enterWith` here: `enterWith` mutates the store for the REMAINDER of
+ * the CURRENT async execution, which — when the holder was kicked off
+ * synchronously alongside siblings (e.g. `Promise.all([holder(), sibling()])`)
+ * — leaks the owner set up into the shared parent context and across to the
+ * concurrent sibling. That is precisely the mis-classification B-3d39 fixes, so
+ * ownership MUST be scoped with `lockOwnerStore.run` (a bounded callback), which
+ * the pair form cannot do internally. Hence `runWithMainWriteLockContext`.
  */
 export function acquireMainWriteLockRegistered(
   mainRepoRoot: string,
@@ -352,13 +430,22 @@ export function acquireMainWriteLockRegistered(
   }
   const lockKey = mainWriteLockPath(root);
 
-  // Already held by an outer frame in this process — hand back a no-op handle.
-  if (heldLockPaths.has(lockKey)) {
+  // Already owned by an outer frame in THIS async context — hand back a no-op
+  // handle. A concurrent sibling that only sees `heldLockPaths` (but is not the
+  // owning context) fails `currentContextOwns` and acquires for real below.
+  if (heldLockPaths.has(lockKey) && currentContextOwns(lockKey)) {
     return { lockDir: lockKey, release() { /* outer frame owns the lock */ } };
   }
 
   const lock = acquireMainWriteLock(root, options);
   heldLockPaths.add(lockKey);
+  // Mark the CURRENT context's owner set (established by an enclosing
+  // `runWithMainWriteLockContext`) as owning this key, so a same-context nested
+  // acquire is recognized as reentrant. If the caller did not establish a
+  // context, there is no store to mutate and the cross-process on-disk mutex
+  // still fully serializes — only the in-process reentrancy optimization is
+  // forfeited (a nested same-context acquire would then contend).
+  lockOwnerStore.getStore()?.add(lockKey);
   let released = false;
   return {
     lockDir: lock.lockDir,
@@ -369,4 +456,35 @@ export function acquireMainWriteLockRegistered(
       lock.release();
     },
   };
+}
+
+/**
+ * B-3d39: establish an isolated async-context owner scope, then run `fn` inside
+ * it. This is the context establisher for the acquire/release-PAIR form of the
+ * main write lock.
+ *
+ * `acquireMainWriteLockRegistered` returns a handle whose lock is released later
+ * (across `await` boundaries), so it cannot wrap the caller's critical section
+ * in `lockOwnerStore.run` itself. Callers that hold the lock in pair form (the
+ * DONE merge in `transition-orchestrator.ts`) wrap the WHOLE lock lifetime —
+ * acquire, the awaited critical section, and release — in this helper.
+ *
+ * The scope is a COPY of any inherited owner set (so an enclosing context's
+ * keys are preserved) but adds NO key of its own: the subsequent
+ * `acquireMainWriteLockRegistered` populates the resolved lock key into THIS
+ * scope's store when it actually acquires. Establishing the scope here (rather
+ * than pre-seeding a key) sidesteps any mismatch between the caller's idea of
+ * the lock root and the root the registered acquire resolves internally.
+ *
+ * The `run` scope bounds ownership to exactly this async subtree: synchronous
+ * nesting and `await` descendants inherit it, while a CONCURRENT sibling
+ * transition kicked off from the shared parent does NOT (a sibling has its own
+ * `run` scope, or none — proven by the B-3d39 interleave smoke). Ownership
+ * unwinds automatically when `fn` returns or throws.
+ */
+export function runWithMainWriteLockContext<T>(fn: () => T): T {
+  const current = lockOwnerStore.getStore();
+  // Fresh per-subtree store, inheriting any keys the enclosing context owns.
+  const scoped = current ? new Set(current) : new Set<string>();
+  return lockOwnerStore.run(scoped, fn);
 }
