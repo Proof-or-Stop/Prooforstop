@@ -584,6 +584,13 @@ export interface Finding {
    */
   signatureTag?: string;
   /**
+   * B-5d48 CHK-002 (Experience Layer ③.2): provenance of `signatureTag` —
+   * `'confirmed'` when a reviewer/LLM supplied it, `'auto'` when it is a
+   * mechanical fallback candidate (deriveSignatureCandidate).
+   * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
+   */
+  signatureTagSource?: 'auto' | 'confirmed';
+  /**
    * B-4f46 CHK-001: how this finding was resolved.
    * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
    */
