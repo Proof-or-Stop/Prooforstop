@@ -77,10 +77,10 @@
           "file": "packages/main/src/handlers/worktree.ts",
           "command": "git diff main..HEAD -- packages/main/src/handlers/worktree.ts",
           "result": "pass",
-          "note": "configured-gitRoot branch (resolveStorySignedWorkspace path in resolveBootstrapGitRoot) is UNCHANGED by the diff; it resolves the main root via signed-workspace metadata not show-toplevel, so it already yields the main root.",
-          "headHash": "daf891ee8c3b01bbb07543d98aca812368bff25e",
-          "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
-          "timestamp": "2026-06-18T19:29:57.025Z"
+          "note": "Re-confirmed at HEAD 17264f7: configured-gitRoot branch (resolveStorySignedWorkspace in resolveBootstrapGitRoot) UNCHANGED by diff; resolves main root via signed-workspace metadata not show-toplevel. Confirmed by behavior reviewer.",
+          "headHash": "f3fb8e629df171d64997ca3c56b515f4fbfd2039",
+          "materialHash": "c75474e999b3478beddd31648e9217e0355efd6da4161b50689bf33cec0843c5",
+          "timestamp": "2026-06-18T19:50:49.204Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
