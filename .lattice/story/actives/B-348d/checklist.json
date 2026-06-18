@@ -102,9 +102,9 @@
       "id": "CHK-003",
       "title": "Self-smoke case + CHANGELOG + docs + 3x verify",
       "context": "Add a deterministic self-smoke case to main run-all-smokes-smoke.ts (or its fixture set): a fixture smoke that always FAILs (exit 1) WITH retryOnAnyFailure:true is retried in pass 2 (and if it fails both passes still counts FAIL), AND a fixture smoke that FAILs WITHOUT the flag is NOT retried (default preserved — proves real bugs are not masked). CHANGELOG Unreleased entry under Test infrastructure documenting the opt-in flag + the four allowlisted smokes + that it is a stopgap with a deferred root-cause follow-up. Update docs/dev/test-coverage.md. Final: 3 consecutive npm run test:all — expect deterministic green (the four load-flake smokes now retry-on-FAIL); if any non-allowlisted smoke FAILs, that is a real signal, investigate not allowlist.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T16:53:19.045Z",
       "userSees": "self-smoke proves flagged-FAIL retried + non-flagged-FAIL not retried; CHANGELOG + docs document the flag; test:all green.",
       "files": {
         "modify": [
