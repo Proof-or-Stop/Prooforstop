@@ -1,0 +1,28 @@
+{
+  "task": "Write an execution plan for decomposing packages/main/src/cli-engine.ts and define the Lattice Authority Server strong-verification path before implementation starts.",
+  "outcome": "User sees: `B-0717 produced docs/requirements/decisions/cli-engine-modularization-execution-plan.md. It defines the cli-engine split, required implementation stories, Authority Server receipt path, local 3x2 quorum, 3x1 fallback boundary, verification commands, and explicitly states that no cli-engine implementation refactor was done in this planning story.`",
+  "facts": [
+    "packages/main/src/cli-engine.ts is a large CLI orchestration file that currently mixes command definitions, flag parsing, help rendering, alias handling, root/worktree resolution, ownership gates, activity policy, Authority-related command surfaces, and special lifecycle dispatch.",
+    "Handlers are already mostly registered outside cli-engine.ts through packages/main/src/registry.ts and packages/main/src/handlers/*, so the plan should avoid pretending all behavior lives in cli-engine.ts.",
+    "Existing tests and contracts import several symbols from cli-engine.ts, so implementation stories need compatibility re-exports or coordinated test changes.",
+    "Current local Authority status is not configured/off, so this local run cannot claim production Authority completion without a verified gate_decision receipt."
+  ],
+  "constraints": [
+    "Do not refactor cli-engine.ts in B-0717; this story is documentation and verification-readiness only.",
+    "Do not read or write docs/story or tests/fixtures directly; use Lattice commands for story artifacts.",
+    "Do not use omx or .omx.",
+    "Authority completion must be based on verified production gate_decision receipts, not local readiness output or prose.",
+    "The plan must include 3 round x 2 host review as the strong local quorum and describe 3 round x 1 host only as a degraded fallback with lower assurance."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/handlers",
+    "packages/main/src/core",
+    "packages/main/package.json",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-18T14:07:28.282Z"
+}

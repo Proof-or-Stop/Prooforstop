@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Preserve CLI observable behavior while reducing file-level concentration.",
+    "Separate command catalog, parsing/help, runtime gates, and lifecycle orchestration before moving handlers.",
+    "Keep process facts and Authority evidence mechanically verifiable rather than prose-only.",
+    "Make each implementation slice small enough to review, revert, and validate independently."
+  ],
+  "drivers": [
+    "cli-engine.ts has grown into a high-risk god file.",
+    "Command schema and gate behavior are process-critical and test-facing.",
+    "The user requested documentation first and strong Authority verification for this major architecture change."
+  ],
+  "options": [
+    {
+      "name": "A: Write a staged execution plan first, then split implementation into reviewed stories",
+      "pros": [
+        "Keeps B-0717 documentation-only and avoids accidental behavior changes.",
+        "Allows Authority receipt requirements and 3x2 host quorum to be defined before implementation.",
+        "Lets later stories preserve compatibility re-exports while shrinking cli-engine.ts incrementally."
+      ],
+      "cons": [
+        "Does not immediately reduce the cli-engine.ts line count.",
+        "Requires follow-up implementation stories to realize the plan."
+      ]
+    },
+    {
+      "name": "B: Refactor cli-engine.ts immediately inside this story",
+      "pros": [
+        "Would start reducing the file now.",
+        "Could expose missing contracts quickly."
+      ],
+      "cons": [
+        "Violates the user request to write the document first.",
+        "Combines planning, Authority validation, and code migration in one high-risk change.",
+        "Makes rollback and review boundaries unclear."
+      ]
+    },
+    {
+      "name": "C: Only record a short backlog note",
+      "pros": [
+        "Fastest path.",
+        "Low immediate repo churn."
+      ],
+      "cons": [
+        "Insufficient for major architecture decomposition.",
+        "Does not define Authority Server receipt flow, 3x2 quorum, or implementation slices.",
+        "Would leave future hosts guessing at contracts and stop conditions."
+      ]
+    }
+  ],
+  "chosen": "A: Write a staged execution plan first, then split implementation into reviewed stories",
+  "rationale": "Choose the staged execution plan because the requested work is a major architecture decomposition with process-gate and Authority implications; implementation should only begin after the plan fixes module boundaries, compatibility contracts, receipt semantics, review quorum, and rollback conditions.",
+  "preMortem": [
+    {
+      "scenario": "Plan accidentally authorizes behavior changes in B-0717",
+      "trigger": "The document mixes planning with direct refactor instructions for the current story.",
+      "consequence": "Review evidence becomes misleading and the user loses the clean planning boundary.",
+      "mitigation": "State B-0717 is documentation/readiness only and list source refactors as future stories."
+    },
+    {
+      "scenario": "Authority validation is overclaimed",
+      "trigger": "Local authority_status or local verdict storage is described as production Authority completion.",
+      "consequence": "DONE evidence could imply a server-backed receipt that does not exist.",
+      "mitigation": "Require authority_receipt_verify with a production gate_decision receipt for Authority completion; classify local 3x2 as lower-assurance when Authority is off."
+    },
+    {
+      "scenario": "Future implementation breaks CLI contract imports",
+      "trigger": "Symbols imported from cli-engine.ts are moved without re-export or test migration.",
+      "consequence": "Tests, scripts, or downstream callers fail after decomposition.",
+      "mitigation": "Document exported compatibility surface and require build plus process/command ownership contract tests after each slice."
+    },
+    {
+      "scenario": "The split creates many tiny modules without reducing risk",
+      "trigger": "The plan follows line-count goals instead of responsibility boundaries.",
+      "consequence": "Complexity moves around and reviewers cannot reason about lifecycle gates.",
+      "mitigation": "Organize slices by command catalog, parsing/help, runtime gates, and lifecycle special dispatchers with specific verification gates."
+    }
+  ],
+  "timestamp": "2026-06-18T14:07:43.917Z"
+}

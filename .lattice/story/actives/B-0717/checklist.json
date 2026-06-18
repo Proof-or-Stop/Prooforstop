@@ -5,18 +5,48 @@
       "title": "Write the cli-engine modularization execution plan document",
       "context": "Document current cli-engine.ts inventory, god-file root cause, four-stage decomposition, compatibility exports, high-risk gates, Authority Server strong-verification path, local 3x2 plan verdict requirements, and 3x1 degraded fallback semantics.",
       "relatedDocs": [
-        "docs/requirements/decisions/story-lifecycle.md",
-        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
-        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
-        "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
-        "docs/requirements/decisions/test-runner-consolidation-plan.md",
-        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/authority-client-role.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md exists and explains the staged cli-engine.ts decomposition before code refactoring begins.",
+      "excludes": [
+        "No cli-engine.ts implementation changes in this story",
+        "No command rename/removal in this story"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "The execution plan document exists and has purpose, non-goals, current inventory, target boundaries, execution rounds, verification matrix, and rollback/stop conditions.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "The document explicitly distinguishes B-0717 documentation work from future implementation stories so no source refactor is implied as done here.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The plan does not hide high-risk process facts behind prose-only claims; gate/Authority-sensitive assertions point to mechanical verification or future required receipts.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
