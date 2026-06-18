@@ -125,6 +125,17 @@
           "headHash": "aa391aa58aa8b767d439b43365a6d2de138fa3ad",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:41:51.872Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/src/handlers/done-effects.ts | wc -l",
+          "result": "pass",
+          "note": "Returns 0 — done-effects.ts merge order frozen.",
+          "headHash": "9cb6191a0f451c466c576ef455aa6dfc1f7eceae",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:53.126Z"
         }
       ]
     },
