@@ -11,7 +11,39 @@
       "userSees": "lattice check --json includes explicit metadataRoot/assetRoot/gitRoot path-base diagnostics.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice check --json in a normal project and parse the root JSON object; assert explicit root diagnostics are present as stable machine-readable fields for metadataRoot, assetRoot, gitRoot, and the asset-path relativity flag/context rather than only being inferable from manifestPath or item relPath strings.",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the JSON root diagnostics identify metadataRoot/assetRoot as the base for managed asset relPath/applied paths while preserving the existing profile, assetMode, manifestPath, summary, and items fields for backward-compatible consumers.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice check --json where metadataRoot and configured gitRoot differ; assert metadataRoot and assetRoot resolve to the wrapper metadata root while gitRoot resolves to the configured repo root, with all fields explicit even when paths differ.",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice check --json where gitRoot is absent or unavailable; assert the gitRoot diagnostic is still explicit as null/empty by contract and metadataRoot/assetRoot remain populated so callers never have to guess the path base.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the item if the implementation only adds prose or nested per-item hints but no explicit root-level JSON diagnostics, because JSON consumers must not scrape text or reverse-engineer roots from relative paths.",
+            "type": "cli"
+          },
+          {
+            "desc": "Fail the item if adding gitRoot diagnostics changes relPath/applied path semantics or makes managed asset paths appear gitRoot-relative; diagnostics may explain gitRoot but must not redefine the asset root.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
