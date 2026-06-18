@@ -143,7 +143,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "python3 -c \"import json;m=json.load(open('packages/main/smoke-manifest.json'));e=[s for s in m['smokes'] if s['name']=='lattice-baseline'];print(e[0].get('timeoutMs') if e else 'MISSING')\"",
+          "result": "pass",
+          "note": "Outputs 360000 — bumped from 240000 to 360000.",
+          "headHash": "750e12c3e5441fe012224d7045eb9b3b806f00ac",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:18.558Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
