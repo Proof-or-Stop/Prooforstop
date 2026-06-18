@@ -183,6 +183,70 @@
         "test": [
           "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run test:experience-layer-learning-scan -> smoke passes, prints learning-scan smoke passed; WHY: proves the smoke task executes and validates end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts .lattice/learning/finding-signals.json is written with valid FindingSignalsCache (schemaVersion present, signals[] array, updatedAt timestamp); WHY: proves cache structural validity",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts end-to-end: hint loader returns NO hints before scan (empty/absent cache), then NON-empty hints after scan for a story with matching findings; WHY: proves the product loop activates (addresses product-reviewer advisory)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node verify-b-4eb6.mjs -> prints TOTAL N | PASS N | FAIL 0 with all checks green; WHY: proves committed verifier covers all verification intents",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier includes full npm test (incl. process-fact-contract) -> green; WHY: proves no regressions from registration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke re-runs scan twice with pinned now -> output cache is byte-identical both times; WHY: proves determinism boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke runs against a store with anchorFiles in some signals -> anchorFiles array is present in those signals in the written cache; WHY: proves anchorFiles propagation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier includes no-regression smokes (finding-signals/playbook/recall/revalidation) -> all pass; WHY: proves the new command does not break existing experience-layer functionality",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static checks confirm learning_scan registered across all 5 files (cli-engine, registry, config, command-policy, process-fact-levels) -> all present; WHY: proves registration completeness is machine-verified",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verifier confirms learning_scan is NOT in READ_ONLY_COMMANDS -> absent; WHY: machine-enforced check that prevents silent miscategorization after future refactors",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier confirms learning_scan ownershipClass is not readOnly -> non-readOnly class found; WHY: machine-enforced policy consistency check",
+            "type": "cli"
+          },
+          {
+            "desc": "After smoke writes cache, verify git status shows no changes to tracked source files -> only .lattice/learning/ modified (materialHash-excluded); WHY: proves smoke does not pollute the worktree or dirty source",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier maps every verificationIntent line to a specific check -> no unmapped intents; WHY: proves the verifier is comprehensive and no intent is silently skipped",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke validates that scan with zero findings produces signals:[] not undefined/null/crash -> empty array written; WHY: proves graceful degradation under adversarial empty-state",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
