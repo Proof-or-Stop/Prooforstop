@@ -4,7 +4,7 @@
   "title": "Story #6 (OSS-launch fix-wave): cap test:all default --jobs to fix parallel-race convergence-tail (Plan A)",
   "description": "Change root package.json test:all to invoke the runner with --jobs N where N is empirically measured (start N=4; fall back to N=2 if needed) so workers do not oversubscribe contended kernel resources (git index lock, fs syncfs, /tmp IO). Expected to resolve the convergence-tail of parallel-race timeouts that B-24c3 couldn't solve via per-smoke timeoutMs bumps alone. Tests/config-only — 0 production change, 0 smoke logic change, 0 manifest change, 0 runner change. Out of scope: Plan B (two-pass retry) is a separate follow-up story if Plan A insufficient.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "test",
@@ -31,6 +31,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-18T01:10:00.011Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-be91",
+    "branch": "story/B-be91",
+    "createdAt": "2026-06-18T01:09:58.201Z"
+  }
 }
