@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-18T14:12:40.486Z",
       "reviewRunId": "B-a4e3:RR-009",
       "_hash": "6a8f80845a78a743ed8cee183ffb011329ec6996f56e313a1befb058b03d4b17"
+    },
+    {
+      "id": "B-a4e3:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-review: (1) Salt diff check empty — no salt literal modified in diff. (2) Salt count 25 (within 24-25 range). (3) Exemption at scripts/verify-koala-residue.mjs line 81 present. (4) Write-guard assertNoLegacyKoalaWritePath still rejects .koala writes via FORBIDDEN_WRITE_DIR sentinel in lattice-paths.ts. (5) dispatch() clusterId branch in story-dispatch.ts:524-537 correctly delegates to clusterHandlers.finding_dispatch. (6) npm run test:koala-residue PASS 0 unclassified. All 5 checklist userSees claims verified against actual code. One medium spec-boundary finding (F-003) registered: dev-memory.md lines 30-31 still describe legacy .koala read fallback as active — not blocking, doc correction only.",
+      "createdAt": "2026-06-18T14:19:30.973Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-010",
+      "_hash": "ead053c179cb92787fe7571a918a80ee63693edb11de1231dd5718dea667566d"
     }
   ]
 }
