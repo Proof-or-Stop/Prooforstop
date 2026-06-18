@@ -109,15 +109,26 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-002:happy:0",
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "command": "rg -n \"local Non-authority|Authority Server completion|three-round|story-lifecycle.md\" docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The clarification stays docs-only and does not alter runtime gate or Authority evidence semantics.",
+          "headHash": "cdf63e358ff631a41698b6603c3d2b97f1803082",
+          "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
+          "timestamp": "2026-06-18T11:19:30.902Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-          "command": "rg -n \"three-round|Authority Server completion|local Non-authority|high-risk\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"production|Authority Server proof|Authority Server completion|local Non-authority\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
-          "note": "The high-risk three-round rule still reads the same, and the low-risk bucket stays narrow and docs-only.",
-          "headHash": "40b4a9e8e37a882db0f71a563e7cd18bb63c9ded",
+          "note": "The transcript only records docs and rg validation, not production or Authority proof, and the policy text keeps Authority claims separate.",
+          "headHash": "cdf63e358ff631a41698b6603c3d2b97f1803082",
           "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
-          "timestamp": "2026-06-18T11:18:38.017Z"
+          "timestamp": "2026-06-18T11:19:30.988Z"
         }
       ]
     }
