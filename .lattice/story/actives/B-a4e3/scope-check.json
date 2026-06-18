@@ -159,12 +159,13 @@
       "q": "command-policy.ts:330 marks story_dispatch as status:'supported' (not 'legacy'), yet plan.md CHK-005 and decision.json rationale treat it as a deprecated alias removable alongside finding_dispatch. The cli-engine-english-open-source-execution-plan.md manifest rows M593-M598 show B-9d95 CHK-004 merged story_dispatch/finding_dispatch into lattice dispatch, treating both as superseded. However only finding_dispatch has status:'legacy' in the policy file; story_dispatch retains status:'supported'. Plan calls this a stale mislabel and removes it directly. Is removing story_dispatch (status:supported) in this story correct — confirmed dead with no active consumers — or is this a contradiction that needs explicit acknowledgment that the supported label was never accurate post-B-9d95?",
       "evidence": "packages/main/src/core/command-policy.ts:330 story_dispatch: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: ['DEV'], ... }. command-policy.ts:331 finding_dispatch: { status: 'legacy', ... replacement: 'Use lattice dispatch with itemId, findingId, or clusterId.' }. plan.md CHK-005: 'story_dispatch status:supported is a stale mislabel; both are deprecated and removed together'. decision.json rationale: 'story_dispatch/finding_dispatch are both confirmed deprecated by cli-engine-english-open-source-execution-plan.md (B-9d95 CHK-004 merged both into lattice dispatch); the command-policy story_dispatch status:supported is a stale mislabel deleted alongside the alias.'",
       "sourcePointers": [
-        "packages/main/src/core/command-policy.ts#L330",
-        "packages/main/src/core/command-policy.ts#L331",
-        ".lattice/story/actives/B-a4e3/plan.md#CHK-005",
-        ".lattice/story/actives/B-a4e3/decision.json#rationale",
-        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#M593-M598"
-      ]
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#M593-M598",
+        "packages/main/src/handlers/story-dispatch.ts#L463-L472",
+        "packages/main/src/core/command-policy.ts#L330-L331",
+        "packages/main/src/core/process-fact-levels.ts#L267-L268"
+      ],
+      "resolution": "story_dispatch is confirmed dead and removable. The command-policy.ts:330 status:supported is a stale mislabel (asymmetric with finding_dispatch:331 status:legacy). Authoritative: cli-engine-english-open-source-execution-plan.md (B-9d95 CHK-004, M593-M598) records story_dispatch + finding_dispatch were merged into the unified lattice dispatch; the handler at story-dispatch.ts:469 already prints \"story_dispatch will be removed in versions after B-9d95, please switch to lattice dispatch\". Grep confirms NO active consumer of the story_dispatch CLI alias: only the registry def (cli-engine:1901), the policy entry (:330), the deprecation-warning handler method (story-dispatch.ts:463), and the process-fact-levels.ts:267 inventory entry — zero test assertions, and the dispatch() clusterId branch uses cluster.ts finding_dispatch (a different function). CHK-005 therefore removes both CLI aliases + their command-policy entries + the process-fact-levels inventory entries together, correcting the mislabel by deletion.",
+      "resolvedAt": "2026-06-18T13:31:05.728Z"
     },
     {
       "id": "OQ-2",
