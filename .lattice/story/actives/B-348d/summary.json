@@ -1,0 +1,55 @@
+{
+  "storyId": "B-348d",
+  "changes": "Extended B-2941's two-pass smoke retry with an OPT-IN `retryOnAnyFailure` manifest flag in run-all-smokes.ts: pass 2 now also retries a FAIL (not only a TIMEOUT) but ONLY for smokes explicitly flagged. Flagged 4 verified load-flake smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) in smoke-manifest.json. Added 3 self-smoke cases (a/b/c) and CHANGELOG + docs/dev/test-coverage.md retry-policy note.",
+  "usage": "In smoke-manifest.json set `retryOnAnyFailure: true` ONLY on a smoke that is serial-PASS but intermittently FAILs under parallel load. `npm run test:all` then retries its FAIL serially in pass 2; every unflagged smoke keeps FAIL=terminal. `npm run test:all -- --no-retry` disables pass 2 entirely (CI strict).",
+  "expectedOutcome": "A flagged load-flake smoke that FAILs under parallel load is retried serially and passes (Final 1/1, exit 0); an UNFLAGGED FAIL stays terminal (exit 1, no retry); a flagged smoke that FAILs BOTH passes still ends terminal (Final 0/1, exit 1). Build clean, self-smoke 16/16.",
+  "actualTranscript": "node packages/main/dist/tasks/run-all-smokes-smoke.js -> '16/16 checks passed' exit 0, incl B-348d (a) Final 1/1 exit 0, (b) terminal exit 1 no 'retrying serially', (c) Final 0/1 exit 1. Build: 0 TS errors. 16/16 verificationIntent evidence covered; validate all green; materialHash 42b77596 matches HEAD.",
+  "outcomeDiff": "No diff — expected and actual match exactly: 16/16 self-smoke, all 16 intents covered/pass, 4 smokes flagged, FAIL=terminal default preserved for all others (anti-masking proven by cases b and c).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Documented STOPGAP. Does not fix the shared-state root cause (why those 4 smokes FAIL rather than merely slow under heavy parallel worker-pool contention) — that remains a deferred follow-up. The allowlist is a manual, audited list; adding a smoke requires re-confirming it is serial-PASS first.",
+  "pitfalls": "Never flag a smoke that is NOT verified serial-PASS — doing so would mask a genuine regression. The flag retries FAIL only; a flagged smoke failing BOTH passes is still a hard FAIL (case c proves this). --no-retry bypasses the whole mechanism. The allowlist must stay small and each entry re-verified serial-stable.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 306551
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16599
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 216994
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1102790
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 728064
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 326780
+    }
+  },
+  "totalDurationMs": 2697779,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-18T17:21:29.988Z",
+  "updatedAt": "2026-06-18T17:21:29.988Z"
+}

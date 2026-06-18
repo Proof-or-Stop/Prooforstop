@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-348d:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, no any-leaks, no empty catches, no I/O isolation violations. retryOnAnyFailure typed correctly as optional boolean. noRetry guard is now consolidated into the inner filter (line 274) and correctly removed from the redundant outer .filter, preserving the same semantics. Default FAIL-terminal invariant is structurally enforced (filter returns false unless TIMEOUT or retryOnAnyFailure===true) and confirmed by the anti-masking self-smoke (case 13). The .map().filter(!!e) defensive guard is correct because byName covers all selected entries. Smoke manifest changes are pure JSON with the new field only on 4 documented load-flake entries.",
+      "createdAt": "2026-06-18T17:03:31.753Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-001",
+      "_hash": "761352b4ee3522075e0131dc5518ff16e40b127a08be6a7b195de8b9981dc05b"
+    },
+    {
+      "id": "B-348d:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-001 predicate correct: retryOnAnyFailure field declared in ManifestEntry (line 59), predicate at line 276 correctly gates FAIL retry on retryOnAnyFailure===true, noRetry short-circuits at line 274. TIMEOUT path at line 275 unchanged (B-2941 preserved). --no-retry empties retryEntries at line 269. Build artifact confirmed via evidence. CHK-002 manifest: exactly 4 entries carry retryOnAnyFailure:true (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard), all serial-PASS confirmed by evidence, JSON valid. CHK-003 self-smoke: 15/15 pass confirmed by live re-run; B-348d (a) flagged-FAIL-retried and B-348d (b) unflagged-FAIL-terminal both present and passing. Final:/retry log wording appears only when pass 2 ran (retried flag). CHANGELOG Unreleased has B-348d entry. docs/dev/test-coverage.md updated with retryOnAnyFailure allowlist. One medium finding (B-348d:F-001) registered for missing double-fail self-smoke case (the code is correct but the third invariant from the spec is not asserted by any test case).",
+      "createdAt": "2026-06-18T17:05:08.182Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-002",
+      "_hash": "7c7a91f7a5f5bb73ef21c1902f316543f2fcc220e372228b215f279c85af01c0"
+    },
+    {
+      "id": "B-348d:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 0 exported symbols changed (docs-only diff for this lane). Step2: examined 2 doc surfaces — CHANGELOG.md Unreleased B-348d entry and docs/dev/test-coverage.md Retry policy section. Step3: 4 named smokes in both docs (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) match manifest exactly (python3 extraction confirmed count=4, names identical). Flag name retryOnAnyFailure matches manifest key. FAIL=terminal default, opt-in semantics, stopgap language, --no-retry flag all consistent across both doc surfaces. No overstatement, no stale names, no doc-promise-undelivered issues. 0 blockers.",
+      "createdAt": "2026-06-18T17:06:35.430Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-003",
+      "_hash": "93ba15a9334becb32b6fdfaf0ad589315a646fda1673e3cd26004d944fa4c528"
+    },
+    {
+      "id": "B-348d:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 16 intents across CHK-001/002/003 (15 must, 1 should); evidence commands match literal intent backtick commands exactly for all 15 must-priority intents; CHK-002:happy:0 corrected command confirmed faithful — same predicate (name in allowlist set AND retryOnAnyFailure==True, outputs 4), only quoting fixed, not a generic fallback; all spot-check re-runs produce asserted outputs; no uncovered intent, no mismatch, no non-passing evidence; no blocker.",
+      "createdAt": "2026-06-18T17:09:15.163Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-004",
+      "_hash": "5d933660362d130df6668aea47cef28687618ba55bde969eae7b8f37bb567c04"
+    },
+    {
+      "id": "B-348d:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Verified pass-2 predicate: flagged FAIL retried, unflagged FAIL terminal, TIMEOUT retried, noRetry/--no-retry skips pass-2. Self-smoke 16/16 incl B-348d (a)(b)(c). F-001 fix confirmed. No new gaps found.",
+      "createdAt": "2026-06-18T17:14:34.698Z",
+      "reviewRound": "2026-06-18T17:12:07.020Z",
+      "reviewRunId": "B-348d:RR-006",
+      "_hash": "b01a0d2bbbee0785c3b0c1f58094b07ba7d4bb8fcdd897326fafe839f040e492"
+    },
+    {
+      "id": "B-348d:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Audited run-all-smokes.ts, run-all-smokes-smoke.ts, smoke-manifest.json (cases 12-14 + fixture-hardfail-flagged-E). No dead code, no type-safety issues, no bridge violations. FAIL=terminal default preserved: unflagged FAIL stays terminal (case 13 asserts no retry), flagged both-pass FAIL still ends exit 1 (case 14). All new additions are exercised; test assertions align with updated production string.",
+      "createdAt": "2026-06-18T17:14:37.796Z",
+      "reviewRound": "2026-06-18T17:12:07.020Z",
+      "reviewRunId": "B-348d:RR-005",
+      "_hash": "ead8ac2a806c99ad0710c4a39e1ff2d65c29891792d157383238999d18dffeb1"
+    },
+    {
+      "id": "B-348d:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 doc-code check: 1 symbol extracted (retryOnAnyFailure), 1 paragraph compared (docs/dev/test-coverage.md retry-policy section). All 4 named smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) confirmed present with retryOnAnyFailure:true in smoke-manifest.json. FAIL=terminal default confirmed at run-all-smokes.ts line 267/276. No drift.",
+      "createdAt": "2026-06-18T17:15:11.463Z",
+      "reviewRound": "2026-06-18T17:12:07.020Z",
+      "reviewRunId": "B-348d:RR-008",
+      "_hash": "4eadeace796dbc6a21f212daec8b6d974a4cfc0c2ae2dbaad0498c47c658a25c"
+    },
+    {
+      "id": "B-348d:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 16 verificationIntent bindings (15 must + 1 should across CHK-001/002/003) have passing evidence; every evidence command literally matches the backtick command in its intent desc including the DEV-corrected CHK-002:happy:0 python3 equivalent; 3 spot-checks confirmed live outputs match asserted values; no gap, no mismatch, no blocker.",
+      "createdAt": "2026-06-18T17:15:29.821Z",
+      "reviewRound": "2026-06-18T17:12:07.020Z",
+      "reviewRunId": "B-348d:RR-007",
+      "_hash": "a371c5c35fb499febd805ee4d1012927d585d79329e2ba88db89777cfa9ea43f"
+    }
+  ]
+}

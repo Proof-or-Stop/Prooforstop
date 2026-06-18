@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Preserve FAIL-is-terminal as the default for every non-allowlisted smoke",
+    "Open the retry path only via an explicit, documented, serial-verified allowlist",
+    "Never blindly retry FAILs — that would mask real regressions",
+    "Stopgap now, shared-state root cause deferred"
+  ],
+  "drivers": [
+    "test:all must be deterministically green to gate CI",
+    "B-2941 timeout-only retry leaves load-induced FAILs red",
+    "retrying all FAILs is unsafe so an allowlist is the safe middle"
+  ],
+  "options": [
+    {
+      "name": "(a) opt-in retryOnAnyFailure allowlist (chosen)",
+      "pros": [
+        "Narrow and safe",
+        "Preserves FAIL-terminal default",
+        "Closes the deferred findings"
+      ],
+      "cons": [
+        "Stopgap not root cause",
+        "Each entry risks masking that smoke own future regression"
+      ]
+    },
+    {
+      "name": "(b) root-cause shared-state fixes",
+      "pros": [
+        "Thorough"
+      ],
+      "cons": [
+        "Expensive per-smoke investigation, deferred"
+      ]
+    },
+    {
+      "name": "(c) retry all FAILs",
+      "pros": [
+        "Simple"
+      ],
+      "cons": [
+        "Masks genuine regressions, defeats the CI gate"
+      ]
+    }
+  ],
+  "chosen": "(a) opt-in retryOnAnyFailure allowlist (chosen)",
+  "rationale": "User picked the allowlist over retry-all-FAILs as the safe middle. The default stays FAIL-terminal so real bugs surface; only documented serial-verified load-flake smokes opt in.",
+  "preMortem": [
+    {
+      "scenario": "An allowlisted smoke develops a REAL bug and is silently retried to green",
+      "trigger": "a flagged smoke FAILs for a non-load reason and pass-2 masks it",
+      "consequence": "a real regression ships",
+      "mitigation": "keep the allowlist tiny + documented; each entry is a candidate for the deferred root-cause story; a flagged smoke that FAILs BOTH passes still counts FAIL (self-smoke proves this)"
+    },
+    {
+      "scenario": "A candidate is not actually serial-stable and gets allowlisted",
+      "trigger": "DEV flags a smoke without re-verifying serial PASS",
+      "consequence": "a genuinely-broken smoke is masked",
+      "mitigation": "CHK-002 requires re-running each candidate serial and confirming exit 0 before flagging; drop any that is not serial-stable"
+    },
+    {
+      "scenario": "The predicate change accidentally retries non-allowlisted FAILs",
+      "trigger": "membership predicate logic error",
+      "consequence": "B-2941 safe default broken",
+      "mitigation": "self-smoke negative case: a non-flagged FAIL is NOT retried; run before REVIEW"
+    }
+  ],
+  "timestamp": "2026-06-18T16:42:48.463Z"
+}

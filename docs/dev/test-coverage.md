@@ -83,3 +83,7 @@ pre-B-2941 single-pass behavior.
 retried in pass 2 even if it timed out — reserved for cases where retry would
 mask a real regression. Zero entries use it on initial landing.
 
+
+## Retry policy (parallel test:all)
+
+`npm run test:all` runs two passes: pass 1 at full concurrency, pass 2 retries (serially, --jobs 1) any smoke that **timed out** in pass 1 -- single-process resolves the parallel-load race. A FAIL (exit 1) is **terminal** and NOT retried by default, so a genuine regression always surfaces. A small documented allowlist of known load-flake smokes (serial-stable but occasionally FAIL under heavy parallel load) opt in to FAIL-retry via the manifest flag `retryOnAnyFailure: true` (currently: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard). This is a stopgap; the shared-state root cause is a deferred follow-up. Use `npm run test:all -- --no-retry` to disable pass 2 entirely (CI strict mode).

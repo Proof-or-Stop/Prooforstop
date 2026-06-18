@@ -4,25 +4,321 @@
       "id": "CHK-001",
       "title": "Add retryOnAnyFailure manifest field + extend pass-2 retry membership in run-all-smokes.ts",
       "context": "In packages/main/src/tasks/run-all-smokes.ts, the pass-2 retry set is currently the pass-1 results with status===TIMEOUT. Extend the membership predicate to ALSO include status===FAIL entries whose manifest entry has retryOnAnyFailure===true. Add the optional field retryOnAnyFailure?: boolean (default false/absent) to the ManifestEntry type + the smoke-manifest.json schema annotation. The default for every smoke without the flag is UNCHANGED (FAIL is terminal, only TIMEOUT retries) — preserve B-2941 behavior exactly for non-allowlisted smokes. Keep --no-retry disabling pass-2 entirely. Build clean.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T16:58:46.461Z",
+      "userSees": "`grep retryOnAnyFailure packages/main/src/tasks/run-all-smokes.ts` shows the field + the FAIL-with-flag predicate; build clean; TIMEOUT path intact.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ManifestEntry type has retryOnAnyFailure -> `grep -cE \"retryOnAnyFailure\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 2 (type decl + predicate use); WHY: the opt-in field must exist + be read",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "pass-2 membership predicate includes FAIL+retryOnAnyFailure -> `grep -cE \"FAIL.*retryOnAnyFailure|retryOnAnyFailure.*FAIL\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 1; WHY: FAIL retried only when flagged",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "compiled dist has the extended predicate -> `grep -c retryOnAnyFailure packages/main/dist/tasks/run-all-smokes.js` outputs at least 1; WHY: lands in runtime",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "build clean -> `npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"` outputs 0; WHY: typechecks",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "TIMEOUT retry path unchanged (B-2941 preserved) -> `grep -cE \"status === .TIMEOUT.\" packages/main/src/tasks/run-all-smokes.ts` outputs at least 1; WHY: timeout retry still works",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no core/handlers production touched -> `git diff main...HEAD --name-only -- packages/main/src/core packages/main/src/handlers | wc -l` outputs 0; WHY: scope is runner+manifest only",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -cE \"retryOnAnyFailure\" packages/main/src/tasks/run-all-smokes.ts",
+          "result": "pass",
+          "note": "grep shows 3 hits (type decl + 2 predicate uses) >=2; opt-in field exists and is read",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -cE \"FAIL.*retryOnAnyFailure|retryOnAnyFailure.*FAIL\" packages/main/src/tasks/run-all-smokes.ts",
+          "result": "pass",
+          "note": "grep shows 1 hit; FAIL retried only when retryOnAnyFailure flag set",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "grep -c retryOnAnyFailure packages/main/dist/tasks/run-all-smokes.js",
+          "result": "pass",
+          "note": "compiled dist has 2 hits; extended predicate lands in runtime",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"",
+          "result": "pass",
+          "note": "build emits 0 TS errors; typechecks clean",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -cE \"status === .TIMEOUT.\" packages/main/src/tasks/run-all-smokes.ts",
+          "result": "pass",
+          "note": "2 hits of status===TIMEOUT; B-2941 timeout retry path preserved",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main...HEAD --name-only -- packages/main/src/core packages/main/src/handlers | wc -l",
+          "result": "pass",
+          "note": "0 files; no core/handlers production touched, scope = runner+manifest only",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Flag the verified load-flake allowlist in smoke-manifest.json",
       "context": "Set retryOnAnyFailure:true on the four candidates: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard. BEFORE flagging each, re-run it standalone serial (node packages/main/dist/tasks/<name>-smoke.js) and confirm exit 0 — only serial-stable smokes qualify (a serial FAIL would be a real bug, not a load flake, and must NOT be allowlisted). Each flagged entry must be self-documenting (the manifest already carries the name; add a sibling _note or rely on the CHANGELOG to record WHY each is allowlisted = known parallel-load FAIL, serial-stable, deferred root-cause). Do NOT flag any smoke that is not in the findings list + not serial-verified.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T16:58:47.315Z",
+      "userSees": "manifest shows retryOnAnyFailure:true on exactly the 4 verified load-flake smokes; each still serial-PASS.",
+      "files": {
+        "modify": [
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "4 allowlisted smokes carry the flag -> `python3 -c \"import json;m=json.load(open('packages/main/smoke-manifest.json'));t={'field-regression-cli','verification-freshness','worktree-repair','review-pass-discard'};print(sum(1 for s in m['smokes'] if s['name'] in t and s.get('retryOnAnyFailure')==True))\"` outputs 4; WHY: exactly the four verified load-flake smokes are opted in (name in set AND flag true). [command corrected during DEV: the PLAN-authored chr(39)-encoded variant wrapped the path in literal quote chars -> FileNotFoundError; this faithful equivalent counts the same condition]",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "each candidate still serial-PASS (qualifies as load-flake not real bug) -> `for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done` prints nothing; WHY: only serial-stable smokes may be allowlisted",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "manifest valid JSON -> `node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"./packages/main/smoke-manifest.json\\\",\\\"utf8\\\"))\";echo OK` prints OK; WHY: parseable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: no smoke OTHER than the 4 got the flag -> `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` outputs at most 5 (4 flags + maybe 1 schema note); WHY: allowlist is exactly the 4",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "python3 -c \"import json;m=json.load(open('packages/main/smoke-manifest.json'));t={'field-regression-cli','verification-freshness','worktree-repair','review-pass-discard'};print(sum(1 for s in m['smokes'] if s['name'] in t and s.get('retryOnAnyFailure')==True))\"",
+          "result": "pass",
+          "note": "corrected faithful command outputs 4; exactly the four verified load-flake smokes opted in",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done",
+          "result": "pass",
+          "note": "loop emits no BAD-* lines; all 4 allowlisted smokes serial-PASS exit 0",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"./packages/main/smoke-manifest.json\\\",\\\"utf8\\\"))\";echo OK",
+          "result": "pass",
+          "note": "node JSON.parse succeeds + prints OK; manifest still valid JSON",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -c retryOnAnyFailure packages/main/smoke-manifest.json",
+          "result": "pass",
+          "note": "grep -c outputs 4; exactly 4 flags present, no over-flagging",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Self-smoke case + CHANGELOG + docs + 3x verify",
       "context": "Add a deterministic self-smoke case to main run-all-smokes-smoke.ts (or its fixture set): a fixture smoke that always FAILs (exit 1) WITH retryOnAnyFailure:true is retried in pass 2 (and if it fails both passes still counts FAIL), AND a fixture smoke that FAILs WITHOUT the flag is NOT retried (default preserved — proves real bugs are not masked). CHANGELOG Unreleased entry under Test infrastructure documenting the opt-in flag + the four allowlisted smokes + that it is a stopgap with a deferred root-cause follow-up. Update docs/dev/test-coverage.md. Final: 3 consecutive npm run test:all — expect deterministic green (the four load-flake smokes now retry-on-FAIL); if any non-allowlisted smoke FAILs, that is a real signal, investigate not allowlist.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T16:58:48.083Z",
+      "userSees": "self-smoke proves flagged-FAIL retried + non-flagged-FAIL not retried; CHANGELOG + docs document the flag; test:all green.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts",
+          "CHANGELOG.md",
+          "docs/dev/test-coverage.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "self-smoke has a retryOnAnyFailure case -> `grep -cE \"retryOnAnyFailure\" packages/main/src/tasks/run-all-smokes-smoke.ts` outputs at least 1; WHY: proves the opt-in retry",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "self-smoke proves a NON-flagged FAIL is NOT retried -> `grep -cE \"not.*retr|terminal|without.*flag|default\" packages/main/src/tasks/run-all-smokes-smoke.ts` outputs at least 1; WHY: the safety default (real bugs surface) is asserted",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "self-smoke passes -> `node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b348d-self.log 2>&1; echo $?` outputs 0; WHY: green incl new cases",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG names B-348d + retryOnAnyFailure -> `awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-348d|retryOnAnyFailure\"` outputs at least 1; WHY: documented",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs note the opt-in flag -> `grep -ciE \"retryOnAnyFailure|retry.*on.*fail\" docs/dev/test-coverage.md` outputs at least 1; WHY: doc-code consistency",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: only Unreleased CHANGELOG section touched -> `git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l` outputs 0; WHY: only Unreleased",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -cE \"retryOnAnyFailure\" packages/main/src/tasks/run-all-smokes-smoke.ts",
+          "result": "pass",
+          "note": "5 hits of retryOnAnyFailure in self-smoke source; new cases reference the field",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "grep -cE \"not.*retr|terminal|without.*flag|default\" packages/main/src/tasks/run-all-smokes-smoke.ts",
+          "result": "pass",
+          "note": "5 hits of terminal/default/without-flag language; anti-masking negative case present",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b348d-self.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "self-smoke exits 0 (15/15 incl B-348d a+b); both new cases pass",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-348d|retryOnAnyFailure\"",
+          "result": "pass",
+          "note": "Unreleased section has 1 B-348d/retryOnAnyFailure mention; CHANGELOG entry present",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -ciE \"retryOnAnyFailure|retry.*on.*fail\" docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "docs/dev/test-coverage.md has 1 retry-policy mention; docs updated",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l",
+          "result": "pass",
+          "note": "0 new ## headings in CHANGELOG diff besides Unreleased; only Unreleased touched",
+          "headHash": "81d3069735df1502e92fab6fd8e92903759245b6",
+          "materialHash": "42b77596ddc939e87e6465140773a6fca1a4e26465fe34bb06f4b2ad70822fcd",
+          "timestamp": "2026-06-18T17:20:21.232Z"
+        }
+      ]
     }
   ]
 }
