@@ -69,9 +69,9 @@
         "packages/main/src/verifier/serve.ts",
         "packages/main/src/handlers/verifier.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T15:13:25.916Z",
       "userSees": "\"entrypoints verified\" at the end of npm run test:entrypoints; the smoke fails if the legacy serve aliases reappear.",
       "verificationIntent": {
         "happy": [
@@ -108,6 +108,19 @@
       },
       "excludes": [
         "packages/main/src/handlers/verifier.ts"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints smoke now asserts packages/main/src/verifier/dev-cli.ts does not contain hidden --web/--cli compatibility parsing, and the test passes end-to-end.",
+          "headHash": "8557834c449ceb53d33a2dc05514e19ff26e456b",
+          "materialHash": "0b450859673ca0ae972ac434f548225e4123d2bf06efa76ccb9aecdc158881ca",
+          "timestamp": "2026-06-18T15:13:26.172Z"
+        }
       ]
     }
   ]
