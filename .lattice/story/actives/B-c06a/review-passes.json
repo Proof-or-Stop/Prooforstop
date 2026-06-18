@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-18T16:12:22.973Z",
       "reviewRunId": "B-c06a:RR-007",
       "_hash": "3f1e97d7543ceab3cfa3a41c55a5583cca93d72a4e2d2e9b06bbb8f2bcce1496"
+    },
+    {
+      "id": "B-c06a:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior review PASS (1 low finding registered). CHK-001: computePredictiveValue and computeArmComparison are pure, deterministic, never-NaN; precision field is absent from all output paths (PredictiveValueReport type, renderHuman, --json); recall + windowed trend + slopeSign present; conservative significance gate enforced (MIN_ARM_N=20); confirmedOnly threads correctly. CHK-002: handler is strictly read-only — no writes, no findings, no gate calls (confirmed by static check in verifier); registered in all 6 surfaces (cli-engine schema, READ_ONLY_COMMANDS, registry.ts registerBatch, config.ts DEFAULT_PHASE_TOOLS, command-policy.ts readOnly/allowedPhases:all/destructiveRisk:none, process-fact-levels.ts L0 experience-layer-read); live run on 453-story store: nOn=0 nOff=0 significant:NO insufficient-N (honest); git status after run shows zero new writes from learning_effectiveness. CHK-003: 19/19 smoke tests pass including exact leaf math (3/7 recall, window hitRates 0.25+2/3, slope +/-/0), small-N honesty trap (nOn=2 nOff=2 large delta => significant:false), MIN_ARM_N boundary (19 => false, 20 => true), empty/zero-denominator no-NaN, 100x determinism loop, CLI read-only assertion, --json parseable, --confirmedOnly <= unfiltered, handler-on-empty-store zeros. One low finding (F-008): stale \"recall/precision\" wording in cli-engine.ts description string (line 1786) and command-policy.ts reason string (line 218) — precision was removed from implementation; no functional impact.",
+      "createdAt": "2026-06-18T16:16:32.194Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-008",
+      "_hash": "58e017b2cbfd150f6783190de41d0862b8d8747a437da63bfef039be5d1c8065"
     }
   ]
 }
