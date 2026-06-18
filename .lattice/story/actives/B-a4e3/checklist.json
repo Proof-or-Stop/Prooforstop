@@ -38,9 +38,9 @@
           "command": "grep -rn LEGACY_KOALA_DIR packages/main/src; npm --prefix packages/main run build",
           "result": "pass",
           "note": "grep returns nothing (LEGACY_KOALA_DIR gone, only .lattice-path LATTICE_LEGACY_KOALA_ACTIVITY_LOG remains); tsc build exits 0. Commit 1a2f4fec0.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -49,9 +49,9 @@
           "command": "node --import tsx dev-memory-legacy-read-smoke.ts",
           "result": "pass",
           "note": "Smoke flipped to negative assertion: seeds entry ONLY in .koala location, asserts it is NOT read and read-path set has no .koala; prints dev-memory legacy read removal smoke passed (.koala no longer read).",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -59,9 +59,9 @@
           "command": "diff /tmp/salt-baseline-B-a4e3.txt <(grep salts now); npm run test:koala-residue",
           "result": "pass",
           "note": "25 salt literals byte-identical to baseline; salt-grep on source diff empty; test:koala-residue PASS 0 unclassified.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         }
       ]
     },
@@ -103,9 +103,9 @@
           "command": "npm run test:koala-residue",
           "result": "pass",
           "note": "Stale .koala-readable claims fixed (cli-engine:2333 help, audit-config:8 + stale-detector:126 JSDoc); test:koala-residue PASS 0 unclassified. Commit dcae4ee9f.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -113,9 +113,9 @@
           "command": "grep -n koala-[a-z-]+-integrity-v scripts/verify-koala-residue.mjs; git diff scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "Salt exemption regex /koala-[a-z-]+-integrity-v\\d+/g present at line 81; only NEUTRAL_TOKEN_PATTERNS data array changed (2 dead exemptions /work/koala/ + .git/koala removed, grep-proven zero occurrences); scan/classify functions untouched.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -123,9 +123,9 @@
           "command": "git diff main HEAD -- packages/main/src scripts | grep salt-patterns",
           "result": "pass",
           "note": "Zero salt literals modified in source/scripts diff; salt snapshot byte-identical to baseline; residue gate green proves salts exempt and intact.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         }
       ]
     },
@@ -167,9 +167,9 @@
           "command": "grep -n koala-agent/koala package.json packages/main/package.json; node -e JSON.parse(...)",
           "result": "pass",
           "note": "grep returns nothing (4 koala URLs removed); both package.json files parse as valid JSON. Commit a28817e1e.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -177,9 +177,9 @@
           "command": "grep -n test:koala-residue package.json",
           "result": "pass",
           "note": "test:koala-residue script present at package.json line 19 (and referenced in the test battery line 15); enforcement gate preserved.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -187,9 +187,9 @@
           "command": "npm --prefix packages/main run build; node JSON.parse",
           "result": "pass",
           "note": "Build exits 0; package.json files valid JSON after field deletion (repository.type kept, empty bugs/homepage removed); no salt touched.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         }
       ]
     },
@@ -231,9 +231,9 @@
           "command": "grep -n .koala/ CLAUDE.md; grep .lattice/audit-config CLAUDE.md",
           "result": "pass",
           "note": "grep .koala/ returns 0; the 5 runtime-path refs (lines 37,71,95,99,410) now say .lattice/audit-config.json / .lattice/activity.jsonl / .lattice/locks/main-write.lock; 5 .lattice path hits. Commit e1b3ecbf6. docs-drift gate verified at REVIEW preflight.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -241,9 +241,9 @@
           "command": "grep -c .koala-serve.json CLAUDE.md",
           "result": "pass",
           "note": ".koala-serve.json mentions = 7 (unchanged); it is still the live serve-discovery filename in code (dev-host.ts:46, serve.ts:795), so left verbatim — only .koala/<dir> paths updated.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -251,9 +251,9 @@
           "command": "grep koala-init-check-integrity-v1 CLAUDE.md; git diff CLAUDE.md | grep salt",
           "result": "pass",
           "note": "Salt mention (koala-init-check-integrity-v1 signing formula) untouched; no see story/B-xxx altered; CLAUDE.md diff salt-grep empty. docs-drift preflight passes.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         }
       ]
     },
@@ -295,9 +295,9 @@
           "command": "grep name: story_dispatch/finding_dispatch cli-engine.ts; lattice dispatch",
           "result": "pass",
           "note": "finding_dispatch + story_dispatch removed from cli-engine registry, command-policy, story-dispatch handler methods, process-fact-levels, config DEFAULT_PHASE_TOOLS; unified lattice dispatch is the only dispatch entry (still produces a prompt). FINDING: the deprecated-gc advisory count does NOT drop (stays 22) — the alias deprecation markers were markdown prose **deprecated in B-9d95** NOT @deprecated JSDoc tags, and all 22 @deprecated are legacy-JSON-compat KEEP fields; there were no dead @deprecated FIELDS to GC, only the dead CLI aliases. Commit 0c208c1f3.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -305,9 +305,9 @@
           "command": "grep -c @deprecated types.ts guard-session.ts",
           "result": "pass",
           "note": "All 7 legacy-JSON-compat @deprecated symbols retained: types.ts has 5 (phase, testIntent, TestIntent, traceDiff, git), guard-session.ts has 2 (GUARD_PRELAUNCH_PROVIDERS, providerSupportsPreToolBlocking). Each has a live old-JSON reader or is exported+tested; old-JSON reads unaffected.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -315,9 +315,9 @@
           "command": "git show 0c208c1f3 story-dispatch.ts (clusterId branch); npm build; tests",
           "result": "pass",
           "note": "dispatch() clusterId branch unchanged — still calls createClusterHandlers(ctx).finding_dispatch (a DIFFERENT cluster.ts function, def at cluster.ts:49, untouched). tsc build exits 0; process-fact-contract + flow-stability-smoke + deprecated-gc-smoke pass; B-8451 advisory mechanism (threshold logic) intact; zero salt literals modified.",
-          "headHash": "37cd6ca5344a60b7d25e357503be896eb14d5141",
-          "materialHash": "f987b7dd9b387e3177f39a6f14efe8af50ff5ed41ae1fe962e3fc0a262d6e2ce",
-          "timestamp": "2026-06-18T14:21:33.031Z"
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
         }
       ]
     }
