@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T19:49:46.955Z",
       "reviewRunId": "B-77ed:RR-002",
       "_hash": "481ce27af9f728dbd061dd78bb18bca42d203e9a6b5a9c10e9b76139ea5c986f"
+    },
+    {
+      "id": "B-77ed:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 13 intents across CHK-001/CHK-002/CHK-003. Bound commands literally match intent backtick commands in all 13 cases (no generic fallbacks). Spot-checked: CHK-001:happy:1 Date.now()+5000=0, CHK-001:happy:0 withMkdirLock 3-of-3, CHK-001:edge:0 failFastIfHeld=0, CHK-001:adversarial:0 mkdir-lock.ts diff=0, CHK-002:happy:0 retryOnAnyFailure=0, CHK-002:happy:1 JSON.parse OK, CHK-002:edge:0 serial smokes END (no BAD-*), CHK-002:adversarial:0 8-concurrent FAILS=0, CHK-003 all 4 commands reproduce expected values. No blocker found.",
+      "createdAt": "2026-06-18T19:55:11.941Z",
+      "reviewRound": "2026-06-18T19:49:46.955Z",
+      "reviewRunId": "B-77ed:RR-003",
+      "_hash": "ef9a0db904ffa8a6f2e8775b1d715c30aba23b71ffdc8839fc41f51eb6b001b3"
     }
   ]
 }
