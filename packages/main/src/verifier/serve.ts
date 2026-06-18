@@ -841,7 +841,7 @@ export async function startServe(options: ServeOptions) {
   if (!bridgeWsPort) {
     console.log(`  ⚠ Project core not found. Please start the project first:`);
     console.log(`    LATTICE_SERVE_PORT=<port> npx tsx src/main.ts`);
-    console.log(`    or npm run serve (will automatically start the core)`);
+    console.log(`    or lattice serve (will automatically start the core)`);
     return;
   }
   console.log(`  Core WS: ws://localhost:${bridgeWsPort}`);
