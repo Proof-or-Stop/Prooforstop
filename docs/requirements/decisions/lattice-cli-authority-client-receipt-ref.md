@@ -32,11 +32,12 @@ production `gate_decision` proof and a lifecycle gate consumes the resulting ref
 
 ## Bundle Handoff
 
-Most developers should consume the generated trust bundle rather than setting
-live runner variables by hand. The ordinary bundle path is
+Most developers should generate the trust bundle locally in the target workspace
+rather than setting live runner variables by hand. The ordinary bundle path is
 `lattice_authority_trust.env` + `lattice_staging-client.env` by default, or the
 `lattice_senior_*` pair when explicitly opted in. That bundle is sufficient for
-the normal client/config path; `LATTICE_AUTHORITY_PROJECT_ID` and any
+the normal client/config path, but it is workspace-local and should be
+regenerated on the destination machine; `LATTICE_AUTHORITY_PROJECT_ID` and any
 `LATTICE_AUTHORITY_GATE_ACTOR_*` values are required only for the live runner /
 receipt verification / gate-consumption path documented below.
 
