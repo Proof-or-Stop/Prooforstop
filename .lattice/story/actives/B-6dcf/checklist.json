@@ -51,9 +51,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed after commit b602ae20b; ManagedAssetCheckResult now includes metadataRoot, assetRoot, gitRoot, pathsRelativeTo, and assetRootGitRootSplit.",
-          "headHash": "b602ae20b72803f407b2769e8f3ef947c8fb8f06",
-          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
-          "timestamp": "2026-06-18T01:46:28.476Z"
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "command": "npm run test:managed-assets-wrapper-root",
           "result": "pass",
           "note": "Focused wrapper-root smoke asserts check --json distinguishes metadataRoot, assetRoot, configured gitRoot, pathsRelativeTo=assetRoot, and split=true.",
-          "headHash": "b602ae20b72803f407b2769e8f3ef947c8fb8f06",
-          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
-          "timestamp": "2026-06-18T01:46:28.636Z"
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -162,9 +162,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed after commit b602ae20b; renderManagedAssetCheck includes root guidance immediately after Summary for all check states.",
-          "headHash": "7cf06b93012ba7ad5532c5b28c314c9b53969395",
-          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
-          "timestamp": "2026-06-18T01:46:41.370Z"
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -172,9 +172,9 @@
           "command": "npm run test:managed-assets-wrapper-root",
           "result": "pass",
           "note": "Focused smoke asserts DRIFT and OK text place root guidance immediately after Summary, before apply recommendations or manifest output, and show configured gitRoot separately when split.",
-          "headHash": "7cf06b93012ba7ad5532c5b28c314c9b53969395",
-          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
-          "timestamp": "2026-06-18T01:46:41.580Z"
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -273,9 +273,9 @@
           "command": "npm run test:managed-assets-wrapper-root",
           "result": "pass",
           "note": "Focused smoke creates a temporary non-git metadataRoot with configured gitRoot subdir and verifies JSON/text diagnostics distinguish roots.",
-          "headHash": "98cf3ed9ea5d467a225dfb86363c72e67a9c9ded",
-          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
-          "timestamp": "2026-06-18T01:46:54.248Z"
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -283,9 +283,9 @@
           "command": "npm run test:managed-assets-wrapper-root",
           "result": "pass",
           "note": "Focused smoke runs check --apply and asserts .lattice/Lattice.md plus .lattice/managed-assets.json are written under metadataRoot/assetRoot while gitRoot sentinel content remains unchanged.",
-          "headHash": "98cf3ed9ea5d467a225dfb86363c72e67a9c9ded",
-          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
-          "timestamp": "2026-06-18T01:46:54.447Z"
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -293,9 +293,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed with managed-assets-wrapper-root-smoke.ts compiled and exposed by package scripts.",
-          "headHash": "98cf3ed9ea5d467a225dfb86363c72e67a9c9ded",
-          "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
-          "timestamp": "2026-06-18T01:46:54.678Z"
+          "headHash": "5f84b1cc388cb56873b00373cf6a269681961751",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:20.955Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
