@@ -64,9 +64,9 @@
       "id": "CHK-002",
       "title": "Fix global-fallback guard brand mismatch in codex-adapter-checks.ts",
       "context": "In packages/main/src/core/codex-adapter-checks.ts:644 the globalCoreCandidates array only lists { @lattice-agent/core }. The actual installed global npm link is @koala-agent/core, so checkGlobalFallback never finds the global core and never emits its intended heartbeat-only warning. Add a second candidate { path: join(globalRoot, @koala-agent, core), label: @koala-agent/core } so the guard fires for the real install and the operator sees the correct signal that the global lattice resolves to main dist (heartbeat-only, not current-worktree evidence). ~2-3 lines. Do NOT change any other guard logic.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T14:31:21.515Z",
-      "endTime": null,
+      "endTime": "2026-06-18T14:31:22.064Z",
       "userSees": "`grep @koala-agent packages/main/src/core/codex-adapter-checks.ts` shows the added candidate; the global-fallback warning now fires for the real install.",
       "files": {
         "modify": [
