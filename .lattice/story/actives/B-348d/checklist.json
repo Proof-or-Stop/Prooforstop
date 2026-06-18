@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add retryOnAnyFailure manifest field + extend pass-2 retry membership in run-all-smokes.ts",
+      "context": "In packages/main/src/tasks/run-all-smokes.ts, the pass-2 retry set is currently the pass-1 results with status===TIMEOUT. Extend the membership predicate to ALSO include status===FAIL entries whose manifest entry has retryOnAnyFailure===true. Add the optional field retryOnAnyFailure?: boolean (default false/absent) to the ManifestEntry type + the smoke-manifest.json schema annotation. The default for every smoke without the flag is UNCHANGED (FAIL is terminal, only TIMEOUT retries) — preserve B-2941 behavior exactly for non-allowlisted smokes. Keep --no-retry disabling pass-2 entirely. Build clean.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Flag the verified load-flake allowlist in smoke-manifest.json",
+      "context": "Set retryOnAnyFailure:true on the four candidates: field-regression-cli, verification-freshness, worktree-repair, review-pass-discard. BEFORE flagging each, re-run it standalone serial (node packages/main/dist/tasks/<name>-smoke.js) and confirm exit 0 — only serial-stable smokes qualify (a serial FAIL would be a real bug, not a load flake, and must NOT be allowlisted). Each flagged entry must be self-documenting (the manifest already carries the name; add a sibling _note or rely on the CHANGELOG to record WHY each is allowlisted = known parallel-load FAIL, serial-stable, deferred root-cause). Do NOT flag any smoke that is not in the findings list + not serial-verified.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Self-smoke case + CHANGELOG + docs + 3x verify",
+      "context": "Add a deterministic self-smoke case to main run-all-smokes-smoke.ts (or its fixture set): a fixture smoke that always FAILs (exit 1) WITH retryOnAnyFailure:true is retried in pass 2 (and if it fails both passes still counts FAIL), AND a fixture smoke that FAILs WITHOUT the flag is NOT retried (default preserved — proves real bugs are not masked). CHANGELOG Unreleased entry under Test infrastructure documenting the opt-in flag + the four allowlisted smokes + that it is a stopgap with a deferred root-cause follow-up. Update docs/dev/test-coverage.md. Final: 3 consecutive npm run test:all — expect deterministic green (the four load-flake smokes now retry-on-FAIL); if any non-allowlisted smoke FAILs, that is a real signal, investigate not allowlist.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
