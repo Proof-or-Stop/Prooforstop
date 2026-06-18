@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-18T14:03:10.894Z",
       "reviewRunId": "B-a4e3:RR-004",
       "_hash": "75f863f0dbd4f3ff1e0ecd14669e005b78a9b9c74971fe455010aa0725b07e3e"
+    },
+    {
+      "id": "B-a4e3:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-deletion completeness confirmed at HEAD d64f90b. (1) LEGACY_KOALA_DIR: zero residue in packages/main/src. (2) deprecated dispatch alias registrations (name: story_dispatch / name: finding_dispatch): zero residue in packages/main/src. (3) npm run test:koala-residue: PASS 0 unclassified. (4) Salt constraint grep (koala-*-integrity-v / koala-review- / koala-scope-check / etc.): empty — no integrity salts renamed. The two post-round-1 commits (CLAUDE.md line 874 + config.ts JSDoc) do not touch any deleted concept symbols. No findings.",
+      "createdAt": "2026-06-18T14:13:47.354Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-007",
+      "_hash": "ea08b188374d0874534042dacf0b7eeb0a518f3489550427a64380b7caa5514a"
     }
   ]
 }
