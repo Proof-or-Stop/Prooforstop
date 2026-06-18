@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Reuse the existing derive+persist machinery (deriveFindingSignalsFromStore + writeFindingSignals); add no new derivation or storage path.",
+    "Advisory only: the single write is the materialHash-excluded learning cache; no gate, no finding, no scoring/promptHash change.",
+    "Correct classification: a cache-writing command is L2 experience-layer (not read-only), registered consistently incl. process-fact-levels.",
+    "Faithful snapshot: scan persists all derived signals; staleness filtering stays at read time.",
+    "Prove the loop end-to-end: a test must show hints go from empty (pre-scan) to firing (post-scan)."
+  ],
+  "drivers": [
+    "Activating advisory hints without touching any gate or determinism.",
+    "Keeping the new command consistent across every registry the process-fact contract checks.",
+    "Demonstrating the activation effect, not just that a file was written."
+  ],
+  "options": [
+    {
+      "name": "Thin CLI over deriveFindingSignalsFromStore with projectRoot (chosen)",
+      "pros": [
+        "Minimal surface: reuses the proven, already-tested derive+persist path.",
+        "No new storage code; learning-store remains the only toucher of .lattice/learning/.",
+        "Deterministic and easy to smoke-test end-to-end (scan then hint-fires)."
+      ],
+      "cons": [
+        "Recomputes all signals each run (acceptable: small data, out-of-band maintenance command)."
+      ]
+    },
+    {
+      "name": "New bespoke scan+persist path",
+      "pros": [
+        "Could add scan-time filtering or incremental update."
+      ],
+      "cons": [
+        "Duplicates derivation/storage logic; risks divergence from the read path.",
+        "Scan-time filtering is explicitly out of scope; incremental update is premature."
+      ]
+    },
+    {
+      "name": "Auto-scan on a hook (no explicit command)",
+      "pros": [
+        "Cache could stay fresh without an operator step."
+      ],
+      "cons": [
+        "Hidden writes during gated flows risk surprising state changes; harder to reason about and test.",
+        "An explicit, auditable command is clearer for a first activation slice."
+      ]
+    }
+  ],
+  "chosen": "Thin CLI over deriveFindingSignalsFromStore with projectRoot (chosen)",
+  "rationale": "A thin command over the existing, already-tested derive+persist path is the smallest correct way to activate the hint cache; it adds no new storage logic, keeps learning-store the sole cache writer, and is straightforward to verify end-to-end (hints empty before, firing after). The bespoke and auto-hook options add scope or hidden writes that this first activation slice does not need.",
+  "preMortem": [
+    {
+      "scenario": "learning_scan writes the cache but hints still never fire.",
+      "trigger": "The handler passes a project-root that differs from the one the hint loader reads, so the cache lands at a path the loader does not consult.",
+      "consequence": "The story claims activation but the loop stays inert — the central deliverable silently fails.",
+      "mitigation": "Use the same root the handler context/store exposes; the smoke runs scan THEN the hint loader against the same root and asserts a non-empty hints section (empty before, firing after)."
+    },
+    {
+      "scenario": "The new command breaks the project-wide process-fact contract.",
+      "trigger": "learning_scan is added to cli-engine/config but not to PROCESS_FACT_LEVELS, so the process-fact-contract suite in npm test fails (as happened on B-a2e3).",
+      "consequence": "DONE is blocked late by the full npm test fallback.",
+      "mitigation": "Add the L2 experience-layer entry to PROCESS_FACT_LEVELS in the same change; the verifier runs the full npm test and asserts process-fact-contract passes; run npm test before REVIEW."
+    },
+    {
+      "scenario": "learning_scan is mis-classified as read-only.",
+      "trigger": "It is copied from learning_validate and accidentally added to READ_ONLY_COMMANDS or given ownershipClass readOnly, despite writing the cache.",
+      "consequence": "Its cache write is omitted from the activity audit trail and the command is mislabeled, misleading future contributors.",
+      "mitigation": "Explicitly classify it as a writing L2 experience-layer command; verifier asserts it is NOT in READ_ONLY_COMMANDS and command-policy ownershipClass is not readOnly."
+    },
+    {
+      "scenario": "Writing the cache dirties the worktree and blocks a gate.",
+      "trigger": "finding-signals.json is written somewhere not covered by the materialHash exclusion.",
+      "consequence": "git-working-tree / evidence-freshness gates trip on the cache file.",
+      "mitigation": "Persist only via writeFindingSignals under .lattice/learning/ (already materialHash-excluded); the verifier asserts no tracked source file changes from running the scan."
+    }
+  ],
+  "timestamp": "2026-06-18T02:02:04.776Z"
+}
