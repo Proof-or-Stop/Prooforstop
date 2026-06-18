@@ -166,6 +166,17 @@
           "headHash": "1d209e57755a4c20fd4baf993eddfe220eabb62a",
           "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
           "timestamp": "2026-06-18T00:40:20.173Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages/main/smoke-manifest.json | grep -B1 -A1 lattice-baseline | grep -cE '^[+].*(skip|tags)'",
+          "result": "pass",
+          "note": "Returns 0 — only timeoutMs key changed for lattice-baseline (no skip/tags edits).",
+          "headHash": "0f07cf4236431f938c7c9079d8fe9c841a4a4288",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:21.840Z"
         }
       ]
     },
