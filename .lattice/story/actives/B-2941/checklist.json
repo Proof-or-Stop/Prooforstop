@@ -231,6 +231,17 @@
           "headHash": "7600fea680ad297ee647cf80efc518b093d20b5f",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:21.226Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git show main:packages/main/smoke-manifest.json > /tmp/main-mf.json 2>&1; node -e \"const a=require('/tmp/main-mf.json'),b=require('./packages/main/smoke-manifest.json');const am=Object.fromEntries(a.smokes.map(s=>[s.name,s.timeoutMs]));const ch=b.smokes.filter(s=>am[s.name]!==undefined&&am[s.name]!==s.timeoutMs).map(s=>s.name);console.log('CHANGED:'+JSON.stringify(ch))\"",
+          "result": "pass",
+          "note": "Prints CHANGED:[] — no existing timeoutMs values changed (B-24c3 frozen).",
+          "headHash": "9a1e3c30a0afdcecc95759ecbca3198ad5cc7777",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:21.811Z"
         }
       ]
     },
