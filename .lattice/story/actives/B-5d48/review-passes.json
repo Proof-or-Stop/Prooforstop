@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-18T13:50:17.000Z",
       "reviewRunId": "B-5d48:RR-005",
       "_hash": "94314eaa825c0ea3eb6482c7f822351dd003e77b2ec2badf79245c8f45b6af85"
+    },
+    {
+      "id": "B-5d48:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review: (1) F-005 RESOLVED — types.ts line 9 imports SignatureTagSource from experience-layer-types.js via `import type` (no re-export needed; used only for Finding.signatureTagSource field); experience-layer-types.ts has zero imports so no cycle. (2) Dead code: none — resolveTag/deriveSignatureCandidate/all smoke imports all active. No commented-out logic. (3) Type safety: no `as any`; empty catch at line 270 of smoke test is best-effort cleanup with explicit comment, not error-swallowing. (4) I/O shell isolation: signature-candidate.ts consumed only by handlers/finding.ts and the smoke task, never by cli.ts/cli-engine.ts/index.ts shells. (5) _hash invariance: signFinding call at line 331 precedes signatureTag/signatureTagSource spread at line 336 — both audit fields excluded from signed domain. (6) signatureTagSource conditioned on same truthiness as signatureTag (line 336) — consistent with deriveSignatureCandidate never-empty contract. No blockers found.",
+      "createdAt": "2026-06-18T13:53:02.908Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-006",
+      "_hash": "2cc7be68e0025e84ceb4ee14658848c5aa60d54dfc23443137566c53c30b6f15"
     }
   ]
 }
