@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-18T13:35:38.436Z",
       "reviewRunId": "B-5d48:RR-002",
       "_hash": "2b61636e1988382fc1c3973caabc759cce580e5c7fec5663ba52e961aec57cf7"
+    },
+    {
+      "id": "B-5d48:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All three CHKs verified: (1) deriveSignatureCandidate is pure, deterministic, never-throws, never-empty — confirmed by 9 leaf checks + static import scan. (2) finding_add with no/blank/whitespace tag persists signatureTagSource=auto + auto candidate; with tag persists signatureTagSource=confirmed + byte-identical tag; _hash is BYTE-IDENTICAL (signFinding domain unchanged, new fields attached after _hash). Verified live-fire: F-001 auto, F-003 confirmed, F-004 whitespace=auto — all _hashes recompute correctly. (3) signatureTag/signatureTagSource excluded from signFinding (static grep confirms no args), finding-verify.ts untouched (git diff empty), no gate file (advisory.ts, story.ts, finding-verify.ts, review-run.ts, evidence-freshness.ts) reads the new fields. resolveTag on unknown tag returns as-is (no crash). Smoke 15/15, verifier 36/36. No blockers found.",
+      "createdAt": "2026-06-18T13:42:09.723Z",
+      "reviewRound": "2026-06-18T13:35:38.436Z",
+      "reviewRunId": "B-5d48:RR-004",
+      "_hash": "e630d11216a7fab644514e22ef9ddce0422c30d95289bc475a0110e9b74fb824"
     }
   ]
 }
