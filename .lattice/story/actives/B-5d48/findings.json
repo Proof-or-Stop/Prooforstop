@@ -127,6 +127,25 @@
       "resolvedAt": "2026-06-18T13:50:36.138Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5d48:F-007",
+      "desc": "CHK-003:adversarial:2 evidence command mismatch: the intent requires the verifier to detect a deliberately-broken signFinding call and report FAIL>0 (negative self-test / exclusionCheckHasTeeth). The actual negative self-test (detectSignCallExcludesTag on a synthetic BAD_SIGN_SNIPPET) lives exclusively in verify-b-5d48.mjs, yet the bound evidence record uses command=npm --prefix packages/main run test:experience-layer-signature-capture (the smoke) and a note that describes only generic 15/15 smoke checks — no mention of negSelfTestRejectsBad or exclusionCheckHasTeeth. The smoke test does not contain any negative-path assertion. The evidence command must point to the command that actually executes the negative test (the verifier), and the note must concretely describe the BAD_SIGN_SNIPPET rejection result.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T13:53:38.894Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-007",
+      "_hash": "d48098bb1a3f1d9ce4739d5f439e38c6532cb7bd65e0167676556f5b2c644ba4",
+      "files": [
+        ".lattice/story/actives/B-5d48/evidence/verify-b-5d48.mjs",
+        "packages/main/src/tasks/experience-layer-signature-capture-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|adversarial-evidence-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
