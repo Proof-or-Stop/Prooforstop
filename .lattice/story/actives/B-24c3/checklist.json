@@ -155,6 +155,17 @@
           "headHash": "750e12c3e5441fe012224d7045eb9b3b806f00ac",
           "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
           "timestamp": "2026-06-18T00:40:18.558Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/lattice-baseline-smoke.js > /tmp/b24c3-lbl.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — lattice-baseline serial PASS in ~95s within new 360s timeout.",
+          "headHash": "1d209e57755a4c20fd4baf993eddfe220eabb62a",
+          "materialHash": "a2c58162801d246a88a039db17a9b303947de92b0d884fc042efe6d9931e2188",
+          "timestamp": "2026-06-18T00:40:20.173Z"
         }
       ]
     },
