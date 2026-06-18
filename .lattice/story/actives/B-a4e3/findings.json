@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-a4e3:F-001",
+      "desc": "doc-code-drift: CLAUDE.md line 874 states story_dispatch / finding_dispatch are deprecated aliases still usable (仍可用但 stderr 告警), but B-a4e3 CHK-005 fully removed them — cli-engine.ts:1900-1901 and command-policy.ts:330 both carry explicit removal comments. Agents following CLAUDE.md will attempt lattice story_dispatch / lattice finding_dispatch and get command-not-found errors.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-18T14:06:38.497Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-005",
+      "_hash": "a56f10587820a94543177db848cb01d185d6e68f6d7a2c448291b0edd003c966",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-claude",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
