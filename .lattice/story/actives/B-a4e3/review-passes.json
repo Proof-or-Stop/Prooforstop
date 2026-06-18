@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T14:03:10.894Z",
       "reviewRunId": "B-a4e3:RR-003",
       "_hash": "515fb425f5e8c7f16b856176709a4a127e8b2c3999a2eb8244487095148a212f"
+    },
+    {
+      "id": "B-a4e3:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness verified. HARD CONSTRAINT (salt preservation): git diff main HEAD -- packages/main/src scripts | grep -iE koala-*-integrity-v|koala-review-|... produced zero output — no signature salts were renamed. Check 1 LEGACY_KOALA_DIR: zero residue in packages/main/src (grep empty). Check 2 CLI registry aliases: name: story_dispatch and name: finding_dispatch fully removed from cli-engine.ts and command-policy.ts; remaining cluster.ts finding_dispatch is the internal handler object method (different symbol, intentional). Check 3 .koala read-fallback: all consumer functions deleted (getLegacyKoalaActivityLogPath, resolveLegacyProjectMemoryPath, resolveLegacyGlobalMemoryPath, legacyPlannerStateDir, LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, LEGACY_KOALA_REPAIR_IGNORE); FORBIDDEN_WRITE_DIR sentinel and dev-memory-legacy-read-smoke negative assertions are intentional and documented. Check 4 test:koala-residue: PASS koala-residue: 0 unclassified. Closing self-check: CLAUDE.md changes are pure .koala->/.lattice path substitutions, no new commands promised. No doc-promise-undelivered found. Zero findings.",
+      "createdAt": "2026-06-18T14:05:53.694Z",
+      "reviewRound": "2026-06-18T14:03:10.894Z",
+      "reviewRunId": "B-a4e3:RR-001",
+      "_hash": "d49119c9d5f99ed0a7add987ad453d0df4c4c8544aa6f42a37fee5fe9ec56f6d"
     }
   ]
 }
