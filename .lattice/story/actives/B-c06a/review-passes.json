@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T15:57:22.456Z",
       "reviewRunId": "B-c06a:RR-004",
       "_hash": "de0e2557c7f020b5d71a6f605edd57c6526b256dc039c19931fbeb0d15058cf3"
+    },
+    {
+      "id": "B-c06a:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage review passed. Smoke: 19/19 checks pass (TOTAL 19 | PASS 19 | FAIL 0). Verifier: TOTAL 46 | PASS 46 | FAIL 0. F-003 (--json/--confirmedOnly CLI subprocess paths) resolved: smoke now exercises literal subprocess calls node bin/lattice.js learning_effectiveness with {\\\"json\\\":true}, {\\\"confirmedOnly\\\":true}, and {\\\"json\\\":true,\\\"confirmedOnly\\\":true}, parsing structured JSON output and asserting field shapes. F-004 (empty/edge store at CLI/handler level) resolved: smoke adds hermetic createLearningEffectivenessHandlers on mkdtemp root asserting zeros, no NaN, no crash in both json and human shapes. CHK-001 all 17 intents (happy:0-3, edge:0-6, adversarial:0-5): each bound to either test:experience-layer-effectiveness (logic_test, 19-check smoke) or verify-b-c06a.mjs (integration_test). CHK-002 all 13 intents: --json and --confirmedOnly covered by literal subprocess calls; empty-store handler covered by hermetic handler test; registration across all 6 surfaces confirmed by verifier static checks (allReg=true). CHK-003 all 16 intents: effectiveness smoke + npm script + 7 no-regression smokes + full npm test all pass; static leaf-purity and handler-read-only checks pass. Precision-field removal (F-002) reflected in smoke via precision===undefined assertions covering CHK-001:happy:0 + CHK-002:happy:1/happy:2. No must-gap found in any intent column.",
+      "createdAt": "2026-06-18T16:16:06.251Z",
+      "reviewRound": "2026-06-18T16:12:22.973Z",
+      "reviewRunId": "B-c06a:RR-007",
+      "_hash": "3f1e97d7543ceab3cfa3a41c55a5583cca93d72a4e2d2e9b06bbb8f2bcce1496"
     }
   ]
 }
