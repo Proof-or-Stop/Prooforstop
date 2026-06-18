@@ -131,7 +131,7 @@
       "desc": "doc-promise-undelivered: cli-engine.ts:1786 command description (user-visible) says \"recall/precision + trend\" and cli-engine.ts:1782 comment + command-policy.ts:218 reason string say \"recall/precision\" — but precision was removed in F-002; description promises a field the command never produces",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-18T16:14:50.342Z",
@@ -139,7 +139,11 @@
       "reviewRunId": "B-c06a:RR-006",
       "_hash": "8427595b430552353ed1d1ce1fb09e9f6b297fc6f6a982a4a07886125e8edfc0",
       "signatureTag": "missing|unknown|promise-undelivered-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same precision-wording fix as F-005: cli-engine description/comment + command-policy reason no longer mention precision (commit 16490ac60).",
+      "resolvedAt": "2026-06-18T16:20:29.218Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c06a:F-008",
