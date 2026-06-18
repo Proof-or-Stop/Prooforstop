@@ -4,7 +4,7 @@
   "title": "Fix audit doc references for story_get and HandoffAuthorityBoundary",
   "description": "Two verified audit findings remain open in B-META-framework-audit: one doc path citation points to core/story-query.ts instead of the actual handlers/story-query.ts location, and one authority-boundary table omits noHiddenContextSharing:true even though the source already defines it. This is a documentation correctness fix only; no runtime behavior should change.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "createdAt": "2026-06-18T11:01:01.095Z",
   "startedAt": "2026-06-18T11:01:01.095Z",
@@ -46,6 +46,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-18T11:12:37.293Z",
+      "branch": "story/B-aca2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-18T11:21:28.443Z",
       "branch": "story/B-aca2",
       "user": "Harmonygo",
       "agent": "main"
