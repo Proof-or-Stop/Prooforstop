@@ -1,15 +1,15 @@
 {
   "command": "lattice validate --story=B-f14a --json",
-  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; verification coverage missing 9 required intent(s)\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 0/9 covered (9 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/logic] stale via logic_test verdict=success (packages/main/src/core/authority-client.ts) — Valid gate-capable inputs still produce signed job-create envelopes and completions as before.\",\"  ✗ CHK-001:edge:0 [edge/must/logic] stale via logic_test verdict=success (packages/main/src/core/command-policy.ts) — Failure reasons no longer mention mac_ui after the wording cleanup.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] stale via logic_test verdict=success (packages/main/src/tasks/authority-client-smoke.ts) — The CLI does not fall back to a wider role set when the Mac-specific wording is removed.\",\"  ✗ CHK-002:happy:0 [happy/must/docs] stale via docs_check verdict=success (docs/requirements/decisions/lattice-authority-live-integration.md) — CLI docs describe the same neutral gate vocabulary as the server contract.\",\"  ✗ CHK-002:edge:0 [edge/must/docs] stale via docs_check verdict=success (docs/requirements/decisions/authority-client-role.md) — The docs keep the project/session binding story intact and do not add new environment tiers.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/docs] stale via docs_check verdict=success (docs/requirements/decisions/authority-client-role.md) — No CLI doc still implies that mac_ui is a live client surface after the cleanup.\",\"  ✗ CHK-003:happy:0 [happy/must/logic] stale via logic_test verdict=success (packages/main/src/tasks/authority-client-smoke.ts) — Smokes continue to show successful job-create and completion behavior for valid inputs.\",\"  ✗ CHK-003:edge:0 [edge/must/logic] stale via logic_test verdict=success (packages/main/src/tasks/authority-completion-smoke.ts) — Stale or missing gate-capable inputs still fail closed with a neutral reason.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] stale via logic_test verdict=success (packages/main/src/tasks/authority-client-smoke.ts) — The regression suite prevents the old mac_ui wording from coming back in the CLI path.\"],\"warnings\":[],\"timestamp\":\"2026-06-18T21:05:44.587Z\",\"headSha\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":6704},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":223},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":217}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":0,\"missingRequired\":9,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Valid gate-capable inputs still produce signed job-create envelopes and completions as before.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/authority-client.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Valid gate-capable inputs still produce signed job-create envelopes and completions as before.\",\"headHash\":\"806c5443864f0f91da689b202fc6df968bb790d8\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:12.315Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Failure reasons no longer mention mac_ui after the wording cleanup.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/command-policy.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Failure reasons no longer mention mac_ui after the wording cleanup.\",\"headHash\":\"f0be7bfc02af27c1fbb05c6e31e8fdf258827d7e\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:13.008Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The CLI does not fall back to a wider role set when the Mac-specific wording is removed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"The CLI does not fall back to a wider role set when the Mac-specific wording is removed.\",\"headHash\":\"4bd3bd5ccf85bc95425f76e86634967674868195\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:13.590Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"CLI docs describe the same neutral gate vocabulary as the server contract.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/lattice-authority-live-integration.md\",\"command\":\"sh -lc 'if rg -n \\\"main/mac_ui\\\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'\",\"result\":\"pass\",\"note\":\"CLI docs describe the same neutral gate vocabulary as the server contract.\",\"headHash\":\"bdc760b4262de6ffcfb51770b95899561df057f1\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:14.203Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The docs keep the project/session binding story intact and do not add new environment tiers.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"sh -lc 'if rg -n \\\"main/mac_ui\\\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'\",\"result\":\"pass\",\"note\":\"The docs keep the project/session binding story intact and do not add new environment tiers.\",\"headHash\":\"1ab3aed2f4fa67cabbedf9b6c59f4f13a75c33a9\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:14.780Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No CLI doc still implies that mac_ui is a live client surface after the cleanup.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"sh -lc 'if rg -n \\\"main/mac_ui\\\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'\",\"result\":\"pass\",\"note\":\"No CLI doc still implies that mac_ui is a live client surface after the cleanup.\",\"headHash\":\"aaa6992d0ca589a21fb4e1e0bd5f961a7730124b\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:15.374Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smokes continue to show successful job-create and completion behavior for valid inputs.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Smokes continue to show successful job-create and completion behavior for valid inputs.\",\"headHash\":\"db304e36071c92bacbc007625fc9414c48bd3a1e\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:15.983Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Stale or missing gate-capable inputs still fail closed with a neutral reason.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-completion-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Stale or missing gate-capable inputs still fail closed with a neutral reason.\",\"headHash\":\"f296ec77d6ea417853d156b5d923195dc7ab1295\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:16.560Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The regression suite prevents the old mac_ui wording from coming back in the CLI path.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"The regression suite prevents the old mac_ui wording from coming back in the CLI path.\",\"headHash\":\"46c8987cc1be6c9c6df20ebb80dea5a97599d6b9\",\"materialHash\":\"88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47\",\"timestamp\":\"2026-06-18T20:48:17.088Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-18T21:05:45.353Z",
-  "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/core/authority-client.ts) — Valid gate-capable inputs still produce signed job-create envelopes and completions as before.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/core/command-policy.ts) — Failure reasons no longer mention mac_ui after the wording cleanup.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/authority-client-smoke.ts) — The CLI does not fall back to a wider role set when the Mac-specific wording is removed.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/lattice-authority-live-integration.md) — CLI docs describe the same neutral gate vocabulary as the server contract.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/authority-client-role.md) — The docs keep the project/session binding story intact and do not add new environment tiers.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/authority-client-role.md) — No CLI doc still implies that mac_ui is a live client surface after the cleanup.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/authority-client-smoke.ts) — Smokes continue to show successful job-create and completion behavior for valid inputs.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/authority-completion-smoke.ts) — Stale or missing gate-capable inputs still fail closed with a neutral reason.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/authority-client-smoke.ts) — The regression suite prevents the old mac_ui wording from coming back in the CLI path.\"],\"warnings\":[],\"timestamp\":\"2026-06-18T21:06:25.532Z\",\"headSha\":\"36662daf755709a71e2a385047b372fb071cd89f\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":6758},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":216},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":203}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Valid gate-capable inputs still produce signed job-create envelopes and completions as before.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/authority-client.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Valid gate-capable inputs still produce signed job-create envelopes and completions as before.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Failure reasons no longer mention mac_ui after the wording cleanup.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/command-policy.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Failure reasons no longer mention mac_ui after the wording cleanup.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The CLI does not fall back to a wider role set when the Mac-specific wording is removed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"The CLI does not fall back to a wider role set when the Mac-specific wording is removed.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"CLI docs describe the same neutral gate vocabulary as the server contract.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/lattice-authority-live-integration.md\",\"command\":\"sh -lc 'if rg -n \\\"main/mac_ui\\\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'\",\"result\":\"pass\",\"note\":\"CLI docs describe the same neutral gate vocabulary as the server contract.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The docs keep the project/session binding story intact and do not add new environment tiers.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"sh -lc 'if rg -n \\\"main/mac_ui\\\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'\",\"result\":\"pass\",\"note\":\"The docs keep the project/session binding story intact and do not add new environment tiers.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No CLI doc still implies that mac_ui is a live client surface after the cleanup.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"sh -lc 'if rg -n \\\"main/mac_ui\\\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'\",\"result\":\"pass\",\"note\":\"No CLI doc still implies that mac_ui is a live client surface after the cleanup.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smokes continue to show successful job-create and completion behavior for valid inputs.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Smokes continue to show successful job-create and completion behavior for valid inputs.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Stale or missing gate-capable inputs still fail closed with a neutral reason.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-completion-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"Stale or missing gate-capable inputs still fail closed with a neutral reason.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The regression suite prevents the old mac_ui wording from coming back in the CLI path.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/authority-client-smoke.ts\",\"command\":\"npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js\",\"result\":\"pass\",\"note\":\"The regression suite prevents the old mac_ui wording from coming back in the CLI path.\",\"headHash\":\"8d3069a930877399e106734c143105d1dd8d9951\",\"materialHash\":\"511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705\",\"timestamp\":\"2026-06-18T21:06:11.785Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-18T21:06:26.150Z",
+  "headHash": "36662daf755709a71e2a385047b372fb071cd89f",
   "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
   "verificationCoverage": {
     "total": 9,
     "required": 9,
-    "covered": 0,
-    "missingRequired": 9,
+    "covered": 9,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,7 @@
         "desc": "Valid gate-capable inputs still produce signed job-create envelopes and completions as before.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
@@ -27,9 +27,9 @@
           "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
           "result": "pass",
           "note": "Valid gate-capable inputs still produce signed job-create envelopes and completions as before.",
-          "headHash": "806c5443864f0f91da689b202fc6df968bb790d8",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:12.315Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -39,7 +39,7 @@
         "desc": "Failure reasons no longer mention mac_ui after the wording cleanup.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
@@ -48,9 +48,9 @@
           "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
           "result": "pass",
           "note": "Failure reasons no longer mention mac_ui after the wording cleanup.",
-          "headHash": "f0be7bfc02af27c1fbb05c6e31e8fdf258827d7e",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:13.008Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -60,7 +60,7 @@
         "desc": "The CLI does not fall back to a wider role set when the Mac-specific wording is removed.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
@@ -69,9 +69,9 @@
           "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
           "result": "pass",
           "note": "The CLI does not fall back to a wider role set when the Mac-specific wording is removed.",
-          "headHash": "4bd3bd5ccf85bc95425f76e86634967674868195",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:13.590Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -81,7 +81,7 @@
         "desc": "CLI docs describe the same neutral gate vocabulary as the server contract.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
@@ -90,9 +90,9 @@
           "command": "sh -lc 'if rg -n \"main/mac_ui\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'",
           "result": "pass",
           "note": "CLI docs describe the same neutral gate vocabulary as the server contract.",
-          "headHash": "bdc760b4262de6ffcfb51770b95899561df057f1",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:14.203Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -102,7 +102,7 @@
         "desc": "The docs keep the project/session binding story intact and do not add new environment tiers.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
@@ -111,9 +111,9 @@
           "command": "sh -lc 'if rg -n \"main/mac_ui\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'",
           "result": "pass",
           "note": "The docs keep the project/session binding story intact and do not add new environment tiers.",
-          "headHash": "1ab3aed2f4fa67cabbedf9b6c59f4f13a75c33a9",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:14.780Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -123,7 +123,7 @@
         "desc": "No CLI doc still implies that mac_ui is a live client surface after the cleanup.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
@@ -132,9 +132,9 @@
           "command": "sh -lc 'if rg -n \"main/mac_ui\" docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/authority-client-role.md; then exit 1; fi'",
           "result": "pass",
           "note": "No CLI doc still implies that mac_ui is a live client surface after the cleanup.",
-          "headHash": "aaa6992d0ca589a21fb4e1e0bd5f961a7730124b",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:15.374Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -144,7 +144,7 @@
         "desc": "Smokes continue to show successful job-create and completion behavior for valid inputs.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
@@ -153,9 +153,9 @@
           "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
           "result": "pass",
           "note": "Smokes continue to show successful job-create and completion behavior for valid inputs.",
-          "headHash": "db304e36071c92bacbc007625fc9414c48bd3a1e",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:15.983Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -165,7 +165,7 @@
         "desc": "Stale or missing gate-capable inputs still fail closed with a neutral reason.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
@@ -174,9 +174,9 @@
           "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
           "result": "pass",
           "note": "Stale or missing gate-capable inputs still fail closed with a neutral reason.",
-          "headHash": "f296ec77d6ea417853d156b5d923195dc7ab1295",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:16.560Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       },
       {
@@ -186,7 +186,7 @@
         "desc": "The regression suite prevents the old mac_ui wording from coming back in the CLI path.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
@@ -195,9 +195,9 @@
           "command": "npm run build && node dist/tasks/authority-client-smoke.js && node dist/tasks/authority-completion-smoke.js",
           "result": "pass",
           "note": "The regression suite prevents the old mac_ui wording from coming back in the CLI path.",
-          "headHash": "46c8987cc1be6c9c6df20ebb80dea5a97599d6b9",
-          "materialHash": "88550bc18c3e04385e99d4fb313dd5ac1aa3bec33a22c68a090bea4df8c29c47",
-          "timestamp": "2026-06-18T20:48:17.088Z"
+          "headHash": "8d3069a930877399e106734c143105d1dd8d9951",
+          "materialHash": "511a52701f7a6dceb73e3086b93fcf4bd5d35079a7ef212c9ff77af7030b9705",
+          "timestamp": "2026-06-18T21:06:11.785Z"
         }
       }
     ]
