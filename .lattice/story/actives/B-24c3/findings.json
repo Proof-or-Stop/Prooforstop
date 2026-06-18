@@ -23,6 +23,18 @@
       "createdAt": "2026-06-18T00:38:26.684Z",
       "reviewRound": "",
       "_hash": "5dbe5b9a5263312cd245700c977ae6e5b86210935303d6ecf7df520b23145639"
+    },
+    {
+      "id": "B-24c3:F-003",
+      "desc": "verification-freshness timed out under heavy parallel test:all load during B-24c3 CHK-003 verify (run 3: verification-freshness exceeded its current timeoutMs). Out of scope for B-24c3 (9-target manifest bumps); same pattern but emerges only AFTER the original 9 are bumped (parallel load redistributes). Tracking for the systemic parallel-test-architecture redesign follow-up story.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T00:38:28.424Z",
+      "reviewRound": "",
+      "_hash": "f575ff71932b42bd340922071969b98a79d322c86d6b27057dc5979f25924b1b"
     }
   ]
 }
