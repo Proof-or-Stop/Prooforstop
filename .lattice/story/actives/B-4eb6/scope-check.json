@@ -1,0 +1,72 @@
+{
+  "storyId": "B-4eb6",
+  "checkedAt": "2026-06-18T02:07:27.202Z",
+  "features": [
+    {
+      "feature": "learning_scan handler derives+persists the finding-signals cache",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "--story / --json flags + summary output",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "register across cli-engine/registry/config/command-policy/process-fact-levels",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "smoke + npm script + verifier (incl. static checks for all registration points)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "signatureTag auto-candidate capture",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story 3.2",
+      "source": "description"
+    },
+    {
+      "feature": "A/B hint-mode gating",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story 3.3",
+      "source": "description"
+    },
+    {
+      "feature": "effectiveness metric command",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story 3.4",
+      "source": "description"
+    },
+    {
+      "feature": "cross-repo aggregation / gate-scoring changes / scan-time staleness filtering",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 4,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a13a639e50a799a1718b2212da83c1878cee3288cbf6b7201eb6a3d01c87da70"
+}

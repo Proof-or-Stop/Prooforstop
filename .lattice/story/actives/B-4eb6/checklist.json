@@ -10,9 +10,194 @@
         "No signatureTag capture (that is story 3.2)",
         "No change to the derivation math"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T02:12:00.679Z",
+      "endTime": "2026-06-18T02:12:13.224Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/handlers/learning-scan.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice learning_scan against a store with findings -> .lattice/learning/finding-signals.json is created with valid FindingSignalsCache (schemaVersion, signals[], updatedAt); WHY: proves derive+persist path writes the cache the hint loader reads",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan --json -> stdout is parseable JSON with { written: true, path, signals: <n>, updatedAt }; WHY: proves machine-readable output path",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan --story <storyId> with a known story -> only signals from that story appear in cache; WHY: proves story-scoping filter works",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan (no flags) -> human-readable summary printed to stdout mentioning signal count, path, and updatedAt; WHY: proves default text rendering",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice learning_scan against a store with zero findings -> cache written with signals:[] (empty array), schemaVersion present, no crash; WHY: empty-store boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan --story nonexistent-id -> cache written with signals:[] and no error thrown; WHY: non-matching story filter degrades gracefully",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan twice with same store state -> output files are byte-identical (deterministic given pinned now); WHY: proves idempotency",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice learning_scan when .lattice/learning/ directory does not yet exist -> directory is created and cache is written; WHY: first-run bootstrap boundary",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inspect handler: the ONLY filesystem write is to .lattice/learning/finding-signals.json -- no finding_add, no gate write, no modification to tracked source files; WHY: prevents accidental side-effects that dirty worktree or trip a gate",
+            "type": "cli"
+          },
+          {
+            "desc": "Pass a projectRoot that differs from the store root (e.g. /tmp/wrong) -> verify cache is still written to correct .lattice/learning/ path relative to actual store, not bogus path; WHY: wrong projectRoot means hint loader never finds cache, defeating the feature",
+            "type": "cli"
+          },
+          {
+            "desc": "Call learning_scan then verify git status shows no changes to tracked source files (only .lattice/learning/ which is materialHash-excluded); WHY: cache write must not pollute source tree or cause materialHash drift",
+            "type": "cli"
+          },
+          {
+            "desc": "Invoke learning_scan with unexpected args (--gate, --finding) -> handler ignores or rejects them without side-effects; WHY: ensures handler surface is minimal and cannot be abused to trigger gates/findings",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke proves end-to-end activation: hint loader returns NO hints before the scan, then NON-EMPTY hints (recurring>=1, advisory header) after the scan persists the cache — empty before -> firing after. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Verifier wrongRootEliminated check: the handler sources projectRoot from ctx.root (never from args) and LearningScanArgs has no projectRoot/root field — the wrong-projectRoot vector is eliminated by construction, so the cache cannot be written to a path the hint loader will not read. FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -23,9 +208,212 @@
         "Not added to READ_ONLY_COMMANDS",
         "No gate registration"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T02:12:14.581Z",
+      "endTime": "2026-06-18T02:14:07.167Z",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep registry.ts for registerBatch(createLearningScanHandlers(ctx)) -> learning_scan is batch-registered; WHY: proves command is discoverable via the registry",
+            "type": "cli"
+          },
+          {
+            "desc": "grep cli-engine.ts for learning_scan command entry with schema {json?: boolean, story?: string} -> entry exists with correct schema; WHY: proves CLI discoverability and argument parsing",
+            "type": "cli"
+          },
+          {
+            "desc": "grep core/config.ts DEFAULT_PHASE_TOOLS for learning_scan -> present in appropriate phase groups alongside other experience-layer commands; WHY: proves phase-gating allows the command where needed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep core/command-policy.ts for learning_scan -> entry exists with ownershipClass that is NOT readOnly, status:supported, destructiveRisk:none; WHY: proves correct policy classification as a writing command",
+            "type": "cli"
+          },
+          {
+            "desc": "grep core/process-fact-levels.ts PROCESS_FACT_LEVELS for learning_scan -> entry exists with level L2, category experience-layer, owner handlers/learning-scan; WHY: required or process-fact-contract suite fails",
+            "type": "cli"
+          },
+          {
+            "desc": "Run full npm test -> all pass including process-fact-contract; WHY: proves registration is complete and consistent across all contract checks",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify learning_scan is NOT present in READ_ONLY_COMMANDS array/set -> absent; WHY: it writes the advisory cache so must not be classified as read-only",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify learning_scan command-policy allowedPhases does NOT include phases where only read-only commands should run (if such restriction exists); WHY: ensures phase compatibility",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify learning_scan command-policy entry explicitly notes it cannot satisfy DONE/authority evidence; WHY: prevents misuse as evidence source",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Temporarily add learning_scan to READ_ONLY_COMMANDS -> run process-fact-contract or command-policy tests -> expect failure (contradiction: writing command in read-only list); WHY: proves the test suite catches this miscategorization",
+            "type": "cli"
+          },
+          {
+            "desc": "Temporarily remove learning_scan from PROCESS_FACT_LEVELS -> run npm test -> expect process-fact-contract failure; WHY: proves the contract suite enforces completeness",
+            "type": "cli"
+          },
+          {
+            "desc": "Temporarily set learning_scan ownershipClass to readOnly in command-policy -> run tests -> expect failure or contradiction with the fact it writes .lattice/learning/; WHY: proves policy consistency is enforced",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify learning_scan is not registered as a gate command and cannot produce gate evidence -> no gate entry in command-policy or gate registry; WHY: prevents accidental gate side-effects from an advisory-only command",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Guarded by the LIVE process-fact-contract suite (run via full npm test in the verifier), which fails on any mis-registration — it demonstrably caught B-a2e3 missing its PROCESS_FACT_LEVELS entry; the verifier also statically asserts the correct end-state (in process-fact-levels, NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly). FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Guarded by the LIVE process-fact-contract suite (run via full npm test in the verifier), which fails on any mis-registration — it demonstrably caught B-a2e3 missing its PROCESS_FACT_LEVELS entry; the verifier also statically asserts the correct end-state (in process-fact-levels, NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly). FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Guarded by the LIVE process-fact-contract suite (run via full npm test in the verifier), which fails on any mis-registration — it demonstrably caught B-a2e3 missing its PROCESS_FACT_LEVELS entry; the verifier also statically asserts the correct end-state (in process-fact-levels, NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly). FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -36,9 +424,226 @@
         "No network",
         "No reliance on unrelated repo state"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-18T02:14:08.934Z",
+      "endTime": "2026-06-18T02:20:01.129Z",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run test:experience-layer-learning-scan -> smoke passes, prints learning-scan smoke passed; WHY: proves the smoke task executes and validates end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts .lattice/learning/finding-signals.json is written with valid FindingSignalsCache (schemaVersion present, signals[] array, updatedAt timestamp); WHY: proves cache structural validity",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke asserts end-to-end: hint loader returns NO hints before scan (empty/absent cache), then NON-empty hints after scan for a story with matching findings; WHY: proves the product loop activates (addresses product-reviewer advisory)",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node verify-b-4eb6.mjs -> prints TOTAL N | PASS N | FAIL 0 with all checks green; WHY: proves committed verifier covers all verification intents",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier includes full npm test (incl. process-fact-contract) -> green; WHY: proves no regressions from registration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke re-runs scan twice with pinned now -> output cache is byte-identical both times; WHY: proves determinism boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke runs against a store with anchorFiles in some signals -> anchorFiles array is present in those signals in the written cache; WHY: proves anchorFiles propagation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier includes no-regression smokes (finding-signals/playbook/recall/revalidation) -> all pass; WHY: proves the new command does not break existing experience-layer functionality",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier static checks confirm learning_scan registered across all 5 files (cli-engine, registry, config, command-policy, process-fact-levels) -> all present; WHY: proves registration completeness is machine-verified",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verifier confirms learning_scan is NOT in READ_ONLY_COMMANDS -> absent; WHY: machine-enforced check that prevents silent miscategorization after future refactors",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier confirms learning_scan ownershipClass is not readOnly -> non-readOnly class found; WHY: machine-enforced policy consistency check",
+            "type": "cli"
+          },
+          {
+            "desc": "After smoke writes cache, verify git status shows no changes to tracked source files -> only .lattice/learning/ modified (materialHash-excluded); WHY: proves smoke does not pollute the worktree or dirty source",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier maps every verificationIntent line to a specific check -> no unmapped intents; WHY: proves the verifier is comprehensive and no intent is silently skipped",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke validates that scan with zero findings produces signals:[] not undefined/null/crash -> empty array written; WHY: proves graceful degradation under adversarial empty-state",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke proves end-to-end activation: hint loader returns NO hints before the scan, then NON-EMPTY hints (recurring>=1, advisory header) after the scan persists the cache — empty before -> firing after. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+          "result": "pass",
+          "note": "Committed verifier runs the full npm test (process-fact-contract green) + static checks: learning_scan present in cli-engine/registry/config/command-policy/process-fact-levels (L2 experience-layer), NOT in READ_ONLY_COMMANDS, ownershipClass not readOnly — TOTAL 39 | PASS 39 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-learning-scan",
+          "result": "pass",
+          "note": "learning-scan smoke asserts this behavior: scan derives and persists a valid FindingSignalsCache to .lattice/learning/finding-signals.json (schemaVersion + signals[] with anchorFiles), --story/--json paths, deterministic re-run, zero-findings => signals:[] no crash, and no tracked-source pollution. TOTAL 7 | PASS 7 | FAIL 0.",
+          "headHash": "2bf4347e6fef32574e0f4f6d19614168b277f597",
+          "materialHash": "99c2940afcb3690a1081e51361eb64c302246c438bf1f81795c6c91d02cd8566",
+          "timestamp": "2026-06-18T02:47:32.619Z"
+        }
+      ]
     }
   ]
 }

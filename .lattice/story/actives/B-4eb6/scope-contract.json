@@ -1,0 +1,30 @@
+{
+  "storyId": "B-4eb6",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/learning-scan.ts",
+    "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts",
+    ".lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/finding-signals.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/finding.ts"
+  ],
+  "scopeChangeReason": "Thin learning_scan CLI activating the finding-signals cache; reuses existing derive+persist (finding-signals.ts / learning-store.ts unchanged).",
+  "acknowledgements": [],
+  "createdAt": "2026-06-18T02:02:20.836Z",
+  "updatedAt": "2026-06-18T02:02:20.836Z"
+}

@@ -1,0 +1,32 @@
+{
+  "task": "Add a learning_scan CLI that derives finding-signals through the store ports and persists them to .lattice/learning/finding-signals.json, activating the previously-inert Phase 1.5 advisory review hints.",
+  "outcome": "Running `node bin/lattice.js learning_scan` derives the finding-signals and writes the cache, printing a summary the operator can read, for example:\n\n  learning_scan: derived 31 signal(s) over 402 story scan\n    wrote .lattice/learning/finding-signals.json (schemaVersion 1, updatedAt 2026-06-18T01:30:00.000Z)\n  (advisory learning cache — materialHash-excluded; no gate touched)\n\nWith --json it prints { written, path, signals, updatedAt }. The decisive observable effect: BEFORE the scan the experience-hint loader returns no hints (empty cache); AFTER the scan, for a story whose findings match accumulated signals, the loader returns a non-empty 'Project experience hints (advisory only)' section — i.e. hints now actually fire.",
+  "facts": [
+    "deriveFindingSignalsFromStore(store, opts) persists the cache via writeFindingSignals when opts.projectRoot is provided (finding-signals.ts ~line 282-283); learning_validate (B-a2e3) deliberately omits projectRoot to stay read-only.",
+    "writeFindingSignals and readFindingSignals both target .lattice/learning/finding-signals.json (learning-store.ts is the ONLY toucher of .lattice/learning/); experience-hint-loader.ts reads it via readFindingSignals(projectRoot).",
+    ".lattice/learning/ is materialHash-EXCLUDED (prefix matcher), so writing the cache never perturbs any gate or evidence freshness.",
+    "The derived cache now carries anchorFiles (B-a2e3), so the hint loader / future effectiveness metric can re-validate at read time via revalidateSignals.",
+    "Adding a new command requires an entry in core/process-fact-levels.ts PROCESS_FACT_LEVELS (the derive-source for COMMAND_PROCESS_FACTS / PROCESS_FACT_REGISTRY); otherwise the process-fact-contract suite in `npm test` fails (lesson from B-a2e3).",
+    "learning_scan WRITES the advisory cache, so it is an experience-layer mutation (process-fact level L2, like signature_registry_set/playbook_propose) — NOT read-only, and NOT added to READ_ONLY_COMMANDS."
+  ],
+  "constraints": [
+    "Reads findings only via store ports; the ONLY write is the advisory learning cache; files no findings; touches no gate; changes no scoring/promptHash.",
+    "No referential-staleness filtering at scan time (the cache is a faithful snapshot; filtering stays at read time).",
+    "Deterministic given a pinned now: re-running on the same store yields an equivalent cache.",
+    "No signatureTag capture (story 3.2), no A/B gating (3.3), no effectiveness metric (3.4)."
+  ],
+  "unknowns": [
+    "Whether learning_scan should be allowed in all phases or a subset — resolved: allow broadly (it is an out-of-band maintenance command writing only the advisory cache), matching how signature_registry_set/playbook_* are phase-gated.",
+    "The exact project-root the handler should pass — resolved: use the same root the store/handler context exposes (ctx.projectRoot if present, else process.cwd()), consistent with other handlers."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/learning-scan.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts"
+  ],
+  "timestamp": "2026-06-18T02:02:03.439Z"
+}

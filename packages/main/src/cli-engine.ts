@@ -1766,6 +1766,14 @@ Behavior:
     query: z.string().optional().describe('Ad-hoc free-text query; recall ranks stories matching its keywords. Pass either --story OR --query, not both.'),
     top: z.coerce.number().int().optional().describe('Max number of ranked matches to return (default 5; <=0 returns none).'),
   }},
+  // B-4eb6 (Experience Layer ③.1): learning_scan derives + PERSISTS the advisory
+  // finding-signals cache (.lattice/learning/finding-signals.json) the Phase 1.5
+  // hint loader reads. It WRITES the cache (not read-only — NOT in READ_ONLY_COMMANDS)
+  // but reads findings via the store read ports only and touches no gate.
+  { name: 'learning_scan', description: 'Derive and persist the advisory finding-signals cache (.lattice/learning/finding-signals.json) that powers review experience hints; writes the cache, reads findings via store ports, touches no gate', schema: {
+    json: z.boolean().optional().describe('Emit a machine-readable summary { written, path, signals, schemaVersion, updatedAt } as JSON.'),
+    story: z.string().optional().describe('Restrict derivation to a single story id.'),
+  }},
   { name: 'learning_validate', description: 'Report Experience Layer referential validity: valid-rate / drift-rate of finding-signals vs HEAD (read-only; advisory; writes nothing)', schema: {
     json: z.boolean().optional().describe('Emit the machine-readable ValidRateReport as JSON.'),
     story: z.string().optional().describe('Restrict derivation to a single story id.'),

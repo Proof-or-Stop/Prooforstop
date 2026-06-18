@@ -1,0 +1,47 @@
+{
+  "findings": [
+    {
+      "id": "B-4eb6:F-001",
+      "desc": "CHK-001:adversarial:1 evidence does not bind to the stated intent. The intent requires: \"Pass a projectRoot that differs from the store root (e.g. /tmp/wrong) -> verify cache is still written to correct .lattice/learning/ path relative to actual store, not bogus path.\" No smoke test exercises this path: the LearningScanArgs interface ({json?,story?}) has no projectRoot parameter, and no test constructs a HandlerContext with a wrong ctx.root then asserts the cache goes to the correct location. The evidence note is a generic description of overall smoke behavior and does not mention this scenario. The attack vector is eliminated by API design (handler ignores any caller-supplied root; always uses ctx.root), but that architectural defense is not validated by any test. Either a targeted unit test should construct ctx with an intentionally wrong root and assert correct output path, or a waiver must state that the API design makes this scenario unreachable and explain why ctx.root cannot be spoofed at the call site.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T02:27:29.995Z",
+      "reviewRound": "2026-06-18T02:22:16.644Z",
+      "reviewRunId": "B-4eb6:RR-002",
+      "_hash": "2608f5b61554584a2f09a3acfad3b1e56021c100a842cf8faa2b05fc243c328f",
+      "files": [
+        "packages/main/src/handlers/learning-scan.ts",
+        "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts"
+      ],
+      "resolvedReason": "Bound CHK-001:adversarial:1 to a genuine verifier check (wrongRootEliminated): the handler sources projectRoot from ctx.root and LearningScanArgs has no projectRoot/root field, so the wrong-root vector is eliminated by construction. Evidence note updated; verifier FAIL 0.",
+      "resolvedAt": "2026-06-18T02:34:21.395Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4eb6:F-002",
+      "desc": "CHK-002:adversarial:0/1/2 evidence provides static positive assertions where the intents require mutation-style adversarial validation (\"Temporarily add/remove/set X -> run tests -> expect failure\"). The verify-b-4eb6.mjs verifier only checks that the current state is correct (notInReadOnly, levelEntry present, ownershipClass=mainSharedMutating) via grep/regex; it does not perform any temporary modification of source files, run the test suite against the mutant, and confirm a failure. Static forward-only checks prove the happy state but do not prove the test infrastructure would catch a regression. The process-fact-contract suite provides indirect long-term protection, but the three mutation test scenarios (adv:0 READ_ONLY add, adv:1 PROCESS_FACT_LEVELS remove, adv:2 ownershipClass flip) are not directly exercised. Either add mutation tests to the verifier, or add waivers per adversarial intent explaining that process-fact-contract is the nominated regression gate and why it is equivalent to the mutation test.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T02:27:42.586Z",
+      "reviewRound": "2026-06-18T02:22:16.644Z",
+      "reviewRunId": "B-4eb6:RR-002",
+      "_hash": "817e6f759022e222a6fe46c28a2d20d0d2fe8bc59e349679d3aede298a7993b0",
+      "files": [
+        ".lattice/story/actives/B-4eb6/evidence/verify-b-4eb6.mjs",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "resolvedReason": "The mutation-style adversarial intents (CHK-002:adversarial:0/1/2) are guarded by the LIVE process-fact-contract suite the verifier runs via full npm test, which fails on any mis-registration (demonstrably caught B-a2e3 missing PROCESS_FACT_LEVELS); the verifier also statically asserts the correct end-state. Evidence notes updated to make this binding explicit.",
+      "resolvedAt": "2026-06-18T02:34:22.015Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
+    }
+  ]
+}
