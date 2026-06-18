@@ -65,9 +65,9 @@
         "docs/audits/lattice-token-cost-and-takeover-audit.md",
         "packages/main/src/core/lattice-handoff.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T11:11:17.595Z",
       "userSees": "User sees \"noHiddenContextSharing:true\" in the HandoffAuthorityBoundary table row, and the F-011 summary matches the source-backed boundary.",
       "files": {
         "modify": [
@@ -100,7 +100,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "sed -n 16,20p docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "result": "pass",
+          "note": "The audit summary bullet now states that the HandoffAuthorityBoundary table includes noHiddenContextSharing:true, matching packages/main/src/core/lattice-handoff.ts.",
+          "headHash": "33c1d6ab75c79fa04256bddf317393ab293b3885",
+          "materialHash": "79e45f2fa5c6540fd3873d207c17e620e0f8c01b2fc189330e4a38651cb15133",
+          "timestamp": "2026-06-18T11:11:17.692Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -108,6 +120,15 @@
       "timestamp": "2026-06-18T11:11:17.162Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Docs patch committed and verified in the audit report"
+    },
+    {
+      "timestamp": "2026-06-18T11:11:17.595Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "done",
