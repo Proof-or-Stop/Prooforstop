@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add default bundle generator",
       "context": "Add one generator that emits a basic trust/client bundle by default; the senior tier is an explicit opt-in variant. The output files should be easy to source without extra developer fields.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T16:45:43.396Z",
-      "endTime": null,
+      "endTime": "2026-06-18T17:15:27.686Z",
       "userSees": "User sees lattice_authority_trust.env and lattice_staging-client.env created successfully, then can source them without being asked for extra developer fields.",
       "files": {
         "modify": [
@@ -42,7 +42,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Basic bundle generator writes lattice_authority_trust.env and lattice_staging-client.env, then round-trips through loadAuthorityConfig and resolveAuthorityCustomerApiKey.",
+          "headHash": "df25aefc4ebb8fe564c8754d44a74ac38869e9f2",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:15:27.874Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "The generated bundle is consumable from a different cwd by buildAuthorityStatus and writeAuthorityTrustProfileBundle.",
+          "headHash": "df25aefc4ebb8fe564c8754d44a74ac38869e9f2",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:15:28.026Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-client.ts",
+          "result": "pass",
+          "note": "The default tier uses authorityTrustProfileFileNames(\"basic\") and emits only the basic filenames unless senior is explicitly requested.",
+          "headHash": "df25aefc4ebb8fe564c8754d44a74ac38869e9f2",
+          "materialHash": "ac79d7a1010ae273ff47a939e23de7a6da3aeff4ca28074b4bed9a15ed676fa4",
+          "timestamp": "2026-06-18T17:15:28.238Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -181,6 +213,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-18T17:15:27.686Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Basic bundle generator implemented and verified."
     }
   ]
 }
