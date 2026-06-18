@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-1a12:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed: (1) resolveMainRepoRoot — all imports present (execFileSync, isAbsolute, join, dirname); git --git-common-dir output is relative .git from main repo (join(cwd,.git)->dirname gives cwd, byte-identical) and absolute path from linked worktree (dirname gives main root); /.git and \\.git suffix checks both handled; non-.git fall-through to getRepoRoot() is correct never-worse guarantee; timeout/stdio match existing removeStaleWorktreeAdminDirs pattern at :568. (2) resolveBootstrapGitRoot one-liner change: replaces getRepoRoot() with resolveMainRepoRoot() in the no-gitRoot branch only; correct scope. (3) Smoke script: createTempProject uses mkdtempSync + rmSync in finally (no temp dir leak); cpSync copies only story metadata JSON (not git history); bootstrap with --root=oldWorktree faithfully reproduces the B-a4e3 incident; dual assertion (correctPath exists AND nestedPath does not) is meaningful; byte-identical-from-main step 5 confirms no regression. No dead code, no unsafe casts, no missing null checks, no I/O isolation violations, no gold-plating.",
+      "createdAt": "2026-06-18T19:39:13.276Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-002",
+      "_hash": "dec6529d74132fb306c3371810e8c50049dcd992b7775d6d926c09149a55e0cd"
+    }
+  ]
+}
