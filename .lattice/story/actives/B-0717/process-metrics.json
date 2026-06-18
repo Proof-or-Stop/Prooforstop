@@ -1,6 +1,6 @@
 {
   "storyId": "B-0717",
-  "generatedAt": "2026-06-18T14:11:29.280Z",
+  "generatedAt": "2026-06-18T14:24:05.264Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
@@ -11,7 +11,7 @@
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
-    "hasSummary": false
+    "hasSummary": true
   },
   "dimensions": {
     "tdd": {
@@ -277,7 +277,7 @@
           "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [
