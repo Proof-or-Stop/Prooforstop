@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-348d:F-001",
+      "desc": "CHK-003 userSees says \"self-smoke proves flagged-FAIL retried + non-flagged-FAIL not retried\" but there is no self-smoke case for the explicitly stated invariant \"a flagged smoke that FAILs BOTH passes still counts as a final FAIL (no masking)\". The code logic is correct (merge replaces pass1 FAIL with pass2 FAIL, anyFail check triggers exit 1) but this third sub-case from the story spec is not asserted in any test. File: packages/main/src/tasks/run-all-smokes-smoke.ts — add a case 14: fixture-always-fail-E with retryOnAnyFailure:true that exits 1 on every run, assert code===1 and stdout.includes(\"Final:\") and /Final:\\s*0\\/1/.test(stdout).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T17:04:10.591Z",
+      "reviewRound": "2026-06-18T17:01:59.780Z",
+      "reviewRunId": "B-348d:RR-002",
+      "_hash": "a8c09b7269d11bd27b8fffc7bf91503deab33c732e2d708af2d53d4058492b46",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|usersees-says-self",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
