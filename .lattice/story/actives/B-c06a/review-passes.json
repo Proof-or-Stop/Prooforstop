@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T15:57:22.456Z",
       "reviewRunId": "B-c06a:RR-001",
       "_hash": "7de833269ad88ddc24b7ffbce06d27c6703f35c14f3986cc8d97780b879ea3f7"
+    },
+    {
+      "id": "B-c06a:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 8 changed source files (experience-effectiveness.ts, learning-effectiveness.ts, registry.ts, command-policy.ts, process-fact-levels.ts, cli-engine.ts, config.ts, experience-layer-effectiveness-smoke.ts, package.json). Core leaf is pure: zero imports, all denominators guarded via ratio(), never NaN, deterministic. MIN_ARM_N gate is conservative (significant=false below threshold, no p-value). Handler is strictly read-only: no writeFileSync/appendFileSync/finding_add/gate mutations; single projectRoot usage is ctx.root passed as read basis to readActivityLogTail, not a persist path. All 6 registration surfaces consistent (registry import+registerBatch, command-policy readOnly, process-fact-levels L0 experience-layer-read, cli-engine schema+READ_ONLY_COMMANDS, config DEFAULT_PHASE_TOOLS). No I/O shell isolation violations. Two findings registered: F-001 low dead-code (unused stories fixture voided in smoke task), F-002 medium misleading degenerate precision field (always 1 or 0). No blockers to DONE.",
+      "createdAt": "2026-06-18T16:00:45.552Z",
+      "reviewRound": "2026-06-18T15:57:22.456Z",
+      "reviewRunId": "B-c06a:RR-002",
+      "_hash": "ca18880b9f38af4fe3e3b9ed0feed39704dd4e9a694039f7bb4765d8559160d3"
     }
   ]
 }
