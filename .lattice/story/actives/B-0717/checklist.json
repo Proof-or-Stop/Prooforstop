@@ -54,9 +54,9 @@
           "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
           "result": "pass",
           "note": "Document exists at the declared path and includes purpose, non-goals, current inventory, compatibility contract, four implementation rounds, Authority flow, local quorum, verification matrix, implementation split, rollback/stop conditions, and reviewer checklist.",
-          "headHash": "aeeb8481967cb8c13f51dd9b20017b42375e3b02",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:18:34.782Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
           "result": "pass",
           "note": "The Purpose and Non-Goals sections explicitly state B-0717 is documentation only and does not refactor packages/main/src/cli-engine.ts or claim cli-engine decomposition is complete.",
-          "headHash": "aeeb8481967cb8c13f51dd9b20017b42375e3b02",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:18:34.896Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
           "result": "pass",
           "note": "Authority-sensitive claims require authority_receipt_verify against production gate_decision receipts and lifecycle receipt consumption; local status/readiness/verdict prose is explicitly barred from production Authority completion claims.",
-          "headHash": "aeeb8481967cb8c13f51dd9b20017b42375e3b02",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:18:35.112Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         }
       ]
     },
@@ -145,9 +145,9 @@
           "command": "wc -l packages/main/src/cli-engine.ts && rg -n \"MAIN_TOOLS|parseFlags|ownerLeaseHelpBlock|resolveEffectiveOwnershipClass|enforceStoryOwnerLeaseGate|commitInitCheckMetadataAndMergeMain|runCli|story_create|story_advance|recover_evidence\" packages/main/src/cli-engine.ts && rg -n \"from ./cli-engine|cli-engine\" packages/main/src packages/main/tests scripts package.json packages/main/package.json",
           "result": "pass",
           "note": "Source inventory confirms cli-engine.ts is 4450 lines, owns MAIN_TOOLS/flag helpers/owner and reviewer gates/init-check sync/runCli special dispatch, and handlers are already separated through registry/handlers consumers rather than requiring handler moves first.",
-          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:13.109Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -155,9 +155,9 @@
           "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
           "result": "pass",
           "note": "Compatibility Contract section lists MAIN_TOOLS, parseFlags, parseFlagsTest, coerce, addValue, ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, reviewer read-only helpers, and commitInitCheckMetadataAndMergeMain as preserve-or-migrate symbols.",
-          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:13.208Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -165,9 +165,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:main-write-lock-coverage && node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
           "result": "pass",
           "note": "All executable verification matrix commands completed successfully; JSON stdout smoke was run via direct dist task because no package script is declared for it.",
-          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:13.311Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -175,9 +175,9 @@
           "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
           "result": "pass",
           "note": "Target Module Boundaries split by responsibility rather than line count and each round has stop conditions for command disappearance, schema drift, JSON stdout changes, owner/reviewer gate weakening, and INIT_CHECK metadata regression.",
-          "headHash": "4aba4adb971fed39319e2234aa7a4d3369e728e8",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:13.411Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         }
       ]
     },
@@ -241,9 +241,9 @@
           "command": "node bin/lattice.js authority_status --json; node bin/lattice.js authority_job_create --help; node bin/lattice.js authority_verdict_submit --help; node bin/lattice.js authority_job_status --help; node bin/lattice.js authority_receipt_verify --help",
           "result": "pass",
           "note": "Authority command flow is mechanically available and documented: status/readiness, job creation, verdict submit, job status reconciliation, receipt verify, and lifecycle consumption boundary via verified production gate_decision receipt refs.",
-          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:36.951Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -251,9 +251,9 @@
           "command": "node bin/lattice.js authority_verdict_list --jobId=B-0717-cli-engine-plan-local-3x2 --runId=B-0717-local-review-2026-06-18 --requiredHosts=2 --json",
           "result": "pass",
           "note": "Local 3x2 evidence was recorded: 6 pass verdicts across host A and host B, 2 independent passing hosts, staleVerdicts=0, multiHostVerified=true; every verdict note says local/offline and not a production Authority gate_decision receipt.",
-          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:37.059Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -261,9 +261,9 @@
           "command": "node bin/lattice.js authority_status --json",
           "result": "pass",
           "note": "Current local Authority state is status=not-configured, authorityReady=false, receiptVerified=false, productionDone=false, canClaimProductionDone=false, so B-0717 cannot claim production Authority completion.",
-          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:37.160Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -271,9 +271,9 @@
           "file": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
           "result": "pass",
           "note": "Local Quorum Flow section defines 3 rounds x 2 independent hosts as default high-risk local review and 3 rounds x 1 host as degraded lower-assurance fallback only, never equivalent to 3x2 for major architecture work.",
-          "headHash": "eeb112536118a6e3add9f6f8048c9434d939af3a",
-          "materialHash": "73927caf491c7f56a370dd99f20c224c50c599433c9016a5f79cbbd0e4bbeb87",
-          "timestamp": "2026-06-18T14:19:37.282Z"
+          "headHash": "646d715a5ef61e6420ee8f09948f6e03ebb342a2",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T14:26:25.130Z"
         }
       ]
     }
