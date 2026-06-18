@@ -52,9 +52,9 @@
           "command": "rg -n \"lattice serve --web|lattice serve --cli|npm run serve:web|npm run serve:cli|npm run serve\" CLAUDE.md packages/main/src/verifier/dev-cli.ts",
           "result": "pass",
           "note": "The stale serve-mode aliases no longer appear in the edited onboarding file or the synced source comment.",
-          "headHash": "44265ec8c8f4bd685c45e23693132cbb8eb7eefb",
-          "materialHash": "05f079fc989b3072c87358e7c4b094c510c0c9e727e6cb28336a16bd10bd1293",
-          "timestamp": "2026-06-18T14:16:04.854Z"
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,9 +62,9 @@
           "command": "lattice audit --framework",
           "result": "pass",
           "note": "Framework audit round 9 reported 0 still-drifting items and resolved B-META-framework-audit:F-012/F-013, proving the serve-mode drift is cleared.",
-          "headHash": "44265ec8c8f4bd685c45e23693132cbb8eb7eefb",
-          "materialHash": "05f079fc989b3072c87358e7c4b094c510c0c9e727e6cb28336a16bd10bd1293",
-          "timestamp": "2026-06-18T14:16:04.854Z"
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -73,9 +73,9 @@
           "command": "sed -n \"224,240p\" CLAUDE.md",
           "result": "pass",
           "note": "The serve-mode explanation still lists only supported lattice serve surface text, including lattice serve and lattice serve --dev, without reintroducing phantom --web / --cli modes.",
-          "headHash": "44265ec8c8f4bd685c45e23693132cbb8eb7eefb",
-          "materialHash": "05f079fc989b3072c87358e7c4b094c510c0c9e727e6cb28336a16bd10bd1293",
-          "timestamp": "2026-06-18T14:16:04.854Z"
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -139,9 +139,9 @@
           "command": "rg -n \"npm run serve:web|npm run serve:cli|lattice serve --web|lattice serve --cli|npm run serve\" CLAUDE.md",
           "result": "pass",
           "note": "The startup block now only shows supported lattice serve invocations and no nonexistent npm serve aliases.",
-          "headHash": "44265ec8c8f4bd685c45e23693132cbb8eb7eefb",
-          "materialHash": "05f079fc989b3072c87358e7c4b094c510c0c9e727e6cb28336a16bd10bd1293",
-          "timestamp": "2026-06-18T14:16:04.854Z"
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,9 +149,9 @@
           "command": "lattice audit --framework",
           "result": "pass",
           "note": "Audit round 9 regenerated the report with zero drift and no remaining serve-mode findings.",
-          "headHash": "44265ec8c8f4bd685c45e23693132cbb8eb7eefb",
-          "materialHash": "05f079fc989b3072c87358e7c4b094c510c0c9e727e6cb28336a16bd10bd1293",
-          "timestamp": "2026-06-18T14:16:04.854Z"
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -160,9 +160,9 @@
           "command": "sed -n \"232,240p\" CLAUDE.md",
           "result": "pass",
           "note": "The startup block keeps npm start visually separate from lattice serve and only shows supported lattice serve invocations, so it cannot be read as an unsupported CLI alias.",
-          "headHash": "44265ec8c8f4bd685c45e23693132cbb8eb7eefb",
-          "materialHash": "05f079fc989b3072c87358e7c4b094c510c0c9e727e6cb28336a16bd10bd1293",
-          "timestamp": "2026-06-18T14:16:04.854Z"
+          "headHash": "6cbd086ad585980f1ac8afdf58726c4d39eb7199",
+          "materialHash": "edeb5c43aa20a00a7aeb5d6d4bd106b85a81e6f0f7c36245c9b4c5f11fad81b5",
+          "timestamp": "2026-06-18T14:23:02.037Z"
         }
       ]
     }
