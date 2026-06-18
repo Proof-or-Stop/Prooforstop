@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Make main-write-lock reentrancy async-context-aware (AsyncLocalStorage owner-token)",
       "context": "In packages/main/src/core/main-write-lock.ts: the bare process-global heldLockPaths Set (line 271) mis-classifies a CONCURRENT async sibling as a nested reentrant caller because it cannot distinguish synchronous nesting from async interleaving across an await. Introduce an AsyncLocalStorage-based owner context. Recommended design (a2): keep the on-disk acquisition + a process-global record of WHICH async-context-owner holds each lockKey, and change the reentrancy predicate in withReentrantMainWriteLock (line 304) AND acquireMainWriteLockRegistered (line ~352) from plain heldLockPaths.has(lockKey) to has(lockKey) && currentAlsContextOwnsIt. Outermost acquire runs fn (or the acquire/release window) inside als.run(ownerToken, ...) so genuine synchronous nesting (DONE->audit) inherits the same ALS context and still passes through, while a concurrent INIT_CHECK in a separate ALS context correctly contends on the on-disk mkdir lock (and fail-fasts / waits per options) instead of skipping acquisition. The acquire/release-pair form used by the DONE merge in transition-orchestrator.ts must establish the ALS context around its critical section; make the minimal change there to wrap the DONE main-merge window. Update isMainWriteLockHeldInProcess test helper accordingly. The on-disk mkdir mutex behavior is UNCHANGED.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T14:24:13.606Z",
       "endTime": null,
       "userSees": "`grep AsyncLocalStorage packages/main/src/core/main-write-lock.ts` shows the context primitive; reentrancy check is context-aware; build clean; done-effects.ts untouched.",
       "files": {
