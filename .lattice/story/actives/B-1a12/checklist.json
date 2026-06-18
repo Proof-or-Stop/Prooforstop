@@ -47,7 +47,20 @@
         "test": [
           "scripts/verify-nested-worktree-bootstrap.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-nested-worktree-bootstrap.mjs",
+          "command": "node scripts/verify-nested-worktree-bootstrap.mjs",
+          "result": "pass",
+          "note": "Smoke asserts from-main bootstrap lands at <main>/.worktrees/B-new (byte-identical-from-main); observed from-main -> <main>/.worktrees/B-63a8.",
+          "headHash": "a024322c16e4e07af38bc13b8245bddc8bb23f58",
+          "materialHash": "165348eab2018527e935b6dae8c392812e3340934b9daa0db4893779ccc9f96c",
+          "timestamp": "2026-06-18T19:29:54.949Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
