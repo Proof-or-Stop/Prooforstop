@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "id": "B-24c3:F-001",
+      "desc": "review-pass-discard parallel-only FAIL (NOT timeout) needs follow-up story: FAILed exit 1 at 14.6s in B-24c3 3x parallel verify run 1 (PASSes 33s standalone serial). Different problem class — likely shared-state race in fixture setup. Out of scope for B-24c3 (timeoutMs bumps only).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "jek-main",
+      "createdAt": "2026-06-18T00:19:04.988Z",
+      "reviewRound": "",
+      "_hash": "2eec8d5ff21ad1eac80cb72a61bd9aca10bbb042e949f7596686b4417ffd0534"
+    }
+  ]
+}
