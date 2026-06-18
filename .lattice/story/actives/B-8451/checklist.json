@@ -13,9 +13,9 @@
           "kind": "logic_test",
           "result": "pass",
           "note": "Added deprecatedGcThreshold: number to AuditConfig interface, HARD_DEFAULTS (value 10), profileDefaults, and merged config; validation follows same pattern as auditTriggerWindow (positive integer check + warn + fallback). Committed 2bcef674e.",
-          "headHash": "2bcef674ea77821a8d538c26e0799bda766201b0",
-          "materialHash": "d003eb6a47db5585a42b60f2072362dd1474a497b4181d48bfa45a02ccc90146",
-          "timestamp": "2026-06-18T00:37:47.308Z"
+          "headHash": "b9012223aae997a2e464aa65c000d1c2ec99ab95",
+          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
+          "timestamp": "2026-06-18T00:44:26.113Z"
         }
       ],
       "verificationIntent": {
@@ -43,9 +43,9 @@
           "kind": "logic_test",
           "result": "pass",
           "note": "Added scanDeprecated(projectRoot) to audit-scan.ts: uses grep -rl to find files with @deprecated in packages/main/src/**/*.ts, counts matching lines per file, returns { count, files } with unique basenames. Wrapped in try/catch returning { count:0, files:[] } on any error. Committed 3930cbcf3.",
-          "headHash": "3930cbcf3c9129dca77599fc9a70354890c377f0",
-          "materialHash": "7f9e8ce5ea5e2be4de4ac6efdbd09b91e4d89336463104bfc8534bdcf88edc7d",
-          "timestamp": "2026-06-18T00:38:09.893Z"
+          "headHash": "b9012223aae997a2e464aa65c000d1c2ec99ab95",
+          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
+          "timestamp": "2026-06-18T00:44:26.113Z"
         }
       ],
       "verificationIntent": {
@@ -73,9 +73,9 @@
           "kind": "logic_test",
           "result": "pass",
           "note": "Imported scanDeprecated from audit-scan.js in audit-trigger.ts. In the semi-auto trigger branch, after buildSemiAutoHint, calls scanDeprecated(projectRoot) and if count > deprecatedGcThreshold appends the advisory line to hint. Additive only — never touches triggered flag. Committed 159178c5a.",
-          "headHash": "159178c5ade389bf6bc161c54fdd3ecd430c0e91",
-          "materialHash": "ca01125c1056e87edfebd3878ff206cac2feecc02dd6b01c908b19734c5f76fc",
-          "timestamp": "2026-06-18T00:38:43.144Z"
+          "headHash": "b9012223aae997a2e464aa65c000d1c2ec99ab95",
+          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
+          "timestamp": "2026-06-18T00:44:26.113Z"
         }
       ],
       "verificationIntent": {
