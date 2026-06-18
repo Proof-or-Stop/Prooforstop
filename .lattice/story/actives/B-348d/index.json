@@ -4,7 +4,7 @@
   "title": "Parallel-dev robustness: opt-in retryOnAnyFailure allowlist for known load-flake smokes (close B-24c3/B-3d39 deferred findings)",
   "description": "Add an opt-in retryOnAnyFailure manifest flag so a small, documented allowlist of known load-sensitive smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard — all verified serial-PASS) also get B-2941's serial pass-2 retry on a FAIL (exit 1), not just on TIMEOUT. Every non-allowlisted smoke keeps the safe default (FAIL is terminal, never retried — so genuine regressions are never masked). Closes the deferred parallel-only-FAIL findings B-24c3:F-001..F-004 + B-3d39:F-001. Stopgap; shared-state root cause deferred. Out of scope: --jobs default, on-disk mutex, main-write-lock, test:coverage.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "test",
@@ -38,6 +38,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-18T16:41:55.360Z",
+      "branch": "story/B-348d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-18T16:45:32.354Z",
       "branch": "story/B-348d",
       "user": "Harmonygo",
       "agent": "main"
