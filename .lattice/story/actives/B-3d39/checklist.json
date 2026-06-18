@@ -220,6 +220,17 @@
           "headHash": "884e88f784f9c7e8e67caf29f9f9f1f5acc5d36f",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:41:56.633Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE 'Codex adapter checks passed|pass'",
+          "result": "pass",
+          "note": "Returns 1+ — guard still functions post-change (8/8 pass).",
+          "headHash": "c0b406460513898c311444314db3ab8f18b927f7",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:41:57.732Z"
         }
       ]
     },
