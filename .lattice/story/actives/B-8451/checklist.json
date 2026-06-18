@@ -13,9 +13,9 @@
           "kind": "logic_test",
           "result": "pass",
           "note": "Added deprecatedGcThreshold: number to AuditConfig interface, HARD_DEFAULTS (value 10), profileDefaults, and merged config; validation follows same pattern as auditTriggerWindow (positive integer check + warn + fallback). Committed 2bcef674e.",
-          "headHash": "b9012223aae997a2e464aa65c000d1c2ec99ab95",
-          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
-          "timestamp": "2026-06-18T00:44:26.113Z"
+          "headHash": "b6aa777217b63302096bd0d2b57297ec1de28e3a",
+          "materialHash": "7722b83803605d746414d093ac8bd768d1ce81925448f0257e3a56bdb78cc86c",
+          "timestamp": "2026-06-18T00:48:47.719Z"
         }
       ],
       "verificationIntent": {
@@ -43,9 +43,9 @@
           "kind": "logic_test",
           "result": "pass",
           "note": "Added scanDeprecated(projectRoot) to audit-scan.ts: uses grep -rl to find files with @deprecated in packages/main/src/**/*.ts, counts matching lines per file, returns { count, files } with unique basenames. Wrapped in try/catch returning { count:0, files:[] } on any error. Committed 3930cbcf3.",
-          "headHash": "b9012223aae997a2e464aa65c000d1c2ec99ab95",
-          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
-          "timestamp": "2026-06-18T00:44:26.113Z"
+          "headHash": "b6aa777217b63302096bd0d2b57297ec1de28e3a",
+          "materialHash": "7722b83803605d746414d093ac8bd768d1ce81925448f0257e3a56bdb78cc86c",
+          "timestamp": "2026-06-18T00:48:47.719Z"
         }
       ],
       "verificationIntent": {
@@ -73,9 +73,9 @@
           "kind": "logic_test",
           "result": "pass",
           "note": "Imported scanDeprecated from audit-scan.js in audit-trigger.ts. In the semi-auto trigger branch, after buildSemiAutoHint, calls scanDeprecated(projectRoot) and if count > deprecatedGcThreshold appends the advisory line to hint. Additive only — never touches triggered flag. Committed 159178c5a.",
-          "headHash": "b9012223aae997a2e464aa65c000d1c2ec99ab95",
-          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
-          "timestamp": "2026-06-18T00:44:26.113Z"
+          "headHash": "b6aa777217b63302096bd0d2b57297ec1de28e3a",
+          "materialHash": "7722b83803605d746414d093ac8bd768d1ce81925448f0257e3a56bdb78cc86c",
+          "timestamp": "2026-06-18T00:48:47.719Z"
         }
       ],
       "verificationIntent": {
@@ -104,9 +104,9 @@
           "command": "node packages/main/dist/tasks/deprecated-gc-smoke.js",
           "result": "pass",
           "note": "All 5 tests pass: (1) default threshold=10, (2) config override to 5, (3) scanDeprecated on real repo returns count=20 files=5 without throwing, (4) advisory appears when count=12 > threshold=10, (5) advisory absent when count=7 <= threshold=10. Committed 79a8a02b6.",
-          "headHash": "79a8a02b665b69312f5dec625e78c630e9563709",
-          "materialHash": "8167b20f3d666134eba7e37d72330b84c5215e87ce9185fdf55836721c512846",
-          "timestamp": "2026-06-18T00:39:48.124Z"
+          "headHash": "b6aa777217b63302096bd0d2b57297ec1de28e3a",
+          "materialHash": "7722b83803605d746414d093ac8bd768d1ce81925448f0257e3a56bdb78cc86c",
+          "timestamp": "2026-06-18T00:48:47.719Z"
         }
       ],
       "verificationIntent": {
