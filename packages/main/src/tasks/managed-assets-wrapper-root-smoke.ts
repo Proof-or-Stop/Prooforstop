@@ -85,6 +85,14 @@ try {
   git(gitRoot, ['init']);
   runCli(packageRoot, ['init', metadataRoot]);
 
+  const canonicalMetadataRoot = realpathSync(metadataRoot);
+  const noGitRootJson = JSON.parse(runCli(metadataRoot, ['check', '--json']));
+  assert.equal(noGitRootJson.metadataRoot, canonicalMetadataRoot, 'no-gitRoot JSON metadataRoot');
+  assert.equal(noGitRootJson.assetRoot, canonicalMetadataRoot, 'no-gitRoot JSON assetRoot');
+  assert.equal(noGitRootJson.gitRoot, null, 'no-gitRoot JSON gitRoot');
+  assert.equal(noGitRootJson.pathsRelativeTo, 'assetRoot', 'no-gitRoot JSON pathsRelativeTo');
+  assert.equal(noGitRootJson.assetRootGitRootSplit, false, 'no-gitRoot JSON split flag');
+
   const configPath = join(metadataRoot, 'lattice.config.json');
   const config = readJson(metadataRoot, 'lattice.config.json');
   writeFileSync(configPath, `${JSON.stringify({ ...config, gitRoot: 'repo' }, null, 2)}\n`);
@@ -94,7 +102,6 @@ try {
   const gitRootSentinel = 'git-root sentinel: managed assets must not write here\n';
   writeFileSync(join(gitRoot, '.lattice', 'Lattice.md'), gitRootSentinel);
 
-  const canonicalMetadataRoot = realpathSync(metadataRoot);
   const canonicalGitRoot = realpathSync(gitRoot);
   const checkJson = JSON.parse(runCli(metadataRoot, ['check', '--json']));
 
