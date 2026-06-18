@@ -5,7 +5,7 @@
       "desc": "REVIEWER-SMOKE: behavior review live test — no-tag path (auto candidate)",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "disproven",
       "disprovenEvidence": {
         "summary": "This is a live-fire smoke test filed by lattice-review-behavior to confirm the auto-candidate path works correctly. Not a real finding."
@@ -16,7 +16,9 @@
       "reviewRunId": "B-5d48:RR-004",
       "_hash": "6ebc261fd3818267d9ca7e923dc3e49e1be5e14e69817a4ef830401ff3a0f6cb",
       "signatureTag": "edge|unknown|reviewer-smoke-behavior",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Test artifact: the behavior reviewer created this REVIEWER-SMOKE finding by live-firing finding_add on B-5d48 itself to exercise the auto/confirmed path; it is not a real defect (should have used a scratch story). Dismissing as not-a-finding.",
+      "dismissedAt": "2026-06-18T13:43:45.900Z"
     },
     {
       "id": "B-5d48:F-002",
@@ -41,7 +43,7 @@
       "desc": "REVIEWER-SMOKE: behavior review live test — confirmed-tag path",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "disproven",
       "disprovenEvidence": {
         "summary": "Live-fire smoke to confirm the confirmed path. Not a real finding — disproven immediately."
@@ -52,14 +54,16 @@
       "reviewRunId": "B-5d48:RR-004",
       "_hash": "60679a177db453407d50b40d8075acd3f9a31802abbd7fb0480d7854c31705f9",
       "signatureTag": "review-smoke|confirmed-path-test",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Test artifact: the behavior reviewer created this REVIEWER-SMOKE finding by live-firing finding_add on B-5d48 itself to exercise the auto/confirmed path; it is not a real defect (should have used a scratch story). Dismissing as not-a-finding.",
+      "dismissedAt": "2026-06-18T13:43:46.366Z"
     },
     {
       "id": "B-5d48:F-004",
       "desc": "REVIEWER-SMOKE: whitespace-only signatureTag boundary test",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "disproven",
       "disprovenEvidence": {
         "summary": "Live-fire boundary test for whitespace-only tag. Not a real finding."
@@ -70,7 +74,9 @@
       "reviewRunId": "B-5d48:RR-004",
       "_hash": "14f128b33a7e9e132c280e45d290d5110f2af99d543c2f30c5b49752e4c733e7",
       "signatureTag": "edge|unknown|reviewer-smoke-whitespace",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Test artifact: the behavior reviewer created this REVIEWER-SMOKE finding by live-firing finding_add on B-5d48 itself to exercise the auto/confirmed path; it is not a real defect (should have used a scratch story). Dismissing as not-a-finding.",
+      "dismissedAt": "2026-06-18T13:43:46.793Z"
     },
     {
       "id": "B-5d48:F-005",
