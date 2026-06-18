@@ -66,7 +66,48 @@
       "context": "In packages/main/src/core/codex-adapter-checks.ts:644 the globalCoreCandidates array only lists { @lattice-agent/core }. The actual installed global npm link is @koala-agent/core, so checkGlobalFallback never finds the global core and never emits its intended heartbeat-only warning. Add a second candidate { path: join(globalRoot, @koala-agent, core), label: @koala-agent/core } so the guard fires for the real install and the operator sees the correct signal that the global lattice resolves to main dist (heartbeat-only, not current-worktree evidence). ~2-3 lines. Do NOT change any other guard logic.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`grep @koala-agent packages/main/src/core/codex-adapter-checks.ts` shows the added candidate; the global-fallback warning now fires for the real install.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "globalCoreCandidates includes @koala-agent/core -> `grep -c \"@koala-agent\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 1; WHY: the real install brand must be probed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "both brands present in candidates -> `grep -cE \"@lattice-agent.core|@koala-agent.core\" packages/main/src/core/codex-adapter-checks.ts` outputs at least 2; WHY: keep lattice + add koala",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dist has the fix -> `grep -c \"@koala-agent\" packages/main/dist/core/codex-adapter-checks.js` outputs at least 1; WHY: lands in runtime",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice codex verify runs without crashing post-change -> `node bin/lattice.js verify_codex --storyId=B-3d39 2>&1 | grep -cE \"Codex adapter checks|pass\"` outputs at least 1; WHY: guard still functions",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: only the candidates list changed in codex-adapter-checks.ts (no other guard logic) -> `git diff main...HEAD -- packages/main/src/core/codex-adapter-checks.ts | grep -cE \"^[+]\" | head -1` is small (manual: only globalCoreCandidates touched, <8 added lines); WHY: minimal guard fix",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
