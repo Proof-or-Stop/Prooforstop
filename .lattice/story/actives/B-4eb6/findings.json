@@ -5,7 +5,7 @@
       "desc": "CHK-001:adversarial:1 evidence does not bind to the stated intent. The intent requires: \"Pass a projectRoot that differs from the store root (e.g. /tmp/wrong) -> verify cache is still written to correct .lattice/learning/ path relative to actual store, not bogus path.\" No smoke test exercises this path: the LearningScanArgs interface ({json?,story?}) has no projectRoot parameter, and no test constructs a HandlerContext with a wrong ctx.root then asserts the cache goes to the correct location. The evidence note is a generic description of overall smoke behavior and does not mention this scenario. The attack vector is eliminated by API design (handler ignores any caller-supplied root; always uses ctx.root), but that architectural defense is not validated by any test. Either a targeted unit test should construct ctx with an intentionally wrong root and assert correct output path, or a waiver must state that the API design makes this scenario unreachable and explain why ctx.root cannot be spoofed at the call site.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T02:27:29.995Z",
@@ -15,7 +15,11 @@
       "files": [
         "packages/main/src/handlers/learning-scan.ts",
         "packages/main/src/tasks/experience-layer-learning-scan-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Bound CHK-001:adversarial:1 to a genuine verifier check (wrongRootEliminated): the handler sources projectRoot from ctx.root and LearningScanArgs has no projectRoot/root field, so the wrong-root vector is eliminated by construction. Evidence note updated; verifier FAIL 0.",
+      "resolvedAt": "2026-06-18T02:34:21.395Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4eb6:F-002",
