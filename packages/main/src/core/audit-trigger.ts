@@ -24,6 +24,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { resolveAuditConfig, type AuditMode } from './audit-config.js';
+import { scanDeprecated } from './audit-scan.js';
 import { loadConfig } from './config.js';
 import { LATTICE_DIR } from './lattice-paths.js';
 import type { WorkflowProfile } from './types.js';
@@ -240,7 +241,17 @@ export async function maybeTriggerAudit(storyId: string, projectRoot: string): P
     // 8. Trigger
     if (mode === 'semi-auto') {
       // Prompt only, do not spawn; keep counter uncleared, will keep prompting next time until user actually runs audit
-      const hint = buildSemiAutoHint(bumped.doneSinceLastAudit);
+      let hint = buildSemiAutoHint(bumped.doneSinceLastAudit);
+
+      // @deprecated GC advisory (additive only — never changes triggered or blocks DONE)
+      const deprecatedResult = scanDeprecated(projectRoot);
+      const threshold = auditCfg.deprecatedGcThreshold;
+      if (deprecatedResult.count > threshold) {
+        const { count, files } = deprecatedResult;
+        const fileList = files.slice(0, 3).join(', ') + (files.length > 3 ? '...' : '');
+        hint += `\n⚠ @deprecated GC: ${count} annotation(s) in ${files.length} file(s) (${fileList}); consider a cleanup story (threshold: ${threshold})`;
+      }
+
       return {
         triggered: true,
         reason: 'semi-auto hint printed',
