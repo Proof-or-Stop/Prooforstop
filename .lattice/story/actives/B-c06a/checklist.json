@@ -209,6 +209,74 @@
         "test": [
           "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Leaf smoke: synthetic ordered stories with known recurring signatures => assert exact recall/precision values + windowed trend values + arm comparison (N, outcome) match hand-calculated expectations",
+            "type": "cli"
+          },
+          {
+            "desc": "Leaf smoke: arm comparison with small-N fixture (both arms < MIN_ARM_N) => significant=false, note=insufficient N",
+            "type": "cli"
+          },
+          {
+            "desc": "Leaf smoke: arm comparison with fixture where both arms >= MIN_ARM_N => significance gate behaves as specified (significant reflects conservative gate)",
+            "type": "cli"
+          },
+          {
+            "desc": "CLI smoke: run learning_effectiveness on a temp/real store => output contains a predictive-value line; git status confirms nothing written",
+            "type": "cli"
+          },
+          {
+            "desc": "npm script test:experience-layer-effectiveness runs successfully (exit 0) and prints effectiveness smoke passed",
+            "type": "cli"
+          },
+          {
+            "desc": "Committed verifier verify-b-c06a.mjs runs build + this smoke + no-regression smokes + full npm test => TOTAL/PASS/FAIL with all PASS",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Leaf smoke: empty input (no stories) => zeroed report, no crash, no NaN",
+            "type": "cli"
+          },
+          {
+            "desc": "Leaf smoke: never-NaN check across all edge fixtures (zero findings, zero signatures, zero arms) => every numeric field is a finite number",
+            "type": "cli"
+          },
+          {
+            "desc": "Leaf smoke: determinism check => two consecutive calls with same synthetic input produce identical output",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier: process-fact-contract test passes (learning_effectiveness L0 entry present and valid)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Static check: experience-effectiveness.ts imports only node:/types (no fs, path, child_process, git, network) => leaf purity confirmed by verifier",
+            "type": "cli"
+          },
+          {
+            "desc": "Static check: handler learning-effectiveness.ts contains no writeFileSync, no finding_add, no gate calls, no projectRoot-persist => read-only confirmed",
+            "type": "cli"
+          },
+          {
+            "desc": "Static check: learning_effectiveness is registered across all 6 surfaces (cli-engine, registry, config, command-policy, process-fact-levels, READ_ONLY_COMMANDS) => verifier checks each one",
+            "type": "cli"
+          },
+          {
+            "desc": "Verifier runs full npm test including process-fact-contract => any missing registration surface causes FAIL",
+            "type": "cli"
+          },
+          {
+            "desc": "No-regression: all existing smokes (finding-signals, playbook, recall, revalidation, learning-scan, signature-capture, ab-shadow-gate) still pass after the new code => no side-effect regressions",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
