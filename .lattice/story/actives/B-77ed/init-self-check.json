@@ -1,0 +1,4 @@
+{
+  "question": "Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.",
+  "answer": "Yes, I read CLAUDE.md in full (all 1062 lines, two pages). I used it to understand the Lattice architecture: Core/Shell layered architecture, story lifecycle (INIT->INIT_CHECK->PLAN->DEV->REVIEW->TEST->DONE), handler coding conventions, the mkdir-lock primitive, the checklist.ts withChecklistLock delegation pattern, and the init_check_set mechanism with its anti-self-exemption design. This reading provided the baseline for evaluating factual claims in background.md about withMkdirLock, withChecklistLock, and the shared primitive (B-6812)."
+}
