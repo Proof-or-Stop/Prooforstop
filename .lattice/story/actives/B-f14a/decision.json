@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Mirror the upstream Authority contract instead of creating a parallel one.",
+    "Keep the CLI fail-closed when gate-capable input is missing or stale.",
+    "Keep docs, code, and smoke checks aligned on the same vocabulary.",
+    "Prefer the smallest downstream mirror that removes the bad label."
+  ],
+  "drivers": [
+    "The Authority server story owns the server-side contract change.",
+    "The CLI still advertises mac_ui in code and docs.",
+    "The CLI must not add a new environment model just to clean up wording."
+  ],
+  "options": [
+    {
+      "name": "A: Mirror the upstream contract in CLI code and docs, preserving fail-closed behavior",
+      "pros": [
+        "Keeps the CLI and Authority server vocabulary aligned.",
+        "Fixes the stale mac_ui wording in runtime and docs.",
+        "Avoids inventing a new local policy or environment tier."
+      ],
+      "cons": [
+        "Touches both code and docs in one pass."
+      ]
+    },
+    {
+      "name": "B: Only rewrite the visible failure strings and docs",
+      "pros": [
+        "Smallest immediate text change."
+      ],
+      "cons": [
+        "Leaves the live role check unchanged.",
+        "Lets code and docs disagree about gate actors.",
+        "Does not actually mirror the upstream contract."
+      ]
+    },
+    {
+      "name": "C: Add a shared cross-repo role registry",
+      "pros": [
+        "Creates a single shared vocabulary source."
+      ],
+      "cons": [
+        "Much larger than needed for this fix.",
+        "Introduces a new coordination layer that is not required for the current correctness issue."
+      ]
+    }
+  ],
+  "chosen": "A: Mirror the upstream contract in CLI code and docs, preserving fail-closed behavior",
+  "rationale": "Option A is the smallest coherent downstream fix: it removes the stale mac_ui label, keeps the CLI aligned with the upstream Authority contract, and does not invent a new policy or environment layer.",
+  "preMortem": [
+    {
+      "scenario": "The CLI still mentions mac_ui in one code path after the change.",
+      "trigger": "authority-client.ts and command-policy.ts are not updated together.",
+      "consequence": "The downstream contract stays inconsistent and the stale role remains visible.",
+      "mitigation": "Update both files in the same story and add smoke assertions that search for the removed wording."
+    },
+    {
+      "scenario": "Docs drift from the updated CLI behavior.",
+      "trigger": "The decision docs are edited without matching the runtime role helper.",
+      "consequence": "Readers and tests see different gate vocabularies.",
+      "mitigation": "Search the docs for stale role names and keep the smoke/CLI code aligned with the docs pass."
+    },
+    {
+      "scenario": "A cleanup accidentally widens the role set.",
+      "trigger": "The gate helper is refactored too aggressively while removing the label.",
+      "consequence": "The CLI would accept input that should still fail closed.",
+      "mitigation": "Keep explicit negative tests for missing or stale gate-capable input and verify no new environment tiers appear."
+    }
+  ],
+  "timestamp": "2026-06-18T19:57:39.417Z"
+}

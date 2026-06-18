@@ -1,0 +1,32 @@
+{
+  "task": "Mirror the upstream Authority gate-actor contract in CLI job-create and gate resolution",
+  "outcome": "The CLI stops naming mac_ui, follows the upstream Authority contract, and still fails closed without adding new environment tiers.",
+  "facts": [
+    "packages/main/src/core/authority-client.ts still allows main, mac_ui, or human in the gate actor check and its failure reason.",
+    "packages/main/src/core/command-policy.ts still describes authority_job_create with main/mac_ui/human wording.",
+    "docs/requirements/decisions/lattice-authority-live-integration.md still names main, mac_ui, or human gate-capable roles.",
+    "docs/requirements/decisions/authority-client-role.md defines the CLI as a thin client and records the role boundary.",
+    "B-6e94 is the upstream Authority server story that owns removing mac_ui from the server contract."
+  ],
+  "constraints": [
+    "Mirror the upstream contract instead of inventing a new local policy.",
+    "Do not add new environment tiers.",
+    "Keep fail-closed behavior intact.",
+    "Only fix real correctness issues.",
+    "Do not widen the allowed role set."
+  ],
+  "unknowns": [
+    "Whether the role helper should be centralized or kept local in authority-client.ts.",
+    "Which smoke assertions pin the wording today and need to be updated.",
+    "Whether the docs only need wording cleanup or also example updates."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/command-policy.ts",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-completion-smoke.ts"
+  ],
+  "timestamp": "2026-06-18T19:57:39.030Z"
+}
