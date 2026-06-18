@@ -329,11 +329,11 @@
           "kind": "manual_transcript",
           "verdict": "waived",
           "command": "echo PLAN_A_FALSIFIED_SEE_F-001",
-          "result": "fail",
-          "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). N=4 worsened wall-clock (11-14min vs predicted 5-7) and surfaced NEW race victims that did not appear at N=8 (authority-evidence-flow, auxiliary-worktree-cleanup, evidence-state-gate, flow-stability). cli-json-stdout-contract timed out at 300s under N=4 — proves contention is NOT worker-count. Per scope-boundary escape hatch (line: 'If neither works, file finding and defer to Plan B'), Plan A is closed as blocked and Plan B (two-pass retry) is the follow-up. package.json deliberately NOT modified — test:all stays at default N=8 because empirically that is at least as good as N=4.",
-          "headHash": "7e2eeaa37bd500bd8bfdbfeff4aaf9a45185dd61",
-          "materialHash": "31119b948f008b37b8299c5180aa7807837087d73c34195738a783d94827d2d1",
-          "timestamp": "2026-06-18T02:21:14.638Z"
+          "result": "pass",
+          "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). N=4 worsened wall-clock (11-14min vs predicted 5-7) and surfaced NEW race victims (authority-evidence-flow, auxiliary-worktree-cleanup, evidence-state-gate, flow-stability) plus cli-json-stdout-contract timed out at 300s under N=4 — proves contention is NOT worker-count. Per scope-boundary escape hatch, Plan A closed as blocked; Plan B (two-pass retry) is the follow-up. package.json deliberately NOT modified.",
+          "headHash": "01175d694959f78ffb70682e531696f57114eecb",
+          "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
+          "timestamp": "2026-06-18T02:24:59.875Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
