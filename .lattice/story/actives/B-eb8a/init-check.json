@@ -1,0 +1,41 @@
+{
+  "storyId": "B-eb8a",
+  "checkedAt": "2026-06-18T11:05:13.399Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-18T11:03:59.737Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Scope/factual tension on the canonical doc: CHK-001 context says \"Update the central policy wording\" and lists story-lifecycle.md as the first relatedDoc, but the one-round/typo/wording-only language is NOT in story-lifecycle.md. It lives only in done-closure-runbook-assistant-execution-plan.md:353 (\"typo-only\") and scope-check-missing-guidance-execution-plan.md:251 (\"wording-only\"). story-lifecycle.md:190 instead states audit-round escalation is \"threshold-triggered, not documentation-triggered\" (>=2 round-1 reviewer findings), which is a DIFFERENT framing than the category-based one-round/three-round rule the checklist assumes. PLAN must pin down exactly which docs carry the editable language and reconcile the category framing with story-lifecycle.md threshold framing, or an implementer could add a contradictory clause to story-lifecycle.md."
+        },
+        {
+          "severity": "medium",
+          "desc": "\"annotation compliance\" may be a NEW classification, not just wording consistency. Today the docs only carve out typo-only / wording-only changes to specific documents; neither names annotation compliance. Adding it to the low-risk one-round bucket may be a substantive policy broadening, which conflicts with the story self-framing (\"docs-only, do not broaden the low-risk bucket\"). PLAN should either cite where annotation compliance is already treated as one-round, or acknowledge this is a new classification needing decision rigor rather than a wording fix."
+        },
+        {
+          "severity": "low",
+          "desc": "riskSignal Compliance/Privacy is a likely keyword false positive (mention-vs-modify, B-30b2): \"compliance\" matched on \"annotation compliance\" (a Lattice review concept), not GDPR/PII. This elevated priority to high and keeps the 2-item story off the fast channel + triggers high-risk PLAN gates (decision + >=3 preMortem) for a docs-only chore. If truly unrelated to real compliance/privacy semantics, main agent should dismiss via lattice story_review_dismiss category=Compliance/Privacy; dismissing it (with 0 remaining riskSignals) reverts priority and enables the fast channel."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-002 is a non-regression guard, not an independent deliverable: it largely restates the negative of CHK-001 (verify the three-round path was not broken) rather than a distinct unit of observable work. Acceptable, but the two items are not cleanly orthogonal."
+        },
+        {
+          "severity": "low",
+          "desc": "verificationIntent references \"lattice convergence_check --json\" but convergence_check --help reports \"No arguments\"; confirm the global --json flag is accepted, and clarify how convergence_check (requirements/tests convergence) actually evidences \"annotation compliance\" specifically. PLAN-refinable."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-18T11:05:13.399Z",
+      "issues": []
+    }
+  ],
+  "_hash": "6b6c8d79e67b682f273f617780d9c1320b753ba0e3345d22f079f03a28c0efd5"
+}
