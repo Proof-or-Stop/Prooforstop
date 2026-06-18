@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-18T14:41:54.337Z",
       "reviewRunId": "B-a4e3:RR-012",
       "_hash": "9aae9d5bd3aae7fea8af927f1361ef7fe10ebf95d6fca9c809910cefbe77dc1e"
+    },
+    {
+      "id": "B-a4e3:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept deletion completeness verified at HEAD b673e6b. Salt constraint grep (koala-*-integrity-v / koala-review- / koala-scope-check / koala-delivery-check / koala-draft-check / koala-finding- / koala-init-check / koala-capability / koala-discard / koala-mixed) produced empty output — no integrity salts renamed. Check 1 (LEGACY_KOALA_DIR): zero residue in packages/main/src. Check 2 (CLI alias registrations name:story_dispatch / name:finding_dispatch): zero residue in packages/main/src. Check 3 (npm run test:koala-residue): PASS 0 unclassified. Check 4 (other deleted symbols LEGACY_KOALA_STORY_DIR / LEGACY_KOALA_ACTIVITY_LOG / LEGACY_KOALA_REPAIR_IGNORE / getLegacyKoalaActivityLogPath / resolveLegacyProjectMemoryPath / resolveLegacyGlobalMemoryPath): zero residue. Remaining .koala/ string references in src are all: write-protection guards, test fixture backward-compat paths, negative smoke assertions proving .koala is NOT read, or comments explaining the removal — none are read fallback branches. memory-benchmark-real-data.ts includes .koala/story/actives in benchmark data scan roots but is unchanged by this story and is outside scope. The CHK-003 checklist-context change (CJK to English normalization) touches only story metadata — no code concept deletion involved. No findings.",
+      "createdAt": "2026-06-18T14:44:15.497Z",
+      "reviewRound": "2026-06-18T14:41:54.337Z",
+      "reviewRunId": "B-a4e3:RR-013",
+      "_hash": "717ba4f333b10de4511308f5db237d6fdbb13586b34b52fe7b5a88b474d1fc8e"
     }
   ]
 }
