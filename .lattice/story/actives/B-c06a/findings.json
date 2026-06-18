@@ -66,7 +66,7 @@
       "desc": "CHK-002:edge:0-3 (empty store, no findings, no arm events, --json+--confirmedOnly combined) bound to `npm --prefix packages/main run test:experience-layer-effectiveness` but the smoke contains no CLI invocation against an empty or edge-shaped store. The smoke exercises leaf-level empty input (computePredictiveValue([])) which is correct for CHK-001 edge intents, but CHK-002 edge intents explicitly describe running the `lattice learning_effectiveness` command on a store with those characteristics. No CLI call with an empty/fixture store exists in either the smoke or the verifier.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-18T16:02:58.711Z",
@@ -78,7 +78,11 @@
         "packages/main/src/tasks/experience-layer-effectiveness-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-empty-store",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a hermetic empty-store handler check (createLearningEffectivenessHandlers on a mkdtemp root) asserting zeros + no NaN + no crash in json + human shapes (commit 93cdef4d1).",
+      "resolvedAt": "2026-06-18T16:12:27.341Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
