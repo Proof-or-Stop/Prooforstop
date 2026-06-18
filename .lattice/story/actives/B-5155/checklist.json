@@ -134,7 +134,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees lattice gap_analyze output with \"Gaps: 0 high / 0 medium\" and convergence_check shows \"No high-priority gaps\" PASS; any remaining convergence blockers are unrelated active-story or annotation issues."
+      "userSees": "User sees `Gaps: 0 high / 0 medium` at the top of `lattice gap_analyze --json` output and `No high-priority gaps: PASS` in `lattice convergence_check`; any remaining blockers are reported as unrelated active-story or legacy annotation issues, not these three rows.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the patch, build and targeted smoke commands pass, and `lattice gap_analyze --json` reports `Gaps: 0 high / 0 medium`.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If convergence_check has unrelated blockers, report them separately and verify the `No high-priority gaps` check passes for this story scope.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The verification transcript must not treat local gap_analyze success as Authority Server receipt-backed completion.",
+            "type": "manual"
+          }
+        ]
+      }
     }
   ]
 }
