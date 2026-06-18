@@ -85,9 +85,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T11:12:02.345Z",
-      "endTime": null,
+      "endTime": "2026-06-18T11:18:37.895Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/story-lifecycle.md",
@@ -95,7 +95,20 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"three-round|Authority Server completion|local Non-authority|high-risk\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The high-risk three-round rule still reads the same, and the low-risk bucket stays narrow and docs-only.",
+          "headHash": "40b4a9e8e37a882db0f71a563e7cd18bb63c9ded",
+          "materialHash": "490d0257b2aa2b9c53f4c8f8fd883627c3015b745c5b903fa83060de1ac6f342",
+          "timestamp": "2026-06-18T11:18:38.017Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -125,6 +138,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Docs updated and validated for the low-risk one-round policy."
+    },
+    {
+      "timestamp": "2026-06-18T11:18:37.895Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "High-risk three-round rule remains intact after the wording sync."
     }
   ]
 }
