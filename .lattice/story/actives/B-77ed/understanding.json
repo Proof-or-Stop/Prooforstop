@@ -1,10 +1,10 @@
 {
   "task": "Eliminate spurious 'timed out waiting for metadata lock' failures under heavy parallel load by migrating the three hand-rolled 5s metadata-lock loops to the shared 30s withMkdirLock primitive, then retire the B-348d retryOnAnyFailure stopgap flags once proven unnecessary.",
-  "outcome": "Running `npm run test:all` on a heavily loaded machine no longer produces 'review_pass_set: timed out waiting for metadata lock' (or the review_run_start / init_check_set equivalents); the four smokes field-regression-cli, verification-freshness, worktree-repair, review-pass-discard pass under heavy parallel load even with `--no-retry` (the B-348d FAIL-retry safety net no longer needed for them). `grep -c 'Date.now() + 5000' packages/main/src/handlers/{finding,review-run,init-check}.ts` returns 0, and `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` returns 0 (all four stopgap flags removed). Build is clean.",
+  "outcome": "Running `npm run test:all` on a heavily loaded machine no longer produces 'review_pass_set: timed out waiting for metadata lock' (or the review_run_start / init_check_set equivalents); the four smokes field-regression-cli, verification-freshness, worktree-repair, review-pass-discard pass under heavy parallel load even with `--no-retry`. `grep -c 'Date.now() + 5000' across the three handlers returns 0, and `grep -c retryOnAnyFailure packages/main/smoke-manifest.json` returns 0. Build is clean.",
   "facts": [
     "finding.ts withReviewPassLock, review-run.ts withReviewRunLock, init-check.ts withInitCheckLock each hand-roll a mkdir lock loop with deadline=Date.now()+5000, 50ms poll, 10s stale-reclaim, and run autoCommitStoryMetadata (git commit) inside the critical section.",
-    "core/mkdir-lock.ts withMkdirLock already provides the same atomic-mkdir lock with DEFAULT_DEADLINE_MS=30000, DEFAULT_STALE_MS=10000, and a documented invariant that deadline must exceed staleMs so a crashed holder's lock is reclaimable.",
-    "checklist.ts withChecklistLock already delegates to withMkdirLock (B-6812); the shared helper was extracted from the old checklist lock for reuse.",
+    "core/mkdir-lock.ts withMkdirLock (a REUSED dependency, not modified by this story) already provides the same atomic-mkdir lock with DEFAULT_DEADLINE_MS=30000, DEFAULT_STALE_MS=10000, and a documented invariant that deadline must exceed staleMs so a crashed holder's lock is reclaimable.",
+    "checklist.ts withChecklistLock already delegates to withMkdirLock (B-6812: the checklist-lock extraction story); the shared helper was extracted from the old checklist lock for reuse.",
     "Reproduced failure: 20 concurrent smoke processes -> field-regression-cli FAILed 2/24 with 'review_pass_set exited 1: timed out waiting for metadata lock (EEXIST mkdir review-passes.lock)'. The test assertReviewPassConcurrentCliSurface fires 5 concurrent review_run_start + 5 concurrent review_pass_set on one story.",
     "Verified the fix direction: with the budget bumped 5s->30s, 8 concurrent field-regression-cli + 8 filler smokes produced 0/8 failures.",
     "No test or production code asserts on the literal 'timed out waiting for metadata lock' string outside the three handlers themselves, so changing the timeout message wording is safe."
@@ -12,7 +12,7 @@
   "constraints": [
     "All code changes go through this Lattice story (audit trail); artifacts in English.",
     "Modify only the 6 allowed paths; reuse withMkdirLock unchanged; B-3d39 main-write-lock and B-2941 run-all-smokes runner stay frozen.",
-    "The git commit must stay inside the lock critical section (correct per-story commit serialization; moving it out would expose git index.lock races).",
+    "The git commit must stay inside the lock critical section (correct per-story commit serialization).",
     "Lock paths (storyFilePath(storyId,'<x>.lock')) and external command semantics must not change.",
     "Removing a retryOnAnyFailure flag is gated on empirical proof (heavy --no-retry stress, 0 FAIL); keep a flag for any smoke that still fails."
   ],
@@ -23,9 +23,9 @@
     "packages/main/src/handlers/finding.ts (withReviewPassLock)",
     "packages/main/src/handlers/review-run.ts (withReviewRunLock)",
     "packages/main/src/handlers/init-check.ts (withInitCheckLock)",
-    "packages/main/src/core/mkdir-lock.ts (withMkdirLock — reused, read-only reference)",
     "packages/main/smoke-manifest.json (retire the 4 flags)",
-    "CHANGELOG.md, docs/dev/test-coverage.md"
+    "CHANGELOG.md",
+    "docs/dev/test-coverage.md"
   ],
-  "timestamp": "2026-06-18T19:20:53.055Z"
+  "timestamp": "2026-06-18T19:28:08.128Z"
 }

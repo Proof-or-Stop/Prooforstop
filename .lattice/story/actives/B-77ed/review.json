@@ -94,6 +94,47 @@
         }
       ],
       "_hash": "d660062801695e8903e7df8e1e225369a85e01f637ba719197504ac11610f6eb"
+    },
+    {
+      "timestamp": "2026-06-18T19:27:27.569Z",
+      "issueCount": 6,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate the 3 hand-rolled metadata locks to the shared withMkdirLock primitive + Prove the fix retires the B-348d stopgap, then remove the 4 retryOnAnyFailure flags are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether all four B-348d-flagged smokes pass under heavy --no-retry stress after the lock fix, or whether one has a residual sub-cause that warrants keeping its flag (resolved empirically in CHK-002)."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/mkdir-lock.ts (withMkdirLock — reused, read-only reference) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "54fcb3d48524fd79cddce19f8bb22d4e62e0a200ad893e68b57a7ffb62544395"
     }
   ]
 }

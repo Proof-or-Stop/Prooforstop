@@ -48,7 +48,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "`grep -lE \"withMkdirLock\\(\" .../{finding,review-run,init-check}.ts | wc -l` shows 3 and `grep -E \"Date.now() + 5000\"` shows 0; build clean — all 3 metadata locks now use the shared 30s primitive."
     },
     {
       "id": "CHK-002",
