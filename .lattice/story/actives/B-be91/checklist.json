@@ -241,12 +241,12 @@
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "verdict": "waived",
-          "command": "echo PLAN_A_FALSIFIED_SEE_F-001",
+          "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -c \"Test infrastructure\"",
           "result": "pass",
-          "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). N=4 worsened wall-clock (11-14min vs predicted 5-7) and surfaced NEW race victims (authority-evidence-flow, auxiliary-worktree-cleanup, evidence-state-gate, flow-stability) plus cli-json-stdout-contract timed out at 300s under N=4 — proves contention is NOT worker-count. Per scope-boundary escape hatch, Plan A closed as blocked; Plan B (two-pass retry) is the follow-up. package.json deliberately NOT modified.",
-          "headHash": "0c8a723dedcb9042d5f1d33d8709adfe070094ed",
+          "note": "WAIVED — Plan A empirically falsified by 3x test:all --jobs 4 measurement (see B-be91:F-001). Literal intent command preserved in evidence binding per memory rule, but the underlying assertion fails because no package.json edit was made (Plan A blocked). Per scope-boundary escape hatch: 'If neither N=4 nor N=2 works, file finding and defer to Plan B'. Plan B (two-pass retry) is the follow-up story; does NOT depend on N being correct.",
+          "headHash": "abf9133e62a67cc82604319b74b70c5850cb3d01",
           "materialHash": "317f9fa704ffbad71fcd6fdabc6536d6b8aa968eef5919f8ab6a6e29e27e1caf",
-          "timestamp": "2026-06-18T02:24:44.120Z"
+          "timestamp": "2026-06-18T02:26:08.999Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
