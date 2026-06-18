@@ -81,7 +81,9 @@ first review exposed enough risk to require stronger final review.
 ### Documentation Audit Unified Rule
 
 Documentation and decision-doc audit changes follow the Default Rule and the
-Automatic Escalation Trigger. A direct change to:
+Automatic Escalation Trigger. The low-risk annotation-compliance, pure typo,
+or wording-only bucket stays in the one two-host audit round path defined in
+`story-lifecycle.md`. A direct change to:
 
 ```text
 docs/requirements/decisions/*.md
