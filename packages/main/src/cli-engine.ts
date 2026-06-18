@@ -56,7 +56,7 @@ import {
   MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT,
   MEMORY_BENCHMARK_DEFAULT_SEED,
 } from './core/memory-benchmark.js';
-import { LATTICE_DIR, LEGACY_KOALA_DIR } from './core/lattice-paths.js';
+import { LATTICE_DIR } from './core/lattice-paths.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 
 // ── Tool Registry ──
@@ -1897,22 +1897,8 @@ Behavior:
     sourcePointers: z.array(z.string()).optional().describe('Evidence pointers for resolution (decisions/ path or checklist item ID), default [].'),
   }},
 
-  // Story dispatch (B-45ed CHK-005: implementer prompt generator)
-  { name: 'story_dispatch', description: 'Generate a standard implementer prompt string (main agent dispatches CHK-xxx)', schema: {
-    storyId: z.string().describe('Story ID'),
-    itemId: z.string().describe('Checklist item ID, for example CHK-001.'),
-    agentType: z.string().optional().describe('subagent type, for example lattice-implementer / lattice-review-channel; CHK-008 will expand matrix.'),
-  }},
-
-  // Finding dispatch (B-45ed CHK-010: reviewer-finding repair prompt generator, isomorphic with story_dispatch).
-  // B-9d95 CHK-004: deprecated alias; first stdout line prints a deprecation warning and recommends lattice dispatch.
-  { name: 'finding_dispatch', description: '[deprecated: use lattice dispatch] Generate reviewer-finding repair prompt', schema: {
-    storyId: z.string().describe('Story ID'),
-    findingId: z.string().describe('Finding ID, for example F-001 or the full B-xxx:F-xxx form.'),
-    agentType: z.string().optional().describe('subagent type, for example lattice-implementer / lattice-review-channel; reuses the CHK-008 grading matrix.'),
-  }},
-
-  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases).
+  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases;
+  // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — lattice dispatch is now the only entry).
   { name: 'dispatch', description: 'Dispatch a subagent prompt for one item, finding, or cluster', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.'),
@@ -2344,7 +2330,7 @@ Behavior:
   }},
   { name: 'dev_memory_finish', description: 'Finish the dev-memory session', schema: {
     storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Lattice sessions.'),
-    storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives; legacy .koala/story/actives remains readable).'),
+    storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),
   }},
@@ -2989,7 +2975,6 @@ export function storyIdFromAutopilotRunId(projectRoot: string, args: Record<stri
   if (!runId) return null;
   const file = [
     join(projectRoot, LATTICE_DIR, 'autopilot-runs', runId, 'run.json'),
-    join(projectRoot, LEGACY_KOALA_DIR, 'autopilot-runs', runId, 'run.json'),
   ].find((candidate) => existsSync(candidate));
   if (!file) return null;
   try {

@@ -1,0 +1,73 @@
+{
+  "storyId": "B-a4e3",
+  "checkedAt": "2026-06-18T14:52:46.613Z",
+  "reviewRound": "2026-06-18T14:41:54.337Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#story-lifecycle-table-DONE-row",
+      "promise": "DONE row now references .lattice/audit-config.json (was .koala/audit-config.json)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff CLAUDE.md shows line 37 changed from .koala/audit-config.json to .lattice/audit-config.json. No .koala/ runtime paths remain in CLAUDE.md."
+    },
+    {
+      "docPath": "CLAUDE.md#claude-prompt-hook",
+      "promise": "Claude Prompt Hook section now references .lattice/activity.jsonl (was .koala/activity.jsonl)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff CLAUDE.md shows line 71 changed from .koala/activity.jsonl to .lattice/activity.jsonl. LATTICE_ACTIVITY_LOG in lattice-paths.ts resolves to .lattice/activity.jsonl."
+    },
+    {
+      "docPath": "CLAUDE.md#audit-config-table",
+      "promise": "Audit config priority table rows reference .lattice/audit-config.json (was .koala/audit-config.json)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff CLAUDE.md shows lines 95 and 99 changed. audit-config.ts readUserConfig now only reads .lattice/ path (LEGACY_KOALA_DIR fallback removed)."
+    },
+    {
+      "docPath": "CLAUDE.md#session-write-coordination",
+      "promise": "Main write lock canonical path updated to .lattice/locks/main-write.lock/ (was .koala/locks/main-write.lock/)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff CLAUDE.md line 410 changed. LATTICE_MAIN_WRITE_LOCK in lattice-paths.ts resolves to .lattice/locks/main-write.lock."
+    },
+    {
+      "docPath": "CLAUDE.md#cluster-dispatch-note",
+      "promise": "story_dispatch/finding_dispatch described as REMOVED (not deprecated/usable); lattice dispatch is sole entry",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff CLAUDE.md line 874 changed to aliases removed in B-a4e3 not usable. story_dispatch and finding_dispatch removed from cli-engine.ts registry, command-policy.ts, story-dispatch.ts handler, process-fact-levels.ts, config.ts DEFAULT_PHASE_TOOLS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#storage-paths",
+      "promise": "dev-memory.md says .koala read fallback was removed in B-a4e3 and .koala is no longer read",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff dev-memory.md line 30 updated. resolveLegacyProjectMemoryPath and resolveLegacyGlobalMemoryPath removed from dev-memory.ts. resolveProjectMemoryReadPaths and resolveGlobalMemoryReadPaths no longer include any .koala paths."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "dev-memory-legacy-read-smoke.ts flipped to negative assertion: seeds entries only in .koala, asserts NOT present in read results and read-path set has no .koala. Parallel dispatch/report do not surface legacy entries. Smoke prints: dev-memory legacy read removal smoke passed (.koala no longer read). Full npm test battery (19 scripts) passed per test-evidence.json at headHash 97df0bf17dc27e1afedde870b5530f293c610867. test:koala-residue: PASS 0 unclassified."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "test:koala-residue passed PASS koala-residue: 0 unclassified after non-salt koala identifier cleanup. verify-koala-residue.mjs salt exemption regex preserved; only NEUTRAL_TOKEN_PATTERNS data array changed (2 dead exemptions removed). Full battery green."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "grep -n koala-agent/koala package.json packages/main/package.json returns nothing (independently verified: empty output). Both package.json files parse as valid JSON. test:koala-residue script entry preserved. npm build exits 0."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "grep .koala/ CLAUDE.md returns empty (independently verified). .koala-serve.json mentions 7 (correctly left; code still writes that filename). Salt mention koala-init-check-integrity-v1 in CLAUDE.md untouched. docs-drift gate verified at REVIEW preflight."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "finding_dispatch and story_dispatch removed from cli-engine registry, command-policy, story-dispatch handler, process-fact-levels, config DEFAULT_PHASE_TOOLS, flow-stability-smoke. lattice dispatch is the sole entry. @deprecated count stayed at 22 (all are legacy-JSON-compat KEEP fields; removed aliases used markdown prose not @deprecated JSDoc tags). dispatch() clusterId branch intact. Full battery green."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises independently verified via diff/grep against source. 5 CHK items each have real-machine test evidence. Salt-grep on git diff main...HEAD -- packages/main/src scripts returned empty: 25 signature salt literals byte-identical to baseline. @deprecated count staying at 22 is a factual correction, not an undelivered promise; CLI alias removal is complete. No unresolved TODOs in non-test code."
+  },
+  "_hash": "304a0a7d9cd11ab562c74fe0e74fa9d7778fea417032a0a8c50811dd30adb5b5"
+}

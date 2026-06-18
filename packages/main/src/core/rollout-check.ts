@@ -10,7 +10,7 @@ import {
   LATTICE_PRIMARY_BIN,
   formatLatticeProductLine,
 } from './lattice-brand.js';
-import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 
 export type RolloutFormat = 'text' | 'json';
 export type RolloutStatus = 'pass' | 'warn' | 'fail' | 'skip';
@@ -251,7 +251,6 @@ function buildGitProbe(projectRoot: string): RolloutProjectGit {
 function buildStoryProbe(projectRoot: string, branch: string | null): RolloutProjectStoryState {
   const activeDir = [
     join(projectRoot, LATTICE_DIR, 'story', 'actives'),
-    join(projectRoot, LEGACY_KOALA_DIR, 'story', 'actives'),
   ].find((candidate) => existsSync(candidate)) ?? join(projectRoot, LATTICE_DIR, 'story', 'actives');
   let activeStoryCount = 0;
   try {
@@ -385,8 +384,7 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
   const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
-  const hasStoryRoot = existsSync(join(projectRoot, LATTICE_DIR, 'story')) ||
-    existsSync(join(projectRoot, LEGACY_KOALA_DIR, 'story'));
+  const hasStoryRoot = existsSync(join(projectRoot, LATTICE_DIR, 'story'));
   const status: RolloutStatus = hasAgentGuide && hasLatticeGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,

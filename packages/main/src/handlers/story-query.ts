@@ -18,7 +18,7 @@ import {
   resolveWorktreePath,
 } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
-import { LATTICE_DIR, LATTICE_ACTIVITY_LOG, LATTICE_REPAIR_IGNORE, LEGACY_KOALA_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { LATTICE_DIR, LATTICE_ACTIVITY_LOG, LATTICE_REPAIR_IGNORE } from '../core/lattice-paths.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { withMainWriteLock } from '../core/main-write-lock.js';
 import {
@@ -326,7 +326,6 @@ export function detectStoryResidue(
       if (!dirName.startsWith('B-')) continue;
       if (
         existsSync(join(worktreesDir, dirName, LATTICE_REPAIR_IGNORE))
-        || existsSync(join(worktreesDir, dirName, LEGACY_KOALA_REPAIR_IGNORE))
       ) continue;
 
       let story;

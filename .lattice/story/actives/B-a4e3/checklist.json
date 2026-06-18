@@ -5,45 +5,321 @@
       "title": "Remove the legacy .koala read fallback (LEGACY_KOALA_DIR + the ~6 consumer sites) + update the legacy-read smoke",
       "context": "In core/lattice-paths.ts remove LEGACY_KOALA_DIR and the LEGACY_KOALA_* path constants (LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, etc.), keeping the .lattice (LATTICE_*) constants as the sole canonical paths. Remove the .koala read-fallback branches in the ~6 consumers (audit-config.ts readAuditConfig fallback, rollout-check.ts, cli-engine.ts autopilot-runs + storyDir help text, the dev-memory legacy reader, and any other LEGACY_KOALA_DIR usage — grep LEGACY_KOALA_DIR to find all). Update packages/main/src/tasks/dev-memory-legacy-read-smoke.ts: it currently asserts ~/.koala entries are read with .lattice winning duplicates; change it to assert .koala is NO LONGER read (the fallback is gone) — do NOT just delete the assertion, flip it to prove removal. dev-memory is already migrated to ~/.lattice so no data is lost. DO NOT touch any koala-*-integrity-v1 salt. Verify test:koala-residue + the dev-memory smoke + tsc all green.",
       "userSees": "Reading + writing story metadata, dev-memory, audit-config, autopilot-runs etc. uses ONLY .lattice/; .koala/ is no longer read anywhere (grep LEGACY_KOALA_DIR returns nothing); the legacy-read smoke now proves .koala is not read; the koala-residue gate stays green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T13:46:52.503Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After removal, grep -rn LEGACY_KOALA_DIR packages/main/src returns nothing and all consumers read .lattice; tsc exits 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dev-memory-legacy-read-smoke.ts flipped to assert .koala is NOT read; the smoke passes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No salt literal modified (git diff salt-grep clean vs /tmp/salt-baseline-B-a4e3.txt); test:koala-residue stays PASS 0 unclassified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -rn LEGACY_KOALA_DIR packages/main/src; npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "grep returns nothing (LEGACY_KOALA_DIR gone, only .lattice-path LATTICE_LEGACY_KOALA_ACTIVITY_LOG remains); tsc build exits 0. Commit 1a2f4fec0.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+          "command": "node --import tsx dev-memory-legacy-read-smoke.ts",
+          "result": "pass",
+          "note": "Smoke flipped to negative assertion: seeds entry ONLY in .koala location, asserts it is NOT read and read-path set has no .koala; prints dev-memory legacy read removal smoke passed (.koala no longer read).",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "diff /tmp/salt-baseline-B-a4e3.txt <(grep salts now); npm run test:koala-residue",
+          "result": "pass",
+          "note": "25 salt literals byte-identical to baseline; salt-grep on source diff empty; test:koala-residue PASS 0 unclassified.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Rename remaining NON-SALT koala identifiers to lattice + shrink the residue-gate allowlist (PRESERVE salts)",
       "context": "Find remaining 'koala' identifiers in active code that are NOT signature salts and NOT historical/decision-doc/test-intent text, and rename to lattice (e.g. internal variable/comment branding tied to the removed fallback). HARD CONSTRAINT: do NOT rename any koala-*-integrity-v1 / salt literal (guard-utils/finding-verify/init-check-gate/machine/scope-check/draft-check-hash/review-run/reviewer-status/review-scope-binding/process-fact-registry) — those are frozen signature constants; renaming bricks all signed artifacts. In scripts/verify-koala-residue.mjs, remove the allowlist exemptions for the now-removed .koala read-fallback path literals, but KEEP the salt exemptions (/koala-[a-z-]+-integrity-v\\d+/) and historical/legacy-logic exemptions. The gate must stay GREEN (no un-exempted koala remains, no dead exemptions for things that no longer exist where avoidable).",
       "userSees": "Active code no longer carries non-salt koala branding; the koala-*-integrity-v1 signature salts are untouched (all existing signed artifacts still verify); test:koala-residue is green with a tightened allowlist (salt + historical exemptions only).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T14:00:28.651Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Non-salt koala identifiers renamed to lattice; test:koala-residue prints PASS koala-residue: 0 unclassified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verify-koala-residue.mjs allowlist line 81 salt exemption kept; only allowlist DATA arrays changed (diff touches no scan/classify function)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff salt-grep shows ZERO modified salt lines; renaming any salt would have turned the residue gate red or broken signatures",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:koala-residue",
+          "result": "pass",
+          "note": "Stale .koala-readable claims fixed (cli-engine:2333 help, audit-config:8 + stale-detector:126 JSDoc); test:koala-residue PASS 0 unclassified. Commit dcae4ee9f.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -n koala-[a-z-]+-integrity-v scripts/verify-koala-residue.mjs; git diff scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "Salt exemption regex /koala-[a-z-]+-integrity-v\\d+/g present at line 81; only NEUTRAL_TOKEN_PATTERNS data array changed (2 dead exemptions /work/koala/ + .git/koala removed, grep-proven zero occurrences); scan/classify functions untouched.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff main HEAD -- packages/main/src scripts | grep salt-patterns",
+          "result": "pass",
+          "note": "Zero salt literals modified in source/scripts diff; salt snapshot byte-identical to baseline; residue gate green proves salts exempt and intact.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Remove the 4 koala URLs in package.json + packages/main/package.json",
-      "context": "Remove the github.com/koala-agent/koala URLs: package.json repository.url (~:81), bugs.url (~:88), homepage (~:90); packages/main/package.json repository.url (~:8). Either delete the fields or, if a real lattice repo URL is known, point them there — the user said remove ('去掉'), so delete the fields if no lattice URL is provided. Do NOT remove the test:koala-residue script (that is the enforcement gate, not a koala link). Verify the package.json files are still valid JSON + builds pass.",
+      "context": "Remove the github.com/koala-agent/koala URLs: package.json repository.url (~:81), bugs.url (~:88), homepage (~:90); packages/main/package.json repository.url (~:8). Either delete the fields or, if a real lattice repo URL is known, point them there - the user requested removal, so delete the fields if no lattice URL is provided. Do NOT remove the test:koala-residue script (that is the enforcement gate, not a koala link). Verify the package.json files are still valid JSON + builds pass.",
       "userSees": "package.json + packages/main/package.json no longer contain github.com/koala-agent/koala URLs; npm still builds; the test:koala-residue gate script remains.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T13:34:21.699Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -n koala-agent/koala package.json packages/main/package.json returns nothing; both files are valid JSON",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:koala-residue script entry (package.json:19) is preserved and still runnable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "npm build/test still parse package.json (no JSON syntax break from field deletion); no salt touched",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -n koala-agent/koala package.json packages/main/package.json; node -e JSON.parse(...)",
+          "result": "pass",
+          "note": "grep returns nothing (4 koala URLs removed); both package.json files parse as valid JSON. Commit a28817e1e.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -n test:koala-residue package.json",
+          "result": "pass",
+          "note": "test:koala-residue script present at package.json line 19 (and referenced in the test battery line 15); enforcement gate preserved.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build; node JSON.parse",
+          "result": "pass",
+          "note": "Build exits 0; package.json files valid JSON after field deletion (repository.type kept, empty bugs/homepage removed); no salt touched.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Update CLAUDE.md .koala/ runtime-path references to .lattice/",
       "context": "CLAUDE.md still references .koala/ runtime paths (e.g. .koala/activity.jsonl, .koala/locks/main-write.lock/, .koala/audit-config.json) as if current. Update those runtime-path references to .lattice/ to match the code (which now writes only .lattice/ and no longer reads .koala/). Do NOT rewrite historical 'see story/B-xxx' or salt mentions; only the live runtime-path doc references. Keep CLAUDE.md's docs-drift gate green (the docs-drift gate validates path references — ensure the updated paths exist).",
       "userSees": "CLAUDE.md's runtime-path references say .lattice/ (matching the code); no stale .koala/ runtime paths remain in the doc; docs-drift gate green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T13:33:54.759Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLAUDE.md runtime-path refs (lines 37,71,95,99,410) say .lattice/ matching the code; docs-drift gate green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": ".koala-serve.json mentions (still-current code filename) are NOT changed; only .koala/<dir> paths updated",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No historical see story/B-xxx or salt mentions altered; docs-drift preflight passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "grep -n .koala/ CLAUDE.md; grep .lattice/audit-config CLAUDE.md",
+          "result": "pass",
+          "note": "grep .koala/ returns 0; the 5 runtime-path refs (lines 37,71,95,99,410) now say .lattice/audit-config.json / .lattice/activity.jsonl / .lattice/locks/main-write.lock; 5 .lattice path hits. Commit e1b3ecbf6. docs-drift gate verified at REVIEW preflight.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "grep -c .koala-serve.json CLAUDE.md",
+          "result": "pass",
+          "note": ".koala-serve.json mentions = 7 (unchanged); it is still the live serve-discovery filename in code (dev-host.ts:46, serve.ts:795), so left verbatim — only .koala/<dir> paths updated.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "grep koala-init-check-integrity-v1 CLAUDE.md; git diff CLAUDE.md | grep salt",
+          "result": "pass",
+          "note": "Salt mention (koala-init-check-integrity-v1 signing formula) untouched; no see story/B-xxx altered; CLAUDE.md diff salt-grep empty. docs-drift preflight passes.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "P8 deprecated GC: remove dead finding_dispatch/story_dispatch aliases + dead @deprecated fields (keep necessary legacy-JSON-compat)",
       "context": "Remove the deprecated CLI aliases finding_dispatch and story_dispatch from cli-engine.ts (~:1908) + their handlers/registry entries — they are replaced by 'lattice dispatch'; confirm no active consumer (grep) before removing. Then review the @deprecated fields (core/types.ts legacy verificationIntent/trace-profiler/evidence-freshness-headHash fields, guard-session.ts) and remove the genuinely-dead ones; KEEP any @deprecated field still required to READ old stored story JSON (these are legacy-compat, removing them breaks old-JSON reads) — annotate each kept one with why. After: the deprecated-gc advisory count drops; tsc + the full battery stay green. Do NOT remove the B-8451 advisory mechanism itself.",
       "userSees": "`lattice dispatch` is the only dispatch entry (finding_dispatch/story_dispatch gone); dead @deprecated fields removed while legacy-JSON-compat fields are retained with rationale; the @deprecated count drops; build + battery green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-18T13:54:40.402Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice dispatch is the only dispatch entry; finding_dispatch/story_dispatch removed from cli-engine registry + command-policy; deprecated-gc advisory count drops",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy-JSON-compat @deprecated fields (testIntent, TestIntent, phase, traceDiff, git, GUARD_PRELAUNCH_PROVIDERS, providerSupportsPreToolBlocking) RETAINED with annotation; old-JSON reads unaffected",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dispatch() clusterId branch still works (uses cluster.ts finding_dispatch, not the removed CLI alias); full battery + tsc green; B-8451 advisory mechanism intact; no salt touched",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep name: story_dispatch/finding_dispatch cli-engine.ts; lattice dispatch",
+          "result": "pass",
+          "note": "finding_dispatch + story_dispatch removed from cli-engine registry, command-policy, story-dispatch handler methods, process-fact-levels, config DEFAULT_PHASE_TOOLS; unified lattice dispatch is the only dispatch entry (still produces a prompt). FINDING: the deprecated-gc advisory count does NOT drop (stays 22) — the alias deprecation markers were markdown prose **deprecated in B-9d95** NOT @deprecated JSDoc tags, and all 22 @deprecated are legacy-JSON-compat KEEP fields; there were no dead @deprecated FIELDS to GC, only the dead CLI aliases. Commit 0c208c1f3.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -c @deprecated types.ts guard-session.ts",
+          "result": "pass",
+          "note": "All 7 legacy-JSON-compat @deprecated symbols retained: types.ts has 5 (phase, testIntent, TestIntent, traceDiff, git), guard-session.ts has 2 (GUARD_PRELAUNCH_PROVIDERS, providerSupportsPreToolBlocking). Each has a live old-JSON reader or is exported+tested; old-JSON reads unaffected.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show 0c208c1f3 story-dispatch.ts (clusterId branch); npm build; tests",
+          "result": "pass",
+          "note": "dispatch() clusterId branch unchanged — still calls createClusterHandlers(ctx).finding_dispatch (a DIFFERENT cluster.ts function, def at cluster.ts:49, untouched). tsc build exits 0; process-fact-contract + flow-stability-smoke + deprecated-gc-smoke pass; B-8451 advisory mechanism (threshold logic) intact; zero salt literals modified.",
+          "headHash": "61611eff1ca0da87304390d50976e0a1fa0e43ce",
+          "materialHash": "843f4f8f1c337c24a79931d51b79e73a2dcb8a3fa2c05a046d0d87798cdb614f",
+          "timestamp": "2026-06-18T14:55:11.863Z"
+        }
+      ]
     }
   ]
 }

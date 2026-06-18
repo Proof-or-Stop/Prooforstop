@@ -123,7 +123,7 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
 
 /**
  * Rule 3: more than the threshold since the last lattice command of any kind.
- * Uses readActivityLogTail (dual-source: .koala/activity.jsonl + legacy docs/story/activity.jsonl).
+ * Uses readActivityLogTail (sources: .lattice/activity.jsonl + the migrated .lattice/activity.legacy-koala.jsonl archive + legacy docs/story/activity.jsonl).
  */
 function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number): string | null {
   try {
