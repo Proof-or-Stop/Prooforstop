@@ -277,6 +277,16 @@
           "headHash": "0169e6be7542080c150491f82e7bee595abba155",
           "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
           "timestamp": "2026-06-18T17:01:49.132Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b348d-self.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "self-smoke exits 0 (15/15 incl B-348d a+b); both new cases pass",
+          "headHash": "21675df70634df14f77cdf9c12036d681df5170d",
+          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
+          "timestamp": "2026-06-18T17:01:49.825Z"
         }
       ]
     }
