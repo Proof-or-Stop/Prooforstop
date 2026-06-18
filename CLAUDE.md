@@ -871,7 +871,7 @@ lattice reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # �
 
 **自动聚簇依据**：files 交集 ≥50% + severity 完全一致（severity 不同绝不合并，防时序 bug 被并入文件名同簇）。
 
-> B-9d95 CHK-004 起，派发统一走 `lattice dispatch`（itemId / findingId / clusterId 互斥参数）。`story_dispatch` / `finding_dispatch` 降为 deprecated alias（仍可用但 stderr 告警），新代码一律用 `lattice dispatch`。
+> B-9d95 CHK-004 起派发统一走 `lattice dispatch`（itemId / findingId / clusterId 互斥参数）；旧的 `story_dispatch` / `finding_dispatch` alias 已于 B-a4e3 移除（不再可用），一律用 `lattice dispatch`。
 
 ```bash
 lattice finding_cluster '{"storyId":"B-xxx"}'                        # 自动聚簇（按 files ∩ severity）

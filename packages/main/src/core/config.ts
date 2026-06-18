@@ -9,7 +9,7 @@ import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
  *   - profile 默认值由 `resolveAuditConfig` 接管（light=10, balanced=5, strict=3）
- *   - 项目级覆盖文件为 `<projectRoot>/.koala/audit-config.json`
+ *   - 项目级覆盖文件为 `<projectRoot>/.lattice/audit-config.json`
  *   - 详见 CLAUDE.md「框架自省 audit 配置」
  *
  * 这里以 re-export 的形式挂到 config 入口，**不**改动现有 `loadConfig` /
