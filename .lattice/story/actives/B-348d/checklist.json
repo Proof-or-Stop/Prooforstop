@@ -60,9 +60,9 @@
           "command": "grep -cE \"retryOnAnyFailure\" packages/main/src/tasks/run-all-smokes.ts",
           "result": "pass",
           "note": "grep shows 3 hits (type decl + 2 predicate uses) >=2; opt-in field exists and is read",
-          "headHash": "3e4926b6a8a7a0bec70990f57ac0493e9f5c84f7",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:41.057Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -70,9 +70,9 @@
           "command": "grep -cE \"FAIL.*retryOnAnyFailure|retryOnAnyFailure.*FAIL\" packages/main/src/tasks/run-all-smokes.ts",
           "result": "pass",
           "note": "grep shows 1 hit; FAIL retried only when retryOnAnyFailure flag set",
-          "headHash": "5e12ca9ef8c268b9ba8c9cc302589d6ca200844c",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:41.911Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -80,9 +80,9 @@
           "command": "grep -c retryOnAnyFailure packages/main/dist/tasks/run-all-smokes.js",
           "result": "pass",
           "note": "compiled dist has 2 hits; extended predicate lands in runtime",
-          "headHash": "7e3fae39b03f79ffff73814a6ab2c9fd3f4469a2",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:42.679Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -90,9 +90,9 @@
           "command": "npm --prefix packages/main run build 2>&1 | grep -cE \"error TS\"",
           "result": "pass",
           "note": "build emits 0 TS errors; typechecks clean",
-          "headHash": "79330e36fb23a1836e5929b73747ad93910967da",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:43.401Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -100,9 +100,9 @@
           "command": "grep -cE \"status === .TIMEOUT.\" packages/main/src/tasks/run-all-smokes.ts",
           "result": "pass",
           "note": "2 hits of status===TIMEOUT; B-2941 timeout retry path preserved",
-          "headHash": "10e4e2ffe1a64d7b7dd419655cd93451acd56403",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:44.065Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -110,9 +110,9 @@
           "command": "git diff main...HEAD --name-only -- packages/main/src/core packages/main/src/handlers | wc -l",
           "result": "pass",
           "note": "0 files; no core/handlers production touched, scope = runner+manifest only",
-          "headHash": "bf9c88884c58a61ae5044c8690c3da5c50e73092",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:44.733Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         }
       ]
     },
@@ -166,9 +166,9 @@
           "command": "python3 -c \"import json;m=json.load(open('packages/main/smoke-manifest.json'));t={'field-regression-cli','verification-freshness','worktree-repair','review-pass-discard'};print(sum(1 for s in m['smokes'] if s['name'] in t and s.get('retryOnAnyFailure')==True))\"",
           "result": "pass",
           "note": "corrected faithful command outputs 4; exactly the four verified load-flake smokes opted in",
-          "headHash": "05f3f38fc6669de070079577933794b42036ff8b",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:45.491Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -176,9 +176,9 @@
           "command": "for s in field-regression-cli verification-freshness worktree-repair review-pass-discard; do node packages/main/dist/tasks/$s-smoke.js >/dev/null 2>&1 || echo BAD-$s; done",
           "result": "pass",
           "note": "loop emits no BAD-* lines; all 4 allowlisted smokes serial-PASS exit 0",
-          "headHash": "227c886929b4c9d10ed8ee07f55a980aa2a80de3",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:46.232Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -186,9 +186,9 @@
           "command": "node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"./packages/main/smoke-manifest.json\\\",\\\"utf8\\\"))\";echo OK",
           "result": "pass",
           "note": "node JSON.parse succeeds + prints OK; manifest still valid JSON",
-          "headHash": "8f2a1983d96da5f0e80a3788a1c6400ce9b99491",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:46.914Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -196,9 +196,9 @@
           "command": "grep -c retryOnAnyFailure packages/main/smoke-manifest.json",
           "result": "pass",
           "note": "grep -c outputs 4; exactly 4 flags present, no over-flagging",
-          "headHash": "1663285a79afb765d1f77e68927c02efc3e05b1f",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:47.770Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         }
       ]
     },
@@ -264,9 +264,9 @@
           "command": "grep -cE \"retryOnAnyFailure\" packages/main/src/tasks/run-all-smokes-smoke.ts",
           "result": "pass",
           "note": "5 hits of retryOnAnyFailure in self-smoke source; new cases reference the field",
-          "headHash": "e28e7d1420cb256b66b40f1b81393cdb3a86a396",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:48.468Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -274,9 +274,9 @@
           "command": "grep -cE \"not.*retr|terminal|without.*flag|default\" packages/main/src/tasks/run-all-smokes-smoke.ts",
           "result": "pass",
           "note": "5 hits of terminal/default/without-flag language; anti-masking negative case present",
-          "headHash": "0169e6be7542080c150491f82e7bee595abba155",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:49.132Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -284,9 +284,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b348d-self.log 2>&1; echo $?",
           "result": "pass",
           "note": "self-smoke exits 0 (15/15 incl B-348d a+b); both new cases pass",
-          "headHash": "21675df70634df14f77cdf9c12036d681df5170d",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:49.825Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -294,9 +294,9 @@
           "command": "awk \"/^## /{p=0} /^## Unreleased/{p=1} p\" CHANGELOG.md | grep -ciE \"B-348d|retryOnAnyFailure\"",
           "result": "pass",
           "note": "Unreleased section has 1 B-348d/retryOnAnyFailure mention; CHANGELOG entry present",
-          "headHash": "26f9ba040a394cebfa114db36b2329b0d66d599a",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:50.617Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -304,9 +304,9 @@
           "command": "grep -ciE \"retryOnAnyFailure|retry.*on.*fail\" docs/dev/test-coverage.md",
           "result": "pass",
           "note": "docs/dev/test-coverage.md has 1 retry-policy mention; docs updated",
-          "headHash": "fc6cc743ac6eeaddd57402a9a67f4863760aa7aa",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:51.305Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -314,9 +314,9 @@
           "command": "git diff main -- CHANGELOG.md | grep -E \"^[-+]## \" | grep -vE \"Unreleased\" | wc -l",
           "result": "pass",
           "note": "0 new ## headings in CHANGELOG diff besides Unreleased; only Unreleased touched",
-          "headHash": "5277621902786cde35e6824e0962ba8ec2645b4c",
-          "materialHash": "4bd65a39f3fa5549748ffa8320191b1bf1db0b5aeed0350473e1fd2b396ab5cb",
-          "timestamp": "2026-06-18T17:01:52.008Z"
+          "headHash": "ca2e4de80247c58c4bd7ff7a979e50d7368e2d54",
+          "materialHash": "3578617e0dea799ec06530ca68223e8b5699b23960342bd83c76646e013b83f4",
+          "timestamp": "2026-06-18T17:12:37.248Z"
         }
       ]
     }
