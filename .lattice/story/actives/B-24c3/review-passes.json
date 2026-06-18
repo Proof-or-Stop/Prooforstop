@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T00:40:43.388Z",
       "reviewRunId": "B-24c3:RR-001",
       "_hash": "5a40597efb9dd6a5b898485f3e1b038448545fd75ed35b57c77f6a298f660e6b"
+    },
+    {
+      "id": "B-24c3:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 15 verificationIntent entries (12 success + 3 waiver) have valid verificationEvidence bindings. CHK-001 5/5 exact or semantically-equivalent command matches, all verdict=success. CHK-002 3/3 exact matches, all verdict=success. CHK-003 happy:0-1 exact matches success; happy:2-4 waived with literal intent commands and specific rationale (system-level parallel race, converging-tail, 4 new victims filed as F-001..F-004); edge:0 verdict=success using v2-round logs confirming 0 of 9 targets in FAIL/TIMEOUT; adversarial:0 exact match success. No must-gap found. 3 waivers are accurate, specific, and carry the literal intent CLI commands.",
+      "createdAt": "2026-06-18T00:42:46.131Z",
+      "reviewRound": "2026-06-18T00:40:43.388Z",
+      "reviewRunId": "B-24c3:RR-002",
+      "_hash": "6b09c2df3b482a984546708fe7ae7945619fb60ae3b0fbb6a104e7524640b348"
     }
   ]
 }
