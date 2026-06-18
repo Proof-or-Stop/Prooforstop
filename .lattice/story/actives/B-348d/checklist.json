@@ -6,7 +6,7 @@
       "context": "In packages/main/src/tasks/run-all-smokes.ts, the pass-2 retry set is currently the pass-1 results with status===TIMEOUT. Extend the membership predicate to ALSO include status===FAIL entries whose manifest entry has retryOnAnyFailure===true. Add the optional field retryOnAnyFailure?: boolean (default false/absent) to the ManifestEntry type + the smoke-manifest.json schema annotation. The default for every smoke without the flag is UNCHANGED (FAIL is terminal, only TIMEOUT retries) — preserve B-2941 behavior exactly for non-allowlisted smokes. Keep --no-retry disabling pass-2 entirely. Build clean.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-18T16:53:16.933Z",
+      "endTime": "2026-06-18T16:58:46.461Z",
       "userSees": "`grep retryOnAnyFailure packages/main/src/tasks/run-all-smokes.ts` shows the field + the FAIL-with-flag predicate; build clean; TIMEOUT path intact.",
       "files": {
         "modify": [
