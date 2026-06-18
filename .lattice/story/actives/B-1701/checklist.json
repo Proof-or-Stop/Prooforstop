@@ -6,7 +6,43 @@
       "context": "Add one generator that emits a basic trust/client bundle by default; the senior tier is an explicit opt-in variant. The output files should be easy to source without extra developer fields.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees lattice_authority_trust.env and lattice_staging-client.env created successfully, then can source them without being asked for extra developer fields.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/core/authority-client.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the default bundle generator writes lattice_authority_trust.env and lattice_staging-client.env and reports success.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default generation still works when no extra developer fields are supplied or senior mode is absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Default generation never emits senior filenames or raw secret contents.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

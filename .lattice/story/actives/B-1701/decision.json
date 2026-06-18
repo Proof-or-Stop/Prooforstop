@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Prefer one obvious default path for ordinary developers.",
+    "Preserve existing automation as compatibility aliases unless a real correctness issue forces a break.",
+    "Do not add multi-tenant or broader auth redesign work to a filename/bundle story.",
+    "Keep the implementation aligned with the docs and the visible developer experience."
+  ],
+  "drivers": [
+    "Ordinary developers should get a simple bundle without extra fields.",
+    "Senior bundle creation must be explicit opt-in.",
+    "Legacy authority_trust.env and staging-client.env paths must remain usable."
+  ],
+  "options": [
+    {
+      "name": "new-names-default-with-aliases",
+      "pros": [
+        "Matches the requested Lattice-prefixed naming while keeping current automation working.",
+        "Keeps the default developer workflow simple.",
+        "Lets the senior variant stay explicit rather than implicit."
+      ],
+      "cons": [
+        "Needs alias handling and extra docs/tests.",
+        "Requires careful verification that both file-name families stay in sync."
+      ]
+    },
+    {
+      "name": "keep-legacy-names-only",
+      "pros": [
+        "Smallest immediate code change.",
+        "Avoids touching existing file generation paths."
+      ],
+      "cons": [
+        "Does not satisfy the naming cleanup request.",
+        "Leaves the developer-facing vocabulary inconsistent with the Lattice naming scheme."
+      ]
+    },
+    {
+      "name": "replace-legacy-names-entirely",
+      "pros": [
+        "Cleanest end state from a naming perspective.",
+        "Eliminates alias complexity."
+      ],
+      "cons": [
+        "Breaks existing automation and source compatibility.",
+        "Raises rollout risk for a story that is supposed to simplify access, not destabilize it."
+      ]
+    }
+  ],
+  "chosen": "new-names-default-with-aliases",
+  "rationale": "It satisfies the new Lattice naming request, keeps the default path simple, and preserves legacy compatibility so we do not break current users while cleaning up the bundle flow.",
+  "preMortem": [
+    {
+      "scenario": "Legacy scripts fail after the rename",
+      "trigger": "The generator writes only the new names or the alias mapping is incomplete.",
+      "consequence": "Existing automation cannot source the expected files.",
+      "mitigation": "Write both name families from the same source and add coverage for both paths."
+    },
+    {
+      "scenario": "The senior path becomes the default by accident",
+      "trigger": "The opt-in flag is ignored or defaults are wired backwards.",
+      "consequence": "Ordinary developers face extra complexity and the bundle story stops being simple.",
+      "mitigation": "Keep the default bundle path explicitly separate and test the default vs senior outputs independently."
+    },
+    {
+      "scenario": "Docs drift away from the actual bundle behavior",
+      "trigger": "Implementation changes land without updating the developer-facing bundle guidance.",
+      "consequence": "People cannot tell which filenames to use and support overhead rises.",
+      "mitigation": "Update the authority docs in the same story and verify the filenames in examples."
+    },
+    {
+      "scenario": "Secret values leak in logs or generated text",
+      "trigger": "Debug output prints raw keys or trust material.",
+      "consequence": "Credential exposure.",
+      "mitigation": "Keep the generator file-only, redact values in logs, and avoid printing secret contents."
+    }
+  ],
+  "timestamp": "2026-06-18T16:25:33.735Z"
+}
