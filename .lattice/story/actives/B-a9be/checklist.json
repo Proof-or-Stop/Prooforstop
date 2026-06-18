@@ -10,9 +10,9 @@
         "packages/main/src/verifier/dev-cli.ts",
         "docs/koala/framework-audit/2026-06-18/report.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T13:56:38.352Z",
-      "endTime": null,
+      "endTime": "2026-06-18T14:02:13.946Z",
       "verificationIntent": {
         "happy": [
           {
@@ -41,7 +41,30 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "rg -n \"lattice serve --web|lattice serve --cli|npm run serve:web|npm run serve:cli|npm run serve\" CLAUDE.md packages/main/src/verifier/dev-cli.ts",
+          "result": "pass",
+          "note": "The stale serve-mode aliases no longer appear in the edited onboarding file or the synced source comment.",
+          "headHash": "385d0e01fa4b87ff67fbef7af1102f109dfc811f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:14.212Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice audit --framework",
+          "result": "pass",
+          "note": "Framework audit round 9 reported 0 still-drifting items and resolved B-META-framework-audit:F-012/F-013, proving the serve-mode drift is cleared.",
+          "headHash": "385d0e01f",
+          "materialHash": "7cc51396b67194fa86a69b87d9bf658cf074602f702f7c3f7562eea377eeca8c",
+          "timestamp": "2026-06-18T14:02:14.323Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
