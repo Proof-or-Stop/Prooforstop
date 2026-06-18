@@ -1,0 +1,27 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-18T12:50:15.758Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Two-pass retry in run-all-smokes.ts: pass 1 default jobs, pass 2 serial retry for timeouts + Smoke manifest schema: noRetry? optional field + add to run-all-smokes-smoke are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-2941\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether pass 2 wall-clock adds 1-3 min in worst case (need DEV measurement); Whether review-pass-discard parallel FAIL (not timeout) needs noRetry=true override or its FAIL counts as final fail too"
+        }
+      ],
+      "_hash": "86d76b5d1db633392c80cf231b928e6a61f1f73a4ed50f891bf8cc5c206682b9"
+    }
+  ]
+}

@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Two-pass retry in run-all-smokes.ts: pass 1 default jobs, pass 2 serial retry for timeouts",
       "context": "Un-freeze packages/main/src/tasks/run-all-smokes.ts narrowly to add a second execution pass. After pass 1 collects results, compute the set of timeouts (status=TIMEOUT, excluding any smoke with manifest noRetry=true). If empty -> exit with pass 1 result (today behavior). Else log Pass 1 summary + retrying serially..., re-spawn the runner workers with --jobs 1 forced for the timeout subset only. Aggregate final result: smokes in passOnRetry count toward Final passed; smokes that fail BOTH passes count toward Final failed. Add --no-retry CLI flag for CI strict mode (skip pass 2 entirely; today behavior). Worker pool, manifest reader, CLI flag parser otherwise untouched.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T12:50:26.283Z",
       "endTime": null,
       "userSees": "`npm run test:all` output ends with 'Pass 1: ... timeouts → retrying...' 'Pass 2: ...' 'Final: 167/167 passed in N s'. `npm run test:all -- --no-retry` shows today behavior (no retry).",
       "files": {
