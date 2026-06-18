@@ -331,6 +331,17 @@
           "headHash": "8dcf60c2a1669088a38a709514bb88314028fc5b",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:22.991Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c -- '--no-retry' docs/dev/test-coverage.md",
+          "result": "pass",
+          "note": "Returns 1+ — docs mentions --no-retry override.",
+          "headHash": "4ff253eb69707453562faff1c38a56213567a56f",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:23.565Z"
         }
       ]
     }
