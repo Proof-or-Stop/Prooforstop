@@ -62,7 +62,7 @@
 **Owner**: main-agent
 **DependsOn**: CHK-001, CHK-002, CHK-003
 **Files**:
-- Modify: docs/requirements/decisions/lattice-authority-customer-api-key-access.md, docs/guide.md, README.md
+- Modify: docs/requirements/decisions/lattice-authority-customer-api-key-access.md, docs/requirements/decisions/authority-client-role.md, docs/guide.md, README.md
 - Create: none
 - Test: packages/main/src/tasks/docs-drift-path-drift-smoke.ts, packages/main/src/tasks/authority-client-smoke.ts
 
@@ -71,6 +71,6 @@
 - `npm --prefix packages/main run test:docs-drift-smoke`
 
 **DoneWhen**:
-- Docs explain the default bundle, the explicit senior variant, and the legacy alias path together.
+- Docs explain the default bundle, the senior opt-in variant, and the legacy alias path together.
 - Examples use the same filenames that the generator emits.
 - The docs do not reintroduce the old Koala wording or a second protocol.

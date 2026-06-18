@@ -1,0 +1,25 @@
+{
+  "storyId": "B-1701",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/core/authority-client.ts",
+    "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/guide.md",
+    "README.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/docs-drift-path-drift-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-18T16:34:34.182Z",
+  "updatedAt": "2026-06-18T16:35:26.661Z"
+}
