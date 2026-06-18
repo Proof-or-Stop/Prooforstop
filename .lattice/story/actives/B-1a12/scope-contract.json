@@ -1,0 +1,21 @@
+{
+  "storyId": "B-1a12",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/worktree.ts",
+    "package.json",
+    "docs/requirements/decisions/lattice-parallel-wave.md"
+  ],
+  "allowedCreate": [
+    "scripts/verify-nested-worktree-bootstrap.mjs"
+  ],
+  "allowedTest": [
+    "scripts/verify-nested-worktree-bootstrap.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-18T19:36:58.245Z",
+  "updatedAt": "2026-06-18T19:36:58.245Z"
+}
