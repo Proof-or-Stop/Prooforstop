@@ -55,9 +55,9 @@
       "id": "CHK-002",
       "title": "Prove the fix retires the B-348d stopgap, then remove the 4 retryOnAnyFailure flags",
       "context": "Build, then run the four previously-flagged smokes (field-regression-cli, verification-freshness, worktree-repair, review-pass-discard) under heavy parallel load with FAIL-retry DISABLED, i.e. invoke each smoke binary directly (no two-pass runner) with concurrent fillers, for many iterations (>=24 total runs across heavy concurrency), capturing exit codes. Expectation: 0 FAIL. If all pass, remove retryOnAnyFailure:true from those four entries in packages/main/smoke-manifest.json (retire the stopgap). If any one still FAILs under load, KEEP that smoke's flag and record a finding documenting the residual sub-cause. The retryOnAnyFailure mechanism itself (the manifest field + run-all-smokes pass-2 logic from B-348d) is NOT removed - it stays as a general safety net.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T19:41:55.762Z",
       "files": {
         "modify": [
           "packages/main/smoke-manifest.json"
