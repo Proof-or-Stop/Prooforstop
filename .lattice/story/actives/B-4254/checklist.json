@@ -9,9 +9,9 @@
         "CLAUDE.md",
         "README.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T15:00:41.425Z",
-      "endTime": null,
+      "endTime": "2026-06-18T15:13:16.838Z",
       "userSees": "\"🐨 lattice serve\" followed by \"API: http://localhost:<port>\" and \"Core WS: ws://localhost:<port>\"; the launcher starts the documented flow without any special --web / --cli mode.",
       "verificationIntent": {
         "happy": [
@@ -45,7 +45,20 @@
           "packages/main/src/verifier/dev-cli.ts",
           "scripts/verify-entrypoints.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/verifier/dev-cli.ts",
+          "command": "npm --prefix packages/main run build && npm run test:entrypoints",
+          "result": "pass",
+          "note": "dev-cli.ts no longer parses --web/--cli compatibility flags, and the entrypoints smoke now guards that launcher contract end-to-end.",
+          "headHash": "7699548b098f5c8ea7ac83a5eb08b073970f847c",
+          "materialHash": "068545f7f647cbad18a537ae6cbb4260c165928d5fec44a2177b45cb6b39a875",
+          "timestamp": "2026-06-18T15:13:17.029Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
