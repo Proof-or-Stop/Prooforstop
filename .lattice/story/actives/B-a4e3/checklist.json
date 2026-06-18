@@ -101,9 +101,9 @@
       "title": "Update CLAUDE.md .koala/ runtime-path references to .lattice/",
       "context": "CLAUDE.md still references .koala/ runtime paths (e.g. .koala/activity.jsonl, .koala/locks/main-write.lock/, .koala/audit-config.json) as if current. Update those runtime-path references to .lattice/ to match the code (which now writes only .lattice/ and no longer reads .koala/). Do NOT rewrite historical 'see story/B-xxx' or salt mentions; only the live runtime-path doc references. Keep CLAUDE.md's docs-drift gate green (the docs-drift gate validates path references — ensure the updated paths exist).",
       "userSees": "CLAUDE.md's runtime-path references say .lattice/ (matching the code); no stale .koala/ runtime paths remain in the doc; docs-drift gate green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-18T13:33:54.759Z",
       "verificationIntent": {
         "happy": [
           {
