@@ -42,9 +42,20 @@
       "id": "CHK-003",
       "title": "Wire deprecated advisory into audit trigger hint",
       "context": "In packages/main/src/core/audit-trigger.ts: after existing trigger logic, call scanDeprecated and compare count to config.deprecatedGcThreshold. If count > threshold, append one-line advisory to the hint text listing count and files, suggesting a cleanup story. Additive only — never changes triggered=false or blocks DONE.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-18T00:38:13.418Z",
-      "endTime": null
+      "endTime": "2026-06-18T00:38:42.946Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Imported scanDeprecated from audit-scan.js in audit-trigger.ts. In the semi-auto trigger branch, after buildSemiAutoHint, calls scanDeprecated(projectRoot) and if count > deprecatedGcThreshold appends the advisory line to hint. Additive only — never touches triggered flag. Committed 159178c5a.",
+          "headHash": "159178c5ade389bf6bc161c54fdd3ecd430c0e91",
+          "materialHash": "ca01125c1056e87edfebd3878ff206cac2feecc02dd6b01c908b19734c5f76fc",
+          "timestamp": "2026-06-18T00:38:43.144Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
