@@ -41,6 +41,25 @@
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto",
       "resolvedBy": "B-a4e3:F-002@7c7d9fd"
+    },
+    {
+      "id": "B-a4e3:F-003",
+      "desc": "spec-boundary: docs/requirements/decisions/dev-memory.md lines 30-31 still state \"The legacy .koala/dev-memory/experience.jsonl and ~/.koala/dev-memory/experience.jsonl paths are read-only fallback inputs for migrated installations\" but CHK-001 removed resolveLegacyProjectMemoryPath + resolveLegacyGlobalMemoryPath from core/dev-memory.ts. The spec doc was not updated to reflect the removal. An operator reading dev-memory.md would believe the fallback still exists. Suggest updating lines 30-31 to note that the legacy .koala read fallback was removed in B-a4e3.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-18T14:17:42.387Z",
+      "reviewRound": "2026-06-18T14:12:40.486Z",
+      "reviewRunId": "B-a4e3:RR-010",
+      "_hash": "d360b20a10f5f41b47984daea0329bc17b233f4592f0a2af9f8aa1496b66407e",
+      "files": [
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/core/dev-memory.ts"
+      ],
+      "signatureTag": "missing|md|spec-boundary-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
