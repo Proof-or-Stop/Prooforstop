@@ -310,6 +310,17 @@
           "headHash": "71aee9271bc11e074798acb551352a031b927faa",
           "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
           "timestamp": "2026-06-18T14:42:01.021Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js > /tmp/b3d39-lock.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — lock smoke passes incl section 9 (verified deterministic 3/3).",
+          "headHash": "e261efcb3a083b10070cb2b38b516e201ad4cb06",
+          "materialHash": "b0c5ec083caa1d10f33f0f08780cab1913645d38998e9c7ad1e72ff8aa039b5f",
+          "timestamp": "2026-06-18T14:42:02.205Z"
         }
       ]
     }
