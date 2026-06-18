@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0717",
+  "mode": "maintenance",
+  "allowed": [
+    "Define Lattice Authority Server strong-verification flow, 3x2 host quorum, and 3x1 degraded fallback criteria",
+    "Inventory packages/main/src/cli-engine.ts responsibilities and existing command contracts",
+    "Record verification readiness and commands for the future implementation stories",
+    "Write docs/requirements/decisions CLI engine modularization execution plan"
+  ],
+  "excluded": [
+    "Do not change CLI runtime behavior or command schemas in this story",
+    "Do not claim production Authority receipt completion unless a verified Authority gate_decision receipt exists",
+    "Do not refactor packages/main/src/cli-engine.ts in this story",
+    "Do not rename or remove commands in this story"
+  ],
+  "confirmedBy": "Codex",
+  "confirmationNote": "User requested: first write the document, then run the strong-verification Lattice Authority Server flow for the major cli-engine.ts decomposition plan.",
+  "createdAt": "2026-06-18T14:04:28.628Z",
+  "updatedAt": "2026-06-18T14:04:28.628Z",
+  "_hash": "ca8b14dc467dbdb106ca978fb7ec57482a0907bd6f3c66f3fa0cd78179e9e048"
+}
