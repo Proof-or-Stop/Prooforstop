@@ -296,6 +296,17 @@
           "headHash": "98cf3ed9ea5d467a225dfb86363c72e67a9c9ded",
           "materialHash": "6e1d5ad6156d7f37ffc5836d6ae7a477b8bfde3978c504e3f54f350b08e11070",
           "timestamp": "2026-06-18T01:46:54.678Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts",
+          "command": "npm run test:managed-assets-wrapper-root",
+          "result": "pass",
+          "note": "Regression validates text output in the wrapper-root fixture, including split-root diagnostics and assetRoot-relative path-base guidance.",
+          "headHash": "a693150bc6c029862ac93509a082ddb322564396",
+          "materialHash": "7b99ef3291ca4ffebc6848b795d26a90baf0154d3c24f156c1f5f4bc41f218ac",
+          "timestamp": "2026-06-18T01:54:05.332Z"
         }
       ]
     }
