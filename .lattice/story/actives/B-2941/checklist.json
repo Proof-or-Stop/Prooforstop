@@ -209,6 +209,17 @@
           "headHash": "0a3b681f43b9eae3cbe10eb1afa6ba5bcc63e673",
           "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
           "timestamp": "2026-06-18T13:05:19.912Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/run-all-smokes-smoke.js > /tmp/b-2941-self.log 2>&1; echo $?",
+          "result": "pass",
+          "note": "Returns 0 — self-smoke 13/13 PASS incl 4 new retry cases.",
+          "headHash": "481d4768237a5bed18fad56259592c9e0af6bcd2",
+          "materialHash": "5fc0384868c2e953b7463d684817ae3ea09ad8d24863f0f09fd66c6936ec8a24",
+          "timestamp": "2026-06-18T13:05:20.645Z"
         }
       ]
     },
