@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-18T14:12:40.486Z",
       "reviewRunId": "B-a4e3:RR-010",
       "_hash": "ead053c179cb92787fe7571a918a80ee63693edb11de1231dd5718dea667566d"
+    },
+    {
+      "id": "B-a4e3:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-review of dev-memory.md fix (commit f59ee0587). Step 1: 28 exported symbols extracted from full diff; none are referenced in docs/requirements/decisions/dev-memory.md directly (Fallback 1: pure docs change for round-3 scope). Step 2/3: Verified 1 paragraph in dev-memory.md changed by this round. All 4 required checks PASS: (1) stale read-only fallback claim gone — grep returns nothing; (2) corrected note present at line 30 — .koala read fallback removed in B-a4e3, .koala is no longer read; (3) write-guard line intact at line 31 — must not append to or mutate legacy .koala; (4) salt constraint empty — diff introduces no koala-*-integrity salt strings. No new doc drift introduced. lattice-parallel-wave.md stale reference to .koala/dev-memory is pre-existing outside B-a4e3 scope (that file has 0 diff lines in git diff main...HEAD). F-001/F-002/F-003 all resolved; no blockers.",
+      "createdAt": "2026-06-18T14:23:04.837Z",
+      "reviewRound": "2026-06-18T14:21:30.775Z",
+      "reviewRunId": "B-a4e3:RR-011",
+      "_hash": "c2f161abe65850d56390ab9660b19524c4ea3f4f271223037c7ccf519c890e86"
     }
   ]
 }
