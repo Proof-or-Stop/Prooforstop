@@ -74,7 +74,129 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -159,7 +281,149 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.185Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -255,7 +519,169 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:6",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+          "result": "pass",
+          "note": "Committed verifier: build + ab-shadow-gate smoke + no-regression smokes + full npm test (process-fact-contract green) + static checks (hint-mode.ts pure; story-review.ts does not feed hints into resolveReviewPromptHash and leaves the issues/blocker block unchanged; core/review-run.ts untouched). TOTAL 42 | PASS 42 | FAIL 0.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:experience-layer-ab-shadow-gate",
+          "result": "pass",
+          "note": "ab-shadow-gate smoke (13/13): resolveHintMode deterministic+balanced+empty-tolerant; ON-arm _reviewPrompt CONTAINS the experience-hints section, OFF-arm does NOT; experience_hint_surfaced fires on BOTH arms with the correct hintMode + full hint set; issues/blocker identical between arms; OFF-arm prompt byte-identical to the no-hints baseline; resolveReviewPromptHash byte-identical regardless of arm.",
+          "headHash": "374f2ce7dca85997966ab9b59070b4e03549453c",
+          "materialHash": "fb8a66678dccd0babf303e7e86b45885cb3ac1ed071b801772b8274d3bfb873c",
+          "timestamp": "2026-06-18T15:12:56.186Z"
+        }
+      ]
     }
   ]
 }

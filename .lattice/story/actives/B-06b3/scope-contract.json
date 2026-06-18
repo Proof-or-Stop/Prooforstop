@@ -3,6 +3,7 @@
   "mode": "shadow",
   "allowedModify": [
     "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
     "packages/main/package.json"
   ],
   "allowedCreate": [
@@ -11,15 +12,16 @@
     ".lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs"
   ],
   "allowedTest": [
-    "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts"
+    "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+    "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [
     "packages/main/src/core/review-run.ts",
     "packages/main/src/core/experience-hint-loader.ts"
   ],
-  "scopeChangeReason": "Deterministic hintMode leaf + shadow-gate the advisory hint section in story-review.ts; reuses experience-hint-loader/review-run unchanged.",
+  "scopeChangeReason": "A/B gating changes existing hint-injection behavior for OFF-arm storyIds; the pre-existing hint-injection smoke needed an ON-arm helper to keep its section-present assertions valid.",
   "acknowledgements": [],
   "createdAt": "2026-06-18T14:33:20.178Z",
-  "updatedAt": "2026-06-18T14:33:20.178Z"
+  "updatedAt": "2026-06-18T15:12:32.108Z"
 }
