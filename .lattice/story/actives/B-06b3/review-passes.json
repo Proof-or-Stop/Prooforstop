@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-18T15:12:58.818Z",
       "reviewRunId": "B-06b3:RR-004",
       "_hash": "85c50c2a66ea5ff994ddd8c4d2eb61b2dbfbbdf0be7728144b0c0b3f26429631"
+    },
+    {
+      "id": "B-06b3:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement residue found. Three scope items examined: (1) hint-mode.ts — new additive leaf exporting HintMode + resolveHintMode; no prior concept deleted. (2) story-review.ts — experienceHintsSection is not deleted; it stays as the computation variable; renderedHintsSection is the new render-gated derivative at the two render sites (if-guard and string concat). Both deleted lines were exactly the two render-site uses; confirmed zero residual render-site uses of experienceHintsSection. (3) Test storyId constants B-hint1/B-hint-place/B-hint-inj deleted from hint-injection-smoke and fully replaced by onArmId() calls; grep confirms zero residue. B-hint-dedup is ON-arm (firstByte=12, even), so its section-present assertions remain correct without onArmId. ab-shadow-gate smoke: consistent ON/OFF arm storyId derivation via findStoryIdForArm helper; both arms covered for event hintMode field, byte-identical OFF prompt, and arm-independent issues/blocker output. No doc-promise-undelivered: CLAUDE.md and README.md unchanged. No @deprecated markers needed: no backward-compat removals. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-18T15:16:04.768Z",
+      "reviewRound": "2026-06-18T15:12:58.818Z",
+      "reviewRunId": "B-06b3:RR-001",
+      "_hash": "5a94d0d1dd9e43794a289d5ae0b3babd08f8471878d8b34044b33f2073745dbe"
     }
   ]
 }
