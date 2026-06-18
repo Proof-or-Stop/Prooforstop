@@ -18,6 +18,26 @@
       ],
       "signatureTag": "missing|ts|happy-evidence-command",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-06b3:F-002",
+      "desc": "CHK-001:adversarial:3 has no valid coverage: intent requires testing that passing null/undefined/number as storyId either throws TypeError or coerces deterministically (never silently corrupts the arm). The evidence is bound to the ab-shadow-gate smoke, but the smoke has zero check() calls for null/undefined/number inputs. The verifier (verify-b-06b3.mjs) also has no such test — it only validates purity via grep and does not call resolveHintMode with non-string values. This must-have adversarial intent is uncovered by any existing evidence command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T15:17:28.868Z",
+      "reviewRound": "2026-06-18T15:12:58.818Z",
+      "reviewRunId": "B-06b3:RR-003",
+      "_hash": "06c7a70cadcf27ff183373e513df22b0e9b4ddfe45b5345c256118f084ea9419",
+      "files": [
+        "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+        ".lattice/story/actives/B-06b3/evidence/verify-b-06b3.mjs",
+        "packages/main/src/core/hint-mode.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-valid-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
