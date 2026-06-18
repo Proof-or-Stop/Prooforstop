@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-18T19:37:31.793Z",
       "reviewRunId": "B-1a12:RR-003",
       "_hash": "8b93436b9897ef4c8de76667f9c09e2f09fc34c2a8c2b1935f54456dad0628c5"
+    },
+    {
+      "id": "B-1a12:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "5-check behavioral review: (1) byte-identical-from-main: --git-common-dir from main outputs .git, abs=<main>/.git ends in /.git, dirname=<main> = same as --show-toplevel; (2) non-bootstrap callers (getRepoRoot, resolveWorktreePath) untouched in diff; (3) configured-gitRoot branch in resolveBootstrapGitRoot unchanged; (4) fallback safety: throw -> getRepoRoot(), non-.git common-dir (bare/submodule) -> getRepoRoot(); (5) smoke validity: old worktree IS inside <main>/.worktrees/<oldStory> (a subdir of main), so storyRel from <main> has no .., bootstrap proceeds, --git-common-dir from <oldWorktree> resolves to <main>/.git -> dirname=<main>, new worktree correctly lands at <main>/.worktrees/<newStory>; smoke passes (verified by running npm run test:nested-worktree-bootstrap); no blocking issues found.",
+      "createdAt": "2026-06-18T19:44:57.339Z",
+      "reviewRound": "2026-06-18T19:37:31.793Z",
+      "reviewRunId": "B-1a12:RR-005",
+      "_hash": "ab3fe9d03d2f119cce987a582c2409393878cb36b42a8a004390c9fa8d869cfe"
     }
   ]
 }
