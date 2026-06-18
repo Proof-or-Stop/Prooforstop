@@ -18,6 +18,62 @@
           "packages/main/src/core/hint-mode.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveHintMode(\"B-06b3\") returns either \"on\" or \"off\" (valid HintMode literal); WHY: confirms basic contract",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHintMode called twice with same storyId -> returns identical result both times; WHY: determinism proof",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHintMode over 1000 synthetic storyIds (B-0001..B-1000) -> both arms appear with roughly 40-60% split; WHY: balance verification",
+            "type": "cli"
+          },
+          {
+            "desc": "Module exports only resolveHintMode function + HintMode type -> no unexpected exports; WHY: confirms leaf surface area",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveHintMode(\"\") (empty string) -> returns valid on/off without throwing; WHY: degenerate input must not crash",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHintMode with very long storyId (10000 chars) -> returns valid result without hang/OOM; WHY: sha256 handles arbitrary length",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHintMode with unicode storyId (B-\\u65e5\\u672c\\u8a9e-001) -> returns valid on/off deterministically; WHY: utf-8 hashing edge",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHintMode with storyIds differing by one char (B-06b3 vs B-06b4) -> both return valid results, confirms hash bit sensitivity; WHY: near-collision check",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Static: hint-mode.ts imports only node:crypto and/or type-only imports -> no fs/git/path/child_process/Date.now/Math.random; WHY: purity enforcement via grep",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHintMode called 100 times same storyId across fresh calls -> all identical; WHY: no hidden mutable state or closure drift",
+            "type": "cli"
+          },
+          {
+            "desc": "Static: hint-mode.ts source has no process.env, fs., require(non-crypto), setTimeout, setInterval, Date references; WHY: pure leaf no side effects",
+            "type": "cli"
+          },
+          {
+            "desc": "Adversarial: passing null/undefined/number as storyId -> throws TypeError or coerces deterministically, never silently corrupts arm; WHY: type safety boundary",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
