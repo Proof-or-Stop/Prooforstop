@@ -64,6 +64,7 @@ import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-prom
 import { createSignatureRegistryHandlers } from './handlers/signature-registry.js';
 import { createPlaybookHandlers } from './handlers/playbook.js';
 import { createRecallHandlers } from './handlers/recall.js';
+import { createLearningScanHandlers } from './handlers/learning-scan.js';
 import { createLearningValidateHandlers } from './handlers/learning-validate.js';
 import { createReviewEscalationHandlers } from './handlers/review-escalation.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
@@ -234,6 +235,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // writes only under .lattice/learning/. Approve fails closed on a stale digest.
   registry.registerBatch(createPlaybookHandlers(ctx));
   registry.registerBatch(createRecallHandlers(ctx));
+  // B-4eb6 (Experience Layer ③.1): learning_scan derives + PERSISTS the advisory
+  // finding-signals cache under .lattice/learning/ that the Phase 1.5 hint loader
+  // reads. Writing (not read-only); files no findings / touches no gate.
+  registry.registerBatch(createLearningScanHandlers(ctx));
   registry.registerBatch(createLearningValidateHandlers(ctx));
   registry.registerBatch(createReviewEscalationHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
