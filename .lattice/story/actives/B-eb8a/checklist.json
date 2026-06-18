@@ -51,7 +51,7 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "The stronger audit rule is unchanged for high-risk work; the only visible difference is that small annotation or typo cleanups are clearly called out as one-round cases.",
+      "userSees": "The stronger audit rule still says \"high-risk lifecycle, gate, Authority, and process-fact changes require the stronger three-round two-host path\".",
       "verificationIntent": {
         "happy": [
           {
@@ -72,9 +72,17 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-18T11:12:02.345Z",
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ],
   "auditLog": [
@@ -86,6 +94,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start the canonical doc sync work for the low-risk one-round policy."
+    },
+    {
+      "timestamp": "2026-06-18T11:12:02.345Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Keep the high-risk three-round rule intact while updating the low-risk wording."
     }
   ]
 }
