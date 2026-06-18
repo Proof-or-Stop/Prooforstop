@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8451",
+  "allowedCommands": [
+    "lattice validate",
+    "node packages/main/dist/tasks/deprecated-gc-smoke.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/audit-config.ts",
+    "packages/main/src/core/audit-scan.ts",
+    "packages/main/src/core/audit-trigger.ts",
+    "packages/main/src/tasks/deprecated-gc-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-18T00:33:24.465Z",
+  "updatedAt": "2026-06-18T00:33:24.465Z",
+  "_hash": "86d519dae6b4d465fb168bde7357c18c1b5decb3b967b2448eb45e90dbad4a2a"
+}

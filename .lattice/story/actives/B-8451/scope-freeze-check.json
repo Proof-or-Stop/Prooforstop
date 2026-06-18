@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8451",
+  "checkedAt": "2026-06-18T00:33:37.665Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "be9d2ab8513625df3b70fe07a45a24e9e9a6adb1037b9e029f17e98736dc8d1f",
+  "executionBoundaryHash": "86d519dae6b4d465fb168bde7357c18c1b5decb3b967b2448eb45e90dbad4a2a",
+  "freshnessHash": "b9b85a136c1f6a0ea14a9b2852e4a1c0e8d17387c559336f1e682e8e545f807b",
+  "effectiveExcludedKeywords": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "packages/main/src/core/authority-client.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/authority-client.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7141a3e509bc5ef63957d527722c963bd917bd1e4651017d4b4cb03d7239b99b"
+}
