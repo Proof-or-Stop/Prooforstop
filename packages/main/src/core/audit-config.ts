@@ -20,7 +20,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 import type { WorkflowProfile } from './types.js';
 
 export type AuditMode = 'semi-auto' | 'full-auto' | 'off';
@@ -101,7 +101,7 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
       merged.mode = userOverrides.mode as AuditMode;
     } else {
       console.warn(
-        `[audit-config] invalid mode "${userOverrides.mode}" in ${pathBasename(projectRoot)} audit-config.json, falling back to "semi-auto".`,
+        `[audit-config] invalid mode "${userOverrides.mode}" in ${LATTICE_DIR}/audit-config.json, falling back to "semi-auto".`,
       );
       merged.mode = 'semi-auto';
     }
@@ -111,15 +111,13 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
 }
 
 /**
- * Read `.lattice/audit-config.json`, with legacy `.koala/audit-config.json`
- * fallback.
+ * Read `.lattice/audit-config.json`.
  *   - File does not exist → return null (silent)
  *   - JSON parse failure → warn once + return null
  */
 function readUserConfig(projectRoot: string): Partial<AuditConfig> | null {
   const path = [
     join(projectRoot, LATTICE_DIR, 'audit-config.json'),
-    join(projectRoot, LEGACY_KOALA_DIR, 'audit-config.json'),
   ].find((candidate) => existsSync(candidate));
   if (!path) return null;
 
@@ -138,7 +136,3 @@ function readUserConfig(projectRoot: string): Partial<AuditConfig> | null {
   }
 }
 
-function pathBasename(projectRoot: string): string {
-  const latticePath = join(projectRoot, LATTICE_DIR, 'audit-config.json');
-  return existsSync(latticePath) ? '.lattice' : '.koala';
-}

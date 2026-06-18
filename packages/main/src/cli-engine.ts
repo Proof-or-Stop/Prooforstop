@@ -56,7 +56,7 @@ import {
   MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT,
   MEMORY_BENCHMARK_DEFAULT_SEED,
 } from './core/memory-benchmark.js';
-import { LATTICE_DIR, LEGACY_KOALA_DIR } from './core/lattice-paths.js';
+import { LATTICE_DIR } from './core/lattice-paths.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 
 // ── Tool Registry ──
@@ -2989,7 +2989,6 @@ export function storyIdFromAutopilotRunId(projectRoot: string, args: Record<stri
   if (!runId) return null;
   const file = [
     join(projectRoot, LATTICE_DIR, 'autopilot-runs', runId, 'run.json'),
-    join(projectRoot, LEGACY_KOALA_DIR, 'autopilot-runs', runId, 'run.json'),
   ].find((candidate) => existsSync(candidate));
   if (!file) return null;
   try {

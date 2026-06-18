@@ -2,7 +2,7 @@ import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
-import { LATTICE_STORY_DIR, LEGACY_DOCS_STORY_DIR, LEGACY_KOALA_STORY_DIR } from './lattice-paths.js';
+import { LATTICE_STORY_DIR, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
 
 export type EvidenceFreshness = {
   fresh: boolean;
@@ -18,7 +18,6 @@ function headMatches(a: string, b: string): boolean {
 
 const DEFAULT_STORY_METADATA_PREFIXES = [
   `${LATTICE_STORY_DIR.replace(/\/actives$/, '')}/`,
-  `${LEGACY_KOALA_STORY_DIR.replace(/\/actives$/, '')}/`,
   `${LEGACY_DOCS_STORY_DIR.replace(/\/actives$/, '')}/`,
   'docs/koala/framework-audit/',
 ];

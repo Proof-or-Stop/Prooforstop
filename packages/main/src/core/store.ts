@@ -17,7 +17,7 @@ import type { AuthorityReceiptRefDocument } from './authority-gate-receipts.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
-import { LEGACY_DOCS_STORY_DIR, LEGACY_KOALA_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
+import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
 
 type JsonCandidate<T> = {
@@ -42,7 +42,6 @@ export class StoryStore {
     this.storyDirRelValue = config.storyDir.replace(/\\/g, '/');
     this.baseDir = join(projectRoot, config.storyDir);
     this.legacyBaseDirs = uniqueRelPaths([
-      LEGACY_KOALA_STORY_DIR,
       LEGACY_DOCS_STORY_DIR,
     ])
       .filter((rel) => rel !== this.storyDirRelValue)
