@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-2941:F-001",
+      "desc": "CHK-003:edge:0 evidence command does not match the literal intent command. Intent specifies: grep -h \"Final:\" /tmp/b-2941-r{1,2,3}.log | grep -c \"167/167\" (expected output 3). Actual output of that command is 0 — the test:all runner emits no \"Final:\" prefix (confirmed: line format is bare \"171/171 passed in N s\") and count is 171 not 167. Evidence filed a substitute command grep -h \"passed in\" ... | grep -c \"passed in\" which does return 3 and the note honestly discloses the drift, but the literal command binding required by evidence-must-bind-literal-intent-command is not satisfied. The intent command itself is broken due to two simultaneous mismatches: (1) output format \"Final:\" prefix does not exist in actual runner output, (2) count 167/167 vs actual 171/171. The evidence note explains both, but that explanation does not substitute for running the literal intent command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-18T13:07:58.720Z",
+      "reviewRound": "2026-06-18T13:05:32.603Z",
+      "reviewRunId": "B-2941:RR-003",
+      "_hash": "9a240ea5bd6fa04753d1990c8c79c764d79025388f0e1868338247f922befba5",
+      "files": [
+        "packages/main/src/tasks/run-all-smokes.ts",
+        "docs/dev/test-coverage.md"
+      ]
+    }
+  ]
+}
