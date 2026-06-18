@@ -106,6 +106,16 @@
           "headHash": "51b289d837dc6ede63d338893b4e8be199b52839",
           "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
           "timestamp": "2026-06-18T14:02:18.695Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -n koala-[a-z-]+-integrity-v scripts/verify-koala-residue.mjs; git diff scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "Salt exemption regex /koala-[a-z-]+-integrity-v\\d+/g present at line 81; only NEUTRAL_TOKEN_PATTERNS data array changed (2 dead exemptions /work/koala/ + .git/koala removed, grep-proven zero occurrences); scan/classify functions untouched.",
+          "headHash": "e08ef35e309dc9a6551d7073113e08483584498e",
+          "materialHash": "b5d2a010b9d41d06743dfe154f4d53274c7206011883d182c44851d767ef242d",
+          "timestamp": "2026-06-18T14:02:19.552Z"
         }
       ]
     },
