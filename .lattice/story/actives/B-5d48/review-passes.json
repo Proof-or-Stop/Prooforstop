@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-18T13:50:17.000Z",
       "reviewRunId": "B-5d48:RR-006",
       "_hash": "2cc7be68e0025e84ceb4ee14658848c5aa60d54dfc23443137566c53c30b6f15"
+    },
+    {
+      "id": "B-5d48:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior review — all 4 round-1 findings confirmed resolved (F-002 stale comment fixed at finding.ts:283; F-005 SignatureTagSource type now canonical import from experience-layer-types.ts not inline literal; F-006 verifier negative self-test exclusionCheckHasTeeth added to verify-b-5d48.mjs; F-001/F-003/F-004 pollution dismissed). Smoke 15/15 PASS confirmed by re-running npm run test:experience-layer-signature-capture: (1) no-tag=>source=auto+non-empty candidate; (2) supplied-tag=>source=confirmed+unchanged; (3) empty/whitespace-only tag treated as omitted (auto); (4) CRITICAL _hash invariance via real signFinding — byte-identical with vs without new fields. Static checks via verifier: signFinding call at finding.ts:331 excludes signatureTagSource; no gate file (advisory.ts, story.ts, finding-verify.ts) reads signatureTagSource; leaf signature-candidate.ts has zero non-node imports; deriveSignatureCandidate confirmed never returns empty at runtime. Spec-boundary audit: lattice-experience-layer-execution-plan.md Determinism Guardrail 1 (audit-only fields excluded from gate reads and _hash) fully honored. No new findings.",
+      "createdAt": "2026-06-18T13:54:23.144Z",
+      "reviewRound": "2026-06-18T13:50:17.000Z",
+      "reviewRunId": "B-5d48:RR-008",
+      "_hash": "8ba590fc0f23b743e7ac52cd9866479a3ac5f01163df64bbcbd02e4314a92040"
     }
   ]
 }
