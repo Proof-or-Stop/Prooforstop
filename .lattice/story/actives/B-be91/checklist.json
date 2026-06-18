@@ -6,7 +6,58 @@
       "context": "Test in worktree: run npm run test:all -- --jobs N starting with N=4. If 3 consecutive runs exit 0, lock in N=4. If any flake, drop to N=2 and re-measure. If still flake at N=2, file finding and defer to Plan B. Record measured N + 3x verify wall-times in DEV evidence. Final change: edit root package.json scripts.test:all from node packages/main/dist/tasks/run-all-smokes.js to include --jobs N where N is the measured value. Single-line script edit.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`node -e 'console.log(require(\"./package.json\").scripts[\"test:all\"])'` shows '... run-all-smokes.js --jobs <N>' with N measured as 4 (or 2 fallback).",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "root test:all script invokes runner with --jobs flag -> `node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:all\\\"]; if(!/--jobs\\\\s+\\\\d+/.test(s)) throw new Error(\\\"NO_JOBS:\\\"+s); console.log(\\\"OK\\\")\"` prints OK; WHY: the cap is the literal deliverable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "measured N <= 4 (not still 8) -> `node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:all\\\"]; const m=s.match(/--jobs\\\\s+(\\\\d+)/); const n=parseInt(m[1]); if(n>4) throw new Error(\\\"N_TOO_HIGH:\\\"+n); console.log(\\\"N=\\\"+n)\"` prints N=<=4; WHY: caps below the contended ceiling",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "test:coverage script unchanged from B-c6cf (NODE_OPTIONS + c8 + --jobs 1) -> `node -e \"const s=require(\\\"./package.json\\\").scripts[\\\"test:coverage\\\"]; if(!s.includes(\\\"c8 \\\")||!s.includes(\\\"--jobs 1\\\")) throw new Error(\\\"COVERAGE_CHANGED:\\\"+s); console.log(\\\"OK\\\")\"` prints OK; WHY: must not regress B-c6cf",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "manual override path works -> `npm run test:all -- --jobs 8 --select run-all-smokes 2>&1 | tail -3 | grep -c \"1/1 passed\\\\|directory-scan\"` outputs at least 1; WHY: docs promise users can override",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OVER-REACH: only test:all script changed in package.json -> `git diff main...HEAD -- package.json | grep -E \"^[-+]\\\\s+\\\\\\\"test:\" | grep -v \"test:all\" | wc -l` outputs 0; WHY: scope-boundary restricts to test:all only",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: no runner code touched -> `git diff main...HEAD -- packages/main/src/tasks/run-all-smokes.ts | wc -l` outputs 0; WHY: B-6efb frozen",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "OVER-REACH: no smoke-manifest changes -> `git diff main...HEAD -- packages/main/smoke-manifest.json | wc -l` outputs 0; WHY: B-24c3 frozen",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
