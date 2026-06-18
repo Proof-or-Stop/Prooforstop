@@ -191,8 +191,8 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-18T14:19:21.306Z",
       "endTime": null,
       "userSees": "Final response includes: \"Authority Server receipt flow, local 3x2 quorum, and degraded 3x1 fallback are documented; current local Authority status is off/not-configured, so no production Authority completion is claimed.\"",
       "excludes": [
@@ -272,6 +272,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Plan verified against current cli-engine inventory and command contract checks."
+    },
+    {
+      "timestamp": "2026-06-18T14:19:21.306Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start recording Authority readiness and review quorum evidence."
     }
   ]
 }
