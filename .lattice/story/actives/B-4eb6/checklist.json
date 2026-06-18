@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "learning_scan handler: derive + persist the finding-signals cache",
+      "context": "New handlers/learning-scan.ts: createLearningScanHandlers(ctx) returning { learning_scan(args) }. Call deriveFindingSignalsFromStore(ctx.store, { projectRoot: <the store's project root>, now: <current ISO time> }) so the cache is persisted to .lattice/learning/finding-signals.json via writeFindingSignals. Optional --story restricts storyIds. Render a short summary (signals written, path, updatedAt) and support --json. Reads findings via store ports; the ONLY write is the advisory learning cache; no gate, no finding_add.",
+      "userSees": "Running `lattice learning_scan` derives and writes .lattice/learning/finding-signals.json and prints how many signals were persisted; afterwards review hints can actually fire.",
+      "excludes": [
+        "No referential-staleness filtering at scan time (stays at read time)",
+        "No signatureTag capture (that is story 3.2)",
+        "No change to the derivation math"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Register learning_scan as a writing (non-read-only) experience-layer command",
+      "context": "Register in registry.ts (registerBatch(createLearningScanHandlers(ctx))), cli-engine.ts (command entry + schema {json?: boolean, story?: string}), core/config.ts DEFAULT_PHASE_TOOLS (allow it where appropriate), core/command-policy.ts (a NON-readOnly experience-layer entry: it writes the advisory learning cache; allowedPhases as suitable; cannot satisfy DONE/authority evidence), and core/process-fact-levels.ts PROCESS_FACT_LEVELS (level L2, category 'experience-layer', owner handlers/learning-scan — mirroring signature_registry_set/playbook_propose; required or the process-fact-contract suite fails). Do NOT add it to READ_ONLY_COMMANDS (it writes).",
+      "userSees": "learning_scan is discoverable, correctly classified as a cache-writing experience-layer command, and the full project npm test (incl. process-fact-contract) stays green.",
+      "excludes": [
+        "Not added to READ_ONLY_COMMANDS",
+        "No gate registration"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke + npm script + verifier",
+      "context": "New packages/main/src/tasks/experience-layer-learning-scan-smoke.ts: against a temp/real store, run the scan and assert .lattice/learning/finding-signals.json is written with a valid FindingSignalsCache (schemaVersion, signals[] with anchorFiles where present), and that re-running is deterministic. npm script test:experience-layer-learning-scan. Committed verifier verify-<id>.mjs: build clean + this smoke + no-regression smokes + static checks (command registered across cli-engine/registry/config/command-policy/process-fact-levels; NOT in READ_ONLY_COMMANDS; full npm test green) mapping every verificationIntent; prints TOTAL N | PASS N | FAIL 0.",
+      "userSees": "npm smoke passes and the verifier prints PASS for learning_scan.",
+      "excludes": [
+        "No network",
+        "No reliance on unrelated repo state"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

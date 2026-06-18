@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Preserve managed asset write semantics; diagnostics must explain behavior rather than silently changing it.",
+    "Make root information machine-readable first, then render the same facts for humans.",
+    "Keep wrapper-root support explicit and covered by a regression fixture.",
+    "Avoid widening this story into unrelated gitRoot execution or external asset synchronization."
+  ],
+  "drivers": [
+    "ClawCreek-style wrapper roots have metadataRoot and gitRoot split, so relative paths are ambiguous without root context.",
+    "Existing callers may depend on relPath/applied values remaining relative strings.",
+    "High-risk root diagnostics should not claim gate or authority facts beyond managed asset check scope."
+  ],
+  "options": [
+    {
+      "name": "A: Add metadataRoot/assetRoot/gitRoot diagnostics while preserving relPath semantics",
+      "pros": [
+        "Closes the observed confusion without moving files.",
+        "Gives JSON consumers stable machine-readable root context.",
+        "Low compatibility risk because existing path fields remain unchanged."
+      ],
+      "cons": [
+        "Requires callers to read a few new fields for full context.",
+        "Does not automatically repair existing external project drift."
+      ]
+    },
+    {
+      "name": "B: Change managed asset check to operate from resolved gitRoot",
+      "pros": [
+        "Makes .gitignore appear to target the git repository in wrapper-root projects.",
+        "Could reduce surprise for users who expect gitRoot to own all repo files."
+      ],
+      "cons": [
+        "Breaks current global-thin metadata-root ownership model.",
+        "Could write Lattice host assets into projects that intentionally keep metadata outside gitRoot.",
+        "Higher migration and data-loss risk."
+      ]
+    },
+    {
+      "name": "C: Only add a prose warning in check text output",
+      "pros": [
+        "Smallest source change.",
+        "Improves the default terminal transcript."
+      ],
+      "cons": [
+        "JSON consumers remain blind to the root split.",
+        "Regression tests would have to scrape prose instead of checking structured facts.",
+        "The same ambiguity would recur in rollout or future UI surfaces."
+      ]
+    }
+  ],
+  "chosen": "A: Add metadataRoot/assetRoot/gitRoot diagnostics while preserving relPath semantics",
+  "rationale": "Option A directly fixes the user-visible ambiguity while preserving current file placement and backward-compatible relative path fields.",
+  "preMortem": [
+    {
+      "scenario": "JSON output adds root fields but text output still hides them on drift",
+      "trigger": "Renderer only prints root context when check passes or only in manifest line.",
+      "consequence": "Users still run check --apply without knowing which root will be modified.",
+      "mitigation": "Render root context immediately after the summary for both OK and DRIFT states."
+    },
+    {
+      "scenario": "Implementation accidentally writes managed assets into gitRoot",
+      "trigger": "Reusing resolveProjectGitRoot for write paths instead of diagnostics only.",
+      "consequence": "Global-thin wrapper-root projects receive unexpected files under the material repo.",
+      "mitigation": "Keep applyDefinition/root calls unchanged and add tests asserting relPath semantics remain metadata-root based."
+    },
+    {
+      "scenario": "Wrapper-root regression is too synthetic to catch the ClawCreek confusion",
+      "trigger": "Test uses metadataRoot == gitRoot or checks only direct function output without configured gitRoot.",
+      "consequence": "The exact split-root ambiguity can regress unnoticed.",
+      "mitigation": "Build a fixture with non-git metadata root plus configured gitRoot subdir and assert metadataRoot/assetRoot differ from gitRoot."
+    }
+  ],
+  "timestamp": "2026-06-18T01:34:17.891Z"
+}
