@@ -39,9 +39,9 @@
           "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|generate the bundle|generate .*bundle locally|lattice_senior_.*generated|locally in the target workspace\" packages/main/src docs",
           "result": "pass",
           "note": "No matches remained for public Authority bundle generation entrypoints or wording.",
-          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:21.561Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -49,9 +49,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
           "result": "pass",
           "note": "Focused smokes consume hand-written Authority handoff fixtures and no longer call local basic or senior bundle generation.",
-          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:21.561Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
           "result": "pass",
           "note": "Focused authority client and status smokes passed after generator removal; they directly write operator/server handoff fixtures and prove existing env/trust consumption still reads server-provided config values.",
-          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:21.561Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         }
       ]
     },
@@ -107,9 +107,9 @@
           "command": "rg \"generate the bundle|generate .*bundle locally|locally in the target workspace\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
           "result": "pass",
           "note": "Docs now describe operator/server-provided handoff files consumed by the CLI, with ordinary developer files separated from advanced/live runner senior files.",
-          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:21.561Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -117,9 +117,9 @@
           "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|lattice_senior_.*generated\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
           "result": "pass",
           "note": "No public docs reference CLI generator internals or senior generated bundle wording.",
-          "headHash": "4e269ed8d2a8ec98cbb0dbb484546c444988b414",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:21.561Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -128,9 +128,9 @@
           "command": "rg -n \"operator/server-provided pair|relative sidecar paths|Normal local story development does not require developers to set\" README.md",
           "result": "pass",
           "note": "README at source commit 635b9f6d7 documents operator/server-provided handoff files, says relative sidecar paths stay beside the trust env, and keeps ordinary developers free of PROJECT_ID/GATE_ACTOR unless they switch to live runner or receipt/gate-consumption flows.",
-          "headHash": "e804cbd7714b23f8232ea35d0aa1d0b8aefae985",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:12.636Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         }
       ]
     },
@@ -172,9 +172,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed at source commit 635b9f6d7 after resolving trust-env sidecar paths relative to the loaded trust env file and adjusting handoff smoke coverage.",
-          "headHash": "635b9f6d781b66b714ffa1686db4cfe03f47081a",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:23:52.991Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
@@ -182,9 +182,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
           "result": "pass",
           "note": "Authority client/status smokes passed at source commit 635b9f6d7 with server-style handoff fixtures: bundleRoot holds lattice_authority_trust.env pointing to ./lattice_staging-client.env while a separate consumer cwd contains a conflicting sidecar, proving the CLI resolves the key beside the trust env file.",
-          "headHash": "0c5605b07e14fcffd078e399e51c53c96631643b",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:02.199Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
@@ -202,9 +202,9 @@
           "command": "rg \"generate the bundle|generate .*bundle locally|locally in the target workspace|regenerated on the destination machine|buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle\" README.md docs packages/main/src",
           "result": "pass",
           "note": "Residual search returned no matches at source commit 635b9f6d7, including README, so public docs/source no longer advertise local bundle generation or expose the removed generator symbols.",
-          "headHash": "7c71726a1bdf9f6a8916850399555698ddb6fec8",
-          "materialHash": "ea08dee3f0da2455bf08c012912d6f9d3b177b6573887b8abe69fc5af61b990f",
-          "timestamp": "2026-06-19T01:24:07.083Z"
+          "headHash": "f21d383a340da7ceaf412daf70c4e6bcbf4e332e",
+          "materialHash": "ab3fe8446a13c3467235ac8c364713c3ef1a58d352cb49a41e4e7573c198309e",
+          "timestamp": "2026-06-19T02:10:59.036Z"
         }
       ]
     }
