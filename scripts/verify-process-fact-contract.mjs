@@ -2091,7 +2091,9 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
     assert(levelEntry.owner === 'core/review-assurance-floor', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
     assert(levelEntry.gateConsumer === 'storyMachine.canFinish DONE review assurance floor gate', `${processFactLevelRegistryPath}: ${runtimeName} gateConsumer drifted`);
-    assert(/material code diffs|3x1|authorityDone|productionDone/i.test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name material floor, 3x1, and no-overclaim boundary`);
+    for (const token of ['material code diffs', '3x1', '3x2', 'high-risk', 'authorityDone', 'productionDone']) {
+      assert(new RegExp(token, 'i').test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name ${token}`);
+    }
   }
 
   const registryEntry = registry.get(runtimeName);
@@ -2110,11 +2112,14 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'evaluateReviewAssuranceFloor',
     'formatReviewAssuranceFloorFailure',
     'REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS = 3',
+    'REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND = 2',
+    'three-round-two-hosts-or-degraded-single-host',
     'authorityDone: false',
     'fullAuthorityDone: false',
     'productionDone: false',
     'markdown documentation',
     'evaluateHostVerdictRounds',
+    'review_escalation_fallback',
   ]) {
     assert(evaluatorText.includes(token), `packages/main/src/core/review-assurance-floor.ts: required review assurance floor token missing: ${token}`);
   }
@@ -2133,6 +2138,8 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'one fresh local review round passes clean material code',
     'docs-only markdown is not overblocked',
     'failure signals require sticky 3x1 local rounds',
+    'high-risk lifecycle gate work requires 3x2 or explicit degraded fallback',
+    'wrapper-root machine DONE guard uses resolved gitCwd',
     'authorityDone',
     'productionDone',
   ]) {

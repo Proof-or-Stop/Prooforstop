@@ -5,9 +5,17 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import {
+  canFinishGuard,
+  getGuardFailureReason,
+  type StoryMachineContext,
+} from '../core/machine.js';
+import {
   REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS,
+  REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND,
+  REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS,
   evaluateReviewAssuranceFloor,
   formatReviewAssuranceFloorFailure,
 } from '../core/review-assurance-floor.js';
@@ -46,6 +54,26 @@ function makeRepo(): string {
   git(root, ['add', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'material code change']);
   return root;
+}
+
+function makeWrapperRepo(): { metadataRoot: string; gitRoot: string } {
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'review-assurance-floor-wrapper-'));
+  const gitRoot = join(metadataRoot, 'repo');
+  mkdirSync(gitRoot, { recursive: true });
+  write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo' }, null, 2));
+  write(gitRoot, 'README.md', 'wrapper review assurance floor smoke\n');
+  write(gitRoot, 'packages/main/src/index.ts', 'export const seed = true;\n');
+  git(gitRoot, ['init']);
+  git(gitRoot, ['config', 'user.email', 'smoke@example.invalid']);
+  git(gitRoot, ['config', 'user.name', 'Review Assurance Floor Smoke']);
+  git(gitRoot, ['checkout', '-B', 'main']);
+  git(gitRoot, ['add', '.']);
+  git(gitRoot, ['commit', '-m', 'seed']);
+  git(gitRoot, ['checkout', '-B', 'story/B-review-assurance-floor']);
+  write(gitRoot, 'packages/main/src/index.ts', 'export const seed = true;\nexport const changed = true;\n');
+  git(gitRoot, ['add', 'packages/main/src/index.ts']);
+  git(gitRoot, ['commit', '-m', 'material code change']);
+  return { metadataRoot, gitRoot };
 }
 
 function story(overrides: Partial<StoryInfo> = {}): StoryInfo {
@@ -116,6 +144,82 @@ function singleHostRounds(materialHash: string): ProcessEvent[] {
     verdict('round-2', 'codex-b', materialHash),
     verdict('round-3', 'codex-c', materialHash),
   ];
+}
+
+function twoHostRounds(materialHash: string): ProcessEvent[] {
+  return [
+    verdict('round-1', 'codex-a', materialHash),
+    verdict('round-1', 'claude-a', materialHash),
+    verdict('round-2', 'codex-b', materialHash),
+    verdict('round-2', 'claude-b', materialHash),
+    verdict('round-3', 'codex-c', materialHash),
+    verdict('round-3', 'claude-c', materialHash),
+  ];
+}
+
+function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): ProcessEvent {
+  return {
+    type: 'review_escalation_fallback',
+    timestamp: '2026-06-19T11:30:00.000Z',
+    fallbackId: `${STORY_ID}:REF-001`,
+    eligibility: 'single-host-environment',
+    reason: 'Operator approved degraded fallback because only one verifier host was available.',
+    evidenceRefs: ['manual:smoke-single-host-only'],
+    materialHash,
+    assuranceLevel: 'degraded-single-host',
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
+    ...overrides,
+  };
+}
+
+function deliveryCheck(storyId: string, reviewRound = REVIEW_ROUND) {
+  const docsPromises: [] = [];
+  const realMachineTests: [] = [];
+  const closingSelfCheck = {
+    hasRealMachineTest: true,
+    hasEdgeCaseCoverage: true,
+    hasUnresolvedTodos: false,
+    summary: 'Smoke delivery self-check covers the synthetic guard path.',
+  };
+  return {
+    storyId,
+    checkedAt: '2026-06-19T12:00:00.000Z',
+    reviewRound,
+    agentId: 'lattice-review-delivery',
+    docsPromises,
+    realMachineTests,
+    closingSelfCheck,
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, reviewRound),
+  };
+}
+
+function fakeDoneStore(metadataRoot: string, materialHash: string) {
+  const smokeStory = story({
+    currentReviewRound: REVIEW_ROUND,
+    riskSignals: [],
+    worktree: undefined,
+  });
+  const signedDeliveryCheck = deliveryCheck(STORY_ID);
+  return {
+    readTestEvidence: () => ({ result: 'PASS', output: 'smoke validation passed' }),
+    readBugs: () => ({ bugs: [] }),
+    readDeliveryCheck: () => signedDeliveryCheck,
+    readStory: () => smokeStory,
+    readFindings: () => ({ findings: [] }),
+    readProcessEvents: () => [verdict('round-1', 'codex-a', materialHash)],
+    readUnderstanding: () => ({
+      task: 'Wrapper root smoke',
+      outcome: 'DONE guard uses resolved git cwd',
+      facts: [],
+      constraints: [],
+      unknowns: [],
+      touchpoints: ['packages/main/src/index.ts'],
+      timestamp: '2026-06-19T11:45:00.000Z',
+    }),
+    storyDirPath: () => join(metadataRoot, '.lattice/story/actives', STORY_ID),
+  };
 }
 
 let passed = 0;
@@ -222,6 +326,59 @@ try {
     assert.equal(threeRounds.productionDone, false);
   });
 
+  check('high-risk lifecycle gate work requires 3x2 or explicit degraded fallback', () => {
+    const oneRound = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [verdict('round-1', 'codex-a', materialHash)],
+      materialHash,
+    });
+    assert.equal(oneRound.ok, false);
+    assert.equal(oneRound.requiredAssurance, 'three-round-two-hosts-or-degraded-single-host');
+    assert.equal(oneRound.localRounds.requiredRounds, REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS);
+    assert.equal(oneRound.localRounds.requiredPassingHostsPerRound, REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND);
+    assert.match(oneRound.reasons.join('\n'), /3 rounds x 2 independent PASS hosts/);
+
+    const full = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: twoHostRounds(materialHash),
+      materialHash,
+    });
+    assert.equal(full.ok, true);
+    assert.equal(full.assuranceLevel, 'full-3x2');
+    assert.equal(full.authorityDone, false);
+    assert.equal(full.fullAuthorityDone, false);
+    assert.equal(full.productionDone, false);
+
+    const degraded = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [...singleHostRounds(materialHash), fallback(materialHash)],
+      materialHash,
+    });
+    assert.equal(degraded.ok, true);
+    assert.equal(degraded.assuranceLevel, 'degraded-single-host');
+    assert.equal(degraded.localRounds.ok, false);
+    assert.equal(degraded.degradedFallback.ok, true);
+    assert.equal(degraded.localRounds.requiredPassingHostsPerRound, REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND);
+    assert.equal(degraded.authorityDone, false);
+    assert.equal(degraded.fullAuthorityDone, false);
+    assert.equal(degraded.productionDone, false);
+  });
+
   check('forged local Authority completion fields remain non-authority', () => {
     const report = evaluateReviewAssuranceFloor({
       projectRoot: root,
@@ -252,6 +409,25 @@ try {
     assert.equal(report.required, true);
     assert.deepEqual(report.materialCodePaths, ['packages/main/src/index.ts']);
     assert.equal(report.ok, true);
+  });
+
+  check('wrapper-root machine DONE guard uses resolved gitCwd', () => {
+    const wrapper = makeWrapperRepo();
+    try {
+      const wrapperMaterialHash = currentMaterialHash(wrapper.gitRoot);
+      assert.ok(wrapperMaterialHash, 'wrapper gitRoot must have a material hash');
+      const store = fakeDoneStore(wrapper.metadataRoot, wrapperMaterialHash);
+      const context: StoryMachineContext = {
+        storyId: STORY_ID,
+        store: store as any,
+        projectRoot: wrapper.metadataRoot,
+        gitCwd: wrapper.gitRoot,
+      };
+      assert.equal(canFinishGuard(context), true);
+      assert.equal(getGuardFailureReason(STORY_ID, store as any, 'DONE', wrapper.metadataRoot), null);
+    } finally {
+      rmSync(wrapper.metadataRoot, { recursive: true, force: true });
+    }
   });
 
   console.log(`\nreview-assurance-floor smoke passed (${passed} checks)`);

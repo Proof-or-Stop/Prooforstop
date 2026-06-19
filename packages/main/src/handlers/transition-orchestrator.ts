@@ -142,6 +142,7 @@ export function canSendStoryEvent(
   storyId: string,
   store: HandlerContext['store'],
   root: string,
+  gitCwd?: string,
 ): boolean {
   const event = { type: eventType } as any;
   const snapshot = actor.getSnapshot();
@@ -157,7 +158,7 @@ export function canSendStoryEvent(
   // a decision oracle: it renders human hints and can intentionally fall
   // through to null after config/read failures.
   const currentState = getStateName(actor);
-  return canSendStoryEventWithoutSnapshotCan(storyId, store, currentState, eventType, root);
+  return canSendStoryEventWithoutSnapshotCan(storyId, store, currentState, eventType, root, gitCwd);
 }
 
 export function assertStoryTransitionReachedTarget(
@@ -327,7 +328,7 @@ async function runStoryTransitionInner(
     // ── actor lifecycle: created + started here, owned by this orchestrator,
     // stopped exactly once in the finally below. No gate / effect module stops
     // it — they only consume it.
-    actor = createStoryActor(args.storyId, store, story.phase, ctx.root);
+    actor = createStoryActor(args.storyId, store, story.phase, ctx.root, args.phase === 'DONE' ? doneGitCwd : undefined);
     actor.start();
 
     let eventType = PHASE_TO_EVENT[args.phase];
@@ -340,7 +341,7 @@ async function runStoryTransitionInner(
     }
     // TEST→DEV rollback: PHASE_TO_EVENT['DEV']='START' matches automatically
 
-    const canSend = canSendStoryEvent(actor, eventType, args.storyId, store, ctx.root);
+    const canSend = canSendStoryEvent(actor, eventType, args.storyId, store, ctx.root, args.phase === 'DONE' ? doneGitCwd : undefined);
     if (!canSend) {
       // B-56d3: cwd/guard-failure adapter in phase-gates.ts. B-6974: it no
       // longer stops the actor — the orchestrator's finally owns that.

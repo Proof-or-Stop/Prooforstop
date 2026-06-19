@@ -5,24 +5,32 @@ import {
   type HostVerdictRound,
   type IgnoredHostVerdict,
 } from './host-independence.js';
+import {
+  REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
+  isReviewEscalationFallbackEligibility,
+} from './review-escalation.js';
 import { isReviewerAgent } from './review-run.js';
-import type { BugData, Finding, ProcessEvent, StoryInfo, TestEvidenceData } from './types.js';
+import type { BugData, Finding, ProcessEvent, StoryInfo, TestEvidenceData, UnderstandingData } from './types.js';
 import type { StoryStore } from './store.js';
 
 export const REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS = 1;
 export const REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS = 3;
 export const REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND = 1;
+export const REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS = 3;
+export const REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND = 2;
 
 export type ReviewAssuranceFloorAssuranceLevel =
   | 'not-required'
   | 'local-one-round'
+  | 'full-3x2'
   | 'degraded-single-host'
   | 'missing';
 
 export type ReviewAssuranceFloorRequiredAssurance =
   | 'none'
   | 'one-local-round'
-  | 'three-local-rounds';
+  | 'three-local-rounds'
+  | 'three-round-two-hosts-or-degraded-single-host';
 
 export interface ReviewAssuranceFloorChangedFile {
   path: string;
@@ -41,6 +49,24 @@ export interface ReviewAssuranceFloorFailureSignal {
   detail: string;
 }
 
+export interface ReviewAssuranceFloorHighRiskSignal {
+  kind: 'path' | 'touchpoint' | 'risk-signal' | 'priority';
+  value: string;
+}
+
+export interface ReviewAssuranceFloorFallbackRecord {
+  index: number;
+  fallbackId?: string;
+  eligibility?: string;
+  reason?: string;
+  evidenceRefs: string[];
+  approvalRef?: string;
+  materialHash?: string;
+  assuranceLevel?: string;
+  valid: boolean;
+  reasons: string[];
+}
+
 export interface ReviewAssuranceFloorReport {
   schemaVersion: 'lattice.review_assurance_floor.v1';
   ok: boolean;
@@ -51,10 +77,21 @@ export interface ReviewAssuranceFloorReport {
   changedFiles: ReviewAssuranceFloorChangedFile[];
   materialCodePaths: string[];
   failureSignals: ReviewAssuranceFloorFailureSignal[];
+  highRiskSignals: ReviewAssuranceFloorHighRiskSignal[];
   localRounds: {
     requiredRounds: number;
     requiredPassingHostsPerRound: number;
     ok: boolean;
+    validRounds: HostVerdictRound[];
+    invalidRounds: HostVerdictRound[];
+    ignoredVerdicts: IgnoredHostVerdict[];
+  };
+  degradedFallback: {
+    ok: boolean;
+    allowed: boolean;
+    record: ReviewAssuranceFloorFallbackRecord | null;
+    requiredRounds: number;
+    requiredPassingHostsPerRound: number;
     validRounds: HostVerdictRound[];
     invalidRounds: HostVerdictRound[];
     ignoredVerdicts: IgnoredHostVerdict[];
@@ -70,12 +107,14 @@ export interface EvaluateReviewAssuranceFloorArgs {
   projectRoot: string;
   gitCwd?: string;
   storyId?: string;
-  store?: Pick<StoryStore, 'readStory' | 'readFindings' | 'readProcessEvents' | 'readBugs' | 'readTestEvidence'>;
+  store?: Pick<StoryStore, 'readStory' | 'readFindings' | 'readProcessEvents' | 'readBugs' | 'readTestEvidence' | 'readUnderstanding'>;
   story?: StoryInfo;
   findings?: Finding[];
   processEvents?: ProcessEvent[];
   bugs?: BugData;
   testEvidence?: TestEvidenceData | null;
+  understanding?: UnderstandingData | null;
+  touchpoints?: string[];
   changedFiles?: string[];
   materialHash?: string;
 }
@@ -189,6 +228,12 @@ function readTestEvidence(args: EvaluateReviewAssuranceFloorArgs): TestEvidenceD
   return args.store.readTestEvidence(args.storyId);
 }
 
+function readUnderstanding(args: EvaluateReviewAssuranceFloorArgs): UnderstandingData | null {
+  if (args.understanding !== undefined) return args.understanding;
+  if (!args.store || !args.storyId) return null;
+  return args.store.readUnderstanding(args.storyId);
+}
+
 function isVerifiedReviewerFinding(finding: Finding): boolean {
   if (!isReviewerAgent(finding.agent)) return false;
   if (finding.evidenceState === 'suspected' || finding.evidenceState === 'disproven') return false;
@@ -253,11 +298,101 @@ function collectFailureSignals(args: EvaluateReviewAssuranceFloorArgs): ReviewAs
   return signals;
 }
 
+function activeRiskSignalValues(story: StoryInfo | null): string[] {
+  const dismissed = new Set((story?.riskSignalsDismissed ?? []).map(signal => signal.category));
+  return (story?.riskSignals ?? [])
+    .filter(signal => !dismissed.has(signal.category))
+    .flatMap(signal => [signal.category, signal.matched])
+    .map(value => normalizeString(value).toLowerCase())
+    .filter(Boolean);
+}
+
+function priorityIsHighRisk(story: StoryInfo | null): boolean {
+  const priority = normalizeString(story?.priority).toLowerCase();
+  return priority === 'high' || priority === 'critical';
+}
+
+function isHighRiskLifecyclePath(path: string): boolean {
+  const lower = normalizePath(path).toLowerCase();
+  return (
+    lower.includes('authority') ||
+    lower.includes('process-fact') ||
+    lower.includes('review-assurance-floor') ||
+    lower.includes('review-escalation') ||
+    lower.includes('done-oracle') ||
+    lower.includes('transition-orchestrator') ||
+    lower.includes('phase-gate') ||
+    lower.includes('gate') ||
+    lower.includes('guard') ||
+    lower.includes('machine') ||
+    lower.includes('lifecycle') ||
+    lower.includes('workflow-policy') ||
+    lower.includes('command-policy') ||
+    lower === 'scripts/verify-process-fact-contract.mjs'
+  );
+}
+
+function isHighRiskLifecycleSignal(value: string): boolean {
+  return /authority|process[-_\s]?fact|lifecycle|gate|guard|machine|state[-_\s]?machine|done|review[-_\s]?(assurance|escalation)|门禁|状态机/.test(value);
+}
+
+function collectHighRiskSignals(
+  args: EvaluateReviewAssuranceFloorArgs,
+  materialCodePaths: string[],
+): ReviewAssuranceFloorHighRiskSignal[] {
+  const story = readStory(args);
+  const touchpoints = args.touchpoints ?? readUnderstanding(args)?.touchpoints ?? [];
+  const signals: ReviewAssuranceFloorHighRiskSignal[] = [];
+
+  for (const path of materialCodePaths) {
+    if (isHighRiskLifecyclePath(path)) {
+      signals.push({ kind: 'path', value: path });
+    }
+  }
+
+  for (const touchpoint of touchpoints) {
+    if (typeof touchpoint === 'string' && isHighRiskLifecyclePath(touchpoint)) {
+      signals.push({ kind: 'touchpoint', value: normalizePath(touchpoint) });
+    }
+  }
+
+  for (const value of activeRiskSignalValues(story)) {
+    if (isHighRiskLifecycleSignal(value)) {
+      signals.push({ kind: 'risk-signal', value });
+    }
+  }
+
+  if (priorityIsHighRisk(story) && signals.some(signal => signal.kind !== 'priority')) {
+    signals.push({ kind: 'priority', value: normalizeString(story?.priority).toLowerCase() });
+  }
+
+  const seen = new Set<string>();
+  return signals.filter(signal => {
+    const key = `${signal.kind}:${signal.value}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function emptyRounds(requiredRounds: number) {
   return {
     requiredRounds,
     requiredPassingHostsPerRound: REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND,
     ok: requiredRounds === 0,
+    validRounds: [],
+    invalidRounds: [],
+    ignoredVerdicts: [],
+  };
+}
+
+function emptyFallbackReport() {
+  return {
+    ok: false,
+    allowed: false,
+    record: null,
+    requiredRounds: REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS,
+    requiredPassingHostsPerRound: REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND,
     validRounds: [],
     invalidRounds: [],
     ignoredVerdicts: [],
@@ -277,7 +412,9 @@ function reportBase(
     changedFiles: [],
     materialCodePaths: [],
     failureSignals: [],
+    highRiskSignals: [],
     localRounds: emptyRounds(0),
+    degradedFallback: emptyFallbackReport(),
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
@@ -295,6 +432,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     .map(file => file.path);
   const materialHash = args.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', args.projectRoot) ?? null;
   const failureSignals = collectFailureSignals(args);
+  const highRiskSignals = collectHighRiskSignals(args, materialCodePaths);
 
   if (listed.error) {
     return reportBase({
@@ -306,6 +444,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       changedFiles,
       materialCodePaths,
       failureSignals,
+      highRiskSignals,
       localRounds: emptyRounds(REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS),
       reasons: [`unable to classify git diff against main: ${listed.error}`],
       diffError: listed.error,
@@ -317,16 +456,25 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       changedFiles,
       materialHash,
       failureSignals,
+      highRiskSignals,
       reasons: [],
     });
   }
 
-  const requiredRounds = failureSignals.length > 0
-    ? REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS
-    : REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS;
-  const requiredAssurance: ReviewAssuranceFloorRequiredAssurance = requiredRounds === REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS
-    ? 'three-local-rounds'
-    : 'one-local-round';
+  const highRiskRequired = highRiskSignals.length > 0;
+  const requiredRounds = highRiskRequired
+    ? REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS
+    : failureSignals.length > 0
+      ? REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS
+      : REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS;
+  const requiredHosts = highRiskRequired
+    ? REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND
+    : REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND;
+  const requiredAssurance: ReviewAssuranceFloorRequiredAssurance = highRiskRequired
+    ? 'three-round-two-hosts-or-degraded-single-host'
+    : requiredRounds === REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS
+      ? 'three-local-rounds'
+      : 'one-local-round';
 
   if (!materialHash) {
     return reportBase({
@@ -338,6 +486,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       changedFiles,
       materialCodePaths,
       failureSignals,
+      highRiskSignals,
       localRounds: emptyRounds(requiredRounds),
       reasons: ['current material hash is unavailable'],
     });
@@ -346,14 +495,29 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   const localRounds = evaluateHostVerdictRounds(
     readEvents(args),
     materialHash,
-    REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND,
+    requiredHosts,
   );
-  const ok = localRounds.validRounds.length >= requiredRounds;
+  const fullOk = localRounds.validRounds.length >= requiredRounds;
+  const fallback = latestFallbackRecord(readEvents(args), materialHash);
+  const degradedRounds = highRiskRequired
+    ? evaluateHostVerdictRounds(readEvents(args), materialHash, REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND)
+    : null;
+  const degradedRoundsOk = Boolean(degradedRounds && degradedRounds.validRounds.length >= requiredRounds);
+  const degradedOk = highRiskRequired && fallback?.valid === true && degradedRoundsOk;
+  const ok = fullOk || degradedOk;
   const reasons: string[] = [];
   if (!ok) {
     reasons.push(
-      `review assurance floor requires ${requiredRounds} fresh local PASS round(s) over current material; found ${localRounds.validRounds.length}`,
+      highRiskRequired
+        ? `high-risk review assurance floor requires ${requiredRounds} rounds x ${requiredHosts} independent PASS hosts, or explicit degraded-single-host fallback with ${requiredRounds} rounds x 1 PASS host`
+        : `review assurance floor requires ${requiredRounds} fresh local PASS round(s) over current material; found ${localRounds.validRounds.length}`,
     );
+    if (highRiskRequired) {
+      reasons.push(`high-risk signals require the stronger floor: ${highRiskSignals.map(signal => `${signal.kind}:${signal.value}`).join(', ')}`);
+      if (!fallback) reasons.push('no review_escalation_fallback record found for degraded fallback');
+      else if (!fallback.valid) reasons.push(...fallback.reasons.map(reason => `fallback invalid: ${reason}`));
+      if (!degradedRoundsOk) reasons.push(`degraded fallback has ${degradedRounds?.validRounds.length ?? 0}/${requiredRounds} valid single-host rounds`);
+    }
     if (failureSignals.length > 0) {
       reasons.push(`failure signals make the 3x1 local floor sticky: ${failureSignals.map(signal => signal.kind).join(', ')}`);
     }
@@ -365,18 +529,31 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     required: true,
     requiredAssurance,
     assuranceLevel: ok
-      ? (requiredRounds === REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS ? 'degraded-single-host' : 'local-one-round')
+      ? (highRiskRequired ? (fullOk ? 'full-3x2' : 'degraded-single-host') : requiredRounds === REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS ? 'degraded-single-host' : 'local-one-round')
       : 'missing',
     materialHash,
     changedFiles,
     materialCodePaths,
     failureSignals,
+    highRiskSignals,
     localRounds: {
       requiredRounds,
-      requiredPassingHostsPerRound: REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND,
-      ok,
+      requiredPassingHostsPerRound: requiredHosts,
+      ok: fullOk,
       ...localRounds,
     },
+    degradedFallback: highRiskRequired
+      ? {
+          ok: degradedOk,
+          allowed: fallback?.valid === true,
+          record: fallback,
+          requiredRounds,
+          requiredPassingHostsPerRound: REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND,
+          validRounds: degradedRounds?.validRounds ?? [],
+          invalidRounds: degradedRounds?.invalidRounds ?? [],
+          ignoredVerdicts: degradedRounds?.ignoredVerdicts ?? [],
+        }
+      : emptyFallbackReport(),
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
@@ -384,10 +561,65 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   };
 }
 
+function latestByIndex<T extends { index: number }>(items: T[]): T | null {
+  return items.length === 0 ? null : [...items].sort((a, b) => b.index - a.index)[0];
+}
+
+function fallbackRecordFromEvent(
+  event: ProcessEvent,
+  index: number,
+  expectedMaterialHash: string,
+): ReviewAssuranceFloorFallbackRecord {
+  const eligibility = normalizeString(event.eligibility);
+  const reason = normalizeString(event.reason);
+  const evidenceRefs = Array.isArray(event.evidenceRefs)
+    ? event.evidenceRefs.map(ref => normalizeString(ref)).filter(Boolean)
+    : [];
+  const approvalRef = normalizeString(event.approvalRef);
+  const materialHash = normalizeString(event.materialHash);
+  const assuranceLevel = normalizeString(event.assuranceLevel);
+  const reasons: string[] = [];
+
+  if (!isReviewEscalationFallbackEligibility(eligibility)) {
+    reasons.push(`eligibility must be one of ${REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES.join('|')}`);
+  }
+  if (reason.length < 20) reasons.push('reason must be at least 20 characters');
+  if (evidenceRefs.length === 0 && !approvalRef) reasons.push('fallback requires evidenceRefs or approvalRef');
+  if (!materialHash) reasons.push('missing materialHash');
+  else if (materialHash !== expectedMaterialHash) reasons.push('materialHash is stale');
+  if (assuranceLevel !== 'degraded-single-host') {
+    reasons.push('assuranceLevel must be degraded-single-host');
+  }
+
+  return {
+    index,
+    ...(normalizeString(event.fallbackId) ? { fallbackId: normalizeString(event.fallbackId) } : {}),
+    ...(eligibility ? { eligibility } : {}),
+    ...(reason ? { reason } : {}),
+    evidenceRefs,
+    ...(approvalRef ? { approvalRef } : {}),
+    ...(materialHash ? { materialHash } : {}),
+    ...(assuranceLevel ? { assuranceLevel } : {}),
+    valid: reasons.length === 0,
+    reasons,
+  };
+}
+
+function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string): ReviewAssuranceFloorFallbackRecord | null {
+  const records = events
+    .map((event, index) => ({ event, index }))
+    .filter(({ event }) => event.type === 'review_escalation_fallback')
+    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash));
+  return latestByIndex(records);
+}
+
 export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorReport): string {
   if (report.ok) return '';
   const signalSummary = report.failureSignals.length > 0
     ? report.failureSignals.map(signal => `${signal.kind}${signal.id ? `:${signal.id}` : ''}`).join(', ')
+    : 'none';
+  const highRiskSummary = report.highRiskSignals.length > 0
+    ? report.highRiskSignals.map(signal => `${signal.kind}:${signal.value}`).join(', ')
     : 'none';
   const lines = [
     'Cannot enter DONE: material code diff requires review assurance floor. [review_assurance_floor_missing]',
@@ -396,7 +628,9 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
     `  - materialHash: ${report.materialHash ?? '<missing>'}`,
     `  - material code paths: ${report.materialCodePaths.length === 0 ? '<unknown>' : report.materialCodePaths.slice(0, 8).join(', ')}`,
     `  - local rounds: ${report.localRounds.validRounds.length}/${report.localRounds.requiredRounds} with ${report.localRounds.requiredPassingHostsPerRound} PASS host`,
+    `  - degraded fallback: ${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds with ${report.degradedFallback.requiredPassingHostsPerRound} PASS host; explicit fallback=${report.degradedFallback.allowed ? 'valid' : 'missing/invalid'}`,
     `  - failure signals: ${signalSummary}`,
+    `  - high-risk signals: ${highRiskSummary}`,
   ];
   for (const round of report.localRounds.invalidRounds.slice(0, 5)) {
     lines.push(`  - invalid local round ${round.runId}: ${round.reasons.join('; ')}`);
@@ -408,6 +642,6 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
   for (const reason of report.reasons) {
     lines.push(`  - ${reason}`);
   }
-  lines.push('→ Submit fresh local host verdicts with autopilot_review_submit over the current material hash; failure-signal stories need 3 local single-host rounds.');
+  lines.push('→ Submit fresh local host verdicts with autopilot_review_submit over the current material hash; failure-signal stories need 3 local single-host rounds; high-risk lifecycle/gate/Authority/process-fact stories need 3x2 or review_escalation_fallback_set degraded 3x1 evidence.');
   return lines.join('\n');
 }
