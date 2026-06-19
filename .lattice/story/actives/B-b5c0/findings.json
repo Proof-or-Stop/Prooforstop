@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-b5c0:F-001",
+      "desc": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md:37 states B-b5c0 lifecycle metadata under .lattice/story/actives/B-b5c0/* is allowed story-scoped provenance, but line 120 says this roadmap story does not edit story JSON. Because the branch includes Lattice story JSON provenance, the Non-Goals wording should narrow this to product/material changes or direct/manual story JSON edits to avoid contradicting the top-level scope boundary.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T02:37:09.930Z",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "reviewRunId": "B-b5c0:RR-012",
+      "_hash": "ee0243fe54a696db478b3231e2da26487ec14dcf2f8fd122270aceba726a6691",
+      "files": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
