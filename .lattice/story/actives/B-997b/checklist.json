@@ -120,10 +120,10 @@
           "file": "packages/main/src/tasks/prewrite-guard-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prewrite-guard-smoke.js && node packages/main/dist/tasks/scope-contract-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "F-001 fix: prewrite_guard_check now consumes classifyScopePath/pathMatchesScopePattern through prewrite-guard.ts, and prewrite guard smoke covers the lifecycle repro .lattice/story/actives/B-scope/summary.json plus runtime repro .lattice/activity.jsonl so they no longer return out_of_scope while protected/excluded/unknown behavior remains enforced.",
-          "headHash": "fd365379db163e5587d21e9ef40aea812e027eb8",
-          "materialHash": "6cd2daf11675d6ac408ea48338afbb84730f9c17dddaa2b0c8ad64b2682b3761",
-          "timestamp": "2026-06-19T04:43:36.993Z"
+          "note": "F-001 resolved on current material diff: prewrite_guard_check consumes classifyScopePath/pathMatchesScopePattern, and prewrite guard smoke verifies .lattice/story/actives/B-scope/summary.json plus .lattice/activity.jsonl are allowed by the shared lifecycle/runtime classifier while protected/excluded/unknown paths remain blocked.",
+          "headHash": "8cfca5367713b87c21a9563f61f29b3436a57679",
+          "materialHash": "e8b1ab21badaf388b2d469fa1cbeed9139e7ab696eb61809ad4c47935aebc0be",
+          "timestamp": "2026-06-19T04:45:57.481Z"
         }
       ]
     },
