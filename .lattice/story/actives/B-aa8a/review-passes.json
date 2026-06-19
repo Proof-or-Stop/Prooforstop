@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-19T20:42:20.882Z",
       "reviewRunId": "B-aa8a:RR-013",
       "_hash": "02f2626e59de893a3d8b043c62041d5be50e1b83a1812ed369ec25a2be7ae2e2"
+    },
+    {
+      "id": "B-aa8a:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across all 28 intents (CHK-001: 16 intents, CHK-002: 12 intents). All bind to node packages/main/dist/tasks/version-bump-smoke.js (26) or lattice validate (2). The 64-assertion smoke concretely exercises each intent — parseSemver, nextPatch, readSyncedVersion, applyPatchBump, bumpVersionOnDoneMerge, gate predicate, drift detection, read-only rollback, commit-failure recovery, idempotency, whitespace/comment/block-comment adversarial cases, and validate wiring. No command-to-intent mismatch found. Evidence staleness (materialHash drift from comment-only relabel) is expected and not a coverage gap — main agent re-stamps before TEST. No blocker.",
+      "createdAt": "2026-06-19T20:44:52.704Z",
+      "reviewRound": "2026-06-19T20:42:20.882Z",
+      "reviewRunId": "B-aa8a:RR-015",
+      "_hash": "029f806b9bb8c81674132fe17d47a1bed34d4e9c1060826af1c324dfe15ed126"
     }
   ]
 }

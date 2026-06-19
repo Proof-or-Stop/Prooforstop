@@ -601,6 +601,49 @@
         "bindingHash": "73ce87ec86304bd246dff1ca79b0b052bb3def7a42cbefb5a8709613943f18bd"
       },
       "_hash": "66ee1cb301a464858e667274c623783f4e3d207ff9e3eea1a1d704db6715fb4d"
+    },
+    {
+      "reviewRunId": "B-aa8a:RR-015",
+      "storyId": "B-aa8a",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T20:42:20.882Z",
+      "startedAt": "2026-06-19T20:43:39.442Z",
+      "headHash": "0c7f59292a27709069e6cd58c5d0f857f9578e14",
+      "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+      "storyFilesHash": "1e654309fc647a06efcf72bbcc6c53ab69d70fe8c97fa03be760682d2a0e4fb4",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "cc202118b5c3ceba711b346d055b4188cf4d686cd5920e47cd4d04cba9a4d98c",
+        "diffPackHash": "1e654309fc647a06efcf72bbcc6c53ab69d70fe8c97fa03be760682d2a0e4fb4",
+        "reviewedChangedFiles": [
+          "lattice.config.json",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3946d6ad1d36d9d66aafeeb9593a0b9d30256379ad8f88e0d58888a43f337eba",
+          "5e18de6b8a7a59bf6deef301b450dceb0332b37243b2baf1271d1657c051aa1d",
+          "a67e5f70449d962311dbdc8fa35fef756f16cef62422c0cafc31fdc04a7cd67f",
+          "cb39be975e075a1abb11fa2a25abdb4432b5bad00d8235d7e5a20781f903417b",
+          "dfd62b949eb572922bb5de5bc0e6383775e4166807ca11232d4e1e20e7ee4334"
+        ],
+        "bindingHash": "ec2283fead3163c9e4f4031bde3715ebb86bd9129a5c0d32baeda691e224a1ec"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-aa8a",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-aa8a",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-aa8a",
+        "workspaceMode": "story-worktree",
+        "headHash": "0c7f59292a27709069e6cd58c5d0f857f9578e14",
+        "materialHash": "1bdea968148e249f2c43f9765e8287fc2966d026f24f0bd1b78e699f8b53a7af",
+        "bindingHash": "7853f74e06564917ac0a79aca98d355efd8e0fc3a52f9863af6cddb8b73aa9fa"
+      },
+      "_hash": "659eef694d99b6d2037ab7a50de336ca4220c5cceac65c0667f0077b4ed6d7fc"
     }
   ]
 }
