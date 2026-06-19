@@ -9,9 +9,9 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T16:58:55.217Z",
-      "endTime": null,
+      "endTime": "2026-06-19T17:07:35.781Z",
       "userSees": "Expected transcript includes \"command catalog smoke passed\" or configured validate PASS while root/activity behavior remains unchanged after extraction.",
       "files": {
         "modify": [
@@ -47,7 +47,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after moving runtime-root and activity-policy helpers into packages/main/src/cli while cli-engine.ts imports and re-exports the moved helpers.",
+          "headHash": "0c3ad3dac5903c1d70b4981e312c1719daf0a51d",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:36.032Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e <runtime root/activity policy smoke>",
+          "result": "pass",
+          "note": "Smoke passed and asserted resolveMainRootFromWorktreeRoot(process.cwd()) returns /Users/jek/Documents/Work/Orchestrate from the B-6e69 worktree, preserving the worktree-to-main fallback used for post-command activity logging.",
+          "headHash": "0c3ad3dac5903c1d70b4981e312c1719daf0a51d",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:36.250Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module -e <runtime root/activity policy smoke>",
+          "result": "pass",
+          "note": "Smoke passed and asserted story_get remains non-writing by default, LATTICE_ACTIVITY_RECORD_READONLY=1 opts read-only activity in, dryRun suppresses mutating activity, and LATTICE_ACTIVITY_SOURCE=codex still selects global-fallback entrypoint behavior.",
+          "headHash": "0c3ad3dac5903c1d70b4981e312c1719daf0a51d",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:07:36.456Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
