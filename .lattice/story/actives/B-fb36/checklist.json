@@ -11,23 +11,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees literal output such as \"done_prepare\" in lattice help, then \"DONE prepare: BLOCKED\" or \"DONE prepare: PASS\", \"storyId: B-xxxx\", \"phase: TEST\", \"preflight: PASS\", and \"worktreeClean: PASS\"; protected version files remain absent from git status.",
+      "userSees": "\"DONE prepare: BLOCKED\" when preflight fails, or the command appears in help as \"lattice done_prepare\" with no versionBump option.",
       "files": {
         "modify": [
-          "packages/main/src/cli-engine.ts",
           "packages/main/src/cli/command-catalog.ts",
-          "packages/main/src/cli/command-schemas.ts",
-          "packages/main/src/cli/lifecycle-dispatch.ts",
           "packages/main/src/core/config.ts",
-          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/registry.ts"
         ],
         "create": [
           "packages/main/src/handlers/done-prepare.ts"
         ],
-        "test": [
-          "packages/main/src/tasks/done-prepare-smoke.ts",
-          "packages/main/src/tasks/cli-surface-smoke.ts"
-        ]
+        "test": []
       },
       "verificationIntent": {
         "happy": [
