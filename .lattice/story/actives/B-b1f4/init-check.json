@@ -1,0 +1,25 @@
+{
+  "storyId": "B-b1f4",
+  "checkedAt": "2026-06-19T12:33:29.212Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-19T12:32:54.981Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-002 context includes the phrase \"Optionally surface primary in usage-ledger-report.ts renderHuman\" — the word Optionally is advisory texture inside an otherwise verifiable checklist item. It is not a separate checklist item and does not create a verification gap, but if the implementer skips it the checklist item still passes without any note of the omission. Consider either splitting it into a separate optional CHK or rewriting as \"If renderHuman is updated, confirm primary is labelled distinctly from the four-field totals.\". Non-blocking."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-19T12:33:29.212Z",
+      "issues": []
+    }
+  ],
+  "_hash": "a908107789a4061ea6eb8fe1ea4beda746752119398e36ac89f2091db253b99b"
+}

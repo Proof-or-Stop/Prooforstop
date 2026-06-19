@@ -1,0 +1,66 @@
+{
+  "storyId": "B-e28c",
+  "checkedAt": "2026-06-19T03:56:38.419Z",
+  "features": [
+    {
+      "feature": "protected authority_job_status/listJobVerdicts GET sends Authorization with configured customer API key",
+      "covered_by": "background.md key insights; checklist.json CHK-001 happy/userSees; plan.md CHK-001 Do/Verify",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md; checklist.json; plan.md"
+    },
+    {
+      "feature": "policy discovery remains keyless",
+      "covered_by": "background.md key insights; checklist.json CHK-001 edge/userSees; decision.json principles/options/preMortem; plan.md CHK-001 Do Not/Verify",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md; checklist.json; decision.json; plan.md"
+    },
+    {
+      "feature": "smoke coverage proves no overclaim without receipt/quorum",
+      "covered_by": "checklist.json CHK-001 adversarial; checklist.json CHK-002 adversarial/userSees; decision.json preMortem status overclaim scenario; plan.md CHK-002 Do/Verify",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json; decision.json; plan.md"
+    },
+    {
+      "feature": "server bundle generation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints; plan.md CHK-002 Do Not; scope-boundary.json excluded",
+      "source": "understanding.json; plan.md; scope-boundary.json"
+    },
+    {
+      "feature": "receipt semantics / receipt verification changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "background.md solution tradeoffs; understanding.json constraints; plan.md CHK-001 Do Not; scope-boundary.json excluded",
+      "source": "background.md; understanding.json; plan.md; scope-boundary.json"
+    },
+    {
+      "feature": "quorum threshold changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints; plan.md CHK-001 Do Not; scope-boundary.json excluded",
+      "source": "understanding.json; plan.md; scope-boundary.json"
+    },
+    {
+      "feature": "generated env/key files",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints; plan.md CHK-001 Do Not; scope-boundary.json excluded",
+      "source": "understanding.json; plan.md; scope-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2cea60348b81d626a4efc394374c742dd2b66e20e8c1c1f9d53db1aa37a87623",
+  "openQuestions": []
+}

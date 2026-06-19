@@ -1,0 +1,32 @@
+{
+  "task": "INIT-phase story metadata is written untracked on the shared main checkout and is only made clean-proof at the INIT_CHECK bootstrap; during the INIT->INIT_CHECK window a concurrent fleet git op permanently wipes it (B-0c17 casualty, B-854c ClawCreek class).",
+  "outcome": "A reproduction smoke that previously lost the metadata now passes: after creating a story in INIT and running a simulated concurrent `git clean -fd` / wrong-branch op on the shared checkout, the INIT metadata is still present and recoverable. Concretely the operator sees, in `lattice validate` output: `✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout (committed safe-init object)`, and `lattice doctor` reports the INIT metadata leaf as tracked/clean-proof rather than `⚠ DATA-LOSS RISK ... NOT git-tracked`.",
+  "facts": [
+    "auto-commit-metadata.ts:182 returns early when branch is not story/* — so story_create on main never commits the INIT metadata.",
+    "worktree.ts INIT_CHECK bootstrap (~348-360) is the FIRST/ONLY safe-init-commit: git add -f -- storyRel -> write-tree -> commit-tree -m lattice: story <id> init -> update-ref refs/heads/story/<id>.",
+    "purgeSafeInitCommit (worktree.ts:615-653) reverses a safe-init commit by checking the main checkout HEAD subject == lattice: story <id> init AND all HEAD files under storyRel, then git reset --hard HEAD~1 — i.e. the reverse half is already written for a main-HEAD safe-init commit.",
+    ".gitignore lines 13-16 allowlist .lattice/story/actives/** (leaf NOT ignored), so the INIT window state is !ignored && !tracked.",
+    "story-metadata-protection.ts:116-117 unsafe = ignored && !tracked, so the !ignored && !tracked INIT window is wrongly classified safe.",
+    "B-0c17 git ls-files is empty (never committed); index/background/checklist/init-check were wiped, owner-lease/init-self-check survived because re-created post-wipe."
+  ],
+  "constraints": [
+    "Must hold the main-write-lock around any main-HEAD mutation (story_create already uses withReentrantMainWriteLock).",
+    "story_discard --purge must still cleanly reverse the safe-init commit (purgeSafeInitCommit HEAD~1 contract).",
+    "INIT_CHECK bootstrap must remain idempotent when main already carries the metadata / when the branch/commit already exists — no double commit, no hard-fail.",
+    "Do NOT weaken the .gitignore allowlist; do NOT change INIT_CHECK reviewer gates; do NOT redesign the worktree/branch model.",
+    "English-only artifacts; no remote push; keep salts untouched."
+  ],
+  "unknowns": [
+    "Exact target of the new safe-init commit: advance main HEAD (matches purgeSafeInitCommit, strongest, never-wiped) vs only create refs/heads/story/<id> early (recoverable-not-wiped, lower blast radius). DEV to finalize by matching purgeSafeInitCommit + bootstrap idempotency.",
+    "Whether checklist edits during INIT (checklist_add before INIT_CHECK) need to re-commit to keep the safe-init object current."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/story-metadata-protection.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/ (regression smoke)"
+  ],
+  "timestamp": "2026-06-19T04:09:55.977Z"
+}

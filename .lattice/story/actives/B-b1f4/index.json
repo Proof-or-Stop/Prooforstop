@@ -1,0 +1,58 @@
+{
+  "storyId": "B-b1f4",
+  "name": "usage-ledger-primary-reported-total",
+  "title": "Surface cache-less-provider (codex/gemini) tokens in usage-ledger aggregates via an additive primaryReportedTotal",
+  "description": "Provider-reported codex/gemini token records are captured on disk (B-12d7) but never appear in any usage-ledger aggregate, because the strict four-field identity buckets every record with a null cache dimension as unknown. Add a NEW additive primary (input+output) aggregate to summary.ts and diagnostics.ts so these tokens become visible, without inferring any value the provider did not report and without changing the strict four-field providerReportedTotal semantics.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "usage-ledger",
+    "summary",
+    "diagnostics",
+    "codex",
+    "gemini",
+    "token-aggregate",
+    "B-12d7",
+    "F-004"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-19T12:31:38.510Z",
+  "startedAt": "2026-06-19T12:31:38.510Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T12:31:38.533Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T12:34:56.905Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive (mention, not modify): the keyword \"token\" refers to LLM usage TOKEN COUNTS (input/output token metering in the usage ledger), not authentication tokens, credentials, or secrets. This story only adds an additive input+output aggregate to informational-only summary.ts/diagnostics.ts; it touches no auth, secrets, keys, or headers. The record schema forbidden-field denylist (apikey/secret/authorization/etc.) is untouched.",
+      "at": "2026-06-19T12:32:00.785Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b1f4",
+    "branch": "story/B-b1f4",
+    "createdAt": "2026-06-19T12:34:53.678Z"
+  }
+}

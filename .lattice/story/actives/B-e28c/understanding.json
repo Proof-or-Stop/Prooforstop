@@ -1,0 +1,23 @@
+{
+  "task": "Fix server-backed authority_job_status so protected job verdict/status GET requests send the configured customer API key.",
+  "outcome": "Running authority_job_status against staging no longer fails with 401 when the same configured customer key can read the server endpoint directly; if no runner receipt or 2-host quorum exists, the command still reports blocked/fullAuthorityDone=false.",
+  "facts": [
+    "Developer feedback on 2026-06-19 showed direct GET with the customer key succeeded while CLI authority_job_status received 401.",
+    "The CLI AuthorityClient get helper currently sends only Accept headers for all GET calls.",
+    "Policy discovery GET /v1/authority/policy should remain keyless.",
+    "fullAuthorityDone still requires a verified native gate_decision receipt plus satisfied independent-host reconciliation."
+  ],
+  "constraints": [
+    "Do not modify server bundle generation in the public CLI repo.",
+    "Do not send customer API keys to policy discovery.",
+    "Do not change receipt verification semantics or quorum thresholds.",
+    "Do not read or modify generated senior key/env files in the repo root."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T03:54:22.842Z"
+}

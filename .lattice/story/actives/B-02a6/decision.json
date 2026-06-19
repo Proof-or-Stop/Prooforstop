@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Data durability of in-flight story metadata outranks main-history cleanliness.",
+    "Reuse the existing reverse machinery (purgeSafeInitCommit already expects a main-HEAD safe-init commit) instead of inventing a parallel mechanism.",
+    "Serialize every main-HEAD mutation under the main-write-lock story_create already holds — no new unlocked git ref writes.",
+    "Defense-in-depth: prevent (commit-at-birth) + detect (protection predicate) + prove (reproduction smoke), not any one alone.",
+    "Smallest change that fully closes the window; do not redesign the worktree/branch model or touch the gitignore allowlist."
+  ],
+  "drivers": [
+    "Prevent permanent loss of INIT metadata under concurrent fleets (B-0c17 casualty, B-854c class).",
+    "Forward/reverse symmetry so story_discard stays correct.",
+    "Mechanically testable: a smoke that fails on current main and passes after the fix."
+  ],
+  "options": [
+    {
+      "name": "A: commit INIT metadata to main HEAD at story_create (safe-init commit)",
+      "pros": [
+        "A tracked file is immune to git clean -fd — this PREVENTS the wipe, not merely makes it recoverable",
+        "purgeSafeInitCommit already reverses exactly this (main HEAD~1) — forward/reverse symmetric",
+        "INIT_CHECK bootstrap can then branch from a main that already carries the metadata"
+      ],
+      "cons": [
+        "Adds one tiny metadata-only commit to main per story_create (history noise; bounded, mitigated by discard)",
+        "Requires the commit to sit inside the existing main-write-lock scope",
+        "Bootstrap must be made idempotent so it does not double-commit already-tracked metadata"
+      ]
+    },
+    {
+      "name": "B: create refs/heads/story/<id> early at story_create (branch ref only, main HEAD untouched)",
+      "pros": [
+        "Main history stays clean; no per-create main commit",
+        "Metadata becomes a durable, recoverable git object"
+      ],
+      "cons": [
+        "The working-tree copy on the main checkout stays UNTRACKED — a concurrent git clean -fd still removes it (only RECOVERABLE from the ref, not prevented)",
+        "INIT checklist edits drift from the ref snapshot until re-committed",
+        "Does not match purgeSafeInitCommit (which resets main HEAD), so reverse half needs new code"
+      ]
+    },
+    {
+      "name": "C: detection-only — extend the protection predicate + doctor warning, no commit-at-birth",
+      "pros": [
+        "Smallest diff",
+        "Surfaces the risk to the operator"
+      ],
+      "cons": [
+        "Diagnoses but does NOT prevent the concurrent wipe — the data is still lost",
+        "Leaves the core defect open"
+      ]
+    }
+  ],
+  "chosen": "A: commit INIT metadata to main HEAD at story_create (safe-init commit)",
+  "rationale": "Only Approach A actually PREVENTS the wipe: once the metadata is committed/tracked on main, a concurrent git clean -fd (which only removes untracked files) cannot touch it, closing the window completely rather than making loss merely recoverable (B) or merely visible (C). It also reuses the reverse half that already exists and is written precisely for a main-HEAD init commit (purgeSafeInitCommit resets main HEAD~1), keeping forward/reverse symmetric. The protection-predicate extension (from C) and the reproduction smoke are kept as complementary defense-in-depth, not as the primary fix. The cost — a tiny metadata-only commit per story_create — is bounded and acceptable against permanent data loss.",
+  "preMortem": [
+    {
+      "scenario": "INIT_CHECK bootstrap double-commits the metadata that main already carries",
+      "trigger": "bootstrap runs git add -f + commit-tree on files now already tracked on main",
+      "consequence": "empty/duplicate init commit or a hard-fail at INIT_CHECK",
+      "mitigation": "make the bootstrap idempotent — when the storyRel metadata is already tracked on main, branch from main as-is and skip the redundant commit; smoke asserts no duplicate commit"
+    },
+    {
+      "scenario": "story_discard cannot reverse the safe-init commit",
+      "trigger": "concurrent fleet commits land on main after the init commit, so it is no longer HEAD and purgeSafeInitCommit HEAD~1 refuses",
+      "consequence": "the init metadata commit is orphaned on main (metadata-only noise)",
+      "mitigation": "accept as harmless additive noise; when not HEAD, fall back to commitDiscardMetadata (tombstone) which already exists, rather than a hard HEAD~1 reset"
+    },
+    {
+      "scenario": "main-HEAD race corrupts a concurrent DONE merge",
+      "trigger": "the safe-init commit advances main HEAD outside the main-write-lock scope while a DONE merge holds it",
+      "consequence": "interleaved main-HEAD writes / merge corruption",
+      "mitigation": "place the safe-init commit strictly INSIDE the withReentrantMainWriteLock block story_create already wraps; a smoke serializes story_create against a simulated concurrent DONE and asserts no corruption"
+    },
+    {
+      "scenario": "existing worktrees forked from older main conflict on DONE merge",
+      "trigger": "main moved forward by new init commits while a worktree was open",
+      "consequence": "DONE merge reports conflicts",
+      "mitigation": "per-story actives dirs are disjoint and additive; done-effects auto-sync (git merge main --no-edit) already handles divergence; smoke merges a worktree across an intervening init commit and asserts clean"
+    }
+  ],
+  "timestamp": "2026-06-19T04:10:54.962Z"
+}

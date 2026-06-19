@@ -4,7 +4,7 @@
   "title": "Story 0 — Contract: parallel-decomposition gate interfaces, types, and skeletons",
   "description": "Freeze the shared interface for the contract-first parallel-decomposition gate described in docs/parallel-decomposition-spec.md Section 8, so the four parallel impl stories (static overlap engine, gate verdict, config resolution, wave/review wiring) and the serial integration story can all build against a stable, frozen contract with non-overlapping file scopes.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "parallel-decomposition",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-19T03:54:15.613Z",
   "startedAt": "2026-06-19T03:54:15.613Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T04:27:47.941Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:57:14.084Z",
+      "branch": "story/B-59c7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T04:02:28.188Z",
+      "branch": "story/B-59c7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T04:05:42.294Z",
+      "branch": "story/B-59c7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T04:16:19.516Z",
+      "branch": "story/B-59c7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T04:16:19.896Z",
+      "branch": "story/B-59c7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T04:20:10.195Z",
+      "branch": "story/B-59c7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T04:27:47.941Z",
+      "branch": "story/B-59c7",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-59c7",
-    "branch": "story/B-59c7",
-    "createdAt": "2026-06-19T03:56:59.679Z"
-  }
+  "currentReviewRound": "2026-06-19T04:16:19.896Z"
 }

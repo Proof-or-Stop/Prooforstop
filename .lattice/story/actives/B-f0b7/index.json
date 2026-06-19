@@ -1,0 +1,34 @@
+{
+  "storyId": "B-f0b7",
+  "name": "ledger-dispatch-probe",
+  "title": "Probe the dispatch_auto scheduler end-to-end for usage-ledger capture",
+  "description": "A throwaway probe story used only as a scheduling target so dispatch_auto can launch one real claude-code worker and we can observe the usage ledger capturing the real provider-reported token record. No code is produced; the worker objective is a trivial no-op reply.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "dispatch",
+    "probe",
+    "usage-ledger"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "priorityElevatedFrom": "low",
+  "createdAt": "2026-06-19T12:42:06.187Z",
+  "startedAt": "2026-06-19T12:42:06.187Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T12:42:06.213Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

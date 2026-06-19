@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "summary.ts: add additive primaryReportedTotal + primaryReportedCount to UsageSummary",
+      "context": "In packages/main/src/core/usage-ledger/summary.ts add a primaryTotal (input+output, number|null) to DerivedRecordTotal computed in deriveRecordTotal: null when source=unavailable or when input OR output is null (never inferred); else input+output, independent of cache dims. In summarizeRecords accumulate primaryReportedTotal/primaryReportedCount over provider-reported records whose primaryTotal is non-null. Leave providerReportedTotal (strict four-field), estimateSubtotal, unknownCount EXACTLY as-is. Update both empty-summary returns in summarizeLedgerFile/summarizeRecords to include the new fields = 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "diagnostics.ts: add per-source primary aggregate to rollups, keep four-field + cost unchanged",
+      "context": "In packages/main/src/core/usage-ledger/diagnostics.ts add a PrimaryTokenDimensions {input,output} plus an asPrimaryDimensions helper (null when input or output null). Extend SourceTokenTotals with primaryKnown {input,output} + primaryKnownCount, init in emptySourceTotals. In aggregateByGroup accumulate primaryKnown independent of the four-field known check (a cache-less record is four-field-unknown yet primary-known); still exclude source=unavailable. Roll primaryKnown/primaryKnownCount into overall in buildUsageReport (SourceTotalsWithCost inherits the fields). Keep `known`, knownCount, unknownCount, and computeCost (four-field only) unchanged. Preserve the zero-cross-module-import invariant. Optionally surface primary in usage-ledger-report.ts renderHuman.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Smoke: codex+gemini contribute to primary aggregate; strict four-field still excludes; claude in BOTH",
+      "context": "Add/extend a smoke (e.g. packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts or a new usage-ledger-primary-total-smoke.ts wired into package.json + run-all-smokes) asserting: a codex (openai adapter) and a gemini provider-reported final each contribute their input+output to summary.primaryReportedTotal AND diagnostics bySource['provider-reported'].primaryKnown, while summary.providerReportedTotal and bySource.known STILL exclude them (unknownCount unchanged); an anthropic/claude record (all four dims known) appears in BOTH the strict four-field total and the primary total. Run the full smoke suite green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
