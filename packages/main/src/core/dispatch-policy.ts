@@ -256,7 +256,7 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
     const unsupportedRealHosts = allowedHosts.filter(host => host === 'antigravity' || host === 'codex');
     if (allowRealHostSubprocess && unsupportedRealHosts.length > 0) {
       errors.push(
-        `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
+        `for unattended dispatch_auto, allowRealHostSubprocess supports claude-code only; ${unsupportedRealHosts.join(', ')} remain refused for unattended real-host subprocess (antigravity has a supervised real-leaf agy path via dispatch_run, but stays refused for unattended dispatch_auto)`,
       );
     }
     normalized.allowRealHostSubprocess = allowRealHostSubprocess;
@@ -406,7 +406,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'antigravity' || host === 'codex');
     if (unsupportedRealHosts.length > 0) {
       reasons.push(
-        `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
+        `for unattended dispatch_auto, allowRealHostSubprocess supports claude-code only; ${unsupportedRealHosts.join(', ')} remain refused for unattended real-host subprocess (antigravity has a supervised real-leaf agy path via dispatch_run, but stays refused for unattended dispatch_auto)`,
       );
     }
   }

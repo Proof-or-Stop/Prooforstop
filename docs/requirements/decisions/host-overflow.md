@@ -23,11 +23,12 @@ production authority.
 B-106b landed the manual-first Host Overflow base. B-a5c2 extends that base with
 `dispatch_auto` as the selected `policy-authorized-unattended-scheduler`:
 `chosen: policy-authorized-unattended-scheduler`, `preMortem: 6`.
-The v1.0.1 real-subprocess contract is Claude Code first: a policy must set
-`allowRealHostSubprocess=true` before Lattice may attempt a Claude Code real
-subprocess. Codex and Antigravity remain scaffolded/refused real-subprocess
-targets in this version. Gemini is retained only for deprecated legacy
-compatibility.
+The v1.0.1 real-subprocess contract is Claude Code first for unattended use: a
+policy must set `allowRealHostSubprocess=true` before Lattice may attempt a
+Claude Code real subprocess under `dispatch_auto`. Antigravity carries the
+supervised real-leaf agy dispatch path (`dispatch_run` with
+`allowRealHostSubprocess`), but — like Codex — stays refused for the unattended
+`dispatch_auto` path in this version.
 
 The product finish line is concrete and user-visible:
 
@@ -185,10 +186,11 @@ The supervised dispatch layer is now landed as explicit Lattice surfaces:
   missing counterpart flag.
 - `dispatch_auto` is reserved for the B-a5c2 unattended extension. Unlike
   `overflow_auto`, it may start unattended workers, but only after explicit user
-  policy authorization and host unattended-safety checks pass. Real-host
-  subprocess launch in v1.0.1 is Claude Code only and requires
-  `allowRealHostSubprocess=true`; Codex/Antigravity are not supported
-  real-subprocess targets. Gemini remains legacy compatibility only.
+  policy authorization and host unattended-safety checks pass. Unattended
+  real-host subprocess launch in v1.0.1 is Claude Code only and requires
+  `allowRealHostSubprocess=true`; Antigravity and Codex stay refused for the
+  unattended `dispatch_auto` path. Antigravity does have a supervised real-leaf
+  agy path under `dispatch_run`, which is outside the unattended scheduler.
 
 ## Workflow
 
@@ -216,7 +218,9 @@ Lattice Host Overflow does **not**:
 - Turn host availability into production authority
 - Require the Mac App
 - Introduce a new model-runner runtime inside Lattice
-- Claim Codex or Antigravity real-subprocess support in v1.0.1
+- Claim Codex or Antigravity real-subprocess support under the unattended
+  `dispatch_auto` path in v1.0.1 (Antigravity's supervised real-leaf agy path
+  via `dispatch_run` is in scope; the unattended scheduler is not)
 
 ## Claude Code note
 
@@ -241,8 +245,8 @@ fake policy (deterministic parallel workers), `dispatch_watch` lifecycle,
 `dispatch_cancel` evidence preservation, `dispatch_review` transcript/runner
 evidence, `dispatch_merge_plan` `manualOnly=true`, explicit refusals for missing
 policy / unavailable host / missing real-host subprocess opt-in /
-`unattendedSafe=false` host, the legacy Gemini real-host refusal path where
-applicable, all authority flags fixed at `false`, and `overflow_auto`
+`unattendedSafe=false` host, the Antigravity real-host `dispatch_auto` refusal
+path where applicable, all authority flags fixed at `false`, and `overflow_auto`
 `nextAction` pointing to `dispatch_auto`.
 
 Antigravity/agy coverage lives in `packages/main/src/tasks/dispatch-run-smoke.ts`

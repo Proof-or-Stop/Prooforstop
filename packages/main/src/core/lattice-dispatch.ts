@@ -1995,9 +1995,10 @@ function runBoundedRealLeafDispatch(
   let argv: string[];
   if (hostKind === 'antigravity') {
     // agy is non-interactive via `--print <prompt>`; it reads the prompt as an
-    // argument (no --prompt-file). --print-timeout bounds the in-CLI wait and
-    // --dangerously-skip-permissions prevents a tool-permission prompt from
-    // blocking an unattended-style run. Mirrors runtimeTemplate('antigravity').
+    // argument (no --prompt-file). --print-timeout bounds the in-CLI wait.
+    // --dangerously-skip-permissions is a documented agy flag (confirmed via
+    // `agy --help`) that prevents a tool-permission prompt from blocking the
+    // non-interactive --print run. Mirrors runtimeTemplate('antigravity').
     const promptText = readFileSync(promptFile, 'utf8');
     const printTimeoutS = Math.max(1, Math.ceil(timeoutMs / 1000));
     argv = ['--print', promptText, '--print-timeout', `${printTimeoutS}s`, '--dangerously-skip-permissions'];
