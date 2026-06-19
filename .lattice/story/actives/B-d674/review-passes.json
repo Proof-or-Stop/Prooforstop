@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-19T16:04:17.173Z",
       "reviewRunId": "B-d674:RR-016",
       "_hash": "9adef8de35b414b8c6aafe200000ebe0f669cbb16fbfbb5ae0f86fd99224b306"
+    },
+    {
+      "id": "B-d674:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: no remaining blocker after verifying F-001..F-009 resolved. Checked current host semantics: host_runtime_list exposes fake/codex/claude-code/antigravity; host_runtime_probe --host=antigravity and --host=agy resolve to cliCommand=agy, supervised/scaffolded, unattendedSafe=false; host_runtime_probe --host=gemini is deprecated legacy compatibility only. Source review confirms agy normalization, Antigravity wrapped-preapply only via dispatch, Gemini excluded from current runtime/capability lists. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/host-guard-matrix-smoke.js; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js.",
+      "createdAt": "2026-06-19T16:08:14.786Z",
+      "reviewRound": "2026-06-19T16:04:17.173Z",
+      "reviewRunId": "B-d674:RR-014",
+      "_hash": "f48a19768464e690050627cfe992b7d5c65ba03d9b4a37b775bd16f7ccaabd0f"
     }
   ]
 }
