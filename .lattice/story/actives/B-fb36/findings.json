@@ -94,6 +94,27 @@
       "resolvedAt": "2026-06-19T23:33:36.161Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb36:F-005",
+      "desc": "done-prepare doc still claims generated metadata changes remain uncommitted and require manual git add/commit before DONE (docs/requirements/decisions/done-prepare-automation-execution-plan.md:149 and :297), but implemented safe stale refresh calls verification_evidence_refresh_stale, which auto-commits story metadata, and done_prepare blocks on the new commit with rerun guidance (packages/main/src/handlers/checklist.ts:1043, packages/main/src/handlers/done-prepare.ts:670, packages/main/src/tasks/done-prepare-smoke.ts:361). Update the doc to describe the generated-commit/rerun path or align implementation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T23:37:11.322Z",
+      "reviewRound": "2026-06-19T23:33:22.035Z",
+      "reviewRunId": "B-fb36:RR-007",
+      "_hash": "3ff11b38e3ea89ea9480a29d4c59c4a6da2dddc1985e339e77d226419879e2bd",
+      "files": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/done-prepare-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|prepare-still-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
