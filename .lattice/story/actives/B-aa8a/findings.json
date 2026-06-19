@@ -5,7 +5,7 @@
       "desc": "CHK-001:adversarial:1 evidence-to-intent mismatch: the intent states the scenario is \"root package.json is read-only (chmod 0444) throws with a clear error and does not partially update the other 2 files\", but the smoke (version-bump-smoke.ts section 13, line 144) makes the BRAND file (lattice-brand.ts) read-only, not root package.json. The write order in applyPatchBump is rootPackageJson -> mainPackageJson -> brand; making the brand read-only exercises a harder rollback (2 files already written when 3rd fails), while making root read-only is an earlier-fail scenario (0 files written when 1st fails). The two scenarios have different atomicity properties. The evidence note in the verificationEvidence record repeats the intent description verbatim, so the note claims root package.json was tested when the smoke actually used the brand file. The evidence command (node packages/main/dist/tasks/version-bump-smoke.js) does not match the specific scenario described in CHK-001:adversarial:1.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T19:53:05.119Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/version-bump.ts"
       ],
       "signatureTag": "missing|ts|adversarial-evidence-intent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the smoke now tests a read-only ROOT package.json (the intent's literal first-file scenario) AND a read-only brand, both asserting applyPatchBump throws and rolls back all 3 to 'from' (smoke case 15). Round-2..4 reviews confirm.",
+      "resolvedAt": "2026-06-19T20:45:42.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-aa8a:F-002",
