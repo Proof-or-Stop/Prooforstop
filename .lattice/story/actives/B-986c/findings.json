@@ -55,6 +55,24 @@
       ],
       "signatureTag": "missing|ts|adversarial-claims-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-986c:F-004",
+      "desc": "CHK-001:edge:0 and CHK-001:edge:1 claim separate evidence for DONE filtering and DISCARDED filtering respectively, but smoke block 7 (lines 127-139 of parallel-decomposition-gate-smoke.ts) tests BOTH terminal phases in a single fixture by passing both a DONE peer and a DISCARDED peer simultaneously. A single assertion (block null) cannot distinguish which filtering rule is responsible for the result. If DONE filtering were silently broken but DISCARDED filtering were correct, the block-7 assertion would still pass because the DISCARDED peer is also excluded. The two intents are not independently falsifiable by the current evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T23:39:02.374Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-003",
+      "_hash": "fa6ca7c110d41759d06dd875a05a6bd3a8b4627839011fe526f0a30877520df4",
+      "files": [
+        "packages/main/src/tasks/parallel-decomposition-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-edge-claim",
+      "signatureTagSource": "auto"
     }
   ]
 }
