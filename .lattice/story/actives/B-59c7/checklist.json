@@ -58,12 +58,12 @@
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "verdict": "success",
-          "command": "git diff --stat -- packages/main/src/core/parallel-decomposition.ts",
+          "command": "git diff --stat main...HEAD -- packages/main/src/core/parallel-decomposition.ts",
           "result": "pass",
-          "note": "Skeleton bodies are exactly void-params + throw; no real logic or I/O; module import has zero side effects (node require ran clean).",
-          "headHash": "127d9a39de36d153a1a7b24bfc5df69fc8703b3a",
-          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
-          "timestamp": "2026-06-19T04:05:28.452Z"
+          "note": "Skeleton bodies are void-params + throw only; no logic/IO; module import has zero side effects.",
+          "headHash": "c9407175daef362051e9ae6cf703cd272f968ed2",
+          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
+          "timestamp": "2026-06-19T04:10:19.202Z"
         }
       ]
     },
