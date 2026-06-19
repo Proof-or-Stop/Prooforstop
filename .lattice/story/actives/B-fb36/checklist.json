@@ -159,7 +159,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "done_prepare prints PASS or BLOCKED readiness summaries that separate localDoneReady, degraded-single-host local assurance, two-host review status, Authority receipt backed completion, production completion, and cleanTree commit-required blockers.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/authority-boundary.ts",
+          "packages/main/src/core/authority-completion.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/authority-boundary-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For a fully locally ready TEST story with valid local closure gates and no Authority receipt, done_prepare prints a PASS summary that clearly separates local DONE readiness from Authority and production completion and prints exactly one explicit DONE next command. WHY: operators must see that local readiness is not production or Authority completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When done_closure or review_escalation_status reports degraded-single-host local readiness rather than two-host assurance, done_prepare renders the degraded local status without claiming two-host quorum, receiptVerified, authorityDone, fullAuthorityDone, or productionDone. WHY: high-risk lifecycle work can be locally ready while still lacking independent Authority proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If done_prepare itself creates Lattice metadata during evidence refresh, validate, or closure inspection, the final clean-tree check blocks instead of printing PASS and lists the exact files that must be committed. WHY: DONE would fail on a dirty tree, so prepare must not create false readiness after its own mutations.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
