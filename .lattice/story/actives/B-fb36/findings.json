@@ -28,7 +28,7 @@
       "desc": "done_prepare is registered in command-catalog/COMMAND_POLICIES/DEFAULT_PHASE_TOOLS, but the CLI-engine compatibility MAIN_TOOLS marker was not updated. `node scripts/verify-process-fact-contract.mjs` fails with `lifecycle policy entry not present in MAIN_TOOLS: done_prepare` plus DEFAULT_PHASE_TOOLS drift for every phase, so the process-fact/command policy contract is broken.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T23:19:45.701Z",
@@ -42,7 +42,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "missing|ts|prepare-registered-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added done_prepare to cli-engine compatibility marker and process-fact levels; node scripts/verify-process-fact-contract.mjs passed.",
+      "resolvedAt": "2026-06-19T23:33:35.310Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fb36:F-003",
