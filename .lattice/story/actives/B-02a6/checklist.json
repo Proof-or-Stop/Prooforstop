@@ -4,25 +4,202 @@
       "id": "CHK-001",
       "title": "Reproduce the INIT-window data-loss in a regression smoke (create story in INIT, simulate a concurrent git clean -fd / wrong-branch checkout on the shared checkout, assert metadata is currently lost)",
       "context": "Lock the bug before fixing (systematic-debugging Phase 1/4). The smoke must fail on current main (metadata gone) so the fix is provably what closes it. Use a temp git repo fixture with the real .gitignore allowlist.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T04:22:27.339Z",
+      "userSees": "Running lattice validate shows the new smoke: it FAILS on current main (the simulated concurrent git clean -fd wipes the INIT metadata) and PASSES after the fix, printing \"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke creates a story in INIT, simulates a concurrent git clean -fd on the shared checkout, and on current main asserts the metadata files are gone (reproduces the bug)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke covers both the allowlisted-not-ignored leaf (.lattice/story/actives/**) and an ignored leaf, since clean -fd vs clean -fdx differ",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts actual metadata file bytes present/absent (not just an exit code), so a no-op fix cannot make it falsely pass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Smoke drives real story_create then concurrent git clean -fd; metadata survives. Re-recorded at post-merge HEAD.",
+          "headHash": "9f7887b0404ffdb57ede00c36b1c5c49ec6e0db2",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:13.627Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Allowlisted-not-ignored actives leaf survives clean -fd; ignored runtime leaf removed by clean -fdx. Re-recorded at post-merge HEAD.",
+          "headHash": "95d19720989d46caa1f3ac3e95f18ecc8eddede3",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:14.197Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Assertions read file bytes, never exit codes. Re-recorded at post-merge HEAD.",
+          "headHash": "50de7ee225065be1b1287b99e6f9bea458b528c6",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:14.675Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Create the safe-init-commit at story_create so INIT metadata is a durable clean-proof git object from birth",
       "context": "Extract/reuse the bootstrap safe-init-commit (force-add + commit-tree/update-ref) and invoke it at the end of story_create under the already-held main-write-lock. Decide commit target (story branch ref vs main) in PLAN; ensure INIT_CHECK bootstrap is idempotent when the ref/commit already exists, and story_discard --purge still reverses it.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T04:36:34.166Z",
+      "userSees": "After lattice story_create, git log on main shows a \"lattice: story B-xxx init\" commit and git ls-files lists .lattice/story/actives/B-xxx/index.json as tracked; a subsequent git clean -fd leaves the metadata fully intact.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create commits the INIT metadata to main HEAD; git ls-files shows the leaf tracked immediately after create",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "INIT_CHECK bootstrap is idempotent when main already carries the metadata (no duplicate/empty commit, no hard-fail); story_discard --purge still reverses via purgeSafeInitCommit or tombstone fallback",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A concurrent git clean -fd and a wrong-branch checkout on the shared checkout cannot wipe the now-tracked metadata; the safe-init commit is inside the main-write-lock so it serializes against a concurrent DONE merge",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Leaf tracked in HEAD after real story_create (safe-init commit). Re-recorded at post-merge HEAD.",
+          "headHash": "522c2579a2a2a3c84fb7123cff7a7b5caa45e1f5",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:15.172Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "assertPurgeDropsSafeInitCommit (HEAD reset) + assertPurgeTombstonesBuriedSafeInitCommit (buried tombstone, clean tree); INIT_CHECK idempotent. Re-recorded at post-merge HEAD.",
+          "headHash": "a57f6cfa6ae6958658f134319784b2568927876d",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:15.643Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Concurrent clean cannot wipe tracked metadata; safe-init registered cross-function main-write-locked. Re-recorded at post-merge HEAD.",
+          "headHash": "18a2c0899b3ad65bf61325d72ff8c26fc20d1a25",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:16.137Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Extend the B-854c protection predicate so any !tracked metadata leaf is flagged (not only ignored && !tracked), and surface it in doctor",
       "context": "story-metadata-protection.ts: the unsafe predicate must catch the allowlisted-but-uncommitted state (!ignored && !tracked) that the INIT window sits in. Update doctor scan + the warning text. Keep the existing ignored && !tracked case.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T04:54:25.935Z",
+      "userSees": "lattice doctor now reports an uncommitted INIT metadata leaf as \"⚠ DATA-LOSS RISK: story metadata is NOT git-tracked\" even when the leaf is allowlisted-not-ignored (the INIT window), not only when ignored.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateStoryMetadataProtection flags unsafe=true for the !ignored && !tracked (allowlisted-but-uncommitted) state",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Still flags the original ignored && !tracked case; a tracked leaf remains safe (unsafe=false) regardless of ignore state",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Blank/whitespace leaf path is rejected (throws), so no consumer can classify an empty path as safe; doctor surfaces the new case without false-positiving a correctly committed leaf",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Predicate flags !ignored && !tracked (INIT window) unsafe=true. Re-recorded at post-merge HEAD.",
+          "headHash": "ec494aaf1264bfd9c712d5bd677bc1c74ede5448",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:16.613Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Still flags ignored && !tracked; tracked leaf safe. Re-recorded at post-merge HEAD.",
+          "headHash": "a6361ae9a1968b6e4d3946365fe669cd11327237",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:17.057Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Blank leaf throws; doctor surfaces case without false-positiving committed leaf. Re-recorded at post-merge HEAD.",
+          "headHash": "6eb3595067a83e57defa26a16c33dbbe8be1c129",
+          "materialHash": "32909e650edcae3f827af5982d081927c2dde8c45d71c823ffd6d4e5227bcb16",
+          "timestamp": "2026-06-19T05:24:17.558Z"
+        }
+      ]
     }
   ]
 }

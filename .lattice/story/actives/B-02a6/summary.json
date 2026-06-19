@@ -1,0 +1,56 @@
+{
+  "storyId": "B-02a6",
+  "changes": "Closed the INIT->INIT_CHECK uncommitted-metadata data-loss window (B-854c ClawCreek class). story_create now writes a clean-proof safe-init commit (new core/safe-init-commit.ts) to main HEAD inside the held main-write-lock, so INIT metadata is tracked/committed from birth and immune to a concurrent git clean -fd on the shared checkout. worktree.ts: INIT_CHECK bootstrap made idempotent (no duplicate init commit) + story_discard --purge tombstone fallback for buried init commits. story-metadata-protection.ts predicate broadened to unsafe=!tracked (catches the !ignored && !tracked INIT window) + doctor surface. New init-window-data-loss smoke (drives real story_create) + buried-tombstone assertion.",
+  "usage": "No new command. Behavior change: after lattice story_create, the INIT metadata is committed on main (git log shows lattice: story <id> init) and survives a concurrent git clean -fd. lattice doctor now flags any uncommitted metadata leaf as a data-loss risk.",
+  "expectedOutcome": "A story created in INIT no longer loses its metadata to a concurrent fleet git op; the init-window smoke passes and doctor flags uncommitted leaves.",
+  "actualTranscript": "node init-window-data-loss-smoke.js -> ✓ INIT metadata survives concurrent git clean -fd; node review-pass-discard-smoke.js -> ✓ (HEAD reset + buried tombstone); lattice validate --story=B-02a6 -> 9/9 coverage, ALL PASS; CLI gate preflight all pass.",
+  "outcomeDiff": "No difference — the window is closed (prevented, not merely recoverable). All 4 reviewers passed (concept/quality/test-coverage/behavior); F-001/F-002/F-003/F-004 resolved.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. Cost: one tiny metadata-only init commit per story_create (reversed on discard); accepted vs permanent data loss. Recovery of stories lost BEFORE this fix is out of scope (forward fix only).",
+  "pitfalls": "The B-854c protection predicate had a blind spot: it only flagged ignored && !tracked, so the allowlisted-but-uncommitted INIT window (!ignored && !tracked) read as safe. A regression smoke MUST drive the REAL story_create — a self-contained smoke that hand-writes untracked files tests a git tautology, not the fix (caught in review). After fixing review findings, re-record verificationEvidence at the new HEAD or the freshness gate blocks (materialHash staleness).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 220613
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23342
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 417704
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2437890
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1187561
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 213091
+    }
+  },
+  "totalDurationMs": 4500210,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T05:19:14.526Z",
+  "updatedAt": "2026-06-19T05:19:14.526Z"
+}

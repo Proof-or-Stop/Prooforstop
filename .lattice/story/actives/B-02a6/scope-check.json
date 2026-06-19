@@ -1,0 +1,157 @@
+{
+  "storyId": "B-02a6",
+  "checkedAt": "2026-06-19T04:14:40.700Z",
+  "features": [
+    {
+      "feature": "Reproduce the INIT-window data-loss (smoke fails on current main: metadata wiped by concurrent git clean -fd)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covers both allowlisted-not-ignored leaf and an ignored leaf (clean -fd vs clean -fdx)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke asserts actual metadata file bytes present/absent (not just exit code), so no-op fix cannot fake pass",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Commit INIT metadata to main HEAD at story_create (safe-init commit) inside the main-write-lock",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "INIT_CHECK bootstrap is idempotent when main already carries the metadata (no duplicate/empty commit, no hard-fail)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "story_discard --purge reverses the safe-init commit via purgeSafeInitCommit or tombstone fallback",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Extend the story-metadata-protection predicate to flag !tracked (not only ignored && !tracked) as unsafe",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Surface the new allowlisted-but-uncommitted unsafe case in lattice doctor",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Main write lock serializes the safe-init commit against concurrent DONE merges (session-ownership-and-write-leases.md: story_create holds main-write-lock; rule that lock scope must cover the whole critical section)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Idempotency inside the main-write-lock for story_create (session-ownership-and-write-leases.md idempotency requirement for story_create)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "story_create deduplication/idempotency on duplicate name or keyword overlap (session-ownership-and-write-leases.md: idempotency section)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing behavior not modified by this story; story scope is strictly the safe-init commit path, not create deduplication",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "doctor stuck-lock check (session-ownership-and-write-leases.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing feature (B-f60c); this story does not modify the main-write-lock mechanism itself",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "DONE must hold the unified main-write-lock from pre-merge through cleanup (story-lifecycle.md worktree isolation rule)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing requirement (B-f60c); CHK-002 verifies serialization against DONE merges, not the DONE lock itself",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Post-DONE activity heartbeat must land in main (story-lifecycle.md B-da5b rule)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing requirement; outside scope of this data-loss fix",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "INIT_CHECK Controlled Fallback (init_check_repair) remains functional after changes to story_create (story-lifecycle.md B-95d8)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This story does not modify the init_check_repair path or INIT_CHECK gate itself; the idempotent bootstrap (CHK-002) is the only INIT_CHECK-adjacent change",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "INIT Scope Anti-Expansion Gate artifacts (scope-boundary.json, execution-boundary.json, etc.) remain intact after story_create changes (story-lifecycle.md B-85ba)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The safe-init commit is a metadata-only commit; it does not touch the INIT anti-expansion gate artifacts",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Lifecycle artifact classifier recognizes .lattice/story/actives/<storyId>/ paths as lifecycle artifacts (lifecycle-artifact-scope.md)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Reproduction smoke wired into lattice validate (testing-infra.md: lattice validate is the standard validation entry point)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "Protection predicate unit tests cover happy/edge/adversarial cases (testing-infra.md / testing-completeness.md: flow functions must have @test)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "The concurrent-wipe smoke and existing purge/discard smokes all pass after the fix (testing-completeness.md: end-to-end flow verification)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-completeness.md"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 15,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b4c85d7e7cb1afe600b957801288fb8af697d45696856d978506eeb9cc32ba42",
+  "openQuestions": []
+}

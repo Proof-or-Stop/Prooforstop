@@ -500,6 +500,58 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
   }
 }
 
+/**
+ * B-02a6 F-003: the buried-init-commit tombstone path.
+ *
+ * In production the safe-init commit is rarely at HEAD by the time a story is
+ * discarded: other stories' init commits and the INIT-review metadata
+ * auto-commits routinely land on main AFTER it, BURYING the init commit. Then
+ * `purgeSafeInitCommit` cannot `git reset --hard HEAD~1` (HEAD is no longer the
+ * pure-metadata init commit), so it bails with a ⚠ warning and discard falls
+ * through to the `commitDiscardMetadata` tombstone: it `rmSync`s the story dir,
+ * then COMMITS the deletion so main still converges to a clean tree instead of
+ * leaving a tracked-but-deleted dirty state.
+ *
+ * This asserts the buried path end-to-end: discard converges, the metadata dir
+ * is gone, the main checkout is clean (no dirty tracked-delete), and — crucially
+ * — the buried init commit was NOT `HEAD~1`-reset away (the history above it,
+ * including the unrelated later commit, is preserved).
+ */
+async function assertPurgeTombstonesBuriedSafeInitCommit(): Promise<void> {
+  const root = initRepo('lattice-discard-purge-buried-');
+  try {
+    const storyId = 'B-buried';
+    writeReviewStory(root, storyId);
+    git(root, ['add', '.lattice/story/actives/B-buried']);
+    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
+    const initCommit = git(root, ['rev-parse', 'HEAD']);
+
+    // BURY the init commit under an unrelated later commit on main, so it is no
+    // longer HEAD and `purgeSafeInitCommit` cannot safe-reset it.
+    write(root, 'unrelated.txt', 'later work on top of the init commit\n');
+    git(root, ['add', 'unrelated.txt']);
+    git(root, ['commit', '-m', 'unrelated: later commit burying the init commit']);
+    const buryingCommit = git(root, ['rev-parse', 'HEAD']);
+
+    const output = await runLattice(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke buried purge' });
+
+    // (a) discard converges to a clean tree via the tombstone, not a safe reset.
+    assert.doesNotMatch(output, /main init commit safely rolled back/, 'buried init commit must NOT be safe-reset');
+    assert.match(output, /discard metadata committed/, 'buried path must tombstone-commit the deletion');
+    // (b) the story metadata dir is gone.
+    assert.equal(existsSync(join(root, '.lattice', 'story', 'actives', storyId)), false, 'story metadata dir must be removed');
+    // (c) the main checkout is clean — no tracked-but-deleted dirty state.
+    assert.equal(git(root, ['status', '--porcelain']), '', 'main checkout must be clean after a buried-init tombstone discard');
+    // (d) the buried init commit was NOT HEAD~1-reset: history above it is preserved.
+    assert.equal(git(root, ['cat-file', '-t', initCommit]), 'commit', 'the buried init commit must still exist (not reset away)');
+    const ancestry = git(root, ['rev-list', 'HEAD']).split('\n').filter(Boolean);
+    assert.ok(ancestry.includes(initCommit), 'the buried init commit must remain reachable from HEAD (not reset away)');
+    assert.ok(ancestry.includes(buryingCommit), 'the unrelated later commit must remain in main history');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertDocsDriftAllowsBootstrapAndLegacyCommands(): void {
   const result = runDocsDriftGate([
     [
@@ -776,6 +828,7 @@ await assertDiscardCleansInvalidGitPointerResidue();
 await assertDiscardForceFromInvalidWorktreeCwd();
 await assertDiscardFailureDoesNotMarkSuccess();
 await assertPurgeDropsSafeInitCommit();
+await assertPurgeTombstonesBuriedSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();
 await assertInitDispatchPromptHasTimeoutGuidance();
 await assertItemDispatchWritesChannelEvidence();

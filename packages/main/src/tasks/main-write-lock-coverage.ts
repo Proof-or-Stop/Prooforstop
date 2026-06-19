@@ -163,6 +163,12 @@ const EXCEPTIONS: readonly ExceptionEntry[] = [
     crossFunctionLocked: true,
     reason: 'story_discard commitDiscardMetadata commit on main; lock acquired at the callsite (withReentrantMainWriteLock, label "story_discard metadata commit")',
   },
+  {
+    fileEndsWith: 'core/safe-init-commit.ts',
+    lineIncludes: "'commit', '--only', '-m', subject",
+    crossFunctionLocked: true,
+    reason: 'B-02a6 CHK-002 createSafeInitCommitOnHead safe-init commit on main; lock held by the caller story_create (withReentrantMainWriteLock body) and by story_discard purge tombstone fallback',
+  },
 ];
 
 /** Resolve which exception (if any) a given site matches. */
