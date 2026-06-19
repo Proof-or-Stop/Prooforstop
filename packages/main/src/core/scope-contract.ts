@@ -8,13 +8,19 @@ import type {
   ScopeContractData,
   ScopeContractMode,
   ScopeCheckResult,
+  ScopeCheckRow,
   ScopeViolation,
   FileRule,
   ChangeKind,
+  ScopePathClassification,
+  ScopeGateStatus,
 } from './types.js';
 import { execFileSync } from 'node:child_process';
-import { classifyLifecycleArtifact } from './lifecycle-registry.js';
-import { isRuntimeArtifactPath } from './runtime-artifact-registry.js';
+import {
+  classifyScopePath,
+  normalizeScopePath,
+  pathMatchesScopePattern,
+} from './scope-path-classifier.js';
 
 // ── Validation ──
 
@@ -236,30 +242,90 @@ export function readChangedFiles(projectRoot: string): string[] {
   return [...files].sort();
 }
 
-// ── Path matching (simple prefix/exact; globs treated as prefix patterns) ──
-
-function pathMatchesPattern(filePath: string, pattern: string): boolean {
-  // exact match
-  if (filePath === pattern) return true;
-  // directory prefix (e.g. "src/core" matches "src/core/foo.ts")
-  if (filePath.startsWith(pattern.endsWith('/') ? pattern : `${pattern}/`)) return true;
-  // glob-like: pattern ends with /* or /** — treat as prefix
-  const globless = pattern.replace(/\/\*\*?$/, '').replace(/\*$/, '');
-  if (globless !== pattern && filePath.startsWith(globless)) return true;
-  // wildcard extension: *.ts → any .ts file
-  if (pattern.startsWith('*.')) {
-    const ext = pattern.slice(1);
-    if (filePath.endsWith(ext)) return true;
-  }
-  return false;
-}
-
-function isAllowed(filePath: string, lists: string[][]): boolean {
-  return lists.some(list => list.some(p => pathMatchesPattern(filePath, p)));
-}
+// ── Path matching ──
 
 function isAcknowledged(filePath: string, contract: ScopeContractData): boolean {
-  return contract.acknowledgements.some(ack => ack.paths.some(p => pathMatchesPattern(filePath, p)));
+  return contract.acknowledgements.some(ack => ack.paths.some(p => pathMatchesScopePattern(filePath, p)));
+}
+
+function rowPathSlug(path: string): string {
+  const slug = normalizeScopePath(path)
+    .replace(/[^A-Za-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
+  return slug || 'root';
+}
+
+function scopeRowId(classification: ScopePathClassification, rule = classification.rule): string {
+  if (rule === 'lifecycle_artifact') {
+    const segments = classification.normalizedPath.split('/');
+    const storyId = segments.find((segment) => /^B-[A-Za-z0-9-]+$/.test(segment)) ?? 'unknown-story';
+    const fileName = segments[segments.length - 1] || rowPathSlug(classification.normalizedPath);
+    return `scope.lifecycle_artifact:${storyId}:${fileName}`;
+  }
+  if (rule === 'runtime_artifact') {
+    return `scope.runtime_artifact:${classification.registryId ?? 'registered'}:${classification.normalizedPath}`;
+  }
+  return `scope.${rule}:${classification.normalizedPath || rowPathSlug(classification.path)}`;
+}
+
+function passRow(classification: ScopePathClassification): ScopeCheckRow {
+  return {
+    id: scopeRowId(classification),
+    status: 'pass',
+    blocking: false,
+    path: classification.path,
+    source: classification.path,
+    classifierSource: classification.source,
+    category: classification.category,
+    rule: classification.rule,
+    detail: classification.detail,
+    hint: classification.hint ?? 'This path is non-blocking under the shared scope classifier.',
+  };
+}
+
+function violationStatus(contract: ScopeContractData, violation: ScopeViolation, emittedAsWarning: boolean): ScopeGateStatus {
+  if (emittedAsWarning) return 'warn';
+  if (contract.mode === 'enforce' && !violation.acknowledged) return 'fail';
+  return 'warn';
+}
+
+function nextActionForViolation(contract: ScopeContractData, violation: ScopeViolation): string {
+  if (violation.acknowledged) {
+    return 'No blocking action; keep the acknowledgement visible for review.';
+  }
+  if (violation.rule === 'protected') {
+    return 'Revert the protected path or re-plan with an explicit reviewed scope change.';
+  }
+  if (violation.rule === 'excluded') {
+    return 'Revert the excluded path or re-plan before continuing this work.';
+  }
+  if (contract.mode === 'enforce') {
+    return 'Run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or revert it.';
+  }
+  return 'Treat as advisory now; acknowledge, declare scope, or revert before enforcing this contract.';
+}
+
+function problemRow(
+  contract: ScopeContractData,
+  classification: ScopePathClassification,
+  violation: ScopeViolation,
+  emittedAsWarning: boolean,
+): ScopeCheckRow {
+  const status = violationStatus(contract, violation, emittedAsWarning);
+  return {
+    id: scopeRowId(classification, violation.rule),
+    status,
+    blocking: status === 'fail',
+    path: violation.path,
+    source: violation.path,
+    classifierSource: classification.source,
+    category: classification.category,
+    rule: violation.rule,
+    detail: `${classification.detail}${violation.acknowledged ? ' A matching acknowledgement exists.' : ''}`,
+    nextAction: nextActionForViolation(contract, violation),
+    hint: classification.hint ?? 'Scope rows are derived from the shared path classifier; unclassified paths use out_of_scope behavior.',
+  };
 }
 
 // ── Core check function ──
@@ -270,44 +336,44 @@ export function checkScopeContract(
 ): ScopeCheckResult {
   const violations: ScopeViolation[] = [];
   const warnings: ScopeViolation[] = [];
+  const rows: ScopeCheckRow[] = [];
 
   const allAllowedLists = [
     contract.allowedModify,
     contract.allowedCreate,
     contract.allowedTest,
   ];
+  const hasAllowedScope = allAllowedLists.some(l => l.length > 0);
 
   for (const file of changedFiles) {
-    // B-b9d0 CHK-001/002: command-generated Lattice lifecycle artifacts are
-    // recognized via lifecycle-artifact-scope. A strict `lifecycle` match
-    // means `<storyDir>/<storyId>/<known artifact filename>` — narrow,
-    // story-scoped, filename-aware. Legacy docs/story paths still pass for
-    // back-compat with PLAN-time files (plan.md, understanding.json, …).
-    //
-    // Runtime artifacts (`.lattice/activity.jsonl`, `.lattice/runtime/`,
-    // `.lattice/traces/`, `.lattice/locks/`, owner-lease.json, …) are skipped
-    // via the registry predicate. Legacy `.koala/` paths intentionally have no
-    // runtime or lifecycle exemption after the .lattice migration.
-    if (classifyLifecycleArtifact(file, { storyId: contract.storyId })) continue;
-    if (isRuntimeArtifactPath(file)) continue;
-
-    const isProtected = contract.protectedFiles.some(p => pathMatchesPattern(file, p));
-    const isExcluded = contract.explicitExcludes.some(p => pathMatchesPattern(file, p));
-    const isInScope = isAllowed(file, allAllowedLists);
+    const classification = classifyScopePath(contract, file);
     const acked = isAcknowledged(file, contract);
 
-    if (isProtected) {
-      violations.push({ path: file, rule: 'protected', acknowledged: false });
-    } else if (isExcluded) {
-      violations.push({ path: file, rule: 'excluded', acknowledged: false });
-    } else if (!isInScope && allAllowedLists.some(l => l.length > 0)) {
+    if (classification.allowed) {
+      rows.push(passRow(classification));
+    } else if (classification.category === 'protected') {
+      const v: ScopeViolation = { path: file, rule: 'protected', acknowledged: false };
+      violations.push(v);
+      rows.push(problemRow(contract, classification, v, false));
+    } else if (classification.category === 'excluded') {
+      const v: ScopeViolation = { path: file, rule: 'excluded', acknowledged: false };
+      violations.push(v);
+      rows.push(problemRow(contract, classification, v, false));
+    } else if (hasAllowedScope) {
       // only flag out_of_scope when at least one allowedXxx list is non-empty
       const v: ScopeViolation = { path: file, rule: 'out_of_scope', acknowledged: acked };
       if (contract.mode === 'shadow') {
         warnings.push(v);
+        rows.push(problemRow(contract, classification, v, true));
       } else {
         violations.push(v);
+        rows.push(problemRow(contract, classification, v, false));
       }
+    } else {
+      rows.push({
+        ...passRow(classification),
+        detail: `${classification.detail} No allowed path set is configured, so v1 compatibility leaves this path unblocked.`,
+      });
     }
   }
 
@@ -340,6 +406,7 @@ export function checkScopeContract(
     violations,
     warnings,
     acknowledgedPaths,
+    rows,
     summary,
   };
 }
@@ -360,6 +427,22 @@ export function renderScopeCheckResult(result: ScopeCheckResult): string {
   }
   if (result.acknowledgedPaths.length > 0) {
     lines.push(`Acknowledged paths: ${result.acknowledgedPaths.join(', ')}`);
+  }
+  const actionableRows = (result.rows ?? []).filter(row => row.status !== 'pass' || row.nextAction);
+  if (actionableRows.length > 0) {
+    lines.push('Scope rows:');
+    for (const row of actionableRows) {
+      const blocking = row.blocking ? ' blocking=true' : ' blocking=false';
+      const path = row.path ? ` path=${row.path}` : '';
+      const source = row.source ? ` source=${row.source}` : '';
+      const classifierSource = row.classifierSource ? ` classifierSource=${row.classifierSource}` : '';
+      const category = row.category ? ` category=${row.category}` : '';
+      const rule = row.rule ? ` rule=${row.rule}` : '';
+      lines.push(`  ${row.id}: ${row.status}${blocking}${path}${source}${classifierSource}${category}${rule}`);
+      lines.push(`    detail: ${row.detail}`);
+      if (row.nextAction) lines.push(`    nextAction: ${row.nextAction}`);
+      if (row.hint) lines.push(`    hint: ${row.hint}`);
+    }
   }
   // v2 semantic block (B-6bfd CHK-003): explicit "Semantic scope gate: pass/fail"
   // with the violating path, anchor, and hunkDigest. Skipped for v1 contracts,
