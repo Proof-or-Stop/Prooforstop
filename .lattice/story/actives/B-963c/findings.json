@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-963c:F-001",
+      "desc": "packages/main/src/core/review-escalation.ts:523: formatReviewEscalationFailure still opens with \"first REVIEW round recorded multiple countable reviewer problems\" even when the new explicitHighRiskPolicy path is the sole trigger and countableProblems is 0. WHY: B-963c adds explicitlyConfiguredHighRiskPolicyRequires3x2 as an independent DONE escalation trigger, so a policy-only block now produces a false root-cause message; operators following the failure text may chase reviewer findings that do not exist. Severity: medium.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T21:27:24.692Z",
+      "reviewRound": "2026-06-19T21:24:39.910Z",
+      "reviewRunId": "B-963c:RR-002",
+      "_hash": "53c9056a5aa1a15b6096e1a9f9dfab32c53a4d6eddaf20d7aa0376bda91aea97",
+      "files": [
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
