@@ -1613,10 +1613,10 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
       'merge', `story/${storyId}`, '--no-ff', '-m', `merge: ${storyId} init-check f008 regression`,
     ]);
     assert.equal(mergeOk, true, 'DONE-equivalent merge of the story branch must not self-block on a stale main mirror');
-    assert.match(
-      git(root, ['log', '--oneline', 'main']),
-      new RegExp(`merge: ${storyId}`),
-      'the story branch must be merged into main without a partial-DONE',
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', `story/${storyId}`, 'main']),
+      true,
+      'the story branch must be contained in main without a partial-DONE',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
