@@ -126,6 +126,24 @@
       ],
       "signatureTag": "missing|ts|verificationevidence-entries-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5d18:F-008",
+      "desc": "CHK-001:edge:0 evidence command does not bind the claimed intent. Intent states: diagnosis recorded — the smokes use isolated /tmp locks (resolveMainRepoRoot->tmp), so no global main-write-lock contention. The registered command is `git show HEAD:packages/main/src/core/partial-done-recovery.ts`, which only displays static source code; it does not run resolveMainRepoRoot on os.tmpdir() and does not show it returns the tmp path. A logic_test evidence entry must execute the logic under test. Main agent has acknowledged this and plans to re-bind with a command that calls resolveMainRepoRoot on os.tmpdir() and observes the return value.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:44:58.248Z",
+      "reviewRound": "2026-06-19T18:42:53.962Z",
+      "reviewRunId": "B-5d18:RR-012",
+      "_hash": "cd0e3355eede60b56f5fe61885c1cbf80efc09a90c4da1e77bc4e38a43de6d1b",
+      "files": [
+        "packages/main/src/core/partial-done-recovery.ts"
+      ],
+      "signatureTag": "missing|ts|edge-evidence-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
