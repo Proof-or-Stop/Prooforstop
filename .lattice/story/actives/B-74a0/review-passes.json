@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T16:57:14.126Z",
       "reviewRunId": "B-74a0:RR-006",
       "_hash": "a227ab4b61fc6f276ed169d43a4495822f09893568bb4b2fc4795e01a62f23f3"
+    },
+    {
+      "id": "B-74a0:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Verified F-001 is fixed. command-catalog-smoke explicitly asserts story_advance --help includes --dryRun, rendered dry-run guidance, Owner lease meta options, --takeover, and --forceTakeover. npm --prefix packages/main run build, npm --prefix packages/main run test:command-catalog-smoke, node scripts/verify-process-fact-contract.mjs, and node bin/lattice.js validate --story=B-74a0 --json all passed.",
+      "createdAt": "2026-06-19T17:01:56.891Z",
+      "reviewRound": "2026-06-19T16:57:14.126Z",
+      "reviewRunId": "B-74a0:RR-007",
+      "_hash": "b9875212564d68690b0864dd7978b650f6f148154c02390b2da977065bb48bd9"
     }
   ]
 }
