@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-19T01:50:01.500Z",
       "reviewRunId": "B-7559:RR-019",
       "_hash": "d689637f584e8a2b594ecfaeac160b637598d5943e7bc5885c1b541775cfd7fc"
+    },
+    {
+      "id": "B-7559:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols changed (pure docs diff, Fallback 1 applied). Step 2/3: focused comparison of §3.1/§3.2/§3.3 story_create cards and §5.1 resolveStoryLane note against parallel-policy.ts + cli-engine.ts story_create schema. All 7 checks passed: (1) §3.1 priority=high→lane:mainline DERIVED annotation matches resolveStoryLane case high→mainline; (2) §3.2 priority=medium→lane:supporting DERIVED annotation matches resolveStoryLane case medium→supporting; (3) §3.3 priority=high→lane:mainline DERIVED annotation matches resolveStoryLane case high→mainline; (4) §5.1 resolveStoryLane description critical/high→mainline/medium→supporting/low+else→exploratory is exact code match; (5) lane/parallelSafe/blockingFor/sharedHotspots confirmed absent from story_create CLI schema — correctly described as non-passable flags silently discarded; (6) blockingFor annotated as DERIVED with no CLI setter in all three cards — confirmed no blockingFor in story_create schema; (7) anchor line 729 resolveParallelSafety eval order (blockingFor→depends→sharedHotspots) matches actual implementation ordering in parallel-policy.ts lines 59/67/75. No doc-code drift found.",
+      "createdAt": "2026-06-19T02:56:18.412Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-018",
+      "_hash": "58ea9dc3d84e1477aa4c052323117a6283d2b22ada9200ff64dc6999a948919f"
     }
   ]
 }
