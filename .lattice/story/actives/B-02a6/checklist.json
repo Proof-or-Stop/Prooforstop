@@ -38,10 +38,10 @@
           "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
           "command": "lattice validate",
           "result": "pass",
-          "note": "init-window-data-loss smoke drives the real story_create then a concurrent git clean -fd; asserts the INIT metadata survives (would be RED without the fix, proven by scratch neutralization).",
-          "headHash": "774a6f48a3aba1bb728c26b0061742d702185b8f",
-          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
-          "timestamp": "2026-06-19T04:55:50.657Z"
+          "note": "Smoke drives real story_create then concurrent git clean -fd; asserts INIT metadata survives. Re-recorded at HEAD post-a7dd9e9 (F-004 freshness).",
+          "headHash": "1a270c9645db7eb60490bd12a7f360f2e810291c",
+          "materialHash": "729946c085298438f8fbfc1dd285697f964cdd7c765d75067b480ca2227b43a8",
+          "timestamp": "2026-06-19T05:14:12.052Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
