@@ -49,7 +49,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The related roadmap documents define the three-round by two-host escalation predicate mechanically, with named inputs, decision table or equivalent truth conditions, outputs, and the exact escalation/no-escalation result.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Local verdict signature and verifiability requirements are documented with signer, signed fields, freshness/hash expectations, and invalid/stale signature handling.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validation cannot remain prose-only: each relevant milestone lists minimal validation commands plus expected artifacts, artifact ids, or roadmap row ids that evidence the 3x2 predicate and verdict signature behavior.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
