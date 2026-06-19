@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T12:58:13.357Z",
       "reviewRunId": "B-4033:RR-002",
       "_hash": "f13399a72f8bf329e2aaa6913c5ba25d412de3f75920f2966565da5aa01b57cb"
+    },
+    {
+      "id": "B-4033:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Core overlap logic correct for all combinatorial cases (literal-vs-literal exact, children-vs-literal dirname check, subtree-vs-literal isUnderOrEqual, children-vs-subtree via subtree branch, subtree-vs-subtree both directions, children-vs-children same-dir). classifyBroadness: subtree-at-root segments<2 broad, children always narrow per spec. validateWriteSetGrammar: allowlist correct, rejects mid-path **, bare *, bare **. computeWriteSet: deduplication and normalization clean. No dead code, no dead imports, no I/O in core file, no unnecessary as-any, tsc --noEmit clean, smoke passes 20 assertions. One medium finding filed (B-4033:F-002) for missing smoke assertions on wildcard-vs-wildcard branches (not a blocker — logic is verified correct by manual analysis).",
+      "createdAt": "2026-06-19T13:03:17.436Z",
+      "reviewRound": "2026-06-19T12:58:13.357Z",
+      "reviewRunId": "B-4033:RR-001",
+      "_hash": "45c8413c902ea2b09b78f77758411dcd31b05181a5a7322bcedd05d5b852e55b"
     }
   ]
 }
