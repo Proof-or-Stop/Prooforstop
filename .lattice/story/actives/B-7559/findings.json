@@ -230,7 +230,7 @@
       "desc": "doc-code-drift: spec §4.4 item 4 says 'handlers/lattice-parallel-wave.ts — resolveWaveSafety gains a scope_glob_overlap degradation kind'. However resolveWaveSafety is a non-exported private function in core/lattice-parallel-wave.ts (line 751), not in handlers/lattice-parallel-wave.ts. The handler file imports from core but does not expose resolveWaveSafety. A developer following the spec would edit the wrong file.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T01:58:47.625Z",
@@ -243,7 +243,11 @@
         "packages/main/src/handlers/lattice-parallel-wave.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-spec",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: §4.4 item 4 corrected — resolveWaveSafety is a private function in core/lattice-parallel-wave.ts (line 751), not handlers/; reference and file path updated.",
+      "resolvedAt": "2026-06-19T02:05:07.266Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
