@@ -102,7 +102,71 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "recordDispatchFinalForProvider with provider=openai and reportedUsage={prompt_tokens:100,completion_tokens:50} -> writes a sequence-2 provider-reported final record with source=provider-reported and correct token counts; WHY: main path codex usage flows through buildProviderRecord(openai ...) to ledger",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider with provider=gemini and reportedUsage={promptTokenCount:200,candidatesTokenCount:80,cachedContentTokenCount:30} -> writes a sequence-2 final with gemini-adapted token counts; WHY: main path gemini usage through adaptGeminiUsage",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider with estimateRecordId -> final record supersedesRecordIds contains the estimate id; WHY: supersede semantics prevent double-counting",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinal (existing anthropic path) with valid AnthropicUsage -> behavior identical to before this change (byte-identical code path); WHY: regression guard on claude path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "recordDispatchFinalForProvider with reportedUsage=null -> writes an unavailable final (source=unavailable) that still supersedes the estimate; WHY: null usage must still produce an accounting record",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider with reportedUsage=undefined -> writes an unavailable final; WHY: undefined is a distinct null-ish value in JS",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider with model=null -> record uses fallback model id (unknown); WHY: model may not be reported by provider",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider with correlation=null (no preflight handle) -> mints fresh correlation and still records; WHY: preflight may have failed",
+            "type": "cli"
+          },
+          {
+            "desc": "finalContextForProvider sets context.provider.name to the provider arg (openai or gemini) not hardcoded anthropic; WHY: the record must identify which provider generated the usage",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recordDispatchFinalForProvider with reportedUsage containing extra non-numeric keys (transcript text attempts to sneak through) -> buildProviderRecord adapter strips or ignores non-token fields; WHY: security invariant extends through the dispatch-usage layer",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider where appendUsageRecord throws -> function does not throw (fail-open) and dispatch continues; WHY: ledger error must never break dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider where buildProviderRecord throws on malformed usage -> function does not throw (fail-open); WHY: adapter crash must not propagate",
+            "type": "cli"
+          },
+          {
+            "desc": "recordDispatchFinalForProvider with ledger flag OFF -> strict no-op: no file writes no directory creation; WHY: OFF path must be byte-identical to pre-change behavior",
+            "type": "cli"
+          },
+          {
+            "desc": "dispatch-usage.ts imports only sibling usage-ledger modules (no imports from lattice-dispatch or handlers or providers) -> cross-module import boundary holds; WHY: architecture invariant from module header contract",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
