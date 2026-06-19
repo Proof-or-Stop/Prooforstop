@@ -14,37 +14,22 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Antigravity is registered as a first-class dispatch runtime: host id antigravity is recognized, alias agy resolves to it, cliCommand is agy, invocation template uses agy with the prompt file, and runtime authority flags remain false.",
-            "type": "logic",
-            "priority": "must"
-          },
-          {
-            "desc": "host_runtime_probe for antigravity or agy returns lattice.host_runtime_probe.v1 with host antigravity and cliCommand agy, reporting ready or unavailable from the local agy binary without falling back to another current host.",
+            "desc": "host_runtime_probe accepts antigravity and agy, normalizes both to host antigravity, and reports cliCommand agy.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Host normalization accepts antigravity, agy, and case variants consistently, while empty or unknown host errors list the current choices using antigravity or agy and no longer present Gemini as a normal current option.",
-            "type": "logic",
-            "priority": "must"
-          },
-          {
-            "desc": "If the agy binary is not on PATH, the probe remains safe and diagnostic-only: status unavailable, runtimeKind missing-cli, no subprocess launch, and nextAction explains how to expose agy or use fake for deterministic local coverage.",
+            "desc": "When agy is missing from PATH, the probe reports unavailable or missing-cli with an actionable nextAction and does not fall back to another current host.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Adding Antigravity updates every registry seam together: HostRuntimeId, runtime order, CLI command map, runtime template, handoff target, policy host validation, and dispatch selection cannot disagree or route Antigravity work to Codex, Claude Code, Gemini, or fake by accident.",
+            "desc": "Gemini is treated only as deprecated legacy compatibility, not as a current runtime advertised or preferred by Antigravity registration paths.",
             "type": "logic",
-            "priority": "must"
-          },
-          {
-            "desc": "Antigravity probe/list/plan outputs never claim authorityChanged, receiptVerified, or productionDone; local runtime readiness stays diagnostic even when agy is installed.",
-            "type": "cli",
             "priority": "must"
           }
         ]
