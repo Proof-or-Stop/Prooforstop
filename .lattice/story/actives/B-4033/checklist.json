@@ -11,7 +11,7 @@
     {
       "id": "CHK-002",
       "title": "Add grammar validator + unit tests (parallel-decomposition-overlap.test.ts)",
-      "context": "Validator rejects mid-path ** and bare top-level * at the write-set grammar boundary. Tests cover: literal overlap, dir-prefix over-flag, BROAD classification + broadSide attribution, disjoint sets, grammar rejection. tsc + tests green.",
+      "context": "Validator rejects mid-path ** and bare top-level * at the write-set grammar boundary. Tests via a smoke script packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts (repo convention: node dist/tasks/<name>-smoke.js; no .test.ts framework). Smoke covers: literal overlap, dir-prefix over-flag, BROAD classification + broadSide attribution, disjoint sets, grammar rejection. tsc + smoke green.",
       "status": "pending",
       "startTime": null,
       "endTime": null

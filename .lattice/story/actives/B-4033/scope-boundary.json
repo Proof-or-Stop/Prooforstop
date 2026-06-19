@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4033",
+  "mode": "feature",
+  "allowed": [
+    "packages/main/src/core/parallel-decomposition-overlap.ts",
+    "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
+  ],
+  "excluded": [
+    "audit-config.ts (Story 3)",
+    "lattice-parallel-wave.ts (Story 4)",
+    "parallel-decomposition-gate.ts / evaluateDecompositionGate (Story 2)",
+    "parallel-decomposition.ts (frozen contract — import-only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 1 static overlap engine: 2 new files (impl + smoke), file-disjoint from parallel sibling stories.",
+  "createdAt": "2026-06-19T12:45:36.080Z",
+  "updatedAt": "2026-06-19T12:45:36.080Z",
+  "_hash": "eefe5889afc55da780ab445227ec9b989c9156ea9ed13404b4ae32b87e8c8265"
+}
