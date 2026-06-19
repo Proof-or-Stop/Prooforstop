@@ -1,0 +1,71 @@
+{
+  "storyId": "B-5a9a",
+  "checkedAt": "2026-06-19T22:49:45.802Z",
+  "reviewRound": "2026-06-19T22:35:13.478Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md#decision",
+      "promise": "Add storyFilesHash as an optional secondary freshness signal recorded alongside, never instead of, materialHash.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "types.ts adds storyFilesHash fields; review-run.ts, checklist.ts, verifier.ts, verdict.ts, review-escalation.ts, and lattice-evidence.ts capture or preserve storyFilesHash while existing materialHash paths remain."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md#decision",
+      "promise": "Compute storyFilesHash deterministically from the story-owned material files changed between merge-base(main, HEAD) and HEAD, excluding material-excluded metadata/runtime paths, using sorted blob object ids and deleted markers.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "evidence-freshness.ts implements mergeBaseWithMain, changedStoryFilesBetween, objectIdAtRef, isMaterialExcludedPath filtering, <deleted> markers, sorted entries, and SHA-256 in currentStoryFilesHash."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md#adopted-bindings",
+      "promise": "Apply storyFilesHash to review runs/workspace bindings, checklist verification evidence, and review escalation host verdict/degraded fallback records.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "review-run.ts signs and validates optional storyFilesHash; checklist.ts stores it on verificationEvidence; verifier.ts stores it on validation evidence; verdict.ts and review-escalation.ts persist it on host verdict and fallback records."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md#freshness-semantics",
+      "promise": "A materialHash mismatch with matching storyFilesHash remains valid only with an explicit whole-tree drift re-attestation advisory; story-owned file changes remain stale.",
+      "status": "verified",
+      "verifiedBy": "diff/grep/test",
+      "evidence": "checkEvidenceFreshnessForGit returns warnings for matching storyFilesHash with material drift and rejects mismatching storyFilesHash; review-run.ts, done-oracle.ts, verifier.ts, and review-escalation.ts surface that advisory path. flow-stability and review-escalation smokes passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md#freshness-semantics",
+      "promise": "Legacy records without storyFilesHash and missing or uncomputable current storyFilesHash fall back to strict materialHash freshness behavior.",
+      "status": "verified",
+      "verifiedBy": "diff/grep/test",
+      "evidence": "checkEvidenceFreshnessForGit only evaluates storyFilesHash when recorded and current values exist; otherwise stale materialHash stays a failure. flow-stability-smoke includes legacy/no-storyFilesHash assertions and passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md#process-fact-contract",
+      "promise": "Register storyFilesHash freshness as a gate-consumed process fact and update the process-fact contract verifier.",
+      "status": "verified",
+      "verifiedBy": "diff/grep/test",
+      "evidence": "process-fact-levels.ts and process-fact-registry.ts include runtime:story_files_hash_freshness_gate; scripts/verify-process-fact-contract.mjs asserts the registry and storyFilesHash command policy semantics; node scripts/verify-process-fact-contract.mjs passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-5a9a passed with 15/15 verification intents covered; node scripts/verify-process-fact-contract.mjs passed and verified runtime:story_files_hash_freshness_gate plus command policy/registry storyFilesHash semantics."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/flow-stability-smoke.js passed; node packages/main/dist/tasks/lattice-evidence-smoke.js passed; source assertions cover signed review-run storyFilesHash binding, verificationEvidence storyFilesHash preservation, legacy strict materialHash behavior, and portable evidence preservation."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/review-escalation-smoke.js passed 11 checks, including producer persistence, unrelated main merge advisory validity, story-owned file change rejection, and degraded fallback acceptance only with matching storyFilesHash advisory; flow-stability-smoke also passed review preflight and DONE freshness advisory paths."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Six documentation promises were reverse-mapped to source and story-specific smoke coverage. Formal validate and the changed smoke/contract checks passed, scope warnings are acknowledged and non-blocking, and no unresolved TODO/FIXME/HACK markers were found in the delivery diff."
+  },
+  "_hash": "e4bf18ef35782cbe8e8e47b57fb1c3b1b3584ed490af38fe2e93fcf069787ea6"
+}
