@@ -4,10 +4,10 @@
  * adapter layer.
  *
  * Coverage across CHK-001..CHK-006:
- *   - per-provider mapping (anthropic native four-field; openai/gemini
+ *   - per-provider mapping (anthropic native four-field; openai
  *     cacheCreation=null; cacheRead null-vs-0 distinction; genuine zeros;
  *     large counts; no-usage -> unavailable; negative/string payloads rejected);
- *   - assembler output passes B-253e validateUsageLedgerRecord for all three
+ *   - assembler output passes B-253e validateUsageLedgerRecord for both
  *     providers; correlation ids are the minted ones (NOT provider-derived);
  *     storyId=null path; subagent/thread attribution; authority local/unverified;
  *     forbidden field on the response does not poison the record;
@@ -43,7 +43,6 @@ import {
 } from '../core/usage-ledger/writer.js';
 import { adaptAnthropicUsage, ANTHROPIC_PROVIDER_UNITS } from '../core/usage-ledger/adapters/anthropic.js';
 import { adaptOpenAiUsage, OPENAI_PROVIDER_UNITS } from '../core/usage-ledger/adapters/openai.js';
-import { adaptGeminiUsage, GEMINI_PROVIDER_UNITS } from '../core/usage-ledger/adapters/gemini.js';
 import {
   buildProviderRecord,
   type ProviderName,
@@ -53,7 +52,6 @@ import {
 } from '../core/usage-ledger/assemble.js';
 import {
   extractAnthropicStreamUsage,
-  extractGeminiStreamUsage,
   extractOpenAiStreamUsage,
 } from '../core/usage-ledger/streaming.js';
 
@@ -218,63 +216,11 @@ try {
   });
 
   // ======================================================================
-  // CHK-003: Gemini adapter
-  // ======================================================================
-  check('CHK-003 gemini: cachedContentTokenCount present -> cacheRead set, cacheCreation null', () => {
-    const u = adaptGeminiUsage({ promptTokenCount: 600, candidatesTokenCount: 250, cachedContentTokenCount: 150 });
-    assert.equal(u.source, 'provider-reported');
-    assert.equal(u.canonical!.input, 600);
-    assert.equal(u.canonical!.output, 250);
-    assert.equal(u.canonical!.cacheRead, 150);
-    assert.strictEqual(u.canonical!.cacheCreation, null);
-    assert.equal(u.raw?.providerUnits, GEMINI_PROVIDER_UNITS);
-  });
-
-  check('CHK-003 gemini: no cachedContentTokenCount -> cacheRead null AND cacheCreation null', () => {
-    const u = adaptGeminiUsage({ promptTokenCount: 600, candidatesTokenCount: 250 });
-    assert.equal(u.source, 'provider-reported');
-    assert.strictEqual(u.canonical!.cacheRead, null);
-    assert.strictEqual(u.canonical!.cacheCreation, null);
-  });
-
-  check('CHK-003 gemini: cachedContentTokenCount=0 -> cacheRead 0 (genuine)', () => {
-    const u = adaptGeminiUsage({ promptTokenCount: 10, candidatesTokenCount: 5, cachedContentTokenCount: 0 });
-    assert.strictEqual(u.canonical!.cacheRead, 0);
-  });
-
-  check('CHK-003 gemini: totalTokenCount is ignored (no stored total anywhere in record)', () => {
-    const rec = buildProviderRecord('gemini', { usageMetadata: { promptTokenCount: 100, candidatesTokenCount: 40, totalTokenCount: 140 } }, freshCorrelation(), ATTRIBUTION, CONTEXT);
-    const serialized = JSON.stringify(rec).toLowerCase();
-    assert.ok(!serialized.includes('totaltoken'), 'no totalToken* field may appear in the record');
-    assert.equal(validateUsageLedgerRecord(rec).ok, true);
-  });
-
-  check('CHK-003 gemini: no usageMetadata -> unavailable + reason', () => {
-    const u = adaptGeminiUsage(undefined);
-    assert.equal(u.source, 'unavailable');
-    assert.ok(u.unavailableReason && u.unavailableReason.length > 0);
-  });
-
-  check('CHK-003 gemini: cacheCreation STRICTLY null via ===', () => {
-    const u = adaptGeminiUsage({ promptTokenCount: 1, candidatesTokenCount: 1 });
-    assert.strictEqual(u.canonical!.cacheCreation, null);
-    assert.notStrictEqual(u.canonical!.cacheCreation, 0);
-  });
-
-  check('CHK-003 gemini: candidatesTokenCount missing (output) -> unavailable, not inferred 0', () => {
-    const u = adaptGeminiUsage({ promptTokenCount: 600 });
-    assert.equal(u.source, 'unavailable');
-    assert.strictEqual(u.outputTokens, null);
-    assert.notStrictEqual(u.outputTokens, 0);
-  });
-
-  // ======================================================================
   // CHK-004: assembler
   // ======================================================================
   const SAMPLES: Record<ProviderName, unknown> = {
     anthropic: { id: 'msg_provider_123', usage: { input_tokens: 500, output_tokens: 200, cache_creation_input_tokens: 100, cache_read_input_tokens: 50 } },
     openai: { id: 'chatcmpl_provider_456', usage: { prompt_tokens: 800, completion_tokens: 300, prompt_tokens_details: { cached_tokens: 200 } } },
-    gemini: { responseId: 'gemini_provider_789', usageMetadata: { promptTokenCount: 600, candidatesTokenCount: 250, cachedContentTokenCount: 150 } },
   };
 
   check('CHK-004 assembler: anthropic record passes validator; ids match correlation; schemaVersion 1', () => {
@@ -289,8 +235,8 @@ try {
     assert.equal(rec.sequence, corr.sequence);
   });
 
-  check('CHK-004 assembler: all three providers produce records that pass the validator', () => {
-    for (const provider of ['anthropic', 'openai', 'gemini'] as ProviderName[]) {
+  check('CHK-004 assembler: both providers produce records that pass the validator', () => {
+    for (const provider of ['anthropic', 'openai'] as ProviderName[]) {
       const rec = buildProviderRecord(provider, SAMPLES[provider], freshCorrelation(), ATTRIBUTION, CONTEXT);
       const res = validateUsageLedgerRecord(rec, { expectIntegrity: false });
       assert.equal(res.ok, true, `${provider}: ${res.errors.join('; ')}`);
@@ -312,7 +258,7 @@ try {
   });
 
   check('CHK-004 assembler: subagentId + threadId attribution propagate', () => {
-    const rec = buildProviderRecord('gemini', SAMPLES.gemini, freshCorrelation(), { ...ATTRIBUTION, subagentId: 'sub-1', threadId: 'thread-9' }, CONTEXT);
+    const rec = buildProviderRecord('openai', SAMPLES.openai, freshCorrelation(), { ...ATTRIBUTION, subagentId: 'sub-1', threadId: 'thread-9' }, CONTEXT);
     assert.equal(rec.subagentId, 'sub-1');
     assert.equal(rec.threadId, 'thread-9');
     assert.equal(validateUsageLedgerRecord(rec).ok, true);
@@ -413,18 +359,6 @@ try {
     assert.strictEqual(u.outputTokens, 0);
   });
 
-  check('CHK-005 gemini stream: terminal usageMetadata extracted', () => {
-    const chunks = [
-      { usageMetadata: { promptTokenCount: 600, candidatesTokenCount: 100 } },
-      { usageMetadata: { promptTokenCount: 600, candidatesTokenCount: 250, cachedContentTokenCount: 150 } },
-    ];
-    const u = extractGeminiStreamUsage(chunks);
-    assert.equal(u.source, 'provider-reported');
-    assert.equal(u.canonical!.output, 250);
-    assert.equal(u.canonical!.cacheRead, 150);
-    assert.strictEqual(u.canonical!.cacheCreation, null);
-  });
-
   // ======================================================================
   // CHK-006: centralized unavailable + per-dimension-null semantics
   // ======================================================================
@@ -444,27 +378,17 @@ try {
     assert.strictEqual(without.canonical!.cacheRead, null);
   });
 
-  check('CHK-006 gemini: cacheCreation always null; cacheRead null/numeric by presence', () => {
-    const withCache = adaptGeminiUsage({ promptTokenCount: 1, candidatesTokenCount: 1, cachedContentTokenCount: 7 });
-    const without = adaptGeminiUsage({ promptTokenCount: 1, candidatesTokenCount: 1 });
-    assert.strictEqual(withCache.canonical!.cacheCreation, null);
-    assert.strictEqual(without.canonical!.cacheCreation, null);
-    assert.equal(withCache.canonical!.cacheRead, 7);
-    assert.strictEqual(without.canonical!.cacheRead, null);
-  });
-
   check('CHK-006 all providers: no-usage -> unavailable + non-empty reason (never provider-reported zeros)', () => {
     const a = adaptAnthropicUsage(null);
     const o = adaptOpenAiUsage(null);
-    const g = adaptGeminiUsage(null);
-    for (const u of [a, o, g]) {
+    for (const u of [a, o]) {
       assert.equal(u.source, 'unavailable');
       assert.ok(u.unavailableReason && u.unavailableReason.length > 0);
     }
   });
 
   check('CHK-006 unavailable records: all four token fields are null (not 0) across providers', () => {
-    for (const u of [adaptAnthropicUsage(null), adaptOpenAiUsage(null), adaptGeminiUsage(null)]) {
+    for (const u of [adaptAnthropicUsage(null), adaptOpenAiUsage(null)]) {
       assert.strictEqual(u.inputTokens, null);
       assert.strictEqual(u.outputTokens, null);
       assert.strictEqual(u.cacheCreationInputTokens, null);
@@ -490,8 +414,6 @@ try {
       ['anthropic', { usage: { input_tokens: 1, output_tokens: 1, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 } }],
       ['openai', { usage: { prompt_tokens: 1, completion_tokens: 1 } }],
       ['openai', { usage: { prompt_tokens: 1, completion_tokens: 1, prompt_tokens_details: { cached_tokens: 3 } } }],
-      ['gemini', { usageMetadata: { promptTokenCount: 1, candidatesTokenCount: 1 } }],
-      ['gemini', { usageMetadata: { promptTokenCount: 1, candidatesTokenCount: 1, cachedContentTokenCount: 0 } }],
     ];
     for (const [provider, response] of cases) {
       const rec = buildProviderRecord(provider, response, freshCorrelation(), ATTRIBUTION, CONTEXT);
@@ -502,7 +424,6 @@ try {
   check('CHK-006 raw providerUnits preserved alongside canonical on every provider', () => {
     assert.equal(adaptAnthropicUsage({ input_tokens: 1, output_tokens: 1, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 }).raw!.providerUnits, ANTHROPIC_PROVIDER_UNITS);
     assert.equal(adaptOpenAiUsage({ prompt_tokens: 1, completion_tokens: 1 }).raw!.providerUnits, OPENAI_PROVIDER_UNITS);
-    assert.equal(adaptGeminiUsage({ promptTokenCount: 1, candidatesTokenCount: 1 }).raw!.providerUnits, GEMINI_PROVIDER_UNITS);
   });
 
   // ======================================================================
@@ -520,14 +441,14 @@ try {
     assert.equal(parsed.recordId, rec.recordId, 'minted recordId survives the round-trip');
   });
 
-  check('CHK-007 all three providers round-trip and the chain verifies', () => {
+  check('CHK-007 both providers round-trip and the chain verifies', () => {
     const dir = mkdtempSync(join(root, 'chain-'));
-    for (const provider of ['anthropic', 'openai', 'gemini'] as ProviderName[]) {
+    for (const provider of ['anthropic', 'openai'] as ProviderName[]) {
       const r = appendUsageRecord(dir, buildProviderRecord(provider, SAMPLES[provider], freshCorrelation(), ATTRIBUTION, CONTEXT), { env: LEDGER_ENV });
       assert.equal(r.written, true);
     }
     const verified = verifyLedgerChain(resolveLedgerPath(dir));
-    assert.equal(verified.length, 3, 'all three records verified in the chain');
+    assert.equal(verified.length, 2, 'both records verified in the chain');
   });
 
   check('CHK-007 round-trip record integrity.recordHash recomputes correctly (independent sha256)', () => {

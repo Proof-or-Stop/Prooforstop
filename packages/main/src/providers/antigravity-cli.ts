@@ -3,22 +3,22 @@ import { createHash } from 'crypto';
 import { spawnSync } from 'child_process';
 import type { ProviderExecRequest, ProviderExecResult } from './types.js';
 
-/** Local Gemini CLI binary name. */
-export const GEMINI_CLI_BINARY = 'gemini';
+/** Local Antigravity CLI binary name. */
+export const ANTIGRAVITY_CLI_BINARY = 'agy';
 
 /**
- * Bounded preflight: is the Gemini CLI binary resolvable on PATH?
+ * Bounded preflight: is the Antigravity CLI binary resolvable on PATH?
  *
  * Used by the planned-steps executor / lattice-dispatch live-dispatch routing
- * to fail closed with `provider_unavailable` BEFORE a `provider.gemini` step
- * starts, instead of discovering a missing CLI mid-run. Probes via `command -v`
- * and never spawns an interactive session. Contract-parallel to
+ * to fail closed with `provider_unavailable` BEFORE a `provider.antigravity`
+ * step starts, instead of discovering a missing CLI mid-run. Probes via
+ * `command -v` and never spawns an interactive session. Contract-parallel to
  * `codexCliAvailable` (codex-cli.ts) — availability is a preflight requirement,
  * not a runtime surprise.
  */
-export function geminiCliAvailable(env: NodeJS.ProcessEnv = process.env): boolean {
+export function antigravityCliAvailable(env: NodeJS.ProcessEnv = process.env): boolean {
   try {
-    const probe = spawnSync('command', ['-v', GEMINI_CLI_BINARY], {
+    const probe = spawnSync('command', ['-v', ANTIGRAVITY_CLI_BINARY], {
       env,
       shell: '/bin/sh',
       stdio: 'ignore',
@@ -29,7 +29,7 @@ export function geminiCliAvailable(env: NodeJS.ProcessEnv = process.env): boolea
   }
 }
 
-/** Injectable process runner so smoke tests never spawn a real Gemini CLI. */
+/** Injectable process runner so smoke tests never spawn a real Antigravity CLI. */
 export interface ProviderProcessOutcome {
   status: number | null;
   stdout: string;
@@ -44,14 +44,14 @@ export type ProviderProcessRunner = (
   opts: { cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number },
 ) => ProviderProcessOutcome;
 
-const defaultGeminiProcessRunner: ProviderProcessRunner = (binary, argv, opts) => {
+const defaultAntigravityProcessRunner: ProviderProcessRunner = (binary, argv, opts) => {
   const proc = spawnSync(binary, argv, {
     cwd: opts.cwd,
     env: opts.env,
     timeout: opts.timeoutMs,
     // Close stdin: a bounded, non-interactive action must never block waiting
-    // for a prompt. An unattended runner must not hang on an open gemini
-    // stdin pipe.
+    // for a prompt. An unattended runner must not hang on an open agy stdin
+    // pipe.
     input: '',
     encoding: 'utf8',
     maxBuffer: 8 * 1024 * 1024,
@@ -69,57 +69,26 @@ function providerDigest(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
 }
 
-/** Best-effort model extraction from Gemini JSON output; never required for success. */
-function extractGeminiModel(stdout: string): string | undefined {
-  for (const line of stdout.split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const obj = JSON.parse(line) as { model?: unknown; message?: { model?: unknown } };
-      if (typeof obj.model === 'string') return obj.model;
-      if (obj.message && typeof obj.message.model === 'string') return obj.message.model;
-    } catch { /* skip non-json lines */ }
-  }
-  return undefined;
-}
-
-/** A usageMetadata object is one carrying any of the Gemini token-count fields. */
-function isGeminiUsageObject(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
-  const u = value as Record<string, unknown>;
-  return (
-    'promptTokenCount' in u || 'candidatesTokenCount' in u || 'cachedContentTokenCount' in u
-  );
-}
-
 /**
- * Best-effort token-count usage extraction from Gemini JSON output; never required
- * for success. Contract-parallel to extractGeminiModel: iterate the JSONL lines,
- * skip blanks, JSON.parse each in a try/catch, and return the FIRST Gemini-shape
- * `usageMetadata` sub-object found — checked at the top level
- * (`obj.usageMetadata`) and nested under `response` (`obj.response.usageMetadata`).
- * Returns ONLY the numeric usageMetadata sub-object (the token-count fields),
- * NEVER the whole line/envelope or any transcript text. Never throws; returns
- * undefined when no usageMetadata object is present.
+ * Best-effort model extraction from an `agy --log-file` `label="..."` line; never
+ * required for success. `agy --print` writes ONLY the response text to stdout (no
+ * model envelope), so when a `--log-file` is wired the runner may parse the
+ * `label="<model>"` token from the captured log/stderr to attribute the model.
+ * Returns undefined when no line carries a label, in which case the dispatch
+ * layer falls back to the REQUESTED `--model` (or 'unknown'). Reads ONLY the
+ * label token, NEVER any transcript text. Never throws.
  */
-function extractGeminiUsage(stdout: string): Record<string, unknown> | undefined {
-  for (const line of stdout.split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const obj = JSON.parse(line) as {
-        usageMetadata?: unknown;
-        response?: { usageMetadata?: unknown };
-      };
-      if (isGeminiUsageObject(obj.usageMetadata)) return obj.usageMetadata;
-      if (obj.response && isGeminiUsageObject(obj.response.usageMetadata)) {
-        return obj.response.usageMetadata;
-      }
-    } catch { /* skip non-json lines */ }
+function extractAntigravityModel(logText: string): string | undefined {
+  for (const line of logText.split('\n')) {
+    const match = /\blabel="([^"]+)"/.exec(line);
+    if (match && match[1].trim()) return match[1].trim();
   }
   return undefined;
 }
 
 /**
- * Run a single bounded `provider.gemini` request, capturing structured evidence.
+ * Run a single bounded `provider.antigravity` request, capturing structured
+ * evidence.
  *
  * Contract-parallel to `runBoundedCodexProvider` (codex-cli.ts) — caller is
  * responsible for the policy/availability/credential preflight gates BEFORE
@@ -129,10 +98,14 @@ function extractGeminiUsage(stdout: string): Record<string, unknown> | undefined
  * burns repair loops on a definite failure). Captures stdout/stderr as digests
  * + byte counts only; raw output is never surfaced, so a provider transcript
  * can neither leak credentials nor be promoted into gate evidence.
+ *
+ * `agy --print` does NOT emit per-call token usage (no usageMetadata), so
+ * `reportedUsage` is NEVER set — antigravity finals always land in the
+ * source=unavailable ledger branch (never-infer-an-unreported-value).
  */
-export function runBoundedGeminiProvider(
+export function runBoundedAntigravityProvider(
   request: ProviderExecRequest,
-  runner: ProviderProcessRunner = defaultGeminiProcessRunner,
+  runner: ProviderProcessRunner = defaultAntigravityProcessRunner,
 ): ProviderExecResult {
   const startedAt = Date.now();
   const maxAttempts = Math.max(1, Math.min(request.maxAttempts, 5));
@@ -145,7 +118,7 @@ export function runBoundedGeminiProvider(
 
   while (attempts < maxAttempts) {
     attempts++;
-    const out = runner(GEMINI_CLI_BINARY, request.argv, {
+    const out = runner(ANTIGRAVITY_CLI_BINARY, request.argv, {
       cwd: request.cwd,
       env: request.env,
       timeoutMs: request.timeoutMs,
@@ -160,12 +133,17 @@ export function runBoundedGeminiProvider(
     if (!timedOut) break;  // success or non-zero exit is terminal
   }
 
-  const model = extractGeminiModel(stdout);
-  const reportedUsage = extractGeminiUsage(stdout);
+  // agy --print emits only response text on stdout (no model envelope). Best-effort
+  // parse a `label="..."` token from stderr (where agy may echo a `--log-file`
+  // style line); the dispatch layer records the REQUESTED model when this is
+  // absent.
+  const model = extractAntigravityModel(stderr);
   return {
-    provider: 'gemini',
+    provider: 'antigravity',
     ...(model ? { model } : {}),
-    ...(reportedUsage ? { reportedUsage } : {}),
+    // reportedUsage is intentionally NEVER set: agy print mode surfaces no
+    // per-call token usage, and fabricating one would violate
+    // never-infer-an-unreported-value.
     argvDigest: providerDigest(request.argv),
     exitCode: spawnError ? null : status,
     stdoutDigest: providerDigest(stdout),

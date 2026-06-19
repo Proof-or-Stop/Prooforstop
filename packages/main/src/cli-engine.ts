@@ -1352,7 +1352,7 @@ Behavior:
   }},
   { name: 'dispatch_policy_create', description: 'Create and persist a named dispatch policy for user-authorized unattended scheduling. Alias: lattice dispatch policy create', schema: {
     policy: z.string().describe('Policy name (alphanumeric, hyphen, underscore; 1-64 chars)'),
-    allowedHosts: z.union([z.string(), z.array(z.string())]).describe('Allowed host IDs (fake, codex, claude-code, antigravity; agy aliases to antigravity; gemini is legacy-only)'),
+    allowedHosts: z.union([z.string(), z.array(z.string())]).describe('Allowed host IDs (fake, codex, claude-code, antigravity; agy aliases to antigravity)'),
     allowedPaths: z.union([z.string(), z.array(z.string())]).describe('Allowed relative paths (no absolute or traversal)'),
     deniedPaths: z.union([z.string(), z.array(z.string())]).optional().describe('Explicitly denied relative paths'),
     maxParallel: z.number().int().positive().describe('Maximum concurrent workers (1-10)'),
@@ -2013,7 +2013,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Guard mode depends on provider and context flags.'),
     nativeHookVerified: z.boolean().optional().describe('Set true when the host-native PreToolUse hook is confirmed installed (Claude Code .claude/settings.json or Codex .codex/hooks.json), enabling native-pretool mode.'),
-    viaDispatch: z.boolean().optional().describe('(Codex/Antigravity only; Gemini legacy) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
+    viaDispatch: z.boolean().optional().describe('(Codex/Antigravity only) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'guard_session_status', description: 'Read the current guard session projection for a story', schema: {
@@ -2278,7 +2278,7 @@ Behavior:
   { name: 'authority_job_create', description: 'Submit a planner JobPlan as a signed queued job to Lattice Authority. Alias: lattice authority job create', schema: {
     jobPlanFile: z.string().optional().describe('JobPlan JSON file produced by lattice planner run/create-job'),
     runId: z.string().optional().describe('Planner run id with a persisted jobPlan'),
-    provider: z.enum(['codex', 'claude-code', 'gemini']).optional().describe('Authority provider for the queued job; required unless the JobPlan explicitly opts into a real provider'),
+    provider: z.enum(['codex', 'claude-code', 'antigravity']).optional().describe('Authority provider for the queued job; required unless the JobPlan explicitly opts into a real provider'),
     role: z.enum(['planner', 'implementer', 'reviewer', 'explorer', 'tester']).optional().describe('Authority job role (default implementer)'),
     promptRef: z.string().optional().describe('Prompt reference recorded in the server job'),
     promptHash: z.string().optional().describe('Prompt hash recorded in the server job'),

@@ -1651,7 +1651,7 @@ export interface SemanticScopeGateResult {
  * Guard capability of the session's provider:
  * - native-pretool   — Claude Code with a verified native PreToolUse hook; forbidden
  *                      writes are intercepted before they land.
- * - wrapped-preapply — Codex, Antigravity/agy, or legacy Gemini invoked via
+ * - wrapped-preapply — Codex or Antigravity/agy invoked via
  *                      Lattice dispatch/pre-apply flow; the flow's pre-apply step
  *                      checks scope before writing.
  * - watcher-fallback — provider has no pre-write interception; Lattice can only detect

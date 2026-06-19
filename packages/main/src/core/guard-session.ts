@@ -62,7 +62,6 @@ export const GUARD_NATIVE_PRETOOL_PROVIDERS: ReadonlySet<string> = new Set([
 export const GUARD_WRAPPED_PREAPPLY_PROVIDERS: ReadonlySet<string> = new Set([
   'codex',
   'antigravity',
-  'gemini',
 ]);
 
 /** @deprecated Use GUARD_NATIVE_PRETOOL_PROVIDERS. */
@@ -88,7 +87,7 @@ export function providerSupportsPreToolBlocking(provider: string): boolean {
  *   Codex .codex/hooks.json wires prewrite_guard_check). Without this, native
  *   hook-capable hosts fall back to watcher-fallback unless another guarded
  *   context such as wrapped-preapply applies.
- * - viaDispatch: true when Codex or Gemini is running through Lattice
+ * - viaDispatch: true when Codex or Antigravity is running through Lattice
  *   dispatch/pre-apply flow, enabling wrapped-preapply mode.
  *   Without this, those providers fall back to watcher-fallback.
  */
@@ -105,8 +104,7 @@ export interface GuardModeContext {
  * - Claude Code + nativeHookVerified≠true  → 'watcher-fallback'
  * - Codex + nativeHookVerified=true        → 'native-pretool'
  * - Codex/Antigravity + viaDispatch=true   → 'wrapped-preapply'
- * - Gemini + viaDispatch=true              → 'wrapped-preapply' (legacy)
- * - Codex/Antigravity/Gemini + no verified context → 'watcher-fallback'
+ * - Codex/Antigravity + no verified context → 'watcher-fallback'
  * - fake / other                           → 'watcher-fallback'
  *
  * Never returns 'active' for new sessions — 'active' is a legacy alias kept

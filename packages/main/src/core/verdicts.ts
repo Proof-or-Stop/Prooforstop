@@ -46,7 +46,7 @@ export interface HostVerdict {
   jobId?: string;
   runId: string;
   hostId: string;
-  provider: 'codex' | 'claude' | 'gemini' | string;
+  provider: 'codex' | 'claude' | 'antigravity' | string;
   sessionId: string;
   keyId?: string;
   decision: VerdictDecision;

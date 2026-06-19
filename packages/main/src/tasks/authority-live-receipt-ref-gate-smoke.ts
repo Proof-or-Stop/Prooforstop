@@ -206,7 +206,7 @@ function buildPhaseGateRequest(ctx: LiveContext, targetPhase: 'TEST' | 'DONE'): 
     evidenceRefs: [
       `${ctx.storyId}:seed:l2-producer`,
       `${ctx.storyId}:seed:l2-verifier:codex`,
-      `${ctx.storyId}:seed:l2-verifier:gemini`,
+      `${ctx.storyId}:seed:l2-verifier:antigravity`,
       `${ctx.storyId}:delivery`,
     ],
   });
@@ -281,7 +281,7 @@ async function createCompletedProducerRun(ctx: LiveContext): Promise<MinimalRun>
   return { runId };
 }
 
-function verifierMetadata(provider: 'codex' | 'gemini'): { model: string; vendor: string } {
+function verifierMetadata(provider: 'codex' | 'antigravity'): { model: string; vendor: string } {
   return provider === 'codex'
     ? { model: 'lattice-receipt-ref-verifier-a', vendor: 'lattice-receipt-ref-a' }
     : { model: 'lattice-receipt-ref-verifier-b', vendor: 'lattice-receipt-ref-b' };
@@ -289,7 +289,7 @@ function verifierMetadata(provider: 'codex' | 'gemini'): { model: string; vendor
 
 async function createVerifierAssignment(input: {
   ctx: LiveContext;
-  provider: 'codex' | 'gemini';
+  provider: 'codex' | 'antigravity';
   actorId: string;
   contracts: ReceiptRefEvidenceContracts;
   command: string[];
@@ -547,7 +547,7 @@ async function postL2VerifierEvidence(
     evidenceId: string;
     actorId: string;
     keyPair: Ed25519KeyPair;
-    provider: 'codex' | 'gemini';
+    provider: 'codex' | 'antigravity';
     model: string;
     vendor: string;
     command: string[];
@@ -716,10 +716,10 @@ async function seedMinimalGateFacts(ctx: LiveContext): Promise<void> {
   });
   await completeRun(ctx, firstVerifier.runId, ctx.verifierActorId, 'verifier', ctx.verifier, contracts.transcriptHash);
 
-  const secondMetadata = verifierMetadata('gemini');
+  const secondMetadata = verifierMetadata('antigravity');
   const secondVerifier = await createVerifierAssignment({
     ctx,
-    provider: 'gemini',
+    provider: 'antigravity',
     actorId: ctx.secondVerifierActorId,
     contracts,
     command: contracts.secondCommand,
@@ -747,10 +747,10 @@ async function seedMinimalGateFacts(ctx: LiveContext): Promise<void> {
   });
 
   await postL2VerifierEvidence(ctx, contracts, secondVerifier, {
-    evidenceId: `${ctx.storyId}:seed:l2-verifier:gemini`,
+    evidenceId: `${ctx.storyId}:seed:l2-verifier:antigravity`,
     actorId: ctx.secondVerifierActorId,
     keyPair: ctx.secondVerifier,
-    provider: 'gemini',
+    provider: 'antigravity',
     model: secondMetadata.model,
     vendor: secondMetadata.vendor,
     command: contracts.secondCommand,
@@ -762,7 +762,7 @@ async function seedMinimalGateFacts(ctx: LiveContext): Promise<void> {
     negativeControlId: contracts.secondNegativeControlId,
     oracleId: contracts.secondOracleId,
     note: 'Receipt-ref smoke seed: second independent L2 verifier evidence for Authority gate receipt minting.',
-    nonce: `${ctx.storyId}:seed-receipt-ref-evidence:gemini`,
+    nonce: `${ctx.storyId}:seed-receipt-ref-evidence:antigravity`,
   });
 
   await postJson(ctx, '/v1/checks', signHexEnvelope({

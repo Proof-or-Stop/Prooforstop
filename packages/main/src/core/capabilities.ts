@@ -445,28 +445,6 @@ function materializeProfile(input: HostProfileInput): HostProfile {
   return { ...input, capabilities, degradations };
 }
 
-function buildLegacyGeminiProfile(): HostProfile {
-  const antigravity = HOST_PROFILE_INPUTS.find(input => input.id === 'antigravity');
-  if (!antigravity) {
-    throw new Error('antigravity host profile is missing from capability registry');
-  }
-  return materializeProfile({
-    ...antigravity,
-    id: 'gemini',
-    label: 'Gemini (deprecated legacy)',
-    summary: 'Deprecated legacy compatibility profile. Current third-host diagnostics use antigravity through the agy CLI.',
-    capabilities: antigravity.capabilities.map(capability => ({
-      ...capability,
-      note: `Legacy Gemini compatibility only. ${capability.note}`,
-    })),
-    degradations: antigravity.degradations.map(degradation => ({
-      ...degradation,
-      reason: `Legacy Gemini compatibility only. ${degradation.reason}`,
-      fallback: `Use antigravity/agy for current third-host flows. ${degradation.fallback}`,
-    })),
-  });
-}
-
 export function buildCapabilityList(): CapabilityList {
   return {
     schemaVersion: CAPABILITY_SCHEMA_VERSION,
@@ -494,7 +472,6 @@ export function buildCapabilityProbe(host: string): CapabilityProbe {
   const list = buildCapabilityList();
   const normalized = normalizeHostId(requestedHost);
   const profile = list.hosts.find(candidate => normalizeHostId(candidate.id) === normalized)
-    ?? (normalized === 'gemini' ? buildLegacyGeminiProfile() : undefined)
     ?? list.hosts.find(candidate => candidate.id === 'unknown/fallback');
   if (!profile) {
     throw new Error('unknown/fallback host profile is missing from capability registry');

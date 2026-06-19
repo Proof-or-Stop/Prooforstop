@@ -381,27 +381,30 @@ export function recordDispatchFinal(
 }
 
 /**
- * Record the final usage AFTER a codex/gemini dispatch, superseding the preflight
- * estimate. Provider-parametric sibling of recordDispatchFinal: the claude path
- * (recordDispatchFinal) is left byte-identical, while this entry point routes a
- * bare provider usage object through buildProviderRecord('openai' | 'gemini', ...).
+ * Record the final usage AFTER a codex/antigravity dispatch, superseding the
+ * preflight estimate. Provider-parametric sibling of recordDispatchFinal: the
+ * claude path (recordDispatchFinal) is left byte-identical, while this entry
+ * point routes a bare provider usage object through buildProviderRecord('openai',
+ * ...) for codex, or writes a source=unavailable final for antigravity.
  *
  * - flag OFF -> returns immediately (strict no-op);
- * - reportedUsage is a usable non-null object -> assembles a provider-reported
- *   record (sequence 2, supersedesRecordIds=[estimateRecordId]) via the openai /
- *   gemini adapter (buildProviderRecord runs adaptUsageFor; its extractRawUsage
- *   passes a bare `usage` / `usageMetadata` object straight to the adapter, so a
- *   bare object works directly) and appends it. The provider-reported final
- *   SUPERSEDES the estimate so the summary counts only the final (no double count).
- * - otherwise (null / non-object / garbage usage) -> appends an 'unavailable'
- *   final (sequence 2, supersedes the estimate) so the estimate is still
- *   superseded even when the CLI reported no usable usage.
+ * - codex with a usable non-null usage object -> assembles a provider-reported
+ *   record (sequence 2, supersedesRecordIds=[estimateRecordId]) via the openai
+ *   adapter (buildProviderRecord runs adaptUsageFor; its extractRawUsage passes a
+ *   bare `usage` object straight to the adapter, so a bare object works directly)
+ *   and appends it. The provider-reported final SUPERSEDES the estimate so the
+ *   summary counts only the final (no double count).
+ * - antigravity, OR codex with null / non-object / garbage usage -> appends an
+ *   'unavailable' final (sequence 2, supersedes the estimate) so the estimate is
+ *   still superseded even when the CLI reported no usable usage. antigravity ALWAYS
+ *   lands here: `agy --print` surfaces no per-call token usage, so its final is
+ *   never inferred (never-infer-an-unreported-value).
  *
  * NEVER throws: any failure (adapter/assemble throw on a rogue payload, writer
  * throw) is swallowed so dispatch proceeds.
  *
- * `provider` is 'openai' for the codex host and 'gemini' for the gemini host —
- * the record's provider.name is set accordingly (NOT hardcoded anthropic).
+ * `provider` is 'openai' for the codex host and 'antigravity' for the antigravity
+ * host — the record's provider.name is set accordingly (NOT hardcoded anthropic).
  * `model` is the served model the provider reported; null falls back to the
  * best-effort default.
  */
@@ -410,7 +413,7 @@ export function recordDispatchFinalForProvider(
   ctx: DispatchUsageContext,
   correlation: CallCorrelation | null,
   estimateRecordId: string | null,
-  provider: 'openai' | 'gemini',
+  provider: 'openai' | 'antigravity',
   reportedUsage: unknown,
   model: string | null,
   opts: DispatchUsageOptions,
@@ -420,6 +423,21 @@ export function recordDispatchFinalForProvider(
   try {
     const corr = correlation ?? mintCallCorrelation();
     const supersedes = buildSupersedes(estimateRecordId);
+
+    // antigravity (agy print mode) never surfaces per-call token usage, so it
+    // ALWAYS takes the unavailable branch with a provider-specific reason — it
+    // must never reach buildProviderRecord (there is no antigravity adapter).
+    if (provider === 'antigravity') {
+      const unavailable = buildUnavailableFinalRecord(
+        corr,
+        supersedes,
+        attributionFor(ctx),
+        finalContextForProvider(opts, provider, model),
+        'antigravity (agy) print mode does not surface per-call token usage',
+      );
+      appendUsageRecord(root, unavailable, { env: opts.env });
+      return;
+    }
 
     // A usable usage is a non-null, non-array object. Anything else (null,
     // undefined, primitive, array) falls through to the unavailable branch so the
@@ -486,13 +504,13 @@ function finalContext(opts: DispatchUsageOptions, model: string | null): RecordC
 
 /**
  * Provider-parametric sibling of finalContext: builds the RecordContext for a
- * codex/gemini final record, binding the named provider (openai/gemini) rather
- * than the hardcoded anthropic. finalContext (anthropic) stays byte-identical; a
- * null/empty served model falls back to the best-effort default.
+ * codex/antigravity final record, binding the named provider (openai/antigravity)
+ * rather than the hardcoded anthropic. finalContext (anthropic) stays byte-identical;
+ * a null/empty served model falls back to the best-effort default.
  */
 function finalContextForProvider(
   opts: DispatchUsageOptions,
-  providerName: 'openai' | 'gemini',
+  providerName: 'openai' | 'antigravity',
   model: string | null,
 ): RecordContext {
   const bound = model && model.length > 0 ? model : DEFAULT_ESTIMATE_MODEL;
@@ -518,6 +536,7 @@ function buildUnavailableFinalRecord(
   supersedesRecordIds: string[],
   attribution: RecordAttribution,
   context: RecordContext,
+  unavailableReason = 'dispatch: provider returned no JSON usage envelope (fell back to raw stdout text)',
 ): UsageLedgerRecordInput {
   const usage: LedgerUsage = {
     source: 'unavailable',
@@ -525,8 +544,7 @@ function buildUnavailableFinalRecord(
     outputTokens: null,
     cacheCreationInputTokens: null,
     cacheReadInputTokens: null,
-    unavailableReason:
-      'dispatch: provider returned no JSON usage envelope (fell back to raw stdout text)',
+    unavailableReason,
   };
 
   return {

@@ -201,7 +201,7 @@ export function runnerCapabilities(): Record<string, unknown>[] {
     },
     {
       ...base,
-      provider: 'gemini',
+      provider: 'antigravity',
       metadata: { source: 'authority-live-python-e2e-smoke', purpose: 'second-verifier-quorum' },
     },
   ];
@@ -732,7 +732,7 @@ export async function seedServerDoneFacts(ctx: LiveContext): Promise<void> {
 
   const secondVerifier = await createLiveJob(ctx, 'second verifier', {
     projectId: ctx.projectId,
-    provider: 'gemini',
+    provider: 'antigravity',
     role: 'tester',
     promptHash: canonicalDigest({ storyId: ctx.storyId, seed: 'second-verifier-job-prompt' }),
     storyId: ctx.storyId,
@@ -755,7 +755,7 @@ export async function seedServerDoneFacts(ctx: LiveContext): Promise<void> {
     verifierRole: 'verifier',
     idempotencyKey: `${ctx.storyId}:second-verifier-job`,
     expiresAt: pythonCanonicalTimestamp(new Date(Date.now() + 24 * 60 * 60 * 1000)),
-    metadata: { model: 'gemini-3.1-pro', vendor: 'google', source: 'authority-live-python-e2e-smoke' },
+    metadata: { model: 'antigravity-3.1-pro', vendor: 'google', source: 'authority-live-python-e2e-smoke' },
   });
   await completeRun(ctx, secondVerifier.runId, ctx.secondVerifierActorId, 'verifier', ctx.secondVerifier, contracts.secondTranscriptHash);
 
@@ -779,11 +779,11 @@ export async function seedServerDoneFacts(ctx: LiveContext): Promise<void> {
   });
 
   await postL2VerifierEvidence(ctx, contracts, producer, secondVerifier, {
-    evidenceId: `${ctx.storyId}:seed:l2-verifier:gemini`,
+    evidenceId: `${ctx.storyId}:seed:l2-verifier:antigravity`,
     actorId: ctx.secondVerifierActorId,
     keyPair: ctx.secondVerifier,
-    provider: 'gemini',
-    model: 'gemini-3.1-pro',
+    provider: 'antigravity',
+    model: 'antigravity-3.1-pro',
     vendor: 'google',
     command: contracts.secondCommand,
     commandClass: 'integration-tests',
@@ -794,7 +794,7 @@ export async function seedServerDoneFacts(ctx: LiveContext): Promise<void> {
     negativeControlId: contracts.secondNegativeControlId,
     oracleId: contracts.secondOracleId,
     note: 'Live E2E seed: second independent verifier evidence for the authority job loop test quorum.',
-    nonce: `${ctx.storyId}:seed-evidence:gemini`,
+    nonce: `${ctx.storyId}:seed-evidence:antigravity`,
   });
 
   await postJson(ctx, '/v1/checks', signHexEnvelope({
@@ -903,7 +903,7 @@ export function buildLiveJobPlan(ctx: LiveContext): JobPlan {
       minIndependentHosts: 2,
       targetHostsPerWave: 3,
       preferredHostsForReleaseCertification: 3,
-      preferredVerifierProviders: ['codex', 'claude', 'gemini'],
+      preferredVerifierProviders: ['codex', 'claude', 'antigravity'],
       requireMultiHost: true,
       requiredHostVerdictCount: 2,
       requiredReviewWaveCount: 3,

@@ -45,7 +45,7 @@ const PASS_LINE =
 interface HostMaterial {
   actorId: string;
   deviceId: string;
-  provider: 'codex' | 'claude' | 'gemini';
+  provider: 'codex' | 'claude' | 'antigravity';
   model: string;
   keyPair: Ed25519KeyPair;
 }
@@ -229,9 +229,9 @@ async function main(): Promise<void> {
     { actorId: `host-codex-wave1-${ctx.storyId}`, deviceId: `host-codex-wave1-${ctx.storyId}`, provider: 'codex', model: 'codex-cli', keyPair: generateEd25519KeyPair() },
     { actorId: `host-claude-wave1-${ctx.storyId}`, deviceId: `host-claude-wave1-${ctx.storyId}`, provider: 'claude', model: 'claude-cli', keyPair: generateEd25519KeyPair() },
     { actorId: `host-codex-wave2-${ctx.storyId}`, deviceId: `host-codex-wave2-${ctx.storyId}`, provider: 'codex', model: 'codex-cli', keyPair: generateEd25519KeyPair() },
-    { actorId: `host-gemini-wave2-${ctx.storyId}`, deviceId: `host-gemini-wave2-${ctx.storyId}`, provider: 'gemini', model: 'gemini-cli', keyPair: generateEd25519KeyPair() },
+    { actorId: `host-antigravity-wave2-${ctx.storyId}`, deviceId: `host-antigravity-wave2-${ctx.storyId}`, provider: 'antigravity', model: 'antigravity-cli', keyPair: generateEd25519KeyPair() },
     { actorId: `host-claude-wave3-${ctx.storyId}`, deviceId: `host-claude-wave3-${ctx.storyId}`, provider: 'claude', model: 'claude-cli', keyPair: generateEd25519KeyPair() },
-    { actorId: `host-gemini-wave3-${ctx.storyId}`, deviceId: `host-gemini-wave3-${ctx.storyId}`, provider: 'gemini', model: 'gemini-cli', keyPair: generateEd25519KeyPair() },
+    { actorId: `host-antigravity-wave3-${ctx.storyId}`, deviceId: `host-antigravity-wave3-${ctx.storyId}`, provider: 'antigravity', model: 'antigravity-cli', keyPair: generateEd25519KeyPair() },
   ];
   for (const host of hosts) {
     await registerActorKey(ctx, host.actorId, 'verifier', host.keyPair, { deviceId: host.deviceId });

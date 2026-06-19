@@ -40,7 +40,7 @@ export interface ILLMProvider {
 // secrets or be promoted into gate evidence.
 
 /** Real bounded providers. `fake` is handled deterministically and never reaches this contract. */
-export type BoundedProviderName = 'codex' | 'claude' | 'gemini';
+export type BoundedProviderName = 'codex' | 'claude' | 'antigravity';
 
 export interface ProviderExecRequest {
   provider: BoundedProviderName;
@@ -60,7 +60,7 @@ export interface ProviderExecResult {
   provider: BoundedProviderName;
   /** Provider/model metadata when the CLI reports it. */
   model?: string;
-  /** Provider-reported token-count usage object (numbers only — NEVER raw transcript). OpenAI 'usage' shape for codex, Gemini 'usageMetadata' shape for gemini. Absent when the CLI reports no usage. */
+  /** Provider-reported token-count usage object (numbers only — NEVER raw transcript). OpenAI 'usage' shape for codex. Antigravity (agy) print mode surfaces no per-call usage, so it never sets this. Absent when the CLI reports no usage. */
   reportedUsage?: Record<string, unknown>;
   /** Digest of the argv array (never the raw argv, which may carry context). */
   argvDigest: string;

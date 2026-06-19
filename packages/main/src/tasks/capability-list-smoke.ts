@@ -141,12 +141,12 @@ const agyProbe = buildCapabilityProbe('agy');
 assert.equal(agyProbe.host, 'antigravity');
 assert.equal(agyProbe.requestedHost, 'agy');
 assert.equal(agyProbe.matchedFallback, false, 'agy is a current Antigravity alias, not fallback');
-const geminiProbe = buildCapabilityProbe('gemini');
-assert.equal(geminiProbe.host, 'gemini');
-assert.equal(geminiProbe.matchedFallback, false);
-assert.equal(geminiProbe.profile.capabilities.find(c => c.category === 'receipt-verify')?.status, 'conditional');
-assert.equal(list.hosts.some(h => h.id === 'gemini'), false, 'Gemini stays out of the current host list');
-assert.match(geminiProbe.profile.summary, /deprecated legacy/i);
+// Retired gemini host: capability_probe no longer recognizes it and falls back
+// to the unknown/fallback profile (PROMOTE+RETIRE — antigravity is the current host).
+const retiredGeminiProbe = buildCapabilityProbe('gemini');
+assert.equal(retiredGeminiProbe.host, 'unknown/fallback', 'retired gemini resolves to the unknown/fallback profile');
+assert.equal(retiredGeminiProbe.matchedFallback, true, 'retired gemini is a fallback match, not a current host');
+assert.equal(list.hosts.some(h => h.id === 'gemini'), false, 'gemini stays out of the current host list');
 assert.match(renderCapabilityProbeText(codexProbe), /authorityImpact: diagnostic-only/);
 
 // Registry and CLI schema expose the command.

@@ -79,7 +79,7 @@ export interface UsageLedgerSummary {
   estimateCount: number;
   /** Selected records reported as unknown (unavailable / null dimensions). */
   unknownCount: number;
-  /** Additive: sum of input+output over provider-reported records whose BOTH primary dims are known. Includes cache-less providers (codex/gemini) that the strict four-field providerReportedTotal excludes. Distinct from providerReportedTotal; never inferred. */
+  /** Additive: sum of input+output over provider-reported records whose BOTH primary dims are known. Includes cache-less providers (codex) that the strict four-field providerReportedTotal excludes. Distinct from providerReportedTotal; never inferred. */
   primaryReportedTotal: number;
   /** How many provider-reported records contributed to primaryReportedTotal. */
   primaryReportedCount: number;

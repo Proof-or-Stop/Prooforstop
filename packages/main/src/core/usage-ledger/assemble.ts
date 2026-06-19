@@ -32,10 +32,9 @@ import {
 import { mintRecordId } from './ids.js';
 import { adaptAnthropicUsage } from './adapters/anthropic.js';
 import { adaptOpenAiUsage } from './adapters/openai.js';
-import { adaptGeminiUsage } from './adapters/gemini.js';
 
 /** The providers this assembler knows how to normalize. */
-export type ProviderName = 'anthropic' | 'openai' | 'gemini';
+export type ProviderName = 'anthropic' | 'openai';
 
 /** Default redaction profile id (the ledger stores no raw content). */
 export const DEFAULT_REDACTION_PROFILE = 'no-raw-content-v1';
@@ -101,8 +100,6 @@ function adaptUsageFor(provider: ProviderName, providerResponse: unknown): Ledge
       return adaptAnthropicUsage(extractRawUsage(providerResponse, 'usage'));
     case 'openai':
       return adaptOpenAiUsage(extractRawUsage(providerResponse, 'usage'));
-    case 'gemini':
-      return adaptGeminiUsage(extractRawUsage(providerResponse, 'usageMetadata'));
     default: {
       // Exhaustiveness guard: an unknown provider is a programmer error.
       const never: never = provider;

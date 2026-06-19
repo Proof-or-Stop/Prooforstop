@@ -1379,29 +1379,29 @@ function secondsFromMs(ms: unknown, fallback: number): number {
 }
 
 type ServerProviderResolution =
-  | { ok: true; provider: 'codex' | 'claude-code' | 'gemini' }
+  | { ok: true; provider: 'codex' | 'claude-code' | 'antigravity' }
   | { ok: false; reason: string };
 
 function serverProviderFromPlan(jobPlan: JobPlan, override?: string): ServerProviderResolution {
-  if (override === 'codex' || override === 'claude-code' || override === 'gemini') return { ok: true, provider: override };
+  if (override === 'codex' || override === 'claude-code' || override === 'antigravity') return { ok: true, provider: override };
   const primary = jobPlan.providerPolicy?.primaryProvider;
   if (primary === 'codex') return { ok: true, provider: 'codex' };
   if (primary === 'claude') return { ok: true, provider: 'claude-code' };
   return {
     ok: false,
-    reason: `authority job create requires an explicit real provider (codex/claude-code/gemini); JobPlan primaryProvider=${primary ?? '<missing>'} is not server-runnable`,
+    reason: `authority job create requires an explicit real provider (codex/claude-code/antigravity); JobPlan primaryProvider=${primary ?? '<missing>'} is not server-runnable`,
   };
 }
 
-function normalizeServerProvider(value: unknown): 'codex' | 'claude-code' | 'gemini' | null {
-  if (value === 'codex' || value === 'gemini' || value === 'claude-code') return value;
+function normalizeServerProvider(value: unknown): 'codex' | 'claude-code' | 'antigravity' | null {
+  if (value === 'codex' || value === 'antigravity' || value === 'claude-code') return value;
   if (value === 'claude') return 'claude-code';
   return null;
 }
 
-function serverProviderList(value: unknown): Array<'codex' | 'claude-code' | 'gemini'> {
+function serverProviderList(value: unknown): Array<'codex' | 'claude-code' | 'antigravity'> {
   if (!Array.isArray(value)) return [];
-  const providers: Array<'codex' | 'claude-code' | 'gemini'> = [];
+  const providers: Array<'codex' | 'claude-code' | 'antigravity'> = [];
   for (const item of value) {
     const provider = normalizeServerProvider(item);
     if (provider && !providers.includes(provider)) providers.push(provider);
@@ -1411,7 +1411,7 @@ function serverProviderList(value: unknown): Array<'codex' | 'claude-code' | 'ge
 
 function serverProviderPolicyFromPlan(
   jobPlan: JobPlan,
-  provider: 'codex' | 'claude-code' | 'gemini',
+  provider: 'codex' | 'claude-code' | 'antigravity',
 ): Record<string, unknown> {
   const raw = (jobPlan.providerPolicy ?? {}) as Record<string, unknown>;
   const allowedProviders = serverProviderList(raw.allowedProviders);
@@ -1440,7 +1440,7 @@ function serverStepForAuthority(step: JobPlan['plannedSteps'][number]): Record<s
   };
 }
 
-function jobPolicyFromPlan(jobPlan: JobPlan, provider: 'codex' | 'claude-code' | 'gemini'): {
+function jobPolicyFromPlan(jobPlan: JobPlan, provider: 'codex' | 'claude-code' | 'antigravity'): {
   stopPolicy: Record<string, unknown>;
   evidencePolicy: Record<string, unknown>;
   receiptPolicy: Record<string, unknown>;
@@ -1695,7 +1695,7 @@ export function loadAuthorityConfig(
 }
 
 export interface AuthorityJobCreateFromPlanOptions extends AuthorityVerdictBackingOptions {
-  provider?: 'codex' | 'claude-code' | 'gemini';
+  provider?: 'codex' | 'claude-code' | 'antigravity';
   role?: 'planner' | 'implementer' | 'reviewer' | 'explorer' | 'tester';
   promptRef?: string;
   promptHash?: string;

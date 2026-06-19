@@ -42,7 +42,7 @@ export interface DispatchPolicyCheckResult {
 }
 
 const CURRENT_KNOWN_HOSTS = ['fake', 'codex', 'claude-code', 'antigravity'] as const;
-const LEGACY_KNOWN_HOSTS = ['gemini'] as const;
+const LEGACY_KNOWN_HOSTS = [] as const;
 const KNOWN_HOSTS: ReadonlySet<string> = new Set([...CURRENT_KNOWN_HOSTS, ...LEGACY_KNOWN_HOSTS]);
 const MAX_PARALLEL = 10;
 const MAX_RUNTIME_MINUTES = 1440;
@@ -96,12 +96,12 @@ function normalizeDispatchHostId(host: string): string | null {
   const value = host.trim().toLowerCase();
   if (value === 'claude' || value === 'claude-code') return 'claude-code';
   if (value === 'antigravity' || value === 'agy') return 'antigravity';
-  if (value === 'codex' || value === 'fake' || value === 'gemini') return value;
+  if (value === 'codex' || value === 'fake') return value;
   return null;
 }
 
 function knownHostsDescription(): string {
-  return `${CURRENT_KNOWN_HOSTS.join(', ')} (alias: agy=antigravity; legacy: ${LEGACY_KNOWN_HOSTS.join(', ')})`;
+  return `${CURRENT_KNOWN_HOSTS.join(', ')} (alias: agy=antigravity)`;
 }
 
 function normalizeHostList(value: string | string[] | undefined): { hosts: string[]; errors: string[] } {
@@ -253,7 +253,7 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
   if (typeof allowRealHostSubprocess !== 'boolean') {
     errors.push(`allowRealHostSubprocess must be a boolean; got ${String(allowRealHostSubprocess)}`);
   } else {
-    const unsupportedRealHosts = allowedHosts.filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
+    const unsupportedRealHosts = allowedHosts.filter(host => host === 'antigravity' || host === 'codex');
     if (allowRealHostSubprocess && unsupportedRealHosts.length > 0) {
       errors.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
@@ -403,7 +403,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
   if (policyRecord.requireReceipt === false) reasons.push('requireReceipt must be true; unattended use without a receipt is unsafe');
   if (policyRecord.requireReview === false) reasons.push('requireReview must be true; unattended use without review is unsafe');
   if (policyRecord.allowRealHostSubprocess === true) {
-    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'antigravity' || host === 'gemini' || host === 'codex');
+    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'antigravity' || host === 'codex');
     if (unsupportedRealHosts.length > 0) {
       reasons.push(
         `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,

@@ -437,7 +437,7 @@ try {
   assert(blockedGoReview.issues.some((issue: JsonObject) => issue.id === 'SRC-parityOraclePolicy'));
 
   const v1 = run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-plan', '--runId=run-1', '--hostId=codex-host', '--provider=codex', '--sessionId=s1', '--decision=pass', '--materialDigest=mat-1', '--json']);
-  const v2 = run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-plan', '--runId=run-1', '--hostId=gemini-host', '--provider=gemini', '--sessionId=s2', '--decision=pass', '--materialDigest=mat-1', '--json']);
+  const v2 = run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-plan', '--runId=run-1', '--hostId=antigravity-host', '--provider=antigravity', '--sessionId=s2', '--decision=pass', '--materialDigest=mat-1', '--json']);
   const v3 = run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-plan', '--runId=run-1', '--hostId=codex-host', '--provider=codex', '--sessionId=s1', '--decision=pass', '--materialDigest=mat-1', '--json']);
   assert.equal(v1.schemaVersion, 'lattice.host_verdict.v1');
   assert.equal(v2.schemaVersion, 'lattice.host_verdict.v1');
@@ -469,13 +469,13 @@ try {
   assert.equal(defaultRunStatus.runDiagnostics.authorityServerContact, false);
 
   run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-pass', '--hostId=codex-pass', '--provider=codex', '--sessionId=s-pass-1', '--keyId=k-pass-1', '--decision=pass', '--materialDigest=fresh-material', '--json']);
-  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-pass', '--hostId=gemini-pass', '--provider=gemini', '--sessionId=s-pass-2', '--keyId=k-pass-2', '--decision=pass', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-pass', '--hostId=antigravity-pass', '--provider=antigravity', '--sessionId=s-pass-2', '--keyId=k-pass-2', '--decision=pass', '--materialDigest=fresh-material', '--json']);
   run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-stale', '--hostId=codex-stale', '--provider=codex', '--sessionId=s-stale-1', '--keyId=k-stale-1', '--decision=pass', '--materialDigest=stale-material', '--json']);
-  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-stale', '--hostId=gemini-stale', '--provider=gemini', '--sessionId=s-stale-2', '--keyId=k-stale-2', '--decision=pass', '--materialDigest=stale-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-stale', '--hostId=antigravity-stale', '--provider=antigravity', '--sessionId=s-stale-2', '--keyId=k-stale-2', '--decision=pass', '--materialDigest=stale-material', '--json']);
   run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-dup', '--hostId=codex-dup', '--provider=codex', '--sessionId=shared-dup-session', '--keyId=k-dup-1', '--decision=pass', '--materialDigest=fresh-material', '--json']);
-  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-dup', '--hostId=gemini-dup', '--provider=gemini', '--sessionId=shared-dup-session', '--keyId=k-dup-2', '--decision=pass', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-dup', '--hostId=antigravity-dup', '--provider=antigravity', '--sessionId=shared-dup-session', '--keyId=k-dup-2', '--decision=pass', '--materialDigest=fresh-material', '--json']);
   run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-fail', '--hostId=codex-fail', '--provider=codex', '--sessionId=s-fail-1', '--keyId=k-fail-1', '--decision=pass', '--materialDigest=fresh-material', '--json']);
-  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-fail', '--hostId=gemini-fail', '--provider=gemini', '--sessionId=s-fail-2', '--keyId=k-fail-2', '--decision=fail', '--materialDigest=fresh-material', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-run-diag', '--runId=round-fail', '--hostId=antigravity-fail', '--provider=antigravity', '--sessionId=s-fail-2', '--keyId=k-fail-2', '--decision=fail', '--materialDigest=fresh-material', '--json']);
   const runDiagnostics = summarizeVerdictRuns(root, 'local', 'B-run-diag', 'default-run', 2, { currentAnchor: { materialDigest: 'fresh-material' } });
   const runById = new Map(runDiagnostics.allRuns.map(row => [row.runId, row]));
   assert.equal(runById.get('round-pass')?.status, 'pass', 'a fresh independent custom run passes');
@@ -497,7 +497,7 @@ try {
   // executor/verifier path and is the subject of active design, so this smoke pins only the durable
   // invariant — host verdicts never mint native-receipt authorityDone.)
   run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-1', '--runId=run-2', '--hostId=claude-host', '--provider=claude', '--sessionId=s3', '--decision=pass', '--materialDigest=mat-2', '--json']);
-  run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-1', '--runId=run-2', '--hostId=gemini-host', '--provider=gemini', '--sessionId=s4', '--decision=pass', '--materialDigest=mat-2', '--json']);
+  run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-1', '--runId=run-2', '--hostId=antigravity-host', '--provider=antigravity', '--sessionId=s4', '--decision=pass', '--materialDigest=mat-2', '--json']);
   const authoritySummary = run(['lattice', 'authority', 'verdict', 'list', '--jobId=job-1', '--runId=run-2', '--json']);
   assert.equal(authoritySummary.status, 'pass');
   assert.equal(authoritySummary.multiHostVerified, true);
@@ -538,7 +538,7 @@ try {
   // session are not materially independent (§X9). They must collapse to a single
   // independent host, so a two-verdict wave under one shared session still blocks.
   run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-sess', '--runId=run-sess', '--hostId=codex-host', '--provider=codex', '--sessionId=shared-session', '--decision=pass', '--materialDigest=mat-sess', '--json']);
-  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-sess', '--runId=run-sess', '--hostId=gemini-host', '--provider=gemini', '--sessionId=shared-session', '--decision=pass', '--materialDigest=mat-sess', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-sess', '--runId=run-sess', '--hostId=antigravity-host', '--provider=antigravity', '--sessionId=shared-session', '--decision=pass', '--materialDigest=mat-sess', '--json']);
   const sharedSessionStatus = run(['lattice', 'autopilot', 'review', 'status', '--storyId=B-sess', '--runId=run-sess', '--json']);
   assert.equal(sharedSessionStatus.totalVerdicts, 2, 'both same-session verdicts are stored for audit');
   assert.equal(sharedSessionStatus.independentHosts, 1, 'two verdicts sharing one session collapse to a single independent host');
@@ -550,7 +550,7 @@ try {
   // Two genuinely independent hosts (distinct host id AND session) DO clear the floor —
   // proves the same-session collapse above is non-vacuous.
   run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-indep', '--runId=run-indep', '--hostId=codex-host', '--provider=codex', '--sessionId=sess-a', '--decision=pass', '--materialDigest=mat-indep', '--json']);
-  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-indep', '--runId=run-indep', '--hostId=gemini-host', '--provider=gemini', '--sessionId=sess-b', '--decision=pass', '--materialDigest=mat-indep', '--json']);
+  run(['lattice', 'autopilot', 'review', 'submit', '--storyId=B-indep', '--runId=run-indep', '--hostId=antigravity-host', '--provider=antigravity', '--sessionId=sess-b', '--decision=pass', '--materialDigest=mat-indep', '--json']);
   const independentStatus = run(['lattice', 'autopilot', 'review', 'status', '--storyId=B-indep', '--runId=run-indep', '--json']);
   assert.equal(independentStatus.independentHosts, 2);
   assert.equal(independentStatus.status, 'pass');
@@ -561,7 +561,7 @@ try {
   // multi_host_disagreement reason (reconcile or return to DEV for repair, §X9), distinct
   // from a plain coverage shortfall.
   run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-dis', '--runId=run-dis', '--hostId=codex-host', '--provider=codex', '--sessionId=s-dis-1', '--decision=pass', '--materialDigest=mat-dis', '--json']);
-  run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-dis', '--runId=run-dis', '--hostId=gemini-host', '--provider=gemini', '--sessionId=s-dis-2', '--decision=fail', '--materialDigest=mat-dis', '--json']);
+  run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-dis', '--runId=run-dis', '--hostId=antigravity-host', '--provider=antigravity', '--sessionId=s-dis-2', '--decision=fail', '--materialDigest=mat-dis', '--json']);
   const disagreementStatus = run(['lattice', 'authority', 'job', 'status', '--jobId=job-dis', '--runId=run-dis', '--json']);
   assert.equal(disagreementStatus.independentHosts, 2, 'both hosts are independent; the wave is non-vacuous');
   assert.equal(disagreementStatus.failingIndependentHosts, 1);
@@ -573,9 +573,9 @@ try {
   // A host that fails then re-submits a pass under a fresh session cannot launder the
   // disagreement away: same host id collapses both verdicts, and the fail-closed rule
   // keeps the host failing.
-  run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-dis', '--runId=run-dis', '--hostId=gemini-host', '--provider=gemini', '--sessionId=s-dis-3', '--decision=pass', '--materialDigest=mat-dis', '--json']);
+  run(['lattice', 'authority', 'verdict', 'submit', '--jobId=job-dis', '--runId=run-dis', '--hostId=antigravity-host', '--provider=antigravity', '--sessionId=s-dis-3', '--decision=pass', '--materialDigest=mat-dis', '--json']);
   const launderStatus = run(['lattice', 'authority', 'job', 'status', '--jobId=job-dis', '--runId=run-dis', '--json']);
-  assert.equal(launderStatus.independentHosts, 2, 'the re-submission collapses into the same gemini host, not a third host');
+  assert.equal(launderStatus.independentHosts, 2, 'the re-submission collapses into the same antigravity host, not a third host');
   assert.equal(launderStatus.failingIndependentHosts, 1, 'a host that ever failed stays failing (fail-closed) despite a later pass');
   assert.equal(launderStatus.status, 'blocked');
   assert.equal(launderStatus.multiHostVerified, false);

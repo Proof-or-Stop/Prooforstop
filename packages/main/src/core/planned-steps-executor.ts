@@ -24,10 +24,10 @@ import {
   CODEX_CLI_BINARY,
 } from '../providers/codex-cli.js';
 import {
-  geminiCliAvailable,
-  runBoundedGeminiProvider,
-  GEMINI_CLI_BINARY,
-} from '../providers/gemini-cli.js';
+  antigravityCliAvailable,
+  runBoundedAntigravityProvider,
+  ANTIGRAVITY_CLI_BINARY,
+} from '../providers/antigravity-cli.js';
 import type {
   BoundedProviderExecutor,
   BoundedProviderName,
@@ -62,7 +62,7 @@ import {
 export type PlannedStepExecutionStatus = 'passed' | 'failed' | 'blocked' | 'skipped';
 export type PlannedStepsExecutionStatus = 'done' | 'blocked' | 'failed';
 
-export type ProviderName = 'fake' | 'codex' | 'claude' | 'gemini';
+export type ProviderName = 'fake' | 'codex' | 'claude' | 'antigravity';
 
 /**
  * Provider policy consumed by the executor. It is read defensively from the
@@ -322,11 +322,11 @@ export function buildAuthorityGateInput(
 // --- Provider policy + bounded execution -------------------------------------
 
 function isProviderName(value: unknown): value is ProviderName {
-  return value === 'fake' || value === 'codex' || value === 'claude' || value === 'gemini';
+  return value === 'fake' || value === 'codex' || value === 'claude' || value === 'antigravity';
 }
 
 function isRealProvider(value: unknown): value is BoundedProviderName {
-  return value === 'codex' || value === 'claude' || value === 'gemini';
+  return value === 'codex' || value === 'claude' || value === 'antigravity';
 }
 
 /** Defensive normalization (Handler encoding convention): never trust the raw shape. */
@@ -354,7 +354,7 @@ function resolveProviderPolicy(jobPlan: JobPlan): ProviderPolicy {
 const PROVIDER_BINARY: Record<BoundedProviderName, string> = {
   codex: CODEX_CLI_BINARY,
   claude: CLAUDE_CLI_BINARY,
-  gemini: GEMINI_CLI_BINARY,
+  antigravity: ANTIGRAVITY_CLI_BINARY,
 };
 
 /**
@@ -388,16 +388,16 @@ function redactedProviderEnv(baseEnv: NodeJS.ProcessEnv, allowlist: string[]): N
 
 function defaultProviderAvailable(provider: BoundedProviderName, env: NodeJS.ProcessEnv): boolean {
   // Each real provider resolves availability through its own preflight seam
-  // (claude-cli.ts / codex-cli.ts / gemini-cli.ts), so the probe stays symmetric
-  // and centralized.
+  // (claude-cli.ts / codex-cli.ts / antigravity-cli.ts), so the probe stays
+  // symmetric and centralized.
   if (provider === 'claude') return claudeCliAvailable(env);
-  if (provider === 'gemini') return geminiCliAvailable(env);
+  if (provider === 'antigravity') return antigravityCliAvailable(env);
   return codexCliAvailable(env);
 }
 
 /**
  * Default bounded executor: each real provider has a dedicated bounded runner
- * (claude-cli.ts / codex-cli.ts / gemini-cli.ts) that performs a stdin-closed
+ * (claude-cli.ts / codex-cli.ts / antigravity-cli.ts) that performs a stdin-closed
  * argv spawn and captures stdout/stderr as digests + byte counts only — raw
  * output is never surfaced, so a transcript can neither leak credentials nor
  * become gate evidence.
@@ -406,7 +406,7 @@ const defaultBoundedProviderExecutor: BoundedProviderExecutor = {
   available: defaultProviderAvailable,
   run(request) {
     if (request.provider === 'claude') return runBoundedClaudeProvider(request);
-    if (request.provider === 'gemini') return runBoundedGeminiProvider(request);
+    if (request.provider === 'antigravity') return runBoundedAntigravityProvider(request);
     return runBoundedCodexProvider(request);
   },
 };

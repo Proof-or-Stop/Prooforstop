@@ -11,7 +11,6 @@
  *   - antigravity + viaDispatch=true         → wrapped-preapply
  *   - antigravity + viaDispatch=false        → watcher-fallback
  *   - agy         + viaDispatch=true         → wrapped-preapply
- *   - gemini      + viaDispatch=true         → wrapped-preapply (legacy only)
  *   - fake                                   → watcher-fallback
  *   - other/unknown                          → watcher-fallback
  *   - legacy 'active' mode renders as 'native-pretool' (backwards compat)
@@ -143,16 +142,11 @@ assert.equal(
   'agy + viaDispatch=false → watcher-fallback',
 );
 
-// Legacy Gemini compatibility: accepted by direct guard resolution only.
+// Retired gemini: no longer a wrapped-preapply provider; resolves to watcher-fallback.
 assert.equal(
   resolveGuardMode('gemini', { viaDispatch: true }),
-  'wrapped-preapply',
-  'legacy gemini + viaDispatch=true → wrapped-preapply',
-);
-assert.equal(
-  resolveGuardMode('gemini', { viaDispatch: false }),
   'watcher-fallback',
-  'legacy gemini + viaDispatch=false → watcher-fallback',
+  'retired gemini → watcher-fallback even with viaDispatch=true',
 );
 
 // fake: always watcher-fallback
@@ -176,12 +170,11 @@ for (const unknown of ['', 'other-host', 'some-agent', 'browser', 'server']) {
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('claude-code'), true);
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('codex'), true, 'codex is native-pretool capable when .codex hook is verified');
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('antigravity'), false, 'antigravity is NOT native-pretool');
-assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('gemini'), false, 'gemini is NOT native-pretool');
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('fake'), false, 'fake is NOT native-pretool');
 
 assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('codex'), true);
 assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('antigravity'), true);
-assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('gemini'), true, 'legacy gemini remains wrapped-preapply compatible');
+assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('gemini'), false, 'retired gemini is no longer wrapped-preapply compatible');
 assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('claude-code'), false, 'claude-code is NOT wrapped-preapply');
 assert.equal(GUARD_WRAPPED_PREAPPLY_PROVIDERS.has('fake'), false, 'fake is NOT wrapped-preapply');
 
@@ -265,8 +258,8 @@ assert.equal(antigravityDirect.guardMode, 'watcher-fallback', 'antigravity + no 
 const agyDispatch = buildGuardSession({ storyId: 'B-x', provider: 'agy', context: { viaDispatch: true } });
 assert.equal(agyDispatch.guardMode, 'wrapped-preapply', 'agy + dispatch → wrapped-preapply session');
 
-const geminiDispatch = buildGuardSession({ storyId: 'B-x', provider: 'gemini', context: { viaDispatch: true } });
-assert.equal(geminiDispatch.guardMode, 'wrapped-preapply', 'legacy gemini + dispatch → wrapped-preapply session');
+const retiredGeminiDispatch = buildGuardSession({ storyId: 'B-x', provider: 'gemini', context: { viaDispatch: true } });
+assert.equal(retiredGeminiDispatch.guardMode, 'watcher-fallback', 'retired gemini → watcher-fallback session even with dispatch');
 
 const fakeSession = buildGuardSession({ storyId: 'B-x', provider: 'fake', context: { nativeHookVerified: true, viaDispatch: true } });
 assert.equal(fakeSession.guardMode, 'watcher-fallback', 'fake + all flags → watcher-fallback');
@@ -332,11 +325,9 @@ assert.equal(agyProbe.requestedHost, 'agy');
 assert.equal(agyProbe.matchedFallback, false, 'agy is a current alias, not fallback');
 assert.equal(agyProbe.profile.capabilities.find(c => c.category === 'prewrite-guard')?.status, 'conditional');
 
-const geminiProbe = buildCapabilityProbe('gemini');
-assert.equal(geminiProbe.host, 'gemini', 'capability_probe keeps legacy gemini compatibility');
-assert.equal(geminiProbe.matchedFallback, false);
-assert.match(geminiProbe.profile.summary, /deprecated legacy/i, 'gemini probe is clearly legacy');
-assert.equal(geminiProbe.profile.capabilities.find(c => c.category === 'prewrite-guard')?.status, 'conditional');
+const retiredGeminiProbe = buildCapabilityProbe('gemini');
+assert.equal(retiredGeminiProbe.host, 'unknown/fallback', 'capability_probe no longer recognizes retired gemini; falls back');
+assert.equal(retiredGeminiProbe.matchedFallback, true, 'retired gemini is a fallback match');
 
 const fakeProbe = buildCapabilityProbe('not-a-real-host');
 const fallbackPGProbe = fakeProbe.profile.capabilities.find(c => c.category === 'prewrite-guard');

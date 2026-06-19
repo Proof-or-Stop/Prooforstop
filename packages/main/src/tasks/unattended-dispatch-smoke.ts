@@ -499,7 +499,7 @@ try {
   {
     const realPolicy = run<{ policy: string }>('dispatch_policy_create', {
       policy: 'chk008-real-only',
-      allowedHosts: ['gemini'],
+      allowedHosts: ['antigravity'],
       allowedPaths: ['packages/main/src/generated/'],
       maxParallel: 2,
       maxRuntimeMinutes: 30,
@@ -516,8 +516,8 @@ try {
         () => run('dispatch_auto', {
           storyId: 'B-unattended',
           policy: 'chk008-real-only',
-          host: 'gemini',
-          allowedPaths: ['packages/main/src/generated/chk008-gemini.txt'],
+          host: 'antigravity',
+          allowedPaths: ['packages/main/src/generated/chk008-antigravity.txt'],
           objective: 'CHK-008 unavailable host refusal',
         }),
         /not available|not unattended-safe|unattendedSafe=false/i,
@@ -527,17 +527,18 @@ try {
       process.env.PATH = savedPath;
     }
 
-    // 8d: real host available but unattendedSafe=false → refusal even when CLI present
+    // 8d: antigravity gained a supervised real-leaf agy path but STAYS refused for
+    // unattended dispatch_auto → refusal even when the CLI is present.
     assert.throws(
       () => run('dispatch_auto', {
         storyId: 'B-unattended',
         policy: 'chk008-real-only',
-        host: 'gemini',
-        allowedPaths: ['packages/main/src/generated/chk008-gemini-available.txt'],
+        host: 'antigravity',
+        allowedPaths: ['packages/main/src/generated/chk008-antigravity-available.txt'],
         objective: 'CHK-008 unattendedSafe=false refusal',
       }),
       /not unattended-safe|unattendedSafe=false|not available/i,
-      'dispatch_auto must refuse real host with unattendedSafe=false even if CLI is present',
+      'dispatch_auto must refuse antigravity (unattended-refused) even if the CLI is present',
     );
   }
 

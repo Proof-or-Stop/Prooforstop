@@ -35,9 +35,9 @@ const hostVerdictsJson = JSON.stringify({
     ['wave-1', 'codex', 'host-codex-wave-1'],
     ['wave-1', 'claude', 'host-claude-wave-1'],
     ['wave-2', 'codex', 'host-codex-wave-2'],
-    ['wave-2', 'gemini', 'host-gemini-wave-2'],
+    ['wave-2', 'antigravity', 'host-antigravity-wave-2'],
     ['wave-3', 'claude', 'host-claude-wave-3'],
-    ['wave-3', 'gemini', 'host-gemini-wave-3'],
+    ['wave-3', 'antigravity', 'host-antigravity-wave-3'],
   ].map(([reviewWaveId, provider, hostId]) => ({
     verdictId: `verdict-${hostId}`,
     jobId: 'job-baseline-smoke',

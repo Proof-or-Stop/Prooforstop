@@ -1341,7 +1341,7 @@ export function buildJobPlan(
       minIndependentHosts: multiHostKnobs.minIndependentHosts,
       targetHostsPerWave: 3,
       preferredHostsForReleaseCertification: 3,
-      preferredVerifierProviders: ['codex', 'claude', 'gemini'],
+      preferredVerifierProviders: ['codex', 'claude', 'antigravity'],
       requireMultiHost: multiHostKnobs.requireMultiHost,
       requiredHostVerdictCount: multiHostKnobs.requiredHostVerdictCount,
       requiredReviewWaveCount: 3,

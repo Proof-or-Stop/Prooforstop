@@ -26,7 +26,6 @@
 import type { LedgerUsage, TokenDimension, UsageCanonical } from './record.js';
 import { adaptAnthropicUsage, ANTHROPIC_PROVIDER_UNITS } from './adapters/anthropic.js';
 import { adaptOpenAiUsage, OPENAI_PROVIDER_UNITS } from './adapters/openai.js';
-import { adaptGeminiUsage, GEMINI_PROVIDER_UNITS } from './adapters/gemini.js';
 import {
   buildUnavailableUsage,
   hasBothPrimaries,
@@ -204,46 +203,3 @@ export function extractOpenAiStreamUsage(
   return buildUnavailableUsage(noUsageReason('openai', errorReason));
 }
 
-// --------------------------------------------------------------------------
-// Gemini
-// --------------------------------------------------------------------------
-
-/** A Gemini stream chunk (only the shapes we read). */
-export interface GeminiStreamChunk {
-  usageMetadata?: unknown;
-}
-
-/**
- * Extract final usage from a Gemini stream. Gemini repeats usageMetadata on
- * chunks; the final chunk carries the authoritative counts. The extractor uses
- * the LAST chunk carrying usageMetadata. Complete -> standard adapter; partial
- * with any real count -> preserved partial; none -> unavailable.
- */
-export function extractGeminiStreamUsage(
-  chunks: readonly GeminiStreamChunk[],
-  errorReason?: string,
-): LedgerUsage {
-  let lastMeta: unknown;
-  for (const chunk of chunks) {
-    if (isUsableUsageObject(chunk.usageMetadata)) lastMeta = chunk.usageMetadata; // terminal wins.
-  }
-
-  if (!isUsableUsageObject(lastMeta)) {
-    return buildUnavailableUsage(noUsageReason('gemini', errorReason));
-  }
-
-  const meta = lastMeta as Record<string, unknown>;
-  const input = readReportedDimension(meta.promptTokenCount);
-  const output = readReportedDimension(meta.candidatesTokenCount);
-
-  if (hasBothPrimaries(input, output)) {
-    return adaptGeminiUsage(meta);
-  }
-
-  const cacheRead = 'cachedContentTokenCount' in meta ? readReportedDimension(meta.cachedContentTokenCount) : null;
-  const dims = { input, output, cacheCreation: null as TokenDimension, cacheRead };
-  if (anyCount(dims)) {
-    return buildPartialProviderUsage(dims, GEMINI_PROVIDER_UNITS, meta);
-  }
-  return buildUnavailableUsage(noUsageReason('gemini', errorReason));
-}

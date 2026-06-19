@@ -118,7 +118,7 @@ type JobStatusArgs = {
 type JobCreateArgs = {
   jobPlanFile?: string;
   runId?: string;
-  provider?: 'codex' | 'claude-code' | 'gemini';
+  provider?: 'codex' | 'claude-code' | 'antigravity';
   role?: 'planner' | 'implementer' | 'reviewer' | 'explorer' | 'tester';
   promptRef?: string;
   promptHash?: string;

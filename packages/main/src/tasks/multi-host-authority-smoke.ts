@@ -207,9 +207,9 @@ function fullCertificationVerdicts(): AuthorityVerdictReceipt[] {
     verdictReceipt({ verdictId: 'hv-1', reviewWaveId: 'wave-1', hostId: 'host-a', provider: 'codex', checkedReceiptId: 'rcpt-gate-1' }),
     verdictReceipt({ verdictId: 'hv-2', reviewWaveId: 'wave-1', hostId: 'host-b', provider: 'claude', checkedReceiptId: 'rcpt-gate-1' }),
     verdictReceipt({ verdictId: 'hv-3', reviewWaveId: 'wave-2', hostId: 'host-a', provider: 'codex', checkedReceiptId: 'rcpt-gate-1' }),
-    verdictReceipt({ verdictId: 'hv-4', reviewWaveId: 'wave-2', hostId: 'host-c', provider: 'gemini', checkedReceiptId: 'rcpt-gate-1' }),
+    verdictReceipt({ verdictId: 'hv-4', reviewWaveId: 'wave-2', hostId: 'host-c', provider: 'antigravity', checkedReceiptId: 'rcpt-gate-1' }),
     verdictReceipt({ verdictId: 'hv-5', reviewWaveId: 'wave-3', hostId: 'host-b', provider: 'claude', checkedReceiptId: 'rcpt-gate-1' }),
-    verdictReceipt({ verdictId: 'hv-6', reviewWaveId: 'wave-3', hostId: 'host-c', provider: 'gemini', checkedReceiptId: 'rcpt-gate-1' }),
+    verdictReceipt({ verdictId: 'hv-6', reviewWaveId: 'wave-3', hostId: 'host-c', provider: 'antigravity', checkedReceiptId: 'rcpt-gate-1' }),
   ];
 }
 

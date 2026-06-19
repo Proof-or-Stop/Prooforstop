@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 /**
- * B-12d7: smoke suite for codex/gemini provider token-usage capture in the LLM
- * usage ledger.
+ * B-fbb6 (was B-12d7): smoke suite for codex + antigravity provider token-usage
+ * capture in the LLM usage ledger.
  *
- * Covers the three layers added by this story:
- *   - CHK-001 providers: extractCodexUsage / extractGeminiUsage parse a sample CLI
- *     stdout (JSONL) into the correct token-count object, return undefined for
- *     non-JSON / empty / no-usage lines, and surface ONLY numeric token fields
- *     (no transcript-text key) — the security invariant;
+ * Covers the layers exercised by this migration:
+ *   - CHK-001 providers: extractCodexUsage parses a sample codex CLI stdout (JSONL)
+ *     into the correct token-count object, returns undefined for non-JSON / empty /
+ *     no-usage lines, and surfaces ONLY numeric token fields (no transcript-text
+ *     key) — the security invariant; antigravity (agy --print) NEVER sets
+ *     reportedUsage (no usageMetadata exists);
  *   - CHK-002 dispatch-usage: recordDispatchFinalForProvider with a codex `usage`
- *     and a gemini `usageMetadata` each writes a sequence-2 provider-reported
- *     final that supersedes the preflight estimate (no double count); a
- *     null/garbage usage writes an unavailable final (still supersedes); flag OFF
- *     => nothing written;
+ *     writes a sequence-2 provider-reported final that supersedes the preflight
+ *     estimate (no double count); antigravity ALWAYS writes a source=unavailable
+ *     final (still supersedes) since agy print mode surfaces no per-call usage;
+ *     a null/garbage usage writes an unavailable final; flag OFF => nothing written;
  *   - CLAUDE PATH REGRESSION: recordDispatchFinal with an anthropic usage still
  *     behaves exactly as before;
- *   - STATIC import boundary: providers/codex-cli.ts and gemini-cli.ts import
+ *   - STATIC import boundary: providers/codex-cli.ts and antigravity-cli.ts import
  *     nothing from core/usage-ledger.
  *
  * Runs entirely in an OS temp dir; never pollutes the repo. Prints per-check
@@ -29,7 +30,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { runBoundedCodexProvider } from '../providers/codex-cli.js';
-import { runBoundedGeminiProvider } from '../providers/gemini-cli.js';
+import { runBoundedAntigravityProvider } from '../providers/antigravity-cli.js';
 import type { ProviderProcessRunner } from '../providers/codex-cli.js';
 import {
   recordDispatchFinal,
@@ -61,7 +62,7 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
 const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
-const root = mkdtempSync(join(tmpdir(), 'usage-ledger-codex-gemini-'));
+const root = mkdtempSync(join(tmpdir(), 'usage-ledger-codex-antigravity-'));
 
 function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
   return {
@@ -115,7 +116,7 @@ function assertNoTranscriptText(usage: Record<string, unknown> | undefined): voi
 
 async function main(): Promise<void> {
   // ======================================================================
-  // CHK-001: extractCodexUsage / extractGeminiUsage (via the bounded runners)
+  // CHK-001: extractCodexUsage (codex) + antigravity has NO usage (via runners)
   // ======================================================================
   await check('CHK-001 codex: top-level usage parsed into token-count object', () => {
     const stdout = [
@@ -160,38 +161,36 @@ async function main(): Promise<void> {
     }
   });
 
-  await check('CHK-001 gemini: top-level usageMetadata parsed into token-count object', () => {
+  await check('CHK-001 antigravity: a usageMetadata-looking stdout STILL yields no reportedUsage (agy has no usage)', () => {
+    // Even if stdout happens to carry a usageMetadata-shaped object, the antigravity
+    // runner has no extraction at all — reportedUsage must remain absent (the
+    // never-infer-an-unreported-value invariant).
     const stdout = JSON.stringify({
       response: { candidates: [{ content: { parts: [{ text: 'hi' }] } }] },
       usageMetadata: { promptTokenCount: 800, candidatesTokenCount: 120, cachedContentTokenCount: 40 },
     });
-    const result = runBoundedGeminiProvider(
-      { provider: 'gemini', argv: [], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
+    const result = runBoundedAntigravityProvider(
+      { provider: 'antigravity', argv: ['--print', 'hi'], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
       fakeRunner(stdout),
     );
-    assert.ok(result.reportedUsage);
-    assert.equal(result.reportedUsage?.promptTokenCount, 800);
-    assert.equal(result.reportedUsage?.candidatesTokenCount, 120);
-    assertNoTranscriptText(result.reportedUsage);
+    assert.equal(result.provider, 'antigravity');
+    assert.equal(result.reportedUsage, undefined, 'antigravity never sets reportedUsage');
   });
 
-  await check('CHK-001 gemini: usageMetadata nested under response is parsed', () => {
-    const stdout = JSON.stringify({
-      response: { usageMetadata: { promptTokenCount: 7, candidatesTokenCount: 3 } },
-    });
-    const result = runBoundedGeminiProvider(
-      { provider: 'gemini', argv: [], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
-      fakeRunner(stdout),
+  await check('CHK-001 antigravity: plain response text -> reportedUsage absent, digests captured', () => {
+    const result = runBoundedAntigravityProvider(
+      { provider: 'antigravity', argv: ['--print', 'hi'], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
+      fakeRunner('the model response text only, no usage envelope'),
     );
-    assert.ok(result.reportedUsage);
-    assert.equal(result.reportedUsage?.promptTokenCount, 7);
-    assertNoTranscriptText(result.reportedUsage);
+    assert.equal(result.reportedUsage, undefined);
+    assert.ok(result.stdoutDigest && result.stdoutDigest.length > 0, 'stdout is captured as a digest only');
+    assert.equal(result.exitCode, 0);
   });
 
-  await check('CHK-001 gemini: non-JSON / empty / no-usage stdout -> reportedUsage absent', () => {
+  await check('CHK-001 antigravity: non-JSON / empty stdout -> reportedUsage absent, no throw', () => {
     for (const stdout of ['', '{broken json', JSON.stringify({ response: { candidates: [] } })]) {
-      const result = runBoundedGeminiProvider(
-        { provider: 'gemini', argv: [], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
+      const result = runBoundedAntigravityProvider(
+        { provider: 'antigravity', argv: ['--print', 'hi'], cwd: root, timeoutMs: 1000, maxAttempts: 1, env: process.env },
         fakeRunner(stdout),
       );
       assert.equal(result.reportedUsage, undefined, `expected no usage for stdout: ${JSON.stringify(stdout)}`);
@@ -231,36 +230,42 @@ async function main(): Promise<void> {
     assert.equal(summary.unknownCount, 1, 'openai cacheCreation null -> total unknown');
   });
 
-  await check('CHK-002 gemini: provider-reported final supersedes estimate (no double count)', () => {
+  await check('CHK-002 antigravity: unavailable final supersedes estimate (no usage, honest reason)', () => {
     const sub = freshRoot();
-    const gctx = ctx({ agentType: 'lattice-dispatch:gemini', model: 'gemini' });
-    const handle = recordDispatchPreflight(sub, gctx, 'prompt', opts(ON));
+    const actx = ctx({ agentType: 'lattice-dispatch:antigravity', model: 'antigravity' });
+    const handle = recordDispatchPreflight(sub, actx, 'prompt', opts(ON));
     assert.ok(handle);
+    // antigravity ALWAYS lands in the source=unavailable branch — agy --print
+    // surfaces no per-call token usage; even if a reportedUsage-looking value is
+    // passed, antigravity must never produce a provider-reported final.
     recordDispatchFinalForProvider(
       sub,
-      gctx,
+      actx,
       handle!.correlation,
       handle!.estimateRecordId,
-      'gemini',
+      'antigravity',
       { promptTokenCount: 800, candidatesTokenCount: 120, cachedContentTokenCount: 40 },
-      'gemini-2.5-pro',
+      'antigravity-1.0',
       opts(ON),
     );
     const records = readLedger(sub);
     assert.equal(records.length, 2);
-    const final = records.find((r) => r.usage.source === 'provider-reported');
-    assert.ok(final, 'expected a provider-reported final');
+    assert.equal(records.find((r) => r.usage.source === 'provider-reported'), undefined, 'antigravity never writes a provider-reported final');
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final, 'expected an unavailable final');
     assert.equal(final?.sequence, 2);
-    assert.equal(final?.provider?.name, 'gemini');
-    assert.equal(final?.provider?.model, 'gemini-2.5-pro');
-    assert.equal(final?.usage.inputTokens, 800);
-    assert.equal(final?.usage.outputTokens, 120);
-    assert.equal(final?.usage.cacheReadInputTokens, 40);
+    assert.equal(final?.provider?.name, 'antigravity');
+    assert.equal(final?.provider?.model, 'antigravity-1.0');
+    assert.strictEqual(final?.usage.inputTokens, null);
+    assert.strictEqual(final?.usage.outputTokens, null);
+    assert.ok(
+      typeof final?.usage.unavailableReason === 'string' && /agy.*print mode.*token usage/i.test(final!.usage.unavailableReason!),
+      'unavailableReason must explain agy print mode surfaces no per-call token usage',
+    );
     assert.deepEqual(final?.supersedesRecordIds, [handle!.estimateRecordId]);
     const summary = summarizeRecords(records);
-    // gemini cacheCreation is null too -> total unknown, but the token counts are
-    // present on the record. The estimate is superseded regardless.
     assert.equal(summary.estimateCount, 0, 'estimate must be superseded, not counted');
+    assert.equal(summary.unknownCount, 1, 'antigravity unavailable final is bucketed unknown');
   });
 
   await check('CHK-002 null/garbage usage -> unavailable final (still supersedes)', () => {
@@ -415,18 +420,21 @@ async function main(): Promise<void> {
   // ======================================================================
   // CHK-PRIMARY (B-b1f4): the ADDITIVE input+output ("primary") aggregate.
   //
-  // A codex (openai adapter) and a gemini provider-reported final each set
-  // cacheCreation=null BY DESIGN, so they stay four-field-UNKNOWN (excluded
-  // from providerReportedTotal / bySource.known) — yet their input+output MUST
-  // surface in summary.primaryReportedTotal and diagnostics
+  // A codex (openai adapter) provider-reported final sets cacheCreation=null BY
+  // DESIGN, so it stays four-field-UNKNOWN (excluded from providerReportedTotal /
+  // bySource.known) — yet its input+output MUST surface in
+  // summary.primaryReportedTotal and diagnostics
   // bySource['provider-reported'].primaryKnown. A claude record (all four dims
   // known) appears in BOTH the strict four-field total AND the primary total.
-  // Estimates and unavailable records contribute to NEITHER primary aggregate.
+  // An antigravity final is source=unavailable (no usage at all), so it
+  // contributes to NEITHER aggregate. Estimates and unavailable records
+  // contribute to NO primary aggregate.
   // ======================================================================
 
-  // Build a single combined ledger by writing codex/gemini/claude finals (each
-  // supersedes its own preflight estimate) into ONE shared root, then reading
-  // the whole chain back. Distinct correlations per preflight keep them apart.
+  // Build a single combined ledger by writing codex/antigravity/claude finals
+  // (each supersedes its own preflight estimate) into ONE shared root, then
+  // reading the whole chain back. Distinct correlations per preflight keep them
+  // apart.
   const primaryRoot = freshRoot();
 
   // codex final: input=500, output=200, cache* null -> four-field unknown.
@@ -444,20 +452,20 @@ async function main(): Promise<void> {
       opts(ON),
     );
   }
-  // gemini final: input=800, output=120, cacheRead=40, cacheCreation null ->
-  // four-field unknown (cacheCreation null) but primary-known.
+  // antigravity final: source=unavailable (no per-call usage) -> contributes to
+  // NEITHER the primary aggregate NOR the four-field total.
   {
-    const gctx = ctx({ agentType: 'lattice-dispatch:gemini', model: 'gemini' });
-    const h = recordDispatchPreflight(primaryRoot, gctx, 'gemini-prompt', opts(ON));
+    const actx = ctx({ agentType: 'lattice-dispatch:antigravity', model: 'antigravity' });
+    const h = recordDispatchPreflight(primaryRoot, actx, 'antigravity-prompt', opts(ON));
     assert.ok(h);
     recordDispatchFinalForProvider(
       primaryRoot,
-      gctx,
+      actx,
       h!.correlation,
       h!.estimateRecordId,
-      'gemini',
-      { promptTokenCount: 800, candidatesTokenCount: 120, cachedContentTokenCount: 40 },
-      'gemini-2.5-pro',
+      'antigravity',
+      undefined,
+      'antigravity-1.0',
       opts(ON),
     );
   }
@@ -479,20 +487,21 @@ async function main(): Promise<void> {
   }
   const primaryRecords = readLedger(primaryRoot);
 
-  await check('CHK-PRIMARY summary: codex+gemini+claude all contribute to primaryReportedTotal', () => {
+  await check('CHK-PRIMARY summary: codex+claude contribute to primaryReportedTotal; antigravity does NOT', () => {
     const summary = summarizeRecords(primaryRecords);
-    // (500+200) + (800+120) + (500+200) = 700 + 920 + 700 = 2320 across 3 finals.
-    assert.equal(summary.primaryReportedTotal, 2320, 'primary total = sum of all three input+output');
-    assert.equal(summary.primaryReportedCount, 3, 'all three provider-reported finals contribute to primary');
+    // (500+200) + (500+200) = 700 + 700 = 1400 across the two provider-reported
+    // finals; the antigravity unavailable final adds nothing.
+    assert.equal(summary.primaryReportedTotal, 1400, 'primary total = codex + claude input+output only');
+    assert.equal(summary.primaryReportedCount, 2, 'only the two provider-reported finals contribute to primary');
   });
 
-  await check('CHK-PRIMARY summary: strict four-field UNCHANGED (claude only, codex/gemini still unknown)', () => {
+  await check('CHK-PRIMARY summary: strict four-field UNCHANGED (claude only; codex unknown, antigravity unavailable)', () => {
     const summary = summarizeRecords(primaryRecords);
     // Only claude has all four dims known: 500+200+10+50 = 760.
     assert.equal(summary.providerReportedTotal, 760, 'four-field total counts claude only');
     assert.equal(summary.providerReportedCount, 1, 'only claude is four-field-known');
-    // codex + gemini are four-field unknown (cacheCreation null by design).
-    assert.equal(summary.unknownCount, 2, 'codex+gemini four-field unknown; estimates superseded');
+    // codex is four-field unknown (cacheCreation null); antigravity is unavailable.
+    assert.equal(summary.unknownCount, 2, 'codex unknown + antigravity unavailable; estimates superseded');
     // Estimates were all superseded by their finals -> none counted.
     assert.equal(summary.estimateCount, 0, 'preflight estimates are superseded, not counted');
     assert.equal(summary.estimateSubtotal, 0, 'no estimate subtotal (all superseded)');
@@ -501,18 +510,18 @@ async function main(): Promise<void> {
   await check('CHK-PRIMARY diagnostics: bySource provider-reported carries primaryKnown AND four-field known', () => {
     const report = buildUsageReport(primaryRecords);
     const pr = report.overall.bySource['provider-reported'];
-    // Primary aggregate spans all three finals: in = 500+800+500 = 1800; out = 200+120+200 = 520.
-    assert.equal(pr.primaryKnown.input, 1800, 'overall primary input across all three finals');
-    assert.equal(pr.primaryKnown.output, 520, 'overall primary output across all three finals');
-    assert.equal(pr.primaryKnownCount, 3, 'all three finals are primary-known');
-    // Four-field known counts claude only (codex/gemini cacheCreation null).
+    // Primary aggregate spans the two provider-reported finals: in = 500+500 = 1000; out = 200+200 = 400.
+    assert.equal(pr.primaryKnown.input, 1000, 'overall primary input across the two provider-reported finals');
+    assert.equal(pr.primaryKnown.output, 400, 'overall primary output across the two provider-reported finals');
+    assert.equal(pr.primaryKnownCount, 2, 'codex + claude are primary-known; antigravity is unavailable');
+    // Four-field known counts claude only (codex cacheCreation null).
     assert.deepEqual(
       pr.known,
       { input: 500, output: 200, cacheCreation: 10, cacheRead: 50 },
       'four-field known is the claude record only',
     );
     assert.equal(pr.knownCount, 1, 'only claude contributes to four-field known');
-    assert.equal(pr.unknownCount, 2, 'codex+gemini are four-field unknown');
+    assert.equal(pr.unknownCount, 1, 'codex is four-field unknown (antigravity is in the unavailable bucket, not provider-reported)');
   });
 
   await check('CHK-PRIMARY aggregateByGroup: codex group is four-field-unknown yet primary-known', () => {
@@ -845,9 +854,9 @@ async function main(): Promise<void> {
   // ======================================================================
   // STATIC import boundary: providers must NOT import core/usage-ledger
   // ======================================================================
-  await check('STATIC providers/codex-cli.ts + gemini-cli.ts import NOTHING from core/usage-ledger', () => {
+  await check('STATIC providers/codex-cli.ts + antigravity-cli.ts import NOTHING from core/usage-ledger', () => {
     const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
-    for (const rel of ['providers/codex-cli.ts', 'providers/gemini-cli.ts']) {
+    for (const rel of ['providers/codex-cli.ts', 'providers/antigravity-cli.ts']) {
       const src = readFileSync(join(repoRoot, 'packages', 'main', 'src', rel), 'utf8');
       const importRe = /from\s+['"]([^'"]+)['"]/g;
       let m: RegExpExecArray | null;
@@ -869,13 +878,13 @@ async function main(): Promise<void> {
 main()
   .then(() => {
     if (failures.length > 0) {
-      console.error(`\n✗ usage-ledger codex/gemini smoke FAILED (${failures.length} failing): ${failures.join(', ')}`);
+      console.error(`\n✗ usage-ledger codex/antigravity smoke FAILED (${failures.length} failing): ${failures.join(', ')}`);
       process.exit(1);
     }
-    console.log(`\n✓ usage-ledger codex/gemini smoke passed (${passed} checks)`);
+    console.log(`\n✓ usage-ledger codex/antigravity smoke passed (${passed} checks)`);
   })
   .catch((err) => {
-    console.error('✗ usage-ledger codex/gemini smoke crashed');
+    console.error('✗ usage-ledger codex/antigravity smoke crashed');
     console.error(err instanceof Error ? err.stack ?? err.message : String(err));
     process.exit(1);
   })
