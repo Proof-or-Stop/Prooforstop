@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "init-window-data-loss smoke drives the real story_create then a concurrent git clean -fd; asserts the INIT metadata survives (would be RED without the fix, proven by scratch neutralization).",
+          "headHash": "774a6f48a3aba1bb728c26b0061742d702185b8f",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:50.657Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
