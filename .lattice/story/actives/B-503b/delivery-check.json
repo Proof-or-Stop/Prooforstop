@@ -1,0 +1,43 @@
+{
+  "storyId": "B-503b",
+  "checkedAt": "2026-06-19T00:43:37.815Z",
+  "reviewRound": "2026-06-19T00:37:32.784Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Defines the mandatory review assurance floor for code-changing stories, the failure-triggered 3x1 escalation path, the high-risk 3x2/degraded fallback boundary, and the Non-authority local evidence boundary.",
+      "status": "verified",
+      "verifiedBy": "manual read plus rg",
+      "evidence": "Document states zero-review code DONE is invalid, clean material code requires at least one review round, failure signals require sticky three rounds x one local host, high-risk lifecycle/gate/Authority/process-fact work keeps 3x2 or explicit degraded fallback, and local host verdicts must not set authorityDone/fullAuthorityDone/productionDone."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Links to the new review assurance floor execution plan.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "docs/requirements/NAV.md:50 links Review Assurance Floor Execution Plan to decisions/review-assurance-floor-execution-plan.md."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Read docs/requirements/decisions/review-assurance-floor-execution-plan.md and verified it contains the promised review-floor, escalation, high-risk fallback, and Authority-boundary policy. rg found the NAV link. rg TODO|TBD|FIXME found no unresolved markers; git diff --check main...HEAD passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Ran runId-specific statuses for B-503b-local-audit-r1/r2/r3. Each autopilot_review_status is mode=local with totalVerdicts=1, passingIndependentHosts=1, staleVerdicts=0, keyId=local-codex-non-authority, one localReviewEvidenceRefs host-verdict, and authorityDone=false, receiptVerified=false, fullAuthorityDone=false, multiHostVerified=false. Each remains status=blocked only because two independent hosts are required for certification. review_escalation_status also reports authorityDone=false, fullAuthorityDone=false, productionDone=false."
+    },
+    {
+      "featureId": "B-503b-validation",
+      "transcript": "lattice session_brief reports Last test run PASS at 2026-06-19T00:41:58.301Z and DONE pre-check Test evidence PASS with fresh material hash and 6/6 verification-intent coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met: the decision document exists, NAV is linked, validation evidence is PASS, and three runId-specific local single-host audit rounds are recorded as Non-authority evidence without Authority overclaim."
+  },
+  "_hash": "937b01e57336cdcd6b0fd24273f9df664e6100fe669564dcb9fa918912cc5aed"
+}
