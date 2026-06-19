@@ -36,13 +36,23 @@ export const VERSION_SYNC_PATHS: readonly string[] = [
 
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)$/;
 /**
- * Matches the EXPORTED LATTICE_CLI_VERSION declaration in lattice-brand.ts. Anchored to the
- * START of a line (multiline `^\s*`) followed by `export const`, so neither a plain
- * `// LATTICE_CLI_VERSION = '...'` mention NOR a commented-out `// export const
- * LATTICE_CLI_VERSION = '...'` line is matched (a line comment cannot start with `export`).
- * Global so callers can count occurrences and reject an ambiguous duplicate.
+ * Matches an EXPORTED LATTICE_CLI_VERSION declaration in lattice-brand.ts. Anchored to the
+ * start of a line (`^[ \t]*` under `/m`) followed by `export const`, and applied to a
+ * COMMENT-STRIPPED view of the file (see stripComments), so neither a `// ...` line comment,
+ * a commented-out `// export const ...` line, nor a `/* ... *​/` block-commented export can
+ * be mistaken for the real constant. Global so callers can count occurrences.
  */
-const BRAND_EXPORT_RE = /^\s*export\s+const\s+LATTICE_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/gm;
+const BRAND_EXPORT_RE = /^[ \t]*export\s+const\s+LATTICE_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/gm;
+
+/**
+ * Remove `/* *​/` block comments and `//` line comments. Pragmatic for the controlled
+ * lattice-brand.ts (no comment markers live inside its string literals) — NOT a full TS
+ * parser; findBrandExport adds a raw-vs-stripped count guard to refuse any file where an
+ * export-shaped LATTICE_CLI_VERSION line also appears in a comment.
+ */
+function stripComments(src: string): string {
+  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+}
 
 export interface Semver {
   major: number;
@@ -87,26 +97,33 @@ function bumpJsonVersionContent(content: string, from: string, to: string, label
 }
 
 /**
- * Read the EXPORTED LATTICE_CLI_VERSION. Throws if there is no exported constant, or if
- * there is more than one (an ambiguous duplicate export — refuse rather than guess).
+ * Locate THE single real exported LATTICE_CLI_VERSION. Matches against the comment-stripped
+ * code (so a commented-out export — line or block — never matches), requires exactly one
+ * match in that code, and refuses if the raw file has a different match count (i.e. an
+ * export-shaped line also lives in a comment). Never a false success on a non-export.
  */
-function readBrandVersion(absPath: string): string {
-  const matches = [...readFileSync(absPath, 'utf-8').matchAll(BRAND_EXPORT_RE)];
-  if (matches.length === 0) throw new Error(`version-bump: ${absPath} has no exported LATTICE_CLI_VERSION constant`);
-  if (matches.length > 1) throw new Error(`version-bump: ${absPath} has ${matches.length} exported LATTICE_CLI_VERSION declarations (ambiguous; refusing to bump)`);
-  return matches[0][1];
+function findBrandExport(content: string, label: string): { version: string; raw: RegExpMatchArray } {
+  const codeMatches = [...stripComments(content).matchAll(BRAND_EXPORT_RE)];
+  if (codeMatches.length === 0) throw new Error(`version-bump: ${label} has no exported LATTICE_CLI_VERSION constant`);
+  if (codeMatches.length > 1) throw new Error(`version-bump: ${label} has ${codeMatches.length} exported LATTICE_CLI_VERSION declarations (ambiguous; refusing to bump)`);
+  const rawMatches = [...content.matchAll(BRAND_EXPORT_RE)];
+  if (rawMatches.length !== 1) {
+    throw new Error(`version-bump: ${label} has a LATTICE_CLI_VERSION export-shaped line in a comment as well as the real export (ambiguous; refusing to bump)`);
+  }
+  return { version: rawMatches[0][1], raw: rawMatches[0] };
 }
 
-/** Return a brand-file content string with the single exported LATTICE_CLI_VERSION set to `to`. */
+function readBrandVersion(absPath: string): string {
+  return findBrandExport(readFileSync(absPath, 'utf-8'), absPath).version;
+}
+
+/** Return a brand-file content string with the single real exported LATTICE_CLI_VERSION set to `to`. */
 function bumpBrandContent(content: string, from: string, to: string): string {
-  const matches = [...content.matchAll(BRAND_EXPORT_RE)];
-  if (matches.length === 0) throw new Error('version-bump: no exported LATTICE_CLI_VERSION constant to replace');
-  if (matches.length > 1) throw new Error(`version-bump: ${matches.length} exported LATTICE_CLI_VERSION declarations (ambiguous; refusing to bump)`);
-  const m = matches[0];
-  if (m[1] !== from) throw new Error(`version-bump: brand version "${m[1]}" != expected "${from}"`);
-  const replaced = m[0].replace(`'${from}'`, `'${to}'`);
-  const at = m.index ?? content.indexOf(m[0]);
-  return content.slice(0, at) + replaced + content.slice(at + m[0].length);
+  const { version, raw } = findBrandExport(content, 'lattice-brand.ts');
+  if (version !== from) throw new Error(`version-bump: brand version "${version}" != expected "${from}"`);
+  const replaced = raw[0].replace(`'${from}'`, `'${to}'`);
+  const at = raw.index ?? content.indexOf(raw[0]);
+  return content.slice(0, at) + replaced + content.slice(at + raw[0].length);
 }
 
 /**
@@ -136,6 +153,15 @@ export interface PatchBumpResult {
 }
 
 /**
+ * Test-only injection points (no production caller passes them). `afterWriteForTest` runs
+ * after the three files are written but BEFORE the post-write verification, so a test can
+ * corrupt the on-disk state to exercise the verify-failure rollback path.
+ */
+export interface ApplyPatchBumpTestHooks {
+  afterWriteForTest?: () => void;
+}
+
+/**
  * Patch-bump all three sync points in `root`. Pure filesystem (no git), so it is
  * hermetically testable against a temp fixture dir. Computes every replacement in memory
  * first (structural JSON for the two package.json, anchored single-match regex for the
@@ -143,7 +169,7 @@ export interface PatchBumpResult {
  * and re-reads to verify. On ANY write failure OR a failed post-write verification it
  * rolls every file back to `from`, so the three points are never left drifted.
  */
-export function applyPatchBump(root: string): PatchBumpResult {
+export function applyPatchBump(root: string, opts?: ApplyPatchBumpTestHooks): PatchBumpResult {
   const from = readSyncedVersion(root);
   const to = nextPatch(from);
 
@@ -172,6 +198,8 @@ export function applyPatchBump(root: string): PatchBumpResult {
     rollback();
     throw new Error(`version-bump: write failed and was rolled back to ${from}: ${e?.message ?? e}`);
   }
+
+  opts?.afterWriteForTest?.(); // test seam: corrupt the post-write state to exercise verify rollback
 
   // Verify inside try/catch: a THROW here (e.g. transient read error) must also roll back,
   // not just the wrong-value case — otherwise the files sit bumped-but-unverified.

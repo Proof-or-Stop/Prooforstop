@@ -78,10 +78,13 @@ void (async () => {
     check('main package.json bumped', readFileSync(join(f2, VERSION_SYNC_FILES.mainPackageJson), 'utf-8').includes('"version": "0.9.10"'));
     check('lattice-brand bumped', readFileSync(join(f2, VERSION_SYNC_FILES.brand), 'utf-8').includes("LATTICE_CLI_VERSION = '0.9.10'"));
 
-    // 3. Drift across the 3 points fails loud (no silent pick).
+    // 3. Drift across the 3 points fails loud (no silent pick) and NAMES each value.
     const f3 = fixture('0.9.9', { main: '0.9.8' });
     throws('readSyncedVersion throws on drift', () => readSyncedVersion(f3));
     throws('applyPatchBump throws on drift', () => applyPatchBump(f3));
+    let driftMsg = '';
+    try { readSyncedVersion(f3); } catch (e) { driftMsg = e instanceof Error ? e.message : String(e); }
+    check('drift error names each sync point value', driftMsg.includes('root=0.9.9') && driftMsg.includes('packages/main=0.9.8') && driftMsg.includes('lattice-brand=0.9.9'));
 
     // 4. The bump gate matches material code, skips metadata-only.
     check('gate: packages/main/src file -> bump', shouldBuildDoneMainPackageForChangedPaths(['packages/main/src/core/x.ts']) === true);
@@ -222,6 +225,38 @@ void (async () => {
       commitErr = e instanceof Error ? e.message : String(e);
     }
     check('commit failure throws with a recovery message (git commit + target version)', commitErr.includes('git commit') && commitErr.includes('0.9.10'));
+
+    // 16. Adversarial: a BLOCK-commented export (Codex round-3 repro) is not the real constant.
+    const fblock = fixture('0.9.9');
+    writeFileSync(join(fblock, VERSION_SYNC_FILES.brand), `/*\nexport const LATTICE_CLI_VERSION = '0.9.9' as const;\n*/\n`);
+    throws('brand with ONLY a block-commented export throws (no real export)', () => readSyncedVersion(fblock));
+    throws('applyPatchBump refuses a block-comment-only brand', () => applyPatchBump(fblock));
+
+    // 17. Adversarial: a real export PLUS a block-comment export-shaped line is ambiguous -> throws.
+    const fblock2 = fixture('0.9.9');
+    writeFileSync(
+      join(fblock2, VERSION_SYNC_FILES.brand),
+      `/*\nexport const LATTICE_CLI_VERSION = '9.9.9' as const;\n*/\nexport const LATTICE_CLI_VERSION = '0.9.9' as const;\n`,
+    );
+    throws('real + block-comment export-shaped line -> ambiguous, throws', () => readSyncedVersion(fblock2));
+
+    // 18. Adversarial: a post-write VERIFICATION throw (drift introduced after writes) rolls back.
+    const fverThrow = fixture('0.9.9');
+    throws('verify-throw (post-write drift) -> applyPatchBump throws', () => applyPatchBump(fverThrow, {
+      afterWriteForTest: () => writeFileSync(join(fverThrow, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION = '5.5.5' as const;\n`),
+    }));
+    check('verify-throw rolled back: all 3 restored to 0.9.9', readSyncedVersion(fverThrow) === '0.9.9');
+
+    // 19. Adversarial: a post-write WRONG-VALUE (synced but != to) also rolls back.
+    const fverWrong = fixture('0.9.9');
+    throws('verify wrong-value -> applyPatchBump throws', () => applyPatchBump(fverWrong, {
+      afterWriteForTest: () => {
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "7.7.7"\n}\n`);
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice-agent/core",\n  "version": "7.7.7"\n}\n`);
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION = '7.7.7' as const;\n`);
+      },
+    }));
+    check('verify wrong-value rolled back: all 3 restored to 0.9.9', readSyncedVersion(fverWrong) === '0.9.9');
 
     console.log(`version-bump smoke passed: ${passed} assertions`);
   } catch (e) {
