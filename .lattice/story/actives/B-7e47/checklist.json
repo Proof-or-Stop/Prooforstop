@@ -161,9 +161,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T19:06:25.119Z",
       "userSees": "Live smoke request-shape output includes \"materialOverlapAudit.present=true overlapCount=0\" before the DONE preflight POST, replacing the previous staging failure \"materialOverlapAudit.present=false\".",
       "files": {
         "modify": [
@@ -196,7 +196,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: smoke printed materialOverlapAudit.present=true overlapCount=0 after inspecting signedGateRequest(ctx, decisionId) from authority-live-python-e2e-smoke.",
+          "headHash": "88ebcb039d6982025a1bbc609c16463648688e1a",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:25.210Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: live request-shape regression exercised zero, one, and two extraEvidenceRefs; materialOverlapAudit stayed present with empty arrays in all cases.",
+          "headHash": "88ebcb039d6982025a1bbc609c16463648688e1a",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:25.295Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-live-python-e2e-smoke.js",
+          "result": "pass",
+          "note": "Post-commit 7225c4bfb: live smoke entrypoint exited 0 with SKIPPED because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were not set; no credential files were inspected, so staging pass is not claimed.",
+          "headHash": "88ebcb039d6982025a1bbc609c16463648688e1a",
+          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
+          "timestamp": "2026-06-19T19:06:25.384Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
