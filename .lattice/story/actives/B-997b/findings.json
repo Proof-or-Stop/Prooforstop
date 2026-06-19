@@ -1,0 +1,29 @@
+{
+  "findings": [
+    {
+      "id": "B-997b:F-001",
+      "desc": "Canonical scope path classification is not actually shared with the prewrite guard. scope-contract.ts now uses classifyScopePath and recognizes lifecycle/runtime artifacts via lifecycle-registry and runtime-artifact-registry, but prewrite-guard.ts still keeps its own pathMatchesPattern/isInAllowedList/evaluatePathAgainstContract rule set and never consults those registries. Repro: a pure-function comparison on local dist with a minimal enforce contract returns scope pass and no violations for .lattice/story/actives/B-scope/summary.json and .lattice/activity.jsonl, while evaluatePathAgainstContract returns out_of_scope for both; src/in-scope.ts passes both. This violates CHK-001 adversarial intent that scope checks, guard paths, and operator-facing scope messages consume the same classifier/table, and would deny registered lifecycle/runtime writes under native-pretool or dispatch pre-apply even though the scope gate says they are allowed provenance/runtime artifacts.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T04:39:17.210Z",
+      "reviewRound": "2026-06-19T04:31:47.361Z",
+      "reviewRunId": "B-997b:RR-007",
+      "_hash": "3b96833042963003f3f923bebb45351ae14c5edd742a1ef118e20832e7f37a51",
+      "files": [
+        "packages/main/src/core/scope-path-classifier.ts",
+        "packages/main/src/core/scope-contract.ts",
+        "packages/main/src/core/prewrite-guard.ts",
+        "packages/main/src/tasks/scope-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|canonical-scope-path",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by replacing prewrite-guard.ts ad hoc path matching with the shared classifyScopePath/pathMatchesScopePattern classifier. Verified lifecycle artifact .lattice/story/actives/B-scope/summary.json and runtime artifact .lattice/activity.jsonl no longer resolve as out_of_scope in prewrite guard smoke; protected/excluded/unknown behavior remains enforced. Commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/prewrite-guard-smoke.js; node packages/main/dist/tasks/scope-contract-smoke.js; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-19T04:44:59.192Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

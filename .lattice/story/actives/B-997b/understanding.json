@@ -1,0 +1,34 @@
+{
+  "task": "Implement the M1-M3 strengthening wave for Lattice scope boundary controls.",
+  "outcome": "A user runs lattice scope_contract_check --json after an undeclared source or unknown metadata edit and sees status \"fail\" plus a stable scope row with blocking=true and a nextAction hint; after a deliberate lattice scope_contract_acknowledge with a reason, the same path remains visible as status \"warn\" with head/material audit context for reviewers.",
+  "facts": [
+    "B-b5c0 completed the decision-document roadmap repair and left runtime implementation work for later stories.",
+    "The roadmap orders M1-M3 before evidence packs, baseline suites, host quorum, command center, collaboration scheduler, rollout, and final certification work.",
+    "Existing code already has scope_boundary_set, execution_boundary_set, scope_freeze_check, scope_contract_set/show/check/acknowledge, lifecycle artifact classification, runtime artifact registry, guard session logic, and scope transition gates.",
+    "Current scope_contract_check returns status, summary, violations, warnings, and acknowledgedPaths, but not stable row ids/details/hints/source/blocking rows as specified by M2.",
+    "Current scope_contract_acknowledge records actor, reason, timestamp, paths, optional anchors and hunk digests, but does not bind the acknowledgement to current head/material hashes or render that audit context.",
+    "The scope guard guide source path is docs/guide-scope-guard.md, not docs/requirements/guide-scope-guard.md."
+  ],
+  "constraints": [
+    "Do not implement later roadmap milestones in this story; keep M4-M12 as follow-up waves.",
+    "Do not change global release policy, production authority semantics, receipt contracts, customer key behavior, or host quorum semantics.",
+    "Do not directly read or write docs/story or tests/fixtures; use Lattice CLI for story artifacts.",
+    "Lifecycle/runtime artifact classification must remain filename-aware and fail closed for unknown metadata-like paths.",
+    "PLAN scope_check_save remains reviewer-written evidence and must not be replaced by scope_contract_acknowledge."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/guide-scope-guard.md"
+  ],
+  "timestamp": "2026-06-19T04:10:42.844Z"
+}

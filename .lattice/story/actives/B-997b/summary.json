@@ -1,0 +1,56 @@
+{
+  "storyId": "B-997b",
+  "changes": "Implemented wave 1 scope boundary controls: shared canonical scope path classifier, stable scope check rows, lifecycle/runtime artifact classification, review-visible scope acknowledgements, and prewrite guard alignment with scope-contract behavior. Updated focused smoke coverage and synchronized scope guard/lifecycle/roadmap docs.",
+  "usage": "Use the existing Lattice flow: create a story with scope contract, run scope_contract_check or prewrite_guard_check, and expect lifecycle/runtime artifacts to be classified by registry while protected excluded unknown paths still block. Run lattice validate --story=B-997b or the focused smoke commands to verify.",
+  "expectedOutcome": "Expected local transcript: build and configured validation commands pass, focused prewrite/scope/process-fact smokes pass, reviewer lanes pass, local 3x2 review assurance is satisfied, and docs explicitly keep M4-M12 Authority receipt Layer4 customerKeyRef production behavior out of scope.",
+  "actualTranscript": "Actual transcript: npm build passed; prewrite guard smoke passed; scope contract smoke passed; process fact contract verified; lattice validate passed with 5 configured commands and 24/24 verification-intent coverage; delivery-check saved 3 docs promises and 4 real-machine tests; final local 3x2 rounds each had codex and local-runner pass.",
+  "outcomeDiff": "No difference: the final observed transcript matches the expected local non-Authority completion outcome after F-001 was repaired and revalidated.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local non-Authority completion only. Claude/Gemini external review hosts were unavailable or unreliable in this session, so final 3x2 assurance is local Codex plus local-runner verdict evidence and does not claim Authority receipt verification, productionDone, fullAuthorityDone, receiptVerified, Layer4, customerKeyRef, or M4-M12 delivery.",
+  "pitfalls": "The first REVIEW found F-001: prewrite guard still used an ad hoc classifier. After fixing it, repeated main merges made evidence and host verdicts stale, so validation evidence and 3x2 verdicts had to be refreshed against the final material hash before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 183409
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13525
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 803921
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1430259
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 29160223
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 628462
+    }
+  },
+  "totalDurationMs": 32219801,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T12:52:54.410Z",
+  "updatedAt": "2026-06-19T12:52:54.410Z"
+}

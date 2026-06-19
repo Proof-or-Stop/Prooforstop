@@ -16,6 +16,10 @@
 import { resolve, relative, isAbsolute } from 'node:path';
 import type { ScopeContractData } from './types.js';
 import { containsLegacyKoalaDir } from './lattice-paths.js';
+import {
+  classifyScopePath,
+  pathMatchesScopePattern,
+} from './scope-path-classifier.js';
 
 // ── Verdict ──
 
@@ -140,25 +144,9 @@ export function normalizeToProjectRoot(
 
 // ── Scope evaluation ──
 
-function pathMatchesPattern(filePath: string, pattern: string): boolean {
-  if (filePath === pattern) return true;
-  if (filePath.startsWith(pattern.endsWith('/') ? pattern : `${pattern}/`)) return true;
-  const globless = pattern.replace(/\/\*\*?$/, '').replace(/\*$/, '');
-  if (globless !== pattern && filePath.startsWith(globless)) return true;
-  if (pattern.startsWith('*.')) {
-    const ext = pattern.slice(1);
-    if (filePath.endsWith(ext)) return true;
-  }
-  return false;
-}
-
-function isInAllowedList(filePath: string, lists: readonly string[][]): boolean {
-  return lists.some(list => list.some(p => pathMatchesPattern(filePath, p)));
-}
-
 function isAcknowledged(filePath: string, contract: ScopeContractData): boolean {
   return contract.acknowledgements.some(ack =>
-    ack.paths.some(p => pathMatchesPattern(filePath, p)),
+    ack.paths.some(p => pathMatchesScopePattern(filePath, p)),
   );
 }
 
@@ -174,24 +162,19 @@ export function evaluatePathAgainstContract(
   normalizedPath: string,
   contract: ScopeContractData,
 ): PrewriteViolation | null {
-  const allAllowed: string[][] = [
+  const allAllowedLists: string[][] = [
     contract.allowedModify,
     contract.allowedCreate,
     contract.allowedTest,
   ];
+  const hasAllowedScope = allAllowedLists.some(l => l.length > 0);
 
-  const isProtected = contract.protectedFiles.some(p => pathMatchesPattern(normalizedPath, p));
-  if (isProtected) return { path: normalizedPath, rule: 'protected' };
+  const classification = classifyScopePath(contract, normalizedPath);
+  if (classification.allowed) return null;
+  if (classification.category === 'protected') return { path: normalizedPath, rule: 'protected' };
+  if (classification.category === 'excluded') return { path: normalizedPath, rule: 'excluded' };
 
-  const isExcluded = contract.explicitExcludes.some(p => pathMatchesPattern(normalizedPath, p));
-  if (isExcluded) return { path: normalizedPath, rule: 'excluded' };
-
-  const hasAnyAllowedList = allAllowed.some(l => l.length > 0);
-  if (!hasAnyAllowedList) return null; // no restriction defined, allow by default
-
-  const inScope = isInAllowedList(normalizedPath, allAllowed);
-  if (inScope) return null;
-
+  if (!hasAllowedScope) return null; // no restriction defined, allow by default
   const acked = isAcknowledged(normalizedPath, contract);
   if (acked) return null; // explicitly acknowledged out-of-scope change
 

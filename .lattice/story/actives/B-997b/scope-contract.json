@@ -1,0 +1,44 @@
+{
+  "storyId": "B-997b",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/guide-scope-guard.md",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/scope-path-classifier.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/authority-*",
+    "packages/main/src/core/verdicts.ts",
+    "packages/main/src/core/host-independence.ts",
+    "packages/main/src/core/baseline-risk.ts",
+    "packages/main/src/core/verification-context-pack.ts"
+  ],
+  "scopeChangeReason": "Initialized from corrected B-997b PLAN file declarations for M1-M3 wave-one scope hardening only.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Necessary F-001 REVIEW fix: prewrite guard must share the canonical scope classifier and smoke must cover the lifecycle/runtime artifact repros requested by the finding.",
+      "timestamp": "2026-06-19T04:44:26.002Z",
+      "paths": [
+        "packages/main/src/core/prewrite-guard.ts",
+        "packages/main/src/tasks/prewrite-guard-smoke.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-19T04:03:17.195Z",
+  "updatedAt": "2026-06-19T04:44:26.002Z"
+}

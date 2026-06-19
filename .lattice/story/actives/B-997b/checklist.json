@@ -7,11 +7,125 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
         "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
-        "docs/requirements/guide-scope-guard.md"
+        "docs/guide-scope-guard.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T04:14:02.555Z",
+      "endTime": "2026-06-19T04:21:49.189Z",
+      "userSees": "Expected terminal JSON includes \"rows\":[{\"id\":\"scope.out_of_scope:src/other.ts\",\"status\":\"fail\",\"blocking\":true,\"nextAction\":\"Declare the path in the PLAN scope or run scope_contract_acknowledge with a reason.\"}].",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/scope-contract.ts"
+        ],
+        "create": [
+          "packages/main/src/core/scope-path-classifier.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical scope contract data represents allowed modifies, allowed creates, allowed tests, protected files, explicit excludes, related docs, and execution-boundary categories as first-class fields consumed by scope checks.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A declared source/docs change is classified through the canonical boundary model and produces stable scope check rows with id, status, source path, blocking flag, and next-action hint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown or malformed path classes fail closed with a structured reason instead of being implicitly allowed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Runtime, lifecycle, generated artifact, external authority, direct story JSON, and fixture exclusions remain represented as data and are not collapsed into prose-only plan text.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An undeclared runtime source edit and an arbitrary metadata JSON file under a runtime-like directory both block unless the canonical model explicitly permits them.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Scope checks, guard sessions, and operator-facing scope messages consume the same classifier/table rather than maintaining duplicate ad hoc rule sets.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Build passed and scope-contract smoke passed; core types now expose ScopePathClassification/ScopeCheckRow and checkScopeContract consumes classifier data for allowed/protected/excluded rows.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts stable rows such as scope.out_of_scope:src/other.ts with status/source/blocking/action fields and registered lifecycle/runtime pass rows.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers fail-closed unknown paths including unregistered story evidence, unknown metadata, undeclared source, and fixture paths.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Runtime and lifecycle registry categories are first-class classifier rows, while unregistered metadata and fixture paths remain out_of_scope rather than prose-only exceptions.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies registered lifecycle/runtime artifacts pass and arbitrary metadata/source/fixture paths block when undeclared.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prewrite-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prewrite-guard-smoke.js && node packages/main/dist/tasks/scope-contract-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "F-001 resolved on current material diff: prewrite_guard_check consumes classifyScopePath/pathMatchesScopePattern, and prewrite guard smoke verifies .lattice/story/actives/B-scope/summary.json plus .lattice/activity.jsonl are allowed by the shared lifecycle/runtime classifier while protected/excluded/unknown paths remain blocked.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +136,129 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T04:29:09.396Z",
+      "endTime": "2026-06-19T04:29:58.627Z",
+      "userSees": "Expected terminal output includes \"scope.lifecycle_artifact:<storyId>:summary.json\" as non-blocking, while \"scope.out_of_scope:.lattice/story/actives/<storyId>/evidence/notes.md\" is blocking=true.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/guard-session.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registered current-story lifecycle artifacts and registered runtime artifacts are classified as provenance/runtime paths and do not create product scope violations.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Scope contract checks, guard session checks, phase gates, and scope-contract handler output expose stable row fields for classifier decisions: id, status, detail/source, hint, and blocking flag.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy story-tree paths are treated only through the supported legacy metadata path rules, while obsolete story-dir prefixes such as .koala/story are not accepted as lifecycle artifacts.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Nearby but unregistered files such as story evidence notes, arbitrary nested evidence files, unknown metadata JSON, and arbitrary .koala JSON fall through to normal scope enforcement and block when undeclared.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The classifier does not introduce blanket exemptions for .lattice, .koala, docs, docs/story, or evidence directories; arbitrary sibling files remain blocking.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Lifecycle artifact classification cannot satisfy delivery, summary, review, validation, or DONE gate receipts; those gates still require their own signed or structured evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Scope contract smoke asserts registered lifecycle rows such as scope.lifecycle_artifact:B-scope:summary.json and registered runtime rows pass without product scope violations.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke validates JSON scope rows expose id, status, source, nextAction/hint, and blocking fields for classifier decisions used by scope_contract_check output.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verifies legacy story metadata treatment and rejects obsolete .koala/story paths as lifecycle artifacts.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Scope smoke covers nearby unregistered .lattice story evidence notes, unknown metadata JSON, undeclared source, and direct fixture paths failing closed when undeclared.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Verifier checks the implementation does not regress to blanket .koala/.lattice exemptions and requires the shared scope path classifier to consume lifecycle/runtime registries.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Docs and verifier state lifecycle classification is provenance only and does not satisfy delivery, summary, review, validation, or DONE gate receipts.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,11 +267,125 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
         "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
-        "docs/requirements/guide-scope-guard.md"
+        "docs/guide-scope-guard.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T04:14:11.707Z",
+      "endTime": "2026-06-19T04:29:59.129Z",
+      "userSees": "Expected acknowledgement output includes \"headHash:\", \"materialHash:\", \"assurance: acknowledged-expansion\", and the next scope check keeps the path under \"acknowledgedPaths\" with status \"warn\".",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/core/scope-contract.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid DEV or REVIEW scope acknowledgement for a necessary late expansion records affected paths/items, explicit reason, actor/session, phase, head hash, material hash when available, and structured audit evidence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After a valid acknowledgement, the same acknowledged paths are surfaced as review-visible scope expansion rather than a silent normal pass, and lifecycle progress still depends on reviewer acceptance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Acknowledgement or repair requests missing a reason, using malformed paths or evidence refs, targeting terminal phases, or violating phase policy are rejected with deterministic repair/fallback guidance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A broad or plan-invalidating scope change remains blocking and points back to PLAN or reviewer decision instead of being accepted as a local acknowledgement.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The main implementation agent cannot self-sign reviewer-only scope evidence, silently expand the frozen contract, or overwrite authored scope/intent without explicit replace semantics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fallback behavior for missing reviewer or unsupported host is visibly lower assurance and never receives the same label or gate meaning as independent reviewer evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
+          "result": "pass",
+          "note": "Temp-repo transcript passed: scope_contract_acknowledge output includes assurance=acknowledged-expansion, phase, headHash, materialHash, affectedPaths, and persisted acknowledged expansion metadata.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
+          "result": "pass",
+          "note": "Temp-repo transcript passed: follow-up scope_contract_check returns status=warn and acknowledgedPaths includes src/other.ts, keeping the acknowledged expansion visible instead of a silent pass.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node --input-type=module -e <focused temp-repo scope_contract_acknowledge negative transcript>",
+          "result": "pass",
+          "note": "Negative transcript passed: short reason, unsafe relative path, and TEST-phase acknowledgement attempts are rejected with deterministic CLI/policy guidance.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prewrite-guard-smoke.js && node --input-type=module -e <focused temp-repo scope_contract_acknowledge transcript>",
+          "result": "pass",
+          "note": "prewrite guard smoke passed, and acknowledgement transcript uses the lower-assurance acknowledged-expansion label rather than reviewer/independent-review wording.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "Semantic scope guard smoke keeps broad or plan-invalidating scope movement blocking and points back to explicit scope acknowledgement or scope contract repair rather than silently accepting local drift.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.087Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract preserves reviewer-only scope_check_save as PLAN evidence and confirms implementation does not let the main implementer self-sign reviewer scope evidence or replace authored intent silently.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -46,11 +394,157 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
-        "docs/requirements/guide-scope-guard.md"
+        "docs/guide-scope-guard.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T04:14:32.457Z",
+      "endTime": "2026-06-19T04:26:37.457Z",
+      "userSees": "Expected verification transcript includes \"scope contract smoke passed\", \"verify-process-fact-contract passed\", and docs state \"M1-M3 wave complete; M4-M12 remain follow-up milestones\".",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/guide-scope-guard.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused regression coverage passes for M1-M3 behavior, including the scope-contract smoke and any required process-fact verifier updates for changed gate/classifier semantics.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Synchronized docs describe the new scope row, classifier, guard, and acknowledgement behavior in the roadmap, lifecycle artifact policy, and scope guard guide.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation and final evidence explicitly preserve the wave 1 boundary by naming later roadmap milestones, Authority/Layer 4/customer key work, production receipt claims, and unrelated renderer/scheduler work as non-goals.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression evidence covers both accepted registered lifecycle/runtime artifacts and rejected unknown metadata, undeclared source, direct story JSON, and fixture paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No test, verifier, or documentation update proves scope by relying on blanket directory exemptions, docs-only assertions, or lifecycle classification as a substitute for validation/review/DONE gates.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Build, focused smokes, process-fact verifier, and lattice validate remain fresh after the final material diff, so stale or partial evidence cannot satisfy wave 1 completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/scope-contract-smoke.js; node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Fresh on HEAD a5a814524: build passed, scope contract smoke printed scope contract smoke passed, and process fact verifier printed Process fact contract verified; together they cover M1-M3 rows/classifier/verifier behavior.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg M1-M3 wave complete / scope row markers across owned docs",
+          "result": "pass",
+          "note": "Roadmap, lifecycle artifact policy, and scope guard guide now describe scope row ids, lifecycle/runtime classifier treatment, guard modes, and acknowledgement visibility.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg M4-M12 remain follow-up milestones / Authority non-goals across owned docs",
+          "result": "pass",
+          "note": "Docs explicitly state M1-M3 wave complete; M4-M12 remain follow-up milestones, and name Authority/Layer 4/customer key, production receipt, renderer/scheduler, baseline unlock, and unrelated runtime work as non-goals for B-997b.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Scope smoke asserts registered lifecycle/runtime positives plus fail-closed rows for unknown story metadata, nested evidence notes, undeclared source, and direct fixture paths.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process verifier and smoke require classifier-backed rows and document that lifecycle/runtime classification is provenance only, not a substitute for validation, review, delivery, summary, or DONE gates.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/scope-contract-smoke.js; node scripts/verify-process-fact-contract.mjs; lattice validate --story=B-997b",
+          "result": "pass",
+          "note": "After final material commit a5a814524, build, focused scope smoke, and process fact verifier passed. lattice validate exited 0 and configured validation commands passed; full story all-green remains pending on CHK-001/002/003 evidence refresh/additions, not on CHK-004 material checks.",
+          "headHash": "d3ddecebd01b4247cc17a8674e76247ead882925",
+          "materialHash": "731be41fcecebc22f030f2b911456b0c554e254fff7c98c6f0895b315fb52e65",
+          "timestamp": "2026-06-19T12:45:09.088Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T04:29:09.396Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin integration evidence recording for lifecycle artifact/path classification hardening."
+    },
+    {
+      "timestamp": "2026-06-19T04:29:58.627Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Lifecycle artifact/path classification hardening implemented, tested, and evidenced."
+    },
+    {
+      "timestamp": "2026-06-19T04:29:59.129Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Structured scope drift acknowledgement and fallback behavior implemented, tested, and evidenced."
     }
   ]
 }

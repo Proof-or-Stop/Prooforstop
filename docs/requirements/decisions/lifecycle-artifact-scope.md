@@ -1,6 +1,6 @@
 # Lifecycle Artifact Scope Policy
 
-**Status**: active (B-b9d0)
+**Status**: active (B-b9d0; B-997b wave 1)
 **Scope**: scope-contract enforcement when a Lattice command writes a story-scoped
 metadata artifact during DEV / REVIEW / TEST / DONE.
 
@@ -19,6 +19,13 @@ This document fixes the policy in one place: lifecycle artifacts are a
 **narrow, filename-aware, story-scoped, current-state classifier**. It is not
 a substitute for evidence receipts and it does not weaken product source scope enforcement.
 
+B-997b wave 1 adds the operator-facing row contract on top of this policy:
+M1-M3 wave complete; M4-M12 remain follow-up milestones. The shipped scope
+behavior covers canonical changed-file rows, lifecycle/runtime artifact
+classification, guard projection, and acknowledgement visibility only. It does
+not claim Authority receipts, Layer 4 production proof, customer key behavior,
+baseline unlocks, renderer/scheduler work, or unrelated runtime features.
+
 ## The three classifier outputs
 
 `packages/main/src/core/scope-contract.ts` evaluates each changed file in this
@@ -31,8 +38,8 @@ order:
      `.koala/story/actives/` is not recognized),
    – followed by a valid storyId segment,
    – followed by either a top-level terminal filename in
-     `KOALA_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
-     `KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
+     `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
+     `LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
      `packages/main/src/core/lifecycle-registry.ts`).
      The relative-path set is intentionally tiny: today it includes the TEST
      transcript evidence path `evidence/transcript-diff.md` and does not allow
@@ -43,18 +50,20 @@ order:
 
 2. **`isRuntimeArtifactPath(file)`**
    – returns true for paths registered in the runtime-artifact registry:
-     `.koala/activity.jsonl`, `.koala/runtime/...`, `.koala/traces/...`,
-     `.koala/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
-  `.koala-tmp-*`, `koala-debug.log`, `browser-test.log`, etc.
+     `.lattice/activity.jsonl`, `.lattice/runtime/...`, `.lattice/traces/...`,
+     `.lattice/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
+  `.lattice-tmp-*`, `.koala-tmp-*`, `lattice-debug.log`, `koala-debug.log`,
+     `browser-test.log`, etc.
    – Used by scope to skip volatile runtime telemetry that Lattice writes as a
      side-effect of read/write commands. **This is NOT a blanket `.koala/`
-     pass.** An arbitrary file like `.koala/foo.json` does not match any
-     registered runtime matcher and therefore falls through.
+     or `.lattice/` pass.** An arbitrary file like `.koala/foo.json` or
+     `.lattice/foo.json` does not match any registered runtime matcher and
+     therefore falls through.
 
 3. **fall-through** → normal `allowedModify` / `allowedCreate` /
    `allowedTest` / `protectedFiles` / `explicitExcludes` enforcement applies.
    This includes ordinary source files and any unrecognized JSON under
-   `.koala/`.
+   `.koala/` or `.lattice/`.
 
 ## Adversarial invariant
 
@@ -67,6 +76,25 @@ Both reviewers and tests must continue to assert:
 - removing or weakening rule (2) — for example reverting to
   `if (file.startsWith('.koala/')) continue;` — is a regression and must be
   flagged by the contract test.
+- an arbitrary `.lattice/foo.json`, nested story evidence note, undeclared
+  source file, direct story JSON edit, or direct fixture edit still fails closed
+  unless a story's explicit scope and phase policy permits it through the
+  supported CLI path.
+
+## Stable scope rows
+
+Scope classification now produces stable rows for operator renderers and tests.
+The row is explanation and enforcement input; it is not a receipt for summary,
+delivery, review, validation, or DONE.
+
+Expected row families:
+
+| Path kind | Example row id | Status | Blocking | Meaning |
+|---|---|---|---|---|
+| Registered lifecycle artifact | `scope.lifecycle_artifact:B-scope:summary.json` | `pass` | `false` | The file is command-generated story provenance. The summary gate still needs its own structured summary evidence. |
+| Registered runtime artifact | `scope.runtime_artifact:<registry-id>` | `pass` | `false` | The file matched `runtime-artifact-registry.ts`; this is not a blanket directory exemption. |
+| Undeclared material/source/fixture/story path | `scope.out_of_scope:<path>` | `fail` | `true` | The path falls through to normal scope enforcement and needs PLAN scope declaration, rollback, or a valid acknowledgement path. |
+| Acknowledged DEV/REVIEW expansion | `scope.out_of_scope:<path>` | `warn` | `false` | The acknowledged expansion remains warn and reviewer-visible; it is not silently promoted to a normal pass. |
 
 > This classifier does not provide gate receipts. It tells you what a file is
 > (provenance), not whether the corresponding gate (delivery-check, summary,

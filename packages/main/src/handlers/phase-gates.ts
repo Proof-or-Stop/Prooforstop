@@ -28,7 +28,7 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryPhase, ReviewLoopIteration } from '../core/types.js';
+import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, ScopeViolation } from '../core/types.js';
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
@@ -52,6 +52,18 @@ import {
   runScopeGate,
 } from './scope-contract.js';
 import { renderScopeCheckResult } from '../core/scope-contract.js';
+
+type ScopeLifecycleRow = {
+  id?: string;
+  status?: string;
+  detail?: string;
+  hint?: string;
+  source?: string;
+  blocking?: boolean;
+  path?: string;
+  rule?: string;
+  assuranceLabel?: string;
+};
 
 /**
  * Returns true if any checklist item has non-empty file declarations
@@ -150,6 +162,61 @@ export function runReviewLoopGate(storyId: string, store: StoryStore): void {
     `${details.join('\n')}\n\n` +
     `→ 关闭所有 open loop（review_loop_close --status=resolved）后确保 trigger refs 已 resolved，再重跑 story_advance --phase=TEST`,
   );
+}
+
+function scopeRowId(v: ScopeViolation): string {
+  return `scope:${v.rule}:${v.path}`.replace(/\s+/g, '_');
+}
+
+function lifecycleStatusForViolation(v: ScopeViolation, resultStatus: ScopeCheckResult['status']): 'fail' | 'warn' {
+  if (v.acknowledged) return 'warn';
+  return resultStatus === 'fail' ? 'fail' : 'warn';
+}
+
+function lifecycleBlockingForViolation(v: ScopeViolation, resultStatus: ScopeCheckResult['status']): boolean {
+  return !v.acknowledged && resultStatus === 'fail';
+}
+
+function renderScopeLifecycleRows(result: ScopeCheckResult, phase: StoryPhase): string {
+  const explicitRows = (result as ScopeCheckResult & {
+    rows?: ScopeLifecycleRow[];
+    lifecycleRows?: ScopeLifecycleRow[];
+  }).rows ?? (result as ScopeCheckResult & { lifecycleRows?: ScopeLifecycleRow[] }).lifecycleRows;
+
+  if (Array.isArray(explicitRows) && explicitRows.length > 0) {
+    return [
+      'Scope gate rows:',
+      ...explicitRows.map((row, index) => {
+        const id = row.id ?? `scope-row:${index + 1}`;
+        const status = row.status ?? 'unknown';
+        const blocking = row.blocking === undefined ? 'unknown' : String(row.blocking);
+        const source = row.source ? ` source=${row.source}` : '';
+        const path = row.path ? ` path=${row.path}` : '';
+        const rule = row.rule ? ` rule=${row.rule}` : '';
+        const assurance = row.assuranceLabel ? ` assurance=${row.assuranceLabel}` : '';
+        const detail = row.detail ? ` detail=${row.detail}` : '';
+        const hint = row.hint ? ` hint=${row.hint}` : '';
+        return `  [${id}] status=${status} blocking=${blocking} phase=${phase}${source}${path}${rule}${assurance}${detail}${hint}`;
+      }),
+    ].join('\n');
+  }
+
+  const problems = [...result.violations, ...result.warnings];
+  if (problems.length === 0) return '';
+  return [
+    'Scope gate rows:',
+    ...problems.map((v) => {
+      const status = lifecycleStatusForViolation(v, result.status);
+      const blocking = lifecycleBlockingForViolation(v, result.status);
+      const anchor = v.anchor ? ` anchor=${v.anchor}` : '';
+      const digest = v.hunkDigest ? ` hunkDigest=${v.hunkDigest}` : '';
+      const assurance = v.acknowledged ? ' assurance=acknowledged-expansion' : '';
+      const hint = v.acknowledged
+        ? ' hint=review acknowledged expansion before accepting lifecycle progress'
+        : ' hint=remove change or record an explicit scope_contract_acknowledge in DEV/REVIEW';
+      return `  [${scopeRowId(v)}] status=${status} blocking=${blocking} phase=${phase} source=scope-contract path=${v.path} rule=${v.rule}${anchor}${digest}${assurance}${hint}`;
+    }),
+  ].join('\n');
 }
 
 /**
@@ -272,10 +339,12 @@ export function runScopeTransitionGate(
     return '';
   }
   const rendered = renderScopeCheckResult(result);
+  const rowDetails = renderScopeLifecycleRows(result, phase);
+  const renderedWithRows = rowDetails ? `${rendered}\n${rowDetails}` : rendered;
   if (result.status === 'fail') {
     throw new Error(
       `Cannot enter ${phase}: ${result.summary}\n\n` +
-      rendered +
+      renderedWithRows +
       `\n\n→ 修复 out-of-scope diff，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
     );
   }
@@ -284,9 +353,9 @@ export function runScopeTransitionGate(
     const recoveryHint = (phase === 'TEST' || phase === 'DONE')
       ? `→ Scope warnings (advisory, not blocking) — roll back to DEV to acknowledge via scope_contract_acknowledge, or verify via delivery reviewer.`
       : `→ Scope warnings (advisory, not blocking) — acknowledge via scope_contract_acknowledge if the expansion is intentional, then proceed.`;
-    return `\n\n${rendered}\n\n${recoveryHint}`;
+    return `\n\n${renderedWithRows}\n\n${recoveryHint}`;
   }
-  return `\n\n${rendered}`;
+  return `\n\n${renderedWithRows}`;
 }
 
 /**
