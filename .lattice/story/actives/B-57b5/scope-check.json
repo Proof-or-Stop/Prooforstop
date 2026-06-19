@@ -1,0 +1,52 @@
+{
+  "storyId": "B-57b5",
+  "checkedAt": "2026-06-19T18:44:08.719Z",
+  "features": [
+    {
+      "feature": "Lifecycle-specific CLI dispatch extraction is scoped through CHK-001.",
+      "covered_by": "CHK-001; plan.md CHK-001; scope-contract allows packages/main/src/cli/lifecycle-dispatch.ts and keeps cli-engine.ts wrapper ordering in scope.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/story_get/plan_get/scope_contract_show"
+    },
+    {
+      "feature": "INIT_CHECK metadata sync extraction is scoped through CHK-002.",
+      "covered_by": "CHK-002; plan.md CHK-002; scope-contract allows packages/main/src/cli/init-check-metadata-sync.ts; understanding and decision require bounded metadata reconcile safeguards.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/understanding_get/decision_get/plan_get/scope_contract_show"
+    },
+    {
+      "feature": "recover_evidence special dispatch extraction is scoped through CHK-002.",
+      "covered_by": "CHK-002 adversarial verificationIntent; plan.md CHK-002; scope-contract allows packages/main/src/cli/recover-evidence-dispatch.ts and requires structured diagnostics before non-zero failure.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/understanding_get/decision_get/plan_get/scope_contract_show"
+    },
+    {
+      "feature": "Verification and smoke coverage is scoped through CHK-003.",
+      "covered_by": "CHK-003; plan.md CHK-003 required commands; scope-contract allowedTest covers lifecycle dispatch, INIT_CHECK reconcile, worktree authority, verification freshness, command ownership, main-write-lock, lifecycle registry, and process-fact contract checks.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/plan_get/scope_contract_show"
+    },
+    {
+      "feature": "Stable modules, handlers, gates, and policy modules are excluded or protected.",
+      "covered_by": "Scope contract protectedFiles and explicitExcludes; checklist excludes protect business handlers, storyMachine gates, command catalog/schema semantics, Authority receipt classification, productionDone derivation, and main write lock behavior.",
+      "status": "covered",
+      "excluded_by": "Protected: handlers/story-advance.ts, handlers/recover-evidence.ts, core/machine.ts, core/process-fact-registry.ts, core/process-fact-levels.ts, core/command-policy.ts, core/main-write-lock.ts, cli command catalog/schema/parser/help/alias/root/activity/ownership/reviewer gates.",
+      "source": "scope_contract_show/checklist_get"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f1b33ae4285385cd35215a23472010b5ba55dd4d61eb0dddafb279b01376952d",
+  "openQuestions": []
+}
