@@ -105,10 +105,10 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
           "result": "pass",
-          "note": "Smoke PASS: validateWriteSetGrammar rejects mid-path double-star and bare top-level star; accepts literal/dir-star/dir-doublestar; smoke exits 0.",
-          "headHash": "273ba5facf9d1adaac545b6553cc4b664e28db1d",
-          "materialHash": "11a7b630e5e80d867df2ec651a3486268954dd280518761801ebbfc1a0abe07a",
-          "timestamp": "2026-06-19T12:57:59.125Z"
+          "note": "Smoke PASS: grammar rejects mid-path double-star, bare star, and empty-dir wildcards; smoke exits 0.",
+          "headHash": "df03681c0ff5980d510c28660cb4afa1633e189c",
+          "materialHash": "76782d1908134329f892fb4b4f8d41abe5be78d911b6f196efcab1378ea21f90",
+          "timestamp": "2026-06-19T13:12:32.577Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
