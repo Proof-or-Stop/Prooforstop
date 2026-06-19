@@ -206,7 +206,7 @@
       "desc": "doc-code-drift: all scope_contract_set examples in the spec (§3.1, §3.2, §3.3, §5.2, §5.3, §5.4, §6, §8) omit the required --mode parameter. The CLI schema (cli-engine.ts line 1976) declares mode: z.enum(['local','shadow','enforce']) without .optional() or .default(), so safeParse fails with 'Invalid enum value' when mode is absent. The handler defaults to 'enforce' (line 161 of scope-contract.ts), but that default is never reached because safeParse blocks first.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T01:58:17.038Z",
@@ -219,7 +219,11 @@
         "packages/main/src/handlers/scope-contract.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-scope",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: added required --mode=enforce to all nine scope_contract_set examples (§3.1-3.3, §5.1-5.4, §6, §8). Requirement verified: cli-engine.ts:1976 mode enum is non-optional.",
+      "resolvedAt": "2026-06-19T02:05:06.728Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-011",
