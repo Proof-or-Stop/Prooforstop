@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-fbb6",
+  "checkedAt": "2026-06-19T17:09:48.184Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "5d4f83729cf1923e7809b744bb2b82dcb1d61cfb610f9f202cdc33bb426e4717",
+  "executionBoundaryHash": "65bc3f16bccd6b21f181e30a4446c470d4a0f63a8e0a90ac5bb57d771e478c48",
+  "freshnessHash": "bef4d874e35d1531a88212f6a74e76ce84945e70a83176ad83976f842b7e6381",
+  "effectiveExcludedKeywords": [
+    "Do NOT capture antigravity token usage (deferred until agy exposes it on a stable surface); usage stays source=unavailable",
+    "Do NOT change summary.ts/diagnostics.ts aggregate logic (B-b1f4) beyond what the rename requires",
+    "Do NOT infer any token value or read raw agy transcript/trajectory blobs into the ledger (preserve no-inference + raw-never-surfaced invariants)",
+    "Do NOT introduce any cross-module import into usage-ledger (zero-cross-module-import invariant)",
+    "Do NOT keep a gemini backward-compat alias (hard rename)",
+    "Do NOT modify the anthropic / codex(openai) provider or adapter paths"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do NOT capture antigravity token usage (deferred until agy exposes it on a stable surface); usage stays source=unavailable",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT capture antigravity token usage (deferred until agy exposes it on a stable surface); usage stays source=unavailable",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT change summary.ts/diagnostics.ts aggregate logic (B-b1f4) beyond what the rename requires",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT change summary.ts/diagnostics.ts aggregate logic (B-b1f4) beyond what the rename requires",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT infer any token value or read raw agy transcript/trajectory blobs into the ledger (preserve no-inference + raw-never-surfaced invariants)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT infer any token value or read raw agy transcript/trajectory blobs into the ledger (preserve no-inference + raw-never-surfaced invariants)",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT introduce any cross-module import into usage-ledger (zero-cross-module-import invariant)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT introduce any cross-module import into usage-ledger (zero-cross-module-import invariant)",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT keep a gemini backward-compat alias (hard rename)",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT keep a gemini backward-compat alias (hard rename)",
+      "excluded": true
+    },
+    {
+      "keyword": "Do NOT modify the anthropic / codex(openai) provider or adapter paths",
+      "source": "scopeBoundary.excluded",
+      "text": "Do NOT modify the anthropic / codex(openai) provider or adapter paths",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a7e978d5731ec2d58249f59bd0028a0cf6b82f1a65302a66fe8d8354b09c06b4"
+}

@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Behavior-preserving extraction beats broad redesign.",
+    "cli-engine.ts remains the compatibility facade for public/test-facing symbols.",
+    "Catalog, schemas, and future parser/runtime/lifecycle slices must stay mechanically separated.",
+    "Focused smoke tests should compare command identity and representative help instead of trusting build alone."
+  ],
+  "drivers": [
+    "cli-engine.ts is a high-risk god file with many gate-facing command definitions.",
+    "Existing tests import MAIN_TOOLS from cli-engine.ts.",
+    "Sibling stories will later move flags/help/runtime/lifecycle surfaces and need a stable catalog boundary first."
+  ],
+  "options": [
+    {
+      "name": "A: Extract catalog/schema modules with compatibility re-export",
+      "pros": [
+        "Reduces cli-engine.ts size now",
+        "Preserves existing import path for MAIN_TOOLS and ToolDef",
+        "Creates stable boundary for later parser/runtime/lifecycle stories"
+      ],
+      "cons": [
+        "Requires moving a large block carefully",
+        "New module still imports many schema prompt constants"
+      ]
+    },
+    {
+      "name": "B: Leave MAIN_TOOLS in cli-engine and add only helper wrappers",
+      "pros": [
+        "Lowest immediate diff risk",
+        "No import movement"
+      ],
+      "cons": [
+        "Does not materially split the god file",
+        "Does not unblock later story dependencies"
+      ]
+    },
+    {
+      "name": "C: Move handlers and catalog together",
+      "pros": [
+        "Larger architectural cleanup in one pass"
+      ],
+      "cons": [
+        "Too risky for this story",
+        "Overlaps sibling lifecycle/runtime/parser scopes"
+      ]
+    }
+  ],
+  "chosen": "A: Extract catalog/schema modules with compatibility re-export",
+  "rationale": "Choose the narrow extraction because it delivers real cli-engine size reduction while preserving the command contract and leaving parser/runtime/lifecycle work to sibling stories.",
+  "preMortem": [
+    {
+      "scenario": "A schema describe/default/enum changes during the move.",
+      "trigger": "Manual copy misses a helper or imports a different Zod type.",
+      "consequence": "CLI help or argument validation changes silently.",
+      "mitigation": "Run build plus command catalog smoke comparing representative command names and help output."
+    },
+    {
+      "scenario": "Existing tests importing MAIN_TOOLS from cli-engine break.",
+      "trigger": "MAIN_TOOLS is moved without a compatibility export.",
+      "consequence": "Downstream smoke tests fail and public surface regresses.",
+      "mitigation": "Keep ToolDef and MAIN_TOOLS exported from cli-engine.ts and add smoke coverage."
+    },
+    {
+      "scenario": "The story expands into flag parser/help/runtime code.",
+      "trigger": "Extraction reveals adjacent helper coupling.",
+      "consequence": "Parallel sibling stories conflict and review scope fails.",
+      "mitigation": "Only move schema/catalog definitions; leave parseFlags/help/runCli/root gates in cli-engine.ts."
+    }
+  ],
+  "timestamp": "2026-06-19T16:35:16.418Z"
+}

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-6e69",
+  "changes": "Extracted CLI runtime root resolution, activity policy, story owner lease enforcement, and reviewer-readonly command gate helpers from cli-engine.ts into focused packages/main/src/cli modules while keeping cli-engine compatibility exports.",
+  "usage": "CLI usage is unchanged. Existing lattice commands continue through cli-engine.ts, while tests and future code can import runtime-root, activity-policy, ownership-gate, and reviewer-readonly-gate helpers from packages/main/src/cli.",
+  "expectedOutcome": "The user should see cli-engine.ts shrink in responsibility without behavior drift for root resolution, activity logging, story owner leases, reviewer readonly safety, or B-74a0 command catalog extraction.",
+  "actualTranscript": "validate --story=B-6e69 passed: build, authority-client smoke, authority-completion smoke, review-pass-discard smoke, init-window data-loss smoke, and verification intent coverage 9/9. Additional reviewer transcripts passed command ownership contract, main-write-lock coverage, reviewer-readonly smoke, command-catalog-smoke with 239 commands, and local 3x2 review assurance.",
+  "outcomeDiff": "Expected and actual match for build, configured validation, command ownership coverage, main write lock coverage, reviewer-readonly policy, command catalog preservation, delivery check, and full local 3x2 review assurance. No REVIEW findings remained open.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story records local review assurance and local machine verification only. It does not claim production Authority Server receipt verification, authorityDone, fullAuthorityDone, or productionDone.",
+  "pitfalls": "Do not treat this extraction as completing flag parsing, aliases, lifecycle dispatch, INIT_CHECK metadata sync, or recover_evidence dispatch; those remain intentionally in cli-engine.ts for later split stories.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 6965885
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 52397
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1459282
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 2621968
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 295968
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 395499
+    }
+  },
+  "totalDurationMs": 11791008,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T17:53:27.510Z",
+  "updatedAt": "2026-06-19T17:53:27.510Z"
+}

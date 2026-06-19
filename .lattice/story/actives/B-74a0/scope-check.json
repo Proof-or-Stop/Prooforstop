@@ -1,0 +1,45 @@
+{
+  "storyId": "B-74a0",
+  "checkedAt": "2026-06-19T16:37:34.201Z",
+  "features": [
+    {
+      "feature": "command schema/ToolDef extraction",
+      "covered_by": "Plan CHK-001 moves ToolDef and schema-only helper definitions into packages/main/src/cli/* while preserving cli-engine.ts compatibility exports; checklist CHK-001 and decision option A match Round 1 catalog/schema scope.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-1-command-catalog-and-schema-modules"
+    },
+    {
+      "feature": "MAIN_TOOLS catalog assembly extraction",
+      "covered_by": "Plan CHK-002 moves MAIN_TOOLS array assembly into packages/main/src/cli/main-tools.ts or command-catalog.ts, keeps command ordering stable, and leaves runtime TOOLS/extraTools behavior in cli-engine.ts; this matches Round 1 scope.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-1-command-catalog-and-schema-modules"
+    },
+    {
+      "feature": "command catalog verification smoke",
+      "covered_by": "Plan CHK-003 adds packages/main/src/tasks/command-catalog-smoke.ts and test:command-catalog-smoke; verification includes build, smoke, process-fact contract verification, and lattice validate; Round 1 acceptance requires command catalog and representative --help smokes.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#verification-baseline-for-implementation-stories"
+    },
+    {
+      "feature": "flag/help/parser/runtime/lifecycle/Authority expansion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan boundaries exclude parseFlags, help rendering, alias normalization, root/worktree resolution, owner/reviewer gates, lifecycle dispatch, INIT_CHECK metadata sync, host runtime semantics, and Authority Server production completion claims; Round 2/3/4 and the Authority section assign these to later or external scopes.",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#target-module-boundaries"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4cc43266307e516e30eef57a5963617309cb4d58223185fe8e9c77bd3415bdf4",
+  "openQuestions": []
+}

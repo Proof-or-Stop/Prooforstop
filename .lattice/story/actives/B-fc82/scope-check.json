@@ -1,0 +1,31 @@
+{
+  "storyId": "B-fc82",
+  "checkedAt": "2026-06-19T16:15:52.338Z",
+  "features": [
+    {
+      "feature": "review_run_start pre-snapshot clean-tree refusal",
+      "covered_by": "CHK-001; packages/main/src/handlers/review-run.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-fc82 checklist and understanding"
+    },
+    {
+      "feature": "end-to-end ordering regression smoke",
+      "covered_by": "CHK-002; packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-fc82 checklist and plan"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ebad4962d5791b7a51a61477178bbdb5aa6d96844c5f1d1cf603d93a7c7a30d4",
+  "openQuestions": []
+}

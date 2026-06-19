@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-74a0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: catalog array, schema definitions, compatibility exports, runtime dispatch boundary, and focused verification all preserve behavior.",
+      "createdAt": "2026-06-19T16:52:36.747Z",
+      "reviewRound": "2026-06-19T16:48:40.470Z",
+      "reviewRunId": "B-74a0:RR-001",
+      "_hash": "2f9a4b256ea5457013633759ade0111eeafe68cf41466cae2b1208bfaba8220f"
+    },
+    {
+      "id": "B-74a0:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed command catalog extraction, TypeScript structure, package script, smoke coverage, and cli-engine runtime declarations; no blocking quality drift found.",
+      "createdAt": "2026-06-19T16:54:22.860Z",
+      "reviewRound": "2026-06-19T16:48:40.470Z",
+      "reviewRunId": "B-74a0:RR-004",
+      "_hash": "a0e10bc13f7b76e8e8350eb6557e9a12fb58ac072b27d9aa029f2e5197d265d8"
+    },
+    {
+      "id": "B-74a0:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "PASS: implementation quality acceptable after F-001 fix. Verified command-catalog-smoke now asserts story_advance --help dry-run and owner lease markers (--dryRun, rendered dry-run guidance, Owner lease meta options, --takeover, --forceTakeover); package.json adds only the focused smoke script; cli-engine.ts cleanly delegates catalog data to src/cli/command-catalog.ts while preserving MAIN_TOOLS export and extraTools merge behavior. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:command-catalog-smoke. Non-blocking whitespace note: git diff --check reports one extra blank line at EOF in packages/main/src/cli/command-schemas.ts.",
+      "createdAt": "2026-06-19T17:01:37.334Z",
+      "reviewRound": "2026-06-19T16:57:14.126Z",
+      "reviewRunId": "B-74a0:RR-006",
+      "_hash": "a227ab4b61fc6f276ed169d43a4495822f09893568bb4b2fc4795e01a62f23f3"
+    },
+    {
+      "id": "B-74a0:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Verified F-001 is fixed. command-catalog-smoke explicitly asserts story_advance --help includes --dryRun, rendered dry-run guidance, Owner lease meta options, --takeover, and --forceTakeover. npm --prefix packages/main run build, npm --prefix packages/main run test:command-catalog-smoke, node scripts/verify-process-fact-contract.mjs, and node bin/lattice.js validate --story=B-74a0 --json all passed.",
+      "createdAt": "2026-06-19T17:01:56.891Z",
+      "reviewRound": "2026-06-19T16:57:14.126Z",
+      "reviewRunId": "B-74a0:RR-007",
+      "_hash": "b9875212564d68690b0864dd7978b650f6f148154c02390b2da977065bb48bd9"
+    },
+    {
+      "id": "B-74a0:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: command catalog extraction preserves command names/order and cli-engine compatibility exports; F-001 smoke assertions cover dry-run and owner-lease help without changing runtime behavior.",
+      "createdAt": "2026-06-19T17:02:20.768Z",
+      "reviewRound": "2026-06-19T16:57:14.126Z",
+      "reviewRunId": "B-74a0:RR-005",
+      "_hash": "b61f93451eee16f10d3b839274d0a6b96bbdc95ae6dd6bb140c5227a4f917598"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a default per-command timeout in validation-executor.ts (kill hung command, exit 124, attributed)",
+      "context": "packages/main/src/core/validation-executor.ts: introduce DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (below the cli-engine 300s global idle watchdog) and use it when command.timeoutMs is unset/<=0, so the SIGTERM/SIGKILL timer always arms; keep explicit per-command timeoutMs override. The timed-out command must finish with code 124 and an attributable message.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a smoke proving the default timeout kills a hung command and spares a normal one",
+      "context": "New packages/main/src/tasks/validate-command-timeout-smoke.ts (repo smoke convention): a command that sleeps past the default ceiling is killed and reported as timed-out (exit 124); a fast command completes normally. tsc + node smoke green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
