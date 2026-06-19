@@ -36,11 +36,13 @@ export const VERSION_SYNC_PATHS: readonly string[] = [
 
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)$/;
 /**
- * Matches the EXPORTED LATTICE_CLI_VERSION declaration in lattice-brand.ts. Anchored to
- * `export const` so a `// LATTICE_CLI_VERSION = '...'` comment (or any other mention) is
- * NOT matched. Global so callers can count occurrences and reject an ambiguous duplicate.
+ * Matches the EXPORTED LATTICE_CLI_VERSION declaration in lattice-brand.ts. Anchored to the
+ * START of a line (multiline `^\s*`) followed by `export const`, so neither a plain
+ * `// LATTICE_CLI_VERSION = '...'` mention NOR a commented-out `// export const
+ * LATTICE_CLI_VERSION = '...'` line is matched (a line comment cannot start with `export`).
+ * Global so callers can count occurrences and reject an ambiguous duplicate.
  */
-const BRAND_EXPORT_RE = /export\s+const\s+LATTICE_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/g;
+const BRAND_EXPORT_RE = /^\s*export\s+const\s+LATTICE_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/gm;
 
 export interface Semver {
   major: number;
@@ -171,7 +173,15 @@ export function applyPatchBump(root: string): PatchBumpResult {
     throw new Error(`version-bump: write failed and was rolled back to ${from}: ${e?.message ?? e}`);
   }
 
-  const after = readSyncedVersion(root);
+  // Verify inside try/catch: a THROW here (e.g. transient read error) must also roll back,
+  // not just the wrong-value case — otherwise the files sit bumped-but-unverified.
+  let after: string;
+  try {
+    after = readSyncedVersion(root);
+  } catch (e: any) {
+    rollback();
+    throw new Error(`version-bump: could not verify the write; rolled back to ${from}: ${e?.message ?? e}`);
+  }
   if (after !== to) {
     rollback();
     throw new Error(`version-bump: post-write verification failed (expected ${to}, read ${after}); rolled back to ${from}`);

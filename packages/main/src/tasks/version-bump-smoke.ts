@@ -104,6 +104,7 @@ void (async () => {
     const gitCalls: Array<{ args: string[]; cwd: string }> = [];
     const line6 = bumpVersionOnDoneMerge({ mainMergeRoot: f6, shouldBump: true, runGit: (args, cwd) => { gitCalls.push({ args, cwd }); return ''; } });
     check('bump line reports 0.9.9 -> 0.9.10', line6.includes('0.9.9') && line6.includes('0.9.10'));
+    check('bump line contains the "auto-bumped" keyword (per the intent)', line6.includes('auto-bumped'));
     check('bump wrote the new version', readSyncedVersion(f6) === '0.9.10');
     check('git add was issued', gitCalls.some((c) => c.args[0] === 'add' && c.args.includes(VERSION_SYNC_FILES.brand)));
     check('chore:bump commit was issued', gitCalls.some((c) => c.args.includes('commit') && c.args.some((a) => a === 'chore: bump lattice cli to 0.9.10')));
@@ -149,6 +150,25 @@ void (async () => {
     const commentBrand = readFileSync(join(fcomment, VERSION_SYNC_FILES.brand), 'utf-8');
     check('bump targeted the export -> 0.9.10', readSyncedVersion(fcomment) === '0.9.10');
     check('the comment line stayed at 9.9.9 (untouched)', commentBrand.includes("// historical: LATTICE_CLI_VERSION = '9.9.9'"));
+
+    // 12b. Adversarial: a COMMENTED-OUT export line (`// export const ...`) is NOT the real
+    //      constant — the line-start anchor skips it; the real export below is read/bumped.
+    const fcommentExport = fixture('0.9.9');
+    writeFileSync(
+      join(fcommentExport, VERSION_SYNC_FILES.brand),
+      `// export const LATTICE_CLI_VERSION = '9.9.9' as const;\nexport const LATTICE_CLI_VERSION = '0.9.9' as const;\n`,
+    );
+    check('commented-out export ignored; reads the real export (0.9.9)', readSyncedVersion(fcommentExport) === '0.9.9');
+    applyPatchBump(fcommentExport);
+    const ceBrand = readFileSync(join(fcommentExport, VERSION_SYNC_FILES.brand), 'utf-8');
+    check('bump targeted the real export -> 0.9.10', readSyncedVersion(fcommentExport) === '0.9.10');
+    check('commented-out export line stayed at 9.9.9', ceBrand.includes("// export const LATTICE_CLI_VERSION = '9.9.9'"));
+
+    // 12c. A brand file whose ONLY LATTICE_CLI_VERSION is a commented-out export has no real
+    //      exported constant -> readSyncedVersion throws (never bumps inside a comment).
+    const fonlyComment = fixture('0.9.9');
+    writeFileSync(join(fonlyComment, VERSION_SYNC_FILES.brand), `// export const LATTICE_CLI_VERSION = '0.9.9' as const;\n`);
+    throws('brand with ONLY a commented-out export throws (no real export)', () => readSyncedVersion(fonlyComment));
 
     // 13. Adversarial: extra whitespace around the export survives a full WRITE round-trip
     //     (read AND applyPatchBump), not just the read path.
