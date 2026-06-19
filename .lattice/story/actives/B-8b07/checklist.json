@@ -77,7 +77,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The completed document has explicit status and non-goals language, milestone DONE criteria, a verification plan, source/context traceability, 3-round 2-host decision-doc validation policy, baseline expectations, and NAV registration verification.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Ambiguous wording such as enforces, blocks, guarantees, passes, or complete is checked so proposed future behavior remains clearly labeled as roadmap work; baseline PASS suites and negative-control BLOCKED suites are described as expectations for future validation rather than proof from this story.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hostile audit cannot find an overclaim that runtime behavior changed, a missing NAV entry for the new decision doc, a missing 3-round 2-host or baseline expectation, or a milestone without auditable acceptance criteria.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
