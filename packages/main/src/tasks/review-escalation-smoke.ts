@@ -10,6 +10,7 @@ import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
   REVIEW_ESCALATION_REQUIRED_ROUNDS,
   evaluateReviewEscalation,
+  formatReviewEscalationFailure,
   formatReviewEscalationReport,
 } from '../core/review-escalation.js';
 import type { Finding, ProcessEvent, StoryInfo } from '../core/types.js';
@@ -222,6 +223,23 @@ try {
     assert.equal(report.productionDone, false);
     assert.match(formatReviewEscalationReport(report), /explicitHighRiskPolicy: required/);
     assert.match(formatReviewEscalationReport(report), new RegExp(REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE));
+  });
+
+  check('policy-only escalation failure text names explicit high-risk policy', () => {
+    const fresh = currentMaterialHash(root)!;
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [],
+      processEvents: [explicitHighRiskPolicy(fresh)],
+    });
+    assert.equal(report.required, true);
+    assert.equal(report.ok, false);
+    assert.equal(report.trigger.countableProblems.length, 0);
+    const failure = formatReviewEscalationFailure(report);
+    const firstLine = failure.split('\n')[0] ?? '';
+    assert.match(firstLine, /explicit high-risk policy/);
+    assert.doesNotMatch(firstLine, /first REVIEW round recorded multiple countable reviewer problems/);
   });
 
   check('high-risk prose or paths do not trigger without explicit policy fact', () => {

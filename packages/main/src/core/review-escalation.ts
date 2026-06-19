@@ -519,8 +519,15 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
 
 export function formatReviewEscalationFailure(report: ReviewEscalationReport): string {
   if (report.ok) return '';
+  const thresholdTriggered = report.trigger.countableProblems.length >= report.trigger.requiredProblemCount;
+  const policyTriggered = report.trigger.explicitHighRiskPolicy.required;
+  const triggerSummary = thresholdTriggered && policyTriggered
+    ? 'first REVIEW round countable reviewer problems and an explicit high-risk policy both require review escalation quorum'
+    : policyTriggered
+      ? `explicit high-risk policy ${REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE} requires review escalation quorum`
+      : 'first REVIEW round recorded multiple countable reviewer problems; review escalation quorum is required';
   const lines = [
-    'Cannot enter DONE: first REVIEW round recorded multiple countable reviewer problems; review escalation quorum is required. [review_escalation_missing]',
+    `Cannot enter DONE: ${triggerSummary}. [review_escalation_missing]`,
     `  - first review round: ${report.trigger.firstReviewRound ?? '<missing>'}`,
     `  - countable first-round problems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
     `  - explicit high-risk policy: ${report.trigger.explicitHighRiskPolicy.required ? 'required' : 'not-required'}`,
