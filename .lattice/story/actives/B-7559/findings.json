@@ -478,6 +478,24 @@
       "_hash": "e4a05305322de9e5d940db02d8c6f82fd439849c3cd895df9783b079ea20af7a",
       "signatureTag": "missing|unknown|design-flaw-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-023",
+      "desc": "§5.4 Persist-to-Lattice block uses three JSON placeholders (INTEGRATION_ALLOWED_MODIFY_JSON, INTEGRATION_ALLOWED_CREATE_JSON, INTEGRATION_ALLOWED_TEST_JSON) with no explanatory comment in the §5.4 code block. The §5.3 collective note covering all _JSON placeholders is scoped to the §5.3 fenced block; only INTEGRATION_PROTECTED_JSON receives a comment in §5.4. A reader following the §5.4 prompt template has no in-block guidance for the three unexplained placeholders.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T02:25:36.127Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-012",
+      "_hash": "c8b78d6b0b471bb6e339cda73719018ae4f1357749f81d0748bac22bf982a764",
+      "files": [
+        "docs/parallel-decomposition-spec.md"
+      ],
+      "signatureTag": "missing|md|persist-lattice-block",
+      "signatureTagSource": "auto"
     }
   ]
 }
