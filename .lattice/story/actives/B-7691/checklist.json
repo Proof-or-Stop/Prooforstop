@@ -70,7 +70,59 @@
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered by run-all-smokes) + npm script asserting: (a) review_run_start REFUSES on an uncommitted material-source change; (b) REFUSES on an uncommitted fixture change (fixtures are BLOCKING, matching the DONE gate); (c) PASSES when the tree is clean; (d) PASSES when only .lattice metadata (a non-blocking category) is dirty; (e) the refusal names the offending files; (f) the preflight yields the SAME blocking verdict as the DONE gate for an identical git status (shared evaluation).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke: review_run_start REFUSES on an uncommitted material_source change -> exits with blocking error naming the dirty source file; WHY: primary refuse path for the most common blocking category",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: review_run_start REFUSES on an uncommitted fixture change -> exits with blocking error naming the dirty fixture file; WHY: fixtures are BLOCKING in DIRTY_GATE_POLICY, smoke must assert parity with DONE gate",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: review_run_start PASSES when the worktree is clean (git status --porcelain returns empty) -> returns a valid ReviewRun ID; WHY: clean-tree happy path must not be broken by the preflight addition",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: review_run_start PASSES when only .lattice metadata is dirty -> returns a valid ReviewRun ID; WHY: metadata-only dirtiness (lattice_metadata_changes) is non-blocking per DIRTY_GATE_POLICY, must not trigger preflight refusal",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: refusal message names the offending file paths -> the error thrown by the preflight includes the actual dirty file path(s) so the operator knows what to commit/revert; WHY: actionable error messages are a key UX property",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke: preflight yields the SAME blocking verdict as the DONE gate for an identical git-status input -> evaluateDirtyGate called with same classification + DIRTY_GATE_POLICY produces identical allPass/blockingCounts; WHY: shared evaluation is the architectural invariant -- divergence means the preflight disagrees with DONE about what blocks",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: DONE-gate regression -- buildDoneChecklist still produces the same git-working-tree row verdict as before the extraction; WHY: the extraction must be transparent; if DONE gate breaks, the whole workflow is broken",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: fail-open when git status is unreadable (readGitStatusLines returns ok:false) -> review_run_start proceeds instead of crashing; WHY: unreadable git status should not block the entire review workflow, matching fail-open design",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: npm script wiring -- the smoke file is auto-discovered by run-all-smokes and exits 0 on a passing run; WHY: CI integration requirement per checklist context",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke: review_run_start with ALL three blocking categories dirty simultaneously (material_source + fixture + unexpected) -> REFUSES and the message includes counts/paths for each blocking category; WHY: multi-category blocking must aggregate, not short-circuit after the first category",
+            "type": "cli"
+          },
+          {
+            "desc": "smoke: blocking file with a git-quoted path containing unicode (e.g. renamed file with special chars) -> preflight still identifies it as blocking and names it in the error; WHY: git porcelain v1 quotes non-ASCII paths; the classifier must handle unquoting",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
