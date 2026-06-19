@@ -28,7 +28,17 @@
     "packages/main/src/core/verification-context-pack.ts"
   ],
   "scopeChangeReason": "Initialized from corrected B-997b PLAN file declarations for M1-M3 wave-one scope hardening only.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Necessary F-001 REVIEW fix: prewrite guard must share the canonical scope classifier and smoke must cover the lifecycle/runtime artifact repros requested by the finding.",
+      "timestamp": "2026-06-19T04:44:26.002Z",
+      "paths": [
+        "packages/main/src/core/prewrite-guard.ts",
+        "packages/main/src/tasks/prewrite-guard-smoke.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-19T04:03:17.195Z",
-  "updatedAt": "2026-06-19T04:10:43.052Z"
+  "updatedAt": "2026-06-19T04:44:26.002Z"
 }
