@@ -59,9 +59,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Decision doc defines storyFilesHash as a secondary signal, keeps materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -69,9 +69,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process-fact registry and verifier include runtime:story_files_hash_freshness_gate as an L4 gate-consumed freshness semantic.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -79,9 +79,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Decision doc explains story-diff-only is insufficient for transitive dependency, runtime policy, validation runner, and process-fact drift.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -89,9 +89,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         }
       ]
     },
@@ -161,9 +161,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow-stability smoke asserts review-run workspaceBinding captures storyFilesHash alongside materialHash and verifyReviewRun accepts the signed binding.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -171,9 +171,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/lattice-evidence-smoke.js",
           "result": "pass",
           "note": "checklist evidence normalization stamps storyFilesHash alongside materialHash, and lattice-evidence smoke proves portable evidence manifests preserve storyFilesHash through manifest/inspect so consumers do not fall back to materialHash-only freshness.",
-          "headHash": "4870fdbbc70a37dc2e97a09d98f6267a5cb9ef89",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:35.444Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -181,9 +181,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "checkEvidenceFreshnessForGit keeps legacy records without storyFilesHash on the existing strict materialHash path.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -191,9 +191,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "freshness only downgrades materialHash drift when recorded and current storyFilesHash both exist and match; missing/uncomputable storyFilesHash falls back to strict materialHash behavior.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -201,9 +201,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow-stability smoke tampers workspaceBinding.storyFilesHash and verifyReviewRun rejects the signed/bound record.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         }
       ]
     },
@@ -278,9 +278,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "review-escalation and flow-stability smokes cover unrelated main merge: matching storyFilesHash keeps records valid and emits re-attestation advisories.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -288,9 +288,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "verifier/checklist freshness callbacks pass evidence.storyFilesHash, so matching story hashes avoid stale coverage/recover_evidence solely from unrelated materialHash drift.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -298,9 +298,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "smokes change a story-owned material file after recording evidence and assert storyFilesHash changes and records become stale/rejected.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -308,9 +308,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "legacy evidence without storyFilesHash remains on strict materialHash freshness behavior because downgrade only occurs when recorded and current storyFilesHash exist and match.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -318,9 +318,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "freshness, validation details, reviewer advisories, and review escalation reports expose explicit re-attestation advisories for whole-tree drift rather than silently claiming full freshness.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -328,9 +328,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "review escalation smoke rejects host verdict records after story-owned files change even though unrelated-drift warning behavior exists.",
-          "headHash": "85392582c2b7885d13a2cbd167282d1fbb377bf5",
-          "materialHash": "5afbb08a93736d1c407c7d7628e78e0f6c10edbcbb20fbe06982d19bd684fa70",
-          "timestamp": "2026-06-19T22:12:16.999Z"
+          "headHash": "3db3211f4566bee8cea6b44edf9a13ef488ef656",
+          "materialHash": "2cf962b9732580c403a1cd83bc2dcfbedbf5a9c1240e1e07ccff55b4df76207c",
+          "timestamp": "2026-06-19T22:36:45.683Z"
         }
       ]
     }
