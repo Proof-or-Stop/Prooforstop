@@ -8,12 +8,15 @@
     "packages/main/src/core/config.ts",
     "packages/main/src/cli-engine.ts",
     "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/tasks/capability-list-smoke.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
     "README.md",
     "docs/guide.md",
     "docs/requirements/decisions/host-overflow.md",
-    "docs/requirements/decisions/lattice-parallel-wave.md",
-    "packages/main/src/core/command-policy.ts",
-    "packages/main/src/core/process-fact-levels.ts"
+    "docs/requirements/decisions/lattice-parallel-wave.md"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -22,8 +25,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Add command-policy and process-fact runtime command facts so host_runtime_list/probe diagnostics describe the current codex/claude-code/antigravity host set while keeping Gemini legacy-only.",
+  "scopeChangeReason": "REVIEW findings B-d674:F-001 and B-d674:F-003 verified that Antigravity wrapped-preapply semantics require guard-session.ts and current-host smoke expectations require capability-list-smoke.ts and dispatch-run-smoke.ts.",
   "acknowledgements": [],
   "createdAt": "2026-06-19T15:07:48.487Z",
-  "updatedAt": "2026-06-19T15:21:20.457Z"
+  "updatedAt": "2026-06-19T15:31:00.610Z"
 }
