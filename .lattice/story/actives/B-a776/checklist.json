@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extract flag parsing and compatibility exports",
+      "context": "Move parseFlags, parseFlagsTest, addValue, coerce, and related helpers into a focused module while preserving existing imports/tests.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Extract help rendering alias normalization and dry-run handling",
+      "context": "Move help text, command alias normalization, and dry-run parse surfaces out of cli-engine.ts without changing command output or legacy aliases that are still intentionally supported.",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify help flag alias and dry-run behavior",
+      "context": "Run focused CLI smoke commands plus build to prove stdout/stderr, JSON output, and compatibility exports remain stable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
