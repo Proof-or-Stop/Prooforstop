@@ -5,7 +5,7 @@
       "desc": "CHK-003:adversarial coverage promises the smoke fails when representative help output loses dry-run/owner lease guidance, but packages/main/src/tasks/command-catalog-smoke.ts:96-113 only asserts story_advance help contains Lattice CLI/lattice story_advance/--phase/INIT_CHECK and does not assert --dryRun or Owner lease meta options. I verified node bin/lattice.js story_advance --help currently contains both, so deleting those help markers would not fail the smoke. Add explicit includes/assertions for --dryRun and owner lease guidance.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T16:51:58.117Z",
@@ -16,7 +16,11 @@
         "packages/main/src/tasks/command-catalog-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-coverage-promises",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated packages/main/src/tasks/command-catalog-smoke.ts so the existing story_advance --help representative smoke asserts --dryRun, the rendered dry-run guidance line, Owner lease meta options, --takeover, and --forceTakeover. Verified with npm --prefix packages/main run test:command-catalog-smoke, npm --prefix packages/main run build, node scripts/verify-process-fact-contract.mjs, and node bin/lattice.js validate --story=B-74a0 --json.",
+      "resolvedAt": "2026-06-19T16:57:21.901Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
