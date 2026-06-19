@@ -199,6 +199,24 @@
       "resolvedAt": "2026-06-19T13:51:49.481Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4033:F-010",
+      "desc": "[Codex host P1] terminal parent-directory segments (src/.., foo/..) were not handled: scope-contract.ts:48 rejects ../ and leading/exact .. but NOT a terminal src/.., so such a path could reach globsOverlap and misclassify the directory.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T14:07:24.697Z",
+      "reviewRound": "2026-06-19T13:52:10.850Z",
+      "reviewRunId": "B-4033:RR-013",
+      "_hash": "2408d11eb0c4ad416785c3ee9b07a6c060d92b31804e61ea8f5d3eda1efe2a50",
+      "files": [
+        "packages/main/src/core/parallel-decomposition-overlap.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-terminal",
+      "signatureTagSource": "auto"
     }
   ]
 }
