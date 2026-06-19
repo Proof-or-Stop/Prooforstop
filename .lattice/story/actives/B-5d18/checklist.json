@@ -47,12 +47,12 @@
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "verdict": "success",
-          "command": "git show HEAD:packages/main/src/core/partial-done-recovery.ts",
+          "command": "node --input-type=module -e \"import {resolveMainRepoRoot} from \\\"./packages/main/dist/core/partial-done-recovery.js\\\"; import {tmpdir} from \\\"node:os\\\"; const t=tmpdir(); console.log(JSON.stringify({input:t,output:resolveMainRepoRoot(t),isolated:resolveMainRepoRoot(t)===t}));\"",
           "result": "pass",
-          "note": "Diagnosis recorded: resolveMainRepoRoot(/tmp/X) returns /tmp/X, so the smokes spawn story_create against an ISOLATED lock — no global main-write-lock contention; the prior hang was transient machine saturation under the concurrent swarm (smokes pass in <30s idle).",
-          "headHash": "32071273d0694bcc51914336c949f1027d349d94",
-          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
-          "timestamp": "2026-06-19T17:11:21.610Z"
+          "note": "Runtime logic_test of the diagnosis: resolveMainRepoRoot(os.tmpdir()) returns the tmp path verbatim (isolated:true) because a tmp dir is not inside the main git repo, so git rev-parse --git-common-dir throws and the function falls back to resolve(root). This is why the slow smokes, which spawn lattice --root <tmpdir>, take an ISOLATED lock with no global main-write-lock contention; the prior 'hang' was transient machine saturation, not a deadlock. Replaces the prior static 'git show partial-done-recovery.ts' command (F-004/F-006/F-008) with an execution that observes the return value.",
+          "headHash": "076d7ddd1ecf5bc447f1ebabf22e9b73ac97352c",
+          "materialHash": "ce12eaed587b524fb64096902c86d6c05a5b6e35601ca36d36c6c11b79ab2544",
+          "timestamp": "2026-06-19T18:48:48.575Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
