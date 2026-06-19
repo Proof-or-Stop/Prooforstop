@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Fail loud + attributed: a hung command must surface as a named per-command timeout, not a silent whole-suite force-exit",
+    "Minimal, general core change over per-smoke patching",
+    "Preserve explicit per-command timeoutMs override; do not touch the global watchdog"
+  ],
+  "drivers": [
+    "A silent force-exit skips re-stamping test-evidence.materialHash → blocks DONE for ALL stories",
+    "The trigger is transient load, not a deterministic bug → robustness, not a smoke rewrite",
+    "Keep the diff small and reviewable (single core file + config + smoke)"
+  ],
+  "options": [
+    {
+      "name": "default per-command timeout in validation-executor (+ config timeoutMs on the slow smokes)",
+      "pros": [
+        "General: protects every command",
+        "Attributed exit 124",
+        "Small single-file core change",
+        "Self-unblocking: fixed executor makes this story validate cleanly"
+      ],
+      "cons": [
+        "Must pick a default that does not kill a legit slow command (mitigated by override)"
+      ]
+    },
+    {
+      "name": "only add timeoutMs to the slow smokes in lattice.config.json",
+      "pros": [
+        "Tiny; no code change"
+      ],
+      "cons": [
+        "Config is environment-specific; does not protect other/future commands; not a general fix"
+      ]
+    },
+    {
+      "name": "change the global idle watchdog to be per-command-aware",
+      "pros": [
+        "Central"
+      ],
+      "cons": [
+        "Larger blast radius in cli-engine; riskier; the per-command timer path already exists"
+      ]
+    }
+  ],
+  "chosen": "default per-command timeout in validation-executor (+ config timeoutMs on the slow smokes)",
+  "rationale": "The per-command timer path already exists in validation-executor; making it default-on (below the global idle watchdog) is the smallest change that turns a silent whole-suite force-exit into a named per-command failure, protecting every command and self-unblocking this story.",
+  "preMortem": [
+    {
+      "scenario": "Default timeout too low kills a legit slow command (e.g. build under load)",
+      "trigger": "a command legitimately runs past the default",
+      "consequence": "spurious validate failure",
+      "mitigation": "set default ~240s (> build ~160s with margin, < 300s global idle); document the lattice.config.json per-command timeoutMs override for legitimately long commands"
+    },
+    {
+      "scenario": "Default too high — global idle watchdog still fires first",
+      "trigger": "default >= 300s",
+      "consequence": "no improvement; still a silent whole-suite force-exit",
+      "mitigation": "assert default strictly below the cli-engine 300s idle watchdog; smoke verifies a hung command is killed by the per-command timer (exit 124) well before 300s"
+    },
+    {
+      "scenario": "Child ignores SIGTERM and keeps running",
+      "trigger": "a wedged subprocess",
+      "consequence": "timer fires but process lingers",
+      "mitigation": "escalate to SIGKILL after 1s (already in validation-executor) — keep that path; smoke confirms the hung command actually terminates"
+    }
+  ],
+  "timestamp": "2026-06-19T17:03:04.179Z"
+}

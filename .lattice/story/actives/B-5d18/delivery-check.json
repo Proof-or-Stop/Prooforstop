@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5d18",
+  "checkedAt": "2026-06-19T18:57:14.494Z",
+  "reviewRound": "2026-06-19T18:42:53.962Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/validation-executor.ts#DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS",
+      "promise": "DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=240000 exported as the default ceiling, strictly below the 300s cli-engine idle watchdog and above the ~160s build, with no opt-out",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 38: export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 240_000; JSDoc at lines 23-37 documents rationale and invariant. Confirmed < 300_000 (cli-engine.ts line 4024: 5*60*1000=300000). DEFAULT=240000 > 200000 per smoke assertion."
+    },
+    {
+      "docPath": "packages/main/src/core/validation-executor.ts#resolveCommandTimeoutMs",
+      "promise": "resolveCommandTimeoutMs(command, defaultMs) exported: explicit positive timeoutMs wins; 0/negative/unset falls back to defaultMs with injectable default seam for tests",
+      "verifiedBy": "diff/grep",
+      "evidence": "Lines 47-54: exported function returns command.timeoutMs when finite+positive else defaultMs. JSDoc lines 40-46 documents seam. Smoke tests at lines 54-64 cover: no-timeoutMs->default, explicit honored, zero->default, negative->default, injected default seam, explicit beats injected default, zero+injected."
+    },
+    {
+      "docPath": "packages/main/src/core/validation-executor.ts#runValidationCommand",
+      "promise": "runValidationCommand always arms a per-command wall-clock timeout; on timeout kills whole process group (POSIX: detached+process.kill(-pid, SIGTERM->SIGKILL); Windows: taskkill /t /f with .on(error) fallback); finish() attributes exit 124 whenever timedOut; defaultTimeoutMs seam is test-only with no production caller",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 267: detached:true on POSIX. Lines 272-289: killTree: process.kill(-pid,signal) on POSIX, taskkill /t /f with .on(error)->child.kill fallback on Windows. Lines 295-301: unconditional setTimeout armed via resolveCommandTimeoutMs, SIGTERM->SIGKILL after 1000ms, both timers unref. Lines 221-231: finish(rawCode) always code=124 when timedOut. Production callers: executeValidationPlan line 324 and verifier.ts lines 317+776 all omit defaultTimeoutMs. JSDoc lines 184-194 documents seam as test-only."
+    },
+    {
+      "docPath": "lattice.config.json#validate.commands",
+      "promise": "build pinned to timeoutMs=290000; review-pass-discard-smoke and init-window-data-loss-smoke pinned to timeoutMs=180000; validate-command-timeout-smoke registered as 6th command",
+      "verifiedBy": "diff/grep",
+      "evidence": "lattice.config.json lines 11,14,15,16: build={command:npm,timeoutMs:290000}, review-pass-discard={command:node,timeoutMs:180000}, init-window-data-loss={command:node,timeoutMs:180000}, timeout-smoke as bare string (6th, gets DEFAULT=240000). All values match the promise exactly."
+    },
+    {
+      "docPath": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+      "promise": "18-assertion smoke covering: kill->124/timedOut, fast-pass, default-arming path via injected default, process-group reap of SIGTERM-ignoring grandchild; hermetic via os.tmpdir",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep -c check() returns 18. Assertions span: DEFAULT bounds (lines 51-52), resolveCommandTimeoutMs edge cases (lines 54-64, 9 assertions), integration kill+fast-pass+allPass=false (lines 70-73, 4 assertions), default-arming via injected 300ms default (lines 83-84, 2 assertions), process-group reap of SIGTERM-ignoring grandchild with durationMs<6000 (lines 109-112, 3 assertions). TMP=os.tmpdir() used as projectRoot throughout (hermetic). No TODO/FIXME/HACK in diff."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate 6/6 green including review-pass-discard-smoke (timeoutMs=180000) and init-window-data-loss-smoke (timeoutMs=180000). Direct runs of both smokes pass on idle machine, confirming timeoutMs is a ceiling not a forced failure. resolveMainRepoRoot(os.tmpdir()) returns tmp verbatim (isolated:true) confirming no global lock contention. transcript-diff.md records live validate output."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "validate-command-timeout-smoke.js run via lattice validate (6th command, 18 assertions all pass). Kill path: code:124 timedOut:true wallMs:550 on 500ms-ceiling hung command. Default-arming: code:124 timedOut:true with no explicit timeoutMs (injected 300ms). Process-group: SIGTERM-ignoring grandchild reaped, result settles in <6000ms. Fast-pass: code:0 no timedOut in same plan. transcript-diff.md shows live demo runs confirming all paths."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified with exact line-number evidence from the diff. Smoke has 18 assertions covering happy path (kill+124), fast-pass (no spurious timeout), default-arming via injectable seam, process-group reap of SIGTERM-ignoring grandchild, and all resolveCommandTimeoutMs boundary cases (zero, negative, unset, injected). No TODO/FIXME/HACK in the diff. Production callers verified not to pass the test seam. Closing self-check is honest: delivery is complete and well-evidenced."
+  },
+  "_hash": "0790629434a4d1caad7b1e8b8dd7aaf5ef01644ae7365d0308364378b3c01977"
+}
