@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-19T20:15:31.916Z",
       "reviewRunId": "B-aa8a:RR-007",
       "_hash": "da15e1206ad0fa5d1de6b3f356db7c360fc19fc222b1a3b7deb818e5155ecec6"
+    },
+    {
+      "id": "B-aa8a:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept/residue check complete. Checked: (1) stripComments and findBrandExport are defined solely in version-bump.ts — no duplicate or competing definition anywhere in the repo. (2) BRAND_EXPORT_RE is module-private (const, not exported) and only referenced in findBrandExport within version-bump.ts. (3) The old regex path (direct matchAll on raw content without comment-stripping) was fully replaced — the only matchAll calls in version-bump.ts are inside findBrandExport, where codeMatches runs on the stripped source and rawMatches enforces the count guard. No orphan old-path residue found. (4) ApplyPatchBumpTestHooks and afterWriteForTest are exported from version-bump.ts and consumed only in version-bump-smoke.ts — done-effects.ts imports only bumpVersionOnDoneMerge and calls applyPatchBump (inside bumpVersionOnDoneMerge) with no opts arg, so the test seam is unreachable from production. (5) No doc-promise-undelivered items: no README/CLAUDE.md promises any of the new internal symbols. (6) No concept deletion/replacement scenario applies this round — the changes are net-new additions (stripComments, findBrandExport guard, test seam) on top of a new module, not a renamed/removed concept spanning the repo.",
+      "createdAt": "2026-06-19T20:32:30.410Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-011",
+      "_hash": "40565847f79ee3daa2925c78e5abf8e64de3908fcd2ab5db6afa13cbd209d00a"
     }
   ]
 }
