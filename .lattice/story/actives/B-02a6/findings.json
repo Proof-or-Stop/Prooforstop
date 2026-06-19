@@ -63,7 +63,7 @@
       "desc": "All 9 must-intent verificationEvidence entries are stale (status: stale in validate --story=B-02a6): the headHashes recorded during the prior REVIEW round predate commit a7dd9e96b (which modified review-pass-discard-smoke.ts, init-window-data-loss-smoke.ts, and story-metadata-protection.ts). The validate gate reports 0/9 covered, 9 required missing. Evidence must be re-recorded after the current HEAD (34ac411) so headHashes are fresh. The underlying test coverage is genuine and all smokes ran green, but the DONE gate will block until evidence is refreshed via verification_evidence_add for all 9 intent refs (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T05:10:45.798Z",
@@ -76,7 +76,11 @@
         "packages/main/src/tasks/story-metadata-protection-smoke.ts"
       ],
       "signatureTag": "missing|ts|intent-verificationevidence-entries",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-recorded all 9 must-intent verificationEvidence entries at the current HEAD (post-a7dd9e9). lattice validate --story=B-02a6 now reports 9/9 covered, 0 missing, status=pass, all materialHash fresh (729946c...). The staleness was purely a record-after-fix ordering artifact; the underlying coverage was always genuine (confirmed by both behavior and test-coverage reviewers).",
+      "resolvedAt": "2026-06-19T05:14:57.770Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
