@@ -212,7 +212,7 @@ void (async () => {
       check('read-only rollback cases skipped under root (0444 does not block root writes)', true);
     }
 
-    // 14. Adversarial: a git failure AFTER the files are written propagates with an actionable recovery message.
+    // 15b. Adversarial: a git failure AFTER the files are written propagates with an actionable recovery message.
     const fcommit = fixture('0.9.9');
     let commitErr = '';
     try {
