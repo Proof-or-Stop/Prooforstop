@@ -91,6 +91,24 @@
       ],
       "signatureTag": "happy|ts|dispatch-policy-lines",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fbb6:F-006",
+      "desc": "CHK-001 through CHK-005 all have empty userSees fields. userSees must describe what the operator observes in the terminal after each item completes (e.g. smoke output line, CLI flag accepted, grep result). Without userSees the behavior reviewer cannot do a direct output-vs-claim comparison. Fix: add a concrete terminal output string to each item (e.g. CHK-001: \"provider antigravity smoke passed: real antigravityCliAvailable preflight; ...\"; CHK-002: dispatch-run-smoke last line; CHK-003: usage-ledger-adapter-smoke last line; CHK-004: grep -rinE \\\\bgemini\\\\b exits 0 / run-all-smokes 176/180; CHK-005: unattended-dispatch-smoke last line).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-06-19T18:13:21.586Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-003",
+      "_hash": "9ec917b1995e950f9a458478aec94306b798aed5afcefb7b4eb252853bf3ce21",
+      "files": [
+        ".lattice/story/actives/B-fbb6/checklist.json"
+      ],
+      "signatureTag": "missing|json|through-empty-usersees",
+      "signatureTagSource": "auto"
     }
   ]
 }
