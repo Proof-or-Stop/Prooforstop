@@ -13,6 +13,13 @@ import {
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { loadConfig } from '../core/config.js';
+import {
+  readGitStatusLines,
+  classifierOptionsForCheck,
+  classifyGitStatusRows,
+  isBlockingDirty,
+} from '../core/dirty-worktree-gate.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
@@ -63,6 +70,32 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           `review_run_start: story ${args.storyId} must be in REVIEW phase (current: ${preflightStory.phase})`,
         );
       }
+
+      // B-7691: material-source clean-tree preflight. Reuse the DONE gate's
+      // shared git-status read + DIRTY_GATE_POLICY blocking table so a reviewer
+      // cannot snapshot a run over uncommitted material-source / fixture drift.
+      // Fail-OPEN on an unreadable git status (convenience gate; mirrors how the
+      // DONE gate tolerates an unreadable status) — never throw on a broken read.
+      // The DONE verdict, materialHash computation, and the evidence-write-time
+      // freshness guard are NOT touched; this only READS DIRTY_GATE_POLICY.
+      const preflightRoot = workspace.metadataRoot || ctx.root;
+      const status = readGitStatusLines(signedWorkspaceRoot);
+      if (status.ok) {
+        const classification = classifyGitStatusRows(
+          status.lines,
+          classifierOptionsForCheck(loadConfig(preflightRoot), args.storyId, store, preflightRoot),
+        );
+        const b = isBlockingDirty(classification);
+        if (b.blocked) {
+          throw new Error(
+            `review_run_start: git working tree has uncommitted ${b.blockingCategories.join('/')} changes ` +
+            `(${b.blockingPaths.slice(0, 5).join(', ')}). ` +
+            'Commit or revert all code/config changes, then rerun review_run_start.',
+          );
+        }
+      }
+      // status.ok === false → fail-open: do not block; proceed to the snapshot.
+
       const lane = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
