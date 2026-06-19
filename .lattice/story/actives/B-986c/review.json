@@ -1,0 +1,74 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-19T23:26:03.966Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Implement evaluateDecompositionGate in new core/parallel-decomposition-gate.ts: pure verdict (advisories plus first block) over story/peers/contracts/cfg per spec 4.3/4.4, consuming the Story-1 overlap engine; no cfg.mode enforcement + Hermetic smoke for the gate verdict: each block reason fires on its provable case plus degrades to advisory on the non-provable case; clean disjoint decomposition returns no block are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None material remaining: the data model (parallelSafe, depends string[], ScopeContractData), the overlap engine API, and the tier-1-vs-tier-2 gap are all resolved by reading types.ts, parallel-policy.ts, parallel-decomposition-overlap.ts, and spec 4.2/4.3."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "51648de16cc0fc475225bd0f8ca024ee1c5e25a229390fcf779c3790f7ec21a0"
+    },
+    {
+      "timestamp": "2026-06-19T23:26:16.610Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Implement evaluateDecompositionGate in new core/parallel-decomposition-gate.ts: pure verdict (advisories plus first block) over story/peers/contracts/cfg per spec 4.3/4.4, consuming the Story-1 overlap engine; no cfg.mode enforcement + Hermetic smoke for the gate verdict: each block reason fires on its provable case plus degrades to advisory on the non-provable case; clean disjoint decomposition returns no block are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None material remaining: the data model (parallelSafe, depends string[], ScopeContractData), the overlap engine API, and the tier-1-vs-tier-2 gap are all resolved by reading types.ts, parallel-policy.ts, parallel-decomposition-overlap.ts, and spec 4.2/4.3."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "96f77a1e17c3eabf1285917eedae26afa194f10973c47caf154fe8d4fb07a2fa"
+    }
+  ]
+}
