@@ -4,7 +4,7 @@
   "title": "Send customer API key on server-backed Authority job status reads",
   "description": "Developer feedback on 2026-06-19 showed authority_job_status received 401 from staging because the CLI GET to the protected job verdict/status endpoint did not include the configured customer API key, while direct GET with the same key succeeded.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user-feedback-2026-06-19",
   "keywords": [
@@ -48,11 +48,20 @@
       "branch": "story/B-e28c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T04:00:36.320Z",
+      "branch": "story/B-e28c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-e28c",
     "branch": "story/B-e28c",
     "createdAt": "2026-06-19T03:54:05.207Z"
-  }
+  },
+  "currentReviewRound": "2026-06-19T04:00:36.320Z"
 }
