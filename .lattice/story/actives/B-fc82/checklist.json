@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Move the review_run_start clean-tree preflight to BEFORE captureReviewRunSnapshot",
       "context": "In packages/main/src/handlers/review-run.ts review_run_start: relocate the B-7691 preflight block (preflightRoot + readGitStatusLines(signedWorkspaceRoot) + classifyGitStatusRows + isBlockingDirty + the blocking throw) to immediately AFTER the REVIEW phase check (the `if (preflightStory.phase !== 'REVIEW')` block) and BEFORE the `const lane = ...` / `captureReviewRunSnapshot(...)` lines. Pure relocation of the existing logic -- do NOT change isBlockingDirty, the DIRTY_GATE_POLICY table, classifierOptionsForCheck, the DONE gate, materialHash computation, or the evidence-write-time freshness guard. Update the trailing comment (it currently says 'proceed to the snapshot' from the wrong position). Verify tsc + the existing review-run-clean-tree-preflight smoke still pass.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T16:21:02.404Z",
       "userSees": "On a blocking dirty material-source tree, review_run_start prints \"git working tree has uncommitted ... changes\" before any review run is created.",
       "files": {
         "modify": [
@@ -42,7 +42,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "PASS: scenario (i) and material-source dirty scenarios prove review_run_start rejects blocking dirty material-source changes before any reviewer run is persisted.",
+          "headHash": "67a37bcb5881976b58e1c11f75cea50440be13e4",
+          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+          "timestamp": "2026-06-19T16:21:02.545Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "PASS: scenario (h) keeps unreadable git-status fail-open behavior covered without changing dirty classifier semantics.",
+          "headHash": "67a37bcb5881976b58e1c11f75cea50440be13e4",
+          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+          "timestamp": "2026-06-19T16:21:02.670Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "PASS: TypeScript build and field regression smoke verify the relocation/comment update does not alter dirty policy, material hash, or review-run persistence side effects.",
+          "headHash": "67a37bcb5881976b58e1c11f75cea50440be13e4",
+          "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+          "timestamp": "2026-06-19T16:21:02.764Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
