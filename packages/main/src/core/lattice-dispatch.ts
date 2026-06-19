@@ -2001,11 +2001,16 @@ function runBoundedRealLeafDispatch(
   // Each ledger call is fail-open: any error is transcribed non-fatally and the
   // dispatch proceeds. Models the claude seam (runClaudeCodeRealLeafDispatch).
   const ledgerOn = isUsageLedgerEnabled();
+  // F-001: do NOT label the codex/gemini preflight estimate as 'claude-code'.
+  // Omitting model lets recordDispatchPreflight fall back to DEFAULT_ESTIMATE_MODEL
+  // ('unknown') — honest, since the served codex/gemini model is only known AFTER
+  // the run, and the final record binds the real result.model via
+  // finalContextForProvider. DISPATCH_LEDGER_ESTIMATE_MODEL stays for the claude
+  // path (runClaudeCodeRealLeafDispatch) only.
   const ledgerCtx: DispatchUsageContext = {
     storyId: record.storyId,
     phase: DISPATCH_LEDGER_PHASE,
     agentType: `lattice-dispatch:${hostKind}`,
-    model: DISPATCH_LEDGER_ESTIMATE_MODEL,
   };
   const ledgerOpts = {
     recordedAt: startedAt,

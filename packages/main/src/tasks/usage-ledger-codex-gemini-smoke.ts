@@ -325,6 +325,91 @@ async function main(): Promise<void> {
     assert.equal(threw, false, 'a rogue negative token count must not crash dispatch');
   });
 
+  await check('CHK-003 adversarial:3: two codex finals to the SAME root -> distinct correlations, chain intact', () => {
+    const sub = freshRoot();
+    // First preflight + provider-reported final.
+    const a = recordDispatchPreflight(sub, ctx(), 'prompt-a', opts(ON));
+    assert.ok(a);
+    recordDispatchFinalForProvider(
+      sub,
+      ctx(),
+      a!.correlation,
+      a!.estimateRecordId,
+      'openai',
+      { prompt_tokens: 111, completion_tokens: 11 },
+      'gpt-5-codex',
+      opts(ON),
+    );
+    // Second preflight + provider-reported final against the SAME ledger root in
+    // rapid succession (distinct token values so the two finals are tellable apart).
+    const b = recordDispatchPreflight(sub, ctx(), 'prompt-b', opts(ON));
+    assert.ok(b);
+    recordDispatchFinalForProvider(
+      sub,
+      ctx(),
+      b!.correlation,
+      b!.estimateRecordId,
+      'openai',
+      { prompt_tokens: 222, completion_tokens: 22 },
+      'gpt-5-codex',
+      opts(ON),
+    );
+    const records = readLedger(sub);
+    // 2 estimates + 2 provider-reported finals = 4 records, none lost/corrupted.
+    assert.equal(records.length, 4, 'expected 4 records (2 estimates + 2 finals)');
+    const finals = records.filter((r) => r.usage.source === 'provider-reported');
+    assert.equal(finals.length, 2, 'expected exactly 2 provider-reported finals');
+    // The two finals carry DISTINCT correlation ids (no collision under rapid succession).
+    assert.notEqual(finals[0].ledgerCallId, finals[1].ledgerCallId, 'finals must have distinct ledgerCallId');
+    assert.notEqual(finals[0].attemptId, finals[1].attemptId, 'finals must have distinct attemptId');
+    assert.notEqual(finals[0].recordId, finals[1].recordId, 'finals must have distinct recordId');
+    // The hash chain validates end-to-end (no corruption from concurrent writes).
+    const chained = verifyLedgerChain(resolveLedgerPath(sub));
+    assert.equal(chained.length, 4, 'verifyLedgerChain must accept all 4 records (no chain corruption)');
+  });
+
+  await check('CHK-002 edge:2: provider-reported final with model=null -> provider.model === "unknown"', () => {
+    const sub = freshRoot();
+    const handle = recordDispatchPreflight(sub, ctx(), 'prompt', opts(ON));
+    assert.ok(handle);
+    recordDispatchFinalForProvider(
+      sub,
+      ctx(),
+      handle!.correlation,
+      handle!.estimateRecordId,
+      'openai',
+      { prompt_tokens: 500, completion_tokens: 200 },
+      null, // model unknown -> must fall back to DEFAULT_ESTIMATE_MODEL ('unknown')
+      opts(ON),
+    );
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'provider-reported');
+    assert.ok(final, 'expected a provider-reported final');
+    assert.equal(final?.provider?.name, 'openai');
+    assert.equal(final?.provider?.model, 'unknown', 'model=null must bind the DEFAULT_ESTIMATE_MODEL fallback "unknown"');
+  });
+
+  await check('CHK-002 edge:3: correlation=null AND estimateRecordId=null -> fresh correlation minted, final written', () => {
+    const sub = freshRoot();
+    // No preflight: drive a provider-reported final with BOTH correlation and
+    // estimateRecordId null, ledger ON. A fresh correlation must be minted.
+    recordDispatchFinalForProvider(
+      sub,
+      ctx(),
+      null,
+      null,
+      'openai',
+      { prompt_tokens: 300, completion_tokens: 30 },
+      'gpt-5-codex',
+      opts(ON),
+    );
+    const records = readLedger(sub);
+    const finals = records.filter((r) => r.usage.source === 'provider-reported');
+    assert.equal(finals.length, 1, 'exactly one provider-reported record must be written');
+    assert.ok((finals[0].ledgerCallId ?? '').length > 0, 'a fresh correlation must mint a non-empty ledgerCallId');
+    assert.ok((finals[0].attemptId ?? '').length > 0, 'a fresh correlation must mint a non-empty attemptId');
+  });
+
   // ======================================================================
   // CLAUDE PATH REGRESSION: recordDispatchFinal unchanged
   // ======================================================================
