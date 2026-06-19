@@ -48,7 +48,40 @@
       "context": "The smoke should prove verdict GET carries Authorization and policy discovery GET does not.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`node packages/main/dist/tasks/authority-client-smoke.js` passes with assertions for protected GET auth, keyless policy discovery, and blocked status when receipt/quorum are missing.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority-client smoke passes after build",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test differentiates protected verdict/status GET from public policy discovery GET",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "test proves read success does not mint authorityDone/fullAuthorityDone without receipt and quorum",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
