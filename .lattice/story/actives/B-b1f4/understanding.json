@@ -1,0 +1,36 @@
+{
+  "task": "Make codex/gemini provider-reported token usage (captured on disk by B-12d7 but invisible because their cacheCreation is null by design) visible in the usage-ledger summary and diagnostics aggregates via a NEW additive input+output total, without inferring any unreported value and without changing the strict four-field providerReportedTotal.",
+  "outcome": "An operator runs `node packages/main/dist/tasks/usage-ledger-report.js ledger.jsonl` on a ledger that contains a codex and a gemini provider-reported final. BEFORE this story the report showed those records as pure unknowns with all-zero tokens:\n  provider-reported    count=2 known=0 unknown=2 primary[in=0 out=0] tokens[in=0 out=0 cacheCreate=0 cacheRead=0]\nAFTER this story the same line surfaces their input+output in a new primary column while the strict four-field tokens stay 0 (cacheCreation was never reported, so it is NOT invented):\n  provider-reported    count=2 known=0 unknown=2 primary[in=1300 out=320] tokens[in=0 out=0 cacheCreate=0 cacheRead=0]\nAnd `--json` now carries summary.primaryReportedTotal=1620 / primaryReportedCount=2 and bySource['provider-reported'].primaryKnown={input:1300,output:320} for those groups, while providerReportedTotal still excludes them. A claude record (all four dims known) appears in BOTH primaryReportedTotal and providerReportedTotal.",
+  "facts": [
+    "B-12d7 (merged to main) captures real codex/gemini per-record usage via extractCodexUsage/extractGeminiUsage + recordDispatchFinalForProvider; records are written to the JSONL ledger.",
+    "summary.ts deriveRecordTotal sums input+output+cacheCreation+cacheRead and returns unknown:true if ANY of the four is null; summarizeRecords therefore counts such records in unknownCount and excludes them from providerReportedTotal.",
+    "diagnostics.ts asKnownDimensions returns null if ANY of the four dims is null; aggregateByGroup then buckets the record as unknown and adds nothing to bySource.known.",
+    "The openai and gemini adapters set canonical.cacheCreation = null ALWAYS (these providers structurally never report a cache-write count); cacheRead can also be null when prompt_tokens_details/cachedContentTokenCount is absent.",
+    "record.ts validateUsage requires inputTokens and outputTokens to be non-null for source=provider-reported, so the input+output primary total is always known for a provider-reported record.",
+    "summary.ts and diagnostics.ts are informational-only: their return types carry no gate/verdict/decision field and no gate consumes them.",
+    "The usage-ledger module has a zero-cross-module-import invariant (only ./ siblings + node: builtins), enforced by a static check in usage-ledger-diagnostics-smoke.ts.",
+    "Finding B-12d7:F-004 (2026-06-19) recorded this exact gap (cache-less-provider tokens excluded from aggregate totals) and dismissed it as out_of_scope follow-up; this story IS that follow-up."
+  ],
+  "constraints": [
+    "MUST NOT change the strict four-field providerReportedTotal / known rollup semantics (the new aggregate is distinct and additive).",
+    "MUST NOT infer cacheCreation or cacheRead as 0 for cache-less providers — never invent a value the provider did not report.",
+    "MUST NOT change computeCost or pricing (cost stays derived from the four-field known totals only).",
+    "MUST NOT modify the openai/gemini/anthropic adapters or the record schema/validator.",
+    "MUST preserve the usage-ledger zero-cross-module-import invariant.",
+    "Informational-only must stay informational-only: the new field feeds no gate.",
+    "Empty-summary / empty-report returns must include the new fields (= 0) so the shape is consistent."
+  ],
+  "unknowns": [
+    "RESOLVED: where to store the per-record primary value — chosen: add primaryTotal:number|null to DerivedRecordTotal in summary.ts (parallel to total).",
+    "RESOLVED: granularity of the diagnostics primary aggregate — chosen: per-source (primaryKnown {input,output} + primaryKnownCount on SourceTokenTotals), rolled into overall and per-group.",
+    "RESOLVED: whether to surface primary in the human report — chosen: yes, add a primary[in=.. out=..] column to renderHuman so the operator sees it (also resolves the INIT low note).",
+    "Open: confirm no other consumer of UsageSummary / SourceTokenTotals does an exhaustive deepEqual on the whole object that the added fields would break (verify by grep during DEV)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/summary.ts (DerivedRecordTotal, deriveRecordTotal, UsageSummary, summarizeRecords, summarizeLedgerFile)",
+    "packages/main/src/core/usage-ledger/diagnostics.ts (TokenDimensions/PrimaryTokenDimensions, asPrimaryDimensions, SourceTokenTotals, emptySourceTotals, aggregateByGroup, buildUsageReport overall rollup, SourceTotalsWithCost/ReportGroup inherit)",
+    "packages/main/src/tasks/usage-ledger-report.ts (renderHuman primary column)",
+    "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts and/or a new usage-ledger-primary-total-smoke.ts (+ package.json scripts + run-all-smokes registration)"
+  ],
+  "timestamp": "2026-06-19T12:36:54.847Z"
+}
