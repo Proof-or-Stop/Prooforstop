@@ -100,7 +100,7 @@
       "desc": "done-prepare doc still claims generated metadata changes remain uncommitted and require manual git add/commit before DONE (docs/requirements/decisions/done-prepare-automation-execution-plan.md:149 and :297), but implemented safe stale refresh calls verification_evidence_refresh_stale, which auto-commits story metadata, and done_prepare blocks on the new commit with rerun guidance (packages/main/src/handlers/checklist.ts:1043, packages/main/src/handlers/done-prepare.ts:670, packages/main/src/tasks/done-prepare-smoke.ts:361). Update the doc to describe the generated-commit/rerun path or align implementation.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T23:37:11.322Z",
@@ -114,7 +114,11 @@
         "packages/main/src/tasks/done-prepare-smoke.ts"
       ],
       "signatureTag": "doc-code-drift|md|prepare-still-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Decision doc now documents verification_evidence_refresh_stale auto-commit behavior and done_prepare cleanTree generated-commit rerun guidance; docs reviewer B-fb36:RP-004 passed.",
+      "resolvedAt": "2026-06-19T23:45:11.470Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
