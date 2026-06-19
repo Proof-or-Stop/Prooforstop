@@ -1,0 +1,43 @@
+{
+  "storyId": "B-74a0",
+  "checkedAt": "2026-06-19T17:09:07.973Z",
+  "reviewRound": "2026-06-19T16:57:14.126Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-1-command-catalog-and-schema-modules",
+      "promise": "Round 1 moves only MAIN_TOOLS and schema-only command metadata into packages/main/src/cli catalog/schema modules, keeps MAIN_TOOLS re-exported from cli-engine.ts, does not move handler registration, runCli, aliases, or flag parsing, and is covered by build, process-fact contract, command catalog smoke, and representative help smokes.",
+      "status": "verified",
+      "verifiedBy": "manual diff review plus Lattice TEST evidence",
+      "evidence": "scope_contract_check passed; TEST validate PASS at 2026-06-19T17:03:55.546Z with 9/9 verification intent coverage; command-catalog-smoke transcript reports 239 commands; cli-engine.ts still owns runtime TOOLS assignment, extraTools append behavior, runCli, dispatch, aliases, and help rendering."
+    },
+    {
+      "docPath": "docs/dev/test-coverage.md",
+      "promise": "The test coverage document remains accurate for this story: test:coverage is on-demand c8 coverage over the full smoke runner, excludes *-smoke.ts files, and this story does not claim or change coverage-gate, smoke-manifest, or CI behavior.",
+      "status": "verified",
+      "verifiedBy": "manual related-doc review plus git diff",
+      "evidence": "docs/dev/test-coverage.md is untouched; the new command-catalog-smoke is a focused package script used by story evidence and not a test:coverage or smoke-manifest behavior change."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "TEST evidence records npm --prefix packages/main run build passing after ToolDef moved to cli/main-tools.ts and schema definitions moved to cli/command-schemas.ts; representative CLI help smoke checks story_create, story_advance, validate, and authority_receipt_verify markers."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "TEST evidence records npm --prefix packages/main run test:command-catalog-smoke passing; the smoke imports MAIN_TOOLS through cli-engine.js, checks duplicate-free inventory, stable leading/trailing order, required representative commands, antigravity/agy current host text, and Gemini legacy-only wording."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "summary_get actualTranscript: node bin/lattice.js story_advance --help printed --dryRun plus Owner lease meta options with --takeover and --forceTakeover; npm --prefix packages/main run test:command-catalog-smoke printed command catalog smoke passed: 239 commands."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed diff, related docs promises, summary, TEST evidence, local 3x2 verdict status, and real-machine transcript. Delivery is acceptable for local Lattice delivery evidence; no production Authority receipt is claimed, and local host verdicts remain diagnostic/non-authority evidence."
+  },
+  "_hash": "8fbe6e05a006f21579ffb8764538abd505d5c9e28057671ff4ffc4125e707480"
+}
