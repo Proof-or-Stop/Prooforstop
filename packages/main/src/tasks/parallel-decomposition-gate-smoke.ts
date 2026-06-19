@@ -94,7 +94,7 @@ void (() => {
       check('broad + lenient -> block null + advise', lenient.block === null && lenient.advisories.some((a) => a.includes('narrow the contract')));
     }
 
-    // 5. §4.8 no active peers => no-op: broad + parallel but NO peers -> no block, advise only.
+    // 5. §4.8 no active peers => TRUE no-op: broad + parallel but NO peers -> no block, no advisory.
     {
       const r = evaluateDecompositionGate(
         story('S', { parallelSafe: 'yes' }),
@@ -103,7 +103,19 @@ void (() => {
         cfg(true),
       );
       check('broad + parallel + NO peers -> no-op (block null)', r.block === null);
-      check('no-peers broad still advises', r.advisories.some((a) => a.includes('narrow the contract')));
+      check('no-peers broad -> no advisory (true no-op)', r.advisories.length === 0);
+    }
+
+    // 5b. §4.8 no-op with ALL-TERMINAL peers (DONE + DISCARDED) + broad glob -> block null AND empty advisories.
+    {
+      const r = evaluateDecompositionGate(
+        story('S', { parallelSafe: 'yes' }),
+        [story('A', { parallelSafe: 'yes', phase: 'DONE' }), story('B', { parallelSafe: 'yes', phase: 'DISCARDED' })],
+        new Map([['S', contract('S', { allowedCreate: ['src/**'] })]]),
+        cfg(true),
+      );
+      check('all-terminal peers + broad -> block null', r.block === null);
+      check('all-terminal peers + broad -> empty advisories (true no-op)', r.advisories.length === 0);
     }
 
     // 6. §4.2 BROAD without a parallel assertion -> advise only, never block.

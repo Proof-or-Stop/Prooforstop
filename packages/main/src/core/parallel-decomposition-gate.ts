@@ -132,8 +132,10 @@ export function evaluateDecompositionGate(
         advisories.push(`broad glob asserted parallel-safe: ${broadEntries[0]} (narrow the contract)`);
       }
     }
-  } else if (broadEntries.length > 0) {
-    // §4.2: a BROAD glob without a parallel assertion (or with no active peers) is ADVISE-ONLY.
+  } else if (activePeers.length > 0 && broadEntries.length > 0) {
+    // §4.2: a BROAD glob in a story that does NOT assert parallel (but still has active peers,
+    // so parallel-safety is in scope) is ADVISE-ONLY. With NO active peers the gate is a true
+    // §4.8 no-op — a lone story is trivially parallel-safe, so NOTHING is emitted here.
     advisories.push(`broad glob in write-set: ${broadEntries[0]} (narrow the contract)`);
   }
 
