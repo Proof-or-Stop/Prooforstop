@@ -53,12 +53,13 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "node bin/lattice.js host_runtime_probe --host=antigravity --json && node bin/lattice.js host_runtime_probe --host=agy --json",
+          "verdict": "success",
+          "command": "node bin/lattice.js guard_session_start --storyId=B-d674 --provider=antigravity --viaDispatch --json; node bin/lattice.js guard_session_start --storyId=B-d674 --provider=agy --viaDispatch --json; node bin/lattice.js host_runtime_probe --host=antigravity --json; node bin/lattice.js host_runtime_probe --host=agy --json",
           "result": "pass",
-          "note": "Both probes passed: antigravity returns host=antigravity and cliCommand=agy; agy returns host=antigravity, requestedHost=agy, matchedFallback=true, cliCommand=agy.",
-          "headHash": "93a27b20cf392a779b6cfc34a4f670e78d778bc7",
-          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
-          "timestamp": "2026-06-19T15:25:13.326Z"
+          "note": "Post-fix CLI checks passed: provider=antigravity and provider=agy with viaDispatch=true both returned guardMode=wrapped-preapply, while host_runtime_probe maps antigravity and agy to host=antigravity with cliCommand=agy.",
+          "headHash": "3cfbdeba3cc031705dd5526a61c85075a9e896ae",
+          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
+          "timestamp": "2026-06-19T15:37:11.680Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
