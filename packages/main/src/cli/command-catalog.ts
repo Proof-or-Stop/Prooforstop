@@ -658,13 +658,14 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'review_escalation_fallback_set', description: 'Record explicit degraded 3x1 review escalation fallback evidence bound to the current material hash. Alias: lattice review escalation fallback set', schema: {
+  { name: 'review_escalation_fallback_set', description: 'Record explicit degraded 3x1 review escalation fallback evidence bound to the current material hash and optional storyFilesHash. Alias: lattice review escalation fallback set', schema: {
     storyId: z.string().describe('Story ID'),
     eligibility: reviewEscalationFallbackEligibilitySchema.describe('Allowed degraded fallback eligibility'),
     reason: z.string().min(20).describe('Why the selected degraded fallback eligibility applies and lower-assurance 3x1 review is being used'),
     evidenceRefs: z.array(z.string().min(1)).optional().describe('Local evidence references supporting degraded fallback'),
     approvalRef: z.string().optional().describe('Explicit approval reference; required when evidenceRefs is empty'),
     materialHash: z.string().optional().describe('Optional expected current material hash; stale values are rejected'),
+    storyFilesHash: z.string().optional().describe('Optional expected current story-owned file hash; stale values are rejected when computable'),
     actor: z.string().optional().describe('Operator or reviewer recording the fallback'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
@@ -1980,7 +1981,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'autopilot_review_submit', description: 'Submit a local non-authority host verdict with identity/material bindings for review escalation. Alias: lattice autopilot review submit', schema: {
+  { name: 'autopilot_review_submit', description: 'Submit a local non-authority host verdict with identity/material/storyFilesHash bindings for review escalation. Alias: lattice autopilot review submit', schema: {
     verdictFile: z.string().optional().describe('Verdict JSON file'),
     storyId: z.string().optional().describe('Story id'),
     runId: z.string().optional().describe('Local run id'),
@@ -1990,6 +1991,7 @@ Behavior:
     keyId: z.string().optional(),
     decision: z.enum(['pass', 'fail', 'blocked']).optional(),
     materialDigest: z.string().optional(),
+    storyFilesHash: z.string().optional().describe('Optional story-owned file hash for whole-tree material drift downgrade diagnostics'),
     validationDigest: z.string().optional(),
     promptDigest: z.string().optional(),
     note: z.string().optional(),

@@ -40,7 +40,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
-import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -542,7 +542,8 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   const headHash = currentHead(gitCwd) ?? result.headSha ?? result.headHash;
-  const materialHash = currentMaterialHash(ctx.root);
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
   ctx.store.writeTestEvidence(storyId, {
     command,
     output: JSON.stringify(result),
@@ -550,6 +551,7 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
     timestamp: new Date().toISOString(),
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
   });
 }

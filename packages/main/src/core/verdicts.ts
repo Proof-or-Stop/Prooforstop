@@ -51,6 +51,7 @@ export interface HostVerdict {
   keyId?: string;
   decision: VerdictDecision;
   materialDigest: string;
+  storyFilesHash?: string;
   validationDigest?: string;
   gateInputDigest?: string;
   receiptId?: string;
@@ -133,6 +134,7 @@ export interface VerdictSubmitArgs {
   keyId?: string;
   decision?: VerdictDecision;
   materialDigest?: string;
+  storyFilesHash?: string;
   validationDigest?: string;
   gateInputDigest?: string;
   receiptId?: string;
@@ -245,6 +247,7 @@ export function submitVerdict(root: string, args: VerdictSubmitArgs, now = new D
     keyId: merged.keyId,
     decision,
     materialDigest,
+    storyFilesHash: merged.storyFilesHash,
     validationDigest: merged.validationDigest,
     gateInputDigest: merged.gateInputDigest,
     receiptId: merged.receiptId,

@@ -702,6 +702,8 @@ export interface TestEvidenceData {
   headHash?: string;
   /** non-Lattice metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
   materialHash?: string;
+  /** Hash of story-owned material files vs merge-base main captured at test time. */
+  storyFilesHash?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
     head: string | null;

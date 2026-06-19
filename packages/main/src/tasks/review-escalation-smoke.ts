@@ -12,6 +12,9 @@ import {
   formatReviewEscalationReport,
 } from '../core/review-escalation.js';
 import type { Finding, ProcessEvent, StoryInfo } from '../core/types.js';
+import { StoryStore } from '../core/store.js';
+import { createVerdictHandlers } from '../handlers/verdict.js';
+import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
 
 const STORY_ID = 'B-review-escalation';
 const ROUND_1 = '2026-06-13T10:00:00.000Z';
@@ -182,6 +185,50 @@ try {
     assert.equal(report.voluntaryLocalRounds.submittedRoundCount, REVIEW_ESCALATION_REQUIRED_ROUNDS);
     assert.equal(report.voluntaryLocalRounds.ignoredVerdicts.length, 0);
     assert.match(formatReviewEscalationReport(report), /voluntaryLocalRounds: 3\/3/);
+  });
+
+  check('producer commands persist storyFilesHash on host verdict and degraded fallback records', () => {
+    const commandRoot = makeRepo();
+    try {
+      write(commandRoot, 'packages/main/src/story.ts', 'export const story = 1;\n');
+      git(commandRoot, ['add', '.']);
+      git(commandRoot, ['commit', '-m', 'story file']);
+      const store = new StoryStore(commandRoot);
+      store.writeStory(STORY_ID, story());
+      const material = currentMaterialHash(commandRoot)!;
+      const storyFilesHash = currentStoryFilesHash(commandRoot)!;
+      const ctx = { store, root: commandRoot, scanRoot: join(commandRoot, 'packages/main') };
+
+      const verdict = createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-command',
+        hostId: 'codex-command',
+        provider: 'codex',
+        sessionId: 'codex-command-session',
+        keyId: 'codex-command-key',
+        decision: 'pass',
+        materialDigest: material,
+        validationDigest: 'validation-command',
+        promptDigest: 'prompt-command',
+        json: true,
+      }) as any;
+      assert.equal(verdict.storyFilesHash, storyFilesHash);
+
+      const fallbackResult = createReviewEscalationHandlers(ctx).review_escalation_fallback_set({
+        storyId: STORY_ID,
+        eligibility: 'explicit-human-approval',
+        reason: 'Operator approved degraded fallback because only one verifier host was available.',
+        evidenceRefs: ['manual-approval:ticket-456'],
+        json: true,
+      }) as any;
+      assert.equal(fallbackResult.storyFilesHash, storyFilesHash);
+
+      const events = store.readProcessEvents(STORY_ID);
+      assert.equal(events.find(event => event.type === 'host_verdict')?.storyFilesHash, storyFilesHash);
+      assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.storyFilesHash, storyFilesHash);
+    } finally {
+      rmSync(commandRoot, { recursive: true, force: true });
+    }
   });
 
   check('two first-round verified reviewer problems trigger and full 3x2 passes', () => {
