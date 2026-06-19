@@ -160,6 +160,34 @@
         }
       ],
       "_hash": "5c0fb00acdd69e321fac60b670ffb17782673825b77c19153e4dfdd5b5281c7c"
+    },
+    {
+      "timestamp": "2026-06-19T22:45:59.871Z",
+      "issueCount": 4,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Add done_prepare command surface and preflight + Orchestrate merge-main, stale evidence classification, validate, and done_closure are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-fb36\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/done-prepare-automation-execution-plan.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "aa1523b20ae40712306dcab7fa5638500be2169f76d4068ccdc53275413bf7d9"
     }
   ]
 }
