@@ -53,9 +53,9 @@
       "id": "CHK-002",
       "title": "Smoke for the pre-merge mainSha abort path",
       "context": "Add a smoke (packages/main/src/tasks/*-smoke.ts, auto-discovered) + npm wiring: simulate an external advance to main between the pre-check sync and the in-lock merge -> story_advance DONE aborts cleanly at TEST with the resync hint, NO phase=DONE persisted, NO partial merge; the happy path (main unchanged in-lock) still merges and reaches DONE.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T21:10:12.738Z",
-      "endTime": null,
+      "endTime": "2026-06-19T21:18:07.657Z",
       "verificationIntent": {
         "happy": [
           {
