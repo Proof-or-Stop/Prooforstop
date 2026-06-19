@@ -394,6 +394,24 @@
       ],
       "signatureTag": "missing|md|still-contradict-responsible",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-020",
+      "desc": "CHK-002: §4.4 line 340 says broadSide is for \"§4.8 block messages\" to cite the offending story, but §4.8 (failure-mode guardrails: fail-open/fail-closed, unreadable peer) contains no block-message formatting. The broad_glob_unprovable_parallel block condition is defined in §4.3. The cross-reference should read §4.3, not §4.8. Filed as F-014 in round 1, unresolved in commit 76c535499.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T02:13:46.668Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-008",
+      "_hash": "208957f3bfdee6ef0da95a7aad49877d44a0c39c3ca85623259ca6925ce21e0f",
+      "files": [
+        "docs/parallel-decomposition-spec.md"
+      ],
+      "signatureTag": "missing|md|line-says-broadside",
+      "signatureTagSource": "auto"
     }
   ]
 }
