@@ -139,7 +139,7 @@
       "desc": "[Codex host P1] the public contract parallel-decomposition.ts still exports computeWriteSet/globsOverlap as NotImplemented stubs; the real logic is in the sidecar parallel-decomposition-overlap.ts. By design for the contract-first file-split: Story 1 cannot edit the frozen contract (out of scope); the re-export reconciliation is Story 5 (serial integration).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T13:40:16.501Z",
@@ -150,7 +150,11 @@
         "packages/main/src/core/parallel-decomposition.ts"
       ],
       "signatureTag": "missing|ts|codex-host-public",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Deferred to Story 5 by design: the operator chose a file-split decomposition so Story 1 implements the engine in the sidecar parallel-decomposition-overlap.ts; editing the frozen contract parallel-decomposition.ts is outside Story 1 scope and is Story 5 (serial integration), which reconciles the contract to re-export the real impls. Within the program no caller imports the contract stubs before S5; Story 2 imports globsOverlap from the sidecar.",
+      "resolvedAt": "2026-06-19T13:40:18.770Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4033:F-008",
