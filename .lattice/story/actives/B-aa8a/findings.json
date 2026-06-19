@@ -37,6 +37,24 @@
       ],
       "signatureTag": "edge|ts|misleading-test-version",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-aa8a:F-003",
+      "desc": "dead-export: version-bump.ts:51 formatSemver is exported but never imported by any external caller; it is only used internally by nextPatch on line 58. Exporting an internal helper unnecessarily widens the module API surface.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T19:54:38.638Z",
+      "reviewRound": "2026-06-19T19:50:05.641Z",
+      "reviewRunId": "B-aa8a:RR-002",
+      "_hash": "d4800662ac1d5edb76fbfabde1cc1ee9f324eb51badfd4038d62e5274f5cf4cb",
+      "files": [
+        "packages/main/src/core/version-bump.ts"
+      ],
+      "signatureTag": "missing|ts|dead-export-version",
+      "signatureTagSource": "auto"
     }
   ]
 }
