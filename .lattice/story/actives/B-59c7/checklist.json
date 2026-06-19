@@ -120,6 +120,17 @@
           "headHash": "5dda5dc7942985266fc4619d1b760d0ba9a05442",
           "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
           "timestamp": "2026-06-19T04:05:29.379Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "git diff -- packages/main/src/core/audit-config.ts",
+          "result": "pass",
+          "note": "Diff is exactly one import line + one optional field line (with doc comment); no resolution logic added.",
+          "headHash": "907efb64c4302b47b0cee6b5ec04980fad642bd5",
+          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
+          "timestamp": "2026-06-19T04:05:29.842Z"
         }
       ]
     }
