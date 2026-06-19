@@ -82,8 +82,8 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
       "userSees": "User sees three local single-host audit results recorded as Non-authority evidence before closure.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T00:23:59.698Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -132,6 +132,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Document committed and docs checks passed."
+    },
+    {
+      "timestamp": "2026-06-19T00:23:59.698Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start three local single-host audit rounds."
     }
   ]
 }
