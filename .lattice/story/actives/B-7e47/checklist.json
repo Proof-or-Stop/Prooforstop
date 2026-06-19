@@ -10,7 +10,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "GateEvaluateRequestContract and schema accept a typed materialOverlapAudit with changedFiles and actualFileOverlaps for /v1/gates/evaluate, without adding new /v1/checks or /v1/commands contracts.",
+      "userSees": "Targeted contract regression output includes \"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\" and no /v1/checks or /v1/commands contract diff is needed.",
       "files": {
         "modify": [
           "packages/main/src/core/authority-contracts.ts"
