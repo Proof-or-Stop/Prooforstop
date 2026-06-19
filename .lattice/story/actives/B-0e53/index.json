@@ -1,0 +1,36 @@
+{
+  "storyId": "B-0e53",
+  "name": "done-premerge-mainsha-recheck",
+  "title": "Abort DONE before persist when main advanced after the lock (pre-merge mainSha re-check)",
+  "description": "Close the one residual DONE race left by the existing main-write-lock: an EXTERNAL git advance to main between the pre-check sync and the in-lock merge. After acquiring the lock and before merging, re-read main's sha; if it changed, abort BEFORE phase=DONE persists, leaving the story at TEST with a resync hint. No after-DONE auto-retry; the merge stays atomic.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "dispatch",
+    "done",
+    "merge-lock",
+    "concurrency",
+    "materialhash"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-19T20:55:28.671Z",
+  "startedAt": "2026-06-19T20:55:28.671Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-19T20:55:28.671Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
