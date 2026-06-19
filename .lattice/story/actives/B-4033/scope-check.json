@@ -1,0 +1,115 @@
+{
+  "storyId": "B-4033",
+  "checkedAt": "2026-06-19T12:50:43.144Z",
+  "features": [
+    {
+      "feature": "computeWriteSet(contract: ScopeContractData): string[] — unions allowedModify + allowedCreate paths",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "globsOverlap tier-1: literal-path intersection (exact-match set intersection, zero false positives)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "globsOverlap tier-2: shared-directory-prefix heuristic (conservative — may over-flag, never under-flags within prefix)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "globsOverlap broadness classification: NARROW (literal or dir/* / dir/** below package root) vs BROAD (at/near repo root or multi-second-level)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "globsOverlap GlobOverlapResult.broadSide attribution: which operand carried the broad glob (a|b|both|null)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Grammar validator: reject mid-path ** (e.g. src/**/*.ts) at write-set grammar boundary",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Grammar validator: reject bare top-level * at write-set grammar boundary",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Smoke test: 5-behavior coverage (literal overlap, dir-prefix over-flag, BROAD classification + broadSide attribution, disjoint sets, grammar rejection) — exits non-zero on any assertion failure",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "New file core/parallel-decomposition-overlap.ts (file-disjoint from contract parallel-decomposition.ts and peer story files)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "evaluateDecompositionGate — gate verdict, BLOCK conditions §4.3, advisories (Story 2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "parallel-decomposition-gate.ts / evaluateDecompositionGate (Story 2)",
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "parallelGate config resolution in resolveAuditConfig + VALID_PARALLEL_MODES + profile table (Story 3)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "audit-config.ts (Story 3)",
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Wave/REVIEW advisory wiring: scope_glob_overlap degradation in resolveWaveSafety + story-review.ts advisory injection (Story 4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "lattice-parallel-wave.ts (Story 4)",
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "canStartDevGuard + getGuardFailureReason two-coordinated-edits integration (Story 5)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "parallel-decomposition-gate.ts / evaluateDecompositionGate (Story 2)",
+      "source": "decisions:../parallel-decomposition-spec.md"
+    },
+    {
+      "feature": "Frozen contract parallel-decomposition.ts (computeWriteSet / globsOverlap / evaluateDecompositionGate signatures + ParallelGateConfig type + VALID_PARALLEL_MODES + ParallelDecompositionBlock enum — Story 0)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "parallel-decomposition.ts (frozen contract — import-only)",
+      "source": "decisions:../parallel-decomposition-spec.md"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 9,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ee805e158942b6387e4aad7015060c2c286487d55907a973ecd934e58a4556c4",
+  "openQuestions": []
+}
