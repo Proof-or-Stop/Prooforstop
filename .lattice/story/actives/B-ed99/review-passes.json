@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T02:45:00.736Z",
       "reviewRunId": "B-ed99:RR-010",
       "_hash": "9f3b30fbbdbcfe7d08610256d39db9d4defd5face3b03bf348e4aed4a6b6b085"
+    },
+    {
+      "id": "B-ed99:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "PASS: reviewed latest HEAD 0ee22b4 after F-003/F-004 resolution. Process-fact level/registry/policy/contract mappings now name both review escalation and review assurance floor consumers for autopilot_review_submit and review_escalation_fallback_set while preserving no-Authority-overclaim wording. review-assurance-floor evaluator blocks zero/stale material-code evidence, enforces sticky failure 3x1 and high-risk 3x2/degraded fallback, and keeps authorityDone/fullAuthorityDone/productionDone false. DONE oracle and machine guard thread resolved gitCwd for wrapper-root paths. Verified node scripts/verify-process-fact-contract.mjs and node packages/main/dist/tasks/review-assurance-floor-smoke.js; no arbitrary optimization or remaining correctness blocker found.",
+      "createdAt": "2026-06-19T03:12:23.632Z",
+      "reviewRound": "2026-06-19T02:45:00.736Z",
+      "reviewRunId": "B-ed99:RR-009",
+      "_hash": "5ec38208319d00624b4109413c637d341d8d75cc1eb9facdb9222a0cbc247b50"
     }
   ]
 }
