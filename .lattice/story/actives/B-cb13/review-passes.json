@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T01:35:09.591Z",
       "reviewRunId": "B-cb13:RR-002",
       "_hash": "2acd4fde6d7ada3207e0d23eea71ff2c0011f472312d3d0383750feed8ad90e3"
+    },
+    {
+      "id": "B-cb13:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: pure-doc diff (Fallback 1), symbol set empty. Step 2/3: reviewed docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md (primary deliverable). Paragraphs compared: entire doc (86 lines). Checks: (1) Six story IDs B-a2e3/B-4eb6/B-5d48/B-06b3/B-c06a/B-17a9 all confirmed DONE via story_get, each story name/title matches doc one-line description. (2) Four commands learning_scan/learning_validate/learning_effectiveness/signature_backfill all registered in packages/main/src with correct handler attributions matching doc claims. (3) Flags --json, --confirmedOnly, --map, --apply all confirmed present in handler source. (4) Commit 2750aadef confirmed in main with matching message (656 real signatures, audit-only, _hash unchanged). (5) Doc correctly frames all results as OBSERVATIONAL; causal claim explicitly deferred to forward ON/OFF RCT; no overclaim detected. Non-Goals section explicitly excludes saturation-inflated rho, causal proof, and cross-project aggregation. Honesty guards in Operational Rules section match code behavior. No doc-vs-code drift found. 0 findings registered.",
+      "createdAt": "2026-06-19T01:38:25.557Z",
+      "reviewRound": "2026-06-19T01:35:09.591Z",
+      "reviewRunId": "B-cb13:RR-003",
+      "_hash": "ec14a18669490111c4a562f46848c80380231d06527d4fbe1ff29f3a94b06560"
     }
   ]
 }
