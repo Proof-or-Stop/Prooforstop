@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T04:55:53.568Z",
       "reviewRunId": "B-02a6:RR-001",
       "_hash": "659305036c3b0f323f3f9431a3e3289a848e7c92b5a6fd3108927f025dd17a4a"
+    },
+    {
+      "id": "B-02a6:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Behavioral review complete. Core fix is sound: safe-init commit runs inside the held main-write-lock (cross-function locked, registered in main-write-lock-coverage); failure atomicity is intentionally fail-open (story_create never fails on a git commit error; metadata stays on disk; doctor/INIT_CHECK surfaces uncommitted leaves). Idempotency: git status --porcelain fast-path correctly prevents empty/duplicate commits. INIT_CHECK bootstrap idempotency: the new else-if refContainsStoryMetadata branch correctly avoids createScopedStoryBootstrapCommit when HEAD already carries the metadata. Discard tombstone activates when purgeResult does not start with the expected ✓ prefix, covering the buried-commit case at the code level. Two findings registered: F-002 (low) CHK-001 userSees exact string mismatch; F-003 (medium) tombstone fallback path (buried-init-commit case) has no smoke test and the evidence note incorrectly claims coverage. No blocking behavioral correctness issues found; the fix closes the INIT-window data-loss window as designed.",
+      "createdAt": "2026-06-19T05:01:16.063Z",
+      "reviewRound": "2026-06-19T04:55:53.568Z",
+      "reviewRunId": "B-02a6:RR-004",
+      "_hash": "13558ffcd55d907d0740216873cb252cbdc66e45a7a43b229e94710194bab2e5"
     }
   ]
 }
