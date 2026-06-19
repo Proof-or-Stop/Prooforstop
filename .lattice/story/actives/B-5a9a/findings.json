@@ -101,6 +101,29 @@
       "resolvedAt": "2026-06-19T22:35:48.935Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a9a:F-005",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-files-hash-material-drift.md:40-45 lists adopted storyFilesHash bindings as review runs, checklist verification evidence, and review escalation host verdicts/degraded fallback records, but omits DONE validation test-evidence even though the implementation now records and consumes storyFilesHash there. TestEvidenceData includes storyFilesHash in packages/main/src/core/types.ts:705-706; story_advance/validate write it to test-evidence.json in packages/main/src/handlers/phase-gates.ts:554-563 and packages/main/src/handlers/verifier.ts:542-554; active DONE evidence freshness consumes evidence.storyFilesHash in packages/main/src/core/done-oracle.ts:181-189; and flow-stability smoke asserts matching storyFilesHash downgrades unrelated active DONE material drift in packages/main/src/tasks/flow-stability-smoke.ts:1574-1578. The docs therefore underdocument the DONE/test-evidence adopted binding requested by this story.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T22:42:17.239Z",
+      "reviewRound": "2026-06-19T22:35:13.478Z",
+      "reviewRunId": "B-5a9a:RR-007",
+      "_hash": "1bbb5005fa0ef084f0a9fd73ee21d976ee876693025484fa32c2264b8ef7d2fc",
+      "files": [
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
