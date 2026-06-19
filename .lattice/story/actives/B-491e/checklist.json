@@ -200,12 +200,12 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|generate the bundle|generate .*bundle locally|lattice_senior_.*generated|locally in the target workspace\" packages/main/src docs",
+          "command": "rg \"generate the bundle|generate .*bundle locally|locally in the target workspace|regenerated on the destination machine|buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle\" README.md docs packages/main/src",
           "result": "pass",
-          "note": "No matches remained, preventing accidental public local senior bundle generation reintroduction in touched public surfaces.",
-          "headHash": "380548e857bce889ba9f237e01de016bee829d5e",
+          "note": "Residual search returned no matches, including README, so public docs/source no longer advertise local bundle generation or expose the removed generator symbols.",
+          "headHash": "7d2a5031983c8614b13a26b9ed57937ce8ca55d8",
           "materialHash": "34eb21bc9f9eeb95e3a76f67e4f35301a877f0b96e01ac7de640a84fa99deec8",
-          "timestamp": "2026-06-19T01:09:37.825Z"
+          "timestamp": "2026-06-19T01:22:23.915Z"
         }
       ]
     }
