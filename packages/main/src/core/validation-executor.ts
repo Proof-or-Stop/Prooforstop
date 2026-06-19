@@ -20,6 +20,24 @@ import type {
 
 const MAX_OUTPUT_CHARS = 12000;
 
+/**
+ * Default hard per-command ceiling applied when a validate command sets no explicit
+ * `timeoutMs`. Kept strictly BELOW the cli-engine ~300s global no-output idle watchdog so
+ * a hung/slow command is killed and ATTRIBUTED (exit 124) here first, instead of the
+ * global watchdog silently force-exiting the whole validate (which never re-stamps
+ * test-evidence.materialHash and silently blocks DONE for every story). It is also kept
+ * ABOVE the slowest legitimate command (the tsc build, ~160s) with margin; a command that
+ * genuinely needs longer can raise `lattice.config.json` validate.commands[].timeoutMs.
+ */
+export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 240_000;
+
+/** The effective per-command timeout: an explicit positive `timeoutMs`, else the default. */
+export function resolveCommandTimeoutMs(command: ValidationCommand): number {
+  return typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
+    ? command.timeoutMs
+    : DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+}
+
 export function stripAnsi(str: string): string {
   return str.replace(/\x1B\[[0-9;]*m/g, '');
 }
@@ -30,10 +48,9 @@ export function formatValidationCommand(command: ValidationCommand): string {
 }
 
 function formatTimeoutDiagnostics(command: ValidationCommand): string[] {
-  const timeout =
-    typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
-      ? `${command.timeoutMs}ms`
-      : 'unavailable';
+  const explicit =
+    typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0;
+  const timeout = `${resolveCommandTimeoutMs(command)}ms${explicit ? '' : ' (default)'}`;
   return [
     `  timeout diagnostic: command exceeded configured timeoutMs=${timeout}.`,
     '  If this command legitimately needs longer, raise lattice.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
@@ -207,13 +224,14 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
-    const timer = command.timeoutMs && command.timeoutMs > 0
-      ? setTimeout(() => {
-          timedOut = true;
-          child.kill('SIGTERM');
-          killTimer = setTimeout(() => child.kill('SIGKILL'), 1000);
-        }, command.timeoutMs)
-      : undefined;
+    // Always arm a per-command timeout: explicit timeoutMs, else the default ceiling. A
+    // hung command is then killed + attributed (exit 124) here, instead of the global
+    // idle watchdog silently force-exiting the whole validate.
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGTERM');
+      killTimer = setTimeout(() => child.kill('SIGKILL'), 1000);
+    }, resolveCommandTimeoutMs(command));
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
     child.stderr?.on('data', (d: Buffer) => { output += d.toString(); });

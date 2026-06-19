@@ -11,8 +11,8 @@
       "npm --prefix packages/main run build",
       "node packages/main/dist/tasks/authority-client-smoke.js",
       "node packages/main/dist/tasks/authority-completion-smoke.js",
-      "node packages/main/dist/tasks/review-pass-discard-smoke.js",
-      "node packages/main/dist/tasks/init-window-data-loss-smoke.js"
+      { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 120000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 120000 }
     ]
   },
   "baselineRiskAcceptedLocalPaths": [
