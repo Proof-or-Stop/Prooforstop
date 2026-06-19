@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-59c7:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Type-soundness review complete. Function signatures are correct: computeWriteSet(ScopeContractData): string[], globsOverlap(string[], string[]): GlobOverlapResult, evaluateDecompositionGate(StoryInfo, StoryInfo[], Map<string,ScopeContractData>, ParallelGateConfig): DecompositionGateResult — all param and return types resolve against real definitions in core/types.ts. GlobOverlapResult.broadSide attribution (a|b|both|null) is correct for all overlap scenarios. DecompositionGateResult shape is correct (advisories + nullable block reason). Making parallelGate optional in AuditConfig is the correct call — HARD_DEFAULTS and profileDefaults object literals cannot include it yet; required would break tsc. No dead imports. No unnecessary any. No empty catch. No bridge/shell isolation issues (pure types module). One low finding logged for PARALLEL_MODE_FALLBACK being an unplanned out-of-scope export with no current consumer (F-002). No blockers.",
+      "createdAt": "2026-06-19T04:08:21.619Z",
+      "reviewRound": "2026-06-19T04:05:42.294Z",
+      "reviewRunId": "B-59c7:RR-001",
+      "_hash": "c6cde8f30ce02dc008a3e7624aacb408c5bfe144d4ce948e726c04ba3638b1da"
+    },
+    {
+      "id": "B-59c7:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. No concept deletion or replacement detected in this diff — the change only adds new symbols. All 6 introduced symbols verified against spec: ParallelGateMode, ParallelGateConfig, VALID_PARALLEL_MODES, PARALLEL_MODE_FALLBACK, ParallelDecompositionBlock (4 values), GlobOverlapResult all match spec §4.7/§4.3/§4.2 exactly. One low/edge finding filed (B-59c7:F-004): DecompositionGateResult.block typed as ParallelDecompositionBlock|null instead of spec-literal string|null (§4.4 signature prose). No blocker — TypeScript-subtype compatible, and no concept residue requiring a block.",
+      "createdAt": "2026-06-19T04:08:42.144Z",
+      "reviewRound": "2026-06-19T04:05:42.294Z",
+      "reviewRunId": "B-59c7:RR-002",
+      "_hash": "9223eb40eed01231d117168e5baefc056dd37ac6539b8193f507169cbecbc165"
+    },
+    {
+      "id": "B-59c7:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "must-intent evidence valid at current HEAD; coverage adequate for contract. CHK-001:happy:0 and CHK-002:happy:0 both covered by npm --prefix packages/main run build (tsc); materialHash stable; validate confirms 6/6 intents covered, 0 required missing; no unit tests required for NotImplemented skeletons.",
+      "createdAt": "2026-06-19T04:17:29.800Z",
+      "reviewRound": "2026-06-19T04:16:19.896Z",
+      "reviewRunId": "B-59c7:RR-006",
+      "_hash": "d4b8b9445e00ff5b700fbf5c1716332ba262cc71f69d431e79315359a871725c"
+    },
+    {
+      "id": "B-59c7:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "All 6 introduced symbols checked against spec. ParallelDecompositionBlock 4 values (overlap_declared_parallel, broad_glob_unprovable_parallel, fake_dependency_chain, peer_contract_unreadable_parallel) match spec §4.3 exactly. GlobOverlapResult fields (overlap/pairs/broadSide) match §4.2. ParallelGateConfig fields (mode/maxConcurrentReview/broadGlobBlocks) match §4.7. VALID_PARALLEL_MODES set {advise,block,off} matches spec. DecompositionGateResult block typed as ParallelDecompositionBlock|null (type-safe refinement of spec string|null, intentional per prior F-004 resolution). AuditConfig.parallelGate field present in audit-config.ts. No concept deletions or replacements detected. Zero residue findings.",
+      "createdAt": "2026-06-19T04:17:34.790Z",
+      "reviewRound": "2026-06-19T04:16:19.896Z",
+      "reviewRunId": "B-59c7:RR-005",
+      "_hash": "29f984ac1fa31e902415f29a6cea659216237501dabbce9a50a9028a0be2927a"
+    },
+    {
+      "id": "B-59c7:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "contract type-sound; all 3 NotImplemented skeletons pure (void params + throw only); VALID_PARALLEL_MODES ReadonlySet fully typed; parallelGate optional correct; no dead code, no as-any, no empty catch; PARALLEL_MODE_FALLBACK (F-002) confirmed removed; no I/O shell isolation violations; clean",
+      "createdAt": "2026-06-19T04:19:27.498Z",
+      "reviewRound": "2026-06-19T04:16:19.896Z",
+      "reviewRunId": "B-59c7:RR-010",
+      "_hash": "5a94083e883249fbaad4cb2276f0f1600385678cb4354e6a82f2ecb82d87fa43"
+    }
+  ]
+}

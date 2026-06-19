@@ -1,0 +1,55 @@
+{
+  "storyId": "B-59c7",
+  "changes": "Created packages/main/src/core/parallel-decomposition.ts (frozen gate contract: ParallelGateConfig/ParallelGateMode/VALID_PARALLEL_MODES/ParallelDecompositionBlock/GlobOverlapResult/DecompositionGateResult types + three NotImplemented function skeletons) and added an optional parallelGate field to the AuditConfig interface.",
+  "usage": "Stories 1-2 import and fill computeWriteSet/globsOverlap/evaluateDecompositionGate; Story 3 implements parallelGate resolution in resolveAuditConfig; Story 4/5 wire the gate. Import via core/parallel-decomposition.js.",
+  "expectedOutcome": "tsc compiles; the module exports the named contract symbols and each function skeleton throws Error(NotImplemented: <name>); AuditConfig has an optional parallelGate field.",
+  "actualTranscript": "lattice validate PASS (tsc + authority smokes). Genuine cross-provider dual-host review: Claude lanes (concept/quality/test-coverage) + Codex (codex exec review x2, ran tsc itself), full-3x2; 4 findings filed and all resolved.",
+  "outcomeDiff": "One review-driven change: removed PARALLEL_MODE_FALLBACK (not in spec Section 8 Story-0 list, no consumer; deferred to Story 3). After that, expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Contract only — every function is a NotImplemented skeleton by design; real logic is filled by Stories 1-2, config resolution by Story 3. parallelGate is optional until Story 3 makes it resolved.",
+  "pitfalls": "Do not make AuditConfig.parallelGate required before Story 3 adds defaults (existing HARD_DEFAULTS/profileDefaults literals would fail tsc). Keep skeleton bodies as exact NotImplemented throws until the owning impl story fills them.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 165186
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13274
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 314104
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 194486
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 867521
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 53312
+    }
+  },
+  "totalDurationMs": 1607894,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T04:21:03.507Z",
+  "updatedAt": "2026-06-19T04:21:03.507Z"
+}

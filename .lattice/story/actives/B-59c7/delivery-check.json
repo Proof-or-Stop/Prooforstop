@@ -1,0 +1,97 @@
+{
+  "storyId": "B-59c7",
+  "checkedAt": "2026-06-19T04:24:37.588Z",
+  "reviewRound": "2026-06-19T04:16:19.896Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports ParallelGateMode type union advise|block|off",
+      "verifiedBy": "direct source read",
+      "evidence": "Line 18: export type ParallelGateMode = 'advise' | 'block' | 'off'"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports ParallelGateConfig interface with mode/maxConcurrentReview/broadGlobBlocks fields",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 21-28: export interface ParallelGateConfig { mode: ParallelGateMode; maxConcurrentReview: number; broadGlobBlocks: boolean; }"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports VALID_PARALLEL_MODES as ReadonlySet containing advise/block/off",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 32-36: export const VALID_PARALLEL_MODES: ReadonlySet<ParallelGateMode> = new Set(['advise','block','off'])"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports ParallelDecompositionBlock union of 4 reason strings: overlap_declared_parallel, broad_glob_unprovable_parallel, fake_dependency_chain, peer_contract_unreadable_parallel",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 42-46: export type ParallelDecompositionBlock = four string literal union, all 4 values present"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports GlobOverlapResult interface with overlap/pairs/broadSide fields",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 49-56: export interface GlobOverlapResult { overlap: boolean; pairs: Array<[string, string]>; broadSide: 'a' | 'b' | 'both' | null; }"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports DecompositionGateResult interface with advisories/block fields",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 60-63: export interface DecompositionGateResult { advisories: string[]; block: ParallelDecompositionBlock | null; }"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports computeWriteSet as NotImplemented skeleton",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 68-71: export function computeWriteSet(contract: ScopeContractData): string[] { void contract; throw new Error('NotImplemented: computeWriteSet'); }"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports globsOverlap as NotImplemented skeleton",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 77-81: export function globsOverlap(a: string[], b: string[]): GlobOverlapResult { void a; void b; throw new Error('NotImplemented: globsOverlap'); }"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Exports evaluateDecompositionGate as NotImplemented skeleton",
+      "verifiedBy": "direct source read",
+      "evidence": "Lines 88-99: export function evaluateDecompositionGate(story,peers,contracts,cfg): DecompositionGateResult; all params voided; throws new Error('NotImplemented: evaluateDecompositionGate')"
+    },
+    {
+      "docPath": "packages/main/src/core/audit-config.ts (modified)",
+      "promise": "AuditConfig gains optional parallelGate?: ParallelGateConfig field imported from parallel-decomposition.ts; resolveAuditConfig body unchanged",
+      "verifiedBy": "git diff direct read",
+      "evidence": "Diff adds +import type { ParallelGateConfig } and +parallelGate?: ParallelGateConfig; HARD_DEFAULTS and resolveAuditConfig body untouched, diff is exactly 2 added lines"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "Module compiles under tsc with no errors",
+      "verifiedBy": "lattice validate PASS",
+      "evidence": "validate.commands[0] npm --prefix packages/main run build exit code 0, tsc clean, confirmed in test-evidence.json at 2026-06-19T04:20:08.037Z"
+    },
+    {
+      "docPath": "packages/main/src/core/parallel-decomposition.ts (new file)",
+      "promise": "No real logic or I/O in skeletons; zero module-level side effects on import",
+      "verifiedBy": "direct source read",
+      "evidence": "Every skeleton body is exactly: void params; throw new Error. No I/O calls, no conditionals, no non-throw paths. Module-level code is type/interface/const/export declarations only."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Happy: npm --prefix packages/main run build (tsc) exits 0 - all 6 contract symbols compile and type-resolve against ScopeContractData/StoryInfo. Edge: node exec m.computeWriteSet() throws Error(NotImplemented: computeWriteSet) - explicit named error, no silent stub. Adversarial: git diff confirms void-params + throw only bodies, zero logic/IO, zero side effects on import."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Happy: tsc exits 0 with parallelGate optional field present and type imported from parallel-decomposition.js. Edge: git diff confirms resolveAuditConfig body and HARD_DEFAULTS unchanged - resolution correctly deferred to Story 3. Adversarial: diff is exactly one import line plus one optional field line, no resolution logic added."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 12 docsPromises verified directly from source and diff. Both CHK-001 and CHK-002 have tsc-compile happy path plus edge (NotImplemented throw behavior) and adversarial (no logic leak) coverage. No TODO/FIXME/HACK in delivered source. Escalation accurately reported as full-3x2 (local gate), assurance floor accurately degraded-single-host; no authorityDone or productionDone claimed. Delivery is complete and honest."
+  },
+  "_hash": "cdbaeff70a80961e4bbc1209549013d690e7288979aadac8d2b1f03543284584"
+}

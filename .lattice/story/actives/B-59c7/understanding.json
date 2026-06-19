@@ -1,0 +1,23 @@
+{
+  "task": "Freeze the parallel-decomposition gate contract (types + function skeletons) so the four parallel impl stories can build against a stable, importable surface.",
+  "outcome": "tsc compiles; packages/main/src/core/parallel-decomposition.ts exports ParallelGateConfig, VALID_PARALLEL_MODES, ParallelDecompositionBlock, and computeWriteSet/globsOverlap/evaluateDecompositionGate as NotImplemented skeletons; AuditConfig has a parallelGate field.",
+  "facts": [
+    "docs/parallel-decomposition-spec.md Section 8 names every symbol to export",
+    "audit-config.ts uses ReadonlySet<AuditMode> and a per-field resolveAuditConfig",
+    "ScopeContractData and StoryInfo are defined in core/types.ts"
+  ],
+  "constraints": [
+    "no real logic: every skeleton body throws new Error(NotImplemented)",
+    "audit-config.ts change is type-only — no resolveAuditConfig resolution logic (that is Story 3)",
+    "scope is exactly the two files"
+  ],
+  "unknowns": [
+    "final exact ParallelDecompositionBlock reason-string set",
+    "whether depends edges need a discriminator now (defer: no)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/parallel-decomposition.ts",
+    "packages/main/src/core/audit-config.ts"
+  ],
+  "timestamp": "2026-06-19T03:58:21.875Z"
+}
