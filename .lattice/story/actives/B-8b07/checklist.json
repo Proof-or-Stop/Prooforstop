@@ -86,9 +86,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T00:14:28.772Z",
       "verificationIntent": {
         "happy": [
           {
@@ -118,7 +118,42 @@
           "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"^## Roadmap Tracks|^## Milestone Table|^## Milestone Details|^## Sequencing|^## Parallelization Rules\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && rg -n \"Lattice Strengthening Roadmap Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The new decision document exists, NAV links to it, and it decomposes the three strengthening tracks into roadmap tracks, milestone table, milestone details, sequencing, and parallelization rules.",
+          "headHash": "66589dba2e7a3ba9d95cd48eb29171afada43651",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:28.923Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"Deliverables:|Gate placement:|Required tests|Expected evidence:|Blockers:|DONE criteria:|^## 3-Round 2-Host Validation Policy|^## Baseline And Negative-Control Expectations\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Every milestone section includes deliverables, gate placement, required tests, expected evidence, blockers, and DONE criteria; the document also includes explicit 3-round 2-host and baseline/negative-control expectations.",
+          "headHash": "66589dba2e7a3ba9d95cd48eb29171afada43651",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:29.021Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "sed -n '1,140p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && sed -n '1047,1238p' docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The document labels itself as an execution plan, not implemented runtime behavior, and describes future baseline/negative-control expectations as acceptance targets for later stories rather than proof from this story.",
+          "headHash": "66589dba2e7a3ba9d95cd48eb29171afada43651",
+          "materialHash": "b4c7c358ba9d06ba1584ed742e6e48c5785383910b13e176e4226cd33b07a7b1",
+          "timestamp": "2026-06-19T00:14:29.122Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -172,6 +207,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Source/context mapping verified against the new roadmap document and overclaim scan."
+    },
+    {
+      "timestamp": "2026-06-19T00:14:28.772Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Milestone execution plan and NAV registration verified."
     }
   ]
 }
