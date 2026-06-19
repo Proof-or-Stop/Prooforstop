@@ -125,12 +125,12 @@
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "verdict": "success",
-          "command": "git diff -- packages/main/src/core/audit-config.ts",
+          "command": "git diff main...HEAD -- packages/main/src/core/audit-config.ts",
           "result": "pass",
-          "note": "Diff is exactly one import line + one optional field line (with doc comment); no resolution logic added.",
-          "headHash": "907efb64c4302b47b0cee6b5ec04980fad642bd5",
-          "materialHash": "b3d906d081b124dc4acb198662a342a32d22a6c6323f104fdb42daa0584958f7",
-          "timestamp": "2026-06-19T04:05:29.842Z"
+          "note": "Diff is one import line + one optional field line; no resolution logic.",
+          "headHash": "641f6e2ff3d45bad4ec5631bba33a9e45210dec2",
+          "materialHash": "751d66de2a94693d2de58cef86783c35ce198d200905d4ec3aa2b2ca928e520f",
+          "timestamp": "2026-06-19T04:10:20.796Z"
         }
       ]
     }
