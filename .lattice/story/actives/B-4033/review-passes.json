@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-19T13:40:45.503Z",
       "reviewRunId": "B-4033:RR-011",
       "_hash": "23f81c5906691c53b6c8da7858b34a0fb09d7471135e0ff4cc0316d35ea0b468"
+    },
+    {
+      "id": "B-4033:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed changed files: parallel-decomposition-overlap.ts and parallel-decomposition-overlap-smoke.ts. (1) No dead code: all private helpers (normalizeEntry, parseEntry, isUnderOrEqual, hasBroad, entriesOverlap) are reachable; all exports used in smoke. No commented-out blocks. (2) Type-safe: no `as any`; `as unknown as ScopeContractData` in smoke is legitimate fixture coercion; null-safe `?.match ?? []`; broadSide type derived from GlobOverlapResult interface. (3) I/O isolation: core file is pure, no I/O imports; smoke is a task-runner script (tasks/ dir) with direct core import, not a shell/ui file. Smoke: 41/41 assertions passed. Segment-filter normalizeEntry logic verified correct for //, /./, leading ./, repeated ./.",
+      "createdAt": "2026-06-19T13:53:25.034Z",
+      "reviewRound": "2026-06-19T13:52:10.850Z",
+      "reviewRunId": "B-4033:RR-013",
+      "_hash": "ca5f901cf01fe93771417fd98f91059eb8ecaf851f0ed3b47c149c4243aadf45"
     }
   ]
 }
