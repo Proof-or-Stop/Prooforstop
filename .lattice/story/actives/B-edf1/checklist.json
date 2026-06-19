@@ -5,8 +5,8 @@
       "title": "Surface escalation.advisories on the DONE Review-escalation pass path",
       "context": "In done-oracle.ts the Review-escalation doneCheckRow (~706-713): when escalation.ok===true AND escalation.advisories?.length, append the advisories to the row DETAIL (the always-printed field; renderDoneChecklist skips the hint on pass rows) so a passing DONE still shows the whole-tree-drift re-attestation advisory. Keep status=pass and blocking unchanged. Verify renderDoneChecklist actually prints the advisory on the pass row. Also check the machine.ts DONE guard (~882) ok-path and the Review-assurance-floor row do not separately swallow the same advisory; surface where an operator would otherwise miss it. Do NOT change eventsWithStoryFilesHashDowngrade or block DONE.",
       "userSees": "On a DONE where host verdicts were downgrade-accepted (materialHash drift + storyFilesHash match), the DONE checklist Review-escalation row PASSES but its detail now includes e.g. \"host verdict ...: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required\" so the operator sees the drift. With no drift, no advisory text appears.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T23:53:06.541Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
