@@ -1,0 +1,129 @@
+{
+  "storyId": "B-59c7",
+  "checkedAt": "2026-06-19T04:01:52.341Z",
+  "features": [
+    {
+      "feature": "Create packages/main/src/core/parallel-decomposition.ts new file",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Export ParallelGateConfig type (mode: advise|block|off; maxConcurrentReview: number; broadGlobBlocks: boolean)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Export VALID_PARALLEL_MODES ReadonlySet constant",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Export ParallelDecompositionBlock reason union type (overlap_declared_parallel | broad_glob_unprovable_parallel | fake_dependency_chain | peer_contract_unreadable_parallel)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Export computeWriteSet function signature as NotImplemented skeleton",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Export globsOverlap function signature as NotImplemented skeleton",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Export evaluateDecompositionGate function signature as NotImplemented skeleton",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "All skeleton function bodies throw new Error(NotImplemented: <name>) — no real logic, no I/O, no side effects on import",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "parallel-decomposition.ts compiles cleanly under tsc with no errors",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Add parallelGate: ParallelGateConfig field to AuditConfig interface in audit-config.ts (type-only, import from parallel-decomposition.ts)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "resolveAuditConfig body left unchanged — no parallelGate resolution logic in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 context: do NOT add resolveAuditConfig handling (that is Story 3)",
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Real implementation logic for computeWriteSet, globsOverlap, evaluateDecompositionGate (Stories 1-4 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 verificationIntent.adversarial: no real logic or I/O leaked into skeletons; deferred to Stories 1-4 per spec Section 8",
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "Wire evaluateDecompositionGate into canStartDevGuard and getGuardFailureReason (Story 5 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec Section 8 assigns this to Story 5 (SERIAL, last); deferred explicitly",
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "resolveWaveSafety scope_glob_overlap degradation and story-review advisory injection (Story 4 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec Section 8 assigns this to Story 4; deferred explicitly",
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "resolveAuditConfig parallelGate config resolution with profile defaults and per-field validation (Story 3 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec Section 8 assigns this to Story 3; CHK-002 explicitly defers resolution logic",
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    },
+    {
+      "feature": "audit-config.ts tsc compilation passes after adding parallelGate field and import",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/scope-check-missing-guidance-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 10,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "dbf60a0e82f728f46a70520b28bf51f5ab7b188b67535e6eaba77694a3a6d782",
+  "openQuestions": []
+}
