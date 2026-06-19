@@ -6,7 +6,63 @@
       "context": "(1) In done-oracle.ts, readGitStatusLines is private (line ~75) -- export it OR extract the git status --porcelain read + the classify/evaluate path into a small shared helper, WITHOUT changing the DONE gate verdict logic. (2) In the review_run_start handler (handlers/review-run.ts / core/review-run.ts), after the REVIEW phase check and BEFORE capturing the review-run snapshot, evaluate the working tree via that shared path (classifyGitStatusRows with dirtyWorktreeClassifierOptionsForStory + evaluateDirtyGate over DIRTY_GATE_POLICY). Refuse when the evaluation reports ANY BLOCKING category (material_source or fixture changes) with a clear actionable message (commit/revert code/config, then rerun review_run_start); the non-blocking categories (lattice_metadata / runtime_artifact / declared_artifact) pass. Do NOT change the DONE gate verdict, materialHash/currentMaterialHash computation, or the evidence-write-time freshness guard.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_run_start on a clean worktree (no dirty files) -> succeeds and returns a ReviewRun ID; WHY: proves the preflight does not block when there is nothing dirty",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start on a worktree with ONLY non-blocking dirty files (e.g. .lattice/stories/B-xxxx/index.json modified) -> succeeds; WHY: proves lattice_metadata_changes category passes through the preflight",
+            "type": "cli"
+          },
+          {
+            "desc": "done-oracle DONE-gate verdict is byte-identical after readGitStatusLines extraction -> buildDoneChecklist produces the same rows/status/blocking for a given story state; WHY: proves extraction did not alter DONE gate semantics",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "review_run_start when git status --porcelain is unreadable (e.g. not a git repo) -> fail-open, allows the review run to proceed; WHY: fail-open prevents the preflight from becoming a DOS vector when git is broken or the cwd is wrong",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start with only runtime_artifact_changes dirty (e.g. .koala-serve.json) -> succeeds; WHY: proves runtime artifacts are non-blocking, matching DIRTY_GATE_POLICY",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start with only declared_artifact_changes dirty -> succeeds; WHY: proves declared artifacts are non-blocking per DIRTY_GATE_POLICY",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start with mixed non-blocking categories (lattice_metadata + runtime_artifact + declared_artifact all dirty) -> succeeds; WHY: multiple non-blocking categories simultaneously should not trip the gate",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "review_run_start with a single uncommitted material_source change (e.g. packages/main/src/core/foo.ts) -> REFUSES with actionable message naming the file; WHY: the core blocking scenario -- a reviewer must not snapshot drifting source",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start with a single uncommitted fixture change -> REFUSES with actionable message; WHY: fixture drift is blocking in DIRTY_GATE_POLICY, must be caught",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start with BOTH blocking AND non-blocking dirty files (material_source + lattice_metadata) -> REFUSES and names only the blocking files; WHY: mixed dirty state must still block, and the message must be actionable (not listing metadata as the problem)",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start with unexpected_dirty_files (an untracked non-source file not matching any category) -> REFUSES; WHY: unexpected_dirty_files is BLOCKING in DIRTY_GATE_POLICY; the preflight must not silently allow unknown dirt through",
+            "type": "cli"
+          },
+          {
+            "desc": "review_run_start called when story is NOT in REVIEW phase -> rejects with phase error BEFORE the dirty-tree check runs; WHY: the phase guard must remain first; preflight must not mask the phase error",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
