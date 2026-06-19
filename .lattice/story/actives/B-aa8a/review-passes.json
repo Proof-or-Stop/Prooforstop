@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-19T20:30:16.366Z",
       "reviewRunId": "B-aa8a:RR-012",
       "_hash": "8c55c2839287b24986114d0d8fce719f39737294b0afee4293f9a86cdf9126c1"
+    },
+    {
+      "id": "B-aa8a:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "No blockers. Dead code: all private functions and imports in version-bump.ts and version-bump-smoke.ts are used. Type safety: all catch blocks use the bound variable or are intentionally empty best-effort cleanups with comments. Shell isolation: no bridge.ts pattern in this project; version-bump-smoke.ts imports from core/ and handlers/ which is appropriate for a task runner. stripComments correctness verified: block-comment regex is non-greedy and multi-line safe; line-comment regex stops at newline without consuming it; no false-positive export can be synthesized by stripping (verified the pathological /* */\\nexport case: raw=0, code=1, count guard fires). Raw-vs-stripped count guard: all 4 branches (code=0, code>1, raw=0, raw>1) throw correctly; F-006 block-comment proof confirmed via tests 16 and 17. afterWriteForTest seam: production call in done-effects passes no second arg so opts is undefined and seam is a dead no-op; the seam only runs when a caller explicitly passes afterWriteForTest. bumpBrandContent slice math: raw.index is always a number from matchAll (including 0, which ?? handles correctly); the replace targets the one occurrence of the version quote inside the matched substring; trailing content after the regex match is preserved correctly. One low finding registered (F-007): duplicate comment number 14 at version-bump-smoke.ts:215.",
+      "createdAt": "2026-06-19T20:35:41.798Z",
+      "reviewRound": "2026-06-19T20:30:16.366Z",
+      "reviewRunId": "B-aa8a:RR-010",
+      "_hash": "553fad81b346c024bd805941b2da84c05b757ae7d78f27aeabb36920cbabb6b3"
     }
   ]
 }
