@@ -64,13 +64,15 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "done_prepare sequences mergeMain, stale-evidence classification or refresh, validate, and done_closure as visible step rows; blocked runs show the exact stopped step and the next Lattice command to run.",
+      "userSees": "User sees step rows \"mergeMain: PASS\", \"staleEvidenceRefresh: PASS\", \"validate: PASS\", and \"doneClosure: PASS\" on success; blocked runs show \"blockedAt: evidenceFreshness\" or \"blockedAt: validate\" plus a literal next command such as \"lattice verification_evidence_refresh_stale --storyId=B-xxxx\".",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts",
           "packages/main/src/handlers/done-closure.ts",
           "packages/main/src/handlers/recover-evidence.ts",
           "packages/main/src/handlers/validate-shared.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
           "packages/main/src/core/evidence-freshness.ts",
           "packages/main/src/core/done-oracle.ts"
         ],
