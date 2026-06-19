@@ -131,13 +131,12 @@ function writeAuthorityHandoffFixture(bundleRoot: string): {
   writeFileSync(
     trustFilePath,
     [
-      `LATTICE_AUTHORITY_TRUST_ENV_FILE=${trustFilePath}`,
       'LATTICE_AUTHORITY_MODE=enforce',
       'LATTICE_AUTHORITY_URL=https://authority.example/',
       'LATTICE_AUTHORITY_SERVER_PUBLIC_KEY=source-server-public-key',
       'LATTICE_AUTHORITY_SERVER_KEY_ID=source-server-key-id',
       'LATTICE_AUTHORITY_PROJECT_ID=source-project-id',
-      `LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=${clientFilePath}`,
+      `LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=./${fileNames.clientFileName}`,
       '',
     ].join('\n'),
   );
@@ -150,6 +149,7 @@ function assertAuthorityHandoffFixtureConsumption(): void {
   const consumerRoot = mkdtempSync(join(tmpdir(), 'authority-handoff-consumer-'));
   try {
     const { trustFilePath, clientFilePath } = writeAuthorityHandoffFixture(bundleRoot);
+    writeFileSync(join(consumerRoot, 'lattice_staging-client.env'), 'wrong-cwd-customer-key\n');
 
     const loaded = loadAuthorityConfig(
       {

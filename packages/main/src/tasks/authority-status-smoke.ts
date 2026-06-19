@@ -603,6 +603,7 @@ function refFor(
 // Ordinary handoff fixture: Lattice-prefixed trust/client files remain consumable.
 {
   const bundleRoot = mkdtempSync(join(tmpdir(), 'authority-handoff-target-'));
+  const consumerRoot = mkdtempSync(join(tmpdir(), 'authority-handoff-consumer-'));
   try {
     const trustFileName = DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.trustFileName;
     const clientFileName = DEFAULT_AUTHORITY_TRUST_PROFILE_FILE_NAMES.clientFileName;
@@ -616,17 +617,18 @@ function refFor(
         'LATTICE_AUTHORITY_SERVER_PUBLIC_KEY=source-server-public-key',
         'LATTICE_AUTHORITY_SERVER_KEY_ID=source-server-key',
         'LATTICE_AUTHORITY_PROJECT_ID=source-project',
-        `LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=${clientFileName}`,
+        `LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=./${clientFileName}`,
         '',
       ].join('\n'),
     );
     writeFileSync(clientFilePath, 'source-customer-key\n');
+    writeFileSync(join(consumerRoot, clientFileName), '   \n');
 
     const status = buildAuthorityStatus({}, {
       ...EMPTY_AUTHORITY_ENV,
       LATTICE_AUTHORITY_MODE: 'enforce',
-      LATTICE_AUTHORITY_TRUST_ENV_FILE: trustFileName,
-    }, { cwd: bundleRoot });
+      LATTICE_AUTHORITY_TRUST_ENV_FILE: trustFilePath,
+    }, { cwd: consumerRoot });
     assert.deepEqual(
       {
         authorityTrustEnvLoaded: status.authorityTrustEnvLoaded,
@@ -656,6 +658,7 @@ function refFor(
     assert.ok(status.readinessWarnings.some(line => line.includes('RUNNER_ID')));
   } finally {
     rmSync(bundleRoot, { recursive: true, force: true });
+    rmSync(consumerRoot, { recursive: true, force: true });
   }
 }
 

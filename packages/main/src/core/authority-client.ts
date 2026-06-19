@@ -92,7 +92,7 @@ import {
 } from './authority-mode.js';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { resolve as resolvePath } from 'node:path';
+import { dirname, resolve as resolvePath } from 'node:path';
 import { z } from 'zod';
 
 /**
@@ -1582,6 +1582,8 @@ export interface AuthorityCustomerApiKeyLoadOptions extends AuthorityConfigLoadO
   authorityMd?: AuthorityMdConfig;
   /** Already-parsed authority_trust.env contents; avoids a second read. */
   authorityTrustEnv?: Record<string, string | undefined>;
+  /** File path for authorityTrustEnv; relative trust-env sidecar paths resolve beside it. */
+  authorityTrustEnvPath?: string;
 }
 
 function readTrimmedSecret(path: string, reader: AuthorityFileReader): string | undefined {
@@ -1594,8 +1596,9 @@ function readTrimmedSecret(path: string, reader: AuthorityFileReader): string | 
 /**
  * Resolve the customer API key used to authorize mutating Authority requests.
  * This function returns the key to the in-process HTTP client only; callers must
- * not print it. Precedence: env inline > env path > authority.md inline >
- * authority.md path. GET policy discovery remains keyless.
+ * not print it. Precedence: env inline > env path > authority_trust.env
+ * inline > authority_trust.env path > authority.md inline > authority.md
+ * path. GET policy discovery remains keyless.
  */
 export function resolveAuthorityCustomerApiKey(
   env: Record<string, string | undefined> = process.env,
@@ -1613,12 +1616,17 @@ export function resolveAuthorityCustomerApiKey(
     return value ? { value, source: 'path', path } : { source: 'none', path };
   }
 
-  const trustEnv = options.authorityTrustEnv ?? readAuthorityTrustEnvConfig(env, options).env;
+  const trust = options.authorityTrustEnv === undefined
+    ? readAuthorityTrustEnvConfig(env, options)
+    : undefined;
+  const trustEnv = options.authorityTrustEnv ?? trust?.env;
+  const trustEnvPath = options.authorityTrustEnvPath ?? trust?.path;
   const trustInline = trustEnv ? authorityEnvValue(trustEnv, 'CUSTOMER_API_KEY') : undefined;
   if (trustInline) return { value: trustInline, source: 'authority_trust_env' };
   const trustPath = trustEnv ? authorityEnvValue(trustEnv, 'CUSTOMER_API_KEY_PATH') : undefined;
   if (trustPath) {
-    const path = resolvePath(cwd, trustPath);
+    const trustBaseDir = trustEnvPath ? dirname(resolvePath(cwd, trustEnvPath)) : cwd;
+    const path = resolvePath(trustBaseDir, trustPath);
     const value = readTrimmedSecret(path, reader);
     return value ? { value, source: 'authority_trust_env', path } : { source: 'none', path };
   }
