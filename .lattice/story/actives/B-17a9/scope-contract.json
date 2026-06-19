@@ -1,0 +1,32 @@
+{
+  "storyId": "B-17a9",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/signature-backfill.ts",
+    "packages/main/src/handlers/signature-backfill.ts",
+    "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts",
+    ".lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/finding-signals.ts"
+  ],
+  "scopeChangeReason": "signature_backfill command: SignatureTagSource backfill enum + pure decide leaf + writing handler + registration; reuses finding.ts _hash-excluded attach pattern and finding-verify unchanged.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T00:12:25.836Z",
+  "updatedAt": "2026-06-19T00:12:25.836Z"
+}
