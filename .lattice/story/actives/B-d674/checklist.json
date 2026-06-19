@@ -220,12 +220,13 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run build && node bin/lattice.js host_runtime_probe --host=antigravity --json && node bin/lattice.js host_runtime_probe --host=agy --json",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; node bin/lattice.js scope_contract_check {storyId:B-d674}",
           "result": "pass",
-          "note": "Build passed. Focused probes show antigravity and agy both resolve to host=antigravity with cliCommand=agy; agy sets matchedFallback=true.",
-          "headHash": "6143af3ee0ac255f42cb11f4f04212b8a5f3f19e",
-          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
-          "timestamp": "2026-06-19T15:25:55.939Z"
+          "note": "Post-fix build, focused capability-list smoke, focused dispatch-run smoke, and scope_contract_check all passed. Smokes now assert current Antigravity/agy behavior and keep Gemini compatibility separate and legacy.",
+          "headHash": "4fd90a8a40d241e738eff5da75a9394a8fd39fb5",
+          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
+          "timestamp": "2026-06-19T15:37:24.078Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
