@@ -90,9 +90,9 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T18:12:08.603Z",
-      "endTime": null,
+      "endTime": "2026-06-19T18:12:40.764Z",
       "userSees": "`lattice story_advance --help` still prints `Dry-run: optional via --dryRun` and `Owner lease meta options`; `lattice host runtime list --json` still returns schemaVersion `lattice.host_runtime_list.v1`.",
       "files": {
         "modify": [
@@ -130,7 +130,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:command-catalog-smoke",
+          "result": "pass",
+          "note": "Command catalog smoke passed and asserts tool help still includes Lattice branding, schema arguments, story_advance dry-run text, and owner lease meta options after moving help rendering into packages/main/src/cli/help-renderer.ts.",
+          "headHash": "2164e57d6a9f60a0aee0af522ebae35aa70aeb8c",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:40.853Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:cli-surface-smoke",
+          "result": "pass",
+          "note": "CLI surface smoke passed and asserts nested space aliases for lattice host runtime list/probe, lattice config doctor, lattice review escalation status, lattice autopilot review status, the four-part capability alias normalizer, and the lattice version special path.",
+          "headHash": "2164e57d6a9f60a0aee0af522ebae35aa70aeb8c",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:40.937Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js scope_contract_check {\"storyId\":\"B-a776\",\"json\":true}",
+          "result": "pass",
+          "note": "Scope contract returned status pass with no violations and changed source paths limited to cli-engine.ts, package.json, the three new cli helper modules, and cli-surface-smoke.ts; reserved lifecycle dispatch and extracted root/activity/ownership/reviewer modules were not modified.",
+          "headHash": "2164e57d6a9f60a0aee0af522ebae35aa70aeb8c",
+          "materialHash": "a0db15e5f6ccfae446ab31851d6bd349286bac2366527f15c4b9387cf37073bf",
+          "timestamp": "2026-06-19T18:12:41.016Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
