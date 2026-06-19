@@ -46,33 +46,33 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: authority-client-smoke printed GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]; schema retained both arrays.",
-          "headHash": "7225c4bfb65b677e65d996325c5e38d0d3eacb9a",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:04.079Z"
+          "note": "authority-client smoke printed GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[], proving the contract accepts and retains the no-overlap audit shape.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: schema test parsed changedFiles=[packages/main/src/core/authority-client.ts] with actualFileOverlaps=[] unchanged.",
-          "headHash": "7225c4bfb65b677e65d996325c5e38d0d3eacb9a",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:04.164Z"
+          "note": "authority-client smoke covers changedFiles with a concrete source path and actualFileOverlaps=[], proving changed file evidence remains present.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: schema rejected missing actualFileOverlaps, non-array changedFiles, and unrelated nested audit keys before signing.",
-          "headHash": "7225c4bfb65b677e65d996325c5e38d0d3eacb9a",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:04.248Z"
+          "note": "authority-client smoke asserts malformed materialOverlapAudit shapes are rejected, including missing actualFileOverlaps, non-array changedFiles, and unrelated nested payload keys.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:17:44.150Z"
         }
       ]
     },
@@ -124,23 +124,23 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Follow-up commit 21ecab6d7: authority-client-smoke printed authority completion loop no-overlap audit default PASS, proving a real completion caller without explicit materialOverlapAudit now signs decision.materialOverlapAudit before /v1/gates/evaluate.",
-          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "note": "authority-client smoke printed signed DONE gate envelope contains decision.materialOverlapAudit before signature, covering signed envelope inclusion.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
           "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
-          "timestamp": "2026-06-19T19:15:59.914Z"
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: smoke printed actualFileOverlaps preserved count=1 and asserted the signed decision kept packages/main/src/shared.ts in actualFileOverlaps.",
-          "headHash": "3051a628d3ff44684f58e7954e45994d5bdb94d3",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:14.894Z"
+          "note": "authority-client smoke printed actualFileOverlaps preserved count=1, proving non-empty overlaps are preserved for server rejection rather than cleared.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -200,13 +200,13 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: smoke printed materialOverlapAudit.present=true overlapCount=0 after inspecting signedGateRequest(ctx, decisionId) from authority-live-python-e2e-smoke.",
-          "headHash": "88ebcb039d6982025a1bbc609c16463648688e1a",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:25.210Z"
+          "note": "authority-client smoke printed materialOverlapAudit.present=true overlapCount=0 for the live Python E2E DONE preflight request-shape helper.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -285,23 +285,23 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Follow-up commit 21ecab6d7: build PASS and authority-client-smoke PASS with queued/completion DONE gate default audit regression coverage.",
-          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "note": "TypeScript build passed after materialOverlapAudit contract, caller, smoke, and test changes.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
           "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
-          "timestamp": "2026-06-19T19:15:59.914Z"
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/natural-language-to-done-smoke.js",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "Follow-up commit 21ecab6d7: natural-language-to-done smoke PASS; its fake Authority server asserts every signed DONE gate decision includes the no-overlap materialOverlapAudit default while preserving supplied audit plumbing.",
-          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "note": "authority-client smoke covers both empty audit arrays and a non-empty actualFileOverlaps case.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
           "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
-          "timestamp": "2026-06-19T19:15:59.914Z"
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -364,32 +364,33 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/natural-language-to-done-smoke.js",
+          "command": "node packages/main/dist/tasks/natural-language-to-done-smoke.js",
           "result": "pass",
-          "note": "Follow-up commit 21ecab6d7: required build and authority-client smoke passed; additional planner smoke passed for the named real caller path.",
-          "headHash": "21ecab6d7d400406a8c42c1be85ee5722ccef797",
+          "note": "natural-language-to-done smoke passed through Story -> typed Authority JobPlan -> provider/validate/evidence/gate -> verified native receipt -> authorityDone, covering a real caller path with the no-overlap audit default.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
           "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
-          "timestamp": "2026-06-19T19:15:59.914Z"
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "manual_transcript",
+          "verdict": "blocked_classified",
           "command": "node packages/main/dist/tasks/authority-live-python-e2e-smoke.js",
           "result": "pass",
-          "note": "External blocker recorded: staging live smoke could not run because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were absent; no local senior credential files were inspected.",
-          "headHash": "87872de359399c4a31968f2d43a908ef06785f67",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:46.250Z"
+          "note": "Live staging smoke exited 0 with classified skip because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were not set; no production DONE claim was made.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:17:44.150Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check {\"storyId\":\"B-7e47\"}",
           "result": "pass",
-          "note": "Post-commit 7225c4bfb: concrete regression evidence exists for schema/envelope/live-shape/build vectors, so validation is not text-only.",
-          "headHash": "87872de359399c4a31968f2d43a908ef06785f67",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:46.339Z"
+          "note": "Scope gate passed with 21 changed files and 0 unacknowledged violations after the real queued/completion DONE caller paths were added to the scope contract.",
+          "headHash": "8a2a1f919a17349d67b5c35f8169e27b0557d612",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:17:44.150Z"
         }
       ]
     }
