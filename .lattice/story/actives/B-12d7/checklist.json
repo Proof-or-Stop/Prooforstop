@@ -453,10 +453,10 @@
           "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
-          "note": "recordDispatchFinalForProvider passes model through finalContextForProvider which falls back to DEFAULT_ESTIMATE_MODEL ('unknown') when model is null/empty (code path; gemini check binds a real model, the null path mirrors recordDispatchFinal).",
-          "headHash": "976ae36610dd90ba8caa8a7bddbf8c92446275c6",
-          "materialHash": "273ce92277170ec47017503157d7455c0f0df3fd50164e2d4001386648489c29",
-          "timestamp": "2026-06-19T02:51:23.230Z"
+          "note": "Smoke 'CHK-002 edge:2: provider-reported final with model=null -> provider.model === \"unknown\"' (added in fix commit b2b6830) reads the written record and asserts the DEFAULT_ESTIMATE_MODEL fallback.",
+          "headHash": "b2b6830b4af1e844d2647642de3d193e43f8d7ea",
+          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
+          "timestamp": "2026-06-19T03:10:41.255Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -465,10 +465,10 @@
           "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
-          "note": "Smoke 'CHK-002 flag OFF' and the unavailable cases exercise correlation handling; recordDispatchFinalForProvider does corr = correlation ?? mintCallCorrelation() so a null correlation still records (same as recordDispatchFinal).",
-          "headHash": "976ae36610dd90ba8caa8a7bddbf8c92446275c6",
-          "materialHash": "273ce92277170ec47017503157d7455c0f0df3fd50164e2d4001386648489c29",
-          "timestamp": "2026-06-19T02:51:23.230Z"
+          "note": "Smoke 'CHK-002 edge:3: correlation=null AND estimateRecordId=null -> fresh correlation minted, final written' (added in fix commit b2b6830) asserts a provider-reported record with a non-empty ledgerCallId is written when no preflight handle is passed.",
+          "headHash": "b2b6830b4af1e844d2647642de3d193e43f8d7ea",
+          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
+          "timestamp": "2026-06-19T03:10:41.255Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
@@ -773,10 +773,10 @@
           "file": "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
-          "note": "Ledger appends use minted distinct correlations per call (recordDispatchPreflight/Final mint ids); the smoke runs many freshRoot() sequential dispatches producing distinct valid records with no corruption (verifyLedgerChain in the dispatch smoke covers append integrity).",
-          "headHash": "976ae36610dd90ba8caa8a7bddbf8c92446275c6",
-          "materialHash": "273ce92277170ec47017503157d7455c0f0df3fd50164e2d4001386648489c29",
-          "timestamp": "2026-06-19T02:51:23.230Z"
+          "note": "Smoke 'CHK-003 adversarial:3: two codex finals to the SAME root -> distinct correlations, chain intact' (added in fix commit b2b6830): two preflight+final cycles write to one ledger root; asserts 4 records (2 estimates + 2 finals), the two provider-reported finals have DISTINCT ledgerCallId, and verifyLedgerChain passes (no corruption).",
+          "headHash": "b2b6830b4af1e844d2647642de3d193e43f8d7ea",
+          "materialHash": "90f7436945934df0796924844decfea0fecaa416bd191ce4e0a1c7d3cc9a7e28",
+          "timestamp": "2026-06-19T03:10:41.255Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
