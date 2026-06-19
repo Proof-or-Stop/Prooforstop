@@ -8,9 +8,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T15:08:19.926Z",
-      "endTime": null,
+      "endTime": "2026-06-19T15:25:13.210Z",
       "verificationIntent": {
         "happy": [
           {
@@ -48,7 +48,39 @@
           "packages/main/tests",
           "scripts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_probe --host=antigravity --json && node bin/lattice.js host_runtime_probe --host=agy --json",
+          "result": "pass",
+          "note": "Both probes passed: antigravity returns host=antigravity and cliCommand=agy; agy returns host=antigravity, requestedHost=agy, matchedFallback=true, cliCommand=agy.",
+          "headHash": "93a27b20cf392a779b6cfc34a4f670e78d778bc7",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:13.326Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "PATH=/usr/bin:/bin /Users/jek/.nvm/versions/node/v22.13.0/bin/node bin/lattice.js host_runtime_probe --host=antigravity --json",
+          "result": "pass",
+          "note": "Restricted PATH hides agy and the probe reports status=unavailable, runtimeKind=missing-cli, cliCommand=agy, and nextAction=Install or expose agy in PATH without falling back to another current host.",
+          "headHash": "93a27b20cf392a779b6cfc34a4f670e78d778bc7",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:13.408Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_probe --host=gemini --json && node bin/lattice.js host_runtime_list --json",
+          "result": "pass",
+          "note": "Gemini probe remains accepted only as legacy compatibility with explicit deprecated/legacy warning and limitation text; host_runtime_list advertises fake,codex,claude-code,antigravity and omits gemini from the current runtime list.",
+          "headHash": "93a27b20cf392a779b6cfc34a4f670e78d778bc7",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:13.489Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
