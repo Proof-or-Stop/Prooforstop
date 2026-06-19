@@ -27,7 +27,7 @@
       "desc": "quality-cleanup: packages/main/src/core/parallel-decomposition.ts:39 exports PARALLEL_MODE_FALLBACK which is not listed in the CHK-001 plan, has no current consumer in any file, and was not verified in the checklist evidence — it is unplanned scope expansion; Story 3 (config resolution) should export or use this constant from there rather than pre-declaring it here",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T04:08:11.220Z",
@@ -35,7 +35,11 @@
       "reviewRunId": "B-59c7:RR-001",
       "_hash": "7269e3f7907e5e50352926ee6c8745273f807f814e534f8add7dd43ac83e9ef9",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in dc4551d29: removed PARALLEL_MODE_FALLBACK from the Story-0 contract — it is not in the spec §8 Story-0 export list and has no consumer; deferred to Story 3 (config resolution).",
+      "resolvedAt": "2026-06-19T04:11:21.536Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-59c7:F-003",
