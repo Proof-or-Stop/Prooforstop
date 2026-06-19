@@ -90,9 +90,9 @@
         "README.md",
         "docs/guide.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T15:25:19.454Z",
-      "endTime": null,
+      "endTime": "2026-06-19T15:25:36.059Z",
       "verificationIntent": {
         "happy": [
           {
@@ -132,7 +132,39 @@
           "packages/main/tests",
           "scripts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_list --json",
+          "result": "pass",
+          "note": "Runtime list returns fake,codex,claude-code,antigravity; current real hosts are codex, claude-code, antigravity, and antigravity reports cliCommand=agy. README, docs/guide.md, and host-overflow.md were updated to match.",
+          "headHash": "e13cbbc872517a9409fc960cdf20cab3d172090c",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:36.186Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import { checkDispatchPolicy } from ./packages/main/dist/core/dispatch-policy.js; /* antigravity and agy smoke */\"",
+          "result": "pass",
+          "note": "No-write policy smoke passed: allowedHosts=[antigravity] authorizes with normalizedPolicy.allowedHosts=[antigravity], and allowedHosts=[agy] also authorizes while normalizing to antigravity.",
+          "headHash": "e13cbbc872517a9409fc960cdf20cab3d172090c",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:36.278Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js host_runtime_probe --host=unknown-host --json",
+          "result": "pass",
+          "note": "Expected refusal names current hosts as fake|codex|claude-code|antigravity and says agy aliases to antigravity; gemini is accepted only for legacy compatibility, so errors do not advertise Gemini as current.",
+          "headHash": "e13cbbc872517a9409fc960cdf20cab3d172090c",
+          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
+          "timestamp": "2026-06-19T15:25:36.367Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
