@@ -321,6 +321,25 @@
       ],
       "signatureTag": "missing|md|code-drift-spec",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7559:F-016",
+      "desc": "doc-code-drift: spec §3 intro bullet (line 148) shows `scope_contract_set --storyId <id> --allowedModify … --allowedCreate … --allowedTest … --protectedFiles … --explicitExcludes …` without the required `--mode` parameter. The CLI schema (cli-engine.ts line 1976) declares `mode: z.enum([\"local\",\"shadow\",\"enforce\"])` without `.optional()` or `.default()`, so this command fails safeParse with an invalid-enum error when mode is absent. The round-1 F-010 fix only patched the template-block examples and the §5.1 meta-prompt bullet (line 469) but left the first-exposure shorthand in §3 (line 148) still missing `--mode`. An implementer who reads §3 to understand the command signature gets an incomplete model.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-19T02:12:05.623Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-006",
+      "_hash": "d6babafac75c8961933b2d11bdf4ec038f053c7d65131b27a366ab5a52931aa7",
+      "files": [
+        "docs/parallel-decomposition-spec.md",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-spec",
+      "signatureTagSource": "auto"
     }
   ]
 }
