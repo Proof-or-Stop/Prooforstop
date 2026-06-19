@@ -186,10 +186,11 @@ export function formatWorktreePollutionDetails(
  *
  * `defaultTimeoutMs` is a TEST SEAM: it overrides the module-default ceiling used when the
  * command carries no explicit `timeoutMs`, letting tests exercise the default-arming path
- * with a tiny value instead of waiting the full default. Production callers go through
- * {@link executeValidationPlan}, which intentionally does NOT thread this parameter through —
- * every production command either carries its own `timeoutMs` or wants the real
- * DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, so there is no plan-level injection to expose.
+ * with a tiny value instead of waiting the full default. No production caller passes it —
+ * {@link executeValidationPlan} and the direct handler callers (the legacy validate.ts and
+ * external-command paths in verifier.ts) all omit the argument, so production always resolves
+ * to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. There is deliberately no plan-level injection to
+ * expose: every production command either carries its own `timeoutMs` or wants the real default.
  */
 export function runValidationCommand(
   command: ValidationCommand,
