@@ -4,7 +4,7 @@
   "title": "Experience Layer: signature_backfill command (persist real signatures into live findings)",
   "description": "Add a signature_backfill CLI that writes the committed real semantic signatures (the LLM-assigned area|failureMode map produced by the offline backfill, e.g. lattice-Paper/backfill_signatures.json) into the live findings, filling each finding's empty signatureTag with signatureTagSource='backfill'. This turns the offline learnability evidence (62% held-out specific recurrence) into a live experience base so learning_scan derives real signals and learning_effectiveness/hints operate on real classes. The command does NOT call any LLM (it consumes the auditable committed map — deterministic). Audit-only and _hash-safe: signatureTag + signatureTagSource are excluded from the finding _hash (per the Phase 1b/3.2 invariant), so this mass write must keep every touched finding's _hash byte-identical; only EMPTY tags are filled (confirmed reviewer tags are never overwritten); idempotent; dry-run is the default and --apply is required to write.",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "experience-layer",
@@ -44,6 +44,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-19T00:11:23.342Z",
+      "branch": "story/B-17a9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T00:16:49.550Z",
       "branch": "story/B-17a9",
       "user": "Harmonygo",
       "agent": "main"
