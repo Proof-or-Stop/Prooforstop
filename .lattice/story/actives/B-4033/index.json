@@ -4,7 +4,7 @@
   "title": "Story 1 — Static overlap engine: computeWriteSet + globsOverlap",
   "description": "Implement the static, tiered glob-overlap engine for the parallel-decomposition gate (spec docs/parallel-decomposition-spec.md Section 4.2): computeWriteSet(contract) and globsOverlap(a,b) with literal-path intersection plus shared-directory-prefix heuristic and broadness classification, plus the scope_contract_set grammar validator that rejects mid-path ** and bare *. Lives in a NEW file core/parallel-decomposition-overlap.ts so it is file-disjoint from Story 2 (gate verdict) and runs in parallel.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "parallel-decomposition",
@@ -30,6 +30,14 @@
       "action": "advance",
       "timestamp": "2026-06-19T12:47:52.691Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T12:48:03.560Z",
+      "branch": "story/B-4033",
       "user": "Harmonygo",
       "agent": "main"
     }

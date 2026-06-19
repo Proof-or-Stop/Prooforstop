@@ -1,0 +1,23 @@
+{
+  "task": "Implement the static, tiered glob-overlap engine (computeWriteSet + globsOverlap + write-set grammar validator) for the parallel-decomposition gate, in a new file.",
+  "outcome": "tsc green; core/parallel-decomposition-overlap.ts exports real computeWriteSet/globsOverlap + a grammar validator; a smoke script passes covering literal overlap, dir-prefix over-flag, BROAD/broadSide, disjoint sets, and grammar rejection.",
+  "facts": [
+    "spec docs/parallel-decomposition-spec.md Section 4.2 defines tier-1 literal-path intersection (zero false positives) + tier-2 shared-dir-prefix heuristic + NARROW/BROAD classifier over grammar literal|dir/*|dir/**",
+    "no minimatch/micromatch in the project; pathMatchesPattern in core/scope-contract.ts is hand-rolled",
+    "GlobOverlapResult {overlap,pairs,broadSide} and ScopeContractData are exported from the frozen contract parallel-decomposition.ts"
+  ],
+  "constraints": [
+    "pure functions, no I/O",
+    "new file core/parallel-decomposition-overlap.ts — file-disjoint from Story 2/3/4",
+    "import types from parallel-decomposition.js only; do not edit the frozen contract"
+  ],
+  "unknowns": [
+    "exact NARROW vs BROAD boundary (dir depth threshold)",
+    "exact ScopeContractData field set computeWriteSet unions (allowedModify + allowedCreate)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/parallel-decomposition-overlap.ts",
+    "packages/main/src/tasks/parallel-decomposition-overlap-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T12:48:55.691Z"
+}
