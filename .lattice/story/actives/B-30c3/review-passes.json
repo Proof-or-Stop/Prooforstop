@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-19T19:16:59.705Z",
       "reviewRunId": "B-30c3:RR-001",
       "_hash": "b06f7c0418caf19fb956e08cea78675d3ab9ad7128ddb8cb19dfa3b4d1f9669e"
+    },
+    {
+      "id": "B-30c3:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept/deletion-completeness check passed. Verified: (1) providers/ (codex-cli.ts, gemini-cli.ts) import nothing from usage-ledger; (2) old unguarded `return obj.usage / obj.message.usage / obj.usageMetadata / obj.response.usageMetadata` patterns are fully replaced by ownProp-guarded + pickCodexUsageKeys/pickGeminiUsageKeys paths; (3) all new concepts (ownProp, pickCodexUsageKeys, pickGeminiUsageKeys, sanitizeNestedDetails, CODEX_USAGE_KEYS, GEMINI_USAGE_KEYS) are file-local and not exported or referenced elsewhere; (4) inner try in recordDispatchFinalForProvider correctly wraps buildProviderRecord+appendUsageRecord and falls through to unavailable-final on throw; outer never-throws catch preserved; (5) recordDispatchFinal (anthropic path) is byte-identical and unchanged; (6) no concept deletion/replacement residue found in any file in scope. Pre-existing isCodexUsageObject/isGeminiUsageObject `in` reads are explicitly deferred per operator decision and are out of scope for this story.",
+      "createdAt": "2026-06-19T19:20:34.444Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "reviewRunId": "B-30c3:RR-003",
+      "_hash": "2071df54d5a9306258e50f710ac1c43c84f6e1442c2c575c5e22c38307a42c8f"
     }
   ]
 }
