@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T19:28:39.871Z",
       "reviewRunId": "B-57b5:RR-004",
       "_hash": "d8c7fc52f44ad0625294a81b8faaf92bb1c230377e58276e0e812df57b4745a7"
+    },
+    {
+      "id": "B-57b5:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed BUG-001 fix scope: init-check metadata staging/check/commit now run under the main write lock, pre-staged out-of-bounds paths are refused before metadata staging, commit uses --only with the bounded story pathspec, merge args remain legacy-compatible, and the smoke coverage is maintainable. No blocking quality finding.",
+      "createdAt": "2026-06-19T19:31:56.420Z",
+      "reviewRound": "2026-06-19T19:28:39.871Z",
+      "reviewRunId": "B-57b5:RR-006",
+      "_hash": "09886c7aecfc6cc9dca670fb8e0a7172188ffec86a4e26c0b76a28c84b6398da"
     }
   ]
 }
