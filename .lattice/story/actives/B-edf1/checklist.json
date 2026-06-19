@@ -44,7 +44,30 @@
       "userSees": "node packages/main/dist/tasks/<smoke>.js prints its checks and exits 0; full npm test exits 0 with the new smoke in the chain.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js exits 0 and reports all checks passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full npm test exits 0 with the new smoke in the chain.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke drives the real renderDoneChecklist output (operator-visible string), not just the row object.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
