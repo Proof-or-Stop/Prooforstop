@@ -100,8 +100,8 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T13:25:31.271Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -195,6 +195,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "DEV start: implement all-runs/latest-runs local verdict diagnostic summary.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-19T13:25:31.271Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV start: improve stale-material recovery runbook.",
       "agent": "codex-main"
     }
   ]
