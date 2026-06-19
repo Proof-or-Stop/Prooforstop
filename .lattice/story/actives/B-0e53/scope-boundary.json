@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0e53",
+  "mode": "feature",
+  "allowed": [
+    "Add a post-lock pre-merge mainSha re-check in the DONE transition orchestrator that aborts before persisting the DONE phase when main advanced externally after the pre-check sync, leaving the story at TEST with a resync hint",
+    "Add a smoke covering the external-advance abort path and the unchanged-main happy path"
+  ],
+  "excluded": [
+    "Authority receipt gate behavior",
+    "review-assurance floor evaluation",
+    "the storyFilesHash secondary digest capability",
+    "usage-ledger and provider extractor code"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator approved driving B-0e53 (promoted from done-premerge-mainsha-recheck draft) to DONE.",
+  "createdAt": "2026-06-19T20:59:50.722Z",
+  "updatedAt": "2026-06-19T20:59:50.722Z",
+  "_hash": "04ed38e1ab367ceb276c3f4f7004084a2ee99a30c06219ed16af94650fbdef53"
+}

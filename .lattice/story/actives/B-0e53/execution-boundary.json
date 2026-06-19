@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0e53",
+  "allowedCommands": [
+    "git",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-19T20:59:51.060Z",
+  "updatedAt": "2026-06-19T20:59:51.060Z",
+  "_hash": "0edd2489077da0f91a9f91bf4f35e96d4b7f305a3a998bd53de3b9a42d8a4d1b"
+}
