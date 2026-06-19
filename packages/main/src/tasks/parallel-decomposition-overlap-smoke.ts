@@ -77,12 +77,13 @@ check('mid-path ** rejected', bad.invalid.some((i) => i.entry === 'src/**/*.ts')
 check('bare * rejected', bad.invalid.some((i) => i.entry === '*'));
 check('grammar rejects exactly the 2 bad entries', !bad.ok && bad.invalid.length === 2);
 
-// 8. empty-directory wildcards are rejected (a root-wide scope must not slip through).
-const empties = validateWriteSetGrammar(['/*', '/**']);
+// 8. empty / disguised-root wildcards canonicalize to a bare wildcard the grammar rejects.
+const empties = validateWriteSetGrammar(['/*', '/**', './*', '././*']);
 check('empty-dir /* rejected', empties.invalid.some((i) => i.entry === '/*'));
 check('empty-dir /** rejected', empties.invalid.some((i) => i.entry === '/**'));
-check('classifyBroadness(/*) is broad', classifyBroadness('/*') === 'broad');
-check('classifyBroadness(/**) is broad', classifyBroadness('/**') === 'broad');
+check('disguised root ./* rejected', empties.invalid.some((i) => i.entry === './*'));
+check('repeated-leading ././* rejected', empties.invalid.some((i) => i.entry === '././*'));
+check('genuine root subtree src/** is broad', classifyBroadness('src/**') === 'broad');
 
 // 9. tier-2 shared-prefix collisions for children globs (must NOT under-flag).
 check('children vs nested children (src/* vs src/csv/*) overlaps', globsOverlap(['src/*'], ['src/csv/*']).overlap === true);
@@ -106,6 +107,8 @@ check('distinct root file vs unrelated dir-glob (README.md vs README/*): no over
 // 12. redundant path segments canonicalize so equivalent paths collide (no missed overlap).
 check('src/./a.ts vs src/a.ts overlaps (canonicalized)', globsOverlap(['src/./a.ts'], ['src/a.ts']).overlap === true);
 check('src//a.ts vs src/a.ts overlaps (canonicalized)', globsOverlap(['src//a.ts'], ['src/a.ts']).overlap === true);
+check('././src/a.ts vs src/a.ts overlaps (repeated leading ./)', globsOverlap(['././src/a.ts'], ['src/a.ts']).overlap === true);
+check('././src/** normalizes to a valid broad entry', validateWriteSetGrammar(['././src/**']).ok === true && classifyBroadness('././src/**') === 'broad');
 const c3 = { storyId: 'B-t', allowedModify: ['src/./a.ts'], allowedCreate: ['src//a.ts'] } as unknown as ScopeContractData;
 check('computeWriteSet dedupes redundant-but-equal paths', computeWriteSet(c3).length === 1);
 

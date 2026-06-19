@@ -25,17 +25,19 @@ interface ParsedEntry {
 }
 
 /**
- * Normalize a path entry to a canonical form so semantically-equal paths compare equal:
- * strip a leading `./`, collapse repeated `/` and mid-path `/./` segments, and drop a
- * trailing `/`. e.g. `src/./a.ts` and `src//a.ts` both canonicalize to `src/a.ts`, so
- * the overlap check does not miss a collision on a redundant-but-equivalent path.
+ * Normalize a path entry to a canonical form so semantically-equal paths compare equal.
+ * Splits on `/` and drops every empty segment (from `//`, leading/trailing `/`) and every
+ * same-directory `.` segment (including repeated/leading `./`), then rejoins. So
+ * `src/./a.ts`, `src//a.ts` → `src/a.ts`; `./src/**`, `././src/**` → `src/**`; and a
+ * disguised root wildcard like `././*` collapses to the bare `*` the grammar validator
+ * then rejects — the overlap/broadness checks can never miss a redundant-but-equal path.
  */
 function normalizeEntry(entry: string): string {
-  let e = entry.trim();
-  if (e.startsWith('./')) e = e.slice(2);
-  e = e.replace(/\/+/g, '/').replace(/\/\.(?=\/|$)/g, '');
-  if (e.length > 1 && e.endsWith('/')) e = e.slice(0, -1);
-  return e;
+  return entry
+    .trim()
+    .split('/')
+    .filter((s) => s !== '' && s !== '.')
+    .join('/');
 }
 
 /**
