@@ -34,9 +34,10 @@ scope boundary, evidence state, host/reviewer independence state, baseline
 expectation, and next required action.
 ```
 
-The near-term deliverable of B-b5c0 is only this document repair. It does not
-change NAV, runtime code, lifecycle metadata, fixtures, hooks, or generated
-assets.
+The product/material deliverable of B-b5c0 is only this document repair. It
+does not change NAV/runtime code/fixtures/hooks/generated assets. Any
+`.lattice/story/actives/B-b5c0/*` lifecycle metadata is story-scoped provenance
+produced by the Lattice workflow, not roadmap/runtime behavior.
 
 ## Source And Context Mapping
 
@@ -614,7 +615,9 @@ Minimum validation commands and expected rows:
 | `npm --prefix packages/main run build` | Required for M6 implementation stories that touch CLI runtime inputs; build output is referenced by `M6.build.runtime-fresh`. |
 | `lattice validate --story=<storyId>` | Validation evidence rows `M6.validation.fresh`, `M6.validation.stale-evidence`, and `M6.validation.expected-blocks-recorded`. |
 | `lattice review_escalation_status --storyId=<storyId>` | Read-only projection row `M6.review-escalation.local-only-not-authority`; must not consume or create Authority receipt facts. |
-| Receipt negative-control smoke or successor task | Rows `M6.receipt.fake-blocked`, `M6.receipt.wrong-story-blocked`, `M6.receipt.wrong-material-blocked`, `M6.receipt.local-transcript-blocked`, and `M6.receipt.eligible-not-consumed`. |
+| `node packages/main/dist/tasks/authority-gate-receipts-smoke.js` | Receipt/ref eligibility rows `M6.receipt.fake-blocked`, `M6.receipt.wrong-story-blocked`, `M6.receipt.wrong-material-blocked`, `M6.receipt.stale-blocked`, `M6.receipt.future-blocked`, and `M6.receipt.tamper-blocked`. |
+| `node packages/main/dist/tasks/authority-gate-consumption-smoke.js` | Gate consumption rows `M6.receipt.eligible-consumed`, `M6.receipt.eligible-not-consumed`, `M6.receipt.local-transcript-blocked`, `M6.receipt.stale-blocked`, and `M6.receipt.wrong-material-blocked`. |
+| `node packages/main/dist/tasks/authority-completion-smoke.js` | DONE projection rows `M6.receipt.fake-blocked`, `M6.receipt.wrong-story-blocked`, `M6.receipt.stale-blocked`, `M6.receipt.future-blocked`, and `M6.receipt.tamper-blocked`; local/non-Authority completion must remain non-Authority status only. |
 
 Expected evidence:
 
@@ -1044,11 +1047,12 @@ Minimum validation commands and expected rows:
 | `git diff --name-only main...HEAD` | Final material inventory, attached to `M12.material.final-inventory`. |
 | `git diff --check` | Final whitespace/doc hygiene row `M12.diff.clean`. |
 | `npm --prefix packages/main run build` | Required for any cross-track certification that touched CLI runtime inputs; row `M12.build.runtime-fresh`. |
-| `lattice validate --story=<storyId>` | Final validation evidence rows `M12.validation.pass`, `M12.validation.stale-block`, and `M12.validation.coverage-complete`. |
-| `lattice review_escalation_status --storyId=<storyId>` | Final local review assurance rows `M12.review.full-3x2`, `M12.review.degraded-3x1`, or `M12.review.not-required`. |
+| `lattice validate --story=<storyId>` | Final validation evidence rows `M12.validation.pass`, `M12.validation.stale-block`, and `M12.validation.coverage-complete`; for B-b5c0 this pairs with `review_escalation_status` to expect `M12.receipt.not-authority-required`, not an Authority receipt. |
+| `lattice review_escalation_status --storyId=<storyId>` | Final local review assurance rows `M12.review.full-3x2`, `M12.review.degraded-3x1`, or `M12.review.not-required`; for non-Authority stories this status artifact is the source of `M12.receipt.not-authority-required`. |
 | `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory row `M12.host-verdicts.bound-and-fresh`; ignored reasons must match M8. |
 | `lattice decision_doc_quorum_check --storyId=<storyId>` | Diagnostic row `M12.decision-doc.diagnostic-only` when decision docs changed; it must not contradict `review_escalation_status`. |
-| Receipt/ref verification command for Authority-required stories | Rows `M12.receipt.consumed`, `M12.receipt.stale-block`, and `M12.receipt.not-authority-required`; B-b5c0 should have no Authority-required receipt row. |
+| `node packages/main/dist/tasks/authority-gate-receipts-smoke.js` | Authority-required receipt/ref verification rows `M12.receipt.consumed`, `M12.receipt.stale-block`, and `M12.receipt.wrong-material-block`; not used to satisfy B-b5c0 because B-b5c0 is not Authority-required. |
+| `node packages/main/dist/tasks/authority-gate-consumption-smoke.js` | Authority-required gate-consumption rows `M12.receipt.consumed`, `M12.receipt.stale-block`, and `M12.receipt.not-eligible-block`; B-b5c0 instead expects `M12.receipt.not-authority-required` from `review_escalation_status`/validate. |
 
 Expected evidence:
 
