@@ -5,9 +5,9 @@
       "title": "Apply the hardened codex/gemini extractors + recordDispatchFinalForProvider unavailable-on-throw",
       "context": "Apply the reviewed cumulative fix to packages/main/src/providers/codex-cli.ts (extractCodexUsage: own-property ownProp guards on every usage read; pickCodexUsageKeys returns Object.create(null) with only prompt_tokens/completion_tokens/prompt_tokens_details; sanitizeNestedDetails null-protos the nested prompt_tokens_details), packages/main/src/providers/gemini-cli.ts (extractGeminiUsage: ownProp guards; pickGeminiUsageKeys returns Object.create(null) with only promptTokenCount/candidatesTokenCount/cachedContentTokenCount), and packages/main/src/core/usage-ledger/dispatch-usage.ts (recordDispatchFinalForProvider: inner try around buildProviderRecord+append; on throw fall through to one unavailable-final that supersedes the estimate; outer never-throws kept). The exact final file contents are captured in /tmp/fe1f-final/. Do NOT change recordDispatchFinal (anthropic), parseClaudeCliOutput, buildProviderRecord, the adapters, or import usage-ledger into providers/.",
       "userSees": "A codex/gemini usage with an extra/inherited non-token key yields a null-prototype reportedUsage carrying only numeric token fields; a malformed-but-object usage records an unavailable-final that supersedes the estimate.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T19:13:44.996Z",
-      "endTime": null,
+      "endTime": "2026-06-19T19:14:57.093Z",
       "verificationIntent": {
         "happy": [
           {
