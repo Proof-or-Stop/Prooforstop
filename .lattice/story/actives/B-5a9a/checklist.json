@@ -99,8 +99,8 @@
       "id": "CHK-002",
       "title": "Implement storyFilesHash computation + thread it as a secondary binding signal",
       "context": "Compute storyFilesHash from the storys changed files vs merge-base main and record it ALONGSIDE materialHash on review runs, escalation verdicts/fallback, and verification evidence. Keep the whole-tree materialHash byte-unchanged and continue recording it (no inference, no removal). Preserve the usage-ledger/host-independence zero-cross-module-import invariants.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T21:48:42.248Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md",
