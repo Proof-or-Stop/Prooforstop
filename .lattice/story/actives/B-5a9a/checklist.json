@@ -6,7 +6,52 @@
       "context": "Via the decision-doc flow: (a) storyFilesHash = sha over the storys own changed files vs merge-base main (reuse changedFilesBetween / scope-contract diff); (b) new validity rule -- bindings stay valid while storyFilesHash unchanged; (c) whole-tree drift downgraded from instant-reject to a re-attestation-REQUIRED warning (NOT silent rebind, NOT story-diff-only); (d) soundness rationale (why story-diff-only misses transitive deps) + which bindings adopt the secondary signal (review-run, escalation verdicts/fallback, verification evidence).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Decision doc defines storyFilesHash as a secondary signal, keeps whole-tree materialHash recorded, and names review-run, escalation/fallback, and verification evidence adoption points.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Process-fact contract represents the new gate-consumed storyFilesHash/freshness semantics rather than relying on prompt prose.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Decision doc explains why story-diff-only is insufficient for transitive dependency or global gate-fact changes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Decision doc explicitly rejects silent rebind and replacing/removing whole-tree materialHash.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
