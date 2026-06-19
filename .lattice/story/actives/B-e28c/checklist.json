@@ -4,17 +4,180 @@
       "id": "CHK-001",
       "title": "Authorize protected job status GET",
       "context": "authority_job_status/listJobVerdicts should include the resolved customer API key for protected server reads while policy discovery remains unauthenticated.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T04:14:15.030Z",
+      "userSees": "`authority_job_status` sends `Authorization: Bearer <customer-key>` on protected `/v1/jobs/<jobId>/verdicts` reads, while `/v1/authority/policy` remains keyless.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "server-backed job status/verdict GET carries Authorization when a customer API key is configured",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "policy discovery GET still carries no Authorization header",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "successful protected read without receipt/quorum still leaves fullAuthorityDone false",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts protected /v1/jobs/{jobId}/verdicts GET sends Authorization with a configured customer API key.",
+          "headHash": "1bdb5996d975704e4f9334d78700838ee9cb98d2",
+          "materialHash": "48be457e3653cf9890da4b9c667c248c6ec2cfa270011292e1e69b41de4dd3ef",
+          "timestamp": "2026-06-19T04:33:15.486Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Existing policy discovery smoke still asserts GET /v1/authority/policy has no Authorization header.",
+          "headHash": "1bdb5996d975704e4f9334d78700838ee9cb98d2",
+          "materialHash": "48be457e3653cf9890da4b9c667c248c6ec2cfa270011292e1e69b41de4dd3ef",
+          "timestamp": "2026-06-19T04:33:15.486Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Job status smoke asserts a successful protected read with no receipt/quorum keeps authorityDone=false and fullAuthorityDone=false.",
+          "headHash": "1bdb5996d975704e4f9334d78700838ee9cb98d2",
+          "materialHash": "48be457e3653cf9890da4b9c667c248c6ec2cfa270011292e1e69b41de4dd3ef",
+          "timestamp": "2026-06-19T04:33:15.486Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add smoke coverage for the regression",
       "context": "The smoke should prove verdict GET carries Authorization and policy discovery GET does not.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T04:14:15.844Z",
+      "userSees": "`node packages/main/dist/tasks/authority-client-smoke.js` passes with assertions for protected GET auth, keyless policy discovery, and blocked status when receipt/quorum are missing.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority-client smoke passes after build",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test differentiates protected verdict/status GET from public policy discovery GET",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "test proves read success does not mint authorityDone/fullAuthorityDone without receipt and quorum",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "TypeScript build and authority-client smoke passed after the protected-read auth change and comment fix.",
+          "headHash": "1bdb5996d975704e4f9334d78700838ee9cb98d2",
+          "materialHash": "48be457e3653cf9890da4b9c667c248c6ec2cfa270011292e1e69b41de4dd3ef",
+          "timestamp": "2026-06-19T04:33:15.486Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Smoke differentiates protected verdict/status GET auth from keyless policy discovery.",
+          "headHash": "1bdb5996d975704e4f9334d78700838ee9cb98d2",
+          "materialHash": "48be457e3653cf9890da4b9c667c248c6ec2cfa270011292e1e69b41de4dd3ef",
+          "timestamp": "2026-06-19T04:33:15.486Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves transport success alone does not mint authorityDone/fullAuthorityDone without receipt and quorum.",
+          "headHash": "1bdb5996d975704e4f9334d78700838ee9cb98d2",
+          "materialHash": "48be457e3653cf9890da4b9c667c248c6ec2cfa270011292e1e69b41de4dd3ef",
+          "timestamp": "2026-06-19T04:33:15.486Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T03:59:48.347Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Code committed and focused smoke passed."
+    },
+    {
+      "timestamp": "2026-06-19T03:59:49.195Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Code committed and focused smoke passed."
     }
   ]
 }
