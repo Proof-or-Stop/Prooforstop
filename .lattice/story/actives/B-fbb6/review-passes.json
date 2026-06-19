@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T18:08:04.063Z",
       "reviewRunId": "B-fbb6:RR-003",
       "_hash": "c37611331b5038cd646d66558ededa3931146b10d48606f6589242738d128723"
+    },
+    {
+      "id": "B-fbb6:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check: clean. All primary gemini symbols (extractGeminiUsage, adaptGeminiUsage, adapters/gemini, runGeminiRealLeafDispatch, runBoundedGeminiProvider, geminiCliAvailable, GEMINI_CLI_BINARY) return 0 matches in packages/main/src/. package.json gemini script residual (Round-1 F-001 blocker) confirmed resolved: `grep -nE gemini package.json` = 0. The four Round-2 fix files (package.json, docs/requirements/decisions/host-overflow.md, packages/main/src/core/dispatch-policy.ts, packages/main/src/core/lattice-dispatch.ts) are all gemini-clean. No antigravity||antigravity blind-rename duplicates: the `value === antigravity || value === agy` guards in dispatch-policy.ts and lattice-dispatch.ts are correct alias patterns, not rename artifacts. Remaining gemini matches in packages/main/src/tasks/ are all intentional retirement-proof assertions (rejected, absent, watcher-fallback, unknown/fallback). Deletion completeness confirmed unchanged from Round 1; fix commit 9c79b87fc introduces no new residuals.",
+      "createdAt": "2026-06-19T18:23:34.719Z",
+      "reviewRound": "2026-06-19T18:22:07.640Z",
+      "reviewRunId": "B-fbb6:RR-005",
+      "_hash": "ada02b66e3e4d9ea5fc3e1417425de263172f244396538f80883b85389115a92"
     }
   ]
 }
