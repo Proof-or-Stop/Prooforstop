@@ -1,0 +1,39 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-19T01:39:01.740Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Audit every Lattice-code claim in the spec and fix inaccuracies + Audit internal consistency, completeness, and prompt usability; fix gaps are performed simultaneously?)"
+        },
+        {
+          "type": "verification_intent_advisory",
+          "severity": "advisory",
+          "message": "express channel allows fast path, but recommend adding at least one verificationIntent.happy for CHK-001, CHK-002 to help REVIEW/test-coverage reviewer align."
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        }
+      ],
+      "_hash": "7f415658ef88f450d0384eb30c2cc94cfc3c338f6d1117dfea8bd846a7d065af"
+    }
+  ]
+}

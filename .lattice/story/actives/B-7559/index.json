@@ -4,7 +4,7 @@
   "title": "Audit and harden the contract-first parallel-decomposition spec under 3x2 review escalation",
   "description": "The spec at docs/parallel-decomposition-spec.md was drafted by a multi-agent workflow and makes many concrete claims about real Lattice internals (canStartDevGuard vs getGuardFailureReason, pathMatchesPattern, resolveParallelSafety, audit-config resolution). Before it drives a build program it must pass adversarial review for code-claim accuracy, internal consistency, completeness, and prompt usability, fixing findings across rounds until clean.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "documentation",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-19T01:34:22.279Z",
   "startedAt": "2026-06-19T01:34:22.279Z",
-  "endedAt": null,
+  "endedAt": "2026-06-19T03:37:08.010Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:38:44.176Z",
+      "branch": "story/B-7559",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:39:09.024Z",
+      "branch": "story/B-7559",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-19T01:50:01.500Z",
+      "branch": "story/B-7559",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:24:08.783Z",
+      "branch": "story/B-7559",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-19T03:37:08.010Z",
+      "branch": "story/B-7559",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7559",
-    "branch": "story/B-7559",
-    "createdAt": "2026-06-19T01:38:02.262Z"
-  }
+  "currentReviewRound": "2026-06-19T01:50:01.500Z"
 }
