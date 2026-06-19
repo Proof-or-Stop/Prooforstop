@@ -54,10 +54,11 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Signed DONE gate envelopes include decision.materialOverlapAudit before signing, and non-empty actualFileOverlaps remain in the signed payload so Authority can fail closed instead of receiving a cleared audit.",
+      "userSees": "Targeted envelope regression output includes \"signed DONE gate envelope contains decision.materialOverlapAudit before signature\" and \"actualFileOverlaps preserved count=1\" for the fail-closed overlap case.",
       "files": {
         "modify": [
-          "packages/main/src/core/authority-client.ts"
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/planned-steps-executor.ts"
         ],
         "create": [],
         "test": [
