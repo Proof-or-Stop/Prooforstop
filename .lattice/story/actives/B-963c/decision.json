@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Make the M8 requires3x2 predicate mechanically true only from structured facts, not prose or changed-file names.",
+    "Preserve the non-Authority boundary: local host verdicts and local policy facts never set production completion fields.",
+    "Prefer a narrow additive policy branch over rewriting existing review escalation or review assurance floor behavior.",
+    "Keep diagnostics readable so operators can tell threshold-triggered, explicit-policy, full-3x2, and degraded-single-host states apart."
+  ],
+  "drivers": [
+    "Two high gap_analyze entries must disappear for explicitlyConfiguredHighRiskPolicyRequires3x2.",
+    "DONE already consumes review_escalation_status and review_assurance_floor; new facts must be gate-visible and contract-protected.",
+    "Existing dirty main work from other stories must not be mixed into this story worktree."
+  ],
+  "options": [
+    {
+      "name": "A: Add explicit policy fact support to review escalation and bind it in process-fact coverage",
+      "pros": [
+        "Implements the roadmap predicate directly.",
+        "Keeps changed-file/prose classification diagnostic-only unless a structured policy fact exists.",
+        "Can be protected with smoke and process-fact contract assertions."
+      ],
+      "cons": [
+        "Requires touching command schema, handler, evaluator, process event type, and verification contract.",
+        "More surface area than a comment-only traceability fix."
+      ]
+    },
+    {
+      "name": "B: Only add @task metadata mentioning explicitlyConfiguredHighRiskPolicyRequires3x2",
+      "pros": [
+        "Smallest diff and would likely silence gap_analyze.",
+        "Low risk of runtime regression."
+      ],
+      "cons": [
+        "Would overstate implementation because review_escalation_status still lacks an explicit policy branch.",
+        "Does not strengthen future behavior or diagnostics."
+      ]
+    },
+    {
+      "name": "C: Rewrite the roadmap wording to remove the explicit policy predicate",
+      "pros": [
+        "Avoids runtime changes.",
+        "Would align docs with current first-round-threshold-only review escalation."
+      ],
+      "cons": [
+        "Weakens an accepted roadmap requirement.",
+        "Does not satisfy the user request to handle the high gaps as implementation coverage."
+      ]
+    }
+  ],
+  "chosen": "A: Add explicit policy fact support to review escalation and bind it in process-fact coverage",
+  "rationale": "Option A is the only path that resolves the scanner-visible high gaps while also making the M8 predicate real runtime behavior rather than annotation-only coverage.",
+  "preMortem": [
+    {
+      "scenario": "Changed-file classification accidentally sets explicit high-risk policy 3x2",
+      "trigger": "Implementation reuses high-risk path/touchpoint checks as the explicit policy branch.",
+      "consequence": "Ordinary process-file edits could silently require 3x2 without a configured policy fact, violating the roadmap.",
+      "mitigation": "Only consume an explicit process event/command with policyVersion, storyId, sourcePolicyRef, rolloutStage, risk class or milestone, issuer, timestamp, and current material binding."
+    },
+    {
+      "scenario": "Local policy fact is mistaken for Authority completion",
+      "trigger": "Status output or report fields blur local review evidence with production receipt evidence.",
+      "consequence": "Users may believe production Authority Server completion was verified when it was not.",
+      "mitigation": "Keep authorityDone, fullAuthorityDone, and productionDone hard false in reports and command output; add contract assertions for those tokens."
+    },
+    {
+      "scenario": "Gap disappears but contract can regress later",
+      "trigger": "Only a smoke test covers the exact predicate token, and process-fact registry omits it.",
+      "consequence": "Future edits remove the predicate binding while gap_analyze still misses it.",
+      "mitigation": "Update process-fact-levels/registry rationale and verify-process-fact-contract.mjs to assert the explicit predicate token and consumer gate."
+    },
+    {
+      "scenario": "Story merge conflicts with parallel B-5a9a process-fact edits",
+      "trigger": "Both stories edit process-fact registries in nearby lines.",
+      "consequence": "DONE merge may require manual conflict resolution and careful post-merge validation.",
+      "mitigation": "Keep B-963c changes narrow and re-run build, contract, gap_analyze, and convergence_check after merge if conflicts occur."
+    }
+  ],
+  "timestamp": "2026-06-19T21:13:00.768Z"
+}
