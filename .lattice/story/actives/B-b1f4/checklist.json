@@ -79,9 +79,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "CHK-PRIMARY builds the exact codex record (input=500,output=200,cacheCreation/cacheRead=null): 'CHK-PRIMARY summary' asserts its 700 input+output flows into primaryReportedTotal while it stays four-field unknown (unknownCount=2 incl. codex), and 'CHK-PRIMARY aggregateByGroup' asserts the codex group primaryKnown={500,200} with knownCount=0/unknownCount=1 — primaryTotal=input+output computed independently of cache dims.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -91,9 +91,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "CHK-PRIMARY builds the claude all-four record (input=500,output=200,cacheCreation=10,cacheRead=50): asserts it contributes 700 to primaryReportedTotal AND 760 to providerReportedTotal (four-field known) simultaneously.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -103,9 +103,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY summary: codex+gemini+claude all contribute' asserts primaryReportedTotal=2320 / primaryReportedCount=3; 'strict four-field UNCHANGED' asserts providerReportedTotal=760 / count=1 / unknownCount=2.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -115,9 +115,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY empty/absent' asserts summarizeLedgerFile(resolveLedgerPath(<absent>)) returns primaryReportedTotal=0 and primaryReportedCount=0.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
@@ -127,9 +127,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY empty/absent' asserts summarizeRecords([]) returns primaryReportedTotal=0 and primaryReportedCount=0.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -139,9 +139,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY edge' uses a both-dims-known estimate (input=100,output=50) and asserts primaryReportedTotal=0 (estimates excluded from the provider-reported primary aggregate) while its own prompt-size-estimate bucket carries primaryKnown={100,50}.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -151,9 +151,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY deriveRecordTotal: source=unavailable' asserts deriveRecordTotal(<unavailable record>).primaryTotal===null regardless of dimension values.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -163,9 +163,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY deriveRecordTotal: null input' builds a synthetic provider-reported record (inputTokens=null,outputTokens=200) and asserts primaryTotal===null (never inferred) and summarizeRecords([it]).primaryReportedCount===0.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -175,9 +175,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY deriveRecordTotal: all-four-zero' asserts deriveRecordTotal(input=0,output=0,cache=0/0).primaryTotal===0 (genuine zero, NOT null), unknown===false, and summarizeRecords gives providerReportedCount===1/providerReportedTotal===0/unknownCount===0 — zero vs null distinction explicit.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -187,9 +187,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "tsc build is clean with primaryReportedTotal + primaryReportedCount added to UsageLedgerSummary; existing fields providerReportedTotal/estimateSubtotal/unknownCount are unchanged — proven additive: usage-ledger-smoke (61) and usage-ledger-estimate-smoke (55) still pass with identical pre-story values.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -199,9 +199,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY summary' + 'strict four-field UNCHANGED' prove the two accumulators are independent: the codex record (700) is added to primaryReportedTotal but NOT to providerReportedTotal (stays in unknownCount); claude is in both — no cross-contamination.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         }
       ]
     },
@@ -284,9 +284,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY aggregateByGroup: codex group is four-field-unknown yet primary-known' asserts bySource['provider-reported'].primaryKnown={input:500,output:200}, primaryKnownCount=1, knownCount=0, unknownCount=1.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -296,9 +296,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY diagnostics: bySource provider-reported carries primaryKnown AND four-field known' asserts the claude record lands in primaryKnown {input:500,output:200} AND four-field known {500,200,10,50} with knownCount=1.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -308,9 +308,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY diagnostics' via buildUsageReport asserts overall.bySource['provider-reported'].primaryKnown input=1800/output=520, primaryKnownCount=3, while four-field known reflects the claude record only (knownCount=1).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -320,9 +320,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "The three finals (codex/gemini/claude) are distinct groups (distinct model/provider/agentType); 'CHK-PRIMARY diagnostics' asserts each contributes independently and rolls into overall.bySource primaryKnownCount=3 (input=1800/output=520) — per-group isolation + correct overall accumulation.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -332,9 +332,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY edge: estimate + unavailable do NOT contribute' asserts the unavailable final is excluded from primaryKnown (provider-reported primaryKnownCount=0) and counted unknown (unknownCount=1).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.482Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -344,9 +344,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY diagnostics: aggregateByGroup excludes a null-input provider record from primaryKnown' builds a synthetic provider-reported record (inputTokens=null,outputTokens=200) and asserts the group's provider-reported primaryKnownCount===0 (both primary dims required; never inferred), unknownCount=1.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -356,9 +356,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY diagnostics: buildUsageReport([]) zero-inits provider-reported primaryKnown' asserts overall.bySource['provider-reported'].primaryKnown deepEquals {input:0,output:0} and primaryKnownCount===0 (exercises emptySourceTotals init alongside the existing known/knownCount/unknownCount).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -368,9 +368,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-diagnostics-smoke.js",
           "result": "pass",
           "note": "computeCost is strict four-field-only and unchanged; the diagnostics-smoke cost suite (cost formula incl. cache multipliers, no-table, unknown dims, all-zero, model-not-in-table, MAX_SAFE_INTEGER) still passes identically — the primary aggregate never feeds cost.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -380,9 +380,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-diagnostics-smoke.js",
           "result": "pass",
           "note": "'static: usage-ledger module imports ZERO other Lattice modules' passes: diagnostics.ts imports only ./summary.js, ./record.js and node: builtins (PrimaryTokenDimensions/asPrimaryDimensions are in-module) — zero-cross-module-import invariant preserved.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -392,9 +392,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "tsc build is clean with SourceTokenTotals.primaryKnown + primaryKnownCount added; existing known/knownCount/unknownCount remain in the type unchanged — diagnostics-smoke (34) field-level asserts on known/knownCount/unknownCount still pass (additive type change).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -404,9 +404,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY edge' synthEstimate with all four dims known (input=100,output=50,cacheCreation=0,cacheRead=0) is asserted to populate the prompt-size-estimate bucket primaryKnown={100,50}/count=1 but NOT the provider-reported bucket (primaryKnownCount=0) — source-bucket isolation for the primary aggregate.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         }
       ]
     },
@@ -474,9 +474,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Smoke runs end-to-end via dispatch helpers creating codex/gemini/claude provider-reported finals; 'CHK-PRIMARY summary' asserts summary.primaryReportedTotal=2320 and primaryReportedCount=3.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -486,9 +486,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Same records: 'CHK-PRIMARY summary: strict four-field UNCHANGED' asserts providerReportedTotal=760 (claude only), providerReportedCount=1, unknownCount=2 (codex+gemini four-field unknown).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -498,9 +498,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "Same records via buildUsageReport: 'CHK-PRIMARY diagnostics' asserts overall.bySource['provider-reported'].primaryKnown.input=1800 / output=520 / primaryKnownCount=3 AND four-field known={500,200,10,50} / knownCount=1.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -510,9 +510,9 @@
           "command": "node packages/main/dist/tasks/run-all-smokes.js --select usage-ledger",
           "result": "pass",
           "note": "run-all-smokes scans *-smoke.js and discovers usage-ledger-codex-gemini-smoke (also registered as npm script test:usage-ledger-codex-gemini in package.json); the --select usage-ledger run completes 9/9 green (suite exits 0, no existing smoke broken).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -522,9 +522,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY edge' asserts a standalone estimate record does NOT contribute to primaryReportedTotal (estimate-only summary primaryReportedTotal=0; the 2320 mix is not inflated by estimate input+output).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -534,9 +534,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY edge' asserts an unavailable final does NOT contribute to primaryReportedTotal (primaryReportedTotal=0 / primaryReportedCount=0 for the unavailable case).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -546,9 +546,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY summary: strict four-field UNCHANGED' asserts providerReportedTotal=760, estimateSubtotal=0, estimateCount=0, unknownCount=2 are exactly the pre-feature values; usage-ledger-smoke (61) + estimate-smoke (55) confirm no existing aggregate perturbed (purely additive).",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -558,9 +558,9 @@
           "command": "node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js",
           "result": "pass",
           "note": "'CHK-PRIMARY diagnostics' + 'aggregateByGroup' assert per-source four-field known/knownCount/unknownCount unchanged: claude knownCount=1, codex/gemini four-field unknownCount=1 each — primaryKnown addition does not perturb the four-field diagnostics aggregate.",
-          "headHash": "fcaf52d3da55d162747d50e5c4d16299ea749c2c",
-          "materialHash": "5cdaaad9d2c8704715164cdd132d21d0c9d97fadb375f90e06a69e877ce1b34a",
-          "timestamp": "2026-06-19T13:14:02.543Z"
+          "headHash": "885fc6810b2fa3b3a487298a4ebeb949aed5bdd7",
+          "materialHash": "d444d5e90d01a8fe1bbd2a20287463f7819f01cbbb84559e7487fe327d7a6435",
+          "timestamp": "2026-06-19T13:37:14.483Z"
         }
       ]
     }
