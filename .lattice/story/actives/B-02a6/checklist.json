@@ -42,6 +42,17 @@
           "headHash": "774a6f48a3aba1bb728c26b0061742d702185b8f",
           "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
           "timestamp": "2026-06-19T04:55:50.657Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Smoke covers the allowlisted-not-ignored actives leaf (survives clean -fd once tracked) AND an ignored runtime leaf (removed by clean -fdx), proving allowlist+tracking is what saves it.",
+          "headHash": "38f7679aa262f3e777cd4d8105f3e87712bef711",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:55:51.173Z"
         }
       ]
     },
