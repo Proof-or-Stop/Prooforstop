@@ -1,0 +1,56 @@
+{
+  "storyId": "B-57b5",
+  "changes": "Extracted lifecycle command dispatch out of cli-engine.ts into packages/main/src/cli/lifecycle-dispatch.ts, extracted bounded INIT_CHECK metadata sync into init-check-metadata-sync.ts, extracted recover-evidence routing into recover-evidence-dispatch.ts, kept cli-engine.ts as compatibility orchestrator, added lifecycle dispatch and worktree authority smoke coverage, and bumped the main package patch version.",
+  "usage": "Use Lattice CLI normally: node bin/lattice.js story_advance, node bin/lattice.js validate --story=B-57b5 --json, and INIT_CHECK metadata commits now flow through the extracted locked helper without changing the public CLI surface.",
+  "expectedOutcome": "A user running lifecycle commands sees the same behavior as before, while cli-engine.ts is smaller and INIT_CHECK metadata commits are isolated from unrelated staged files.",
+  "actualTranscript": "node bin/lattice.js validate --story=B-57b5 --json passed after BUG-001 fix; verification coverage was 9/9, bugs were 1/1 fixed, and local host verdicts reached 3 rounds x 2 hosts.",
+  "outcomeDiff": "No user-visible behavior difference expected beyond safer INIT_CHECK metadata isolation and smaller lifecycle dispatch ownership.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No Authority Server production receipt is claimed; current evidence is local Lattice validation plus Codex CLI and Claude Code host verdicts.",
+  "pitfalls": "BUG-001 found that INIT_CHECK metadata sync staged and committed outside the main-write-lock/path-isolated boundary; fixed by moving stage/check/commit into the lock and using git commit --only for the story path. Branch still needs main sync during DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 6850098
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 50483
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 7877752
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1408695
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 652276
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1754259
+    }
+  },
+  "totalDurationMs": 18593565,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 1,
+    "fixed": 1,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T19:48:47.797Z",
+  "updatedAt": "2026-06-19T19:48:47.797Z"
+}
