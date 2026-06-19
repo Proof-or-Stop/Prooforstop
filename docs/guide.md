@@ -257,6 +257,7 @@ lattice dispatch_policy_check --policy=my-policy --format=json
 
 # 3. Probe host capability (does not start an external process; returns unavailable when the CLI is not on PATH)
 lattice host_runtime_probe --host=claude-code --json
+lattice host_runtime_probe --host=antigravity --json
 
 # 4. Start policy-authorized unattended workers
 lattice dispatch_auto --storyId=B-xxxx --policy=my-policy --format=json

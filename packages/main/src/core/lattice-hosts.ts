@@ -97,7 +97,7 @@ const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeD
     note: 'Unavailable in Lattice CLI 0.3.6; the desktop app is optional dashboard/archive only.',
     authorityImpact: 'none',
     reason: 'Lattice CLI 0.3.6 does not treat the desktop app as a repository editing host.',
-    fallback: 'Delegate file edits to Codex, Claude Code, or another explicit editing host.',
+    fallback: 'Delegate file edits to Codex, Claude Code, Antigravity, or another explicit editing host.',
   },
   'patch-apply': {
     status: 'unavailable',
@@ -111,7 +111,7 @@ const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeD
     note: 'Unavailable in Lattice CLI 0.3.6; shell access stays with CLI/editor/runner hosts.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection is not a local command or PTY surface.',
-    fallback: 'Run commands through Codex, Claude Code, or local-runner.',
+    fallback: 'Run commands through Codex, Claude Code, Antigravity, or local-runner.',
   },
   'test-execution': {
     status: 'unavailable',
@@ -376,6 +376,21 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Use handoff_create / handoff_accept / handoff_resume for cross-host recovery without changing authority.',
       ],
       commands: ['node bin/lattice.js host_probe --host=claude-code --format=json'],
+      warnings: commonWarnings,
+    };
+  }
+  if (normalized === 'antigravity' || normalized === 'agy') {
+    return {
+      summary: 'Antigravity is an editing host exposed through the agy CLI. Install and authenticate it through its own vendor flow, then use Lattice handoff/runtime surfaces.',
+      steps: [
+        'Confirm agy is available in the user environment through its vendor documentation.',
+        'Use lattice host probe --host=antigravity to inspect visible capability degradations.',
+        'Use lattice host_runtime_probe --host=antigravity --json to inspect the local agy runtime without starting the host.',
+      ],
+      commands: [
+        'node bin/lattice.js host_probe --host=antigravity --format=json',
+        'node bin/lattice.js host_runtime_probe --host=antigravity --json',
+      ],
       warnings: commonWarnings,
     };
   }
