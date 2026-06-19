@@ -532,6 +532,24 @@
       "resolvedAt": "2026-06-19T02:40:45.833Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7559:F-025",
+      "desc": "design-flaw: docs/parallel-decomposition-spec.md:321 — §4.3 cond.1 cites tier-2 prefix flag \"at `block` confidence\" but §4.2 defines only two tiers with no confidence-level system. §4.2 describes tier 2 as a conservative \"possible overlap\" flag with no distinction between advisory vs block confidence. Implementers cannot determine from §4.2 when a tier-2 result crosses from advisory into block territory; the term is a dangling undefined condition.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T02:42:46.451Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-015",
+      "_hash": "06c5fbdf023a5aac878e8a53a3f427854994954d94dd7883dbaf9dbb7af30a50",
+      "files": [
+        "docs/parallel-decomposition-spec.md"
+      ],
+      "signatureTag": "missing|md|design-flaw-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
