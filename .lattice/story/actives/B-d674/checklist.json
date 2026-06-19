@@ -60,7 +60,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The user-facing runtime surfaces advertise the current real host set as Codex CLI, Claude Code CLI, and Antigravity CLI, with fake only as deterministic local coverage; host_runtime_list, host_runtime_probe help, and rendered text/json include Antigravity and do not list Gemini as current.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "dispatch_policy_create, dispatch_policy_check, and dispatch_auto accept antigravity alongside codex and claude-code in allowedHosts, persist the normalized host, and reject unknown hosts with messages that name the current host set.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "host_list, host_probe, host_status, and install guidance expose an Antigravity profile or guidance equivalent to the other current editing hosts and describe agy as the CLI command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When Antigravity is unavailable but Codex or Claude Code is available, automatic or suggested runtime selection never prefers legacy Gemini; fallback ordering and nextAction text stay aligned with the current three-host set plus fake.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command policy registry, CLI schema descriptions, README, docs/guide.md, host-overflow decision notes, and lattice-parallel-wave notes are updated or intentionally scoped so user-visible docs stop presenting Gemini as a current host.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No stale string still says fake, claude-code, gemini, and codex are the dispatch runtime set in help, command-policy reasons, errors, install guidance, or docs unless it is explicitly labeled legacy compatibility.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Real-host subprocess policy cannot silently broaden authority: adding Antigravity must preserve requireReceipt, requireReview, allowAutoMerge=false, allowProductionDone=false, and productionDone=false on dispatch outputs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
