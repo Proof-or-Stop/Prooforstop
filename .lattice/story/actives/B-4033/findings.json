@@ -205,7 +205,7 @@
       "desc": "[Codex host P1] terminal parent-directory segments (src/.., foo/..) were not handled: scope-contract.ts:48 rejects ../ and leading/exact .. but NOT a terminal src/.., so such a path could reach globsOverlap and misclassify the directory.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T14:07:24.697Z",
@@ -216,7 +216,11 @@
         "packages/main/src/core/parallel-decomposition-overlap.ts"
       ],
       "signatureTag": "edge|ts|codex-host-terminal",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (defense-in-depth): validateWriteSetGrammar now rejects any entry containing a \"..\" segment (src/.., foo/../bar) — cleaner than resolving traversal. Complements the upstream scope-contract.ts check which misses the terminal case. Verified by 3 new smoke assertions (44 total).",
+      "resolvedAt": "2026-06-19T14:07:25.516Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
