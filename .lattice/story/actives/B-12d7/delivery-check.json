@@ -1,0 +1,83 @@
+{
+  "storyId": "B-12d7",
+  "checkedAt": "2026-06-19T03:39:55.374Z",
+  "reviewRound": "2026-06-19T02:53:56.869Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-001",
+      "promise": "extractCodexUsage added to providers/codex-cli.ts: iterates JSONL, returns first OpenAI usage sub-object (token-count fields only), never raw transcript",
+      "verifiedBy": "diff/read",
+      "evidence": "providers/codex-cli.ts lines 84-111: isCodexUsageObject type-guard + extractCodexUsage implemented; runBoundedCodexProvider at line 156 calls it and spreads into ProviderExecResult"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-001",
+      "promise": "extractGeminiUsage added to providers/gemini-cli.ts: iterates JSONL, returns first Gemini usageMetadata sub-object (token-count fields only)",
+      "verifiedBy": "diff/read",
+      "evidence": "providers/gemini-cli.ts lines 85-118: isGeminiUsageObject type-guard + extractGeminiUsage implemented; runBoundedGeminiProvider at line 164 calls it and spreads into ProviderExecResult"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-001",
+      "promise": "reportedUsage optional field added to ProviderExecResult in providers/types.ts (token-count-only, never raw transcript)",
+      "verifiedBy": "diff/read",
+      "evidence": "providers/types.ts line 64: reportedUsage?: Record<string,unknown> with doc comment stating numbers only, never raw transcript"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-002",
+      "promise": "recordDispatchFinalForProvider added to dispatch-usage.ts: provider-parametric final entry point routing openai/gemini usage through buildProviderRecord",
+      "verifiedBy": "diff/read",
+      "evidence": "dispatch-usage.ts lines 408-458: recordDispatchFinalForProvider implemented with flag-gate, fail-open try/catch, usable-object check, buildProviderRecord call with provider param, unavailable-final fallback"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-002",
+      "promise": "finalContextForProvider added: builds RecordContext with provider.name=openai/gemini (not hardcoded anthropic); finalContext (anthropic) stays byte-identical",
+      "verifiedBy": "diff/read",
+      "evidence": "dispatch-usage.ts lines 493-507: finalContextForProvider sets provider.name to providerName arg; finalContext at lines 475-485 is untouched (anthropic hardcoded, unchanged)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-002",
+      "promise": "recordDispatchFinal (claude/anthropic path) left byte-identical",
+      "verifiedBy": "diff/read",
+      "evidence": "dispatch-usage.ts lines 334-381: recordDispatchFinal is unchanged; claude regression smoke test also passes"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-003",
+      "promise": "runBoundedRealLeafDispatch in lattice-dispatch.ts wired with preflight estimate + superseding final via recordDispatchFinalForProvider; fail-open; OFF path byte-identical",
+      "verifiedBy": "diff/read",
+      "evidence": "lattice-dispatch.ts lines 1998-2060: ledgerOn gate wraps preflight (recordDispatchPreflight) and final (recordDispatchFinalForProvider) with try/catch; reportedUsage passed from runner result at line 2051"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-003",
+      "promise": "New smoke file packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts with 17 checks covering CHK-001/CHK-002/CHK-003 happy+edge+adversarial paths",
+      "verifiedBy": "read + real-machine run",
+      "evidence": "File exists; compiled to dist; node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js ran 17/17 PASS on current HEAD"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12d7/plan.md#CHK-003",
+      "promise": "npm script test:usage-ledger-codex-gemini added to package.json",
+      "verifiedBy": "grep",
+      "evidence": "package.json line 31: test:usage-ledger-codex-gemini -> node packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "smoke 17/17 PASS: extractCodexUsage top-level + message-nested parsing; gemini usageMetadata top-level + response-nested; empty/non-JSON/no-usage returns undefined; security invariant (no transcript text, all values numeric) verified via assertNoTranscriptText; providers import-boundary static assert passes"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "smoke 17/17 PASS: codex provider-reported final (openai) supersedes estimate; gemini final carries correct token counts + provider.name=gemini; null/garbage usage -> unavailable final still supersedes; flag OFF -> nothing written; adversarial rogue usage (negative tokens) does not throw; model=null -> fallback unknown; correlation=null -> fresh correlation minted"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "smoke 17/17 PASS: two sequential codex finals to same root -> 4 records, distinct correlation ids, chain intact; claude regression recordDispatchFinal unchanged; isolation check (temp dir only); import boundary static assertion"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises verified in code via direct file reads. The 17-check smoke ran 17/17 PASS on current HEAD. Edge and adversarial paths specifically covered: empty/non-JSON stdout, null/garbage usage, rogue negative tokens, model=null fallback, flag-OFF no-op, import-boundary static assertion. Disclosed non-delivery (cacheCreation null -> unknownCount for openai/gemini) is structurally accurate and explicitly noted as out-of-scope."
+  },
+  "_hash": "959b75368b1ab752f37b2a036439c128366b5b96f706934d5e78c2d2e500adf3"
+}

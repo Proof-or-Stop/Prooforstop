@@ -1,0 +1,130 @@
+{
+  "passes": [
+    {
+      "id": "B-b5c0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "reviewed B-b5c0 commit 90199776f and roadmap doc changes for concept boundaries: current-status/source mapping, requires3x2 predicate, local verdict vs Authority receipt separation, rollout policy/version and emergency bypass wording. No blocker/high/medium concept issues found; B-b5c0 remains doc-only and does not claim runtime/Authority/production completion.",
+      "createdAt": "2026-06-19T01:31:01.411Z",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "reviewRunId": "B-b5c0:RR-003",
+      "_hash": "243a002abcb4a8a0988905b3c045915c3e14e084c7d2d845be9d3f5cb7fa90d0"
+    },
+    {
+      "id": "B-b5c0:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "reviewed docs touchpoints for CHK-001/CHK-002/CHK-003: roadmap diff is doc-only at product commit 90199776f; NAV already links the existing roadmap path/title so no sync is required; referenced source decision docs exist and support the Authority receipt, lifecycle receipt, 3x2, owner lease, parallel wave, baseline, repair, and DONE-runbook claims; decision-doc/prose policy boundary is preserved because direct docs edits remain diagnostic and cannot set requires3x2 or Authority/DONE completion fields.",
+      "createdAt": "2026-06-19T01:31:26.294Z",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "reviewRunId": "B-b5c0:RR-002",
+      "_hash": "bf9c76bb495e42b70e9efde36322685ec6c49e7d300f242ec3db4813eb3dbd56"
+    },
+    {
+      "id": "B-b5c0:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-001..CHK-003: checked roadmap document quality, readability, internal consistency, dependency/source mapping, rollout crosswalk, 3x2 predicate, Authority/local evidence boundary, and overclaim scope; found no blocker.",
+      "createdAt": "2026-06-19T01:31:31.932Z",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "reviewRunId": "B-b5c0:RR-001",
+      "_hash": "4c81f8b6206cc73cbe58a7ceb220e70c917db06689d6e7cd2c287e49291a0044"
+    },
+    {
+      "id": "B-b5c0:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001/CHK-002/CHK-003: verified all verificationIntent refs have passing fresh evidence; doc-only validation/build/3x2 expectations are covered by roadmap checks, TEST-stage lattice validate, and read-only escalation status shows 3x2 not required for this story.",
+      "createdAt": "2026-06-19T01:31:38.721Z",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "reviewRunId": "B-b5c0:RR-004",
+      "_hash": "f641e8439089fa884ea4ca425dacdac28a0cec7dbb242d0bee3a0d34356bf4ed"
+    },
+    {
+      "id": "B-b5c0:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001/002/003 verificationIntent and refreshed evidence cover the latest roadmap doc change. Validation command specificity is present for M0/M6/M8/M12 with expected row ids; signature negative controls cover signed material binding, stale validation digest, missing signature, prompt-unbound and Authority/local-boundary cases; rollout crosswalk and emergency bypass evidence are scoped, policy-versioned, auditable, and bounded.",
+      "createdAt": "2026-06-19T02:13:14.646Z",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "reviewRunId": "B-b5c0:RR-007",
+      "_hash": "eb2d4cb8cc3d3f3fe507376c1f2a6de1213f8682014d33719ac92daba6089637"
+    },
+    {
+      "id": "B-b5c0:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review PASS: B-b5c0 product diff is limited to the roadmap repair; wording stays execution-plan-only, source mappings align with cited Authority/lifecycle/owner/parallel documents, and signature/registry/bypass language does not permit prose, registry identity, local verdicts, or emergency bypasses to satisfy receipt, quorum, DONE, or baseline claims.",
+      "createdAt": "2026-06-19T02:13:15.228Z",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "reviewRunId": "B-b5c0:RR-005",
+      "_hash": "da0ad3cf3a271663318288f64ba4ba9cd15343fd30eb1a17e3bbdf291ea470d1"
+    },
+    {
+      "id": "B-b5c0:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS for current REVIEW round after docs: tighten roadmap verdict signature wording. Reviewed CHK-001/CHK-002/CHK-003 against the repaired roadmap and source contracts. The document remains a docs-only audit repair, maps shipped/partial/planned surfaces to source truths, preserves local-host-evidence-is-not-Authority and no-prose-as-proof boundaries, defines requires3x2 mechanically, and the latest verdict wording requires a valid canonical payload signature plus signed material binding rather than allowing registry-backed identity to substitute. No conceptual/product correctness or scope-fidelity blockers found.",
+      "createdAt": "2026-06-19T02:13:50.971Z",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "reviewRunId": "B-b5c0:RR-008",
+      "_hash": "412d78cb5e82da8d7ec6be03b9130ff7c697beba94bf73fc17b91387ad5bd4f0"
+    },
+    {
+      "id": "B-b5c0:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "PASS: reviewed lattice-strengthening roadmap doc correctness against related decision docs. Current implementation status axis matches shipped/partial/planned source docs; Authority receipt mapping uses lattice-authority-receipt-contract and lifecycle-gate-receipt-consumption as primary sources; M8 requires3x2 predicate/signature requirements align with review escalation and lifecycle docs; rollout/in-flight/rollback/emergency bypass controls are explicit; M0/M6/M8/M12 validation artifact rows are concrete and bounded. git diff --check clean; product diff is docs-only plus Lattice story metadata.",
+      "createdAt": "2026-06-19T02:13:53.458Z",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "reviewRunId": "B-b5c0:RR-006",
+      "_hash": "e6407aead485add50ae9f6239e98e409c0b6b9d7f5f964d659cbb129be67858b"
+    },
+    {
+      "id": "B-b5c0:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS. Material/product diff is limited to docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md; .lattice/story/actives/B-b5c0/* is explicitly treated as story-scoped provenance, not roadmap/runtime behavior. Roadmap remains docs-only and states it is an execution plan, not implemented runtime behavior; it preserves Authority/baseline/production claim boundaries and does not claim authorityDone/fullAuthorityDone/productionDone/receiptVerified. Checks: git diff --name-only main...HEAD, git diff --check, rg spot checks for material boundary/status axis/Authority receipt/3x2/rollout rows.",
+      "createdAt": "2026-06-19T02:35:48.116Z",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "reviewRunId": "B-b5c0:RR-009",
+      "_hash": "9cbe386c1071eaa165ca4a61281e259a597fb3113e4e1ef73686818c7ad022cc"
+    },
+    {
+      "id": "B-b5c0:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001/CHK-002 coverage is adequate. CHK-001 includes provenance-boundary evidence tying the material deliverable to the roadmap doc and treating Lattice lifecycle metadata as story-scoped provenance; commits after 76c9d9cdb are Lattice metadata only. CHK-002 includes receipt-smokes integration evidence; authority-gate-receipts, authority-gate-consumption, and authority-completion smoke commands all passed locally. Checklist coverage has 9/9 verificationIntent lanes evidenced, stale evidence was refreshed, and session_brief reports the latest validate PASS at 2026-06-19T02:32:02.474Z. No test-coverage blocker.",
+      "createdAt": "2026-06-19T02:36:48.129Z",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "reviewRunId": "B-b5c0:RR-011",
+      "_hash": "e52eeda02568f963f2cece3b4c861a442d9936e0305f518219e08e92a3810820"
+    },
+    {
+      "id": "B-b5c0:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "PASS: F-002 fixed by commit 68d7895be. Roadmap lines 37-40 allow story-scoped .lattice/story/actives/B-b5c0/* provenance produced by Lattice workflow, while lines 113-122 now narrow Non-Goals to direct/manual story JSON edits or product/runtime metadata changes outside the Lattice workflow. Spot-checked M6 receipt rows for review_escalation_status plus authority-gate receipt/consumption/completion smoke commands, and M12 receipt rows for validate/review_escalation_status plus Authority smoke tasks; rows remain concrete and preserve non-Authority boundary for B-b5c0.",
+      "createdAt": "2026-06-19T02:50:47.881Z",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "reviewRunId": "B-b5c0:RR-016",
+      "_hash": "c436233891fab7671f254b198f53fa2af7119e3625bd9196e48ba171d8142da4"
+    },
+    {
+      "id": "B-b5c0:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewed commit 68d7895be and current HEAD delta. The only material product/doc change is docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md; later changes are Lattice story metadata. The revised non-goal permits only Lattice workflow story-scoped provenance under .lattice/story/actives/B-b5c0/* while still forbidding product/runtime metadata changes outside the workflow. The doc repeatedly states B-b5c0 is a document repair / execution plan only, with no runtime code, NAV, fixtures, hooks, source changes, baseline PASS, authorityDone, fullAuthorityDone, productionDone, receiptVerified, or formal capability unlock claims. No conceptual scope/product correctness findings.",
+      "createdAt": "2026-06-19T02:51:30.065Z",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "reviewRunId": "B-b5c0:RR-014",
+      "_hash": "fc5ace2204a668f861f3aa7554d592c4460a2d166e41fe66aa75965556036a40"
+    },
+    {
+      "id": "B-b5c0:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: reviewed commit 68d7895be and current roadmap lines 37-40 plus 113-122. F-001 is fixed because the document now distinguishes story-scoped Lattice provenance from product/runtime behavior and narrows the non-goal to direct/manual story JSON edits or product/runtime metadata changes outside the Lattice workflow. No current quality blocker remains.",
+      "createdAt": "2026-06-19T02:51:33.196Z",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "reviewRunId": "B-b5c0:RR-017",
+      "_hash": "62393019243bfc0f390187ed6f88deeb38b03b6a64683eb860aabb0423fcdc34"
+    },
+    {
+      "id": "B-b5c0:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review after commit 68d7895be is clean: evidence_inspect shows all checklist evidence plus test-evidence fresh at materialHash f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8; latest validate PASS has 9/9 required intents covered; custom provenance-boundary and receipt-smokes rows are current; M6/M12 validation rows are backed by Authority smoke commands.",
+      "createdAt": "2026-06-19T02:53:54.809Z",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "reviewRunId": "B-b5c0:RR-015",
+      "_hash": "7ab16f29e63aa9e61e5d90869afdc69bdfec47c310b694679971b19f328e47ce"
+    }
+  ]
+}

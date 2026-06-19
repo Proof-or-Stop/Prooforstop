@@ -1,0 +1,196 @@
+{
+  "command": "lattice validate --story=B-b5c0 --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice-agent/core@0.3.5 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The roadmap states the current implementation baseline for scope, owner, parallel work, and baseline surfaces, marking what is already implemented versus future work.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — Each baseline surface is mapped to its source of truth, including Authority receipt, lifecycle receipt consumption, lifecycle artifact scope, story lifecycle, session ownership, and parallel wave documents where applicable.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The repaired docs must not describe existing scope, owner, parallel, baseline, Authority receipt, or lifecycle receipt behavior as merely planned future work.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The related roadmap documents define the three-round by two-host escalation predicate mechanically, with named inputs, decision table or equivalent truth conditions, outputs, and the exact escalation/no-escalation result.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — Local verdict signature and verifiability requirements are documented with signer, signed fields, freshness/hash expectations, and invalid/stale signature handling.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — Validation cannot remain prose-only: each relevant milestone lists minimal validation commands plus expected artifacts, artifact ids, or roadmap row ids that evidence the 3x2 predicate and verdict signature behavior.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The roadmap contains a milestone-to-rollout crosswalk that binds each affected milestone to rollout stage, policy version, enforcement mode, and expected operator-visible artifact or command evidence.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — In-flight story treatment, false-positive rollback or de-escalation, and recovery controls are documented for stories already past PLAN/DEV/REVIEW when the rollout policy changes.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md) — The self-hosting emergency bypass is tightly scoped, auditable, time-bounded or version-bounded, and cannot silently bypass policy/version gates or permanent blocker semantics.\"],\"warnings\":[],\"timestamp\":\"2026-06-19T03:49:18.724Z\",\"headSha\":\"1d06824ff87a397ccd0a15c59313601a6d0aaf9e\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice-agent/core@0.3.5 build\\n> tsc\\n\\n\",\"durationMs\":25654},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"authority client smoke passed\\n\",\"durationMs\":380},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":400}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The roadmap states the current implementation baseline for scope, owner, parallel work, and baseline surfaces, marking what is already implemented versus future work.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"Current Implementation Status Axis|shipped|harden-existing\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The repaired roadmap contains a current implementation status axis and classifies shipped/harden-existing/current surfaces.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Each baseline surface is mapped to its source of truth, including Authority receipt, lifecycle receipt consumption, lifecycle artifact scope, story lifecycle, session ownership, and parallel wave documents where applicable.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"lattice-authority-receipt-contract|lifecycle-gate-receipt-consumption|lifecycle-artifact-scope|session-ownership|lattice-parallel-wave\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"Source mapping now includes direct Authority receipt and lifecycle receipt sources plus the existing lifecycle/session/parallel sources.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The repaired docs must not describe existing scope, owner, parallel, baseline, Authority receipt, or lifecycle receipt behavior as merely planned future work.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"git show --name-only --format= HEAD && rg -n \\\"not describe owner lease|rather than inventing scope freeze|not let local evidence set Authority completion\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"Commit changed only the roadmap document and the new wording prevents existing scope/owner/parallel/receipt surfaces from being treated as net-new future work.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The related roadmap documents define the three-round by two-host escalation predicate mechanically, with named inputs, decision table or equivalent truth conditions, outputs, and the exact escalation/no-escalation result.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"requires3x2|explicitlyConfiguredHighRiskPolicyRequires3x2|firstReviewRoundCountableProblems\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The roadmap now states the mechanical 3x2 predicate and separates threshold-triggered escalation from explicit high-risk policy opt-in.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Local verdict signature and verifiability requirements are documented with signer, signed fields, freshness/hash expectations, and invalid/stale signature handling.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"signed canonical|registry-backed identity|host/session/key/material|validation/prompt binding\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"Local counted verdict requirements now name identity/freshness bindings and signed or registry-backed provenance instead of accepting transcript/prose.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Validation cannot remain prose-only: each relevant milestone lists minimal validation commands plus expected artifacts, artifact ids, or roadmap row ids that evidence the 3x2 predicate and verdict signature behavior.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"review_escalation_status|autopilot_review_status|decision_doc_quorum_check|lattice validate --story|npm --prefix packages/main run build\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && git diff --check HEAD^..HEAD && npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"M6/M8/M12 validation sections list concrete commands/artifact rows; diff check and TypeScript build passed for the repaired tree.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"The roadmap contains a milestone-to-rollout crosswalk that binds each affected milestone to rollout stage, policy version, enforcement mode, and expected operator-visible artifact or command evidence.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"Milestone-To-Rollout Stage Crosswalk|policyVersion|Enforcement mode|Operator-visible evidence\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The roadmap now contains a milestone-to-rollout crosswalk with policy version, enforcement mode, in-flight treatment, and operator-visible evidence columns.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"In-flight story treatment, false-positive rollback or de-escalation, and recovery controls are documented for stories already past PLAN/DEV/REVIEW when the rollout policy changes.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"in-flight|false-positive|de-escalation|prior accepted policy version|do not reopen\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The repaired rollout section documents in-flight treatment and false-positive rollback/de-escalation without reopening DONE stories.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The self-hosting emergency bypass is tightly scoped, auditable, time-bounded or version-bounded, and cannot silently bypass policy/version gates or permanent blocker semantics.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"command\":\"rg -n \\\"M11 staged runbook|Audited emergency bypass|expiry by time|policyVersion|must not bypass git cleanliness|cannot set `authorityDone`\\\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md\",\"result\":\"pass\",\"note\":\"The emergency bypass is explicitly audited, scoped to self-hosting over-block, time/policy bounded, and barred from setting Authority, DONE, full 3x2, or baseline PASS claims.\",\"headHash\":\"dc291f656af3c275cc1b515d778deb11a5bb19ef\",\"materialHash\":\"44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e\",\"timestamp\":\"2026-06-19T03:48:43.391Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-19T03:49:19.732Z",
+  "headHash": "1d06824ff87a397ccd0a15c59313601a6d0aaf9e",
+  "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The roadmap states the current implementation baseline for scope, owner, parallel work, and baseline surfaces, marking what is already implemented versus future work.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"Current Implementation Status Axis|shipped|harden-existing\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The repaired roadmap contains a current implementation status axis and classifies shipped/harden-existing/current surfaces.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Each baseline surface is mapped to its source of truth, including Authority receipt, lifecycle receipt consumption, lifecycle artifact scope, story lifecycle, session ownership, and parallel wave documents where applicable.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"lattice-authority-receipt-contract|lifecycle-gate-receipt-consumption|lifecycle-artifact-scope|session-ownership|lattice-parallel-wave\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Source mapping now includes direct Authority receipt and lifecycle receipt sources plus the existing lifecycle/session/parallel sources.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The repaired docs must not describe existing scope, owner, parallel, baseline, Authority receipt, or lifecycle receipt behavior as merely planned future work.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "git show --name-only --format= HEAD && rg -n \"not describe owner lease|rather than inventing scope freeze|not let local evidence set Authority completion\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Commit changed only the roadmap document and the new wording prevents existing scope/owner/parallel/receipt surfaces from being treated as net-new future work.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The related roadmap documents define the three-round by two-host escalation predicate mechanically, with named inputs, decision table or equivalent truth conditions, outputs, and the exact escalation/no-escalation result.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"requires3x2|explicitlyConfiguredHighRiskPolicyRequires3x2|firstReviewRoundCountableProblems\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The roadmap now states the mechanical 3x2 predicate and separates threshold-triggered escalation from explicit high-risk policy opt-in.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Local verdict signature and verifiability requirements are documented with signer, signed fields, freshness/hash expectations, and invalid/stale signature handling.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"signed canonical|registry-backed identity|host/session/key/material|validation/prompt binding\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Local counted verdict requirements now name identity/freshness bindings and signed or registry-backed provenance instead of accepting transcript/prose.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Validation cannot remain prose-only: each relevant milestone lists minimal validation commands plus expected artifacts, artifact ids, or roadmap row ids that evidence the 3x2 predicate and verdict signature behavior.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"review_escalation_status|autopilot_review_status|decision_doc_quorum_check|lattice validate --story|npm --prefix packages/main run build\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md && git diff --check HEAD^..HEAD && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "M6/M8/M12 validation sections list concrete commands/artifact rows; diff check and TypeScript build passed for the repaired tree.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "The roadmap contains a milestone-to-rollout crosswalk that binds each affected milestone to rollout stage, policy version, enforcement mode, and expected operator-visible artifact or command evidence.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"Milestone-To-Rollout Stage Crosswalk|policyVersion|Enforcement mode|Operator-visible evidence\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The roadmap now contains a milestone-to-rollout crosswalk with policy version, enforcement mode, in-flight treatment, and operator-visible evidence columns.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "In-flight story treatment, false-positive rollback or de-escalation, and recovery controls are documented for stories already past PLAN/DEV/REVIEW when the rollout policy changes.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"in-flight|false-positive|de-escalation|prior accepted policy version|do not reopen\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The repaired rollout section documents in-flight treatment and false-positive rollback/de-escalation without reopening DONE stories.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "The self-hosting emergency bypass is tightly scoped, auditable, time-bounded or version-bounded, and cannot silently bypass policy/version gates or permanent blocker semantics.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"M11 staged runbook|Audited emergency bypass|expiry by time|policyVersion|must not bypass git cleanliness|cannot set `authorityDone`\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The emergency bypass is explicitly audited, scoped to self-hosting over-block, time/policy bounded, and barred from setting Authority, DONE, full 3x2, or baseline PASS claims.",
+          "headHash": "dc291f656af3c275cc1b515d778deb11a5bb19ef",
+          "materialHash": "44f85b3638349fb7ac1bffb00995b6d587475edf12402a1be8f1e595010ae36e",
+          "timestamp": "2026-06-19T03:48:43.391Z"
+        }
+      }
+    ]
+  }
+}

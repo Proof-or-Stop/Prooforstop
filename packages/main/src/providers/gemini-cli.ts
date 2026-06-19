@@ -82,6 +82,42 @@ function extractGeminiModel(stdout: string): string | undefined {
   return undefined;
 }
 
+/** A usageMetadata object is one carrying any of the Gemini token-count fields. */
+function isGeminiUsageObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const u = value as Record<string, unknown>;
+  return (
+    'promptTokenCount' in u || 'candidatesTokenCount' in u || 'cachedContentTokenCount' in u
+  );
+}
+
+/**
+ * Best-effort token-count usage extraction from Gemini JSON output; never required
+ * for success. Contract-parallel to extractGeminiModel: iterate the JSONL lines,
+ * skip blanks, JSON.parse each in a try/catch, and return the FIRST Gemini-shape
+ * `usageMetadata` sub-object found — checked at the top level
+ * (`obj.usageMetadata`) and nested under `response` (`obj.response.usageMetadata`).
+ * Returns ONLY the numeric usageMetadata sub-object (the token-count fields),
+ * NEVER the whole line/envelope or any transcript text. Never throws; returns
+ * undefined when no usageMetadata object is present.
+ */
+function extractGeminiUsage(stdout: string): Record<string, unknown> | undefined {
+  for (const line of stdout.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const obj = JSON.parse(line) as {
+        usageMetadata?: unknown;
+        response?: { usageMetadata?: unknown };
+      };
+      if (isGeminiUsageObject(obj.usageMetadata)) return obj.usageMetadata;
+      if (obj.response && isGeminiUsageObject(obj.response.usageMetadata)) {
+        return obj.response.usageMetadata;
+      }
+    } catch { /* skip non-json lines */ }
+  }
+  return undefined;
+}
+
 /**
  * Run a single bounded `provider.gemini` request, capturing structured evidence.
  *
@@ -125,9 +161,11 @@ export function runBoundedGeminiProvider(
   }
 
   const model = extractGeminiModel(stdout);
+  const reportedUsage = extractGeminiUsage(stdout);
   return {
     provider: 'gemini',
     ...(model ? { model } : {}),
+    ...(reportedUsage ? { reportedUsage } : {}),
     argvDigest: providerDigest(request.argv),
     exitCode: spawnError ? null : status,
     stdoutDigest: providerDigest(stdout),

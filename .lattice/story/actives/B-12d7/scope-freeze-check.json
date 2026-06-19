@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-12d7",
+  "checkedAt": "2026-06-19T02:19:57.123Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "f7cfd2a49f64a6b55ee9ac7a0e7ee63cc1c1139dfca590246a9aa341e5fcb6b6",
+  "executionBoundaryHash": "f9d391e80cc1ea7bdb53765e7ac37553989b09b949156dd3d0573ec59c682a30",
+  "freshnessHash": "29badf38a9c7e0ce772d463d16de1ce6e0f902ad60b82cf6ffc75c0cfc1a4b02",
+  "effectiveExcludedKeywords": [
+    "Any anthropic adapter change",
+    "Any behavior change to recordDispatchFinal or parseClaudeCliOutput",
+    "Any change to the claude-code real-leaf path (runClaudeCodeRealLeafDispatch)",
+    "Authority receipt-backed signing",
+    "Budget-guard (fail-closed pre-spawn block) parity for codex/gemini",
+    "Cross-module imports into core/usage-ledger beyond existing siblings",
+    "finding.ts / finding-verify.ts / signFinding",
+    "Surfacing raw provider stdout/stderr transcript text"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any anthropic adapter change",
+      "source": "scopeBoundary.excluded",
+      "text": "Any anthropic adapter change",
+      "excluded": true
+    },
+    {
+      "keyword": "Any behavior change to recordDispatchFinal or parseClaudeCliOutput",
+      "source": "scopeBoundary.excluded",
+      "text": "Any behavior change to recordDispatchFinal or parseClaudeCliOutput",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to the claude-code real-leaf path (runClaudeCodeRealLeafDispatch)",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to the claude-code real-leaf path (runClaudeCodeRealLeafDispatch)",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority receipt-backed signing",
+      "source": "checklist.excludes",
+      "text": "No Authority receipt-backed signing",
+      "itemId": "CHK-003",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority receipt-backed signing",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority receipt-backed signing",
+      "excluded": true
+    },
+    {
+      "keyword": "Budget-guard (fail-closed pre-spawn block) parity for codex/gemini",
+      "source": "scopeBoundary.excluded",
+      "text": "Budget-guard (fail-closed pre-spawn block) parity for codex/gemini",
+      "excluded": true
+    },
+    {
+      "keyword": "Cross-module imports into core/usage-ledger beyond existing siblings",
+      "source": "scopeBoundary.excluded",
+      "text": "Cross-module imports into core/usage-ledger beyond existing siblings",
+      "excluded": true
+    },
+    {
+      "keyword": "finding.ts / finding-verify.ts / signFinding",
+      "source": "scopeBoundary.excluded",
+      "text": "finding.ts / finding-verify.ts / signFinding",
+      "excluded": true
+    },
+    {
+      "keyword": "Surfacing raw provider stdout/stderr transcript text",
+      "source": "scopeBoundary.excluded",
+      "text": "Surfacing raw provider stdout/stderr transcript text",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "51d24a05ec66edc4023a3b67a627f6f24518f424fe53d2fb45ba20361cf479d5"
+}

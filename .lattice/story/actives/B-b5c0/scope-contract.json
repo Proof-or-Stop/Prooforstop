@@ -1,0 +1,29 @@
+{
+  "storyId": "B-b5c0",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "docs/requirements/NAV.md"
+  ],
+  "protectedFiles": [
+    "packages/main/src/**",
+    "packages/main/tests/fixtures/**",
+    "tests/fixtures/**",
+    "docs/story/**"
+  ],
+  "explicitExcludes": [
+    "runtime CLI behavior",
+    "Authority implementation",
+    "baseline runner implementation",
+    "hook assets",
+    "fixture changes",
+    "B-491e story artifacts"
+  ],
+  "scopeChangeReason": "Initialize scope contract from PLAN for docs-only roadmap repair before REVIEW.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T01:27:06.628Z",
+  "updatedAt": "2026-06-19T01:27:06.628Z"
+}

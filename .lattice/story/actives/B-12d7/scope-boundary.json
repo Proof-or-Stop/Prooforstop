@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-12d7",
+  "mode": "feature",
+  "allowed": [
+    "core/lattice-dispatch.ts runBoundedRealLeafDispatch: preflight + final usage-ledger seam (fail-open)",
+    "core/usage-ledger/dispatch-usage.ts: canonical per-provider final-usage entry point",
+    "providers/codex-cli.ts and providers/gemini-cli.ts: token-count-only usage extraction",
+    "providers/types.ts: provider-neutral reportedUsage field on ProviderExecResult",
+    "Smoke test + npm script + verifier wiring for codex/gemini usage capture"
+  ],
+  "excluded": [
+    "Any anthropic adapter change",
+    "Any behavior change to recordDispatchFinal or parseClaudeCliOutput",
+    "Any change to the claude-code real-leaf path (runClaudeCodeRealLeafDispatch)",
+    "Authority receipt-backed signing",
+    "Budget-guard (fail-closed pre-spawn block) parity for codex/gemini",
+    "Cross-module imports into core/usage-ledger beyond existing siblings",
+    "finding.ts / finding-verify.ts / signFinding",
+    "Surfacing raw provider stdout/stderr transcript text"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Operator approved closing the codex/gemini live-dispatch usage-capture blocker via a Lattice story driven to DONE with 3-round 2-host review.",
+  "createdAt": "2026-06-19T02:15:52.350Z",
+  "updatedAt": "2026-06-19T02:15:52.350Z",
+  "_hash": "f7cfd2a49f64a6b55ee9ac7a0e7ee63cc1c1139dfca590246a9aa341e5fcb6b6"
+}

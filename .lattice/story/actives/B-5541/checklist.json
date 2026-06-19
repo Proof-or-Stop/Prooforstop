@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rebrand the koala H1 title in cc-learnings.md, role-separation.md, stack-layering.md to Lattice (keep koala-to-lattice-role-naming title)",
+      "context": "Edit ONLY the H1 (the `# ...` heading line) of: docs/requirements/decisions/cc-learnings.md (koala's -> Lattice's), docs/requirements/decisions/role-separation.md (koala Multi-Role -> Lattice Multi-Role), docs/requirements/decisions/stack-layering.md (× Koala Layering -> × Lattice Layering). Do NOT change docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md (its 'Koala-to-Lattice' is the rename subject, kept per user). Do NOT translate/strip Chinese or koala in these docs' BODIES (out of scope). Verify each of the 3 H1 lines now reads Lattice and the 4th doc is unchanged.",
+      "userSees": "The H1 of cc-learnings.md, role-separation.md, stack-layering.md say 'Lattice' (not koala); koala-to-lattice-role-naming-execution-plan.md's title is unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Regenerate docs/requirements/NAV.md via the truth generator and verify it is clean",
+      "context": "Run the current truth generator (`lattice truth`, or `node packages/main/dist/tasks/truth.js` per its CLI) so docs/requirements/NAV.md is regenerated from the current decision docs. The regenerated NAV.md must have: the English header ('# Source of Truth Navigation' / '> N files' with the correct current count), each entry's title pulled from the current English H1, the 3 rebranded titles showing Lattice, and the 1 kept contextual koala title (koala-to-lattice-role-naming). Verify: `grep -cP '[\\x{4e00}-\\x{9fff}]' docs/requirements/NAV.md` returns 0 (no Chinese); `grep -ci koala docs/requirements/NAV.md` returns 1 (only the kept contextual title); all links still resolve to existing files.",
+      "userSees": "docs/requirements/NAV.md has an English header, the correct file count, current English titles that correspond to the actual files, zero Chinese, and koala only in the single kept koala-to-lattice rename-plan title.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

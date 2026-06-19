@@ -70,11 +70,10 @@ The current codebase now has the core unattended-development loop in place:
 - shadow mode can surface authority readiness without blocking local work;
 - authority mode fails closed when prerequisites are missing;
 - Lattice CLI can discover policy from Lattice Authority;
-- `buildAuthorityTrustProfileBundle` emits the ordinary basic bundle pair
-  (`lattice_authority_trust.env` + `lattice_staging-client.env`) by default, and
-  the explicit senior opt-in emits the `lattice_senior_*` pair; ordinary
-  developers generate and consume those files locally in the target workspace
-  instead of hand-carrying live runner variables;
+- Lattice CLI consumes operator/server-provided Authority handoff files. The
+  ordinary developer pair is `lattice_authority_trust.env` plus its referenced
+  `lattice_staging-client.env`; advanced/live runner handoff may provide the
+  `lattice_senior_*` pair. Public CLI code does not generate those files;
 - Lattice CLI has a native receipt verifier for Python-shaped
   Lattice Authority receipts;
 - live authority mode can register / heartbeat / claim a real Authority job,

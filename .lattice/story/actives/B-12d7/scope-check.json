@@ -1,0 +1,213 @@
+{
+  "storyId": "B-12d7",
+  "checkedAt": "2026-06-19T02:33:58.617Z",
+  "features": [
+    {
+      "feature": "Extract token-count-only usage from codex bounded provider runner (extractCodexUsage scanning OpenAI JSONL shape: prompt_tokens/completion_tokens/prompt_tokens_details)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Extract token-count-only usage from gemini bounded provider runner (extractGeminiUsage scanning Gemini usageMetadata: promptTokenCount/candidatesTokenCount/cachedContentTokenCount)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add optional reportedUsage field to ProviderExecResult in providers/types.ts (token counts only, no raw transcript)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Raw-output-never-surfaced security invariant: only numeric token-count fields leave the provider runner, no transcript or credentials",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Architecture invariant: providers/codex-cli.ts and providers/gemini-cli.ts must have zero imports from core/usage-ledger/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add recordDispatchFinalForProvider canonical per-provider final-usage entry point in dispatch-usage.ts routing through buildProviderRecord for openai/gemini providers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "recordDispatchFinalForProvider supersede semantics (supersedesRecordIds contains the estimate recordId)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "recordDispatchFinalForProvider unavailable-fallback semantics when reportedUsage is null/undefined (writes usage.source=unavailable final that still supersedes estimate)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Existing recordDispatchFinal (anthropic/claude path) and parseClaudeCliOutput stay byte-identical -- no anthropic path change",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No new cross-module imports in dispatch-usage.ts beyond existing usage-ledger siblings",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fail-open behavior for recordDispatchFinalForProvider: ledger errors must never break dispatch",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "provider.name mapping: codex hostKind maps to openai provider, gemini hostKind maps to gemini provider",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire preflight estimate (recordDispatchPreflight) into runBoundedRealLeafDispatch before the bounded run when ledger is ON",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire recordDispatchFinalForProvider into runBoundedRealLeafDispatch after the bounded run when ledger is ON",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Ledger-OFF path byte-identical to pre-change behavior (no file writes, no directory creation)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Claude real-leaf path unchanged (no change to claude-code real-leaf path)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test: codex and gemini bounded runs through injected stub runner, asserts provider-reported final with correct token counts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke wired into npm test (npm script + verifier wiring)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Budget-guard (fail-closed pre-spawn block) for codex/gemini dispatches",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No budget-guard (fail-closed pre-spawn block) for codex/gemini -- deferred",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Authority receipt-backed signing of usage ledger records",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No Authority receipt-backed signing",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Multi-provider normalization: usage.raw (raw provider units + payloadDigest) and usage.canonical {input, output, cacheCreation, cacheRead} on every provider-reported record",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Privacy constraint: no raw prompt, transcript, provider secret, customer API key, actor key, or authorization header in ledger records (privacy field redactionProfile)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "estimator fallback chain: provider count_tokens endpoint (high) -> local tokenizer (medium) -> bytes/chars heuristic (low, offline only) with confidence field",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Ledger record four-field cache-token model: inputTokens (uncached remainder), outputTokens, cacheCreationInputTokens, cacheReadInputTokens -- null for providers not reporting cache dims",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Story/phase attribution captured at preflight from active lease/session context (storyId, phase, agentType, subagentId)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Periodic reconciliation check: provider-dispatch events vs ledger final records keyed per ledgerCallId+attemptId to surface completeness gaps",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Streaming usage captured from terminal stream event (message_delta/final message); mid-stream error still records partial provider-reported usage",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Cost derivability: pricingRef reference on record, no absolute dollar amount stored; totals derived in summary layer not stored",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 28,
+    "covered": 18,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 8,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "211775e584b999dab45dd7609ea15cd7218e158edf9373b4ba759e404260b0d3",
+  "openQuestions": []
+}

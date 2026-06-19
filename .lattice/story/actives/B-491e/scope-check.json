@@ -1,0 +1,80 @@
+{
+  "storyId": "B-491e",
+  "checkedAt": "2026-06-19T00:52:01.025Z",
+  "features": [
+    {
+      "feature": "Public Lattice CLI no longer exposes reusable Authority bundle generation entrypoints for basic or senior bundle material",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CLI continues consuming server-provided authority trust and client env files, including lattice_authority_trust.env and lattice_staging-client.env",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-cli-authority-client-receipt-ref.md"
+    },
+    {
+      "feature": "Public CLI documentation and operator-facing wording become consumer-only and describe server/operator-provided handoff files",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Focused CLI tests are adjusted from generator-backed setup to consumer-only fixtures and anti-reintroduction checks",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lifecycle-gate-receipt-consumption.md"
+    },
+    {
+      "feature": "Server-side Python Authority bundle or receipt generator implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-491e understanding/decision keeps server-side generation out of public CLI and tracks server bundle generation separately",
+      "source": "decisions/lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "Secret, customer API key, actor key, or private key generation/rotation/storage behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-491e is limited to public CLI bundle-generation cleanup and consumer docs/tests; secret/key lifecycle is outside this story",
+      "source": "decisions/lattice-authority-customer-api-key-access.md"
+    },
+    {
+      "feature": "Tenant, workspace, project authorization and multi-tenant isolation semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-491e does not change hosted Authority customer access or tenant isolation",
+      "source": "decisions/lattice-authority-customer-api-key-access.md"
+    },
+    {
+      "feature": "New receipt verification, receipt-ref schema, gate-consumption predicate, or lifecycle gate extension",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-491e understanding constrains the work to not optimize unrelated authority receipt or gate logic",
+      "source": "decisions/lifecycle-gate-receipt-consumption.md"
+    },
+    {
+      "feature": "Multi-host, fullAuthorityDone, or production Authority completion expansion",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-491e does not expand receipt/gate/DONE authority; local CLI cleanup remains non-authority scope",
+      "source": "decisions/lattice-authority-live-integration.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 4,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1da815c1d034461d1bca50278338be2e740627d13f5fcd0e12d3a65d2f0f4a0b",
+  "openQuestions": []
+}

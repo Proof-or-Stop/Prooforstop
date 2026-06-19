@@ -1,0 +1,711 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-b5c0:RR-001",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "startedAt": "2026-06-19T01:28:28.877Z",
+      "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+      "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "ae41281ef93909cc5d18a37d3a7fc505b34f9c1f80c0ed9e21c1d3fa918c25d4",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0e4248d00a960ef0af8db35eb8d7983f08267385cfb11290c5774d608b593a03",
+          "44c38d00eb19b2e711af142bfcf5770aa7a262afaa4228c20c2c72c02abd66d8",
+          "548bccff4d8b851c405b0febfe68388a4a8b1e4bd697c3b5fa3cbb8e2063615a",
+          "7d6a45c5478fffa497147dcd0fcbf1541a317543f901cd4b004bc7f9092db9fd",
+          "c408456993d38e328aa30792e1e5e3220faf18d55ffa8af0f64dafa8008dcfbf",
+          "c7362a392e3ef1e17782149f97d224068654a4c7875dd1c5f476ae76f3f3c2b6",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "c432d4a47f665d8492ad4662be0112f9f841e3519cfb14a387b11e56c36728ce"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+        "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+        "bindingHash": "1a0d4538d7a76260d5bbf87786eeb8bb4b740781094c1e08029d36fc8112ea45"
+      },
+      "_hash": "036a046343b7a4472b978172489033d9b41ef9db9864339538a4261008f550c5"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-002",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "startedAt": "2026-06-19T01:28:42.324Z",
+      "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+      "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "ae41281ef93909cc5d18a37d3a7fc505b34f9c1f80c0ed9e21c1d3fa918c25d4",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0e4248d00a960ef0af8db35eb8d7983f08267385cfb11290c5774d608b593a03",
+          "44c38d00eb19b2e711af142bfcf5770aa7a262afaa4228c20c2c72c02abd66d8",
+          "548bccff4d8b851c405b0febfe68388a4a8b1e4bd697c3b5fa3cbb8e2063615a",
+          "7d6a45c5478fffa497147dcd0fcbf1541a317543f901cd4b004bc7f9092db9fd",
+          "c408456993d38e328aa30792e1e5e3220faf18d55ffa8af0f64dafa8008dcfbf",
+          "c7362a392e3ef1e17782149f97d224068654a4c7875dd1c5f476ae76f3f3c2b6",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "c432d4a47f665d8492ad4662be0112f9f841e3519cfb14a387b11e56c36728ce"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+        "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+        "bindingHash": "1a0d4538d7a76260d5bbf87786eeb8bb4b740781094c1e08029d36fc8112ea45"
+      },
+      "_hash": "257fa845ad86220824d72c6785103c5c4ba6c6efd4e131ea71e922c80deef23e"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-003",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "startedAt": "2026-06-19T01:28:49.957Z",
+      "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+      "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "ae41281ef93909cc5d18a37d3a7fc505b34f9c1f80c0ed9e21c1d3fa918c25d4",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0e4248d00a960ef0af8db35eb8d7983f08267385cfb11290c5774d608b593a03",
+          "44c38d00eb19b2e711af142bfcf5770aa7a262afaa4228c20c2c72c02abd66d8",
+          "548bccff4d8b851c405b0febfe68388a4a8b1e4bd697c3b5fa3cbb8e2063615a",
+          "7d6a45c5478fffa497147dcd0fcbf1541a317543f901cd4b004bc7f9092db9fd",
+          "c408456993d38e328aa30792e1e5e3220faf18d55ffa8af0f64dafa8008dcfbf",
+          "c7362a392e3ef1e17782149f97d224068654a4c7875dd1c5f476ae76f3f3c2b6",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "c432d4a47f665d8492ad4662be0112f9f841e3519cfb14a387b11e56c36728ce"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+        "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+        "bindingHash": "1a0d4538d7a76260d5bbf87786eeb8bb4b740781094c1e08029d36fc8112ea45"
+      },
+      "_hash": "26a4e7162236ae8be8fe375ab133dd51a0c53bf605b368c990d152c82753ed91"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-004",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T01:27:30.110Z",
+      "startedAt": "2026-06-19T01:28:54.585Z",
+      "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+      "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "ae41281ef93909cc5d18a37d3a7fc505b34f9c1f80c0ed9e21c1d3fa918c25d4",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0e4248d00a960ef0af8db35eb8d7983f08267385cfb11290c5774d608b593a03",
+          "44c38d00eb19b2e711af142bfcf5770aa7a262afaa4228c20c2c72c02abd66d8",
+          "548bccff4d8b851c405b0febfe68388a4a8b1e4bd697c3b5fa3cbb8e2063615a",
+          "7d6a45c5478fffa497147dcd0fcbf1541a317543f901cd4b004bc7f9092db9fd",
+          "c408456993d38e328aa30792e1e5e3220faf18d55ffa8af0f64dafa8008dcfbf",
+          "c7362a392e3ef1e17782149f97d224068654a4c7875dd1c5f476ae76f3f3c2b6",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "c432d4a47f665d8492ad4662be0112f9f841e3519cfb14a387b11e56c36728ce"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "76137eb0d27ae49be2b6a49902cda6ded69378fc",
+        "materialHash": "af4c356cd06504acff7564c977921e29474782c950f1a61e2d3d644b9177f43f",
+        "bindingHash": "1a0d4538d7a76260d5bbf87786eeb8bb4b740781094c1e08029d36fc8112ea45"
+      },
+      "_hash": "ecad7d40e58c74985b28b3c82c97fe2e51a553d7756448ea0c185365798fbaad"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-005",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "startedAt": "2026-06-19T02:11:21.791Z",
+      "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+      "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "4d68542274dad530cde5927b1bcb7bfe40e2799380591638245b6e10a0991847",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4111c6bff840571d524cb38550b6691a6dd4409e8b988b0049d6a130795929c7",
+          "49aa9d28a0a1e236ca430319f1fd0092a51005f89195268d4e5171afd7154ef2",
+          "b0c9644d1c5d052522908e42fb62138368b25331752209d629fbf16e701fa48f",
+          "b729e5663769c8d5dd9c3bad0793a9580153f0cabd3d9d1a0f4dc16b3081c748",
+          "bf91b1d80d83b9777622b62899a738c7ec688c8c12c8a526e6c252b6a2140546",
+          "dbf13c807ce1775e0d50d445c23c8d349701856e62673d4ae1fc0f56b808b358",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "ba63937def56264229dccc2ec98be3876d907ff3abaa07f4758fe81059eb467c"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+        "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+        "bindingHash": "3cfab90d60212cc02ecf3f86dde8e25dfcfa3cd66a79614cec200a6300c8efe7"
+      },
+      "_hash": "90190c7b2354d249495588f320bae7ad3cdf3e35dc0b088d0609efb6ddc2830a"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-006",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "startedAt": "2026-06-19T02:11:27.464Z",
+      "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+      "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "4d68542274dad530cde5927b1bcb7bfe40e2799380591638245b6e10a0991847",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4111c6bff840571d524cb38550b6691a6dd4409e8b988b0049d6a130795929c7",
+          "49aa9d28a0a1e236ca430319f1fd0092a51005f89195268d4e5171afd7154ef2",
+          "b0c9644d1c5d052522908e42fb62138368b25331752209d629fbf16e701fa48f",
+          "b729e5663769c8d5dd9c3bad0793a9580153f0cabd3d9d1a0f4dc16b3081c748",
+          "bf91b1d80d83b9777622b62899a738c7ec688c8c12c8a526e6c252b6a2140546",
+          "dbf13c807ce1775e0d50d445c23c8d349701856e62673d4ae1fc0f56b808b358",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "ba63937def56264229dccc2ec98be3876d907ff3abaa07f4758fe81059eb467c"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+        "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+        "bindingHash": "3cfab90d60212cc02ecf3f86dde8e25dfcfa3cd66a79614cec200a6300c8efe7"
+      },
+      "_hash": "cdf29f769189071f2cead445558dc8aad674d1771b26c6188c80e7a5ef777a15"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-007",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "startedAt": "2026-06-19T02:11:32.113Z",
+      "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+      "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "4d68542274dad530cde5927b1bcb7bfe40e2799380591638245b6e10a0991847",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4111c6bff840571d524cb38550b6691a6dd4409e8b988b0049d6a130795929c7",
+          "49aa9d28a0a1e236ca430319f1fd0092a51005f89195268d4e5171afd7154ef2",
+          "b0c9644d1c5d052522908e42fb62138368b25331752209d629fbf16e701fa48f",
+          "b729e5663769c8d5dd9c3bad0793a9580153f0cabd3d9d1a0f4dc16b3081c748",
+          "bf91b1d80d83b9777622b62899a738c7ec688c8c12c8a526e6c252b6a2140546",
+          "dbf13c807ce1775e0d50d445c23c8d349701856e62673d4ae1fc0f56b808b358",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "ba63937def56264229dccc2ec98be3876d907ff3abaa07f4758fe81059eb467c"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+        "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+        "bindingHash": "3cfab90d60212cc02ecf3f86dde8e25dfcfa3cd66a79614cec200a6300c8efe7"
+      },
+      "_hash": "7da12cc9fa29b8f6d5824e622b516de87e37205925d5bb09aa16ca6d05975697"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-008",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-19T02:09:50.803Z",
+      "startedAt": "2026-06-19T02:11:49.851Z",
+      "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+      "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "4d68542274dad530cde5927b1bcb7bfe40e2799380591638245b6e10a0991847",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "4111c6bff840571d524cb38550b6691a6dd4409e8b988b0049d6a130795929c7",
+          "49aa9d28a0a1e236ca430319f1fd0092a51005f89195268d4e5171afd7154ef2",
+          "b0c9644d1c5d052522908e42fb62138368b25331752209d629fbf16e701fa48f",
+          "b729e5663769c8d5dd9c3bad0793a9580153f0cabd3d9d1a0f4dc16b3081c748",
+          "bf91b1d80d83b9777622b62899a738c7ec688c8c12c8a526e6c252b6a2140546",
+          "dbf13c807ce1775e0d50d445c23c8d349701856e62673d4ae1fc0f56b808b358",
+          "f89a2c18b7380d30d4d4b26e672ce8ae4afcc91a598d4aab73ef5c0a245ff6a5"
+        ],
+        "bindingHash": "fd031877112919f62e78b452c52c2f8a06ae6affb0cf2915157a08342c58ff83"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "c8ee1f4b0d854013763e3d0dad5710aa68817a05",
+        "materialHash": "64f6ce39060cf82b121aefc63c028117b5bf26185a61fdd5f1c6c9d0077852b3",
+        "bindingHash": "3cfab90d60212cc02ecf3f86dde8e25dfcfa3cd66a79614cec200a6300c8efe7"
+      },
+      "_hash": "18e57003b29a0ef6e4ca66b5d35bb9700c422c6d1320e2d691e60a5862df4aa4"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-009",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "startedAt": "2026-06-19T02:33:33.074Z",
+      "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+      "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "e9a851d1ae602e1a4e009657408affee7ced1e2e73a4bf6a32881bb964838973",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3160526d19063609590cc84c9b917f9bf48346195591a11da76e8c8e56dd55f3",
+          "4a2ebbda50c11c3b8edfd672480731cceb765aebbbf09e534941cd26f7721ef8",
+          "59e9502b490a2b88c196aefbc63660b1859006aac06c4adf5f6fca49f534f927",
+          "5ca57be2e4946c3fb2b20032dd8ff044b35685b433068feec89d1b411a6109ad",
+          "92266bfda342aa0632a919cd501092c35acbdf0b411bd19caf7bfddab72db161",
+          "cb6fe82e909346d932ce43054d45182597ffd0f3a3174fbf4355f0a9a10e5873",
+          "fd6bb82e6a8fb707df2ad1a7876df1ff8b29363465684c78f8ab0c64324d2d23"
+        ],
+        "bindingHash": "7921d6858a31765bd4dac8a8d7f721f8b67dca1aaa418037b00e50627b53e4b3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+        "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+        "bindingHash": "4eef8fa23b5962b2bdbbe3d9c51fa3457804521d11c0d1fd0fa74b4446b29caf"
+      },
+      "_hash": "3f6d83ea55afb778918ed7d95cf4f25767ffc02bf64fa0d4fc240e433249b084"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-010",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "startedAt": "2026-06-19T02:33:41.212Z",
+      "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+      "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "e9a851d1ae602e1a4e009657408affee7ced1e2e73a4bf6a32881bb964838973",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3160526d19063609590cc84c9b917f9bf48346195591a11da76e8c8e56dd55f3",
+          "4a2ebbda50c11c3b8edfd672480731cceb765aebbbf09e534941cd26f7721ef8",
+          "59e9502b490a2b88c196aefbc63660b1859006aac06c4adf5f6fca49f534f927",
+          "5ca57be2e4946c3fb2b20032dd8ff044b35685b433068feec89d1b411a6109ad",
+          "92266bfda342aa0632a919cd501092c35acbdf0b411bd19caf7bfddab72db161",
+          "cb6fe82e909346d932ce43054d45182597ffd0f3a3174fbf4355f0a9a10e5873",
+          "fd6bb82e6a8fb707df2ad1a7876df1ff8b29363465684c78f8ab0c64324d2d23"
+        ],
+        "bindingHash": "7921d6858a31765bd4dac8a8d7f721f8b67dca1aaa418037b00e50627b53e4b3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+        "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+        "bindingHash": "4eef8fa23b5962b2bdbbe3d9c51fa3457804521d11c0d1fd0fa74b4446b29caf"
+      },
+      "_hash": "37963083e86321d38bfde666a7f5bcf9fb0bf3ccc1fa9e771a5f054e3af767d5"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-011",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "startedAt": "2026-06-19T02:33:41.678Z",
+      "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+      "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "e9a851d1ae602e1a4e009657408affee7ced1e2e73a4bf6a32881bb964838973",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3160526d19063609590cc84c9b917f9bf48346195591a11da76e8c8e56dd55f3",
+          "4a2ebbda50c11c3b8edfd672480731cceb765aebbbf09e534941cd26f7721ef8",
+          "59e9502b490a2b88c196aefbc63660b1859006aac06c4adf5f6fca49f534f927",
+          "5ca57be2e4946c3fb2b20032dd8ff044b35685b433068feec89d1b411a6109ad",
+          "92266bfda342aa0632a919cd501092c35acbdf0b411bd19caf7bfddab72db161",
+          "cb6fe82e909346d932ce43054d45182597ffd0f3a3174fbf4355f0a9a10e5873",
+          "fd6bb82e6a8fb707df2ad1a7876df1ff8b29363465684c78f8ab0c64324d2d23"
+        ],
+        "bindingHash": "7921d6858a31765bd4dac8a8d7f721f8b67dca1aaa418037b00e50627b53e4b3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+        "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+        "bindingHash": "4eef8fa23b5962b2bdbbe3d9c51fa3457804521d11c0d1fd0fa74b4446b29caf"
+      },
+      "_hash": "b1e6201be766c00292f8942e5a9aca259c9406c3814f5fcf9c488d35fcbf8263"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-012",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "startedAt": "2026-06-19T02:33:42.498Z",
+      "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+      "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "e9a851d1ae602e1a4e009657408affee7ced1e2e73a4bf6a32881bb964838973",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3160526d19063609590cc84c9b917f9bf48346195591a11da76e8c8e56dd55f3",
+          "4a2ebbda50c11c3b8edfd672480731cceb765aebbbf09e534941cd26f7721ef8",
+          "59e9502b490a2b88c196aefbc63660b1859006aac06c4adf5f6fca49f534f927",
+          "5ca57be2e4946c3fb2b20032dd8ff044b35685b433068feec89d1b411a6109ad",
+          "92266bfda342aa0632a919cd501092c35acbdf0b411bd19caf7bfddab72db161",
+          "cb6fe82e909346d932ce43054d45182597ffd0f3a3174fbf4355f0a9a10e5873",
+          "fd6bb82e6a8fb707df2ad1a7876df1ff8b29363465684c78f8ab0c64324d2d23"
+        ],
+        "bindingHash": "7921d6858a31765bd4dac8a8d7f721f8b67dca1aaa418037b00e50627b53e4b3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "313355c6ee27c1e808ee4eb4109c87f600410899",
+        "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+        "bindingHash": "4eef8fa23b5962b2bdbbe3d9c51fa3457804521d11c0d1fd0fa74b4446b29caf"
+      },
+      "_hash": "d0b1e04e86e4624317308d4440bdee55d2e2ec70adb79ce95b06b45f1cc49244"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-013",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-19T02:32:22.545Z",
+      "startedAt": "2026-06-19T02:39:00.206Z",
+      "headHash": "ca74902077191456fc438a8d429dfcb92f64b1cc",
+      "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "e9a851d1ae602e1a4e009657408affee7ced1e2e73a4bf6a32881bb964838973",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3160526d19063609590cc84c9b917f9bf48346195591a11da76e8c8e56dd55f3",
+          "4a2ebbda50c11c3b8edfd672480731cceb765aebbbf09e534941cd26f7721ef8",
+          "59e9502b490a2b88c196aefbc63660b1859006aac06c4adf5f6fca49f534f927",
+          "5ca57be2e4946c3fb2b20032dd8ff044b35685b433068feec89d1b411a6109ad",
+          "92266bfda342aa0632a919cd501092c35acbdf0b411bd19caf7bfddab72db161",
+          "cb6fe82e909346d932ce43054d45182597ffd0f3a3174fbf4355f0a9a10e5873",
+          "fd6bb82e6a8fb707df2ad1a7876df1ff8b29363465684c78f8ab0c64324d2d23"
+        ],
+        "bindingHash": "7921d6858a31765bd4dac8a8d7f721f8b67dca1aaa418037b00e50627b53e4b3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "ca74902077191456fc438a8d429dfcb92f64b1cc",
+        "materialHash": "75df640e61a44fa6a7b264d0db7b98f2d4d0824a7c57c83bce83b04ed8ed9c82",
+        "bindingHash": "89f2c2fe24eaf1a3411cf657b1dbe8c8ef80bbb46acff660c6a5f1ae1347db7d"
+      },
+      "_hash": "1418d4b6015d1c77010e32c7b390ba2de671b1743523ca46039450967c37ff41"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-014",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "startedAt": "2026-06-19T02:48:17.770Z",
+      "headHash": "5f5f15fc95d447e4387b21998b8d1ecdab54123f",
+      "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "5823207b4073e4f7df2f053e8517401dac923ac603f5c6d9c5bcaccf927e9ad2",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4f6c6b8ba114d13bd9365724ab09ac306cb5ed3cfc42706662656923747a2d0e",
+          "73f32c43946f3c42b19d2a3f4365063657859baed4e4bbc04cda20f560a7586f",
+          "c279ba39079140888f0dcc83719c2aaecc8ae3c8f0e8b57956ffe29c1302d787",
+          "c4d03594aaf61132798e6b8d61e11e87b87c43e89f37c55bfe3293ecf307c97e",
+          "c5c03042348b0e47e5c0b33e7dbf20d13f4d4acdc3d63afa05eb31e6a19d4d2c",
+          "cc54aa0246fdbcda127216df58357474239accb94070e74412ef6924edc0a181",
+          "f9e54ca4a77421fc70eed695f9d45a580ed7b13d9c2b8aac0361385a1896b94b"
+        ],
+        "bindingHash": "7ba35cdcf207ea5c560b094b84734bf0cb44194cb9b127e73e5f8d6542b5662a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "5f5f15fc95d447e4387b21998b8d1ecdab54123f",
+        "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+        "bindingHash": "2752bbb4b73453f8a42fed3f440b35298afa97f68b1e8cfd7e7131bbc7646591"
+      },
+      "_hash": "c0caf25c994789f0704629733056d8c344236cab42bfbf1c026aaa61b6d86c3e"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-015",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "startedAt": "2026-06-19T02:49:28.710Z",
+      "headHash": "5f5f15fc95d447e4387b21998b8d1ecdab54123f",
+      "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "5823207b4073e4f7df2f053e8517401dac923ac603f5c6d9c5bcaccf927e9ad2",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4f6c6b8ba114d13bd9365724ab09ac306cb5ed3cfc42706662656923747a2d0e",
+          "73f32c43946f3c42b19d2a3f4365063657859baed4e4bbc04cda20f560a7586f",
+          "c279ba39079140888f0dcc83719c2aaecc8ae3c8f0e8b57956ffe29c1302d787",
+          "c4d03594aaf61132798e6b8d61e11e87b87c43e89f37c55bfe3293ecf307c97e",
+          "c5c03042348b0e47e5c0b33e7dbf20d13f4d4acdc3d63afa05eb31e6a19d4d2c",
+          "cc54aa0246fdbcda127216df58357474239accb94070e74412ef6924edc0a181",
+          "f9e54ca4a77421fc70eed695f9d45a580ed7b13d9c2b8aac0361385a1896b94b"
+        ],
+        "bindingHash": "7ba35cdcf207ea5c560b094b84734bf0cb44194cb9b127e73e5f8d6542b5662a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "5f5f15fc95d447e4387b21998b8d1ecdab54123f",
+        "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+        "bindingHash": "2752bbb4b73453f8a42fed3f440b35298afa97f68b1e8cfd7e7131bbc7646591"
+      },
+      "_hash": "6b02d9f33e1e5b10607ef47fbba898d2fa79f0e25292fe54d65202a8614f0aa9"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-016",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "startedAt": "2026-06-19T02:50:27.374Z",
+      "headHash": "beb7d400bdbe3bedb72d1a3822e6d3aac190a0a3",
+      "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "5823207b4073e4f7df2f053e8517401dac923ac603f5c6d9c5bcaccf927e9ad2",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4f6c6b8ba114d13bd9365724ab09ac306cb5ed3cfc42706662656923747a2d0e",
+          "73f32c43946f3c42b19d2a3f4365063657859baed4e4bbc04cda20f560a7586f",
+          "c279ba39079140888f0dcc83719c2aaecc8ae3c8f0e8b57956ffe29c1302d787",
+          "c4d03594aaf61132798e6b8d61e11e87b87c43e89f37c55bfe3293ecf307c97e",
+          "c5c03042348b0e47e5c0b33e7dbf20d13f4d4acdc3d63afa05eb31e6a19d4d2c",
+          "cc54aa0246fdbcda127216df58357474239accb94070e74412ef6924edc0a181",
+          "f9e54ca4a77421fc70eed695f9d45a580ed7b13d9c2b8aac0361385a1896b94b"
+        ],
+        "bindingHash": "7ba35cdcf207ea5c560b094b84734bf0cb44194cb9b127e73e5f8d6542b5662a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "beb7d400bdbe3bedb72d1a3822e6d3aac190a0a3",
+        "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+        "bindingHash": "61bef395a2b0b76bab7eae2e1090801b2b055772317b5ef5616eadb5332385ae"
+      },
+      "_hash": "319df301b85b0f9d00fce101224fb5ca41f173759b2eb0071968bedcac3b457c"
+    },
+    {
+      "reviewRunId": "B-b5c0:RR-017",
+      "storyId": "B-b5c0",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-19T02:46:56.426Z",
+      "startedAt": "2026-06-19T02:50:42.209Z",
+      "headHash": "17000032e75b1a48a5547e4b87baf3569d0b18cb",
+      "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d2df4bd312765d4f9f1d4f1568a0d81b317dc25c3b9c5c48b09b85e856782969",
+        "diffPackHash": "5823207b4073e4f7df2f053e8517401dac923ac603f5c6d9c5bcaccf927e9ad2",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "4f6c6b8ba114d13bd9365724ab09ac306cb5ed3cfc42706662656923747a2d0e",
+          "73f32c43946f3c42b19d2a3f4365063657859baed4e4bbc04cda20f560a7586f",
+          "c279ba39079140888f0dcc83719c2aaecc8ae3c8f0e8b57956ffe29c1302d787",
+          "c4d03594aaf61132798e6b8d61e11e87b87c43e89f37c55bfe3293ecf307c97e",
+          "c5c03042348b0e47e5c0b33e7dbf20d13f4d4acdc3d63afa05eb31e6a19d4d2c",
+          "cc54aa0246fdbcda127216df58357474239accb94070e74412ef6924edc0a181",
+          "f9e54ca4a77421fc70eed695f9d45a580ed7b13d9c2b8aac0361385a1896b94b"
+        ],
+        "bindingHash": "7ba35cdcf207ea5c560b094b84734bf0cb44194cb9b127e73e5f8d6542b5662a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b5c0",
+        "workspaceMode": "story-worktree",
+        "headHash": "17000032e75b1a48a5547e4b87baf3569d0b18cb",
+        "materialHash": "f7062eb65410fd8ab95445dfcca2e9ee376a644f444d765d4f554eec324183b8",
+        "bindingHash": "a90a1177167748550fedd75714cb0dfc7c7ecf557bb1bf67e4f4c1896bc42b2e"
+      },
+      "_hash": "969f035f4988f23dd0af79cbfd28299ef7c9dc197aac362f6f9c0da3b587c2c0"
+    }
+  ]
+}

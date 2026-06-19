@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Respect the raw-output-never-surfaced security invariant: surface only token-count numbers from the provider runners, never raw transcript or stderr.",
+    "Reuse the existing adapter+assemble layer (buildProviderRecord already supports openai/gemini); add only the missing seam, do not duplicate normalization.",
+    "Keep the claude path and the ledger-OFF path byte-identical; every ledger call is fail-open.",
+    "Mirror existing precedent (extractCodexModel for extraction, the claude seam for wiring) to minimize novelty on a security-sensitive path."
+  ],
+  "drivers": [
+    "Security invariant: a provider transcript must never leak into the surfaced result or into gate evidence.",
+    "No regression to the claude-code real-leaf path or the ledger-OFF byte-identical behavior.",
+    "usage-ledger zero-cross-module-import discipline: providers/ must not import usage-ledger."
+  ],
+  "options": [
+    {
+      "name": "A: runner extracts token-count-only usage; neutral reportedUsage; canonical per-provider final at the seam",
+      "pros": [
+        "Surfaces only non-sensitive token numbers, so the raw-never-surfaced invariant holds",
+        "No usage-ledger import into providers/ (reportedUsage is a neutral Record)",
+        "Reuses buildProviderRecord openai/gemini support; minimal new code",
+        "Mirrors extractCodexModel and the existing claude seam"
+      ],
+      "cons": [
+        "Touches three layers (providers, dispatch-usage, lattice-dispatch)",
+        "Adds a new optional field to ProviderExecResult"
+      ]
+    },
+    {
+      "name": "B: surface raw provider stdout and parse it at the dispatch seam",
+      "pros": [
+        "Single parsing location in dispatch-usage.ts",
+        "No provider-runner extraction logic"
+      ],
+      "cons": [
+        "Violates the raw-output-never-surfaced security invariant (raw transcript flows downstream)",
+        "Risks credential leakage and transcript promotion into gate evidence",
+        "Larger blast radius on a security-sensitive seam"
+      ]
+    },
+    {
+      "name": "C: parse usage in the runner and surface a canonical LedgerUsage",
+      "pros": [
+        "Fully normalized at the source"
+      ],
+      "cons": [
+        "Forces providers/ to import usage-ledger (LedgerUsage), breaking the zero-cross-module-import discipline",
+        "Couples the provider layer to the ledger schema"
+      ]
+    }
+  ],
+  "chosen": "A: runner extracts token-count-only usage; neutral reportedUsage; canonical per-provider final at the seam",
+  "rationale": "Option A is the only one satisfying all three drivers at once: it surfaces only non-sensitive token-count numbers (security invariant held), keeps providers/ free of usage-ledger imports (neutral Record), and reuses the existing openai/gemini support in buildProviderRecord. Option B violates the security invariant; Option C breaks the import discipline.",
+  "preMortem": [
+    {
+      "scenario": "Raw provider transcript leaks downstream via reportedUsage",
+      "trigger": "The extractor returns more than the usage object (e.g. the whole parsed envelope including message text)",
+      "consequence": "A provider transcript could be surfaced or promoted into gate evidence, breaking the security invariant",
+      "mitigation": "extractCodex/GeminiUsage returns ONLY the usage/usageMetadata sub-object (token-count keys); the smoke asserts reportedUsage carries only numeric token fields and no transcript text"
+    },
+    {
+      "scenario": "Claude path or ledger-OFF behavior regresses",
+      "trigger": "Refactoring recordDispatchFinal or the seam touches the shared claude code path",
+      "consequence": "Existing claude usage records change or the OFF path writes a file, breaking byte-identical guarantees",
+      "mitigation": "Add a NEW recordDispatchFinalForProvider and a NEW codex/gemini seam; leave recordDispatchFinal/parseClaudeCliOutput/runClaudeCodeRealLeafDispatch untouched; smoke asserts claude + OFF paths unchanged"
+    },
+    {
+      "scenario": "providers/ ends up importing usage-ledger",
+      "trigger": "Surfacing reportedUsage as LedgerUsage or calling an adapter inside the runner",
+      "consequence": "Breaks the zero-cross-module-import discipline; the import-boundary smoke fails",
+      "mitigation": "reportedUsage is a provider-neutral Record<string,unknown>; adaptation happens only at the dispatch-usage seam; the existing import-boundary static check stays green"
+    },
+    {
+      "scenario": "A ledger or parse error breaks a real codex/gemini dispatch",
+      "trigger": "Malformed CLI stdout or a writer error in the new seam",
+      "consequence": "Dispatch fails or hangs where it previously succeeded",
+      "mitigation": "Every new ledger call is wrapped in try/catch and proceeds on error (fail-open); recordDispatchFinalForProvider never throws; the extractor never throws and returns undefined on no-usage"
+    }
+  ],
+  "timestamp": "2026-06-19T02:24:20.927Z"
+}
