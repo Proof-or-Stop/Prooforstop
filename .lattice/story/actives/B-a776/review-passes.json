@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-a776:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept rerun clean after F-001/F-002/F-003 fixes. Commit 3d0db5c86 removes phase-sensitive smoke probes by using read-only conduit/root-isolated validation probes; parser/help/alias extraction remains surface-only; no lifecycle dispatch, INIT_CHECK, or recover_evidence scope drift observed. Verified with npm --prefix packages/main run build -- --noEmit, npm --prefix packages/main run build, and npm --prefix packages/main run test:cli-surface-smoke.",
+      "createdAt": "2026-06-19T18:25:59.116Z",
+      "reviewRound": "2026-06-19T18:21:19.786Z",
+      "reviewRunId": "B-a776:RR-004",
+      "_hash": "f5d6a5122aec809a1758ba462c419060f4721a5a9c76870594fc1d7ba0055752"
+    },
+    {
+      "id": "B-a776:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality rerun clean: inspected extracted CLI flag parser, alias normalizer, help renderer, cli-engine handoff, and cli-surface-smoke. No hard-coded B-a776 remains in reviewed source/dist; invalid-root probe avoids active REVIEW phase coupling. npm --prefix packages/main run build and npm --prefix packages/main run test:cli-surface-smoke both pass.",
+      "createdAt": "2026-06-19T18:26:03.362Z",
+      "reviewRound": "2026-06-19T18:21:19.786Z",
+      "reviewRunId": "B-a776:RR-005",
+      "_hash": "e2623008d9ea7dd559b5bec8c92b71393579ac2a494038a41107636d4dd5c2c6"
+    },
+    {
+      "id": "B-a776:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test-coverage rerun PASS after F-001/F-002/F-003 fixes. Confirmed findings B-a776:F-001, B-a776:F-002, and B-a776:F-003 are resolved with strong evidence. Fresh checks passed: npm --prefix packages/main run build; npm --prefix packages/main run test:cli-surface-smoke; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; npm run test:legacy -- lattice-cli-migration; npm run test:process-fact-contract; node bin/lattice.js scope_contract_check {storyId:B-a776,json:true}; npm run test:legacy -- scope-contract; node bin/lattice.js validate --story=B-a776. Validate reports 9/9 verification intents covered and all configured validation commands passed.",
+      "createdAt": "2026-06-19T18:27:08.828Z",
+      "reviewRound": "2026-06-19T18:21:19.786Z",
+      "reviewRunId": "B-a776:RR-006",
+      "_hash": "df66da3c60e6b92dfb789b878face2c72590342ea438d8c9065174dd62e34a55"
+    }
+  ]
+}

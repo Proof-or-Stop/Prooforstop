@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a776",
+  "changes": "Extracted CLI flag parsing into packages/main/src/cli/flag-parser.ts, help and dry-run rendering into packages/main/src/cli/help-renderer.ts, and nested space alias normalization into packages/main/src/cli/alias-normalizer.ts. cli-engine.ts now imports those focused helpers, keeps compatibility parser exports, and a new cli-surface smoke covers parser/help/alias behavior.",
+  "usage": "CLI usage is unchanged: continue using lattice commands, --help, --dryRun, JSON bodies, key=value args, and nested aliases such as lattice host runtime list or lattice conduit explain as before.",
+  "expectedOutcome": "Users should see unchanged Lattice CLI behavior while cli-engine.ts owns less surface area and future CLI extraction work has smaller modules to modify.",
+  "actualTranscript": "lattice validate passed with build and configured smokes, 9/9 verificationIntent coverage, findings F-001/F-002/F-003 resolved, delivery_check_set passed with 3 realMachineTests, and local 3x2 Codex CLI plus Claude Code verdicts passed over materialHash 337036ef754a1ea377f7bb92a38fe890f8537a3b1f7c50f30ab3a5d0883b7497.",
+  "outcomeDiff": "No user-visible behavior difference was observed; the intended change is internal CLI-engine responsibility reduction plus stronger smoke coverage.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local host verdicts are diagnostic local evidence only. No Authority Server receipt was produced, so authorityDone, fullAuthorityDone, and productionDone remain false.",
+  "pitfalls": "First REVIEW found three verified issues in the smoke design: invalid checklist_update was phase-gated before validation and a B-a776 hard-coded probe made the smoke story-local. Commit 3d0db5c86 fixed both by using an isolated temp root for validation-path checks and a story-neutral conduit alias probe. Do not treat this story as lifecycle dispatch extraction; that remains reserved for B-57b5.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 7059341
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 54320
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 5367599
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 829541
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 661207
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 633173
+    }
+  },
+  "totalDurationMs": 14605244,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T18:38:46.183Z",
+  "updatedAt": "2026-06-19T18:38:46.183Z"
+}

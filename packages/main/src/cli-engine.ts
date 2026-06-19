@@ -7,7 +7,7 @@
  * and handlers.
  */
 
-import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
+import { z, type ZodType } from 'zod';
 import { existsSync, realpathSync } from 'fs';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
@@ -18,17 +18,14 @@ import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
 import { resolveStorySignedWorkspace } from './core/story-signed-workspace-resolution.js';
-import { formatCommandLifecycleHint, getCommandPolicy, type CommandPolicy } from './core/command-policy.js';
+import { formatCommandLifecycleHint } from './core/command-policy.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
-import { SESSION_BRIEF_FOOTER } from './cli-prompts.js';
 import {
-  detectLatticeBrand,
-  formatLatticeProductLine,
   formatLatticeVersionLine,
 } from './core/lattice-brand.js';
 import { LATTICE_DIR } from './core/lattice-paths.js';
@@ -53,6 +50,13 @@ import {
   resolveRoot,
   resolveRootForCommand,
 } from './cli/runtime-root.js';
+import { parseFlags } from './cli/flag-parser.js';
+import {
+  printHelp,
+  printToolHelp,
+  printValidationFailure,
+} from './cli/help-renderer.js';
+import { normalizeNestedSpaceAlias } from './cli/alias-normalizer.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -84,6 +88,13 @@ export {
   resolveRoot,
   resolveRootForCommand,
 } from './cli/runtime-root.js';
+export {
+  addValue,
+  coerce,
+  normalizeFlagKey,
+  parseFlags,
+  parseFlagsTest,
+} from './cli/flag-parser.js';
 
 export { MAIN_TOOLS };
 export type { ToolDef };
@@ -381,383 +392,6 @@ function detectActiveStory(root: string): ActiveStory | null {
   } catch {
     // Not a git directory or another error, so do not filter.
     return null;
-  }
-}
-
-// ── Help ──
-
-function describeType(t: ZodType): string {
-  if (t instanceof ZodOptional) return describeType((t as any)._def.innerType);
-  if (t instanceof ZodString) return 'string';
-  if (t instanceof ZodNumber) return 'number';
-  if (t instanceof ZodBoolean) return 'boolean';
-  if (t instanceof ZodEnum) return ((t as any).options || []).join('|');
-  if (t instanceof ZodArray) return 'array';
-  if (t instanceof ZodObject) return 'object';
-  if (t instanceof ZodUnion) return 'string|array';
-  return 'any';
-}
-
-function getDesc(t: ZodType): string {
-  return (t as any).description || '';
-}
-
-function unwrapOptional(t: ZodType): ZodType {
-  return t instanceof ZodOptional ? (t as any)._def.innerType : t;
-}
-
-function objectShape(t: ZodObject<any>): Record<string, ZodType> {
-  const anyType = t as any;
-  const shape = anyType.shape ?? anyType._def?.shape;
-  return typeof shape === 'function' ? shape() : shape || {};
-}
-
-function arrayElement(t: ZodArray<any>): ZodType | null {
-  const anyType = t as any;
-  return anyType.element || anyType._def?.type || null;
-}
-
-function nestedSchemaLines(t: ZodType, prefix: string, indent = '      '): string[] {
-  const inner = unwrapOptional(t);
-  if (inner instanceof ZodArray) {
-    const element = arrayElement(inner);
-    if (!element) return [];
-    const elementInner = unwrapOptional(element);
-    if (elementInner instanceof ZodObject) {
-      return nestedSchemaLines(elementInner, `${prefix}[]`, indent);
-    }
-    return [`${indent}${prefix}[]: ${describeType(elementInner)} ${getDesc(elementInner)}`.trimEnd()];
-  }
-  if (!(inner instanceof ZodObject)) return [];
-  const shape = objectShape(inner);
-  const lines: string[] = [];
-  for (const [key, child] of Object.entries(shape)) {
-    const optional = child instanceof ZodOptional;
-    const childInner = unwrapOptional(child);
-    const path = prefix ? `${prefix}.${key}` : key;
-    lines.push(`${indent}${path}${optional ? '?' : ''}: ${describeType(child)} ${getDesc(child)}`.trimEnd());
-    if (childInner instanceof ZodObject || childInner instanceof ZodArray) {
-      lines.push(...nestedSchemaLines(childInner, path, indent + '  '));
-    }
-  }
-  return lines;
-}
-
-type HelpOutputOptions = {
-  stream?: { write(chunk: string): unknown };
-  includeFooter?: boolean;
-};
-
-function normalizeHelpText(text: string | undefined): string {
-  return (text || '').replace(/\s+/g, ' ').trim();
-}
-
-/**
- * @task B-e3d9
- * @checklist CHK-002
- * @title derive supportsDryRun help from live schema and command policy
- * @type refactor
- * @priority high
- * @description
- *   The abandoned cc-learnings supportsDryRun field is not the main CLI
- *   contract. Real dry-run behavior already lives in ToolDef schema flags
- *   (`dryRun` / `confirm`), command descriptions, and COMMAND_POLICIES
- *   operator-safety prose. Help derives the surfaced contract from those live
- *   inputs so we do not create a second supportsDryRun registry.
- * @changes
- *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in lattice <command> --help
- *   - [CHK-002] Keep dry-run truth derived from schema/policy instead of speculative metadata
- * @test dangerous-command-guardrails
- */
-function dryRunHelpLine(tool: ToolDef, policy?: CommandPolicy): string | null {
-  const toolDescription = normalizeHelpText(tool.description);
-  const policyReason = normalizeHelpText(policy?.reason);
-  const policyReplacement = normalizeHelpText(policy?.replacement);
-  const dryRunField = tool.schema.dryRun;
-  const dryRunDescription = dryRunField ? normalizeHelpText(getDesc(dryRunField)) : '';
-  const combined = [toolDescription, dryRunDescription, policyReason, policyReplacement]
-    .filter(Boolean)
-    .join(' ');
-  const hasConfirmFlag = Object.prototype.hasOwnProperty.call(tool.schema, 'confirm');
-
-  if (dryRunField) {
-    if (/始终为 dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {
-      return `  Dry-run: always-on. ${dryRunDescription || 'This command is projection-only and never executes the side-effect path.'}`;
-    }
-    if (/默认 dry run|默认 dry-run|default dry run|default dry-run|默认 true/i.test(combined)) {
-      return `  Dry-run: default-on via --dryRun=true. ${dryRunDescription || 'Pass --dryRun=false to execute the real path.'}`;
-    }
-    const confirmNote = hasConfirmFlag ? ' Real execution may also require --confirm.' : '';
-    return `  Dry-run: optional via --dryRun. ${dryRunDescription || 'Preview the command without executing the real path.'}${confirmNote}`;
-  }
-
-  if (/dry[- ]run/i.test(combined)) {
-    return '  Dry-run: always-on. This command only projects guidance and does not execute the side-effect path.';
-  }
-
-  return null;
-}
-
-function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
-  const brand = detectLatticeBrand();
-  const out = (line = '') => {
-    if (options.stream) options.stream.write(`${line}\n`);
-    else console.log(line);
-  };
-  const includeFooter = options.includeFooter !== false;
-  const policy = getCommandPolicy(tool.name);
-  const dryRunLine = dryRunHelpLine(tool, policy);
-
-  out(`\n  ${brand.primaryBin} ${tool.name} — ${tool.description}\n`);
-  out(`  ${formatLatticeProductLine(brand)}\n`);
-
-  // If longHelp exists for a core command, print the full prompt first.
-  if (tool.longHelp) {
-    out(tool.longHelp);
-    out('');
-  }
-
-  const entries = Object.entries(tool.schema);
-  if (entries.length === 0) {
-    out('  No arguments\n');
-    out(`  Usage: ${brand.primaryBin} ${tool.name}`);
-    if (dryRunLine) out(dryRunLine);
-    const ownerBlock = ownerLeaseHelpBlock(tool.name);
-    if (ownerBlock) out(ownerBlock);
-    if (includeFooter) out(SESSION_BRIEF_FOOTER);
-    return;
-  }
-  out('  Arguments:');
-  const maxN = Math.max(...entries.map(([k]) => k.length));
-  for (const [name, type] of entries) {
-    const opt = type instanceof ZodOptional;
-    const req = opt ? '' : ' *';
-    const inner = type instanceof ZodOptional ? (type as any)._def.innerType : type;
-    const isComplex = inner instanceof ZodArray || inner instanceof ZodObject;
-    const flagHint = isComplex ? '(JSON)' : '';
-    out(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req} ${flagHint}`);
-    if (isComplex) {
-      for (const line of nestedSchemaLines(type, name)) out(line);
-    }
-  }
-  const required = entries.filter(([, t]) => !(t instanceof ZodOptional));
-  const optional = entries.filter(([, t]) => t instanceof ZodOptional);
-  const reqParts = required.map(([k]) => `--${k}=value`);
-  const optParts = optional.map(([k]) => {
-    const inner = (entries.find(([n]) => n === k)?.[1] as any);
-    const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
-    return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
-  });
-  out(`\n  Usage: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
-  out('  (* = required)');
-  if (dryRunLine) out(dryRunLine);
-  const ownerBlock = ownerLeaseHelpBlock(tool.name);
-  if (ownerBlock) out(ownerBlock);
-  if (includeFooter) out(SESSION_BRIEF_FOOTER);
-}
-
-function formatValidationIssue(issue: z.ZodIssue): string {
-  const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
-  return `  ${path}: ${issue.message}`;
-}
-
-function printValidationFailure(tool: ToolDef, issues: z.ZodIssue[]) {
-  const lines = issues.map(formatValidationIssue);
-  process.stderr.write('Argument validation failed:\n');
-  for (const line of lines) process.stderr.write(`${line}\n`);
-  printToolHelp(tool, { stream: process.stderr, includeFooter: false });
-  process.stderr.write('\nArgument validation failed (summary):\n');
-  for (const line of lines) process.stderr.write(`${line}\n`);
-}
-
-function printHelp(activeStory?: ActiveStory | null) {
-  const brand = detectLatticeBrand();
-  console.log(`\n  ${formatLatticeProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
-  console.log(`  Entrypoint: ${brand.primaryBin}\n`);
-  console.log(`  Usage: ${brand.primaryBin} <command> --key=value         Run command`);
-  console.log(`        ${brand.primaryBin} <command> --help              View arguments`);
-  console.log(`        ${brand.primaryBin} help                          Show this help`);
-  console.log(`        ${brand.primaryBin} --version                     Show version`);
-  console.log(`        ${brand.primaryBin} --root <path> ...             Specify project root directory\n`);
-
-  if (activeStory) {
-    console.log(`  Current Story: ${activeStory.storyId}  phase: ${activeStory.phase}\n`);
-  }
-
-  const config = loadConfig();
-  const phaseTools = config.phaseTools;
-
-  // Known prefix maps to display group name (special cases first).
-  const KNOWN_GROUP: Record<string, string> = {
-    story: 'Story',
-    checklist: 'Checklist',
-    bug: 'Bug',
-    test: 'Test',
-    validate: 'Validate',
-    status: 'Status',
-    serve: 'Serve',
-    aux: 'Aux',
-    evaluate: 'Evaluate',
-    dashboard: 'Session',
-    session: 'Session',
-    audit: 'Audit',
-    check: 'Check',
-    release: 'Release',
-    host: 'Host',
-    lattice: 'Lattice',
-    rollout: 'Lattice',
-    authority: 'Authority',
-    conduit: 'Conduit',
-  };
-  // Display order for known groups; groups not in the list (from extras) are appended alphabetically.
-  const KNOWN_ORDER = ['Host', 'Lattice', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
-
-  const groups: Record<string, ToolDef[]> = {};
-  for (const t of TOOLS) {
-    // When an active story exists, list only commands available in the current phase.
-    if (activeStory && !isCommandAllowed(t.name, activeStory.phase, phaseTools)) continue;
-    const p = t.name.split('_')[0];
-    let g: string;
-    if (t.name === 'story_review' || t.name === 'story_review_dismiss') g = 'Review';
-    else if (KNOWN_GROUP[p]) g = KNOWN_GROUP[p];
-    else g = p.charAt(0).toUpperCase() + p.slice(1); // Unknown prefix: capitalize first letter.
-    (groups[g] = groups[g] || []).push(t);
-  }
-  const filteredTools = activeStory ? TOOLS.filter(t => isCommandAllowed(t.name, activeStory.phase, phaseTools)) : TOOLS;
-  const maxN = Math.max(...filteredTools.map(t => t.name.length), 0);
-
-  const presentGroups = Object.keys(groups);
-  const orderedGroups = [
-    ...KNOWN_ORDER.filter(g => groups[g]),
-    ...presentGroups.filter(g => !KNOWN_ORDER.includes(g)).sort(),
-  ];
-  for (const g of orderedGroups) {
-    console.log(`  ${g}:`);
-    for (const t of groups[g]) console.log(`    ${t.name.padEnd(maxN + 2)} ${t.description}`);
-  }
-  console.log(`
-  Development flow:
-    ── PLAN ──
-    1. lattice story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}'
-    2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # Create local worktree/local branch
-    3. cd .worktrees/B-xxx
-    4. lattice story_review --storyId=B-xxx                     # Review passes, then enter DEV
-    5. lattice story_advance --storyId=B-xxx --phase=DEV
-
-    ── DEV ──
-    6. Implement the code and its verification (fixtures, project-native tests, or optional validate.ts)
-    7. lattice validate                                         # Verification (auto-detect by project language or read config)
-    8. lattice checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
-
-    ── REVIEW ──
-    9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review
-   10. Lattice reviewer reviews code and raises findings       # critical/high must resolve
-
-    ── TEST → DONE ──
-   11. lattice story_advance --storyId=B-xxx --phase=TEST
-   12. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree
-
-  Parallelism and branch discipline:
-    Lattice parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.
-    If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs lattice release_approve_push --confirm, and then manually runs git push origin main.
-
-  Initialize a new project:
-    lattice init                          # Initialize Lattice project state in the current directory
-
-  Tip: use --key=value for simple arguments; use JSON format for complex arguments (array/object).
-  Error? Use lattice <command> --help to view complete argument help.
-`);
-}
-
-// ── Flag parser ──
-
-/** Test entrypoint: accepts a JSON-described schema (string/number/boolean/array/object) and converts it to Zod internally. */
-export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, string>): Record<string, unknown> {
-  const schema: Record<string, ZodType> = {};
-  for (const [k, v] of Object.entries(schemaDesc)) {
-    if (v === 'number') schema[k] = z.number();
-    else if (v === 'boolean') schema[k] = z.boolean().optional();
-    else if (v === 'array') schema[k] = z.array(z.string());
-    else if (v === 'object') schema[k] = z.object({}).passthrough();
-    else schema[k] = z.string();
-  }
-  return parseFlags(rawArgs, schema);
-}
-
-function normalizeFlagKey(key: string, schema: Record<string, ZodType>): string {
-  if (schema[key]) return key;
-  const camelKey = key.replace(/-([a-z0-9])/g, (_match, ch: string) => ch.toUpperCase());
-  return schema[camelKey] ? camelKey : key;
-}
-
-export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  const arrayKeys = new Set(
-    Object.entries(schema).filter(([, t]) => {
-      const inner = t instanceof ZodOptional ? (t as any)._def.innerType : t;
-      return inner instanceof ZodArray;
-    }).map(([k]) => k),
-  );
-
-  let i = 0;
-  while (i < rawArgs.length) {
-    const arg = rawArgs[i];
-
-    if (arg.startsWith('--')) {
-      // --key=value or --key value or --flag (boolean)
-      const eqIdx = arg.indexOf('=');
-      if (eqIdx > 0) {
-        const key = normalizeFlagKey(arg.slice(2, eqIdx), schema);
-        const val = arg.slice(eqIdx + 1);
-        addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
-      } else {
-        const key = normalizeFlagKey(arg.slice(2), schema);
-        // Next argument is not a flag, so treat it as the value.
-        if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
-          addValue(result, key, coerce(rawArgs[i + 1], schema[key]), arrayKeys.has(key));
-          i++;
-        } else {
-          // bare --flag → true
-          result[key] = true;
-        }
-      }
-    } else if (arg.includes('=') && !arg.startsWith('{')) {
-      // key=value without -- prefix, compatible with legacy format.
-      const eqIdx = arg.indexOf('=');
-      const key = normalizeFlagKey(arg.slice(0, eqIdx), schema);
-      const val = arg.slice(eqIdx + 1);
-      addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
-    }
-    // Ignore unrecognized positional arguments.
-    i++;
-  }
-  return result;
-}
-
-export function coerce(val: string, schemaDef?: ZodType): unknown {
-  // JSON object/array
-  if ((val.startsWith('{') || val.startsWith('[')) && val.length > 1) {
-    try { return JSON.parse(val); } catch { /* fall through */ }
-  }
-  // boolean
-  if (val === 'true') return true;
-  if (val === 'false') return false;
-  // number (only if schema expects it)
-  const inner = schemaDef instanceof ZodOptional ? (schemaDef as any)._def.innerType : schemaDef;
-  if (inner instanceof ZodNumber && /^-?\d+(\.\d+)?$/.test(val)) return Number(val);
-  return val;
-}
-
-export function addValue(obj: Record<string, unknown>, key: string, val: unknown, isArray: boolean) {
-  if (isArray) {
-    if (!Array.isArray(obj[key])) obj[key] = obj[key] !== undefined ? [obj[key]] : [];
-    if (Array.isArray(val)) {
-      (obj[key] as unknown[]).push(...val);
-    } else {
-      (obj[key] as unknown[]).push(val);
-    }
-  } else {
-    obj[key] = val;
   }
 }
 
@@ -1234,7 +868,15 @@ export async function runCli(opts?: {
   const activeStory = detectActiveStory(root0);
   const gitReady = isGitRepository(root0);
 
-  if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(activeStory); return; }
+  if (!cmd || cmd === 'help' || cmd === '--help') {
+    printHelp({
+      tools: TOOLS,
+      activeStory,
+      phaseTools: loadConfig(root0).phaseTools,
+      ownerLeaseHelpBlock,
+    });
+    return;
+  }
   if (cmd === 'version' || cmd === '--version' || cmd === '-v') {
     process.stdout.write(`${formatLatticeVersionLine()}\n`);
     return;
@@ -1262,100 +904,10 @@ export async function runCli(opts?: {
 
   // Normalize nested space aliases into the flat underscore commands used by
   // the registry.
-  const aliasStart = cmd === 'lattice' ? 1 : 0;
-  const aliasMap: Record<string, string> = {
-  'host list': 'host_list',
-  'host probe': 'host_probe',
-  'host status': 'host_status',
-  'host runtime list': 'host_runtime_list',
-  'host runtime probe': 'host_runtime_probe',
-  'host install': 'host_install',
-  'host dispatch': 'host_dispatch',
-  'dispatch plan': 'dispatch_plan',
-  'dispatch prepare': 'dispatch_prepare',
-  'dispatch run': 'dispatch_run',
-  'dispatch collect': 'dispatch_collect',
-  'dispatch receipt create': 'dispatch_receipt_create',
-  'dispatch status': 'dispatch_status',
-  'dispatch list': 'dispatch_list',
-  'dispatch resume': 'dispatch_resume',
-  'dispatch cancel': 'dispatch_cancel',
-  'dispatch review': 'dispatch_review',
-  'dispatch merge plan': 'dispatch_merge_plan',
-  'dispatch policy create': 'dispatch_policy_create',
-  'dispatch policy get': 'dispatch_policy_get',
-  'dispatch policy check': 'dispatch_policy_check',
-  'dispatch auto': 'dispatch_auto',
-  'dispatch watch': 'dispatch_watch',
-  'autopilot policy create': 'autopilot_policy_create',
-  'autopilot policy get': 'autopilot_policy_get',
-  'autopilot policy check': 'autopilot_policy_check',
-  'autopilot run': 'autopilot_run',
-  'autopilot status': 'autopilot_status',
-  'autopilot watch': 'autopilot_watch',
-  'autopilot cancel': 'autopilot_cancel',
-  'autopilot review': 'autopilot_review',
-  'autopilot resume': 'autopilot_resume',
-  'overflow auto': 'overflow_auto',
-  'handoff create': 'handoff_create',
-  'handoff inspect': 'handoff_inspect',
-  'handoff accept': 'handoff_accept',
-  'handoff resume': 'handoff_resume',
-  'handoff receipt submit': 'handoff_receipt_submit',
-  'handoff worktree create': 'handoff_worktree_create',
-  'config doctor': 'lattice_config_doctor',
-  'config repair': 'lattice_config_repair',
-  'codex verify': 'verify_codex',
-  'codex doctor': 'codex_doctor',
-  'rollout check': 'rollout_check',
-  'baseline run': 'baseline_run',
-  'baseline suite': 'baseline_suite',
-  'baseline suite report': 'baseline_suite_report',
-  'capability claim formal evaluate': 'capability_claim_formal_evaluate',
-  'authority status': 'authority_status',
-  'authority enforce policy': 'authority_enforce_policy',
-  'authority enforce runner': 'authority_enforce_runner',
-  'authority receipt verify': 'authority_receipt_verify',
-  'authority receipt fetch': 'authority_receipt_fetch',
-  'authority job create': 'authority_job_create',
-  'authority job status': 'authority_job_status',
-  'authority verdict submit': 'authority_verdict_submit',
-  'authority verdict list': 'authority_verdict_list',
-  'autopilot execute': 'autopilot_execute',
-  'autopilot doctor': 'autopilot_doctor',
-  'autopilot review submit': 'autopilot_review_submit',
-  'autopilot review status': 'autopilot_review_status',
-  'decision doc quorum check': 'decision_doc_quorum_check',
-  'decision doc proposal': 'decision_doc_proposal',
-  'decision doc preview': 'decision_doc_preview',
-  'decision doc save': 'decision_doc_save',
-  'review escalation status': 'review_escalation_status',
-  'review escalation fallback set': 'review_escalation_fallback_set',
-  'planner draft': 'planner_draft',
-  'planner review': 'planner_review',
-  'planner create-story': 'planner_create_story',
-  'planner create-job': 'planner_create_job',
-  'planner status': 'planner_status',
-  'planner answer': 'planner_answer',
-  'planner decision submit': 'planner_decision_submit',
-  'planner resume': 'planner_resume',
-  'planner run': 'planner_run',
-  'planner source-manifest': 'planner_source_manifest',
-  'story resolve': 'story_resolve',
-  'done closure': 'done_closure',
-  'conduit status': 'conduit_status',
-  'conduit explain': 'conduit_explain',
-  'story authority resolve': 'story_authority_resolve',
-  'observability snapshot': 'observability_snapshot',
-  };
-  const twoPart = argv.slice(aliasStart, aliasStart + 2).join(' ');
-  const threePart = argv.slice(aliasStart, aliasStart + 3).join(' ');
-  const fourPart = argv.slice(aliasStart, aliasStart + 4).join(' ');
-  const canonicalAlias = aliasMap[fourPart] || aliasMap[threePart] || aliasMap[twoPart];
-  if (canonicalAlias) {
-    const consumed = aliasMap[fourPart] ? 4 : aliasMap[threePart] ? 3 : 2;
-    argv.splice(0, aliasStart + consumed, canonicalAlias);
-    cmd = canonicalAlias;
+  const normalizedAlias = normalizeNestedSpaceAlias(argv);
+  if (normalizedAlias.matched) {
+    argv.splice(0, argv.length, ...normalizedAlias.argv);
+    cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
   } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     process.stdout.write(`${formatLatticeVersionLine()}\n`);
@@ -1379,7 +931,7 @@ export async function runCli(opts?: {
     process.exit(1);
   }
 
-  if (arg === '--help' || arg === '-h') { printToolHelp(tool); return; }
+  if (arg === '--help' || arg === '-h') { printToolHelp(tool, { ownerLeaseHelpBlock }); return; }
 
   // Phase gate: When an active story exists, reject commands outside the allowlist.
   if (activeStory) {
@@ -1408,7 +960,7 @@ export async function runCli(opts?: {
       try { parsed = JSON.parse(rawArgs[0]); }
       catch (e) {
         console.error(`JSON parse failed: ${(e as Error).message}\nInput: ${rawArgs[0]}`);
-        printToolHelp(tool, { stream: process.stderr, includeFooter: false });
+        printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
         process.exit(1);
       }
     } else {
@@ -1430,7 +982,7 @@ export async function runCli(opts?: {
   const schema = validationSchemaForCommand(cmd, tool);
   const v = schema.safeParse(parsed);
   if (!v.success) {
-    printValidationFailure(tool, v.error.issues);
+    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock);
     process.exit(1);
   }
   parsed = v.data as Record<string, unknown>;

@@ -1,0 +1,71 @@
+{
+  "findings": [
+    {
+      "id": "B-a776:F-001",
+      "desc": "Required smoke evidence is not runnable in REVIEW: npm --prefix packages/main run test:cli-surface-smoke fails because the invalid checklist_update probe at packages/main/src/tasks/cli-surface-smoke.ts:160 runs with --root repoRoot while story B-a776 is in REVIEW, so the phase gate emits Command \"checklist_update\" is not available in REVIEW phase before the validation path. This invalidates the CHK-003 happy/edge smoke evidence for reviewer/TEST execution and leaves the advertised Argument validation failed path unproven in the active lifecycle phase.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:16:30.161Z",
+      "reviewRound": "2026-06-19T18:14:13.955Z",
+      "reviewRunId": "B-a776:RR-003",
+      "_hash": "54c6ca6f954bd89deeeacffb810f83c8c475e29bbf05dbbac04d4b5f8e4cf8cb",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|required-smoke-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d0db5c86 by running the invalid checklist_update validation probe against an isolated temp --root/cwd, so argument validation is exercised before any active-story lifecycle gate. Evidence passed: npm --prefix packages/main run build; npm --prefix packages/main run test:cli-surface-smoke; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node scripts/verify-process-fact-contract.mjs; node bin/lattice.js scope_contract_check { storyId:B-a776, json:true }.",
+      "resolvedAt": "2026-06-19T18:21:26.675Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a776:F-002",
+      "desc": "packages/main/src/tasks/cli-surface-smoke.ts:160-182: the new test:cli-surface-smoke verification is not phase-stable. In REVIEW, npm --prefix packages/main run test:cli-surface-smoke fails because the invalid checklist_update probe is phase-gated before argument validation, printing Command checklist_update is not available in REVIEW phase instead of Argument validation failed. This means the parser/help/alias extraction evidence cannot be rerun from REVIEW/TEST and the adversarial validation check is coupled to lifecycle dispatch state; use a phase-neutral command/root or isolate the validation-path assertion from the active story phase gate.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T18:17:00.751Z",
+      "reviewRound": "2026-06-19T18:14:13.955Z",
+      "reviewRunId": "B-a776:RR-002",
+      "_hash": "cd50e1244b17b6d7f09921f633de45fb063fe753680bea5ec6157a0b84fcd00b",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d0db5c86 by moving cli-surface-smoke invalid checklist_update validation to an isolated temp root/cwd. The smoke now asserts Argument validation failed and verificationIntent.happy.0.type while remaining stable from REVIEW/TEST. Evidence passed: npm --prefix packages/main run build; npm --prefix packages/main run test:cli-surface-smoke; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node scripts/verify-process-fact-contract.mjs; node bin/lattice.js scope_contract_check { storyId:B-a776, json:true }.",
+      "resolvedAt": "2026-06-19T18:21:32.044Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a776:F-003",
+      "desc": "packages/main/src/tasks/cli-surface-smoke.ts:139 hard-codes B-a776 for review_escalation_status; that command fails when the story id is absent, so this package smoke depends on this review story metadata surviving after merge or archive. Use a generated temporary story/context or choose a command path that does not require story-local metadata.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T18:17:16.134Z",
+      "reviewRound": "2026-06-19T18:14:13.955Z",
+      "reviewRunId": "B-a776:RR-001",
+      "_hash": "c2167aab31fbe08e07d286dfaa53c96eaa1647147ade1302e6260570672116c8",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d0db5c86 by removing the hard-coded B-a776 review_escalation_status and autopilot_review_status probes from cli-surface-smoke. The story-local probe was replaced with the story-neutral nested alias lattice conduit explain --json, asserted via schemaVersion lattice.conduit_explain.v1 and authorityChanged=false. Evidence passed: npm --prefix packages/main run build; npm --prefix packages/main run test:cli-surface-smoke; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node scripts/verify-process-fact-contract.mjs; node bin/lattice.js scope_contract_check { storyId:B-a776, json:true }.",
+      "resolvedAt": "2026-06-19T18:21:37.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
