@@ -1,0 +1,28 @@
+{
+  "storyId": "B-fb36",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/registry.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/cli/ownership-gate.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/tasks/run-all-smokes.js"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Add ownership-gate dryRun classification so done_prepare dryRun remains non-mutating/read-only; remove package script from implementation scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T22:52:51.308Z",
+  "updatedAt": "2026-06-19T23:09:15.135Z"
+}
