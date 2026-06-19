@@ -20,6 +20,29 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a9a:F-002",
+      "desc": "doc-promise-undelivered: storyFilesHash is registered/promised for REVIEW/TEST/DONE freshness gates, but the DONE test-evidence path remains materialHash-only. process-fact-levels.ts:293 promises REVIEW/TEST/DONE freshness gates for verification evidence and story-files-hash-material-drift.md:40-60 defines storyFilesHash downgrade semantics. However phase-gates.ts:551-558 writes test-evidence.json with headHash/materialHash only, verifier.ts:544-555 does the same in persistStoryValidationEvidence, TestEvidenceData in types.ts:685-708 has no storyFilesHash field, and done-oracle.ts:181-188 calls checkEvidenceFreshnessForGit without evidence.storyFilesHash while DONE snapshot checking at done-oracle.ts:151-162 compares only materialHash. An unrelated main merge can therefore still fail the DONE evidence-freshness row despite unchanged story-owned files, so the documented/registered DONE adoption is not implemented.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-19T22:16:15.990Z",
+      "reviewRound": "2026-06-19T22:12:48.433Z",
+      "reviewRunId": "B-5a9a:RR-002",
+      "_hash": "10f4e97ac883b61351d9cf5033220b4e7ce851a19a6b76d5f7bc0c5ceef71e21",
+      "files": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-storyfileshash",
+      "signatureTagSource": "auto"
     }
   ]
 }
