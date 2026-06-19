@@ -13,7 +13,9 @@
       "_hash": "2afbc74c6e58e351595370d187b49b6566caea6903f2a12a7fce732d293ea012",
       "files": [
         "docs/requirements/decisions/story-lifecycle.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d9ee:F-002",
@@ -29,7 +31,9 @@
       "files": [
         "packages/main/src/core/store.ts",
         "packages/main/src/handlers/grill.ts"
-      ]
+      ],
+      "signatureTag": "cli-engine|error-swallowing",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d9ee:F-003",
@@ -45,7 +49,9 @@
       "files": [
         ".koala/story/actives/B-d9ee/checklist.json",
         ".koala/story/actives/B-d9ee/test-evidence.json"
-      ]
+      ],
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

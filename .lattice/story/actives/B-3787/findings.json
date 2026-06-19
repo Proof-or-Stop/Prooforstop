@@ -13,7 +13,9 @@
       "reviewRunId": "B-3787:RR-003",
       "_hash": "c78aeb72f674aec4441567c7cf13c965d7d3a6e4b4db712ceef60c52a735887f",
       "resolvedReason": "Fixed in e5779c23: field-regression now creates an empty-HEAD material tree to force missing_material_hash and asserts no currentReviewRound repair or review-run write; build and field-regression/review-loop/authority smokes pass.",
-      "resolvedAt": "2026-06-12T11:24:00.221Z"
+      "resolvedAt": "2026-06-12T11:24:00.221Z",
+      "signatureTag": "review-escalation|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-3787:F-002",
@@ -32,7 +34,9 @@
         "packages/main/src/handlers/context.ts"
       ],
       "resolvedReason": "Fixed in e5779c23: review_run_start resolves story worktree/root mismatch before phase validation and field-regression asserts LATTICE_PROJECT_ROOT pointing at main fails with the root/worktree mismatch diagnostic.",
-      "resolvedAt": "2026-06-12T11:24:00.588Z"
+      "resolvedAt": "2026-06-12T11:24:00.588Z",
+      "signatureTag": "gitroot-cwd|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

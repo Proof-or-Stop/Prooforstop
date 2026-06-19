@@ -16,7 +16,9 @@
         "Lattice-lifecycle-memory-Evolving.md"
       ],
       "resolvedReason": "Fixed by commit c1028b52. The document now explicitly allows manual/host transcript to be cited as non-authoritative manual_transcript verificationEvidence that a host review happened, while forbidding it from serving as authoritative lifecycle truth, review_pass_set, delivery check, koala validate validation evidence, signed receipt, gate evidence, or production authority. Verified by rg: no remaining `不能满足 verificationEvidence` wording.",
-      "resolvedAt": "2026-06-08T13:27:36.556Z"
+      "resolvedAt": "2026-06-08T13:27:36.556Z",
+      "signatureTag": "memory|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

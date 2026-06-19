@@ -16,7 +16,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Restored optional-param brackets at cli-engine.ts:2412 ([--k=value] for optional non-boolean params, matching main's [--k=值]). Commit dfaddf39e.",
-      "resolvedAt": "2026-06-14T21:40:19.491Z"
+      "resolvedAt": "2026-06-14T21:40:19.491Z",
+      "signatureTag": "cli-engine|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-a57f:F-002",
@@ -35,7 +37,9 @@
         ".lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs"
       ],
       "resolvedReason": "Replaced the hollow ok(CHK-003:edge:0,true) with a code-skeleton equality check: cli-engine.ts vs main with comments stripped + string content blanked (template-expr code preserved) are byte-identical (117892 chars) => only string/comment content changed, no logic, despite the Phase 1+2 squash. Commit dfaddf39e + the syntax fix; verifier 65/65.",
-      "resolvedAt": "2026-06-14T21:40:20.177Z"
+      "resolvedAt": "2026-06-14T21:40:20.177Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

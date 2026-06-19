@@ -12,7 +12,9 @@
       "_hash": "9d0878b7c9864d2234c8e96203b15b1391b58c759664f3f3fcd2c3c4f30b187b",
       "files": [
         "packages/main/src/handlers/story-advance.ts"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-9e48:F-002",
@@ -27,7 +29,9 @@
       "files": [
         "packages/main/src/handlers/story-advance.ts",
         "packages/main/src/tasks/worktree-authority-smoke.ts"
-      ]
+      ],
+      "signatureTag": "worktree|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-9e48:F-003",
@@ -41,7 +45,9 @@
       "_hash": "725f69ccc11daadf5667b88c2930e9ab25098b09a37671db31d3075f9e7c47ff",
       "files": [
         "CLAUDE.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-9e48:F-004",
@@ -57,7 +63,9 @@
         "packages/main/src/tasks/worktree-authority-smoke.ts",
         "packages/main/src/handlers/story-advance.ts",
         "CLAUDE.md"
-      ]
+      ],
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-9e48:F-005",
@@ -71,7 +79,9 @@
       "_hash": "6ac1a4efac0b691a50237e7b1a04ac769eae8db3292582fb3e209d537a9273d0",
       "files": [
         "packages/main/src/handlers/story-advance.ts"
-      ]
+      ],
+      "signatureTag": "worktree|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-9e48:F-006",
@@ -86,7 +96,9 @@
       "files": [
         "packages/main/src/handlers/story-advance.ts",
         "packages/main/src/tasks/worktree-authority-smoke.ts"
-      ]
+      ],
+      "signatureTag": "worktree|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }

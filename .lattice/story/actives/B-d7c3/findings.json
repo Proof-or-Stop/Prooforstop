@@ -16,7 +16,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
-      "resolvedAt": "2026-06-17T12:37:01.154Z"
+      "resolvedAt": "2026-06-17T12:37:01.154Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-002",
@@ -34,7 +36,9 @@
         "packages/main/smoke-manifest.json"
       ],
       "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
-      "resolvedAt": "2026-06-17T12:37:01.857Z"
+      "resolvedAt": "2026-06-17T12:37:01.857Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-003",
@@ -53,7 +57,9 @@
         "packages/main/src/tasks/run-all-smokes-smoke.ts"
       ],
       "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
-      "resolvedAt": "2026-06-17T12:37:02.664Z"
+      "resolvedAt": "2026-06-17T12:37:02.664Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-004",
@@ -71,7 +77,9 @@
         "scripts/verify-*.mjs"
       ],
       "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
-      "resolvedAt": "2026-06-17T12:37:03.390Z"
+      "resolvedAt": "2026-06-17T12:37:03.390Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-005",
@@ -92,7 +100,9 @@
         "README.md"
       ],
       "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
-      "resolvedAt": "2026-06-17T12:37:04.056Z"
+      "resolvedAt": "2026-06-17T12:37:04.056Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-006",
@@ -110,7 +120,9 @@
         "AGENTS.md"
       ],
       "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
-      "resolvedAt": "2026-06-17T12:37:04.829Z"
+      "resolvedAt": "2026-06-17T12:37:04.829Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-007",
@@ -128,7 +140,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Evidence rebound to literal intent commands. KEY: F-004's verify-*.mjs diff=2167 was a two-dot vs three-dot diff issue — B-40eb merged to main after this worktree was created (commit 8ea7a37ea) and rewrote verify-*.mjs; git diff main (two-dot) included B-40eb's changes, git diff main...HEAD (three-dot) is 0 lines — the correct over-reach guard. Same correction applied to F-003/F-005. Other findings rebound to specific intent commands.",
-      "resolvedAt": "2026-06-17T12:37:05.616Z"
+      "resolvedAt": "2026-06-17T12:37:05.616Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-008",
@@ -146,7 +160,9 @@
         "packages/main/src/handlers/review-preflight.ts"
       ],
       "resolvedReason": "Fixed in commit 7188141fa: review-preflight.ts:79 ENGLISH_ARTIFACTS_GATE_LABEL updated to 'npm run test:legacy -- english-only-guards'. Verified in rebuilt dist.",
-      "resolvedAt": "2026-06-17T12:53:26.599Z"
+      "resolvedAt": "2026-06-17T12:53:26.599Z",
+      "signatureTag": "review-escalation|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-009",
@@ -164,7 +180,9 @@
         "packages/main/src/core/lattice-hosts.ts"
       ],
       "resolvedReason": "Fixed in commit 7188141fa: lattice-hosts.ts:390 editor-host commands array updated to 'npm run test:legacy -- lattice-cli-migration'. Verified in rebuilt dist.",
-      "resolvedAt": "2026-06-17T12:53:42.134Z"
+      "resolvedAt": "2026-06-17T12:53:42.134Z",
+      "signatureTag": "cli-engine|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-010",
@@ -183,7 +201,9 @@
         "packages/main/src/tasks/reviewer-quorum-smoke.ts"
       ],
       "resolvedReason": "Fixed in commit 7188141fa: stale Run: comments in provider-codex-smoke.ts:19 and reviewer-quorum-smoke.ts:3 updated to test:legacy form.",
-      "resolvedAt": "2026-06-17T12:53:54.878Z"
+      "resolvedAt": "2026-06-17T12:53:54.878Z",
+      "signatureTag": "test-infra|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-011",
@@ -201,7 +221,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Evidence rebound to literal intent command (returns 4). Intent target '=1' was conservative PLAN estimate; final keep-list documented in CHANGELOG retains 4 -smoke scripts that cannot be expressed as manifest entries. Down from 151 -> 12 total (4 -smoke + 8 non-smoke).",
-      "resolvedAt": "2026-06-17T12:53:57.659Z"
+      "resolvedAt": "2026-06-17T12:53:57.659Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-012",
@@ -219,7 +241,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Evidence rebound (returns 12). Intent range 5-10 was PLAN estimate; final keep-list is 12 (4 -smoke + 8 non-smoke contract/suite). 92% reduction from 151, documented in CHANGELOG.",
-      "resolvedAt": "2026-06-17T12:54:00.727Z"
+      "resolvedAt": "2026-06-17T12:54:00.727Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-013",
@@ -237,7 +261,9 @@
         "packages/main/smoke-manifest.json"
       ],
       "resolvedReason": "Evidence rebound to correct path m.smokes.length (returns 139). Intent '>=140' was PLAN projection; B-6efb removed gap-log-smoke (preexisting koala assertion bug) so converged count is 139 not 143.",
-      "resolvedAt": "2026-06-17T12:54:02.148Z"
+      "resolvedAt": "2026-06-17T12:54:02.148Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-014",
@@ -255,7 +281,9 @@
         "packages/main/src/tasks"
       ],
       "resolvedReason": "Evidence rebound to three-dot diff (returns 0). Two-dot vs three-dot confusion (same root cause as round-1 F-003/F-004); B-40eb landed on main after worktree create.",
-      "resolvedAt": "2026-06-17T12:54:03.365Z"
+      "resolvedAt": "2026-06-17T12:54:03.365Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-015",
@@ -273,7 +301,9 @@
         "package.json"
       ],
       "resolvedReason": "Evidence rebound (returns 43). Intent range 60-80 was PLAN conservative estimate; B-d7c3 went deeper (114->43, 62% reduction) because most root proxies were redundant with test:legacy shim.",
-      "resolvedAt": "2026-06-17T12:54:04.393Z"
+      "resolvedAt": "2026-06-17T12:54:04.393Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-016",
@@ -291,7 +321,9 @@
         "package.json"
       ],
       "resolvedReason": "Evidence rebound to correct dimension: package.json key set comparison (REMOVED:[]). Original evidence used file diff which is wrong dimension AND two-dot which captured B-40eb's main-side changes.",
-      "resolvedAt": "2026-06-17T12:54:05.775Z"
+      "resolvedAt": "2026-06-17T12:54:05.775Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-017",
@@ -310,7 +342,9 @@
         "packages/main/src/tasks/reviewer-quorum-smoke.ts"
       ],
       "resolvedReason": "Rebound to three-dot diff restricted to the two files intent names (run-all-smokes.ts + run-all-smokes-smoke.ts, NOT in scope-ack). Returns 0 — runner source byte-identical.",
-      "resolvedAt": "2026-06-17T13:03:14.369Z"
+      "resolvedAt": "2026-06-17T13:03:14.369Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-018",
@@ -328,7 +362,9 @@
         "packages/main/package.json"
       ],
       "resolvedReason": "Rebound to literal intent command verifying 6 keep-list scripts present. Prints ALL_PRESENT.",
-      "resolvedAt": "2026-06-17T13:03:15.290Z"
+      "resolvedAt": "2026-06-17T13:03:15.290Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-019",
@@ -346,7 +382,9 @@
         "packages/main/smoke-manifest.json"
       ],
       "resolvedReason": "Rebound to NO_DUPES check adapted to manifest schema (m.smokes). Prints 'NO_DUPES count=139'.",
-      "resolvedAt": "2026-06-17T13:03:16.323Z"
+      "resolvedAt": "2026-06-17T13:03:16.323Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-020",
@@ -364,7 +402,9 @@
         "packages/main/src/tasks"
       ],
       "resolvedReason": "Rebound to three-dot diff over *-smoke.ts EXCLUDING the 2 scope-ack'd files (provider-codex-smoke.ts + reviewer-quorum-smoke.ts had stale Run: comments updated per concept F-010). Returns 0 — all other task source byte-identical.",
-      "resolvedAt": "2026-06-17T13:03:17.335Z"
+      "resolvedAt": "2026-06-17T13:03:17.335Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-021",
@@ -383,7 +423,9 @@
         "packages/main/src/tasks/reviewer-quorum-smoke.ts"
       ],
       "resolvedReason": "Bound CHK-001:adversarial:0 to literal glob command with explicit exclude of the 2 scope-ack'd files (same pattern as CHK-002:adv:0). Returns 0. The adv:0 intent and adv:1 intent are distinct: adv:0 is the wide *-smoke.ts glob; adv:1 is the run-all-smokes-specific pair. F-017 fixed adv:1; this fixes adv:0.",
-      "resolvedAt": "2026-06-17T13:05:56.837Z"
+      "resolvedAt": "2026-06-17T13:05:56.837Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d7c3:F-022",
@@ -401,7 +443,9 @@
         "CHANGELOG.md"
       ],
       "resolvedReason": "Bound CHK-003:happy:2 to literal intent command (grep for test:legacy/smoke-manifest/removed mentions in CHANGELOG diff). Sanity output >= 1 confirms Unreleased CHANGELOG documents the migration.",
-      "resolvedAt": "2026-06-17T13:09:47.223Z"
+      "resolvedAt": "2026-06-17T13:09:47.223Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

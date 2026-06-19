@@ -17,7 +17,9 @@
         "docs/requirements/decisions/authority-client-role.md"
       ],
       "resolvedReason": "Fixed in commit c8840c3b and verified at HEAD 621e72e: authorityMode now uses off|shadow|enforce, evidenceClass uses receipt-backed-l2-plus, and grep for old terms local/off, receipt-backed-authority, authorityReceiptRefs, receipt-backed/enforce-capable returns no matches.",
-      "resolvedAt": "2026-06-09T22:44:15.079Z"
+      "resolvedAt": "2026-06-09T22:44:15.079Z",
+      "signatureTag": "authority|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-cd0b:F-002",
@@ -37,7 +39,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
       "resolvedReason": "Fixed in commit c8840c3b and verified at HEAD 621e72e: final-report and readiness/DONE/anti-pattern sections now use nested authority.receiptRefs plus authority.receiptVerified/authority.productionDone/authority.authorityChanged, matching existing authority and Parallel Wave surfaces.",
-      "resolvedAt": "2026-06-09T22:44:15.271Z"
+      "resolvedAt": "2026-06-09T22:44:15.271Z",
+      "signatureTag": "authority|naming-inconsistency",
+      "signatureTagSource": "backfill"
     }
   ]
 }

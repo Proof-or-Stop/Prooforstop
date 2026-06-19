@@ -17,7 +17,9 @@
         "docs/requirements/NAV.md"
       ],
       "resolvedReason": "Replaced evidence commands with shell-safe replayable commands. CHK-001 adversarial evidence now mechanically parses lattice gap_analyze and fails unless high=3 and medium=0; CHK-002 edge evidence now uses a replayed Node count check. Commands were replayed successfully.",
-      "resolvedAt": "2026-06-12T18:59:22.315Z"
+      "resolvedAt": "2026-06-12T18:59:22.315Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ebc5:F-002",
@@ -35,7 +37,9 @@
         "docs/requirements/NAV.md"
       ],
       "resolvedReason": "Updated docs/requirements/NAV.md declared count from 46 to 47. Replayed Node count check: declared=47 and actual markdown files under docs/requirements=47.",
-      "resolvedAt": "2026-06-12T18:59:28.913Z"
+      "resolvedAt": "2026-06-12T18:59:28.913Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

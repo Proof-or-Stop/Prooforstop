@@ -17,7 +17,9 @@
         "packages/main/src/handlers/story-review.ts"
       ],
       "resolvedReason": "Added legacy-evidence-no-intent integration check (verify-story-review-structured-output.mjs) asserting story_review emits legacyEvidenceWithoutIntent+repairCommand on the evidenced lane; commit 7d8e09b47.",
-      "resolvedAt": "2026-06-13T18:41:32.563Z"
+      "resolvedAt": "2026-06-13T18:41:32.563Z",
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4e06:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/tasks/verification-intent-repair-smoke.ts"
       ],
       "resolvedReason": "Same integration check calls validate --json and asserts response.legacyEvidenceWithoutIntent names CHK-001 happy (decorateStoryVerification path); commit 7d8e09b47.",
-      "resolvedAt": "2026-06-13T18:41:32.906Z"
+      "resolvedAt": "2026-06-13T18:41:32.906Z",
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4e06:F-003",
@@ -55,7 +59,9 @@
         "packages/main/src/tasks/verification-intent-repair-smoke.ts"
       ],
       "resolvedReason": "Integration check asserts the legacy issue stays severity=blocker and a no-evidence lane keeps the generic blocker; gate not weakened. commit 7d8e09b47.",
-      "resolvedAt": "2026-06-13T18:41:33.238Z"
+      "resolvedAt": "2026-06-13T18:41:33.238Z",
+      "signatureTag": "finding-lifecycle|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4e06:F-004",
@@ -73,7 +79,9 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "resolvedReason": "Removed the unreachable m[1]!==item.id guard; the ${item.id}: prefix already pins the regex capture group. commit 7d8e09b47.",
-      "resolvedAt": "2026-06-13T18:41:33.575Z"
+      "resolvedAt": "2026-06-13T18:41:33.575Z",
+      "signatureTag": "cli-engine|dead-code",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4e06:F-005",
@@ -92,7 +100,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Dropped the unused actor param from verification_intent_repair schema + handler (no audit tracing was delivered). commit 7d8e09b47.",
-      "resolvedAt": "2026-06-13T18:41:33.916Z"
+      "resolvedAt": "2026-06-13T18:41:33.916Z",
+      "signatureTag": "cli-engine|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4e06:F-006",
@@ -111,7 +121,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Added the storyRel isAbsolute/.. containment guard in worktree.ts dev_start, matching the cli-engine reconcile guard. commit 7d8e09b47.",
-      "resolvedAt": "2026-06-13T18:41:34.254Z"
+      "resolvedAt": "2026-06-13T18:41:34.254Z",
+      "signatureTag": "worktree|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4e06:F-007",
@@ -129,7 +141,9 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "resolvedReason": "Removed the now-unused VerificationIntentItem import. commit 7d8e09b47.",
-      "resolvedAt": "2026-06-13T18:41:34.589Z"
+      "resolvedAt": "2026-06-13T18:41:34.589Z",
+      "signatureTag": "cli-engine|dead-code",
+      "signatureTagSource": "backfill"
     }
   ]
 }

@@ -17,7 +17,9 @@
         "packages/main/src/tasks/lattice-baseline-smoke.ts"
       ],
       "resolvedReason": "Fixed in c032c70e: formal review refs now require digest-verified artifact files, distinct Claude/Codex artifacts, JSON host/source/verdict fields, and baselineId/suiteRunId/claimTarget/headHash/materialHash bindings. Verified by npm --prefix packages/main run test:lattice-baseline-smoke and two-host REVIEW PASS.",
-      "resolvedAt": "2026-06-10T21:41:01.460Z"
+      "resolvedAt": "2026-06-10T21:41:01.460Z",
+      "signatureTag": "review-escalation|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ce79:F-002",
@@ -35,7 +37,9 @@
         "packages/main/src/core/lattice-baseline.ts"
       ],
       "resolvedReason": "Fixed in c032c70e: capability_claim_formal_evaluate rebuilds the Engineering suite from final-report artifacts and compares stored suite fields/bindings to rebuilt evidence before unlock; forged PASS suite summary without final reports remains LOCKED. Verified by lattice-baseline smoke forged-suite test and two-host REVIEW PASS.",
-      "resolvedAt": "2026-06-10T21:41:10.298Z"
+      "resolvedAt": "2026-06-10T21:41:10.298Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }

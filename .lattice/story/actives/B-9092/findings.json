@@ -19,7 +19,9 @@
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
       "resolvedReason": "Resolved by adding machine-backed CHK-002 adversarial negative controls: forged/malformed final-report, wrong claim target, wrong/mixed suiteRunId, local-only final-report, and Authority-overclaim all produce BLOCKED/LOCKED Lattice outputs. Evidence documented in .lattice/story/actives/B-9092/evidence/f009-negative-controls.md and f009-formal-proof-audit.md; forbidden Authority/unlock true scan now has no matches.",
-      "resolvedAt": "2026-06-12T16:56:06.153Z"
+      "resolvedAt": "2026-06-12T16:56:06.153Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

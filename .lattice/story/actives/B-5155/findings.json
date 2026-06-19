@@ -15,7 +15,9 @@
       "resolvedReason": "Fixed by commit 31682c489e0951f687e170f9a8bd5da619de397e: removed the false requirementsDir claim from runtime-owned-agent-assets-smoke.ts and added a truthful requirementsDir anchor to truth.ts where scanTruth/generateNav consume loadConfig(projectRoot).requirementsDir. Verified npm build, runtime-owned-agent-assets smoke, gap-analyze-input-hygiene smoke, and lattice gap_analyze 0 high/0 medium.",
       "resolvedAt": "2026-06-18T02:14:04.181Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "signatureTag": "process-fact|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

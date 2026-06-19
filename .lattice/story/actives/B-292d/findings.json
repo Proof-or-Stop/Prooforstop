@@ -16,7 +16,9 @@
         "packages/main/src/handlers/review-preflight.ts"
       ],
       "resolvedReason": "Rebound CHK-001:edge:1 evidence to literal command 'grep -cE KOALA_RESIDUE_TIMEOUT_MS|ETIMEDOUT review-preflight.ts' which returns 2+. The original command grep'd execFileSync.*koala which couldn't match because execFileSync uses scriptAbs variable not literal path.",
-      "resolvedAt": "2026-06-17T17:50:16.550Z"
+      "resolvedAt": "2026-06-17T17:50:16.550Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-292d:F-002",
@@ -34,7 +36,9 @@
         "packages/main/src/handlers/review-preflight.ts"
       ],
       "resolvedReason": "Rebound CHK-001:adv:1 evidence to exclude the union type signature line. The matched line was the PreflightGateName union being widened from 6 to 7 members (intended), not a logic deletion. New command grep -vE excludes the union signature.",
-      "resolvedAt": "2026-06-17T17:50:17.581Z"
+      "resolvedAt": "2026-06-17T17:50:17.581Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-292d:F-003",
@@ -49,7 +53,9 @@
       "reviewRunId": "B-292d:RR-002",
       "_hash": "dd07a511432f32e5f0920e410bcfc97cd966e3db7c38b98461a6f0491113f25d",
       "resolvedReason": "Fixed in commit 438fa8ef3: removed redundant /KOALA_RESIDUE[A-Z0-9_]*/g pattern (already covered by /KOALA_[A-Z0-9_]*/g at line 77). Comment updated to note the SCREAMING_CASE constant coverage. Gate still PASS 0 unclassified, self-test 5/5.",
-      "resolvedAt": "2026-06-17T17:50:18.668Z"
+      "resolvedAt": "2026-06-17T17:50:18.668Z",
+      "signatureTag": "review-escalation|dead-code",
+      "signatureTagSource": "backfill"
     }
   ]
 }

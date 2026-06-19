@@ -18,7 +18,9 @@
         ".koala/story/actives/B-a5c2/test-evidence.json"
       ],
       "resolvedReason": "Fixed in commit e10e5a85 by expanding packages/main/src/tasks/unattended-dispatch-smoke.ts CHK-008 edge coverage to assert timeout, missing receipt diagnostics, mixed worker outcomes, out-of-policy path/command refusal, and denied env filtering. Re-verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:unattended-dispatch-smoke, and refreshed verification evidence in 1b567ca/d739983.",
-      "resolvedAt": "2026-06-03T21:42:23.231Z"
+      "resolvedAt": "2026-06-03T21:42:23.231Z",
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-a5c2:F-002",
@@ -37,7 +39,9 @@
         "packages/main/src/core/dispatch-policy.ts"
       ],
       "resolvedReason": "Fixed in commit e10e5a85 by running dispatch_auto fake required commands with policy-filtered env derived from envAllowlist/envDenylist and per-command maxRuntimeMinutes timeout; runner metadata records filtered env summary and timedOut. Re-verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:unattended-dispatch-smoke, and refreshed verification evidence in 1b567ca/d739983.",
-      "resolvedAt": "2026-06-03T21:42:23.251Z"
+      "resolvedAt": "2026-06-03T21:42:23.251Z",
+      "signatureTag": "dispatch|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-a5c2:F-003",
@@ -55,7 +59,9 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "resolvedReason": "Fixed in commit e10e5a85 by binding dispatch_auto allowedPaths/deniedPaths/requiredCommands to the selected policy before runDispatch and refusing out-of-policy scope or commandAllowlist violations before dispatch artifacts are created. Re-verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:unattended-dispatch-smoke, and refreshed verification evidence in 1b567ca/d739983.",
-      "resolvedAt": "2026-06-03T21:42:23.249Z"
+      "resolvedAt": "2026-06-03T21:42:23.249Z",
+      "signatureTag": "dispatch|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-a5c2:F-004",
@@ -74,7 +80,9 @@
         ".koala/story/actives/B-a5c2/test-evidence.json"
       ],
       "resolvedReason": "Fixed by refreshing persisted validation snapshot in commit 5a5e5696 after lattice validate PASS. .koala/story/actives/B-a5c2/test-evidence.json now records CHK-008:edge:1 as covering missing policy, unavailable host, timeout, cancellation, missing receipt diagnostics, and mixed worker outcomes. Re-verified validate 27/27 coverage and npm test PASS.",
-      "resolvedAt": "2026-06-03T21:51:30.929Z"
+      "resolvedAt": "2026-06-03T21:51:30.929Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

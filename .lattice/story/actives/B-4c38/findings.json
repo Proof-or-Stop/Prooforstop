@@ -16,7 +16,9 @@
         "packages/main/src/tasks/worktree-repair-smoke.ts",
         "packages/main/src/handlers/done-recover.ts",
         "packages/main/src/core/partial-done-recovery.ts"
-      ]
+      ],
+      "signatureTag": "worktree|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4c38:F-002",
@@ -33,7 +35,9 @@
       "files": [
         "packages/main/src/handlers/done-recover.ts",
         "packages/main/src/handlers/done-effects.ts"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|race-condition",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4c38:F-003",
@@ -50,7 +54,9 @@
       "files": [
         "packages/main/src/core/partial-done-recovery.ts",
         "packages/main/src/handlers/done-effects.ts"
-      ]
+      ],
+      "signatureTag": "worktree|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4c38:F-004",
@@ -67,7 +73,9 @@
       "files": [
         "packages/main/src/handlers/done-recover.ts",
         "packages/main/src/handlers/done-effects.ts"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|race-condition",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4c38:F-005",
@@ -85,7 +93,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "packages/main/src/handlers/done-recover.ts",
         "packages/main/src/core/partial-done-recovery.ts"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4c38:F-006",
@@ -98,7 +108,9 @@
       "createdAt": "2026-05-17T03:59:58.802Z",
       "reviewRound": "2026-05-17T03:55:23.642Z",
       "reviewRunId": "B-4c38:RR-011",
-      "_hash": "3616f15d87fb60357472d7630c01a23e9a735e4ca13952c8308c1070929a1eea"
+      "_hash": "3616f15d87fb60357472d7630c01a23e9a735e4ca13952c8308c1070929a1eea",
+      "signatureTag": "story-lifecycle|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

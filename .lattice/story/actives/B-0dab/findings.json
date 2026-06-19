@@ -16,7 +16,9 @@
         "packages/main/src/handlers/review-preflight.ts"
       ],
       "dismissReason": "review-preflight.ts is NOT changed by B-0dab. Its 2 commits only touch english-only-guards-smoke.ts, review-incremental-context-smoke.ts, and package.json. review-preflight.ts appears in git diff main..HEAD only because the worktree base lags current main (the comment was changed by another story already on main). Out of B-0dab scope (execution boundary excludes src/handlers).",
-      "dismissedAt": "2026-06-17T13:08:11.024Z"
+      "dismissedAt": "2026-06-17T13:08:11.024Z",
+      "signatureTag": "review-escalation|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

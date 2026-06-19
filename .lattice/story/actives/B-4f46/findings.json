@@ -13,7 +13,9 @@
       "reviewRunId": "B-4f46:RR-003",
       "_hash": "116f871a51d15d429e32958cb1db7fd408183cd28a5dac02c2d14ec80f6811a6",
       "resolvedReason": "approveSignatureTag now rejects approving a never-proposed tag (throws 'has not been proposed'); idempotent on already-active. Smoke check 'CHK-003:adversarial:0 approve never-proposed rejected' + 'CHK-003:edge:1 idempotent approve' added. Commit fbfec03824.",
-      "resolvedAt": "2026-06-17T12:39:31.647Z"
+      "resolvedAt": "2026-06-17T12:39:31.647Z",
+      "signatureTag": "experience-layer|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4f46:F-002",
@@ -32,7 +34,9 @@
         "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts"
       ],
       "resolvedReason": "validateOptionalEnum now rejects an explicitly-provided empty/whitespace enum string (undefined still = omitted); applies to all enum fields. Smoke check 'CHK-002:adversarial:2 empty-string enum rejected' added. Commit fbfec03824.",
-      "resolvedAt": "2026-06-17T12:39:32.465Z"
+      "resolvedAt": "2026-06-17T12:39:32.465Z",
+      "signatureTag": "experience-layer|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4f46:F-003",
@@ -51,7 +55,9 @@
         "packages/main/src/handlers/signature-registry.ts"
       ],
       "resolvedReason": "Added 7 named smoke checks for the previously-uncovered signature-registry adversarial/edge intents (approve-never-proposed, invalid action, self-alias, concurrent writes, idempotent auto-propose, idempotent approve, empty-enum). Evidence rebound to those specific checks. Commit fbfec03824.",
-      "resolvedAt": "2026-06-17T12:39:33.182Z"
+      "resolvedAt": "2026-06-17T12:39:33.182Z",
+      "signatureTag": "experience-layer|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

@@ -16,7 +16,9 @@
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ],
       "resolvedReason": "CHK-003:edge:1 now asserts the style guide documents moving detail to schema/longHelp (commit d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:25:58.469Z"
+      "resolvedAt": "2026-06-13T19:25:58.469Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5773:F-002",
@@ -34,7 +36,9 @@
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ],
       "resolvedReason": "CHK-003:edge:2 now diffs vs git main and asserts no already-<=80 command-description row was shortened for non-glossary reasons (d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:25:58.942Z"
+      "resolvedAt": "2026-06-13T19:25:58.942Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5773:F-003",
@@ -52,7 +56,9 @@
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ],
       "resolvedReason": "CHK-003:adversarial:2 now checks T/M twins for the 5 named shortened rows (d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:25:59.409Z"
+      "resolvedAt": "2026-06-13T19:25:59.409Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5773:F-004",
@@ -70,7 +76,9 @@
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ],
       "resolvedReason": "CHK-004:edge:0 now asserts only genuine Chinese-matcher rows (lines 2303/2306/3887) are tagged behavior-sensitive (d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:25:59.856Z"
+      "resolvedAt": "2026-06-13T19:25:59.856Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5773:F-005",
@@ -88,7 +96,9 @@
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ],
       "resolvedReason": "CHK-005:edge:2 now asserts the wrapped-source section documents M004/M005 and the identified cases (d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:26:00.359Z"
+      "resolvedAt": "2026-06-13T19:26:00.359Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5773:F-006",
@@ -106,7 +116,9 @@
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ],
       "resolvedReason": "CHK-005:adversarial:2 now asserts wrapped-pair rows and behavior-sensitive rows are disjoint (d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:26:00.828Z"
+      "resolvedAt": "2026-06-13T19:26:00.828Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5773:F-007",
@@ -124,7 +136,9 @@
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ],
       "resolvedReason": "CHK-002:adversarial:0 now runs the row-count predicate on a tampered 763-row copy and asserts it fails (non-vacuous) (d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:26:01.290Z"
+      "resolvedAt": "2026-06-13T19:26:01.290Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5773:F-008",
@@ -142,7 +156,9 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ],
       "resolvedReason": "M109 trailing period removed to satisfy the no-final-period style rule (d1dcef25b).",
-      "resolvedAt": "2026-06-13T19:26:01.758Z"
+      "resolvedAt": "2026-06-13T19:26:01.758Z",
+      "signatureTag": "docs|naming-inconsistency",
+      "signatureTagSource": "backfill"
     }
   ]
 }

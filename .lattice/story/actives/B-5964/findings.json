@@ -15,7 +15,9 @@
         "scripts/verify-process-fact-contract.mjs",
         "AGENTS.md",
         "docs/requirements/decisions/story-lifecycle.md"
-      ]
+      ],
+      "signatureTag": "process-fact|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5964:F-002",
@@ -29,7 +31,9 @@
       "_hash": "66e23c3c8a0a8d3ede097dfb13809c470d56f37b1cc9ce8a46056f119c8581de",
       "files": [
         "scripts/verify-process-fact-contract.mjs"
-      ]
+      ],
+      "signatureTag": "process-fact|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5964:F-003",
@@ -44,7 +48,9 @@
       "files": [
         "scripts/verify-process-fact-contract.mjs",
         "packages/main/src/core/process-fact-registry.ts"
-      ]
+      ],
+      "signatureTag": "process-fact|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-5964:F-004",
@@ -59,7 +65,9 @@
       "files": [
         "scripts/verify-process-fact-contract.mjs",
         "packages/main/src/core/process-fact-registry.ts"
-      ]
+      ],
+      "signatureTag": "process-fact|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

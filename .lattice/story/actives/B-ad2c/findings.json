@@ -15,7 +15,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/handlers/worktree.ts",
         ".koala/story/actives/B-ad2c/index.json"
-      ]
+      ],
+      "signatureTag": "cli-engine|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad2c:F-002",
@@ -31,7 +33,9 @@
       "_hash": "adc4771d8df7c34ed1d1a48bca05a13bf4cea35a10f70bc7db8c79ef310668e5",
       "files": [
         "docs/requirements/decisions/dev-memory.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad2c:F-003",
@@ -48,7 +52,9 @@
       "files": [
         "docs/requirements/decisions/dev-memory.md",
         "packages/main/src/cli-engine.ts"
-      ]
+      ],
+      "signatureTag": "docs|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad2c:F-004",
@@ -65,7 +71,9 @@
         "packages/main/src/core/review-run.ts",
         "packages/main/src/tasks/flow-stability-smoke.ts",
         ".koala/story/actives/B-ad2c/findings.json"
-      ]
+      ],
+      "signatureTag": "review-escalation|false-positive-gate",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad2c:F-005",
@@ -82,7 +90,9 @@
         "packages/main/src/core/guard-utils.ts",
         "packages/main/src/core/machine.ts",
         "packages/main/src/tasks/flow-stability-smoke.ts"
-      ]
+      ],
+      "signatureTag": "review-escalation|false-positive-gate",
+      "signatureTagSource": "backfill"
     }
   ]
 }

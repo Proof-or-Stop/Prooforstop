@@ -18,7 +18,9 @@
         "packages/main/src/core/types.ts"
       ],
       "resolvedReason": "Fixed in 07ceb003: scope_extension_proposal now passes args.proposal into buildScopeExtensionProposal; proposal/proposalTextHash persist separately from reason. Verified by npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run build, and node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-12T20:59:50.150Z"
+      "resolvedAt": "2026-06-12T20:59:50.150Z",
+      "signatureTag": "scope-gate|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-002",
@@ -40,7 +42,9 @@
         "packages/main/src/handlers/story-create.ts"
       ],
       "resolvedReason": "Fixed in 07ceb003: scope boundary builder/CLI require non-empty allowed scope and execution boundary builder/CLI require at least one command/tool/path allow/block entry. Verified by scope anti-expansion smoke empty-boundary cases, build, and process fact contract.",
-      "resolvedAt": "2026-06-12T20:59:51.037Z"
+      "resolvedAt": "2026-06-12T20:59:51.037Z",
+      "signatureTag": "scope-gate|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-003",
@@ -62,7 +66,9 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "resolvedReason": "Fixed in 07ceb003: story_create refuses direct phase=INIT_CHECK and fromDraft now materializes at INIT so normal init-check and scope gates can run before worktree creation. Verified by direct INIT_CHECK smoke, build, and contract.",
-      "resolvedAt": "2026-06-12T20:59:51.539Z"
+      "resolvedAt": "2026-06-12T20:59:51.539Z",
+      "signatureTag": "scope-gate|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-004",
@@ -84,7 +90,9 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "resolvedReason": "Fixed in 07ceb003: execution_boundary_set accepts allowedPaths/blockedPaths/excludedPaths and delegates safe relative path validation to core. Verified by handler safe-path smoke and build.",
-      "resolvedAt": "2026-06-12T20:59:52.104Z"
+      "resolvedAt": "2026-06-12T20:59:52.104Z",
+      "signatureTag": "scope-gate|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-005",
@@ -107,7 +115,9 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "resolvedReason": "Fixed in 07ceb003: INIT reviewer lanes koala-review-story-init/product-reviewer are mechanically blocked from checklist_add or checklist_update definition mutations in INIT and must use scope_extension_proposal; process fact contract now asserts this invariant. Verified by INIT reviewer mutation smoke and contract verifier.",
-      "resolvedAt": "2026-06-12T20:59:52.673Z"
+      "resolvedAt": "2026-06-12T20:59:52.673Z",
+      "signatureTag": "scope-gate|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-006",
@@ -129,7 +139,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Fixed in 2a355f947: worktree-authority-smoke now expects fromDraft stories to stop at INIT, commits bounded from-draft metadata on main, and verifies explicit story_advance INIT_CHECK performs the worktree bootstrap. Verified by npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run build, and node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-12T21:35:32.487Z"
+      "resolvedAt": "2026-06-12T21:35:32.487Z",
+      "signatureTag": "story-lifecycle|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-007",
@@ -149,7 +161,9 @@
         "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
       ],
       "resolvedReason": "Fixed in ee07fc0: scope_freeze_check and INIT_CHECK gate now consume readScopeDiscardDigestForFreeze, which merges the current story digest with scope-discard-digest entries from all DISCARDED stories. The smoke now drives a real discarded story followed by a replacement story: freeze fails without repeatDiscardMitigation and passes with mitigation. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-13T01:51:27.959Z"
+      "resolvedAt": "2026-06-13T01:51:27.959Z",
+      "signatureTag": "scope-gate|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-008",
@@ -171,7 +185,9 @@
         "packages/main/src/handlers/worktree.ts"
       ],
       "resolvedReason": "Fixed in f889953: lifecycle-artifact-scope.md now states INIT scope commands write scope-boundary/execution-boundary/scope-freeze/scope-extension artifacts, while story_discard produces scope-discard-digest.json for the discarded story and INIT_CHECK/scope freeze consumes the current story digest plus entries from every DISCARDED story. Verified by node scripts/verify-process-fact-contract.mjs and docs review context.",
-      "resolvedAt": "2026-06-13T01:59:23.062Z"
+      "resolvedAt": "2026-06-13T01:59:23.062Z",
+      "signatureTag": "scope-gate|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-009",
@@ -192,7 +208,9 @@
         "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
       ],
       "resolvedReason": "Fixed in f889953: scope freeze freshness now includes discard corpus identity and repeat-discard overlap identity, and the INIT_CHECK gate reuses stored mitigations only by exact overlap key instead of applying one old mitigation to future overlaps. Smoke now covers old mitigated freeze going stale after a second discarded story appears, then failing without mitigation and passing after explicit remitiagation. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-13T01:59:23.171Z"
+      "resolvedAt": "2026-06-13T01:59:23.171Z",
+      "signatureTag": "scope-gate|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-010",
@@ -213,7 +231,9 @@
         "packages/main/src/core/machine.ts"
       ],
       "resolvedReason": "Fixed in d48c744: background.md is now part of ScopeFreezeStoryProjection, bounded text sources, sourceTerms, freshness payload, scope_freeze_check handler projection, INIT_CHECK machine projection, and story_discard digest terms via StoryStore.readStoryBackground/scopeFreezeBackgroundTerms. Smoke now covers a background-only discarded direction blocking replacement without mitigation, passing after mitigation, and stale freeze after background edit. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-13T02:08:19.875Z"
+      "resolvedAt": "2026-06-13T02:08:19.875Z",
+      "signatureTag": "scope-gate|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-011",
@@ -231,7 +251,9 @@
         "packages/main/src/core/scope-anti-expansion.ts"
       ],
       "resolvedReason": "Fixed in 91e37a981: discardCorpusIdentity now excludes metadata-only updatedAt churn, and scope-anti-expansion smoke covers same-corpus updatedAt rewrites staying fresh while entry/overlap changes still stale or block. Reverified after later commits with npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, node scripts/verify-process-fact-contract.mjs, npm run test:runtime-fact-contract, and npm --prefix packages/main run test:flow-stability-smoke.",
-      "resolvedAt": "2026-06-13T02:23:57.888Z"
+      "resolvedAt": "2026-06-13T02:23:57.888Z",
+      "signatureTag": "scope-gate|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-012",
@@ -250,7 +272,9 @@
         "packages/main/src/core/runtime-artifact-registry.ts:121"
       ],
       "resolvedReason": "Fixed in 532fdc314 and ec448fead: runtime-artifact-registry now classifies both .koala-serve.json and .lattice-serve.json as serve metadata, flow-stability smoke covers the runtime-artifact/declared-artifact separation, and managed-asset assertions now match current global-thin/Lattice contracts while preserving true local drift checks. Reverified with npm --prefix packages/main run build, npm --prefix packages/main run test:flow-stability-smoke, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, node scripts/verify-process-fact-contract.mjs, and npm run test:runtime-fact-contract.",
-      "resolvedAt": "2026-06-13T02:24:03.496Z"
+      "resolvedAt": "2026-06-13T02:24:03.496Z",
+      "signatureTag": "cli-engine|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-85ba:F-013",
@@ -273,7 +297,9 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "resolvedReason": "Fixed in 4cb942535: story_update now resolves agent/actor/KOALA_AGENT and blocks INIT reviewer/product-reviewer direct edits to story-level scope fields title/description/source/depends, requiring scope_extension_proposal instead. Scope smoke covers reviewer title/description/source blocks, allowed priority update, main-agent INIT story metadata update, and frozen-scope bypass prevention. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, node scripts/verify-process-fact-contract.mjs, npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:flow-stability-smoke, npm run test:runtime-fact-contract, npm test, and scope_contract_check warning-only after explicit story-query ack.",
-      "resolvedAt": "2026-06-13T02:35:56.808Z"
+      "resolvedAt": "2026-06-13T02:35:56.808Z",
+      "signatureTag": "scope-gate|gate-bypass",
+      "signatureTagSource": "backfill"
     }
   ]
 }

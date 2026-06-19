@@ -19,7 +19,9 @@
         "packages/main/src/core/prompt-registry.ts"
       ],
       "resolvedReason": "修正 lifecycle-artifact-scope.md 契约点2 + runtime-owned plan Implementation Status + CLAUDE.md:agent_prompt 实为 readPromptTemplate 读 templates/agents/<role>.md 原文,promptRegistryManifest() 仅是该模板集的指纹清单(元数据非正文);内容单一源仍是 templates/agents,与 Codex 同源。commit 8e... docs fix",
-      "resolvedAt": "2026-06-16T19:03:56.650Z"
+      "resolvedAt": "2026-06-16T19:03:56.650Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-097f:F-002",
@@ -37,7 +39,9 @@
         "packages/main/src/cli-init.ts"
       ],
       "resolvedReason": "Removed unused symlinkSync and readlinkSync from the node:fs import in packages/main/src/cli-init.ts (both appeared only on the import line, orphaned by the symlink->thin-shim migration). Verified each remaining symbol (lstatSync at line 960 etc.) is still used so kept those. npm --prefix packages/main run build green (tsc clean); lattice validate all green (PASS).",
-      "resolvedAt": "2026-06-16T19:05:01.838Z"
+      "resolvedAt": "2026-06-16T19:05:01.838Z",
+      "signatureTag": "experience-layer|concept-residue",
+      "signatureTagSource": "backfill"
     }
   ]
 }

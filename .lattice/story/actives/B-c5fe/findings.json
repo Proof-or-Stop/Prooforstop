@@ -16,7 +16,9 @@
         "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
       ],
       "resolvedReason": "Reran post-fix docs check (12/12) after commit and refreshed CHK-001 verificationEvidence so all three docs_check entries carry current HEAD/materialHash.",
-      "resolvedAt": "2026-06-10T02:45:23.998Z"
+      "resolvedAt": "2026-06-10T02:45:23.998Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-c5fe:F-002",
@@ -34,7 +36,9 @@
         "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
       ],
       "resolvedReason": "Changed the receipt-ref example to separate static eligibleGates from per-gate consumptionEvents, removing the static gateConsumers field and the overclaim risk.",
-      "resolvedAt": "2026-06-10T02:45:29.487Z"
+      "resolvedAt": "2026-06-10T02:45:29.487Z",
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-c5fe:F-003",
@@ -53,7 +57,9 @@
         "docs/requirements/decisions/authority-client-role.md"
       ],
       "resolvedReason": "Added hard prerequisites to Phase 3 and Phase 4: explicit enforce-mode product approval, isolated koala authority enforce path, and no ordinary CLI authority-client/gate-consumption rollout based only on server/runner readiness.",
-      "resolvedAt": "2026-06-10T02:45:34.330Z"
+      "resolvedAt": "2026-06-10T02:45:34.330Z",
+      "signatureTag": "authority|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-c5fe:F-004",
@@ -71,7 +77,9 @@
         "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
       ],
       "resolvedReason": "Mechanical freshness check `lattice verification_evidence_refresh_stale {\"storyId\":\"B-c5fe\",\"dryRun\":true}` reports `No stale verification evidence for B-c5fe`. Evidence headHash differs only across story metadata/review commits; stored materialHash still matches the current material tree, which is the gate freshness semantics in evidence-freshness.ts.",
-      "resolvedAt": "2026-06-10T02:48:48.682Z"
+      "resolvedAt": "2026-06-10T02:48:48.682Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

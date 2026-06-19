@@ -17,7 +17,9 @@
         "packages/main/src/core/memory-benchmark.ts"
       ],
       "resolvedReason": "Fixed by commit 96406b20: memory benchmark smoke now constructs lifecycleGateEvidenceLinkageRate below 1 and asserts evidenceLinkageRateLifecycleGate < 1, verdict HARD_FAIL, thresholdPassed false, and unchanged memoryScore. Revalidated with npm --prefix packages/main run test:memory-benchmark-smoke, npm --prefix packages/main run build, and koala validate covering 9/9 verification intents.",
-      "resolvedAt": "2026-06-09T00:20:15.311Z"
+      "resolvedAt": "2026-06-09T00:20:15.311Z",
+      "signatureTag": "memory|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d4dd:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/tasks/memory-benchmark-smoke.ts"
       ],
       "resolvedReason": "Fixed by commit 192f5ef2: unsupported fixed-tier candidate counts now throw an explicit error instead of being labeled T3; smoke covers run and compare unsupported-count paths. Revalidated with npm --prefix packages/main run test:memory-benchmark-smoke, npm --prefix packages/main run build, node bin/koala.js memory_benchmark_compare --candidateCounts=50000 --format=json (clean rejection), and 10k/100k/1M compare output preserving PASS metrics.",
-      "resolvedAt": "2026-06-09T00:20:21.915Z"
+      "resolvedAt": "2026-06-09T00:20:21.915Z",
+      "signatureTag": "memory|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-d4dd:F-003",
@@ -55,7 +59,9 @@
         "packages/main/src/tasks/memory-benchmark-smoke.ts"
       ],
       "resolvedReason": "Fixed by commit e245b145: determineVerdict now enforces documented metric minima exactRecallAt1=1.0, recallAt10>=0.90, MRR@10>=0.75, precision@10>=0.70 before PASS. Smoke covers high-MemoryScore failures for exactRecallAt1=0.9, recallAt10=0.89, mrrAt10=0.74, precisionAt10=0.69. Revalidated with npm --prefix packages/main run build, npm --prefix packages/main run test:memory-benchmark-smoke, targeted node repro returning FAIL with memoryScore 99.30556, default 10k/100k/1M compare PASS, and koala validate 9/9 coverage.",
-      "resolvedAt": "2026-06-09T00:32:51.210Z"
+      "resolvedAt": "2026-06-09T00:32:51.210Z",
+      "signatureTag": "memory|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }

@@ -16,7 +16,9 @@
         "packages/main/templates/agents/koala-review-concept.md",
         ".claude/agents/koala-review-concept.md",
         ".Codex/agents/koala-review-concept.md"
-      ]
+      ],
+      "signatureTag": "dispatch|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-002",
@@ -32,7 +34,9 @@
       "files": [
         "scripts/verify-process-fact-contract.mjs",
         "packages/main/src/tasks/review-pass-discard-smoke.ts"
-      ]
+      ],
+      "signatureTag": "dispatch|false-positive-gate",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-003",
@@ -48,7 +52,9 @@
       "files": [
         "packages/main/src/core/command-policy.ts",
         "packages/main/src/core/config.ts"
-      ]
+      ],
+      "signatureTag": "review-escalation|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-004",
@@ -63,7 +69,9 @@
       "_hash": "5fa6222a8d5a07734920a8821c7d5660cf8a76003e6b40530d0364c25c638fb4",
       "files": [
         "packages/main/src/handlers/story-dispatch.ts"
-      ]
+      ],
+      "signatureTag": "dispatch|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-005",
@@ -79,7 +87,9 @@
       "files": [
         "packages/main/src/core/reviewer-status.ts",
         "packages/main/src/handlers/session.ts"
-      ]
+      ],
+      "signatureTag": "review-escalation|error-swallowing",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-006",
@@ -94,7 +104,9 @@
       "_hash": "f0bfe75b787501adca03a2beed44fd4e23be7b8c370c14846f9b2cee9c29d695",
       "files": [
         "packages/main/src/handlers/session.ts"
-      ]
+      ],
+      "signatureTag": "dispatch|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-007",
@@ -122,7 +134,9 @@
         ".Codex/agents/koala-evaluator.md",
         "packages/main/src/handlers/finding.ts",
         "packages/main/src/handlers/story-dispatch.ts"
-      ]
+      ],
+      "signatureTag": "dispatch|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-008",
@@ -138,7 +152,9 @@
       "files": [
         "scripts/verify-anti-stall-guardrails.mjs",
         "packages/main/src/core/anti-stall.ts"
-      ]
+      ],
+      "signatureTag": "test-infra|false-positive-gate",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-009",
@@ -154,7 +170,9 @@
       "files": [
         "packages/main/src/core/finding-verify.ts",
         "packages/main/src/core/review-run.ts"
-      ]
+      ],
+      "signatureTag": "review-escalation|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ad12:F-010",
@@ -171,7 +189,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/review-run.ts",
         "packages/main/src/handlers/reviewer-list.ts"
-      ]
+      ],
+      "signatureTag": "review-escalation|gate-bypass",
+      "signatureTagSource": "backfill"
     }
   ]
 }

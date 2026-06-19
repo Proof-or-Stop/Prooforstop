@@ -19,7 +19,9 @@
         "packages/main/src/tasks/unattended-dispatch-smoke.ts"
       ],
       "resolvedReason": "Resolved by clarifying README.md and docs/requirements/decisions/host-overflow.md: standalone host_runtime_probe.unattendedSafe remains conservative false; dispatch_auto performs composed authorization using policy, Claude availability, --print support, command allowlist, timeout, env, and scope gates.",
-      "resolvedAt": "2026-06-03T23:53:00.475Z"
+      "resolvedAt": "2026-06-03T23:53:00.475Z",
+      "signatureTag": "dispatch|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8a1a:F-002",
@@ -40,7 +42,9 @@
         "packages/main/src/tasks/dispatch-run-smoke.ts"
       ],
       "resolvedReason": "Resolved by adding unattended-dispatch-smoke coverage for claude-code policy missing allowRealHostSubprocess=true with fake claude on PATH; dispatch_auto refuses before creating dispatch records.",
-      "resolvedAt": "2026-06-03T23:53:01.285Z"
+      "resolvedAt": "2026-06-03T23:53:01.285Z",
+      "signatureTag": "dispatch|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8a1a:F-003",
@@ -59,7 +63,9 @@
         ".koala/story/actives/B-8a1a"
       ],
       "resolvedReason": "Resolved by adding .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md with auditable CLI fake-Claude command sequence and JSON result summary; checklist evidence now references the artifact.",
-      "resolvedAt": "2026-06-03T23:53:02.136Z"
+      "resolvedAt": "2026-06-03T23:53:02.136Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8a1a:F-004",
@@ -77,7 +83,9 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "resolvedReason": "Resolved by updating pathResolvesWithinRoot to reject isAbsolute(relative(root,candidate)) and adding dispatch-run-smoke logic coverage for Windows cross-drive absolute relative results.",
-      "resolvedAt": "2026-06-03T23:53:02.947Z"
+      "resolvedAt": "2026-06-03T23:53:02.947Z",
+      "signatureTag": "dispatch|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8a1a:F-005",
@@ -95,7 +103,9 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "resolvedReason": "Resolved by requiring canonical commandAllowlist entry claude --print <prompt-file> before dispatch_auto may launch the real Claude subprocess; unattended smoke and CLI canary verify refusal without dispatch artifact creation.",
-      "resolvedAt": "2026-06-03T23:53:03.712Z"
+      "resolvedAt": "2026-06-03T23:53:03.712Z",
+      "signatureTag": "dispatch|gate-bypass",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8a1a:F-006",
@@ -114,7 +124,9 @@
         ".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md"
       ],
       "resolvedReason": "Resolved by updating .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md to include the missing launcher refusal command and result: dispatch_auto exits non-zero, mentions commandAllowlist and claude --print <prompt-file>, and creates no dispatch record.",
-      "resolvedAt": "2026-06-04T00:04:22.293Z"
+      "resolvedAt": "2026-06-04T00:04:22.293Z",
+      "signatureTag": "evidence-freshness|stale-binding",
+      "signatureTagSource": "backfill"
     }
   ]
 }

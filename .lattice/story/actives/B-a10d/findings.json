@@ -17,7 +17,9 @@
         "Lattice-Production-Safety-baseline.md"
       ],
       "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: Engineering Baseline defines maturity_target, required_engineering_runs, required_correctness_rate, and the weighted overall_correctness_protected_success_rate formula; Production Safety AUTH-MULTI-HOST-1 now requires requiredIndependentHosts >= 2 per review wave and observedIndependentHostsPerWave for each satisfied wave.",
-      "resolvedAt": "2026-06-09T19:55:35.244Z"
+      "resolvedAt": "2026-06-09T19:55:35.244Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-a10d:F-002",
@@ -36,7 +38,9 @@
         "Lattice-Loop-Engineering-baseline.md"
       ],
       "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: PROD-SOAK-1 production soak now requires valid_suite_runs >= 30, minimum cadence of one valid suite run per UTC day, max 36-hour gap, and exclusion rules; UDM-HUMAN-HANDOFF-1 now seeds a human-only decision and requires EXPECTED_BLOCK/ESCALATED, no DONE before humanDecisionEvidence, and resume only after human evidence.",
-      "resolvedAt": "2026-06-09T19:55:41.753Z"
+      "resolvedAt": "2026-06-09T19:55:41.753Z",
+      "signatureTag": "docs|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-a10d:F-003",
@@ -54,7 +58,9 @@
         "Lattice-Capability-Claim-baseline.md"
       ],
       "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: Capability Claim table now says Loop Engineering claim is for tested task classes and Production Safety claim is for tested project classes plus stated maturity target, matching detailed allowed wording.",
-      "resolvedAt": "2026-06-09T19:55:49.720Z"
+      "resolvedAt": "2026-06-09T19:55:49.720Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

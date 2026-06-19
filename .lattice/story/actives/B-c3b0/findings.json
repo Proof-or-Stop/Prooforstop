@@ -17,7 +17,9 @@
         "packages/main/src/tasks/worktree-authority-smoke.ts"
       ],
       "resolvedReason": "Include packages/main/package-lock.json in the DONE post-merge build trigger and smoke coverage so dependency lockfile-only changes refresh packages/main/dist.",
-      "resolvedAt": "2026-06-13T12:17:49.384Z"
+      "resolvedAt": "2026-06-13T12:17:49.384Z",
+      "signatureTag": "story-lifecycle|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-c3b0:F-002",
@@ -37,7 +39,9 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "resolvedReason": "done_recover now invokes the shared post-merge packages/main build hook after recovery merges, with smoke coverage and lifecycle docs updated.",
-      "resolvedAt": "2026-06-13T12:27:58.166Z"
+      "resolvedAt": "2026-06-13T12:27:58.166Z",
+      "signatureTag": "story-lifecycle|incomplete-impl",
+      "signatureTagSource": "backfill"
     }
   ]
 }

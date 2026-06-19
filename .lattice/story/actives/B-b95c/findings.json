@@ -16,7 +16,9 @@
         "packages/main/src/init-assets.ts",
         "packages/main/src/cli-init.ts",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b95c:F-002",
@@ -32,7 +34,9 @@
       "_hash": "7195987e73b4f6fd59dad7a4c43f98f40758c4e21c4bce4c4d050e8de7d503d3",
       "files": [
         "packages/main/src/core/runtime-environment-checks.ts"
-      ]
+      ],
+      "signatureTag": "process-fact|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b95c:F-003",
@@ -49,7 +53,9 @@
       "files": [
         "packages/main/src/core/runtime-environment-checks.ts",
         "packages/main/src/core/runtime-fact-registry.ts"
-      ]
+      ],
+      "signatureTag": "process-fact|concept-residue",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b95c:F-004",
@@ -65,7 +71,9 @@
       "_hash": "863fdbec8013e10d9ca21d0eba3fe97d5907a84bae6ec3346b1f7ec6afb3b8fe",
       "files": [
         "packages/main/src/tasks/validation-protocol-smoke.ts"
-      ]
+      ],
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b95c:F-005",
@@ -83,7 +91,9 @@
         "AGENTS.md",
         "KOALA.md",
         "README.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b95c:F-006",
@@ -104,7 +114,9 @@
         "packages/main/src/cli-engine.ts",
         "AGENTS.md",
         "KOALA.md"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b95c:F-007",
@@ -121,7 +133,9 @@
       "files": [
         "packages/main/src/handlers/background.ts",
         "packages/main/src/core/background-validator.ts"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

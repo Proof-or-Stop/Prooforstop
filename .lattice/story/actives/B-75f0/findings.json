@@ -16,7 +16,9 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "resolvedReason": "Fixed in f32bfb3: verifier.ts no-story validate path now passes loadConfig(projectRoot) as the 3rd arg to resolveProjectGitCwd, matching all 6 other call sites, so a configured gitRoot subdir is resolved on wrapper-root layouts. Build clean, contract + graceful-sites smoke green, plain-repo byte-identity preserved.",
-      "resolvedAt": "2026-06-17T23:29:36.559Z"
+      "resolvedAt": "2026-06-17T23:29:36.559Z",
+      "signatureTag": "gitroot-cwd|logic-error",
+      "signatureTagSource": "backfill"
     }
   ]
 }

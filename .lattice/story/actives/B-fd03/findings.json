@@ -11,7 +11,9 @@
       "createdAt": "2026-06-02T15:43:54.502Z",
       "reviewRound": "2026-06-02T15:36:50.208Z",
       "reviewRunId": "B-fd03:RR-002",
-      "_hash": "33f2b7205e8807838424a46e1f22f3b88340700bba499be4cc3e66f3b98cb964"
+      "_hash": "33f2b7205e8807838424a46e1f22f3b88340700bba499be4cc3e66f3b98cb964",
+      "signatureTag": "experience-layer|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-002",
@@ -29,7 +31,9 @@
         "packages/main/src/handlers/hints.ts",
         ".claude/hooks/session-brief-reminder.cjs",
         "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
-      ]
+      ],
+      "signatureTag": "experience-layer|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-003",
@@ -46,7 +50,9 @@
       "files": [
         "README.md",
         "docs/guide.md"
-      ]
+      ],
+      "signatureTag": "docs|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-004",
@@ -63,7 +69,9 @@
       "files": [
         ".koala/story/actives/B-fd03/checklist.json",
         ".koala/story/actives/B-fd03/evidence/rollout-transcript.md"
-      ]
+      ],
+      "signatureTag": "evidence-freshness|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-005",
@@ -83,7 +91,9 @@
         "README.md",
         "docs/guide.md",
         "docs/requirements/decisions/project-vision.md"
-      ]
+      ],
+      "signatureTag": "test-infra|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-006",
@@ -99,7 +109,9 @@
       "_hash": "2a48a5f56d25bbccba62c7a09cd3612487a0fb633f992028ded5ae85bc0fa8b0",
       "files": [
         ".koala/story/actives/B-fd03/evidence/rollout-transcript.md"
-      ]
+      ],
+      "signatureTag": "evidence-freshness|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-007",
@@ -116,7 +128,9 @@
       "files": [
         "packages/main/src/core/rollout-check.ts",
         "packages/main/src/tasks/rollout-check-smoke.ts"
-      ]
+      ],
+      "signatureTag": "cli-engine|logic-error",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-008",
@@ -134,7 +148,9 @@
         ".koala/story/actives/B-fd03/evidence/rollout-transcript.md",
         "README.md",
         "docs/guide.md"
-      ]
+      ],
+      "signatureTag": "evidence-freshness|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-fd03:F-009",
@@ -152,7 +168,9 @@
         ".koala/story/actives/B-fd03/checklist.json",
         ".koala/story/actives/B-fd03/evidence/rollout-transcript.md",
         "packages/main/src/core/rollout-check.ts"
-      ]
+      ],
+      "signatureTag": "story-lifecycle|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

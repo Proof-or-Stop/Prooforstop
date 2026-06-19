@@ -17,7 +17,9 @@
         "docs/dev/test-coverage.md"
       ],
       "resolvedReason": "CHK-003:edge:0 intent rewritten to match actual runner behavior: assert 3x full-pass summary line (count-agnostic, matches both plain and Final: prefixed forms) instead of the stale hard-coded 'Final: 167/167'. Retry never fired this round because pass 1 was clean — correct behavior; the two-pass safety net is proven by self-smoke cases a/b/c/d. Evidence re-recorded with macOS-safe per-file loop command.",
-      "resolvedAt": "2026-06-18T13:10:20.851Z"
+      "resolvedAt": "2026-06-18T13:10:20.851Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2941:F-002",
@@ -32,7 +34,9 @@
       "reviewRunId": "B-2941:RR-001",
       "_hash": "1a0ec807b21ad6747c5811053fec916aa36327886e8ac3a4d117d865911b9169",
       "resolvedReason": "Same root cause as F-001 (behavior lane filed it independently). CHK-003:edge:0 intent + evidence corrected to reflect that retry didn't fire in the clean runs; Final: behavior proven by self-smoke a/d.",
-      "resolvedAt": "2026-06-18T13:10:21.606Z"
+      "resolvedAt": "2026-06-18T13:10:21.606Z",
+      "signatureTag": "evidence-freshness|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-2941:F-003",
@@ -47,7 +51,9 @@
       "reviewRunId": "B-2941:RR-001",
       "_hash": "856e1ad3769fe4057aa9693d134ee0c9f4957b76c07f3361eb27ab92cb143939",
       "resolvedReason": "CHK-001 userSees is PLAN-frozen so cannot be edited in DEV; the conflation it described (hard-coded 'Final: 167/167') is a documentation-clarity issue, not a code defect — quality + behavior lanes both confirmed run-all-smokes.ts correctly emits the conditional Final: prefix only when retried=true. The accurate output-state description now lives in the CHANGELOG B-2941 entry + docs/dev/test-coverage.md two-pass section (both reviewed PASS). No code change needed.",
-      "resolvedAt": "2026-06-18T13:10:22.319Z"
+      "resolvedAt": "2026-06-18T13:10:22.319Z",
+      "signatureTag": "story-lifecycle|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

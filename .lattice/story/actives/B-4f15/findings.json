@@ -16,7 +16,9 @@
         "docs/requirements/decisions/role-separation.md",
         ".claude/agents/koala-evaluator.md",
         ".Codex/agents/koala-evaluator.md"
-      ]
+      ],
+      "signatureTag": "finding-lifecycle|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4f15:F-002",
@@ -32,7 +34,9 @@
       "_hash": "aaa3ef7c0cd970943aaf38b9b6d6b2fe80eafc48d9ca5a7ba4dbfc64c9534e7e",
       "files": [
         "packages/main/src/tasks/command-ownership-contract.ts"
-      ]
+      ],
+      "signatureTag": "test-infra|naming-inconsistency",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-4f15:F-003",
@@ -45,7 +49,9 @@
       "createdAt": "2026-06-01T16:41:06.998Z",
       "reviewRound": "2026-06-01T16:36:45.678Z",
       "reviewRunId": "B-4f15:RR-007",
-      "_hash": "433bdb6f62fb1f4b4c8bf98578ae04119992e10a8614c63284bc5811f3a7ae31"
+      "_hash": "433bdb6f62fb1f4b4c8bf98578ae04119992e10a8614c63284bc5811f3a7ae31",
+      "signatureTag": "finding-lifecycle|incomplete-impl",
+      "signatureTagSource": "backfill"
     }
   ]
 }

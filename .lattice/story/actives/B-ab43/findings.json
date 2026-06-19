@@ -16,7 +16,9 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
       ],
       "resolvedReason": "Resolved by making wrapper-root semantics consistent: non-git metadataRoot with nested cwd now fails closed unless explicit gitRoot or worktree attachment exists. Verified with rg for current-git-cwd absence, nested cwd fail-closed wording, and git diff --check after commit 2bd71488.",
-      "resolvedAt": "2026-06-12T16:00:11.638Z"
+      "resolvedAt": "2026-06-12T16:00:11.638Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ab43:F-002",
@@ -35,7 +37,9 @@
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
       "resolvedReason": "Resolved by updating docs/requirements/NAV.md to 42 files and adding Formal Unlock Artifact Isolation Execution Plan. Verified rg --files docs/requirements/decisions count equals NAV decision link count equals 42.",
-      "resolvedAt": "2026-06-12T16:00:17.733Z"
+      "resolvedAt": "2026-06-12T16:00:17.733Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-ab43:F-003",
@@ -54,7 +58,9 @@
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
       "resolvedReason": "Resolved by the same NAV repair as F-002: NAV now states 42 files and includes decisions/formal-unlock-artifact-isolation-execution-plan.md. Verified decision file count and NAV link count both return 42.",
-      "resolvedAt": "2026-06-12T16:00:22.980Z"
+      "resolvedAt": "2026-06-12T16:00:22.980Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

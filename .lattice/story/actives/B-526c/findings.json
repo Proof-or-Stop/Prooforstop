@@ -19,7 +19,9 @@
         "packages/main/src/handlers/lattice-cli.ts:605"
       ],
       "resolvedReason": "Resolved by d7b106e: validateRepairGitRootTarget now performs lexical containment before existence checks and canonical realpath containment only for existing targets, so missing relative children under /var metadata roots report target does not exist instead of unsafe path. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/field-regression-cli-smoke.js, and node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-12T20:14:03.924Z"
+      "resolvedAt": "2026-06-12T20:14:03.924Z",
+      "signatureTag": "config|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

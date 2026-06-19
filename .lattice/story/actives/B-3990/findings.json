@@ -17,7 +17,9 @@
         "packages/main/package.json"
       ],
       "dismissReason": "Out-of-scope systemic gap, not a B-3990 defect. The smoke is real and passing (with a negative-check that catches the old projectRoot behavior); all 6 must intents have passing logic_test evidence. Wiring smokes into the validate battery requires editing the ROOT package.json test script (test=npm run test:e2e only) — outside B-3990 execution boundary (packages/main only) and a pattern-wide concern: every wrapper-root smoke (B-198c storydir suite, B-2856 gitroot-cwd-routing, plus authority/evidence smokes) shares this exact gap, and both B-198c and B-2856 reached DONE with it. Closing it belongs in a dedicated infra story that aggregates all such smokes into the validate run; tracked as follow-up, not forced into this narrow cwd fix.",
-      "dismissedAt": "2026-06-15T23:41:27.141Z"
+      "dismissedAt": "2026-06-15T23:41:27.141Z",
+      "signatureTag": "gitroot-cwd|missing-test-coverage",
+      "signatureTagSource": "backfill"
     }
   ]
 }

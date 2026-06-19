@@ -17,7 +17,9 @@
         "packages/main/src/core/machine.ts"
       ],
       "resolvedReason": "Repro: validation-protocol smoke seeds PLAN story then makes loadConfig throw via legacy .koala storyDir; getGuardFailureReason(...,DEV) still returns null. Root cause: transition-orchestrator fallback used that human-facing renderer as canSend oracle while machine canStartDev fails closed on config/read/review errors. Fix: machine guard predicates are exported/shared through canSendStoryEventWithoutSnapshotCan; orchestrator fallback no longer uses getGuardFailureReason and assertStoryTransitionReachedTarget verifies actor.send reached DEV before any DEV side effects. ReproTest: npm --prefix packages/main run test:validation-protocol, npm --prefix packages/main run build, npm test, node scripts/verify-process-fact-contract.mjs all pass.",
-      "resolvedAt": "2026-06-12T21:52:47.681Z"
+      "resolvedAt": "2026-06-12T21:52:47.681Z",
+      "signatureTag": "story-lifecycle|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-50fb:F-002",
@@ -37,7 +39,9 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "resolvedReason": "Repro: worktree-repair smoke simulates global node_modules containing canonical @lattice-agent/core plus legacy @koala-agent/core symlink into the story worktree. Root cause: resolveGlobalCorePackagePath selected only the first package path, so a canonical install masked a stale legacy symlink during DONE cleanup. Fix: repairGlobalKoalaLinkBeforeWorktreeDelete now resolves all present canonical and legacy core package entries and relinks every symlink pointing into the worktree pending deletion while preserving explicit single-path repair calls. ReproTest: npm --prefix packages/main run test:worktree-repair-smoke, npm --prefix packages/main run build, npm test, node scripts/verify-runtime-fact-contract.mjs, node scripts/verify-entrypoints.mjs all pass.",
-      "resolvedAt": "2026-06-12T21:52:33.446Z"
+      "resolvedAt": "2026-06-12T21:52:33.446Z",
+      "signatureTag": "worktree|concept-residue",
+      "signatureTagSource": "backfill"
     }
   ]
 }

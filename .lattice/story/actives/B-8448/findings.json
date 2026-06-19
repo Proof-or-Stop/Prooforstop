@@ -17,7 +17,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Resolved by docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md Complete Line-Level Translation Manifest. The manifest has 762 rows matching the 762 Chinese-bearing packages/main/src/cli-engine.ts lines, with proposedEnglish populated for each row and no Chinese or fallback placeholders in proposedEnglish.",
-      "resolvedAt": "2026-06-13T13:42:47.816Z"
+      "resolvedAt": "2026-06-13T13:42:47.816Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8448:F-002",
@@ -36,7 +38,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Resolved by adding the missing later CLI public surfaces to the Complete Line-Level Translation Manifest, including draft_check_set, draft_issue_resolve, delivery_waiver_add, scope_question_resolve, dispatch, background_set, help output, and INIT_CHECK hints. Mechanical validation confirms 762 source lines map to 762 manifest rows.",
-      "resolvedAt": "2026-06-13T13:42:48.503Z"
+      "resolvedAt": "2026-06-13T13:42:48.503Z",
+      "signatureTag": "docs|incomplete-impl",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8448:F-003",
@@ -54,7 +58,9 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ],
       "resolvedReason": "Fixed in commit 2c07f23e7 (spec-table order/sourceLine rename, cli-output enum, Argument-validation term).",
-      "resolvedAt": "2026-06-13T16:22:30.015Z"
+      "resolvedAt": "2026-06-13T16:22:30.015Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8448:F-004",
@@ -72,7 +78,9 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ],
       "resolvedReason": "Fixed in commit 2c07f23e7 (spec-table order/sourceLine rename, cli-output enum, Argument-validation term).",
-      "resolvedAt": "2026-06-13T16:22:30.516Z"
+      "resolvedAt": "2026-06-13T16:22:30.516Z",
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8448:F-005",
@@ -90,7 +98,9 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ],
       "resolvedReason": "Fixed in commit 2c07f23e7 (spec-table order/sourceLine rename, cli-output enum, Argument-validation term).",
-      "resolvedAt": "2026-06-13T16:22:31.070Z"
+      "resolvedAt": "2026-06-13T16:22:31.070Z",
+      "signatureTag": "docs|naming-inconsistency",
+      "signatureTagSource": "backfill"
     }
   ]
 }

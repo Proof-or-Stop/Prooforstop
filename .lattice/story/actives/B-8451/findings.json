@@ -13,7 +13,9 @@
       "reviewRunId": "B-8451:RR-001",
       "_hash": "cdda12c4410b902d3ade7ec38564fe5ea41c6516d67684eade66720072aed927",
       "resolvedReason": "Added test6 to deprecated-gc-smoke.ts: verifies count===threshold does NOT trigger advisory (strictly greater than). Build passes.",
-      "resolvedAt": "2026-06-18T00:43:44.249Z"
+      "resolvedAt": "2026-06-18T00:43:44.249Z",
+      "signatureTag": "story-lifecycle|missing-test-coverage",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-8451:F-002",
@@ -28,7 +30,9 @@
       "reviewRunId": "B-8451:RR-001",
       "_hash": "9d7a0cc79e2ac068f175c10e967ca4315fe3ad73af3aafee4ee152bcc073193e",
       "resolvedReason": "Updated catch block comment: corrects explanation — execSync throws on unexpected errors (ENOENT/timeout), not grep zero-match (already handled by || echo 0 in shell command).",
-      "resolvedAt": "2026-06-18T00:43:45.368Z"
+      "resolvedAt": "2026-06-18T00:43:45.368Z",
+      "signatureTag": "other|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

@@ -18,7 +18,9 @@
         "packages/main/src/tasks/outcome-semantics-smoke.ts"
       ],
       "resolvedReason": "Fixed by recording CHK-002/CHK-003 Authority blocker evidence as verdict=blocked_classified with result=fail, preserving failed proof semantics; added explicit permanent waivers only for lifecycle coverage so B-22b0 can close as blocked audit without claiming receiptVerified/authorityDone/fullAuthorityDone; reproduced command strings now include LATTICE_AUTHORITY_TRUST_ENV_FILE where the trust profile is required.",
-      "resolvedAt": "2026-06-13T13:45:29.210Z"
+      "resolvedAt": "2026-06-13T13:45:29.210Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-22b0:F-002",
@@ -37,7 +39,9 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedReason": "Fixed by adding independent custom intentRefs for failed Authority proof transcripts: CHK-002:authority-proof-fail:status-policy, CHK-002:authority-proof-fail:runner-done, and CHK-003:authority-proof-fail:final-audit. evidence_inspect now shows these manual_transcript entries with verdict=blocked_classified and result=fail, while required intent refs remain explicit permanent waivers for lifecycle closure only and do not claim receiptVerified/authorityDone/fullAuthorityDone.",
-      "resolvedAt": "2026-06-13T13:48:18.917Z"
+      "resolvedAt": "2026-06-13T13:48:18.917Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-22b0:F-003",
@@ -52,7 +56,9 @@
       "reviewRunId": "B-22b0:RR-007",
       "_hash": "30af82590adf05099ae24c70e13c4d142b4e2c39df527d50fe75883f01fdf955",
       "resolvedReason": "Fixed by changing packages/main/src/core/lattice-evidence.ts so evidence_inspect JSON preserves checklist verificationEvidence result, verdict, note, and waiverType. packages/main/src/tasks/lattice-evidence-smoke.ts now asserts failed custom proof refs remain result=fail/verdict=blocked_classified with note, while waiver refs remain waiver/pass/permanent. Verified with node packages/main/dist/cli.js evidence_inspect --storyId=B-22b0 --format=json; global lattice still points to main dist until DONE merge/rebuild.",
-      "resolvedAt": "2026-06-13T13:58:22.478Z"
+      "resolvedAt": "2026-06-13T13:58:22.478Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }

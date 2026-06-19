@@ -18,7 +18,9 @@
         "packages/main/src/handlers/phase-gates.ts"
       ],
       "resolvedReason": "Fixed in a0a87ceb8: done_closure now projects Authority DONE receipt readiness in enforce mode, sets authorityServerPath.required=true when required, blocks canAttemptDone without an eligible production gate_decision receipt, and remains read-only. Verified by npm --prefix packages/main run build; node packages/main/dist/tasks/done-preflight-smoke.js; npm --prefix packages/main run test:authority-gate-receipts; npm --prefix packages/main run test:authority-gate-consumption; node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-12T18:21:22.835Z"
+      "resolvedAt": "2026-06-12T18:21:22.835Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-cd1e:F-002",
@@ -38,7 +40,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
       ],
       "resolvedReason": "Fixed in a0a87ceb8: done_closure no longer derives full readiness from local DONE rows only. Authority enforce mode now projects receipt requirement and blocks canAttemptDone unless the existing authority receipt eligibility check accepts a production gate_decision ref for DONE. The command still does not write consumption events or claim Authority DONE. Verified by build, done-preflight smoke, authority gate receipts, authority gate consumption, and process fact contract.",
-      "resolvedAt": "2026-06-12T18:21:29.992Z"
+      "resolvedAt": "2026-06-12T18:21:29.992Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }

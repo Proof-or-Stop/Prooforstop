@@ -13,7 +13,9 @@
       "reviewRunId": "B-7110:RR-004",
       "_hash": "5088a62ff5eeb73f6f198e995766f681caa3f0385c9415189d076628e2d51fb9",
       "resolvedReason": "Fixed in commit b85c7a52: recommended composition now uses parallel_wave_create --output wave.json, marks parallel_report as human-readable summary only, restricts frozen snapshot seeding to full-envelope surfaces, and separates coordinator-added freeze metadata from current Wave fields. Re-verified with git diff --check and lattice parallel_wave_create --format=json.",
-      "resolvedAt": "2026-06-09T21:46:18.581Z"
+      "resolvedAt": "2026-06-09T21:46:18.581Z",
+      "signatureTag": "parallel-wave|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-7110:F-002",
@@ -28,7 +30,9 @@
       "reviewRunId": "B-7110:RR-002",
       "_hash": "169f52ed8588b09e2678cdb53bf0a0f82fe88455034f622980d39354e70b919b",
       "resolvedReason": "Fixed in commit b85c7a52: the section no longer treats parallel_report as the binding artifact and explicitly distinguishes full-envelope Wave artifact fields from future coordinator-added freeze metadata. Re-verified with git diff --check and lattice parallel_wave_create --format=json.",
-      "resolvedAt": "2026-06-09T21:45:45.245Z"
+      "resolvedAt": "2026-06-09T21:45:45.245Z",
+      "signatureTag": "parallel-wave|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-7110:F-003",
@@ -43,7 +47,9 @@
       "reviewRunId": "B-7110:RR-006",
       "_hash": "512b2e411ba69f10d60f6c39611f801be8ef614f6855b20fad992f1f6c71373d",
       "resolvedReason": "Fixed in commit e585465b: frozen snapshot fields now say schemaVersion or waveSchemaVersion, and the new schema marker rule explicitly states parallel_wave_create provides schemaVersion/generatedAt while inspect/plan provide waveSchemaVersion. Re-verified with git diff --check and live lattice parallel_wave_create --format=json field extraction.",
-      "resolvedAt": "2026-06-09T21:51:54.493Z"
+      "resolvedAt": "2026-06-09T21:51:54.493Z",
+      "signatureTag": "parallel-wave|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-7110:F-004",
@@ -63,7 +69,9 @@
         "packages/main/src/core/lattice-parallel-wave.ts"
       ],
       "resolvedReason": "Fixed in commit e585465b: the document no longer implies parallel_wave_create has waveSchemaVersion; it records the source-surface schema marker distinction and preserves original source artifact/source command in coordinator freeze wrapper wording. Re-verified with git diff --check and live lattice parallel_wave_create --format=json field extraction.",
-      "resolvedAt": "2026-06-09T21:51:55.612Z"
+      "resolvedAt": "2026-06-09T21:51:55.612Z",
+      "signatureTag": "parallel-wave|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     }
   ]
 }

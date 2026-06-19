@@ -16,7 +16,9 @@
         "packages/main/src/core/review-run.ts"
       ],
       "resolvedReason": "Fixed in bb40aada: validateRunWorkspaceBinding now re-resolves the current story signed workspace from metadataRoot/config and rejects stale review runs whose workspaceBinding no longer matches the current metadataRoot, signedWorkspaceRoot, repoRoot, or workspaceMode. Verified by npm --prefix packages/main run test:field-regression-cli-smoke and lattice validate --story=B-b750 --json.",
-      "resolvedAt": "2026-06-12T16:56:52.632Z"
+      "resolvedAt": "2026-06-12T16:56:52.632Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b750:F-002",
@@ -31,7 +33,9 @@
       "reviewRunId": "B-b750:RR-003",
       "_hash": "0db4bacdb361c7aae3348a26a8b771c8b98a0c51bb8a09e7af5b4421211c54b3",
       "resolvedReason": "Fixed in bb40aada: field regression coverage now mechanically asserts local review evidence and process facts do not contain Authority completion claims such as authorityDone, fullAuthorityDone, receiptVerified, productionDone, or authority receipt artifacts. Process-fact contract updated to keep workspace binding as local REVIEW evidence only. Verified by npm --prefix packages/main run test:field-regression-cli-smoke and node scripts/verify-process-fact-contract.mjs.",
-      "resolvedAt": "2026-06-12T16:56:57.973Z"
+      "resolvedAt": "2026-06-12T16:56:57.973Z",
+      "signatureTag": "authority|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-b750:F-003",
@@ -46,7 +50,9 @@
       "reviewRunId": "B-b750:RR-001",
       "_hash": "bb42bc14ac7697fa15aa26dcea7b24e82a7214ee9c0be5fcfaf24bd0f08c21ca",
       "resolvedReason": "Fixed in bb40aada: persisted story.worktree.path resolution now verifies the worktree branch against story.worktree.branch / story/<storyId> before trusting it; branch-mismatched paths are rejected/fall through to valid linked story branch worktree resolution. Verified by npm --prefix packages/main run test:field-regression-cli-smoke and lattice validate --story=B-b750 --json.",
-      "resolvedAt": "2026-06-12T16:57:03.102Z"
+      "resolvedAt": "2026-06-12T16:57:03.102Z",
+      "signatureTag": "worktree|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }

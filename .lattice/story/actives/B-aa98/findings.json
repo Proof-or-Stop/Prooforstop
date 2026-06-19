@@ -16,7 +16,9 @@
         "README.md",
         "docs/guide.md",
         "docs/requirements/decisions/project-vision.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-aa98:F-002",
@@ -34,7 +36,9 @@
         "packages/main/src/core/lattice-hosts.ts",
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/project-vision.md"
-      ]
+      ],
+      "signatureTag": "docs|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-aa98:F-003",
@@ -50,7 +54,9 @@
       "_hash": "d9c61dd8e302883d4651a4796d705366b5262231927a486e0adaad0760aadd78",
       "files": [
         "packages/main/src/core/lattice-handoff.ts"
-      ]
+      ],
+      "signatureTag": "dispatch|fail-open",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-aa98:F-004",
@@ -68,7 +74,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/handlers/lattice-handoff.ts",
         "docs/guide.md"
-      ]
+      ],
+      "signatureTag": "cli-engine|doc-code-mismatch",
+      "signatureTagSource": "backfill"
     },
     {
       "id": "B-aa98:F-005",
@@ -87,7 +95,9 @@
         "packages/main/src/tasks/host-overflow-smoke.ts"
       ],
       "resolvedReason": "handoff_receipt_submit now proves baseSha..headSha via git diff, requires receipt changedFiles to appear in that diff, and folds actual diff scope into receipt diagnostics so unrelated existing commits no longer pass local acceptance. Smoke coverage now submits an existing but unrelated local commit and expects diagnostic instead of accepted-local. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:host-overflow-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm --prefix packages/main run test:lattice-cli-migration-smoke, npm run test:command-ownership-contract, npm run test:process-fact-contract, and git diff --check.",
-      "resolvedAt": "2026-06-02T22:11:15.648Z"
+      "resolvedAt": "2026-06-02T22:11:15.648Z",
+      "signatureTag": "dispatch|fail-open",
+      "signatureTagSource": "backfill"
     }
   ]
 }
