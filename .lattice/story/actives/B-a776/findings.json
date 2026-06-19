@@ -36,6 +36,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a776:F-003",
+      "desc": "packages/main/src/tasks/cli-surface-smoke.ts:139 hard-codes B-a776 for review_escalation_status; that command fails when the story id is absent, so this package smoke depends on this review story metadata surviving after merge or archive. Use a generated temporary story/context or choose a command path that does not require story-local metadata.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-19T18:17:16.134Z",
+      "reviewRound": "2026-06-19T18:14:13.955Z",
+      "reviewRunId": "B-a776:RR-001",
+      "_hash": "c2167aab31fbe08e07d286dfaa53c96eaa1647147ade1302e6260570672116c8",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
