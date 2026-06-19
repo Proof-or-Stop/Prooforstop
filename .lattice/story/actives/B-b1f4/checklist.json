@@ -77,7 +77,70 @@
       "context": "In packages/main/src/core/usage-ledger/diagnostics.ts add a PrimaryTokenDimensions {input,output} plus an asPrimaryDimensions helper (null when input or output null). Extend SourceTokenTotals with primaryKnown {input,output} + primaryKnownCount, init in emptySourceTotals. In aggregateByGroup accumulate primaryKnown independent of the four-field known check (a cache-less record is four-field-unknown yet primary-known); still exclude source=unavailable. Roll primaryKnown/primaryKnownCount into overall in buildUsageReport (SourceTotalsWithCost inherits the fields). Keep `known`, knownCount, unknownCount, and computeCost (four-field only) unchanged. Preserve the zero-cross-module-import invariant. Optionally surface primary in usage-ledger-report.ts renderHuman.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build a codex provider-reported record (input=500, output=200, cacheCreation=null, cacheRead=null), run aggregateByGroup -> bySource[\"provider-reported\"].primaryKnown should be {input:500, output:200} and primaryKnownCount=1, while bySource[\"provider-reported\"].known should have knownCount=0 and unknownCount=1 (four-field unknown because cacheCreation null). WHY: confirms a cache-less record is four-field-unknown yet primary-known",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Build a claude provider-reported record (all four dims known: input=500, output=200, cacheCreation=10, cacheRead=50), run aggregateByGroup -> bySource[\"provider-reported\"].primaryKnown={input:500,output:200}, primaryKnownCount=1, AND known={input:500,output:200,cacheCreation:10,cacheRead:50}, knownCount=1. WHY: claude records appear in BOTH primary and four-field aggregates",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Build a mix of codex+gemini+claude records, call buildUsageReport -> overall.bySource[\"provider-reported\"].primaryKnown.input = sum of all three inputs, primaryKnownCount=3; overall known/knownCount reflect only the claude record. WHY: verifies rollup into overall preserves the dual-aggregate semantics",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Per-group aggregation: two records in different groups (different storyIds) each contribute independently to their group primaryKnown and both roll into overall. WHY: confirms per-group isolation and correct overall accumulation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Record with source=unavailable -> excluded from primaryKnown (primaryKnownCount unchanged), excluded from known (unknownCount incremented). WHY: unavailable is excluded from primary aggregate, not just four-field",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Record with input=null, output=200 (provider-reported) -> NOT counted in primaryKnown (input null means primary dimensions incomplete). WHY: primary requires both input AND output to be non-null, same as the summary.ts rule",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "emptySourceTotals() returns an object with primaryKnown={input:0,output:0} and primaryKnownCount=0 alongside the existing known/knownCount/unknownCount fields. WHY: confirms the zero-init includes the new fields",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "computeCost receives the same known (four-field) dimensions as before (no primary dimensions leak into cost computation). WHY: cost is strict four-field only; primary aggregate must not affect cost derivation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Static import analysis: diagnostics.ts imports only from ./summary.js, ./record.js, and node builtins — no cross-module import from outside usage-ledger/. WHY: preserves the zero-cross-module-import invariant stated in the story context",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "SourceTokenTotals type includes primaryKnown and primaryKnownCount at the TypeScript type level, and the existing fields (known, knownCount, unknownCount) remain unchanged in the type definition. WHY: ADDITIVE contract — existing type shape must not be modified",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A prompt-size-estimate record with all four dims known (input=100, output=50, cacheCreation=0, cacheRead=0) contributes to its source bucket (prompt-size-estimate) primaryKnown, NOT to the provider-reported bucket. WHY: verifies source-bucket isolation is maintained for primary aggregate just as for four-field",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
