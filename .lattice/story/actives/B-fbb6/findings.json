@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-fbb6:F-001",
+      "desc": "CHK-004:happy:7 evidence note claims no gemini script in package.json but root package.json line 32 still has test:usage-ledger-codex-gemini pointing to packages/main/dist/tasks/usage-ledger-codex-gemini-smoke.js which does not exist (renamed to usage-ledger-codex-antigravity-smoke.js). The bound command grep -n provider-antigravity||codex-antigravity||provider-gemini||codex-gemini package.json would reveal the stale entry. The file usage-ledger-codex-gemini-smoke.js cannot be found at runtime: node throws MODULE_NOT_FOUND. The intent requires no gemini script in package.json; evidence claim is factually incorrect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-19T18:11:09.376Z",
+      "reviewRound": "2026-06-19T18:08:04.063Z",
+      "reviewRunId": "B-fbb6:RR-004",
+      "_hash": "56b41cd54d6478781376a1c61369bfae3bf752c4ac8d1a18e3e3ae11993ee600",
+      "files": [
+        "package.json"
+      ],
+      "signatureTag": "missing|json|happy-evidence-note",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
