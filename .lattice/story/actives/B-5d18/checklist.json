@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "lattice.config.json now bounds review-pass-discard + init-window smokes with timeoutMs=120000 (object form); both still PASS when run directly (idle), so a slow run fails loud instead of hanging the suite.",
-          "headHash": "9d0cda21fa8050a43a2760fa70d704f6d5ab6824",
-          "materialHash": "ce12eaed587b524fb64096902c86d6c05a5b6e35601ca36d36c6c11b79ab2544",
-          "timestamp": "2026-06-19T18:49:03.406Z"
+          "headHash": "8b3ae7435c4ff29c905603136c2619f4fda4bfc8",
+          "materialHash": "181ca185776757c4f2c7ca6c5570d18ecef139f9b463675044e03564ab6d3068",
+          "timestamp": "2026-06-19T19:00:38.339Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node --input-type=module -e \"import {resolveMainRepoRoot} from \\\"./packages/main/dist/core/partial-done-recovery.js\\\"; import {tmpdir} from \\\"node:os\\\"; const t=tmpdir(); console.log(JSON.stringify({input:t,output:resolveMainRepoRoot(t),isolated:resolveMainRepoRoot(t)===t}));\"",
           "result": "pass",
           "note": "Runtime logic_test of the diagnosis: resolveMainRepoRoot(os.tmpdir()) returns the tmp path verbatim (isolated:true) because a tmp dir is not inside the main git repo, so git rev-parse --git-common-dir throws and the function falls back to resolve(root). This is why the slow smokes, which spawn lattice --root <tmpdir>, take an ISOLATED lock with no global main-write-lock contention; the prior 'hang' was transient machine saturation, not a deadlock. Replaces the prior static 'git show partial-done-recovery.ts' command (F-004/F-006/F-008) with an execution that observes the return value.",
-          "headHash": "076d7ddd1ecf5bc447f1ebabf22e9b73ac97352c",
-          "materialHash": "ce12eaed587b524fb64096902c86d6c05a5b6e35601ca36d36c6c11b79ab2544",
-          "timestamp": "2026-06-19T18:48:48.575Z"
+          "headHash": "8b3ae7435c4ff29c905603136c2619f4fda4bfc8",
+          "materialHash": "181ca185776757c4f2c7ca6c5570d18ecef139f9b463675044e03564ab6d3068",
+          "timestamp": "2026-06-19T19:00:38.339Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Bounded smoke still passes normally on an idle machine — timeoutMs is a ceiling (120s), not a forced failure; the smoke completes well within it.",
-          "headHash": "9d0cda21fa8050a43a2760fa70d704f6d5ab6824",
-          "materialHash": "ce12eaed587b524fb64096902c86d6c05a5b6e35601ca36d36c6c11b79ab2544",
-          "timestamp": "2026-06-19T18:49:03.406Z"
+          "headHash": "8b3ae7435c4ff29c905603136c2619f4fda4bfc8",
+          "materialHash": "181ca185776757c4f2c7ca6c5570d18ecef139f9b463675044e03564ab6d3068",
+          "timestamp": "2026-06-19T19:00:38.339Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "validate-command-timeout-smoke PASS: a hung command (setInterval) with the per-command timer is killed and finishes with code 124, timedOut=true; default ceiling applied when timeoutMs unset.",
-          "headHash": "9d0cda21fa8050a43a2760fa70d704f6d5ab6824",
-          "materialHash": "ce12eaed587b524fb64096902c86d6c05a5b6e35601ca36d36c6c11b79ab2544",
-          "timestamp": "2026-06-19T18:49:03.406Z"
+          "headHash": "8b3ae7435c4ff29c905603136c2619f4fda4bfc8",
+          "materialHash": "181ca185776757c4f2c7ca6c5570d18ecef139f9b463675044e03564ab6d3068",
+          "timestamp": "2026-06-19T19:00:38.339Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "Smoke PASS: resolveCommandTimeoutMs honors an explicit positive timeoutMs and falls back to DEFAULT (240s) for unset/0/negative; DEFAULT < 300000 (below global idle watchdog) and >= 200000 (above build).",
-          "headHash": "9d0cda21fa8050a43a2760fa70d704f6d5ab6824",
-          "materialHash": "ce12eaed587b524fb64096902c86d6c05a5b6e35601ca36d36c6c11b79ab2544",
-          "timestamp": "2026-06-19T18:49:03.406Z"
+          "headHash": "8b3ae7435c4ff29c905603136c2619f4fda4bfc8",
+          "materialHash": "181ca185776757c4f2c7ca6c5570d18ecef139f9b463675044e03564ab6d3068",
+          "timestamp": "2026-06-19T19:00:38.339Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "Smoke PASS: a fast command in the same plan completes cleanly (code 0, not timedOut) — no spurious timeout; overall plan fails loud only due to the hung command.",
-          "headHash": "9d0cda21fa8050a43a2760fa70d704f6d5ab6824",
-          "materialHash": "ce12eaed587b524fb64096902c86d6c05a5b6e35601ca36d36c6c11b79ab2544",
-          "timestamp": "2026-06-19T18:49:03.406Z"
+          "headHash": "8b3ae7435c4ff29c905603136c2619f4fda4bfc8",
+          "materialHash": "181ca185776757c4f2c7ca6c5570d18ecef139f9b463675044e03564ab6d3068",
+          "timestamp": "2026-06-19T19:00:38.339Z"
         }
       ]
     }
