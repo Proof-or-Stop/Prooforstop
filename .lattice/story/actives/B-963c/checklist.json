@@ -94,9 +94,9 @@
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#3-Round 2-Host Validation Policy",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T21:24:31.661Z",
       "files": {
         "modify": [
           "packages/main/src/core/process-fact-levels.ts",
@@ -137,7 +137,49 @@
           }
         ]
       },
-      "userSees": "`gap_analyze` reports `Gaps: 0 high / 0 medium`, and `convergence_check` shows `No high-priority gaps` as passed while unfinished stories remain a separate check."
+      "userSees": "`gap_analyze` reports `Gaps: 0 high / 0 medium`, and `convergence_check` shows `No high-priority gaps` as passed while unfinished stories remain a separate check.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze returned healthy=true with dashboard Gaps: 0 high / 0 medium and no gaps array, clearing the two explicitlyConfiguredHighRiskPolicyRequires3x2 high gaps.",
+          "headHash": "f3fefd064bbbea07118ffa2ed7d35ebf6addb8e3",
+          "materialHash": "c3897724e0ad8327b1538c959eeea046ed37b865c4642d4700478038c6c80191",
+          "timestamp": "2026-06-19T21:24:31.758Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified; includes review_escalation_policy_set L4 gate-evidence and runtime:review_escalation_done_gate semantics for the explicit policy predicate.",
+          "headHash": "f3fefd064bbbea07118ffa2ed7d35ebf6addb8e3",
+          "materialHash": "c3897724e0ad8327b1538c959eeea046ed37b865c4642d4700478038c6c80191",
+          "timestamp": "2026-06-19T21:24:31.842Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js convergence_check",
+          "result": "pass",
+          "note": "convergence_check reports No high-priority gaps passed and Code annotations compliant passed; remaining non-convergence is only unfinished stories B-0e53, B-5a9a, B-963c, B-fbb6.",
+          "headHash": "f3fefd064bbbea07118ffa2ed7d35ebf6addb8e3",
+          "materialHash": "c3897724e0ad8327b1538c959eeea046ed37b865c4642d4700478038c6c80191",
+          "timestamp": "2026-06-19T21:24:31.923Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Smoke and contract checks both assert the exact explicitlyConfiguredHighRiskPolicyRequires3x2 predicate token across evaluator, registry, command schema, and regression coverage.",
+          "headHash": "f3fefd064bbbea07118ffa2ed7d35ebf6addb8e3",
+          "materialHash": "c3897724e0ad8327b1538c959eeea046ed37b865c4642d4700478038c6c80191",
+          "timestamp": "2026-06-19T21:24:32.001Z"
+        }
+      ]
     }
   ],
   "auditLog": [
