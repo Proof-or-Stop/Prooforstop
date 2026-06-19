@@ -254,7 +254,7 @@
       "desc": "cfg.parallelGate.mode wrong field path at call site: §4.4 line 333 says canStartDevGuard checks `cfg.parallelGate.mode === block` after calling evaluateDecompositionGate(story, peers, contracts, cfg). But cfg is typed ParallelGateConfig (§4.4 line 341), which already IS the resolved nested object with fields {mode, maxConcurrentReview, broadGlobBlocks} — it has no .parallelGate sub-field. The correct check is `cfg.mode === block`. As written this is a runtime TypeError: any implementer copying this call site literally would access undefined and the block gate would silently never fire.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T02:07:38.527Z",
@@ -265,7 +265,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "edge|md|parallelgate-mode-wrong",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29bb434f7: §4.4 line 333 corrected to cfg.mode (cfg = resolveAuditConfig(...).parallelGate, a ParallelGateConfig); clarified the call site extracts parallelGate.",
+      "resolvedAt": "2026-06-19T02:20:19.827Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-013",
