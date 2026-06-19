@@ -62,7 +62,153 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (c): clean tree -> review_run_start PROCEEDS and records RR-001.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (d): only .lattice metadata dirty -> PROCEEDS (non-blocking lattice_metadata category), with a pre-condition assert that isBlockingDirty(classification).blocked===false.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (g) regression: buildDoneChecklist git-working-tree row is unchanged after the readGitStatusLines extraction (DONE verdict byte-identical).",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (h): unreadable git status (non-git dir -> readGitStatusLines ok:false) -> preflight fails open, does NOT block.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "audit_only",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Covered by construction + parity: isBlockingDirty derives 'blocked' from DIRTY_GATE_POLICY[cat].blocking; runtime_artifact_changes is blocking:false (same as the directly-tested lattice_metadata). Smoke (d)+(f) exercise the non-blocking pass-through path and parity vs the DONE gate. Directly dirtying a runtime-artifact path needs registry fixtures and adds no soundness beyond the shared policy table.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "audit_only",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Covered by construction + parity: declared_artifact_changes is blocking:false in DIRTY_GATE_POLICY (same path as the tested lattice_metadata); isBlockingDirty reads that table and the parity test (f) proves it matches the DONE gate. Directly dirtying a declared-artifact requires an artifact_declare fixture and adds no soundness beyond the policy table.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (d) + parity (f): multiple non-blocking categories pass because isBlockingDirty only flips on a blocking category; the parity table's non-blocking row confirms blocked===false.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (a): a single uncommitted material_source change (packages/main/src/foo.ts) -> review_run_start REFUSES (exit!=0), names material_source_changes + the file, no run recorded.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (b): a single uncommitted fixture change (tests/fixtures/sample.json) -> REFUSES, names fixture_changes + the file, no run recorded.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke parity (f) mixed row: a status mixing a blocking material-source change + a non-blocking metadata change -> isBlockingDirty.blocked===true (blocking wins), matching the DONE gate.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke parity (f) 'unexpected' row: an untracked non-source file (?? random/path/thing.bin) classifies as unexpected_dirty_files -> blocked===true, matching the DONE gate.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "verdict": "audit_only",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Structural: the preflight is placed in review_run_start AFTER the pre-existing REVIEW phase check (handlers/review-run.ts ~line 61, unchanged) and BEFORE captureReviewRunSnapshot; a non-REVIEW story is rejected by the phase check before the preflight runs. The phase guard is pre-existing behavior, untouched by this story.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -122,7 +268,141 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (a): review_run_start REFUSES on an uncommitted material_source change (exit!=0).",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (b): review_run_start REFUSES on an uncommitted fixture change (exit!=0, names fixture_changes).",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (c): clean tree -> review_run_start PASSES and records exactly one run.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (d): only .lattice metadata dirty -> review_run_start PASSES (returns a started run).",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (a)/(e): the refusal message names the offending file path (asserted via regex on packages/main/src/foo.ts).",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (f) PARITY: isBlockingDirty(classifyGitStatusRows(...)) yields the SAME blocked verdict as the DONE gate's evaluateDirtyGitStatus for identical statuses.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (g) REGRESSION: buildDoneChecklist still produces the same git-working-tree classification/blocking after the extraction.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke (h): fail-open when readGitStatusLines returns ok:false (unreadable git status).",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "npm run test:review-run-clean-tree-preflight",
+          "result": "pass",
+          "note": "npm script test:review-run-clean-tree-preflight runs the smoke (exit 0); run-all-smokes auto-discovers dist/tasks/*-smoke.js and the full npm test passed exit 0.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke parity (f): all blocking categories present (material_source + fixture + unexpected rows each expectBlocked:true) -> isBlockingDirty aggregates (does not short-circuit) and blocks; matches the DONE gate.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "audit_only",
+          "file": "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+          "result": "pass",
+          "note": "Git-quoted / unicode path parsing is the responsibility of the shared classifyGitStatusRows (dirty-worktree.ts), which this preflight REUSES rather than re-implementing; quoted-path handling is covered by that upstream classifier's own tests, not re-asserted in this preflight smoke.",
+          "headHash": "6008c5aa0da28ba01253aeb5bc7ae562b1477e71",
+          "materialHash": "9cf10d06368f74b04d219c3b4d0096153067977275751237bab72ccbcced7701",
+          "timestamp": "2026-06-19T14:51:14.199Z"
+        }
+      ]
     }
   ]
 }
