@@ -188,12 +188,45 @@
       "title": "Run targeted validation and record evidence",
       "context": "Run the targeted tests/build and, if staging credentials are available, the Authority live smoke against https://staging.hostneutral.net. Record exact evidence and any remaining external blocker.",
       "relatedDocs": [
-        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
-        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md"
+        "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Checklist evidence records exact targeted build/test commands and either a passing Authority live smoke against https://staging.hostneutral.net or a concrete external blocker such as missing staging credentials.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+          "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run build and the targeted Authority smoke/regression commands, then record verificationEvidence for each covered intent -> evidence shows pass with exact commands, HEAD/material hashes where available, and lattice validate accepts coverage; WHY: build/test/live smoke evidence must prove the DONE path is repaired.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If staging credentials or network access for https://staging.hostneutral.net are unavailable -> record the attempted live smoke command and a classified external blocker while still recording local build/regression passes; WHY: external unavailability must be explicit and must not pretend the live smoke passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to advance validation with missing, stale, or text-only evidence for the schema/envelope/live-smoke/build intents -> lattice validate or story review rejects the coverage as incomplete; WHY: prevents DONE without concrete evidence for the Authority material overlap audit fix.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
