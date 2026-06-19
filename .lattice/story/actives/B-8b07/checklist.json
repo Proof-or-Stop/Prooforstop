@@ -45,7 +45,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new decision document exists at docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md, is registered in docs/requirements/NAV.md, and decomposes hard scope boundaries, mechanical evidence chain, and collaboration/preflight controls into executable milestones.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each milestone states deliverables, gates, tests, sequencing, dependencies, expected evidence, blockers, and DONE criteria, including 3-round 2-host validation and baseline or negative-control expectations where the milestone depends on them.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan does not collapse the three tracks into vague prose, omit cross-track dependencies, or present future gates, baseline suites, or NAV registration as already implemented runtime behavior.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
