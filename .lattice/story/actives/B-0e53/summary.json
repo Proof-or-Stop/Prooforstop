@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0e53",
+  "changes": "transition-orchestrator.ts: added a post-lock, pre-merge mainSha re-check to the DONE transition. A readMainSha helper (git rev-parse --verify main^{commit}) captures syncedMainSha right after autoSyncMain and re-reads it right before store.writeStory persists phase=DONE; on a confirmed external main advance it throws a resync error so the existing try/finally releases the main-write-lock and the story stays at TEST (no partial DONE). Fail-open on an unreadable sha. The lock and applyDoneMergeEffects are unchanged. + a 14-check smoke and npm wiring.",
+  "usage": "No new command; behavior is automatic on `lattice story_advance --phase=DONE`. Verify via: node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js (14 checks).",
+  "expectedOutcome": "On an external main advance between the DONE pre-check sync and the in-lock merge, story_advance DONE fails with \"DONE aborted: main advanced (<old7> -> <new7>) after the pre-check sync; nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.\" and the story phase stays TEST. With main unchanged in-lock, DONE merges normally.",
+  "actualTranscript": "node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js -> \"done-premerge-mainsha-recheck-smoke passed (14 checks)\", exit 0 (abort path: resync error, phase stays TEST in both stores, no story-branch merge landed; happy path: DONE merges, worktree/branch cleaned). npm test -> ALL PASS with test:done-premerge-mainsha-recheck in the chain. RED/GREEN verified: disabling the re-check makes the abort assertion fail.",
+  "outcomeDiff": "none — expected and actual match (14/14 smoke checks, full suite green, 8/8 intents covered).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The fix closes the EXTERNAL-advance window only (the main-write-lock already serializes concurrent Lattice DONEs). After-DONE auto-retry and a full merge-serialization rework were deliberately rejected. Fail-open on an unreadable main sha (a transient git read error does not block DONE). The lock-release on abort reuses the pre-existing try/finally (unchanged), evidenced by code structure rather than a same-root re-acquisition test (both review hosts judged this adequate).",
+  "pitfalls": "The baseline sha MUST be captured AFTER autoSyncMain (else a normal DONE that synced would false-abort) and the re-check MUST be before store.writeStory persists phase=DONE (else a worse DONE-without-merge state). Use local main^{commit} (the merge target), not origin/main. The DONE merge auto-patch-bumps the version (B-aa8a) + auto-rebuilds dist, so do NOT bump/rebuild manually. Genuine Codex host-2 correctly flagged that the smoke uses separate temp roots for abort vs happy, so it does not itself prove same-lock re-acquisition — the evidence note was corrected to cite the unchanged shared finally instead.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 401972
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9230
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 345522
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 786259
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 482959
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 227296
+    }
+  },
+  "totalDurationMs": 2253238,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T21:33:01.910Z",
+  "updatedAt": "2026-06-19T21:33:01.910Z"
+}

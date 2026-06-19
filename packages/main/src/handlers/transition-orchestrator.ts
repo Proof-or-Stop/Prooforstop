@@ -39,6 +39,7 @@
  * local variable, not a global stash).
  */
 
+import { execFileSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
@@ -176,6 +177,29 @@ export function assertStoryTransitionReachedTarget(
 }
 
 /**
+ * B-0e53: read main's commit sha in `gitCwd`, or undefined if unreadable.
+ *
+ * Used to capture main's sha right AFTER the DONE pre-check autoSyncMain and to
+ * re-read it just BEFORE store.writeStory persists phase=DONE. A CONFIRMED change
+ * between the two reads means main advanced externally (between the pre-check
+ * sync and the in-lock merge) and the DONE transition must abort before any
+ * partial DONE is written. FAIL-OPEN: an unreadable sha (transient git error)
+ * returns undefined and must NOT abort the common DONE path — only two
+ * successful reads that DIFFER constitute a confirmed external advance.
+ */
+function readMainSha(gitCwd: string): string | undefined {
+  try {
+    return execFileSync('git', ['rev-parse', '--verify', 'main^{commit}'], {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Coordinate one story_advance transition end-to-end.
  *
  * Sequence (byte-identical to the pre-refactor inline story_advance):
@@ -217,6 +241,11 @@ async function runStoryTransitionInner(
 ): Promise<TransitionResult> {
   const { store } = ctx;
   let doneMainMergeLock: ReturnType<typeof acquireDoneMainMergeLock> | undefined;
+  // B-0e53: main's commit sha captured AFTER the DONE pre-check autoSyncMain.
+  // Outer-scoped so the capture point (end of the DONE pre-check block) and the
+  // re-check point (just before store.writeStory persists phase=DONE) both see
+  // it. Stays undefined for non-DONE transitions and when the capture read fails.
+  let syncedMainSha: string | undefined;
   // The orchestrator is the SOLE owner of the actor lifecycle. It is assigned
   // inside the try (after the early guards) and unconditionally stopped in the
   // finally — covering success, guard failure, gate failure, and exceptions.
@@ -323,6 +352,10 @@ async function runStoryTransitionInner(
           ctx.log?.(`⚠ ${syncResult.message}`);
         }
       }
+      // B-0e53: capture main's sha AFTER autoSyncMain so Lattice's own sync is
+      // already in the baseline. The re-check before writeStory compares against
+      // this; only an EXTERNAL advance after this point trips the abort.
+      syncedMainSha = readMainSha(doneGitCwd);
     }
 
     // ── actor lifecycle: created + started here, owned by this orchestrator,
@@ -391,6 +424,25 @@ async function runStoryTransitionInner(
       // the real gitRoot on wrapper-root layouts instead of the bare ctx.root.
       doneRenderedChecklist = await runDonePreMergeGate(args.storyId, store, ctx.root, actor, doneGitCwd);
       guardGateReport += runAuthorityReceiptTransitionGate(ctx, args.storyId, 'DONE');
+    }
+
+    // B-0e53: pre-merge mainSha re-check. This point is AFTER the slow
+    // runDonePreMergeGate (so it covers that window) and strictly BEFORE
+    // store.writeStory persists phase=DONE. If main advanced EXTERNALLY between
+    // the pre-check sync (where syncedMainSha was captured) and here, abort
+    // before any partial DONE is written — nothing is merged and the story stays
+    // at TEST. The throw propagates to the existing try/finally which releases
+    // the DONE merge lock; no new lock handling is added here. FAIL-OPEN: if
+    // either read returns undefined (transient git error), do NOT abort — only a
+    // confirmed change (both reads succeeded and differ) trips the abort.
+    if (args.phase === 'DONE' && syncedMainSha !== undefined) {
+      const currentMainSha = readMainSha(doneGitCwd);
+      if (currentMainSha !== undefined && currentMainSha !== syncedMainSha) {
+        throw new Error(
+          `DONE aborted: main advanced (${syncedMainSha.slice(0, 7)} -> ${currentMainSha.slice(0, 7)}) after the pre-check sync; ` +
+          `nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.`,
+        );
+      }
     }
 
     // ── state mutation: actor.send → writeStory. Order is byte-identical to

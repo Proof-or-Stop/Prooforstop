@@ -1,0 +1,24 @@
+{
+  "task": "Add a post-lock, pre-merge mainSha re-check to the DONE transition orchestrator (transition-orchestrator.ts) so that an EXTERNAL (non-Lattice) git advance to main between the DONE pre-check sync (autoSyncMain) and the in-lock merge aborts BEFORE phase=DONE is persisted, leaving the story at TEST. Plus a smoke covering the abort path and the unchanged-main happy path.",
+  "outcome": "When the operator runs `lattice story_advance --storyId=B-xxx --phase=DONE` and main was advanced externally after the DONE pre-check synced, the command FAILS before persisting DONE with a message like: \"DONE aborted: main advanced (<sha7> -> <sha7>) after the pre-check sync; nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.\" The story phase is still TEST (no phase mutation, no partial merge). When main is unchanged inside the lock, DONE proceeds and merges to main exactly as before.",
+  "facts": [
+    "transition-orchestrator.ts runs the whole DONE transition inside the main-write-lock: acquireDoneMainMergeLock ~311, checkMainDivergence + autoSyncMain ~316-325, runDonePreMergeGate ~392, actor.send ~398, store.writeStory(phase=DONE) ~431, applyDoneMergeEffects (the real merge) ~473.",
+    "The existing main-write-lock already serializes concurrent LATTICE DONE merges; the only uncovered window is an EXTERNAL git advance to main between the pre-check sync (~319) and the in-lock merge (~473), which changes material after verdicts/evidence were re-established.",
+    "B-12d7 hit this: materialHash drifted mid-DONE (90f7436 -> e28f2b8) because main advanced after the pre-check synced, re-staling all escalation host verdicts and verification evidence.",
+    "The fix is a cheap re-read of main current sha after acquiring the lock (post autoSyncMain) compared right before writeStory persists phase=DONE; if changed, abort.",
+    "The DONE merge already auto-rebuilds dist and (since B-aa8a) auto-patch-bumps the version on material-code merges, so this story must NOT manually bump or rebuild."
+  ],
+  "constraints": [
+    "Do NOT change the main-write-lock acquisition / stale-reclaim, and do NOT change applyDoneMergeEffects (the merge stays atomic).",
+    "No after-DONE auto-retry and no partial-DONE state machine; fail closed (abort) and leave the story at TEST.",
+    "The abort MUST happen before store.writeStory persists phase=DONE (~431) so no phase mutation and no partial merge occur.",
+    "Only transition-orchestrator.ts changes (the re-check) plus ONE new smoke; no other files.",
+    "Only DONE transitions are affected; non-DONE transitions and the unchanged-main happy path stay byte-identical."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
+  ],
+  "timestamp": "2026-06-19T21:02:58.086Z"
+}
