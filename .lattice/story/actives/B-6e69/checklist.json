@@ -173,9 +173,9 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/parallel-decomposition-spec.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T17:07:54.967Z",
-      "endTime": null,
+      "endTime": "2026-06-19T17:08:24.665Z",
       "userSees": "Expected transcript includes \"Process fact contract verified\", \"command ownership contract passed\", and \"main-write-lock-coverage: PASS\" or equivalent PASS output.",
       "files": {
         "modify": [
@@ -211,7 +211,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final TypeScript build passed and process fact contract verifier ended with Process fact contract verified after the extraction.",
+          "headHash": "44eb85504bf421d58a2facdf139920f02ecf2dc4",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:08:24.870Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:main-write-lock-coverage",
+          "result": "pass",
+          "note": "Command ownership contract passed for 239 CLI commands and main-write-lock-coverage reported PASS for all 8 main-mutating paths, preserving owner/main shared mutation semantics.",
+          "headHash": "44eb85504bf421d58a2facdf139920f02ecf2dc4",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:08:25.041Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "git show --stat --oneline 0c3ad3dac && node bin/lattice.js scope_contract_check --storyId=B-6e69 --json",
+          "result": "pass",
+          "note": "Committed diff touched only cli-engine.ts and the four requested cli helper modules; scope_contract_check passed in enforce mode with those source files classified by allowedModify/allowedCreate, so flag parsing, aliases, command catalog/schema, runCli lifecycle dispatch, INIT_CHECK metadata sync, and recover_evidence dispatch stayed in cli-engine.ts.",
+          "headHash": "44eb85504bf421d58a2facdf139920f02ecf2dc4",
+          "materialHash": "9e010207dfcfc7b43323aec27024b96cc4df158bb295d53e1b2016c3f42a6cd1",
+          "timestamp": "2026-06-19T17:08:25.272Z"
+        }
+      ]
     }
   ]
 }
