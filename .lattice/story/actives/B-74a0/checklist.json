@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-1-command-catalog-and-schema-modules"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T16:38:27.254Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -140,6 +140,17 @@
         ]
       },
       "userSees": "`npm --prefix packages/main run test:command-catalog-smoke` prints a passing command catalog smoke after build and contract checks."
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-19T16:38:27.254Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start command schema/ToolDef extraction via lattice-implementer subagent"
     }
   ]
 }
