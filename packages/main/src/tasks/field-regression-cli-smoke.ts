@@ -174,14 +174,6 @@ function initRepoWithMetadataOnlyHead(prefix: string): string {
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Lattice Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
-    scanRoot: 'packages/main',
-    rootDir: 'src',
-    storyDir: '.lattice/story/actives',
-    requirementsDir: 'docs/requirements',
-    worktreeDir: '.worktrees',
-    workflow: { profile: 'balanced' },
-  }, null, 2));
   git(root, [
     '-c', 'user.name=Lattice Smoke',
     '-c', 'user.email=smoke@example.test',
@@ -669,10 +661,11 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
       agent: 'lattice-review-quality',
     });
     assert.notEqual(failed.code, 0);
-    assert.match(failed.stderr, /missing_head/);
-    assert.match(failed.stderr, /No reviewer run was created/);
-    assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'unborn HEAD failure must not repair legacy currentReviewRound');
-    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'unborn HEAD failure must not write reviewer runs');
+    assert.match(failed.stderr, /git working tree has uncommitted/);
+    assert.match(failed.stderr, /material_source_changes/);
+    assert.doesNotMatch(failed.stderr, /missing_head/, 'dirty preflight must run before snapshot missing_head diagnostics');
+    assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'unborn dirty preflight failure must not repair legacy currentReviewRound');
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'unborn dirty preflight failure must not write reviewer runs');
   } finally {
     rmSync(unbornRoot, { recursive: true, force: true });
   }
