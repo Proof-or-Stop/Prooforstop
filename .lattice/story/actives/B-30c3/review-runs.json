@@ -359,6 +359,51 @@
         "bindingHash": "b49cdf5c28b36d2276c622cfe59ea91d0653bbd18e2dca8f1de432e0f171de5e"
       },
       "_hash": "f02c7e81a233675b15b806c01be82e11a78d3e30bcf5ef771e4c3d8ce001602a"
+    },
+    {
+      "reviewRunId": "B-30c3:RR-009",
+      "storyId": "B-30c3",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T19:33:11.552Z",
+      "startedAt": "2026-06-19T19:45:28.980Z",
+      "headHash": "41b304f2c07ac0cbedf64acb182a2bb4535d9631",
+      "materialHash": "7a1808e85374cf530e491bf1d8e5d54edfdcae7ed5a7b191f0d744570279069c",
+      "storyFilesHash": "1eec22cd3fd02739debdf68c6c237c4c0a4f97be342e5a60383b0b5ed75d3af9",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3b1693871c121ab55fb6d8ce50557a86ae993cbbac722e8b9eea0b14494c0ab7",
+        "diffPackHash": "1eec22cd3fd02739debdf68c6c237c4c0a4f97be342e5a60383b0b5ed75d3af9",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/providers/gemini-cli.ts",
+          "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "002a6aba601442b5691caf2db6cbfa26f30cd5e2ae0f9e444738813857ef673d",
+          "0d56b2fa44776689d922cd6c61cbb0fd66346e24174ecac66b7aa46ab2f9959a",
+          "12ba4b2ad7500891173aa64da5d3e00a27d4256a1e2da999dd374c1018eebd87",
+          "30cb2142592a91175ea25211a93abed68712b30ea39dbc26712a21ca23b8715a",
+          "607175b17fb89ae7db34e11fc6251db6a702bfb9866cc4d4702793b147b2be17",
+          "6e1a53f8d1a01912773c2562e3c53e089c01dd88a71b7168b8e8fce6c9f4c3d3",
+          "747cb59db48baf5b717b50de566328a8e09c9779d880342330f2eb0e0621ae3a"
+        ],
+        "bindingHash": "9a479a1140bd40f24d0c5449b2af9bd0e4455f8a796b9c2fe2c16db48b957e0a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-30c3",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-30c3",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-30c3",
+        "workspaceMode": "story-worktree",
+        "headHash": "41b304f2c07ac0cbedf64acb182a2bb4535d9631",
+        "materialHash": "7a1808e85374cf530e491bf1d8e5d54edfdcae7ed5a7b191f0d744570279069c",
+        "bindingHash": "023edbe8154a5971d948729f4dcaaa947b81bcdc0bc465db6a45295d6bc61bcf"
+      },
+      "_hash": "2517e225a80408c1edb3de221d9656f5bdabe2aec1ba912d8fbb77f9ed4ecb54"
     }
   ]
 }

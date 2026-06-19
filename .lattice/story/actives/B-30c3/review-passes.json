@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-19T19:33:11.552Z",
       "reviewRunId": "B-30c3:RR-007",
       "_hash": "b23ba53263c6579a46e31dfc1f9d3dd256bd51b9540912388eddd8bf033205f3"
+    },
+    {
+      "id": "B-30c3:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 10 verificationIntent lanes have matching verificationEvidence; the 3 new smoke checks (F-001: nested non-token key drop via sanitizeNestedDetails whitelist, F-002 codex: own-property isCodexUsageObject guard, F-002 gemini: own-property isGeminiUsageObject guard) directly exercise the fixes in commit 024bb0e30 and are confirmed passing at 53/53 checks exit 0. No blocker found.",
+      "createdAt": "2026-06-19T19:45:45.993Z",
+      "reviewRound": "2026-06-19T19:33:11.552Z",
+      "reviewRunId": "B-30c3:RR-009",
+      "_hash": "4d218e33a01638ca4507de23439dcea430552aa2b1331e112f25a5e8baba4418"
     }
   ]
 }
