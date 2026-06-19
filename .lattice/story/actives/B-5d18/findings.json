@@ -116,7 +116,7 @@
       "desc": "CHK-001:edge:0 evidence command is `git show HEAD:packages/main/src/core/partial-done-recovery.ts` — this shows the resolveMainRepoRoot source but does not concretely demonstrate the /tmp isolation behavior claimed by the intent (smokes use isolated /tmp locks, so no global main-write-lock contention). A command showing resolveMainRepoRoot called with a /tmp path (e.g., from validate-command-timeout-smoke hermetic output, or a targeted test of the function) would directly bind the claimed behavior. Main agent has acknowledged this mismatch and committed to replace the command before re-bind. Finding filed to require the fix.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T18:38:12.953Z",
@@ -127,7 +127,11 @@
         "packages/main/src/core/partial-done-recovery.ts"
       ],
       "signatureTag": "missing|ts|edge-evidence-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by round-4 F-008 (same CHK-001:edge:0 command mismatch restated in the later round).",
+      "resolvedAt": "2026-06-19T18:47:47.009Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5d18:F-007",
