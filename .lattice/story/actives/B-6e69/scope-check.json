@@ -1,15 +1,87 @@
 {
   "storyId": "B-6e69",
-  "checkedAt": "2026-06-19T16:57:04.072Z",
-  "features": [],
+  "checkedAt": "2026-06-19T16:57:34.977Z",
+  "features": [
+    {
+      "feature": "Round 3 target module set: runtime-root.ts, activity-policy.ts, ownership-gate.ts, reviewer-readonly-gate.ts",
+      "covered_by": "plan_get Scope plus CHK-001/CHK-002 file.create entries",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-3-runtime-root-activity-ownership-and-reviewer-gates"
+    },
+    {
+      "feature": "Root/worktree resolution and activity policy extraction preserves root override, worktree-to-main fallback, read-only activity defaults, and source/write classification",
+      "covered_by": "CHK-001 verificationIntent happy/edge/adversarial and plan_get CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md Round 3 scope and stop conditions"
+    },
+    {
+      "feature": "Owner lease helpers, effective ownership class resolution, and enforceStoryOwnerLeaseGate extraction preserves fail-closed owner lease semantics and takeover behavior",
+      "covered_by": "CHK-002 verificationIntent happy/edge/adversarial and plan_get CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/session-ownership-and-write-leases.md#story-owner-lease-rules"
+    },
+    {
+      "feature": "Reviewer read-only guard extraction preserves pre-hook/pre-lease ordering and readOnly-only allowlist behavior",
+      "covered_by": "CHK-002 adversarial verificationIntent and plan_get CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/session-ownership-and-write-leases.md advisory external reviewers section"
+    },
+    {
+      "feature": "Compatibility re-exports and command classification/process fact drift protection",
+      "covered_by": "understanding_get facts/constraints, decision_get chosen option A, CHK-001/CHK-002/CHK-003 verificationIntent",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md Round 3 scope contract"
+    },
+    {
+      "feature": "Round 3 acceptance verification surfaces: build, process fact contract, command ownership contract, main-write-lock coverage, reviewer read-only smoke, activity write/no-write inspection/evidence",
+      "covered_by": "plan_get CHK-003 plus package scripts/files existence check",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md acceptance checks and round-specific additions"
+    },
+    {
+      "feature": "Stop conditions covered: owner bypass, reviewer write access, unexpected read-only writes, process/runtime policy drift, weaker owner/reviewer gates",
+      "covered_by": "decision_get preMortem plus CHK-001/CHK-002/CHK-003 verificationIntent",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md stop conditions"
+    },
+    {
+      "feature": "Command catalog/schema extraction and MAIN_TOOLS movement",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan_get Scope and CHK-003 adversarial explicitly exclude command catalog/schema movement; parallel B-74a0 owns catalog work",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md implementation story split"
+    },
+    {
+      "feature": "Flag parsing, help/dry-run, aliases, and JSON stdout contract movement",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan_get Scope and CHK-003 adversarial exclude parser/help/alias movement; these belong outside Round 3",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md implementation story split"
+    },
+    {
+      "feature": "Lifecycle special dispatch, INIT_CHECK metadata sync, and recover_evidence dispatch movement",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan_get Scope and CHK-003 adversarial exclude lifecycle/INIT_CHECK/recover_evidence movement; Round 4 owns these areas",
+      "source": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-4-lifecycle-special-dispatch-and-init_check-metadata-sync"
+    }
+  ],
   "summary": {
-    "total": 0,
-    "covered": 0,
-    "excluded": 0,
+    "total": 10,
+    "covered": 7,
+    "excluded": 3,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "2ffa0e9dfc70728be127bd633976803641aefd040b16446d34f59c314ec2f4b6"
+  "_hash": "4ecfb679dfea5e91ade8e9b0d03763051e9a83ebd755e89e8321d8fcba0b60e4",
+  "openQuestions": []
 }
