@@ -244,9 +244,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-19T13:25:31.731Z",
-      "endTime": null,
+      "endTime": "2026-06-19T13:34:57.940Z",
       "userSees": "User sees docs that name \"autopilot_review_status all-runs/latest-runs\", \"review_escalation_status voluntaryLocalRounds\", and \"Stale material recovery\" as local diagnostics.",
       "files": {
         "modify": [
@@ -282,7 +282,41 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "command": "rg -n \"Local diagnostic UX|Local Diagnostic UX|Stale material recovery|voluntaryLocalRounds|all-runs/latest-runs|remote proof|completion capability|Authority receipt\" docs/requirements/decisions/review-assurance-floor-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Docs grep found the local diagnostic UX sections, stale-material recovery guidance, all-runs/latest-runs and voluntaryLocalRounds wording, plus explicit non-remote-proof and non-completion boundaries.",
+          "headHash": "ee3d00fdfbcc5f6f89e2240cc8b0ad6e49bf195e",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:34:58.180Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js; node packages/main/dist/tasks/planner-unattended-smoke.js",
+          "result": "pass",
+          "note": "Focused smokes passed in the current worktree: stale recovery guidance, voluntary local 3x2 visibility, and planner/autopilot multi-host verdict diagnostics remained observable.",
+          "headHash": "ee3d00fdfbcc5f6f89e2240cc8b0ad6e49bf195e",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:34:58.371Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js && rg -n \"remote proof|completion capability|Authority receipt\" docs/requirements/decisions/review-assurance-floor-execution-plan.md docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Build, stale recovery smoke, and docs grep passed; docs and tests keep local diagnostic assurance separate from future remote proof, Authority receipt evidence, and completion claims.",
+          "headHash": "ee3d00fdfbcc5f6f89e2240cc8b0ad6e49bf195e",
+          "materialHash": "ed6d7fcd224c9ea60dc9e78cd44d45daa1ea797ec560ac0575a46c88dd4f3c48",
+          "timestamp": "2026-06-19T13:34:58.546Z"
+        }
+      ]
     }
   ],
   "auditLog": [
