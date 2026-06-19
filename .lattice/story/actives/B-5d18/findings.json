@@ -94,7 +94,7 @@
       "desc": "All 6 verificationEvidence entries are stale (headHash does not match current HEAD ab3107e): CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0. Both must-priority intents (CHK-001:happy:0, CHK-002:happy:0) are therefore uncovered at this HEAD. Main agent has confirmed intent to re-bind all 6 entries at the frozen HEAD and re-run validate before TEST gate. Finding filed to satisfy gate requirements; re-bind + validate will resolve this.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T18:38:05.033Z",
@@ -105,7 +105,11 @@
         "packages/main/src/tasks/validate-command-timeout-smoke.ts"
       ],
       "signatureTag": "missing|ts|verificationevidence-entries-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by round-4 F-007 (same uniform staleness restated in the later round).",
+      "resolvedAt": "2026-06-19T18:47:46.586Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5d18:F-006",
