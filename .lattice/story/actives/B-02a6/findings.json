@@ -5,7 +5,7 @@
       "desc": "concept-cleanup: stale module-header comment in story-metadata-protection.ts line 6 still reads \"neither tracked nor protected\" — the old dual-condition predicate semantics (unsafe = ignored && !tracked). The B-02a6 broadening changed the predicate to unsafe = !tracked, accurately described from line 25 onwards in the same file, but the top-level summary at line 6 was not updated. A developer reading only the module header would infer the old 2-condition gate. The implementation is correct; only the intro sentence is stale.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-19T04:59:11.858Z",
@@ -16,14 +16,15 @@
         "packages/main/src/core/story-metadata-protection.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-02a6:F-001@a7dd9e9"
     },
     {
       "id": "B-02a6:F-002",
       "desc": "CHK-001 userSees says the smoke prints \"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\" but the actual console.log at packages/main/src/tasks/init-window-data-loss-smoke.ts:262 prints \"✓ init-window data-loss smoke passed (real story_create metadata survives concurrent git clean)\" — the quoted success string differs: no `-fd`, no `on the shared checkout`, and the parenthetical differs",
       "severity": "low",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-19T04:59:21.255Z",
@@ -34,14 +35,15 @@
         "packages/main/src/tasks/init-window-data-loss-smoke.ts"
       ],
       "signatureTag": "happy|ts|usersees-says-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-02a6:F-002@a7dd9e9"
     },
     {
       "id": "B-02a6:F-003",
       "desc": "CHK-002 edge verificationEvidence note claims \"tombstone fallback when buried\" is covered by review-pass-discard-smoke.ts assertPurgeDropsSafeInitCommit, but that function only tests the HEAD~1 reset path (init commit at HEAD). There is NO test for the buried path introduced by this story (worktree.ts lines 1399-1415: when purgeResult does not start with ✓, commitDiscardMetadata is called as tombstone). If the tombstone path has a bug (e.g., commitDiscardMetadata fails or leaves dirty state when the init commit is not at HEAD but several commits deep), the regression smoke would not catch it. The evidence note is inaccurate and the tombstone code path has zero smoke coverage.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-19T04:59:43.234Z",
@@ -53,7 +55,8 @@
         "packages/main/src/handlers/worktree.ts"
       ],
       "signatureTag": "missing|ts|edge-verificationevidence-note",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-02a6:F-003@a7dd9e9"
     }
   ]
 }
