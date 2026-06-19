@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Implement patch-bump of the 3 version sync points in the DONE post-merge effect, gated on material code changes, before the dist rebuild, under the merge-lock",
       "context": "done-effects.ts: reuse isDoneMainRuntimeBuildInput/shouldBuildDoneMainPackageForChangedPaths to gate; bump root package.json + packages/main/package.json + lattice-brand.ts LATTICE_CLI_VERSION patch; commit on main; ordering before runDoneMainPackageBuildAfterMerge so rebuilt dist reports the new version",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-19T19:39:26.726Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
