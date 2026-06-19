@@ -13,7 +13,34 @@
       "userSees": "User sees a new execution plan under docs/requirements/decisions/ that names the mandatory review floor and escalation policy.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document defines the mandatory review floor for code-changing stories and the failure-triggered 3x1 escalation path.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document keeps docs-only typo/annotation changes in the one-round low-risk path and does not force every code change into 3x1.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim 3x1 equals two-host review or Authority Server receipt-backed completion.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

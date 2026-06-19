@@ -1,0 +1,25 @@
+{
+  "task": "Write a durable execution plan for mandatory review assurance floors before DONE.",
+  "outcome": "User sees docs/requirements/decisions/review-assurance-floor-execution-plan.md explaining: code changes cannot reach DONE with zero review, bug/failure/rework stories escalate to 3 local single-host rounds, high-risk gate/Authority/process-fact work still requires 3x2 or explicit degraded evidence.",
+  "facts": [
+    "Existing review escalation is threshold-triggered by first REVIEW round countable findings.",
+    "A low-risk-looking code task can still ship a bug if it reaches DONE with no review floor.",
+    "Local host verdicts and degraded fallback are Non-authority evidence and cannot imply Authority Server completion.",
+    "decision_doc_proposal and decision_doc_save provide a controlled path to materialize durable decision docs.",
+    "Exact storage field names and DONE oracle row ids belong to the future implementation story, not this documentation story."
+  ],
+  "constraints": [
+    "Do not implement runtime gate code in this story.",
+    "Do not optimize arbitrarily or add broader policy than the user requested.",
+    "Only address the real correctness gap: zero-review code changes and failure-triggered escalation.",
+    "Follow consistency of logic with story-lifecycle, lifecycle-gate-receipt-consumption, and three-round-two-host review escalation docs."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-19T00:20:32.580Z"
+}
