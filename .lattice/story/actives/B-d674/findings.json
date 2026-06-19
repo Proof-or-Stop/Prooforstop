@@ -51,7 +51,7 @@
       "desc": "Antigravity prewrite-guard semantics and smoke coverage are incomplete. packages/main/src/core/capabilities.ts:268 and :277 advertise Antigravity as wrapped-preapply when invoked through Lattice dispatch, but packages/main/src/core/guard-session.ts:62-65 and :111-118 only grant wrapped-preapply to codex/gemini, so resolveGuardMode(\"antigravity\", { viaDispatch: true }) still falls back to watcher-fallback. The existing smokes also still encode Gemini as the current profile/runtime list (packages/main/src/tasks/capability-list-smoke.ts:24-47, packages/main/src/tasks/dispatch-run-smoke.ts:260-280) while live capability_list/host_runtime_list now emit antigravity, so rebuilt validation will fail or miss the new agy path. Add antigravity/agy normalization to guard-session and update the smoke expectations to assert current Antigravity plus legacy Gemini compatibility separately.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T15:29:37.307Z",
@@ -65,7 +65,11 @@
         "packages/main/src/tasks/dispatch-run-smoke.ts"
       ],
       "signatureTag": "missing|ts|antigravity-prewrite-guard",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3cfbdeba3: guard-session adds Antigravity/agy wrapped-preapply normalization, capability-list smoke expects antigravity as current and agy alias separately, and dispatch-run smoke asserts antigravity/agy current runtime behavior while keeping Gemini legacy compatibility separate. Verified by npm build, capability-list-smoke, dispatch-run-smoke, guard_session_start, host_runtime_probe, and scope_contract_check.",
+      "resolvedAt": "2026-06-19T15:38:27.993Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
