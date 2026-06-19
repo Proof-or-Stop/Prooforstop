@@ -27,7 +27,7 @@
       "desc": "api-inconsistency: validation-executor.ts:309 executeValidationPlan calls runValidationCommand(command, projectRoot) without forwarding a defaultTimeoutMs parameter; since executeValidationPlan has no such parameter itself, the injectable-default seam added to runValidationCommand is unreachable from the plan-level entry point — callers needing plan-level timeout injection must call runValidationCommand directly",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T17:46:37.792Z",
@@ -38,7 +38,11 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "missing|ts|inconsistency-validation-executor",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f968e6013 and clarified in 7ab1e1db6: JSDoc on runValidationCommand documents defaultTimeoutMs as a test seam and accurately names all production call sites (executeValidationPlan + the direct verifier.ts callers), none of which pass it. Codex host-2 round-4 PASS confirms accuracy.",
+      "resolvedAt": "2026-06-19T18:47:45.352Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5d18:F-003",
