@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-19T00:32:20.925Z",
       "reviewRunId": "B-17a9:RR-003",
       "_hash": "9b7591931847e563610ddda16377010ff21e44cec98d2996f89068bd2c85f463"
+    },
+    {
+      "id": "B-17a9:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "All 3 checklist items verified against code. CHK-001: decideBackfill is pure, deterministic, imports only types, all 5 precedence rules correctly implemented (confirmed sacrosanct even under overwriteAuto; empty-tag fill; auto skip/fill; skip-nonempty; skip-no-mapping/empty-sig); backfill added to SignatureTagSource. CHK-002: handler reads findings through ctx.store.readFindings (not raw JSON.parse); writes via ctx.store.writeFindings only when changed=true and apply=true; dry-run is default; imports only fs+context+decideBackfill (no signFinding, no finding-verify, no network/LLM); registered in all 5 surfaces (cli-engine/registry/config/command-policy=mainSharedMutating/process-fact-levels=L2); NOT in READ_ONLY_COMMANDS; --map required with clear error; map file missing and malformed both give readable errors before any write. CHK-003: hermetic smoke 12/12 pass (verified by re-running); verifier 66/66 pass; _hash invariance confirmed by real signFinding recomputation in smoke; idempotency proven (second --apply fills=0, store byte-identical); dry-run leaves findings.json byte-identical (confirmed via before/after comparison); finding-verify.ts and types.ts untouched. Safety design: dry-run-default is correct; --apply only-empty-filled (confirmed guard is strongest); _hash field never assigned in handler; handler never calls signFinding. Spec-boundary alignment: spec requires audit-only fields excluded from gate reads (no gate logic in handler), findings read through stable accessor (confirmed), no LLM/network at runtime (imports clean), finding-verify.ts passthrough unchanged (confirmed). Honest framing: code doc correctly states this enriches the substrate, not causal proof. Real repo dry-run confirms git status stays clean.",
+      "createdAt": "2026-06-19T00:37:58.241Z",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "reviewRunId": "B-17a9:RR-004",
+      "_hash": "27fba44c1ad54f2626524145248bcd89bef81b85f67af94e303e4977f260fe4c"
     }
   ]
 }
