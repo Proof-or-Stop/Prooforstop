@@ -138,12 +138,13 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "command": "node bin/lattice.js host_runtime_list --json",
+          "verdict": "success",
+          "command": "node bin/lattice.js host_runtime_list --json; node bin/lattice.js host_runtime_probe --host=gemini --json; docs/guide.md review",
           "result": "pass",
-          "note": "Runtime list returns fake,codex,claude-code,antigravity; current real hosts are codex, claude-code, antigravity, and antigravity reports cliCommand=agy. README, docs/guide.md, and host-overflow.md were updated to match.",
-          "headHash": "e13cbbc872517a9409fc960cdf20cab3d172090c",
-          "materialHash": "87dcba42f6246ebff4c14e3c0d0c82876c68bd0cc13c9540c65296847329d5ff",
-          "timestamp": "2026-06-19T15:25:36.186Z"
+          "note": "Post-fix runtime and doc surfaces align: current runtime list is fake,codex,claude-code,antigravity; agy is the Antigravity CLI; docs/guide.md now names Codex CLI, Claude Code CLI, Antigravity CLI (agy), and keeps Gemini as deprecated legacy compatibility only.",
+          "headHash": "cda13129d8a1b823b09a3d61bd90355b4697f665",
+          "materialHash": "294d51d2cad17801269ba4dd25f1e18b21f33f32e05598227fbd08bc81577688",
+          "timestamp": "2026-06-19T15:37:18.647Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
