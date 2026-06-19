@@ -14,7 +14,59 @@
       "context": "Compute storyFilesHash from the storys changed files vs merge-base main and record it ALONGSIDE materialHash on review runs, escalation verdicts/fallback, and verification evidence. Keep the whole-tree materialHash byte-unchanged and continue recording it (no inference, no removal). Preserve the usage-ledger/host-independence zero-cross-module-import invariants.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/review-escalation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_run_start captures optional storyFilesHash alongside materialHash and signatures verify when the optional field is present.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "verificationEvidence records optional storyFilesHash alongside materialHash without dropping existing materialHash.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy records without storyFilesHash still use the existing strict materialHash freshness path.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Missing or uncomputable storyFilesHash never silently passes a stale materialHash record.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tampering a recorded storyFilesHash invalidates the signed/bound record where signatures consume it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",

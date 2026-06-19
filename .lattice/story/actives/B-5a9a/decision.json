@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Preserve existing whole-tree materialHash as provenance and strict fallback.",
+    "Add the smallest secondary signal needed to distinguish story-owned drift from unrelated repository drift.",
+    "Make downgraded whole-tree drift visible as an explicit warning, never a silent pass.",
+    "Keep freshness decisions mechanical and testable in gate code, not prompt prose."
+  ],
+  "drivers": [
+    "Operators are repeatedly forced to refresh/revalidate after merging unrelated main changes.",
+    "Evidence freshness is gate-consumed and must remain sound for story-owned and transitive changes.",
+    "The change must integrate with review runs, verificationEvidence, and review escalation/fallback without broad lifecycle rewrites."
+  ],
+  "options": [
+    {
+      "name": "A: Secondary storyFilesHash plus warning-on-whole-tree-drift",
+      "pros": [
+        "Separates story-owned file drift from unrelated repository drift while keeping materialHash recorded.",
+        "Allows existing strict materialHash checks to remain available for legacy/unsupported records.",
+        "Can be covered with focused smokes for unchanged story files vs changed story files."
+      ],
+      "cons": [
+        "Requires threading a new optional field through several evidence and signature paths.",
+        "Needs careful warning language so users do not mistake advisory drift for full re-attestation."
+      ]
+    },
+    {
+      "name": "B: Keep strict materialHash and rely on recover_evidence UX",
+      "pros": [
+        "Smallest code change because recover_evidence already exists.",
+        "Conservatively fail-closed on any repository material drift."
+      ],
+      "cons": [
+        "Does not solve the user pain; unrelated main merges still force refresh/revalidate.",
+        "Encourages mechanical busywork and hides the difference between story-owned and unrelated drift."
+      ]
+    },
+    {
+      "name": "C: Replace materialHash with story diff only",
+      "pros": [
+        "Directly avoids unrelated main drift noise.",
+        "Would be simple for operators to understand."
+      ],
+      "cons": [
+        "Unsound for transitive dependencies and global gate facts that can affect the story without touching story-owned files.",
+        "Breaks existing Authority/review/evidence contracts that rely on materialHash provenance."
+      ]
+    }
+  ],
+  "chosen": "A: Secondary storyFilesHash plus warning-on-whole-tree-drift",
+  "rationale": "Option A solves the observed stale-noise problem while preserving strict materialHash as provenance and fallback; it is the only option that reduces unnecessary revalidation without weakening story-owned-file invalidation.",
+  "preMortem": [
+    {
+      "scenario": "storyFilesHash is computed over the wrong file set",
+      "trigger": "Using all changed files or metadata files instead of story-owned material files versus merge-base main",
+      "consequence": "Unrelated changes still stale evidence or story-owned changes are missed",
+      "mitigation": "Use existing diff/scope-contract helpers and add smoke cases for unrelated main changes and story-owned file changes."
+    },
+    {
+      "scenario": "Warning-only drift becomes silent acceptance",
+      "trigger": "Freshness API returns only boolean true without carrying advisory drift details",
+      "consequence": "Users and gates cannot see that whole-tree materialHash drifted",
+      "mitigation": "Return structured warning/advisory reason and assert rendered output mentions re-attestation-required warning."
+    },
+    {
+      "scenario": "Signature compatibility breaks old review runs",
+      "trigger": "Adding storyFilesHash unconditionally into signatures for records that did not have it",
+      "consequence": "Existing reviewer/evidence signatures become invalid",
+      "mitigation": "Make storyFilesHash optional and fold into signatures only when present, mirroring existing optional scope/workspace binding pattern."
+    }
+  ],
+  "timestamp": "2026-06-19T21:11:50.689Z"
+}
