@@ -89,9 +89,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T01:48:35.541Z",
       "files": {
         "modify": [
           "packages/main/src/core/host-independence.ts"
@@ -126,7 +126,39 @@
           }
         ]
       },
-      "userSees": "review_escalation_status reports required=true and degradedFallback 3/3 rounds x 1 host only after failure-triggered material code stories have fresh bound local review verdicts."
+      "userSees": "review_escalation_status reports required=true and degradedFallback 3/3 rounds x 1 host only after failure-triggered material code stories have fresh bound local review verdicts.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke passed: bug and verified-reviewer-finding failure signals require three local rounds.",
+          "headHash": "a6fd2304e11c09d696ce471d63d98a8c750f7ddb",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:35.672Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke passed: fixed bug evidence remains a sticky failure signal until 3x1 local rounds exist.",
+          "headHash": "a6fd2304e11c09d696ce471d63d98a8c750f7ddb",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:35.820Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "review-assurance-floor smoke passed: stale materialDigest host verdicts do not count.",
+          "headHash": "a6fd2304e11c09d696ce471d63d98a8c750f7ddb",
+          "materialHash": "1004a03b20ab8f0202cb4512a861a0b7c96a7b859d2f4ae8c8f7acf0ea85a136",
+          "timestamp": "2026-06-19T01:48:35.941Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
