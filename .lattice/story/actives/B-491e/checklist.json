@@ -29,9 +29,31 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T00:58:20.618Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "rg \"buildAuthorityTrustProfileBundle|writeAuthorityTrustProfileBundle|generate the bundle|generate .*bundle locally|lattice_senior_.*generated|locally in the target workspace\" packages/main/src docs",
+          "result": "pass",
+          "note": "No matches remained for public Authority bundle generation entrypoints or wording.",
+          "headHash": "2a83bedc046efadad7147af4a36e1c408ccd4234",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:20.815Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "Focused smokes consume hand-written Authority handoff fixtures and no longer call local basic or senior bundle generation.",
+          "headHash": "2a83bedc046efadad7147af4a36e1c408ccd4234",
+          "materialHash": "a56eec31ea8881e9d51c686c0f6e91035db09032f0825ed3f8f34bb99b7d7678",
+          "timestamp": "2026-06-19T00:58:20.923Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
