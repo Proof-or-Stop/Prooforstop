@@ -13,7 +13,7 @@
  * Run: node packages/main/dist/tasks/version-bump-smoke.js
  */
 
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -114,6 +114,52 @@ void (async () => {
     check('first bump -> 0.9.10', applyPatchBump(f7).to === '0.9.10');
     check('second bump -> 0.9.11', applyPatchBump(f7).to === '0.9.11');
     check('two bumps land on 0.9.11', readSyncedVersion(f7) === '0.9.11');
+
+    // 8. parseSemver returns the numeric struct (the parse all else depends on).
+    const ps = parseSemver('1.2.3');
+    check('parseSemver(1.2.3) -> {1,2,3}', ps.major === 1 && ps.minor === 2 && ps.patch === 3);
+
+    // 9. Large patch increments with no overflow cap.
+    check('nextPatch large patch 0.3.999 -> 0.3.1000', nextPatch('0.3.999') === '0.3.1000');
+
+    // 10. Strict X.Y.Z: reject v-prefix, non-numeric, empty.
+    throws('parseSemver rejects v-prefixed v1.2.3', () => parseSemver('v1.2.3'));
+    throws('parseSemver rejects non-numeric abc', () => parseSemver('abc'));
+    throws('parseSemver rejects empty string', () => parseSemver(''));
+
+    // 11. Adversarial: a duplicate LATTICE_CLI_VERSION line (same value) resolves to the first, no crash.
+    const fdup = fixture('0.9.9');
+    writeFileSync(
+      join(fdup, VERSION_SYNC_FILES.brand),
+      `export const LATTICE_CLI_VERSION = '0.9.9' as const;\n// legacy mirror line\nexport const LATTICE_CLI_VERSION = '0.9.9' as const;\n`,
+    );
+    check('duplicate LATTICE_CLI_VERSION line still resolves (reads first)', readSyncedVersion(fdup) === '0.9.9');
+
+    // 12. Adversarial: extra whitespace around the brand literal still parses.
+    const fws = fixture('0.9.9');
+    writeFileSync(join(fws, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION =   '0.9.9'   as const;   \n`);
+    check('extra whitespace around the brand literal still parses', readSyncedVersion(fws) === '0.9.9');
+
+    // 13. Adversarial: a read-only sync file makes applyPatchBump throw AND roll back (no partial corruption).
+    const fro = fixture('0.9.9');
+    chmodSync(join(fro, VERSION_SYNC_FILES.brand), 0o444);
+    throws('applyPatchBump on a read-only brand file throws', () => applyPatchBump(fro));
+    chmodSync(join(fro, VERSION_SYNC_FILES.brand), 0o644);
+    check('read-only write failure rolled back: all 3 still 0.9.9', readSyncedVersion(fro) === '0.9.9');
+
+    // 14. Adversarial: a git failure AFTER the files are written propagates with an actionable recovery message.
+    const fcommit = fixture('0.9.9');
+    let commitErr = '';
+    try {
+      bumpVersionOnDoneMerge({
+        mainMergeRoot: fcommit,
+        shouldBump: true,
+        runGit: (args) => { if (args.includes('commit')) throw new Error('simulated commit failure'); return ''; },
+      });
+    } catch (e) {
+      commitErr = e instanceof Error ? e.message : String(e);
+    }
+    check('commit failure throws with a recovery message (git commit + target version)', commitErr.includes('git commit') && commitErr.includes('0.9.10'));
 
     console.log(`version-bump smoke passed: ${passed} assertions`);
   } catch (e) {

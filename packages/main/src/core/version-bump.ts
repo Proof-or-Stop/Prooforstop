@@ -122,18 +122,25 @@ export function applyPatchBump(root: string): PatchBumpResult {
   const mainPkgPath = join(root, VERSION_SYNC_FILES.mainPackageJson);
   const brandPath = join(root, VERSION_SYNC_FILES.brand);
 
-  writeFileSync(
-    rootPkgPath,
-    replaceOnce(readFileSync(rootPkgPath, 'utf-8'), `"version": "${from}"`, `"version": "${to}"`, 'root package.json version'),
-  );
-  writeFileSync(
-    mainPkgPath,
-    replaceOnce(readFileSync(mainPkgPath, 'utf-8'), `"version": "${from}"`, `"version": "${to}"`, 'packages/main package.json version'),
-  );
-  writeFileSync(
-    brandPath,
-    replaceOnce(readFileSync(brandPath, 'utf-8'), `LATTICE_CLI_VERSION = '${from}'`, `LATTICE_CLI_VERSION = '${to}'`, 'lattice-brand LATTICE_CLI_VERSION'),
-  );
+  // Compute ALL three replacements in memory first, so a missing substitution target
+  // throws BEFORE any file is touched (no partial write from a bad-content failure).
+  const plan = [
+    { path: rootPkgPath, next: replaceOnce(readFileSync(rootPkgPath, 'utf-8'), `"version": "${from}"`, `"version": "${to}"`, 'root package.json version') },
+    { path: mainPkgPath, next: replaceOnce(readFileSync(mainPkgPath, 'utf-8'), `"version": "${from}"`, `"version": "${to}"`, 'packages/main package.json version') },
+    { path: brandPath, next: replaceOnce(readFileSync(brandPath, 'utf-8'), `LATTICE_CLI_VERSION = '${from}'`, `LATTICE_CLI_VERSION = '${to}'`, 'lattice-brand LATTICE_CLI_VERSION') },
+  ];
+
+  // Snapshot originals so a mid-write filesystem failure (e.g. a read-only file) rolls
+  // back instead of leaving the 3 sync points drifted (preMortem #1: never corrupt).
+  const originals = plan.map((p) => ({ path: p.path, content: readFileSync(p.path, 'utf-8') }));
+  try {
+    for (const p of plan) writeFileSync(p.path, p.next);
+  } catch (e: any) {
+    for (const o of originals) {
+      try { writeFileSync(o.path, o.content); } catch { /* best-effort rollback */ }
+    }
+    throw new Error(`version-bump: write failed and was rolled back to ${from}: ${e?.message ?? e}`);
+  }
 
   const after = readSyncedVersion(root);
   if (after !== to) {
