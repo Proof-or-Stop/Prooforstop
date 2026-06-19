@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Re-apply the already-reviewed fix verbatim; do not re-derive logic that two host providers already vetted.",
+    "Land the complete fix in ONE DEV commit + ONE comprehensive smoke so the test-coverage lane converges in a single review round.",
+    "Keep the blast radius minimal: only the four touched files change; the anthropic/claude path and the adapters stay byte-identical.",
+    "Project surfaced usage to ONLY adapter-read token keys via own-property reads into a null-prototype object (defense-in-depth, no prototype-chain leakage).",
+    "Never throw from recordDispatchFinalForProvider; a malformed-but-object usage must still supersede the preflight estimate with one unavailable-final."
+  ],
+  "drivers": [
+    "The fix is already reviewed (claude 3 lanes + genuine Codex host-2) on the discarded B-fe1f; the only goal is a clean single-round Lattice audit trail.",
+    "B-fe1f tangled because multiple test-coverage nit-rounds + concurrent main-drift restaled the lane passes; this re-do must avoid multi-round accumulation.",
+    "The broader systematic prototype-pollution class (assemble.ts default-options, adapter `in` reads, protected files) is explicitly DEFERRED to a dedicated story per operator decision."
+  ],
+  "options": [
+    {
+      "name": "apply-captured-fix-verbatim",
+      "pros": [
+        "Re-uses the exact reviewed content from /tmp/fe1f-final/ -- zero re-derivation risk.",
+        "Single DEV commit + single smoke keeps the test-coverage lane converging in one review round.",
+        "Minimal blast radius; anthropic path and adapters untouched."
+      ],
+      "cons": [
+        "Depends on the /tmp capture remaining intact (mitigated: verified present, 4 files).",
+        "Carries the deferred systematic prototype-pollution class as a known follow-up (mitigated: documented in background + a separate story is planned)."
+      ]
+    },
+    {
+      "name": "re-derive-fix-from-scratch",
+      "pros": [
+        "No dependency on the /tmp capture."
+      ],
+      "cons": [
+        "Throws away the genuine 2-host review already done -- would need a fresh full review.",
+        "High risk of subtle divergence from the vetted content (e.g. missing the nested prompt_tokens_details null-proto).",
+        "Slower; defeats the purpose of the clean re-do."
+      ]
+    }
+  ],
+  "chosen": "apply-captured-fix-verbatim",
+  "rationale": "The fix was already implemented and reviewed by claude 3 lanes plus a genuine Codex host-2 on B-fe1f; B-fe1f was discarded only because its review-binding state tangled, not because the code was wrong. Re-applying the captured files verbatim in one commit gives a clean single-round audit trail with zero re-derivation risk, which is exactly the operator's decision.",
+  "preMortem": [
+    {
+      "scenario": "The re-applied extractor silently drops a cache token field, breaking cacheRead accounting.",
+      "trigger": "pickCodexUsageKeys / pickGeminiUsageKeys omit prompt_tokens_details / cachedContentTokenCount from the null-proto projection.",
+      "consequence": "Surfaced reportedUsage loses cacheRead; ledger under-reports cached tokens.",
+      "mitigation": "Apply the captured files verbatim (they keep those keys); the smoke asserts cache-field preservation explicitly; full npm test must be green."
+    },
+    {
+      "scenario": "recordDispatchFinalForProvider throws on a malformed-but-object usage, orphaning the preflight estimate.",
+      "trigger": "buildProviderRecord validation throw is not caught by an inner try, so the unavailable-final is never appended.",
+      "consequence": "The estimate is left as the final record (the exact B-12d7 bug recurs).",
+      "mitigation": "Captured dispatch-usage.ts wraps buildProviderRecord+append in an inner try that falls through to one unavailable-final; the smoke asserts malformed-object -> unavailable-final-supersedes + never-throws for openai and gemini."
+    },
+    {
+      "scenario": "Concurrent main-merge drift restales the lane passes mid-review and the round tangles like B-fe1f.",
+      "trigger": "An unrelated story merges to main between review_run_start and DONE, churning the whole-tree materialHash.",
+      "consequence": "Lane passes go stale; resolved-finding exemption fails; DONE blocks; multi-round churn.",
+      "mitigation": "Single DEV commit + single comprehensive smoke = one review round; right before DONE run recover_evidence (refresh_stale + validate) and re-bind escalation/floor verdicts at the current materialHash, retrying the merge-lock."
+    },
+    {
+      "scenario": "Scope creep: the implementer 'improves' the deferred systematic prototype-pollution class while applying the fix.",
+      "trigger": "Touching assemble.ts default-options or the adapters' `in` reads beyond the four captured files.",
+      "consequence": "Blast radius widens into protected files; scope contract violated; review re-opens.",
+      "mitigation": "scope_contract_set mode=enforce allowsModify ONLY the four files; protectedFiles lists assemble.ts/adapters/claude-cli.ts; the implementer is instructed to apply verbatim and change nothing else."
+    }
+  ],
+  "timestamp": "2026-06-19T19:06:47.185Z"
+}

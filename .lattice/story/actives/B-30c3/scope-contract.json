@@ -1,0 +1,25 @@
+{
+  "storyId": "B-30c3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/providers/gemini-cli.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/providers/claude-cli.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/adapters/gemini.ts",
+    "packages/main/src/core/usage-ledger/adapters/shared.ts"
+  ],
+  "scopeChangeReason": "Re-apply the four already-reviewed captured files verbatim in one DEV commit; the systematic prototype-pollution class in assemble.ts / adapters / the anthropic path is deferred to a dedicated story and must not change here.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-19T19:09:33.605Z",
+  "updatedAt": "2026-06-19T19:09:33.605Z"
+}
