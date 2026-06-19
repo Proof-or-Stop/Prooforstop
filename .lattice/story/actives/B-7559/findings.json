@@ -366,7 +366,7 @@
       "desc": "CHK-001: §4.4 line 333 still contains cfg.parallelGate.mode === \"block\" — but cfg in canStartDevGuard is ParallelGateConfig (the already-resolved nested object returned by resolveParallelGate), which has fields {mode, maxConcurrentReview, broadGlobBlocks} with NO .parallelGate sub-field. The correct access is cfg.mode === \"block\". As written this is a TypeError at runtime: the check always reads undefined, the block condition never fires, and the gate is silently disabled regardless of config. This was filed as F-012 in round 1 and remains unresolved in commit 76c535499.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-19T02:13:18.849Z",
@@ -377,7 +377,11 @@
         "docs/parallel-decomposition-spec.md"
       ],
       "signatureTag": "missing|md|line-still-contains",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29bb434f7: duplicate of F-012 — cfg.parallelGate.mode corrected to cfg.mode at §4.4 line 333.",
+      "resolvedAt": "2026-06-19T02:20:27.576Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-018",
