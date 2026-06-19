@@ -1,0 +1,220 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-17a9:RR-001",
+      "storyId": "B-17a9",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "startedAt": "2026-06-19T00:32:47.521Z",
+      "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+      "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+      "promptHash": "742e4b07f1443237a0320546c257e10619f840ce5a0e55a1af38e90475498b30",
+      "scopeBinding": {
+        "scopeContractHash": "cf17ae773e931603f0cc49f022288014f725beb5021d3e2d85af934dba5a69a3",
+        "diffPackHash": "6f13c4b3b9524641ce01aaba1c36a4f2e3f266c6f7057e7bf8c0f8258ecfe116",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/signature-backfill.ts",
+          "packages/main/src/handlers/signature-backfill.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0bb35ccd25eb51579ae2fb6748d86b2843f01895b0ec0cd3bdc52b6ace56884b",
+          "1ac1c38be7b80d271bc148c13947f1d9bbb2445766eeae0f1b4f8ecf5b716829",
+          "2ff960c012e7a30ae8e114e22202c266d612dfe2f8c2c83430e3e926edfd4dde",
+          "31943a567081eff5a06a931ab79dc36b47c899340aa190e022dd27f8e4e17a05",
+          "3302e8d9823d233bc05e58db0486124d8a3fce4932440e9da22c838c3aa14ad3",
+          "55e9a50ceeb6b923345bdc5c90872924e5275b1a26876e8a1ff55483c1a10afc",
+          "76e62acc54d1a7bef17aeb5eee387f5b639510d110cdfdbcd2578772b6af1fa1",
+          "b63952f12b4a98514377d22ec3d608a8fb391b75d202aaab2868d5164e8daa42",
+          "bf47807b7f1966a09f3c690b24df94cce0308e654b9b4c68223b86558256b9b0",
+          "e8dba5807d125680e6fb82a782fe7a7f4848239864f23266eddefa2a8cca57d4",
+          "f7f3a0a74a9ac77a10c97e189f10be8eb77d33778836bfab281ebecbf8ae1716"
+        ],
+        "bindingHash": "ce79575ee57f991582ded3790110e6ce7db6ed28419a335413eee41fb145c280"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "workspaceMode": "story-worktree",
+        "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+        "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+        "bindingHash": "bf6a2b204460cabc2562a38bfe7da5e7a38cd97d8b1011057dba55b30d4c253e"
+      },
+      "_hash": "777ea527af84634cd28c3f6d30a402601a36022bc5ff575e2b2ebaad7a0ccb3b"
+    },
+    {
+      "reviewRunId": "B-17a9:RR-002",
+      "storyId": "B-17a9",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "startedAt": "2026-06-19T00:32:52.231Z",
+      "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+      "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "cf17ae773e931603f0cc49f022288014f725beb5021d3e2d85af934dba5a69a3",
+        "diffPackHash": "6f13c4b3b9524641ce01aaba1c36a4f2e3f266c6f7057e7bf8c0f8258ecfe116",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/signature-backfill.ts",
+          "packages/main/src/handlers/signature-backfill.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0bb35ccd25eb51579ae2fb6748d86b2843f01895b0ec0cd3bdc52b6ace56884b",
+          "1ac1c38be7b80d271bc148c13947f1d9bbb2445766eeae0f1b4f8ecf5b716829",
+          "2ff960c012e7a30ae8e114e22202c266d612dfe2f8c2c83430e3e926edfd4dde",
+          "31943a567081eff5a06a931ab79dc36b47c899340aa190e022dd27f8e4e17a05",
+          "3302e8d9823d233bc05e58db0486124d8a3fce4932440e9da22c838c3aa14ad3",
+          "55e9a50ceeb6b923345bdc5c90872924e5275b1a26876e8a1ff55483c1a10afc",
+          "76e62acc54d1a7bef17aeb5eee387f5b639510d110cdfdbcd2578772b6af1fa1",
+          "b63952f12b4a98514377d22ec3d608a8fb391b75d202aaab2868d5164e8daa42",
+          "bf47807b7f1966a09f3c690b24df94cce0308e654b9b4c68223b86558256b9b0",
+          "e8dba5807d125680e6fb82a782fe7a7f4848239864f23266eddefa2a8cca57d4",
+          "f7f3a0a74a9ac77a10c97e189f10be8eb77d33778836bfab281ebecbf8ae1716"
+        ],
+        "bindingHash": "ce79575ee57f991582ded3790110e6ce7db6ed28419a335413eee41fb145c280"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "workspaceMode": "story-worktree",
+        "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+        "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+        "bindingHash": "bf6a2b204460cabc2562a38bfe7da5e7a38cd97d8b1011057dba55b30d4c253e"
+      },
+      "_hash": "768e91412ecb368c4e796dbaa548d3f50ccf92d04e540ac1636fef82e656de47"
+    },
+    {
+      "reviewRunId": "B-17a9:RR-003",
+      "storyId": "B-17a9",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "startedAt": "2026-06-19T00:33:01.408Z",
+      "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+      "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+      "promptHash": "1facd662d1e68010737071b78440d34b1bed074905b6577f530c228f42fa8e8c",
+      "scopeBinding": {
+        "scopeContractHash": "cf17ae773e931603f0cc49f022288014f725beb5021d3e2d85af934dba5a69a3",
+        "diffPackHash": "6f13c4b3b9524641ce01aaba1c36a4f2e3f266c6f7057e7bf8c0f8258ecfe116",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/signature-backfill.ts",
+          "packages/main/src/handlers/signature-backfill.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0bb35ccd25eb51579ae2fb6748d86b2843f01895b0ec0cd3bdc52b6ace56884b",
+          "1ac1c38be7b80d271bc148c13947f1d9bbb2445766eeae0f1b4f8ecf5b716829",
+          "2ff960c012e7a30ae8e114e22202c266d612dfe2f8c2c83430e3e926edfd4dde",
+          "31943a567081eff5a06a931ab79dc36b47c899340aa190e022dd27f8e4e17a05",
+          "3302e8d9823d233bc05e58db0486124d8a3fce4932440e9da22c838c3aa14ad3",
+          "55e9a50ceeb6b923345bdc5c90872924e5275b1a26876e8a1ff55483c1a10afc",
+          "76e62acc54d1a7bef17aeb5eee387f5b639510d110cdfdbcd2578772b6af1fa1",
+          "b63952f12b4a98514377d22ec3d608a8fb391b75d202aaab2868d5164e8daa42",
+          "bf47807b7f1966a09f3c690b24df94cce0308e654b9b4c68223b86558256b9b0",
+          "e8dba5807d125680e6fb82a782fe7a7f4848239864f23266eddefa2a8cca57d4",
+          "f7f3a0a74a9ac77a10c97e189f10be8eb77d33778836bfab281ebecbf8ae1716"
+        ],
+        "bindingHash": "ce79575ee57f991582ded3790110e6ce7db6ed28419a335413eee41fb145c280"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "workspaceMode": "story-worktree",
+        "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+        "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+        "bindingHash": "bf6a2b204460cabc2562a38bfe7da5e7a38cd97d8b1011057dba55b30d4c253e"
+      },
+      "_hash": "e01630101939811d1bfb440b278d52d24a0ce34503405f441e325a70214b646a"
+    },
+    {
+      "reviewRunId": "B-17a9:RR-004",
+      "storyId": "B-17a9",
+      "agent": "lattice-review-behavior",
+      "lane": "lattice-review-behavior",
+      "reviewRound": "2026-06-19T00:32:20.925Z",
+      "startedAt": "2026-06-19T00:33:30.162Z",
+      "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+      "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "cf17ae773e931603f0cc49f022288014f725beb5021d3e2d85af934dba5a69a3",
+        "diffPackHash": "6f13c4b3b9524641ce01aaba1c36a4f2e3f266c6f7057e7bf8c0f8258ecfe116",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/signature-backfill.ts",
+          "packages/main/src/handlers/signature-backfill.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/experience-layer-signature-backfill-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0bb35ccd25eb51579ae2fb6748d86b2843f01895b0ec0cd3bdc52b6ace56884b",
+          "1ac1c38be7b80d271bc148c13947f1d9bbb2445766eeae0f1b4f8ecf5b716829",
+          "2ff960c012e7a30ae8e114e22202c266d612dfe2f8c2c83430e3e926edfd4dde",
+          "31943a567081eff5a06a931ab79dc36b47c899340aa190e022dd27f8e4e17a05",
+          "3302e8d9823d233bc05e58db0486124d8a3fce4932440e9da22c838c3aa14ad3",
+          "55e9a50ceeb6b923345bdc5c90872924e5275b1a26876e8a1ff55483c1a10afc",
+          "76e62acc54d1a7bef17aeb5eee387f5b639510d110cdfdbcd2578772b6af1fa1",
+          "b63952f12b4a98514377d22ec3d608a8fb391b75d202aaab2868d5164e8daa42",
+          "bf47807b7f1966a09f3c690b24df94cce0308e654b9b4c68223b86558256b9b0",
+          "e8dba5807d125680e6fb82a782fe7a7f4848239864f23266eddefa2a8cca57d4",
+          "f7f3a0a74a9ac77a10c97e189f10be8eb77d33778836bfab281ebecbf8ae1716"
+        ],
+        "bindingHash": "ce79575ee57f991582ded3790110e6ce7db6ed28419a335413eee41fb145c280"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-17a9",
+        "workspaceMode": "story-worktree",
+        "headHash": "802fd693a53b494bd970bf3d893b36775035d895",
+        "materialHash": "04bae4c0874f11e37ef86434eb07e0a679c6aa16d7da4f130800ff98b2314a15",
+        "bindingHash": "bf6a2b204460cabc2562a38bfe7da5e7a38cd97d8b1011057dba55b30d4c253e"
+      },
+      "_hash": "0dbb61f0e861fef1b97ceae00e55f3c05d53c26fc9a04db3ef27b5ace7122aa2"
+    }
+  ]
+}

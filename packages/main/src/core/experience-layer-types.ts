@@ -73,12 +73,15 @@ export interface FindingSignal {
  * - `'confirmed'`: a reviewer (or LLM) explicitly supplied the tag — real quality.
  * - `'auto'`: a deterministic mechanical FALLBACK candidate (deriveSignatureCandidate)
  *   filled in because none was supplied.
+ * - `'backfill'`: B-17a9 — a previously-empty `signatureTag` retroactively filled
+ *   from a committed signature map by `signature_backfill`. Distinguishes
+ *   LLM/operator-backfilled tags from live auto fallbacks and confirmed tags.
  *
  * AUDIT-ONLY: like `signatureTag` itself, this field MUST NOT be read by any gate
  * and MUST be excluded from the finding `_hash` / signFinding signature. It exists
  * only to distinguish low-quality auto fallbacks from confirmed tags downstream.
  */
-export type SignatureTagSource = 'auto' | 'confirmed';
+export type SignatureTagSource = 'auto' | 'confirmed' | 'backfill';
 
 /** The derived-cache envelope persisted to `.lattice/learning/finding-signals.json`. */
 export interface FindingSignalsCache {

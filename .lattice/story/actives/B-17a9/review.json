@@ -1,0 +1,33 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-19T00:16:48.266Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add 'backfill' provenance + pure backfill-decision leaf + signature_backfill handler + CLI + register (writing, dry-run default) are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-17a9\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Default --map path -- resolved: require explicit --map (no silent default writing to live data); the smoke uses a temp map.; Whether to also persist the map into the repo -- resolved: out of scope; the map lives in lattice-Paper and is passed via --map at apply time."
+        }
+      ],
+      "_hash": "b7ec8369db0550724c8a0e061f3b4b87a203bf409b81e7f04383c029fa920bad"
+    }
+  ]
+}

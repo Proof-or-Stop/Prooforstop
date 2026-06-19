@@ -1,0 +1,21 @@
+# Plan — B-17a9: signature_backfill command
+
+Persist the committed phase-3.5 real signatures into live findings (fill empty signatureTag + source='backfill'), keeping every finding _hash byte-identical. Writing L2 command, dry-run default. The mass-apply against live findings is a post-DONE operation using this command.
+
+## CHK-001 — 'backfill' provenance + pure decide leaf
+- core/experience-layer-types.ts: extend `SignatureTagSource` to `'auto' | 'confirmed' | 'backfill'`.
+- New `core/signature-backfill.ts` (imports only types): `export function decideBackfill(current: { signatureTag?: string; signatureTagSource?: string }, mappedSig: string | undefined, opts?: { overwriteAuto?: boolean }): { action: 'fill'|'skip-confirmed'|'skip-has-auto'|'skip-no-mapping'|'skip-nonempty'; signatureTag?: string; signatureTagSource?: 'backfill' }`.
+  - no mappedSig => skip-no-mapping; current source==='confirmed' (or non-empty tag not from auto) => skip-confirmed/skip-nonempty; current empty => fill (signatureTag=mappedSig, source='backfill'); current source==='auto' => skip-has-auto unless opts.overwriteAuto then fill. Pure, deterministic, no I/O.
+
+## CHK-002 — handler + CLI + register (writing, dry-run default)
+- New `handlers/signature-backfill.ts`, `createSignatureBackfillHandlers(ctx)` returning `{ signature_backfill(args) }`:
+  - args `{ map: string (required), apply?: boolean, overwriteAuto?: boolean, json?: boolean }`. If no `map`, error (no silent default).
+  - Read+parse the map JSON ({ findingId -> sig }). For each storyId in ctx.store.listStoryIds(): `const data = ctx.store.readFindings(storyId)`; for each finding, `decideBackfill(finding, map[finding.id], {overwriteAuto})`; when action==='fill' AND args.apply: set `finding.signatureTag = mappedSig; finding.signatureTagSource = 'backfill'` IN PLACE on the finding object — these fields are NOT part of the finding _hash (finding.ts attaches them after _hash; here we add them to the already-hashed stored object without recomputing _hash), then after processing the story's findings call `ctx.store.writeFindings(storyId, data)` only if something changed.
+  - Tally actions; render report (scanned/filled/skipped-by-reason + by-source breakdown) + dry-run note when !apply; `--json` structured. Default dry-run (apply falsy) writes NOTHING.
+  - CRITICAL: never pass signatureTag/signatureTagSource into signFinding; never recompute finding._hash; do not modify finding-verify.ts.
+- Register: registry.ts (registerBatch); cli-engine.ts (command `signature_backfill` schema { map, apply?, overwriteAuto?, json? }; do NOT add to READ_ONLY_COMMANDS — it writes); config.ts DEFAULT_PHASE_TOOLS; command-policy.ts (writing ownershipClass like signature_registry_set, NOT readOnly, destructiveRisk appropriate, reason: writes audit-only signatureTag to findings, no _hash/gate change); process-fact-levels.ts (L2 experience-layer, owner handlers/signature-backfill).
+
+## CHK-003 — Smoke + npm script + verifier (incl. _hash invariance + idempotency)
+- New `tasks/experience-layer-signature-backfill-smoke.ts`: temp store with findings (one empty-tag, one source='confirmed', one source='auto') + a synthetic map. Assert: dry-run writes nothing (file mtime/content unchanged); --apply fills the empty one (source='backfill'), leaves confirmed untouched, leaves auto untouched unless --overwriteAuto; **the finding _hash is byte-identical before/after for every touched finding** (recompute via real signFinding); a finding absent from the map is skipped; a SECOND --apply run changes nothing (idempotent). Print `signature-backfill smoke passed`.
+- package.json: `"test:experience-layer-signature-backfill": "node dist/tasks/experience-layer-signature-backfill-smoke.js"`.
+- Committed `.lattice/story/actives/B-17a9/evidence/verify-b-17a9.mjs`: build + this smoke + no-regression smokes + full npm test (incl. process-fact-contract) + static checks: signature-backfill.ts pure (imports only types); handler does not import/modify finding-verify.ts and never passes the fields to signFinding; signature_backfill registered across cli-engine/registry/config/command-policy/process-fact-levels; NOT in READ_ONLY_COMMANDS. Map every verificationIntent; TOTAL/PASS/FAIL.
