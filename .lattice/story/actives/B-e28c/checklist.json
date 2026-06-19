@@ -86,7 +86,7 @@
       "context": "The smoke should prove verdict GET carries Authorization and policy discovery GET does not.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-19T03:59:49.195Z",
+      "endTime": "2026-06-19T04:14:15.844Z",
       "userSees": "`node packages/main/dist/tasks/authority-client-smoke.js` passes with assertions for protected GET auth, keyless policy discovery, and blocked status when receipt/quorum are missing.",
       "files": {
         "modify": [
@@ -128,10 +128,10 @@
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
-          "note": "TypeScript build and authority-client smoke passed after the protected-read auth change.",
-          "headHash": "489688588b610d0bf917c63d825096b7ec69b756",
-          "materialHash": "3fc49ea6cb3eacdf2ddc6a0cdac09b18bbabf77417754180528cbd0a1d283674",
-          "timestamp": "2026-06-19T03:59:49.318Z"
+          "note": "TypeScript build and authority-client smoke passed after the protected-read auth change and comment fix.",
+          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
+          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
+          "timestamp": "2026-06-19T04:14:15.940Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,9 +141,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Smoke differentiates protected verdict/status GET auth from keyless policy discovery.",
-          "headHash": "489688588b610d0bf917c63d825096b7ec69b756",
-          "materialHash": "3fc49ea6cb3eacdf2ddc6a0cdac09b18bbabf77417754180528cbd0a1d283674",
-          "timestamp": "2026-06-19T03:59:49.405Z"
+          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
+          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
+          "timestamp": "2026-06-19T04:14:16.056Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,9 +153,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Smoke proves transport success alone does not mint authorityDone/fullAuthorityDone without receipt and quorum.",
-          "headHash": "489688588b610d0bf917c63d825096b7ec69b756",
-          "materialHash": "3fc49ea6cb3eacdf2ddc6a0cdac09b18bbabf77417754180528cbd0a1d283674",
-          "timestamp": "2026-06-19T03:59:49.490Z"
+          "headHash": "2a839b814c8e2c4634603f9b38bca89b2fa460fd",
+          "materialHash": "172717b76756b15fb924582525f1ebdfa3ff447b705f13eec05a7650d9342fa1",
+          "timestamp": "2026-06-19T04:14:16.149Z"
         }
       ]
     }
