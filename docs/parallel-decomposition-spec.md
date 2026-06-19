@@ -309,7 +309,7 @@ Therefore the static check is deliberately **conservative**, in two tiers:
 
 Policy:
 - Both NARROW + non-intersecting (tier 1 & 2 clean) → independence provable → allow parallel, no advisory.
-- Either BROAD **while** `parallelSafe: 'yes'` → independence NOT provable → **BLOCK** `broad_glob_unprovable_parallel` (narrow the contract).
+- Either BROAD **while** `parallelSafe: 'yes'` → independence NOT provable → **BLOCK** `broad_glob_unprovable_parallel` when `cfg.broadGlobBlocks` (strict profile); otherwise **ADVISE** (narrow the contract).
 - BROAD without a parallel assertion → ADVISE only.
 
 **Pattern subsumption beyond this grammar is unimplemented and we say so.** Anything the static tiers cannot prove falls through to the runtime `actualFileOverlapsByStory()` probe at REVIEW/wave time (post-DEV). The static check predicts the common cases; the runtime probe is the backstop for the rest.
@@ -319,7 +319,7 @@ Policy:
 Evaluated against all **active** peers (reusing the `terminalPhases = {DONE, DISCARDED}` filter from `parallel-policy.ts`):
 
 1. **`overlap_declared_parallel`** — S asserts parallel AND tier-1 literal-path intersection (or tier-2 prefix flag at `block` confidence) with an active peer P also asserting parallel. Names the colliding path pair and peer storyId. *Pure scope fact — safe to hard-block.*
-2. **`broad_glob_unprovable_parallel`** — S asserts parallel but its write-set contains a BROAD glob. *Pure scope fact — safe to hard-block.*
+2. **`broad_glob_unprovable_parallel`** — S asserts parallel but its write-set contains a BROAD glob. *Pure scope fact, but config-gated (the enforcement path for `broadGlobBlocks`, §4.7):* the gate returns this as a hard block **only when `cfg.broadGlobBlocks` is true** (the `strict` profile); under `light`/`balanced` (`broadGlobBlocks: false`) the same broad glob is emitted as an **advisory**, never a hard block.
 3. **`fake_dependency_chain`** — S declares `depends: [P]` whose cited symbol (§1.3) is **absent** from P's `allowedCreate` contract surface, AND S does not overlap P. This catches a fabricated dependency citing a non-existent symbol. *Fires as a hard block only when the cited symbol is provably absent;* a plausible-but-false citation to a real symbol degrades to ADVISE (semantics undecidable — §1.3 residual).
 
 Conditions 1–2 are facts. Condition 3 is a hard block only on the *falsifiable* sub-case (cited symbol does not exist).
@@ -364,7 +364,7 @@ The real `AuditMode` is `{semi-auto, full-auto, off}` with invalid-fallback `sem
 parallelGate: {
   mode: 'advise' | 'block' | 'off';   // NEW set; invalid → console.warn + fallback 'advise'
   maxConcurrentReview: number;        // positive-int guard (copied from deprecatedGcThreshold); default 3
-  broadGlobBlocks: boolean;           // strict → true; default false
+  broadGlobBlocks: boolean;           // gates §4.3 cond.2: true → broad glob is a hard block; false → advisory only. strict → true; default false
 };
 // VALID_PARALLEL_MODES = new Set(['advise','block','off']);  PARALLEL_MODE_FALLBACK = 'advise';
 ```
@@ -463,7 +463,11 @@ G. Self-audit (REJECT gate), YES/NO + justification:
    If any is wrong, STOP, redraw, re-emit.
 
 ## Persist to Lattice (for each story your plan emits)
-- story_create  → name,title,type,priority,lane,parallelSafe,depends,blockingFor,keywords
+- story_create  → name,title,description,type,priority,depends,keywords,checklist,background
+  (NOTE: `lane`, `parallelSafe`, `blockingFor`, `sharedHotspots` are **NOT** `story_create` flags — they are DERIVED, not set:
+   `lane` ← `priority` via `resolveStoryLane` (high→mainline, medium→supporting, low/else→exploratory) — choose `priority` to get the lane you want;
+   `parallelSafe` ← computed by `resolveParallelSafety` from `depends`/`blockingFor`/`sharedHotspots` — never set directly;
+   `blockingFor` has no CLI setter — it is the converse of another story's `depends`; `sharedHotspots` defaults to `[]`. Passing `--lane`/`--parallelSafe`/`--blockingFor` to `story_create` is silently discarded.)
 - scope_boundary_set --storyId <id> --allowedScope "<semantic direction>" --userConfirmed=true   (INIT_CHECK boundary)
 - scope_contract_set --storyId <id> --mode=enforce --allowedModify … --allowedCreate … --allowedTest …
                      --protectedFiles … --explicitExcludes …                (file-level scope gate)
@@ -583,6 +587,7 @@ scope_contract_set --storyId {{INTEGRATION_STORY_ID}} --mode=enforce \
   --allowedModify {{INTEGRATION_ALLOWED_MODIFY_JSON}} --allowedCreate {{INTEGRATION_ALLOWED_CREATE_JSON}} \
   --allowedTest {{INTEGRATION_ALLOWED_TEST_JSON}} \
   --protectedFiles {{INTEGRATION_PROTECTED_JSON}}
+# every {{..._JSON}} placeholder is a single JSON array string, e.g. '["src/<f>/integration/*"]'
 # {{INTEGRATION_PROTECTED_JSON}} = one JSON array of contract file(s) + barrel + "src/{{FEATURE}}/impl/*.ts"
 ````
 
@@ -704,7 +709,7 @@ Build the gate itself **through the Lattice story workflow** (every code change 
 ### Suggested story breakdown (itself contract-first)
 
 **Story 0 — Contract (SERIAL, first).** Create `packages/main/src/core/parallel-decomposition.ts` with the pure-function **signatures + skeletons** (`computeWriteSet`, `globsOverlap`, `evaluateDecompositionGate` all throwing NotImplemented), the `ParallelGateConfig` type, the new `VALID_PARALLEL_MODES` constant, and the `ParallelDecompositionBlock` reason enum. Also add the `parallelGate` field to the `AuditConfig` interface in `audit-config.ts` (type only, no resolution logic). This freezes the interface every other story imports.
-`scope_contract_set --storyId <S0> --mode=enforce --allowedModify '["packages/main/src/core/parallel-decomposition.ts"]' --allowedCreate '["packages/main/src/core/parallel-decomposition.ts"]'` plus a narrowly-scoped touch of `audit-config.ts` for the interface field (a sharedHotspot with Story 3 — resolve by putting the *type-only* edit here and the *resolution-logic* edit in Story 3, so the write-lines are disjoint; if they cannot be made disjoint, merge Stories 0 and 3's config work).
+`scope_contract_set --storyId <S0> --mode=enforce --allowedModify '["packages/main/src/core/parallel-decomposition.ts","packages/main/src/core/audit-config.ts"]' --allowedCreate '["packages/main/src/core/parallel-decomposition.ts"]'` — the `audit-config.ts` entry in `allowedModify` is the narrowly-scoped touch for the interface field (a sharedHotspot with Story 3 — resolve by putting the *type-only* edit here and the *resolution-logic* edit in Story 3, so the write-lines are disjoint; if they cannot be made disjoint, merge Stories 0 and 3's config work).
 
 **Story 1 — Static overlap engine (PARALLEL).** Implement `computeWriteSet` + `globsOverlap` (literal-path intersection + shared-dir-prefix heuristic + broadness classifier over the defined grammar), and the `scope_contract_set` grammar validator that rejects mid-path `**` / bare `*`. `allowedModify: parallel-decomposition.ts` impl region + a new `parallel-decomposition.test.ts`. depends:[S0] cites `globsOverlap` signature.
 
