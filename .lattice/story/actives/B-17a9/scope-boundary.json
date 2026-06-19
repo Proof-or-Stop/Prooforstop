@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-17a9",
+  "mode": "feature",
+  "allowed": [
+    "Add 'backfill' to SignatureTagSource + a pure backfill-decision leaf",
+    "signature_backfill handler + CLI (dry-run default) + registration across the surfaces",
+    "Smoke, npm script, and verifier incl. _hash invariance + idempotency"
+  ],
+  "excluded": [
+    "Aggregating learning across more than one repository",
+    "Any change to the finding _hash, signFinding, or any gate",
+    "Calling any LLM at command runtime",
+    "Overwriting confirmed reviewer-supplied signatureTags",
+    "The actual mass-apply against live findings (a post-DONE operation using the built command)",
+    "Weighting backfill vs confirmed vs auto in finding-signals derivation"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved persisting the ③.5 real signatures into the live base via a reviewed Lattice command; mass-apply is a post-DONE operation.",
+  "createdAt": "2026-06-19T00:05:27.912Z",
+  "updatedAt": "2026-06-19T00:05:27.912Z",
+  "_hash": "ab28c7e95a40a6a80123efeb9c8f49d128161c5e052bfc112de02b043351762d"
+}
