@@ -4,7 +4,7 @@
   "title": "Bind explicit high-risk policy 3x2 requirement to runtime process fact coverage",
   "description": "Resolve the remaining gap_analyze high-priority gaps for explicitlyConfiguredHighRiskPolicyRequires3x2 by binding the roadmap predicate to machine-verifiable runtime process facts and regression verification, without claiming Authority completion.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "explicitlyConfiguredHighRiskPolicyRequires3x2",
@@ -24,6 +24,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-19T21:11:35.001Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-963c",
+    "branch": "story/B-963c",
+    "createdAt": "2026-06-19T21:11:33.850Z"
+  }
 }
