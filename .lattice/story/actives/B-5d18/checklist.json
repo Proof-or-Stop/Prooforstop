@@ -53,6 +53,17 @@
           "headHash": "32071273d0694bcc51914336c949f1027d349d94",
           "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
           "timestamp": "2026-06-19T17:11:21.610Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Bounded smoke still passes normally on an idle machine — timeoutMs is a ceiling (120s), not a forced failure; the smoke completes well within it.",
+          "headHash": "80dc63550af7e0b05664ef20c564eb07fae950d6",
+          "materialHash": "222b118929cd872fee916b8899bc085f0317eb23a24f82d5f6a3694a04211107",
+          "timestamp": "2026-06-19T17:11:22.431Z"
         }
       ]
     },
