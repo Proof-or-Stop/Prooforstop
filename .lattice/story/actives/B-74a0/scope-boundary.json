@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-74a0",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/src/cli-engine.ts command catalog registration surface",
+    "packages/main/src/core/command-catalog.ts or adjacent new command catalog module",
+    "packages/main/src/core/command-policy.ts command metadata references if needed",
+    "packages/main/src/tasks/*command*smoke.ts focused command catalog smoke coverage",
+    "scripts/verify-*command*.mjs focused contract checks if needed"
+  ],
+  "excluded": [
+    "Authority Server receipt semantics",
+    "flag parsing and dry-run parser extraction",
+    "host runtime semantics beyond preserving existing tests",
+    "lifecycle dispatch and INIT_CHECK metadata behavior",
+    "package version bump",
+    "runtime root/activity/ownership gates"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested cli-engine architecture split; B-74a0 owns command catalog/schema extraction only.",
+  "createdAt": "2026-06-19T16:25:12.824Z",
+  "updatedAt": "2026-06-19T16:25:12.824Z",
+  "_hash": "a39a0f71d04b998a9bf0d8dcd209223bef793d142a650b1781893887653f9d9b"
+}
