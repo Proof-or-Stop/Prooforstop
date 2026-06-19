@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-19T16:04:17.173Z",
       "reviewRunId": "B-d674:RR-017",
       "_hash": "40a4f57df3ed98b82e1a9eb6b77d3e1077a3ec068ead276d1c192a18e7f90701"
+    },
+    {
+      "id": "B-d674:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: independent test-coverage review reran npm --prefix packages/main run build; npm --prefix packages/main run test:unattended-dispatch-smoke; npm run test:authority-enforce-matrix; node packages/main/dist/tasks/host-guard-matrix-smoke.js; node packages/main/dist/tasks/capability-list-smoke.js; node packages/main/dist/tasks/dispatch-run-smoke.js; host_runtime_list/probe for antigravity, agy, gemini, unknown-host, and restricted PATH; node bin/lattice.js validate --story=B-d674 --json. Build, documented npm smoke scripts, host-guard-matrix, capability-list, dispatch-run, host probes, and stale-evidence validation all pass. validate reports allPass=true, 9/9 intents covered, warnings=[]; no stale evidence or missing coverage found after F-006..F-009.",
+      "createdAt": "2026-06-19T16:09:22.693Z",
+      "reviewRound": "2026-06-19T16:04:17.173Z",
+      "reviewRunId": "B-d674:RR-018",
+      "_hash": "f21efeb07de6f97edf5b2572fafbdd16934e28228fb8ce8a7ca0224edf4b16f7"
     }
   ]
 }
