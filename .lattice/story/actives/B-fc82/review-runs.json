@@ -85,6 +85,49 @@
         "bindingHash": "c02168bff66b7836869f197c531d4120ca5ffb005befeb8b12fd1e0fa50536c2"
       },
       "_hash": "a28ceacec653e7921a15ac6493388cc5a3f6dfb4dbcbd495b4a696427a536f8d"
+    },
+    {
+      "reviewRunId": "B-fc82:RR-003",
+      "storyId": "B-fc82",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-19T16:22:05.705Z",
+      "startedAt": "2026-06-19T16:22:38.889Z",
+      "headHash": "4de83548d9f6b4e67002ac77e2439421cd5b910d",
+      "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+      "storyFilesHash": "76ec1742eae642bdd24c62bc4f4fab5d83e0a14448e2c1730f86772f8846354d",
+      "promptHash": "9f822aea9fabe9dfc32edde2e79597250a8159c423a497b635fc9b770db161b7",
+      "scopeBinding": {
+        "scopeContractHash": "219f383e1a0ed3b0af6053553173763f8aede97bd72b4df7dda5cb0079fd2aba",
+        "diffPackHash": "76ec1742eae642bdd24c62bc4f4fab5d83e0a14448e2c1730f86772f8846354d",
+        "reviewedChangedFiles": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "261305b5e6a38d47835a2a34fd21f37010002d9275270668437be080338a707e",
+          "4159dae16443514c8213946bc23f021ceb1dad42e4eb4d57f3bf86b41f2a5e5a",
+          "701d9e00c0a0c966b5e8baf0352b8d0aa8419e0bd6db5a79ae0427cf3d09af5f",
+          "85a63240e74c553a30b10880e27612b96f6681a833eac0a9a9ecafd05533981f",
+          "9e963bda3a6f657b606932d63b41a1c080b1b216d084695813c2d1c06d823f28",
+          "e6c63087e21621785e6c78b8d6ea766c34a97de68f6afe870d1e77bd1859b62f"
+        ],
+        "bindingHash": "7f6dda3dc330d360a9edd20d0b52b07eb3bd35a5ffb37dfbf7233b5f892ab662"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-fc82",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-fc82",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-fc82",
+        "workspaceMode": "story-worktree",
+        "headHash": "4de83548d9f6b4e67002ac77e2439421cd5b910d",
+        "materialHash": "3e088c6543fec2c883a100f28b32bedafe2d0a83ae07f02cd9eff032125f1025",
+        "bindingHash": "4431c92a85111a5eb7c9e60743736f56147330d8c0d57458ea62e9cb88ff28f7"
+      },
+      "_hash": "188638e411aae641056ee1fd6001a6ed6f8c0417d62418bc1cb1534f72150fae"
     }
   ]
 }
