@@ -106,6 +106,17 @@
           "headHash": "eeff4bd6e081e6ec17a76ebb6599abaa12a3f77c",
           "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
           "timestamp": "2026-06-19T04:54:08.532Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "edge: the new INIT-window case !ignored && !tracked (allowlisted-but-uncommitted leaf) -> unsafe=true. Covered by predicate unit, bootstrap dev_start DATA-LOSS warning, and doctor scan INIT-window risk line + unsafeLeaves(ignored=false,tracked=false).",
+          "headHash": "d3fa56db788612c79b6abf27dbfca7fc6851c7b9",
+          "materialHash": "c4ff77fadb34009f3f7fde630caa07050a142dbd6ae1cffc0b8b45281fcab4dc",
+          "timestamp": "2026-06-19T04:54:14.464Z"
         }
       ]
     }
