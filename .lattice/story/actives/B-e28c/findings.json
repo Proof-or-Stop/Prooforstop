@@ -5,7 +5,7 @@
       "desc": "AuthorityClientAuth.customerApiKey comment still says the customer API key is used only for mutating Authority requests, but this story now uses it for protected GET reads via listJobVerdicts/authenticated GET. Update the field comment so future maintainers do not infer that GET paths must stay keyless.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-19T04:13:10.363Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/authority-client.ts"
       ],
       "signatureTag": "missing|ts|authorityclientauth-customerapikey-comment",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the AuthorityClientAuth customerApiKey documentation so it states customer keys are used for mutating requests and protected reads; verified with npm --prefix packages/main run build and node packages/main/dist/tasks/authority-client-smoke.js.",
+      "resolvedAt": "2026-06-19T04:16:31.816Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
