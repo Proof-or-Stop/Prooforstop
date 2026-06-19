@@ -20,6 +20,82 @@
           "packages/main/src/core/signature-backfill.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decideBackfill(empty signatureTag, valid mappedSig) => action:fill, signatureTag=mappedSig, signatureTagSource=backfill; WHY: covers primary fill path",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill(source=confirmed, valid mappedSig) => action:skip-confirmed, no signatureTag in result; WHY: confirmed must never be overwritten",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill(source=auto, valid mappedSig, overwriteAuto:false) => action:skip-has-auto; WHY: auto preserved unless explicit override",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill(source=auto, valid mappedSig, overwriteAuto:true) => action:fill with backfill source; WHY: overwriteAuto enables auto replacement",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill(any current, undefined mappedSig) => action:skip-no-mapping; WHY: unmapped findings must be left alone",
+            "type": "cli"
+          },
+          {
+            "desc": "SignatureTagSource type in experience-layer-types.ts accepts backfill as valid literal => TypeScript compiles; WHY: type coverage",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "decideBackfill with signatureTag=undefined AND signatureTagSource=undefined (completely absent fields) + valid mappedSig => action:fill; WHY: real findings may lack these fields entirely",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill with mappedSig as empty string => action:skip-empty-sig; WHY: empty string is not a valid signature to fill",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill with opts=undefined (no opts object) => defaults overwriteAuto to false, auto tags preserved; WHY: callers may omit opts",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill with non-empty signatureTag but signatureTagSource is unknown string (not auto/confirmed) => action:skip-nonempty; WHY: unknown provenance must not be overwritten",
+            "type": "cli"
+          },
+          {
+            "desc": "Return value always has signatureTagSource=backfill when action=fill, never auto or confirmed; WHY: provenance integrity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Static import analysis: signature-backfill.ts imports ONLY from types modules (no fs, path, store, I/O) => leaf is pure; WHY: I/O in the leaf is an architecture violation",
+            "type": "cli"
+          },
+          {
+            "desc": "decideBackfill never mutates the input finding object => original object byte-identical after call; WHY: mutation would cause hidden side-effects in the caller",
+            "type": "cli"
+          },
+          {
+            "desc": "overwriteAuto:true with source=confirmed => still skip-confirmed; WHY: confirmed is sacrosanct even when overwriteAuto is on (the strongest invariant)",
+            "type": "cli"
+          },
+          {
+            "desc": "Passing extra/unexpected properties in finding object does not alter decision logic => same action regardless of extra fields; WHY: defensive against future field additions",
+            "type": "cli"
+          },
+          {
+            "desc": "Deterministic: identical inputs always produce identical outputs across repeated calls => no hidden state or randomness; WHY: purity contract",
+            "type": "cli"
+          },
+          {
+            "desc": "Return type structurally exact: action=fill always includes signatureTag+signatureTagSource; action=skip-* never includes signatureTag; WHY: downstream code must not see stale fields",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
