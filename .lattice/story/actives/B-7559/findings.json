@@ -159,7 +159,7 @@
       "desc": "doc-code-drift: spec §4.7 states VALID_MODES is typed to Set<AuditMode> but actual code in audit-config.ts declares it as ReadonlySet<AuditMode>. The logical conclusion (cannot be reused for parallelGate validation) is correct but the stated type annotation is factually wrong.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-19T01:57:12.522Z",
@@ -171,7 +171,11 @@
         "packages/main/src/core/audit-config.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-spec",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 76c535499: VALID_MODES type corrected from Set<AuditMode> to ReadonlySet<AuditMode> (audit-config.ts:50).",
+      "resolvedAt": "2026-06-19T02:05:05.690Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7559:F-009",
