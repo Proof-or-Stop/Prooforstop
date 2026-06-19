@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ed99:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS: inspected checklist verificationIntent/evidence and source/runtime wiring for zero-review material-code block, one-round clean pass, failure-triggered sticky 3x1, stale materialDigest rejection, docs-only non-overblock, process-fact registration, and Authority flags remaining false. Commands run: lattice session_brief; lattice dispatch {storyId,agentType}; lattice reviewer_list; lattice checklist_get; git diff --stat/name-only; git diff core wiring; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node scripts/verify-process-fact-contract.mjs; rg dist/source tokens; git diff --check main...HEAD. No blocker found.",
+      "createdAt": "2026-06-19T02:11:03.713Z",
+      "reviewRound": "2026-06-19T01:50:12.416Z",
+      "reviewRunId": "B-ed99:RR-003",
+      "_hash": "c490fd98cb7760b6672bf01fe9da660150a8d7b5ef4547f21f75beeac03b0283"
+    }
+  ]
+}
