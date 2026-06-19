@@ -148,9 +148,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Post-commit 7225c4bfb: signature verification uses stripSignature(envelope) after parsing the captured /v1/gates/evaluate body, so adding materialOverlapAudit after signing would fail this regression.",
-          "headHash": "3051a628d3ff44684f58e7954e45994d5bdb94d3",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:14.980Z"
+          "headHash": "5ba8c090eeac5d2ff47ef8690f2a2bbcc057f5a8",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:24:48.068Z"
         }
       ]
     },
@@ -214,9 +214,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Post-commit 7225c4bfb: live request-shape regression exercised zero, one, and two extraEvidenceRefs; materialOverlapAudit stayed present with empty arrays in all cases.",
-          "headHash": "88ebcb039d6982025a1bbc609c16463648688e1a",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:25.295Z"
+          "headHash": "5ba8c090eeac5d2ff47ef8690f2a2bbcc057f5a8",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:24:48.068Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -224,9 +224,9 @@
           "command": "node packages/main/dist/tasks/authority-live-python-e2e-smoke.js",
           "result": "pass",
           "note": "Post-commit 7225c4bfb: live smoke entrypoint exited 0 with SKIPPED because LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY were not set; no credential files were inspected, so staging pass is not claimed.",
-          "headHash": "88ebcb039d6982025a1bbc609c16463648688e1a",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:25.384Z"
+          "headHash": "5ba8c090eeac5d2ff47ef8690f2a2bbcc057f5a8",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:24:48.068Z"
         }
       ]
     },
@@ -309,9 +309,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "Post-commit 7225c4bfb: captured signed gate envelope signature is verified over the materialOverlapAudit-bearing decision; omitted or post-sign audit changes would break the test.",
-          "headHash": "70705a3cb44c06523a32de5bab9986602f1c8514",
-          "materialHash": "6e6a7ce5d54aa52175eaeff095923ce4bf7ea3e0f921df32589065cc5f0cbc3d",
-          "timestamp": "2026-06-19T19:06:35.344Z"
+          "headHash": "5ba8c090eeac5d2ff47ef8690f2a2bbcc057f5a8",
+          "materialHash": "3941ebbdde0cc01881b67f15876560fe5ba2e769e7d4b4c130ebc404ea7171ad",
+          "timestamp": "2026-06-19T19:24:48.068Z"
         }
       ]
     },
