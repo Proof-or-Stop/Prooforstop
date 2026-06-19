@@ -16,6 +16,24 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-sanitizenesteddetails",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-30c3:F-002",
+      "desc": "codex host-2: the usage-shape predicates isCodexUsageObject (codex-cli.ts:99) and isGeminiUsageObject (gemini-cli.ts:~102) still use prototype-chain `in` reads. With Object.prototype.prompt_tokens (or promptTokenCount) polluted, an empty own {usage:{}} matches as a valid usage object, so extractCodexUsage/extractGeminiUsage select it, project an empty null-proto object, and STOP before a later real usage line. Repro (codex-verified): pollute Object.prototype.prompt_tokens, stdout \"{usage:{}}\\n{usage:{prompt_tokens:10,completion_tokens:2}}\" returns keys [] instead of the real counts. This defeats the extractCodexUsage ownProp guard at codex-cli.ts:189. Fix: the predicates must use own-property checks (ownProp) to stay consistent with the in-scope extractor hardening.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-19T19:28:00.357Z",
+      "reviewRound": "2026-06-19T19:16:59.705Z",
+      "_hash": "738144731f2f899cf458446519571ec9904e190135cd9b5e8113f4a729c766fe",
+      "files": [
+        "packages/main/src/providers/codex-cli.ts",
+        "packages/main/src/providers/gemini-cli.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-usage",
+      "signatureTagSource": "auto"
     }
   ]
 }
