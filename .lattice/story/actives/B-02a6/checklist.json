@@ -36,9 +36,9 @@
       "id": "CHK-002",
       "title": "Create the safe-init-commit at story_create so INIT metadata is a durable clean-proof git object from birth",
       "context": "Extract/reuse the bootstrap safe-init-commit (force-add + commit-tree/update-ref) and invoke it at the end of story_create under the already-held main-write-lock. Decide commit target (story branch ref vs main) in PLAN; ensure INIT_CHECK bootstrap is idempotent when the ref/commit already exists, and story_discard --purge still reverses it.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T04:36:34.166Z",
       "userSees": "After lattice story_create, git log on main shows a \"lattice: story B-xxx init\" commit and git ls-files lists .lattice/story/actives/B-xxx/index.json as tracked; a subsequent git clean -fd leaves the metadata fully intact.",
       "verificationIntent": {
         "happy": [
