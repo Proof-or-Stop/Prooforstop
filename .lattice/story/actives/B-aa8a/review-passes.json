@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-19T20:15:31.916Z",
       "reviewRunId": "B-aa8a:RR-008",
       "_hash": "954accc86b4c051eae86351954de0e704b048ee37a96cfb09be7143966fda933"
+    },
+    {
+      "id": "B-aa8a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3): all 28 verificationEvidence entries use the correct, specific command (node packages/main/dist/tasks/version-bump-smoke.js or lattice validate). Evidence is stale due to materialHash drift from post-bind commits — not a command-to-intent mismatch; main agent will refresh before TEST. 56-assertion smoke genuinely covers all 28 intents. One low-severity advisory finding (B-aa8a:F-006) filed for CHK-001:edge:3: smoke only asserts throws() without verifying error message names each drift value — the source does produce that message but the assertion does not check it. No blockers.",
+      "createdAt": "2026-06-19T20:19:00.589Z",
+      "reviewRound": "2026-06-19T20:15:31.916Z",
+      "reviewRunId": "B-aa8a:RR-009",
+      "_hash": "8165073a1c4a6f2d429554e62e22d89580044f76f03c85535029957e7ac267c2"
     }
   ]
 }
