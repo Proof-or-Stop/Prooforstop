@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "summary.ts: add additive primaryReportedTotal + primaryReportedCount to UsageSummary",
       "context": "In packages/main/src/core/usage-ledger/summary.ts add a primaryTotal (input+output, number|null) to DerivedRecordTotal computed in deriveRecordTotal: null when source=unavailable or when input OR output is null (never inferred); else input+output, independent of cache dims. In summarizeRecords accumulate primaryReportedTotal/primaryReportedCount over provider-reported records whose primaryTotal is non-null. Leave providerReportedTotal (strict four-field), estimateSubtotal, unknownCount EXACTLY as-is. Update both empty-summary returns in summarizeLedgerFile/summarizeRecords to include the new fields = 0.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T13:15:18.575Z",
       "verificationIntent": {
         "happy": [
           {
