@@ -54,12 +54,51 @@
       "title": "Extract owner lease and reviewer gate helpers",
       "context": "Move ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, reviewer gate read-only helpers, and related guard code into focused modules without weakening gates.",
       "relatedDocs": [
+        "docs/requirements/decisions/cli-engine-modularization-execution-plan.md#round-3-runtime-root-activity-ownership-and-reviewer-gates",
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
-        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Owner-lease and reviewer-readonly gates keep the same fail-closed behavior while their helpers live outside cli-engine.ts.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/cli/reviewer-readonly-gate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate, and reviewer-readonly helpers move into cli modules while cli-engine.ts keeps compatibility re-exports for existing tests/consumers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Special effective-ownership cases remain unchanged: B-META finding updates, validate evidence writes, delivery_check_set actor handling, and memory commands keep their documented owner-gate behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Foreign-owned story mutating commands still reject without stealing the lease, takeover rules remain explicit, and LATTICE_REVIEWER_READONLY=1 blocks non-readOnly commands before hooks or lease mutation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
