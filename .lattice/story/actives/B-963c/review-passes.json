@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T21:24:39.910Z",
       "reviewRunId": "B-963c:RR-001",
       "_hash": "a54d1573ce89618d6218c7ee1c67babac98277c4381d3bf4c823ccf46a0be80e"
+    },
+    {
+      "id": "B-963c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Targeted round 2 quality re-review passed. Verified packages/main/src/core/review-escalation.ts formats policy-only escalation failures as explicit high-risk policy explicitlyConfiguredHighRiskPolicyRequires3x2 instead of multiple first-round problems, and packages/main/src/tasks/review-escalation-smoke.ts covers the policy-only failure text. Commands: npm --prefix packages/main run build; node packages/main/dist/tasks/review-escalation-smoke.js.",
+      "createdAt": "2026-06-19T21:31:39.355Z",
+      "reviewRound": "2026-06-19T21:29:56.446Z",
+      "reviewRunId": "B-963c:RR-004",
+      "_hash": "988053361143611549a39ca92460c1637534c11f4fb8fe243e9cab3e1b938464"
     }
   ]
 }
