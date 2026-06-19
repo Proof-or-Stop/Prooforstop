@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Surface token-count-only usage from the codex and gemini bounded provider runners",
+      "context": "In providers/codex-cli.ts add extractCodexUsage(stdout) and in providers/gemini-cli.ts add extractGeminiUsage(stdout), each scanning the CLI stdout (JSONL lines) for the provider usage object (OpenAI shape usage with prompt_tokens/completion_tokens/prompt_tokens_details; Gemini usageMetadata with promptTokenCount/candidatesTokenCount/cachedContentTokenCount) and returning ONLY that token-count object, never raw transcript text -- exactly analogous to the existing extractCodexModel/extractGeminiModel. Add a provider-neutral optional reportedUsage field to ProviderExecResult in providers/types.ts, documented as token counts only. The raw-output-never-surfaced security invariant must hold (no transcript, no credentials surfaced; digest/byte-count fields unchanged).",
+      "userSees": "A codex/gemini bounded provider run returns a ProviderExecResult whose reportedUsage carries the parsed token counts when the CLI reports them, and is absent/unavailable otherwise.",
+      "excludes": [
+        "No surfacing of raw stdout/stderr text",
+        "No change to digest or byte-count fields",
+        "No usage-ledger import into providers/"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a canonical per-provider final-usage entry point in dispatch-usage.ts (claude path byte-identical)",
+      "context": "Add recordDispatchFinalForProvider(root, ctx, correlation, estimateRecordId, provider, reportedUsage, model, opts) for provider in {openai, gemini} in core/usage-ledger/dispatch-usage.ts, routing through buildProviderRecord(provider, reportedUsage, ...) (which already supports openai/gemini) then appendUsageRecord, mirroring recordDispatchFinal's supersede + unavailable-fallback semantics and never throwing (fail-open). The existing recordDispatchFinal (anthropic/claude) and parseClaudeCliOutput stay byte-identical. No new cross-module imports beyond the existing usage-ledger siblings.",
+      "userSees": "Calling the new entry with a codex/gemini reportedUsage writes a provider-reported final record that supersedes the estimate; a null/unavailable usage writes an unavailable final; the claude path is unchanged.",
+      "excludes": [
+        "No change to recordDispatchFinal or parseClaudeCliOutput behavior",
+        "No anthropic path change",
+        "No imports outside core/usage-ledger/"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Wire the usage-ledger seam into runBoundedRealLeafDispatch + smoke",
+      "context": "In core/lattice-dispatch.ts runBoundedRealLeafDispatch, when isUsageLedgerEnabled(): record a preflight estimate (recordDispatchPreflight read from the prompt file) before the bounded run, and after it call recordDispatchFinalForProvider with provider = (hostKind==='codex' ? 'openai' : 'gemini'), result.reportedUsage and result.model -- all wrapped fail-open so a ledger error never breaks dispatch, with the LATTICE_USAGE_LEDGER=OFF path byte-identical. Add a smoke (plus npm script + verifier wiring) that drives a codex and a gemini bounded run through an injected stub runner emitting provider usage, asserts the ledger writes a provider-reported final with the right token counts, asserts OFF writes nothing, and asserts the claude real-leaf path is unchanged.",
+      "userSees": "Running a codex or gemini real-leaf dispatch with the ledger ON records real token usage; OFF records nothing; the smoke passes and is wired into npm test.",
+      "excludes": [
+        "No budget-guard (fail-closed pre-spawn block) for codex/gemini -- deferred",
+        "No change to the claude-code real-leaf path",
+        "No Authority receipt-backed signing"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

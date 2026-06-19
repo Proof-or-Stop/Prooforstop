@@ -9,9 +9,194 @@
         "No source/CLI/handler/gate change",
         "No duplication of the lattice-Paper raw CSV/figure files"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-19T01:32:31.384Z",
+      "endTime": "2026-06-19T01:33:34.584Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "File exists at docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md after decision_doc_save -> stat returns 0; WHY: canonical path correctness is the primary deliverable",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc contains all six story IDs (B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9) -> grep finds each ID at least once; WHY: the record must enumerate every component story",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc renders the evidence arc numbers: rho=-0.55, held-out 62%, 656 signatures, recall 0.659, valid-rate 0.971 -> grep finds each metric; WHY: these are the core quantitative claims",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc contains honesty guards: saturation not claimed, observational != causal, forward RCT pending -> grep finds phrases for each guard; WHY: the record must not overclaim",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc contains all required decision_doc structured sections (decision, context, scope, nonGoals, chosenApproach, alternatives, operationalRules, verificationRequirements, risks) -> heading grep finds each; WHY: decision_doc_proposal schema compliance",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Doc does not duplicate raw lattice-Paper CSV or figure files into the repo -> find docs/requirements/decisions/ for .csv/.png/.svg returns only the .md file; WHY: excludes clause forbids raw-data duplication",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc alternatives section lists at least 2 alternatives (degraded-signatures-only, cross-project aggregation, or persist-without-evidence) -> parse heading/bullet count >= 2; WHY: decision_doc_proposal requires alternatives>=2",
+            "type": "cli"
+          },
+          {
+            "desc": "File is valid UTF-8 Markdown with no binary content -> file(1) reports text/markdown; WHY: ensures the doc is renderable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc contains no CJK/non-ASCII characters -> grep -P \"[^\\x00-\\x7F]\" returns empty; WHY: english-artifacts gate requires ASCII-only content",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc does not claim causal proof (phrases like \"causally proven\", \"causal evidence\", \"proves that\") -> grep returns empty for causal-claim patterns; WHY: the causal result is deferred to the forward RCT, overclaiming is a factual error",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc does not claim saturation curve is real signal (phrases like \"saturation proves\", \"rising curve demonstrates\") -> grep returns empty; WHY: saturation is a known confound and must not be claimed",
+            "type": "cli"
+          },
+          {
+            "desc": "No source/CLI/handler/gate code files modified in the commit -> git diff --name-only against base shows only the .md file under docs/; WHY: excludes clause forbids code changes in this story",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +206,192 @@
       "excludes": [
         "No re-running the heavy analysis (reference the committed lattice-Paper artifacts)"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-19T01:33:35.711Z",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Each of the six story IDs (B-a2e3, B-4eb6, B-5d48, B-06b3, B-c06a, B-17a9) resolves to a real Lattice story -> lattice story_get for each returns valid JSON without error; WHY: recorded IDs must reference real stories",
+            "type": "cli"
+          },
+          {
+            "desc": "Commit 2750aadef exists in git history on main -> git log --oneline 2750aadef returns a valid entry; WHY: the commit hash is a factual claim that must be verifiable",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_scan on main returns approximately 320 signals -> run learning_scan and check count is in range 280-360; WHY: the live number must be reproducible within tolerance",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_effectiveness on main returns recall approximately 0.659 -> run and check recall is in range 0.60-0.72; WHY: the recall claim must be reproducible",
+            "type": "cli"
+          },
+          {
+            "desc": "learning_validate on main returns valid-rate approximately 0.971 -> run and check valid-rate is in range 0.95-0.99; WHY: the valid-rate claim must be reproducible",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Work/lattice-Paper/ references in the doc name files that actually exist on disk -> extract referenced filenames and stat each; WHY: cross-refs must resolve to real artifacts",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc references to story IDs match the correct story titles (not swapped or misattributed) -> compare story_get title for each ID against what the doc says; WHY: ID-to-description mapping accuracy",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc passes the english-artifacts gate -> run the gate check (or grep -P \"[^\\x00-\\x7F]\") and confirm clean; WHY: the gate is a hard blocker for DONE",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stale or fabricated metrics: if learning_effectiveness recall has drifted beyond tolerance (outside 0.55-0.75) the doc number is flagged as potentially stale -> compare live output vs doc claim; WHY: numbers recorded at authoring time can become stale after code changes",
+            "type": "cli"
+          },
+          {
+            "desc": "CJK characters injected into the doc (e.g., via copy-paste from Chinese notes) -> grep -P \"[\\x{4E00}-\\x{9FFF}]\" returns empty; WHY: english-artifacts gate rejects non-ASCII, and the operator communicates in Chinese so accidental leakage is a real risk",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc overclaims causal relationship (uses phrases like \"caused by\", \"due to the Experience Layer\", \"proves effectiveness\") without the deferred-RCT qualifier -> grep for causal-claim patterns near the conclusion/summary sections returns empty or is accompanied by the deferral caveat; WHY: observational != causal is a core honesty guard",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc embeds raw CSV data or large data tables copied from lattice-Paper instead of referencing them -> line count of the .md file is reasonable (<500 lines) and no CSV-formatted blocks exist; WHY: the excludes clause forbids duplicating raw data",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-cb13/evidence/verify-b-cb13.mjs",
+          "result": "pass",
+          "note": "Doc verifier asserts the decision-doc exists at the canonical path, is ASCII/English-only, enumerates all six story IDs, states the evidence numbers (-0.55/62/656/0.659/0.971) + honesty guards (observational/deferred-RCT/saturation), references Work/lattice-Paper (not embedded), has >=2 alternatives, and makes no causal overclaim. TOTAL/PASS/FAIL maps every intent.",
+          "headHash": "7b34cb71bf5482292670dff2941b80f2047a9686",
+          "materialHash": "e8d4ec072275fcbceb300668b7e47c1e9e49b380eeed36f2c616701ddb83b475",
+          "timestamp": "2026-06-19T01:35:07.565Z"
+        }
+      ]
     }
   ]
 }

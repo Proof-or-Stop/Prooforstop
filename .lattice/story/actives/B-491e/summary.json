@@ -1,0 +1,56 @@
+{
+  "storyId": "B-491e",
+  "changes": "Removed public Lattice CLI Authority bundle generation paths, kept the CLI as a consumer of server/operator-provided trust env and API key sidecar files, fixed customer API key sidecar paths to resolve relative to the trust env file, and updated docs and smoke coverage.",
+  "usage": "Place the server-generated lattice_authority_trust.env and lattice_staging-client.env together, then run the CLI with LATTICE_AUTHORITY_TRUST_ENV_FILE pointing at the trust env. The CLI reads the sidecar path from the trust file and no longer generates these bundles.",
+  "expectedOutcome": "Open-source Lattice CLI users receive credentials from Lattice Authority Server/operator handoff and can run basic Authority client flows without local bundle generation or PROJECT_ID/GATE_ACTOR_* requirements.",
+  "actualTranscript": "npm --prefix packages/main run build passed; authority-client, authority-status, and authority-completion smokes passed; lattice validate --story=B-491e --json passed with 9/9 verification intents; review_escalation_status passed full-3x2 after three local codex-cli/claude-code verdict rounds.",
+  "outcomeDiff": "No difference after fixing the review-found sidecar bug: actual CLI behavior now matches the consumer-only handoff contract.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Review escalation evidence is local non-Authority host verdict evidence and does not claim authorityDone, fullAuthorityDone, or productionDone. This story does not implement server-side generation itself; that is covered by Lattice Authority Server story B-42a2.",
+  "pitfalls": "The blocking issue was wrong-secret binding from resolving ./lattice_staging-client.env against the caller cwd instead of the trust env directory. Fixed by passing the trust env path into customer API key resolution.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 238773
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 50379
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 495409
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1483414
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1090060
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1870118
+    }
+  },
+  "totalDurationMs": 5228192,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-19T02:07:41.425Z",
+  "updatedAt": "2026-06-19T02:07:41.425Z"
+}
