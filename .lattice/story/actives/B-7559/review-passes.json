@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-19T01:50:01.500Z",
       "reviewRunId": "B-7559:RR-010",
       "_hash": "3c17d59e46421fcb8a7df2d496209cfb993c81936b0c98f09319d89eec40d379"
+    },
+    {
+      "id": "B-7559:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-021 verified: §4.2 policy bullet, §4.3 cond.2, and §4.7 field comment are now fully consistent — BROAD+parallelSafe:yes blocks when cfg.broadGlobBlocks:true (strict), advises when false (light/balanced). No contradiction remains between the three sections. F-022 verified: §8 Story 0 scope_contract_set now lists audit-config.ts in --allowedModify alongside parallel-decomposition.ts; the command no longer requires writes outside its declared scope. One new finding F-025 raised (medium) for undefined block confidence term in §4.3 cond.1 vs §4.2 — not a F-021/F-022 regression, a pre-existing gap not previously addressed. All 24 prior findings resolved; F-021 and F-022 fixes confirmed sound.",
+      "createdAt": "2026-06-19T02:43:01.474Z",
+      "reviewRound": "2026-06-19T01:50:01.500Z",
+      "reviewRunId": "B-7559:RR-015",
+      "_hash": "8862a043fdc15f5d84764f38c0790d1954911d4f15b1447a5822420590c53205"
     }
   ]
 }
