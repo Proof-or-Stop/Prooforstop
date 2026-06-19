@@ -3,10 +3,14 @@ import { dirname, join } from 'node:path';
 import type { HandlerContext } from './context.js';
 import {
   submitVerdict,
+  summarizeVerdictRuns,
   summarizeVerdicts,
   type VerdictDecision,
   type VerdictMode,
   type DisagreementBehavior,
+  type VerdictRunDiagnostics,
+  type VerdictRunSummary,
+  type VerdictSummary,
 } from '../core/verdicts.js';
 import {
   resolveAuthorityVerdictBacking,
@@ -32,6 +36,37 @@ function render(title: string, result: Record<string, unknown>): string {
   return [
     title,
     ...Object.entries(result).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.length : String(value)}`),
+  ].join('\n');
+}
+
+type AutopilotReviewStatusResult = VerdictSummary & {
+  runCount: number;
+  allRunIds: string[];
+  allRuns: VerdictRunSummary[];
+  latestRuns: VerdictRunSummary[];
+  runDiagnostics: VerdictRunDiagnostics;
+};
+
+function formatRunSummary(run: VerdictRunSummary): string {
+  return `${run.runId}: ${run.status} ${run.passingIndependentHosts}/${run.requiredHosts} passing hosts, total=${run.totalVerdicts}, stale=${run.staleVerdicts}, duplicate=${run.duplicateVerdicts}`;
+}
+
+function formatAutopilotReviewStatus(result: AutopilotReviewStatusResult): string {
+  const {
+    allRunIds,
+    allRuns,
+    latestRuns,
+    runDiagnostics,
+    ...selectedRun
+  } = result;
+  return [
+    render(`Lattice autopilot review status (${result.schemaVersion})`, selectedRun as unknown as Record<string, unknown>),
+    `runs: ${allRunIds.length > 0 ? allRunIds.join(', ') : '<none>'}`,
+    `latestRuns: ${latestRuns.length}`,
+    ...latestRuns.map(run => `  - ${formatRunSummary(run)}`),
+    `allRuns: ${allRuns.length}`,
+    `diagnosticOnly: ${runDiagnostics.diagnosticOnly}`,
+    `authorityServerContact: ${runDiagnostics.authorityServerContact}`,
   ].join('\n');
 }
 
@@ -179,14 +214,29 @@ export function createVerdictHandlers(ctx: HandlerContext) {
     return summarizeVerdicts(ctx.root, mode, id, args.runId || 'default-run', args.requiredHosts || 2);
   };
 
+  const localReviewStatus = (args: { storyId: string; runId?: string; requiredHosts?: number } & FormatArgs): AutopilotReviewStatusResult => {
+    const runId = args.runId || 'default-run';
+    const requiredHosts = args.requiredHosts || 2;
+    const selectedRun = summarizeVerdicts(ctx.root, 'local', args.storyId, runId, requiredHosts);
+    const runDiagnostics = summarizeVerdictRuns(ctx.root, 'local', args.storyId, runId, requiredHosts);
+    return {
+      ...selectedRun,
+      runCount: runDiagnostics.runCount,
+      allRunIds: runDiagnostics.allRunIds,
+      allRuns: runDiagnostics.allRuns,
+      latestRuns: runDiagnostics.latestRuns,
+      runDiagnostics,
+    };
+  };
+
   return {
     autopilot_review_submit(args: SubmitArgs = {}) {
       const result = submitLocal('local', args);
       return wantsJson(args) ? result : render(`Lattice autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
     autopilot_review_status(args: { storyId: string; runId?: string; requiredHosts?: number } & FormatArgs) {
-      const result = listLocal('local', args);
-      return wantsJson(args) ? result : render(`Lattice autopilot review status (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      const result = localReviewStatus(args);
+      return wantsJson(args) ? result : formatAutopilotReviewStatus(result);
     },
 
     async authority_job_create(args: JobCreateArgs = {}) {

@@ -88,6 +88,39 @@ export interface VerdictSummary {
   verdicts: HostVerdict[];
 }
 
+export interface VerdictRunSummary {
+  runId: string;
+  latestIssuedAt: string | null;
+  totalVerdicts: number;
+  requiredHosts: number;
+  independentHosts: number;
+  passingIndependentHosts: number;
+  failingIndependentHosts: number;
+  duplicateVerdicts: number;
+  staleVerdicts: number;
+  localReviewCertified: boolean;
+  authorityDone: boolean;
+  fullAuthorityDone: boolean;
+  multiHostVerified: boolean;
+  status: VerdictSummary['status'];
+  blockedReason?: string;
+}
+
+export interface VerdictRunDiagnostics {
+  schemaVersion: 'lattice.verdict_run_diagnostics.v1';
+  mode: VerdictMode;
+  storyId?: string;
+  jobId?: string;
+  selectedRunId: string;
+  defaultRunId: 'default-run';
+  runCount: number;
+  allRunIds: string[];
+  allRuns: VerdictRunSummary[];
+  latestRuns: VerdictRunSummary[];
+  authorityServerContact: false;
+  diagnosticOnly: true;
+}
+
 export interface VerdictSubmitArgs {
   mode: VerdictMode;
   verdictFile?: string;
@@ -363,6 +396,83 @@ export function summarizeVerdicts(
     status,
     blockedReason,
     verdicts: all,
+  };
+}
+
+function sortedRunIds(runIds: Iterable<string>): string[] {
+  return [...new Set([...runIds].map(id => id.trim()).filter(Boolean))]
+    .sort((a, b) => {
+      if (a === 'default-run' && b !== 'default-run') return -1;
+      if (b === 'default-run' && a !== 'default-run') return 1;
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+}
+
+function summarizeRun(summary: VerdictSummary, latestIssuedAt: string | null): VerdictRunSummary {
+  return {
+    runId: summary.runId,
+    latestIssuedAt,
+    totalVerdicts: summary.totalVerdicts,
+    requiredHosts: summary.requiredHosts,
+    independentHosts: summary.independentHosts,
+    passingIndependentHosts: summary.passingIndependentHosts,
+    failingIndependentHosts: summary.failingIndependentHosts,
+    duplicateVerdicts: summary.duplicateVerdicts,
+    staleVerdicts: summary.staleVerdicts,
+    localReviewCertified: summary.localReviewCertified,
+    authorityDone: summary.authorityDone,
+    fullAuthorityDone: summary.fullAuthorityDone,
+    multiHostVerified: summary.multiHostVerified,
+    status: summary.status,
+    ...(summary.blockedReason ? { blockedReason: summary.blockedReason } : {}),
+  };
+}
+
+export function summarizeVerdictRuns(
+  root: string,
+  mode: VerdictMode,
+  id: string,
+  selectedRunId = 'default-run',
+  requiredHosts = 2,
+  options: { currentAnchor?: VerdictAnchor; latestLimit?: number } = {},
+): VerdictRunDiagnostics {
+  const verdicts = listVerdicts(root, mode, id);
+  const latestIssuedAtByRun = new Map<string, string>();
+  for (const verdict of verdicts) {
+    const runId = verdict.runId || 'default-run';
+    const current = latestIssuedAtByRun.get(runId);
+    if (!current || verdict.issuedAt > current) latestIssuedAtByRun.set(runId, verdict.issuedAt);
+  }
+
+  const allRunIds = sortedRunIds(['default-run', selectedRunId || 'default-run', ...verdicts.map(verdict => verdict.runId || 'default-run')]);
+  const allRuns = allRunIds.map(runId => summarizeRun(
+    summarizeVerdicts(root, mode, id, runId, requiredHosts, { currentAnchor: options.currentAnchor }),
+    latestIssuedAtByRun.get(runId) ?? null,
+  ));
+  const latestLimit = Math.max(1, Math.floor(Number(options.latestLimit)) || 5);
+  const latestRuns = [...allRuns]
+    .sort((a, b) => {
+      if (a.latestIssuedAt && b.latestIssuedAt && a.latestIssuedAt !== b.latestIssuedAt) {
+        return b.latestIssuedAt.localeCompare(a.latestIssuedAt);
+      }
+      if (a.latestIssuedAt && !b.latestIssuedAt) return -1;
+      if (!a.latestIssuedAt && b.latestIssuedAt) return 1;
+      return sortedRunIds([a.runId, b.runId]).indexOf(a.runId) - sortedRunIds([a.runId, b.runId]).indexOf(b.runId);
+    })
+    .slice(0, latestLimit);
+
+  return {
+    schemaVersion: 'lattice.verdict_run_diagnostics.v1',
+    mode,
+    ...(mode === 'local' ? { storyId: id } : { jobId: id }),
+    selectedRunId: selectedRunId || 'default-run',
+    defaultRunId: 'default-run',
+    runCount: allRuns.length,
+    allRunIds,
+    allRuns,
+    latestRuns,
+    authorityServerContact: false,
+    diagnosticOnly: true,
   };
 }
 

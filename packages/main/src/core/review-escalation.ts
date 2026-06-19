@@ -46,6 +46,19 @@ export interface ReviewEscalationFallbackRecord {
   reasons: string[];
 }
 
+export interface ReviewEscalationVoluntaryLocalRounds {
+  required: false;
+  materialHash: string | null;
+  requiredRounds: number;
+  requiredPassingHostsPerRound: number;
+  submittedRoundCount: number;
+  validRoundCount: number;
+  complete: boolean;
+  validRounds: HostVerdictRound[];
+  invalidRounds: HostVerdictRound[];
+  ignoredVerdicts: IgnoredHostVerdict[];
+}
+
 export interface ReviewEscalationReport {
   schemaVersion: 'lattice.review_escalation_status.v1';
   ok: boolean;
@@ -75,6 +88,7 @@ export interface ReviewEscalationReport {
     invalidRounds: HostVerdictRound[];
     ignoredVerdicts: IgnoredHostVerdict[];
   };
+  voluntaryLocalRounds: ReviewEscalationVoluntaryLocalRounds;
   assuranceLevel: ReviewEscalationAssuranceLevel;
   authorityDone: false;
   fullAuthorityDone: false;
@@ -217,6 +231,45 @@ function emptyRoundReport() {
   };
 }
 
+function emptyVoluntaryLocalRounds(materialHash: string | null): ReviewEscalationVoluntaryLocalRounds {
+  return {
+    required: false,
+    materialHash,
+    requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
+    requiredPassingHostsPerRound: REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND,
+    submittedRoundCount: 0,
+    validRoundCount: 0,
+    complete: false,
+    validRounds: [],
+    invalidRounds: [],
+    ignoredVerdicts: [],
+  };
+}
+
+function evaluateVoluntaryLocalRounds(
+  events: ProcessEvent[],
+  materialHash: string | null,
+): ReviewEscalationVoluntaryLocalRounds {
+  if (!materialHash) return emptyVoluntaryLocalRounds(null);
+  const rounds = evaluateHostVerdictRounds(events, materialHash, REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND);
+  const submittedRoundCount = new Set([
+    ...rounds.validRounds.map(round => round.runId),
+    ...rounds.invalidRounds.map(round => round.runId),
+  ]).size;
+  return {
+    required: false,
+    materialHash,
+    requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
+    requiredPassingHostsPerRound: REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND,
+    submittedRoundCount,
+    validRoundCount: rounds.validRounds.length,
+    complete: rounds.validRounds.length >= REVIEW_ESCALATION_REQUIRED_ROUNDS,
+    validRounds: rounds.validRounds,
+    invalidRounds: rounds.invalidRounds,
+    ignoredVerdicts: rounds.ignoredVerdicts,
+  };
+}
+
 export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): ReviewEscalationReport {
   const story = readStory(args);
   const findings = readFindings(args);
@@ -227,6 +280,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     .filter((problem): problem is CountableFirstRoundProblem => problem !== null);
   const required = countableProblems.length >= REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT;
   const materialHash = args.materialHash ?? currentMaterialHash(args.projectRoot) ?? null;
+  const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(events, materialHash);
   const reasons: string[] = [];
 
   if (!required) {
@@ -252,6 +306,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
         invalidRounds: [],
         ignoredVerdicts: [],
       },
+      voluntaryLocalRounds,
       assuranceLevel: 'ordinary-review',
       authorityDone: false,
       fullAuthorityDone: false,
@@ -284,6 +339,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
         invalidRounds: [],
         ignoredVerdicts: [],
       },
+      voluntaryLocalRounds,
       assuranceLevel: 'ordinary-review',
       authorityDone: false,
       fullAuthorityDone: false,
@@ -333,6 +389,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       requiredPassingHostsPerRound: REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND,
       ...degradedRounds,
     },
+    voluntaryLocalRounds,
     assuranceLevel: fullOk ? 'full-3x2' : degradedOk ? 'degraded-single-host' : 'ordinary-review',
     authorityDone: false,
     fullAuthorityDone: false,
@@ -381,8 +438,16 @@ export function formatReviewEscalationReport(report: ReviewEscalationReport): st
     `countableProblems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
     `materialHash: ${report.materialHash ?? '<missing>'}`,
     `fullQuorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds x ${report.fullQuorum.requiredPassingHostsPerRound} hosts`,
+    `voluntaryLocalRounds: ${report.voluntaryLocalRounds.validRoundCount}/${report.voluntaryLocalRounds.requiredRounds} rounds x ${report.voluntaryLocalRounds.requiredPassingHostsPerRound} hosts (submitted=${report.voluntaryLocalRounds.submittedRoundCount}, complete=${report.voluntaryLocalRounds.complete})`,
     `degradedFallback: ${report.degradedFallback.ok ? 'pass' : 'not-satisfied'} (${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds x ${report.degradedFallback.requiredPassingHostsPerRound} host)`,
   ];
+  for (const round of report.voluntaryLocalRounds.invalidRounds.slice(0, 5)) {
+    lines.push(`  - voluntary invalid round ${round.runId}: ${round.reasons.join('; ')}`);
+  }
+  for (const ignored of report.voluntaryLocalRounds.ignoredVerdicts.slice(0, 5)) {
+    const id = ignored.verdictId ?? `event#${ignored.index}`;
+    lines.push(`  - voluntary ignored host verdict ${id}: ${ignored.reasons.join('; ')}`);
+  }
   if (report.degradedFallback.record) {
     lines.push(`fallbackRecord: ${report.degradedFallback.record.valid ? 'valid' : 'invalid'} ${report.degradedFallback.record.fallbackId ?? `event#${report.degradedFallback.record.index}`}`);
   }

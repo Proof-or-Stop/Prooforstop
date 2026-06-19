@@ -9,6 +9,7 @@ import { currentMaterialHash } from '../core/evidence-freshness.js';
 import {
   REVIEW_ESCALATION_REQUIRED_ROUNDS,
   evaluateReviewEscalation,
+  formatReviewEscalationReport,
 } from '../core/review-escalation.js';
 import type { Finding, ProcessEvent, StoryInfo } from '../core/types.js';
 
@@ -153,6 +154,30 @@ try {
     assert.equal(report.ok, true);
     assert.equal(report.required, false);
     assert.equal(report.assuranceLevel, 'ordinary-review');
+    assert.equal(report.voluntaryLocalRounds.complete, false);
+    assert.equal(report.voluntaryLocalRounds.validRoundCount, 0);
+    assert.equal(report.voluntaryLocalRounds.submittedRoundCount, 0);
+    assert.match(formatReviewEscalationReport(report), /voluntaryLocalRounds: 0\/3/);
+  });
+
+  check('voluntary local 3x2 rounds are visible when escalation is not required', () => {
+    const fresh = currentMaterialHash(root)!;
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [],
+      processEvents: fullQuorum(fresh),
+    });
+    assert.equal(report.ok, true, 'voluntary rounds must not change required=false ok semantics');
+    assert.equal(report.required, false);
+    assert.equal(report.assuranceLevel, 'ordinary-review');
+    assert.equal(report.fullQuorum.ok, true, 'existing non-required fullQuorum compatibility remains');
+    assert.equal(report.fullQuorum.validRounds.length, 0, 'non-required fullQuorum remains the historical empty compatibility view');
+    assert.equal(report.voluntaryLocalRounds.complete, true);
+    assert.equal(report.voluntaryLocalRounds.validRoundCount, REVIEW_ESCALATION_REQUIRED_ROUNDS);
+    assert.equal(report.voluntaryLocalRounds.submittedRoundCount, REVIEW_ESCALATION_REQUIRED_ROUNDS);
+    assert.equal(report.voluntaryLocalRounds.ignoredVerdicts.length, 0);
+    assert.match(formatReviewEscalationReport(report), /voluntaryLocalRounds: 3\/3/);
   });
 
   check('two first-round verified reviewer problems trigger and full 3x2 passes', () => {
