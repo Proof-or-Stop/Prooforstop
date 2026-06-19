@@ -105,10 +105,10 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/parallel-decomposition-overlap-smoke.js",
           "result": "pass",
-          "note": "Smoke PASS 38 assertions at current HEAD; all Codex+Claude findings fixed or deferred-to-S5.",
-          "headHash": "a9a1e5bd2ae57b88c14557feb3fc9f5960e3f006",
-          "materialHash": "0c56b6744730fe034015a66595a16116a146d01355d0b25b9796d2887d6d2761",
-          "timestamp": "2026-06-19T13:40:56.647Z"
+          "note": "Smoke PASS 41 assertions; path redundancy robustly canonicalized.",
+          "headHash": "60e83c6756a1635b1c324cf15d7654a361033a08",
+          "materialHash": "949f398dc2afb57840a68d12a5c1260c5f1ef413db6339e80ab8059df050fee0",
+          "timestamp": "2026-06-19T13:52:16.409Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
