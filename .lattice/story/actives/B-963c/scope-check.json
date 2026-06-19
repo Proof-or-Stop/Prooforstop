@@ -1,0 +1,52 @@
+{
+  "storyId": "B-963c",
+  "checkedAt": "2026-06-19T21:15:00.719Z",
+  "features": [
+    {
+      "feature": "explicit high-risk 3x2 policy fact branch",
+      "covered_by": "CHK-001 title/context binds explicitlyConfiguredHighRiskPolicyRequires3x2 to runtime process facts; plan_get CHK-001 requires a structured policy fact separate from decision-doc prose and changed-file classification; CHK-001 happy/edge verificationIntent covers valid explicit policy fact and absence of policy fact.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get --detail; checklist_get; plan_get"
+    },
+    {
+      "feature": "non-Authority boundary for local policy facts and host verdicts",
+      "covered_by": "Story description says the fix must not claim Authority completion; understanding facts and constraints keep local host verdicts and degraded fallback non-Authority; CHK-001 adversarial verificationIntent requires authorityDone/fullAuthorityDone/productionDone false.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get --detail; understanding_get; checklist_get"
+    },
+    {
+      "feature": "process-fact contract plus gap_analyze and convergence verification",
+      "covered_by": "CHK-002 title/context requires contract and convergence evidence; CHK-002 verificationIntent requires gap_analyze clearance and scripts/verify-process-fact-contract.mjs protection; plan_get CHK-002 requires regression evidence for evaluator, registry, smoke coverage, gap_analyze, and convergence_check.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get"
+    },
+    {
+      "feature": "remote receipt server and production completion semantics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraint explicitly says not to change remote receipt server or production completion semantics; story description scopes the work to runtime process facts without claiming Authority completion; decision preMortem mitigation keeps authorityDone/fullAuthorityDone/productionDone hard false.",
+      "source": "story_get --detail; understanding_get; decision_get"
+    },
+    {
+      "feature": "unrelated active stories and dirty main work",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Decision driver says existing dirty main work from other stories must not be mixed into this story worktree; decision preMortem treats parallel B-5a9a only as a merge-conflict risk and directs narrow B-963c changes; session_brief shows B-963c worktree ownership and this review scope is limited to B-963c PLAN artifacts.",
+      "source": "session_brief; decision_get"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "19f8f5ed9807823a2583a1ed210a496f038fa1b143cffaba304ba5f4453d4d25",
+  "openQuestions": []
+}

@@ -1,0 +1,33 @@
+{
+  "task": "Close the two gap_analyze high-priority uncovered requirements for explicitlyConfiguredHighRiskPolicyRequires3x2 by making the explicit high-risk 3x2 policy branch a machine-verifiable Lattice runtime fact.",
+  "outcome": "After this story, the user can run `node bin/lattice.js gap_analyze` and see `Gaps: 0 high / 0 medium`, and can run `node bin/lattice.js review_escalation_status --storyId=<story>` to see whether 3x2 is required by first-round findings or an explicit high-risk policy fact without any Authority production-completion claim.",
+  "facts": [
+    "gap_analyze currently reports exactly two high gaps for explicitlyConfiguredHighRiskPolicyRequires3x2 from lattice-strengthening-roadmap-execution-plan.md lines 774 and 1219.",
+    "review_escalation_status currently implements the firstReviewRoundCountableProblems >= 2 branch but not the explicit high-risk policy branch.",
+    "review_assurance_floor currently enforces a conservative high-risk local review floor for lifecycle/gate/Authority/process-fact material work, but that is separate from M8 explicit high-risk policy fact semantics.",
+    "Local host verdicts and degraded fallback remain non-Authority evidence and must not set authorityDone, fullAuthorityDone, or productionDone."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Do not directly read or write docs/story or fixtures; use Lattice commands.",
+    "Do not change remote receipt server or production completion semantics.",
+    "Do not make changed file paths or decision-doc prose alone set explicitlyConfiguredHighRiskPolicyRequires3x2.",
+    "Keep the fix local to review escalation/process-fact coverage and regression verification."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-19T21:12:46.737Z"
+}

@@ -1,0 +1,48 @@
+{
+  "storyId": "B-963c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize B-963c scope contract from PLAN checklist files before REVIEW.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "review_escalation_policy_set needs the legacy MAIN_TOOLS text marker in cli-engine.ts so the existing process-fact contract scanner can recognize the command schema; this is command registry metadata only and does not broaden runtime behavior.",
+      "timestamp": "2026-06-19T21:23:43.745Z",
+      "paths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "363dd84b56ca1899401e5b393913d6df169fffba",
+      "materialHash": "7865a8694313d96c496b43a92dd02b1d9baaa700830fb77060f00061516574ca",
+      "anchors": [
+        "review_escalation_policy_set.legacy_MAIN_TOOLS_marker"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-19T21:23:30.635Z",
+  "updatedAt": "2026-06-19T21:23:43.745Z"
+}

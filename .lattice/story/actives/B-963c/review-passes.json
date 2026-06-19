@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-963c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: explicit high-risk policy fact is L4 gate evidence, 3x2 is triggered only by countable first-round reviewer problems or valid explicitlyConfiguredHighRiskPolicyRequires3x2 process event, degraded fallback remains explicit, authority flags stay false, and prose/path high-risk mentions do not trigger.",
+      "createdAt": "2026-06-19T21:27:32.737Z",
+      "reviewRound": "2026-06-19T21:24:39.910Z",
+      "reviewRunId": "B-963c:RR-001",
+      "_hash": "a54d1573ce89618d6218c7ee1c67babac98277c4381d3bf4c823ccf46a0be80e"
+    },
+    {
+      "id": "B-963c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Targeted round 2 quality re-review passed. Verified packages/main/src/core/review-escalation.ts formats policy-only escalation failures as explicit high-risk policy explicitlyConfiguredHighRiskPolicyRequires3x2 instead of multiple first-round problems, and packages/main/src/tasks/review-escalation-smoke.ts covers the policy-only failure text. Commands: npm --prefix packages/main run build; node packages/main/dist/tasks/review-escalation-smoke.js.",
+      "createdAt": "2026-06-19T21:31:39.355Z",
+      "reviewRound": "2026-06-19T21:29:56.446Z",
+      "reviewRunId": "B-963c:RR-004",
+      "_hash": "988053361143611549a39ca92460c1637534c11f4fb8fe243e9cab3e1b938464"
+    },
+    {
+      "id": "B-963c:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: coverage review after F-001 fix. CHK-001/CHK-002 have all 7 required verificationIntent refs covered by passing evidence; recorded materialHash b89042a6511e44490c5a66cd17124875a1e0f5e27aa43c6ebb75f7ecf4a24223 matches current material hash. Reran review-escalation smoke (11 checks incl policy-only failure text), process fact contract, gap_analyze (0 high / 0 medium), and convergence high-gap/annotation checks; source review confirms explicit high-risk policy predicate coverage across evaluator, handler, registry, and regression scripts.",
+      "createdAt": "2026-06-19T21:31:40.659Z",
+      "reviewRound": "2026-06-19T21:29:56.446Z",
+      "reviewRunId": "B-963c:RR-003",
+      "_hash": "2c0c183cb8adc9d7acf7be5c4258d6c8ba035d6d6fdfa6788e847c50c9f57823"
+    }
+  ]
+}

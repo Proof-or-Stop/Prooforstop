@@ -1,3 +1,20 @@
+/**
+ * @task B-963c
+ * @checklist CHK-001
+ * @title Bind explicit high-risk policy 3x2 requirement to review escalation
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Implements the M8 requires3x2 predicate branch
+ *   explicitlyConfiguredHighRiskPolicyRequires3x2 as a structured, local
+ *   process fact consumed by review_escalation_status and the DONE review
+ *   escalation gate. Prose, decision-doc paths, and changed-file classification
+ *   remain diagnostic-only unless this policy fact is present and valid.
+ * @changes
+ *   - [CHK-001] Add explicit high-risk policy fact evaluation to review escalation.
+ *   - [CHK-002] Expose the exact requirement predicate in code metadata so
+ *     gap_analyze can bind the roadmap requirement to runtime coverage.
+ */
 import { currentMaterialHash } from './evidence-freshness.js';
 import {
   evaluateHostVerdictRounds,
@@ -12,6 +29,8 @@ export const REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT = 2;
 export const REVIEW_ESCALATION_REQUIRED_ROUNDS = 3;
 export const REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND = 2;
 export const REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND = 1;
+export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT = 'review_escalation_policy';
+export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE = 'explicitlyConfiguredHighRiskPolicyRequires3x2';
 
 export const REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES = [
   'single-host-environment',
@@ -46,6 +65,31 @@ export interface ReviewEscalationFallbackRecord {
   reasons: string[];
 }
 
+export interface ReviewEscalationExplicitHighRiskPolicyRecord {
+  index: number;
+  policyId?: string;
+  policyVersion?: string;
+  milestoneId?: string;
+  riskClass?: string;
+  sourcePolicyRef?: string;
+  rolloutStage?: string;
+  degradedFallbackAllowed?: boolean;
+  issuer?: string;
+  approver?: string;
+  issuedAt?: string;
+  materialHash?: string;
+  headHash?: string;
+  valid: boolean;
+  reasons: string[];
+}
+
+export interface ReviewEscalationExplicitHighRiskPolicyStatus {
+  predicate: typeof REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE;
+  required: boolean;
+  validPolicy: ReviewEscalationExplicitHighRiskPolicyRecord | null;
+  invalidPolicies: ReviewEscalationExplicitHighRiskPolicyRecord[];
+}
+
 export interface ReviewEscalationVoluntaryLocalRounds {
   required: false;
   materialHash: string | null;
@@ -68,6 +112,7 @@ export interface ReviewEscalationReport {
     requiredProblemCount: number;
     countableProblems: CountableFirstRoundProblem[];
     ignoredCount: number;
+    explicitHighRiskPolicy: ReviewEscalationExplicitHighRiskPolicyStatus;
   };
   materialHash: string | null;
   fullQuorum: {
@@ -212,6 +257,80 @@ function fallbackRecordFromEvent(
   };
 }
 
+function booleanField(value: unknown): boolean | undefined {
+  return typeof value === 'boolean' ? value : undefined;
+}
+
+function policyRecordFromEvent(
+  event: ProcessEvent,
+  index: number,
+  expectedMaterialHash: string | null,
+): ReviewEscalationExplicitHighRiskPolicyRecord {
+  const policyId = normalizeString(event.policyId);
+  const policyVersion = normalizeString(event.policyVersion);
+  const milestoneId = normalizeString(event.milestoneId);
+  const riskClass = normalizeString(event.riskClass);
+  const sourcePolicyRef = normalizeString(event.sourcePolicyRef);
+  const rolloutStage = normalizeString(event.rolloutStage);
+  const degradedFallbackAllowed = booleanField(event.degradedFallbackAllowed);
+  const issuer = normalizeString(event.issuer);
+  const approver = normalizeString(event.approver);
+  const issuedAt = normalizeString(event.issuedAt) || normalizeString(event.timestamp);
+  const materialHash = normalizeString(event.materialHash);
+  const headHash = normalizeString(event.headHash);
+  const predicate = normalizeString(event.predicate);
+  const reasons: string[] = [];
+
+  if (event.requires3x2 !== true) reasons.push('requires3x2 must be true');
+  if (predicate !== REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE) {
+    reasons.push(`predicate must be ${REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE}`);
+  }
+  if (!policyVersion) reasons.push('missing policyVersion');
+  if (!milestoneId && !riskClass) reasons.push('missing milestoneId or riskClass');
+  if (!sourcePolicyRef) reasons.push('missing sourcePolicyRef');
+  if (!rolloutStage) reasons.push('missing rolloutStage');
+  if (degradedFallbackAllowed === undefined) reasons.push('degradedFallbackAllowed must be boolean');
+  if (!issuer) reasons.push('missing issuer');
+  if (!issuedAt) reasons.push('missing issuedAt');
+  if (!materialHash) reasons.push('missing materialHash');
+  else if (expectedMaterialHash && materialHash !== expectedMaterialHash) reasons.push('materialHash is stale');
+
+  return {
+    index,
+    ...(policyId ? { policyId } : {}),
+    ...(policyVersion ? { policyVersion } : {}),
+    ...(milestoneId ? { milestoneId } : {}),
+    ...(riskClass ? { riskClass } : {}),
+    ...(sourcePolicyRef ? { sourcePolicyRef } : {}),
+    ...(rolloutStage ? { rolloutStage } : {}),
+    ...(degradedFallbackAllowed !== undefined ? { degradedFallbackAllowed } : {}),
+    ...(issuer ? { issuer } : {}),
+    ...(approver ? { approver } : {}),
+    ...(issuedAt ? { issuedAt } : {}),
+    ...(materialHash ? { materialHash } : {}),
+    ...(headHash ? { headHash } : {}),
+    valid: reasons.length === 0,
+    reasons,
+  };
+}
+
+function evaluateExplicitHighRiskPolicy(
+  events: ProcessEvent[],
+  materialHash: string | null,
+): ReviewEscalationExplicitHighRiskPolicyStatus {
+  const policies = events
+    .map((event, index) => ({ event, index }))
+    .filter(({ event }) => event.type === REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT)
+    .map(({ event, index }) => policyRecordFromEvent(event, index, materialHash));
+  const validPolicy = latestByIndex(policies.filter(policy => policy.valid));
+  return {
+    predicate: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+    required: Boolean(validPolicy),
+    validPolicy,
+    invalidPolicies: policies.filter(policy => !policy.valid),
+  };
+}
+
 function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string): ReviewEscalationFallbackRecord | null {
   const records = events
     .map((event, index) => ({ event, index }))
@@ -278,22 +397,26 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
   const countableProblems = findings
     .map(finding => countableFinding(finding, firstReviewRound))
     .filter((problem): problem is CountableFirstRoundProblem => problem !== null);
-  const required = countableProblems.length >= REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT;
   const materialHash = args.materialHash ?? currentMaterialHash(args.projectRoot) ?? null;
+  const explicitHighRiskPolicy = evaluateExplicitHighRiskPolicy(events, materialHash);
+  const thresholdRequired = countableProblems.length >= REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT;
+  const required = thresholdRequired || explicitHighRiskPolicy.required;
   const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(events, materialHash);
   const reasons: string[] = [];
+  const trigger = {
+    firstReviewRound,
+    requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
+    countableProblems,
+    ignoredCount: findings.length - countableProblems.length,
+    explicitHighRiskPolicy,
+  };
 
   if (!required) {
     return {
       schemaVersion: 'lattice.review_escalation_status.v1',
       ok: true,
       required: false,
-      trigger: {
-        firstReviewRound,
-        requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
-        countableProblems,
-        ignoredCount: findings.length - countableProblems.length,
-      },
+      trigger,
       materialHash,
       fullQuorum: { ...emptyRoundReport(), ok: true },
       degradedFallback: {
@@ -321,12 +444,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       schemaVersion: 'lattice.review_escalation_status.v1',
       ok: false,
       required: true,
-      trigger: {
-        firstReviewRound,
-        requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
-        countableProblems,
-        ignoredCount: findings.length - countableProblems.length,
-      },
+      trigger,
       materialHash: null,
       fullQuorum: emptyRoundReport(),
       degradedFallback: {
@@ -353,12 +471,18 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
   const fallback = latestFallbackRecord(events, materialHash);
   const degradedRounds = evaluateHostVerdictRounds(events, materialHash, REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND);
   const degradedRoundsOk = degradedRounds.validRounds.length >= REVIEW_ESCALATION_REQUIRED_ROUNDS;
-  const degradedOk = fallback?.valid === true && degradedRoundsOk;
+  const explicitPolicyDisallowsDegraded = explicitHighRiskPolicy.validPolicy?.degradedFallbackAllowed === false;
+  const degradedOk = !explicitPolicyDisallowsDegraded && fallback?.valid === true && degradedRoundsOk;
 
   if (!fullOk && !degradedOk) {
     reasons.push(
       `review escalation requires ${REVIEW_ESCALATION_REQUIRED_ROUNDS} rounds x ${REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND} independent PASS hosts, or an explicit degraded fallback with ${REVIEW_ESCALATION_REQUIRED_ROUNDS} rounds x ${REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND} PASS host`,
     );
+    if (explicitHighRiskPolicy.required) {
+      const policy = explicitHighRiskPolicy.validPolicy;
+      reasons.push(`explicit high-risk policy requires 3x2: ${policy?.policyId ?? policy?.policyVersion ?? REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE}`);
+    }
+    if (explicitPolicyDisallowsDegraded) reasons.push('explicit high-risk policy disallows degraded single-host fallback');
     if (!fallback) reasons.push('no review_escalation_fallback record found for degraded fallback');
     else if (!fallback.valid) reasons.push(...fallback.reasons.map(reason => `fallback invalid: ${reason}`));
     if (!degradedRoundsOk) reasons.push(`degraded fallback has ${degradedRounds.validRounds.length}/${REVIEW_ESCALATION_REQUIRED_ROUNDS} valid single-host rounds`);
@@ -368,12 +492,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     schemaVersion: 'lattice.review_escalation_status.v1',
     ok: fullOk || degradedOk,
     required: true,
-    trigger: {
-      firstReviewRound,
-      requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
-      countableProblems,
-      ignoredCount: findings.length - countableProblems.length,
-    },
+    trigger,
     materialHash,
     fullQuorum: {
       requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
@@ -383,7 +502,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     },
     degradedFallback: {
       ok: degradedOk,
-      allowed: fallback?.valid === true,
+      allowed: !explicitPolicyDisallowsDegraded && fallback?.valid === true,
       record: fallback,
       requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
       requiredPassingHostsPerRound: REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND,
@@ -400,16 +519,31 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
 
 export function formatReviewEscalationFailure(report: ReviewEscalationReport): string {
   if (report.ok) return '';
+  const thresholdTriggered = report.trigger.countableProblems.length >= report.trigger.requiredProblemCount;
+  const policyTriggered = report.trigger.explicitHighRiskPolicy.required;
+  const triggerSummary = thresholdTriggered && policyTriggered
+    ? 'first REVIEW round countable reviewer problems and an explicit high-risk policy both require review escalation quorum'
+    : policyTriggered
+      ? `explicit high-risk policy ${REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE} requires review escalation quorum`
+      : 'first REVIEW round recorded multiple countable reviewer problems; review escalation quorum is required';
   const lines = [
-    'Cannot enter DONE: first REVIEW round recorded multiple countable reviewer problems; review escalation quorum is required. [review_escalation_missing]',
+    `Cannot enter DONE: ${triggerSummary}. [review_escalation_missing]`,
     `  - first review round: ${report.trigger.firstReviewRound ?? '<missing>'}`,
     `  - countable first-round problems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
+    `  - explicit high-risk policy: ${report.trigger.explicitHighRiskPolicy.required ? 'required' : 'not-required'}`,
     `  - materialHash: ${report.materialHash ?? '<missing>'}`,
     `  - full quorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds with ${report.fullQuorum.requiredPassingHostsPerRound} independent PASS hosts`,
     `  - degraded fallback: ${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds with ${report.degradedFallback.requiredPassingHostsPerRound} PASS host; explicit fallback=${report.degradedFallback.allowed ? 'valid' : 'missing/invalid'}`,
   ];
   for (const problem of report.trigger.countableProblems.slice(0, 8)) {
     lines.push(`  - problem ${problem.findingId}: ${problem.agent} [${problem.severity}] evidenceState=${problem.evidenceState}`);
+  }
+  if (report.trigger.explicitHighRiskPolicy.validPolicy) {
+    const policy = report.trigger.explicitHighRiskPolicy.validPolicy;
+    lines.push(`  - policy ${policy.policyId ?? policy.index}: version=${policy.policyVersion} source=${policy.sourcePolicyRef} degradedAllowed=${policy.degradedFallbackAllowed}`);
+  }
+  for (const policy of report.trigger.explicitHighRiskPolicy.invalidPolicies.slice(0, 5)) {
+    lines.push(`  - ignored explicit policy ${policy.policyId ?? `event#${policy.index}`}: ${policy.reasons.join('; ')}`);
   }
   for (const round of report.fullQuorum.invalidRounds.slice(0, 5)) {
     lines.push(`  - invalid full round ${round.runId}: ${round.reasons.join('; ')}`);
@@ -436,6 +570,7 @@ export function formatReviewEscalationReport(report: ReviewEscalationReport): st
     `productionDone: ${report.productionDone}`,
     `firstReviewRound: ${report.trigger.firstReviewRound ?? '<missing>'}`,
     `countableProblems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
+    `explicitHighRiskPolicy: ${report.trigger.explicitHighRiskPolicy.required ? 'required' : 'not-required'} (${REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE})`,
     `materialHash: ${report.materialHash ?? '<missing>'}`,
     `fullQuorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds x ${report.fullQuorum.requiredPassingHostsPerRound} hosts`,
     `voluntaryLocalRounds: ${report.voluntaryLocalRounds.validRoundCount}/${report.voluntaryLocalRounds.requiredRounds} rounds x ${report.voluntaryLocalRounds.requiredPassingHostsPerRound} hosts (submitted=${report.voluntaryLocalRounds.submittedRoundCount}, complete=${report.voluntaryLocalRounds.complete})`,
@@ -450,6 +585,13 @@ export function formatReviewEscalationReport(report: ReviewEscalationReport): st
   }
   if (report.degradedFallback.record) {
     lines.push(`fallbackRecord: ${report.degradedFallback.record.valid ? 'valid' : 'invalid'} ${report.degradedFallback.record.fallbackId ?? `event#${report.degradedFallback.record.index}`}`);
+  }
+  if (report.trigger.explicitHighRiskPolicy.validPolicy) {
+    const policy = report.trigger.explicitHighRiskPolicy.validPolicy;
+    lines.push(`explicitPolicy: valid ${policy.policyId ?? `event#${policy.index}`} policyVersion=${policy.policyVersion} rolloutStage=${policy.rolloutStage} degradedAllowed=${policy.degradedFallbackAllowed}`);
+  }
+  for (const policy of report.trigger.explicitHighRiskPolicy.invalidPolicies.slice(0, 5)) {
+    lines.push(`  - ignored explicit policy ${policy.policyId ?? `event#${policy.index}`}: ${policy.reasons.join('; ')}`);
   }
   if (!report.ok && report.required) {
     lines.push('', formatReviewEscalationFailure(report).replace(/^Cannot enter DONE: /, 'Blocked: '));
