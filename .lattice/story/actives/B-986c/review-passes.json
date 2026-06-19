@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-19T23:35:53.732Z",
       "reviewRunId": "B-986c:RR-001",
       "_hash": "c97434294397bd6d58598c75bacdae1eca50712c417c67150735e7ed4ab032bc"
+    },
+    {
+      "id": "B-986c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 7 correctness points verified: isLiteralPath/literalCollisions exclude dir/* and dir/** (tier-1 only); BLOCK_PRECEDENCE.find gives peer-order-independent severity; broadGlobBlocks gates the broad block; peer_contract_unreadable fires on missing contract; fake_dependency_chain absent from BLOCK_PRECEDENCE (never a hard block); cfg.mode never read by gate; gate is pure (no I/O). TERMINAL_PHASES hoist is behavior-preserving. Two low findings filed: orphaned JSDoc in parallel-policy.ts (F-005) and unnecessary async modifier in smoke (F-006). No blockers.",
+      "createdAt": "2026-06-19T23:39:25.307Z",
+      "reviewRound": "2026-06-19T23:35:53.732Z",
+      "reviewRunId": "B-986c:RR-002",
+      "_hash": "28fa656b29154a205182d1c82cca231c9e779843ae625752dced745a516c87a4"
     }
   ]
 }
