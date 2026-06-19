@@ -1061,6 +1061,7 @@ export interface AuthorityGateEvaluatorResolution {
   decision?: AuthorityGateDecision;
   runEventsAck?: AuthorityClientOutcomeKind;
   evidenceAck?: AuthorityClientOutcomeKind;
+  materialOverlapAudit?: MaterialOverlapAuditContract;
 }
 
 function authorityEnvValue(env: Record<string, string | undefined>, name: string): string | undefined {
@@ -2016,6 +2017,7 @@ export async function resolveAuthorityGateEvaluator(
     decision: wiring.decision,
     runEventsAck: wiring.runEventsAck,
     evidenceAck: wiring.evidenceAck,
+    ...(options.materialOverlapAudit ? { materialOverlapAudit: options.materialOverlapAudit } : {}),
   };
 }
 

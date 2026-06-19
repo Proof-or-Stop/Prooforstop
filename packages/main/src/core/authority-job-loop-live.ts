@@ -32,6 +32,7 @@ import {
   type AuthorityConfig,
 } from './authority-mode.js';
 import type { JobReleaseOutcome } from './authority-runner-contracts.js';
+import { buildNoOverlapMaterialOverlapAuditDefault } from './authority-contracts.js';
 import type { PlannerRunMode, PlannerUntilPhase } from './planner.js';
 import {
   executeAutopilot,
@@ -791,6 +792,7 @@ export async function executeAutopilotLive(options: ExecuteAutopilotOptions): Pr
     claimedJob: claim.job,
     ...(gateResolution?.evaluator ? { claimedJobAuthorityGate: gateResolution.evaluator } : {}),
     ...(gateResolution?.decision ? { claimedJobGateDecision: gateResolution.decision } : {}),
+    ...(gateResolution?.materialOverlapAudit ? { claimedJobMaterialOverlapAudit: gateResolution.materialOverlapAudit } : {}),
   });
 
   // Drive the lease to a clean terminal state over the network.
@@ -817,11 +819,13 @@ async function resolveClaimedJobGate(input: {
 }): Promise<AuthorityGateEvaluatorResolution | null> {
   const planned = buildClaimedAuthorityJobPlan(input.job);
   if (!planned.ok) return null;
+  const materialOverlapAudit = buildNoOverlapMaterialOverlapAuditDefault();
   return resolveAuthorityGateEvaluator(planned.jobPlan, {
     env: input.env,
     cwd: input.cwd,
     ...(input.fetchImpl ? { fetchImpl: input.fetchImpl as unknown as AuthorityFetch } : {}),
     ...(input.now ? { now: input.now } : {}),
+    materialOverlapAudit,
   });
 }
 

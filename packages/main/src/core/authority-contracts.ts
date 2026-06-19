@@ -807,6 +807,14 @@ export const MaterialOverlapAuditContractSchema = z.object({
   actualFileOverlaps: z.array(z.string()),
 }).strict();
 
+/** Current CLI/smoke caller-owned default when no material-overlap detector exists. */
+export function buildNoOverlapMaterialOverlapAuditDefault(): MaterialOverlapAuditContract {
+  return {
+    changedFiles: [],
+    actualFileOverlaps: [],
+  };
+}
+
 /** Gate input fields (B15) the client sends to /v1/gates/evaluate. */
 export interface GateEvaluateRequestContract {
   projectId: string;
