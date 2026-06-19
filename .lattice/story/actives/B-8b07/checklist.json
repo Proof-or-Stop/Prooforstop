@@ -12,7 +12,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The resulting roadmap document includes a visible Source And Context Mapping section that inventories all CHK-001 related governance documents and current baseline context, and maps each source to concrete roadmap decisions or sections.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The inventory distinguishes overlapping or potentially conflicting governance concepts such as unattended completion, mid-flight repair, 3-round 2-host escalation, baseline PASS suites, and negative-control BLOCKED suites instead of flattening them into vague citations.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A skeptical reader can trace every major source-derived claim in the new document back to the mapping, with no invented runtime behavior, no direct story or fixture file edits, and no missing required source document from the checklist.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
