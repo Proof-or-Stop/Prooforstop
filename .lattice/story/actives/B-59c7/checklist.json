@@ -71,9 +71,9 @@
       "id": "CHK-002",
       "title": "Add parallelGate field to AuditConfig interface (type only, no resolution logic)",
       "context": "packages/main/src/core/audit-config.ts — add parallelGate: ParallelGateConfig to the AuditConfig interface only; do NOT add resolveAuditConfig handling (that is Story 3). Import the type from parallel-decomposition.ts.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-19T04:05:30.741Z",
       "userSees": "AuditConfig now has a parallelGate: ParallelGateConfig field; tsc compiles; resolveAuditConfig body unchanged.",
       "verificationIntent": {
         "happy": [
